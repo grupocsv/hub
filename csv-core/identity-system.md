@@ -44,5 +44,12 @@ O sistema utiliza uma abordagem "Swiss Modern" com foco em legibilidade e hierar
 
 ## 4. Wallpapers e Fundos
 Os wallpapers oficiais estão localizados em `/assets/identity/wallpapers/`.
-- `csv_ecosystem_wallpaper_final3.png`: Uso preferencial em telas de login e apresentações "Hero".
-- `videocall_4k.png`: Fundo oficial para reuniões virtuais.
+
+| Arquivo Canônico | Uso Recomendado |
+| :--- | :--- |
+| `wallpaper-ecosystem-hero.png` | Telas de login, capas de apresentação (Hero). |
+| `background-videocall-default.png` | Fundo oficial para reuniões virtuais. |
+| `wallpaper-ecosystem-ultrawide.png` | Monitores ultrawide, banners largos. |
+| `wallpaper-brand-dark.png` | Fundos de aplicações em Dark Mode. |
+| `wallpaper-brand-light.png` | Fundos de aplicações em Light Mode. |
+| `wallpaper-thera-hero.png` | Específico para produtos TheraTech. |
