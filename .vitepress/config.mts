@@ -7,20 +7,22 @@ export default defineConfig({
   cleanUrls: true,
   
   head: [
-    ['link', { rel: 'icon', href: '/assets/identity/thera/logo-vertical-positive.png' }], // Placeholder icon
+    ['link', { rel: 'icon', href: '/logo.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap', rel: 'stylesheet' }]
   ],
 
   themeConfig: {
-    logo: { text: 'Grupo CSV | Hub' },
-    siteTitle: false, // Usando texto customizado no logo
+    logo: { src: '/logo.png', alt: 'Grupo CSV' },
+    siteTitle: false,
 
     nav: [
       { text: 'AxiaCare', link: '/axiacare/mandate' },
       { text: 'MedValor', link: '/medvalor/mandate' },
       { text: 'TheraTech', link: '/thera/mandate' },
+      { text: 'Assets', link: '/csv-core/assets' },
+      { text: 'Founder', link: '/csv-core/founder' },
       { text: 'Compliance', link: '/csv-core/compliance/index' },
     ],
 
@@ -56,6 +58,8 @@ export default defineConfig({
           items: [
             { text: 'Definição Canônica', link: '/csv-core/definition' },
             { text: 'Sistema de Identidade', link: '/csv-core/identity-system' },
+            { text: 'Central de Assets', link: '/csv-core/assets' },
+            { text: 'Founder Profile', link: '/csv-core/founder' },
           ]
         },
         {
@@ -71,7 +75,8 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/grupocsv/hub' }
+      { icon: 'github', link: 'https://github.com/grupocsv/hub' },
+      { icon: 'linkedin', link: 'https://www.linkedin.com/in/guilhermethome/' }
     ],
 
     footer: {
