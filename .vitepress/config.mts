@@ -7,14 +7,14 @@ export default defineConfig({
   cleanUrls: true,
   
   head: [
-    ['link', { rel: 'icon', href: '/logo.png' }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap', rel: 'stylesheet' }]
   ],
 
   themeConfig: {
-    logo: { src: '/logo.png', alt: 'Grupo CSV' },
+    logo: { src: '/csv-header-logo.png', alt: 'Grupo CSV' },
     siteTitle: false,
 
     nav: [

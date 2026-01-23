@@ -157,3 +157,14 @@ h3 { font-size: 1.25rem; }
   padding: 48px 0;
   margin-top: 64px;
 }
+
+/* Logo Adjustment */
+.VPNavBarTitle .logo {
+  height: 40px !important;
+  width: auto !important;
+}
+
+.VPNavBarTitle .logo img {
+  height: 100% !important;
+  width: auto !important;
+}

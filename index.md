@@ -20,18 +20,24 @@ features:
     icon:
       src: /axia-logo.jpg
       alt: AxiaCare Logo
+      width: 80
+      height: 80
   - title: MedValor®
     details: Formação de lideranças, cultura organizacional e ensino híbrido.
     link: /medvalor/mandate
     icon:
       src: /medvalor-logo.jpg
       alt: MedValor Logo
+      width: 80
+      height: 80
   - title: TheraTech®
     details: Fábrica de software, inteligência artificial e plataformas SaaS.
     link: /thera/mandate
     icon:
       src: /thera-logo.jpg
       alt: TheraTech Logo
+      width: 80
+      height: 80
 ---
 
 <div class="container" style="margin-top: 64px; text-align: center;">
