@@ -56,6 +56,7 @@ export default defineConfig({
         {
           text: 'Núcleo Estratégico',
           items: [
+            { text: 'Playbook do Hub', link: '/csv-core/playbook-hub' },
             { text: 'Definição Canônica', link: '/csv-core/definition' },
             { text: 'Sistema de Identidade', link: '/csv-core/identity-system' },
             { text: 'Central de Assets', link: '/csv-core/assets' },

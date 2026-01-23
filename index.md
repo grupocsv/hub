@@ -17,15 +17,21 @@ features:
   - title: AxiaCare®
     details: Consultoria estratégica, governança clínica e operações de saúde.
     link: /axiacare/mandate
-    icon: 🏥
+    icon:
+      src: /axia-logo.jpg
+      alt: AxiaCare Logo
   - title: MedValor®
     details: Formação de lideranças, cultura organizacional e ensino híbrido.
     link: /medvalor/mandate
-    icon: 🎓
+    icon:
+      src: /medvalor-logo.jpg
+      alt: MedValor Logo
   - title: TheraTech®
     details: Fábrica de software, inteligência artificial e plataformas SaaS.
     link: /thera/mandate
-    icon: 💻
+    icon:
+      src: /thera-logo.jpg
+      alt: TheraTech Logo
 ---
 
 <div class="container" style="margin-top: 64px; text-align: center;">
