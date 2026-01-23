@@ -10,22 +10,16 @@ Para baixar um arquivo, clique com o botão direito na imagem e selecione "Salva
 
 | Versão | Preview |
 | :--- | :--- |
-| **Logo Horizontal (Positivo)** | ![Logo CSV](/logo.png) |
+| **Logo Horizontal (Positivo)** | ![Logo CSV](/csv-header-logo.png) |
+| **Símbolo (Quadrado)** | ![Símbolo CSV](/csv-logo.png) |
 
-## TheraTech®
+## Empresas do Ecossistema
 
-| Versão | Preview |
+| Empresa | Logo |
 | :--- | :--- |
-| **Logo Horizontal (Positivo)** | ![Thera Logo](/assets/identity/thera/logo-horizontal-positive.png) |
-| **Logo Vertical (Positivo)** | ![Thera Logo Vertical](/assets/identity/thera/logo-vertical-positive.png) |
-
-## Wallpapers Corporativos
-
-| Nome | Preview |
-| :--- | :--- |
-| **Ecosystem Hero** | ![Wallpaper Hero](/assets/identity/wallpapers/wallpaper-ecosystem-hero.png) |
-| **Brand Dark** | ![Wallpaper Dark](/assets/identity/wallpapers/wallpaper-brand-dark.png) |
-| **Brand Light** | ![Wallpaper Light](/assets/identity/wallpapers/wallpaper-brand-light.png) |
+| **AxiaCare®** | ![AxiaCare Logo](/axia-logo.jpg) |
+| **MedValor®** | ![MedValor Logo](/medvalor-logo.jpg) |
+| **TheraTech®** | ![TheraTech Logo](/thera-logo.jpg) |
 
 ---
 
