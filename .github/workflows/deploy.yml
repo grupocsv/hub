@@ -1,0 +1,75 @@
+name: Deploy VitePress site to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build with VitePress
+        run: npm run docs:build
+
+      - name: Copy static folders to dist
+        run: |
+          # Copy module folders
+          cp -r axia docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r medvalor docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r thera docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r unimed docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r unihealth docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r compliance docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r founder docs/.vitepress/dist/ 2>/dev/null || true
+          cp -r _infra docs/.vitepress/dist/ 2>/dev/null || true
+
+          # Copy assets
+          cp -r assets docs/.vitepress/dist/ 2>/dev/null || true
+
+          # Copy root files
+          cp CNAME docs/.vitepress/dist/ 2>/dev/null || true
+          cp site.webmanifest docs/.vitepress/dist/ 2>/dev/null || true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

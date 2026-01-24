@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guilherme Thomé | Fundador Grupo CSV</title>
+  <meta name="description" content="Guilherme Thomé - Médico Executivo e Consultor | Fundador do Grupo CSV (AxiaCare®, MedValor®, Thera®)">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Guilherme Thomé | Fundador Grupo CSV">
+  <meta property="og:description" content="Médico Executivo e Consultor | Especialista em Value-Based Healthcare">
+  <meta property="og:image" content="https://i.imgur.com/TKziJpD.png">
+  <meta property="og:url" content="https://hub.grupocsv.com/founder/">
+  <meta property="og:type" content="profile">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e3a5f 0%, #196396 50%, #2DBF7F 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 50px 40px;
+      max-width: 700px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .bio {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      opacity: 0.85;
+      margin-bottom: 35px;
+      text-align: left;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .link-card:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+    }
+
+    .link-icon {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    .link-info {
+      text-align: left;
+    }
+
+    .link-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .link-desc {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .contact-section {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .contact-section h3 {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      opacity: 0.9;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .contact-item a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .contact-item a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 14px 28px;
+      background: white;
+      color: #196396;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/7wYpSaD.png" alt="Guilherme Thomé" class="profile-img">
+    <h1>Guilherme Thomé</h1>
+    <p class="title">
+      Médico Executivo e Consultor | Especialista em VBHC<br>
+      Superintendente Unimed/ICDS | Fundador Grupo CSV
+    </p>
+
+    <p class="bio">
+      Com mais de 15 anos de experiência em gestão de organizações de saúde, atuo na interseção
+      entre estratégia, governança clínica e inovação. Fundei o Grupo CSV para transformar a
+      forma como cuidamos da saúde, através das empresas AxiaCare® (consultoria), MedValor®
+      (educação) e Thera® (tecnologia).
+    </p>
+
+    <div class="links-grid">
+      <a href="https://hub.guithome.com.br/cv.html" class="link-card" target="_blank">
+        <div class="link-icon">📄</div>
+        <div class="link-info">
+          <div class="link-title">Currículo Digital</div>
+          <div class="link-desc">CV interativo completo</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/in/gui-thome" class="link-card" target="_blank">
+        <div class="link-icon">💼</div>
+        <div class="link-info">
+          <div class="link-title">LinkedIn</div>
+          <div class="link-desc">Perfil profissional</div>
+        </div>
+      </a>
+
+      <a href="https://guithome.com.br" class="link-card" target="_blank">
+        <div class="link-icon">🌐</div>
+        <div class="link-info">
+          <div class="link-title">Site Oficial</div>
+          <div class="link-desc">guithome.com.br</div>
+        </div>
+      </a>
+
+      <a href="https://blog.guithome.com.br" class="link-card" target="_blank">
+        <div class="link-icon">📝</div>
+        <div class="link-info">
+          <div class="link-title">Blog</div>
+          <div class="link-desc">Artigos e reflexões</div>
+        </div>
+      </a>
+
+      <a href="https://link.guithome.com.br" class="link-card" target="_blank">
+        <div class="link-icon">🔗</div>
+        <div class="link-info">
+          <div class="link-title">Links</div>
+          <div class="link-desc">Todos os links</div>
+        </div>
+      </a>
+
+      <a href="https://hub.guithome.com.br/privacidade.html" class="link-card" target="_blank">
+        <div class="link-icon">🔒</div>
+        <div class="link-info">
+          <div class="link-title">Privacidade</div>
+          <div class="link-desc">Política @guithome</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="contact-section">
+      <h3>Contato</h3>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <span>📧</span>
+          <a href="mailto:guilherme@guithome.com.br">guilherme@guithome.com.br</a>
+        </div>
+        <div class="contact-item">
+          <span>🏢</span>
+          <a href="mailto:guilherme@axcare.com.br">guilherme@axcare.com.br</a>
+        </div>
+        <div class="contact-item">
+          <span>🎓</span>
+          <a href="mailto:guilherme@medvalor.com.br">guilherme@medvalor.com.br</a>
+        </div>
+      </div>
+    </div>
+
+    <a href="/" class="btn-back">← Voltar ao Hub CSV</a>
+  </div>
+
+  <div class="footer">
+    <p>Grupo CSV | AxiaCare® • MedValor® • Thera® | <a href="/compliance/" style="color: white;">Compliance</a></p>
+  </div>
+</body>
+</html>
