@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Estratégica Medicamentos Oncológicos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {font-family: Verdana, sans-serif; background-color: #f2f2f2; color: #333; display: flex; justify-content: center; padding: 20px; margin: 0;}
+        .container {max-width: 600px; background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        h1, h2, h3 {color: #004E4C;}
+        h1 {text-align: center; border-bottom: 3px solid #004E4C; padding-bottom: 10px;}
+        ul, ol {margin-left: 20px;}
+        .insight {border-left: 5px solid #004E4C; padding-left: 15px; margin-bottom: 25px; background-color: #f7fbf9;}
+        .highlight {color: #005522; font-weight: bold;}
+        .chart {text-align: center; margin: 20px 0;}
+        .footer {font-size: 12px; text-align: center; color: #777; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px;}
+        .input-box {margin-top: 20px; text-align: center;}
+        textarea {width: 90%; height: 80px; padding: 10px; border-radius: 4px; border: 1px solid #ccc;}
+        .btn-email {background-color: #004E4C; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;}
+        .title-name, .title-position, .title-company {text-align:right;}
+        .title-name {color: #004E4C; font-size: 16px;}
+        .title-position {color: #aaa; font-size: 12px;}
+        .title-company {color: #004E4C; font-size: 14px;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Análise Estratégica de Medicamentos Oncológicos</h1>
+    <p class="title-name"><strong>Guilherme Thomé</strong></p>
+    <p class="title-position">Superintendente Médico | Líder VMO</p>
+    <p class="title-company">Unimed Governador Valadares</p>
+
+    <h2>Contextualização Inicial</h2>
+    <p>A análise inicial foi realizada com base em <span class="highlight">100 princípios ativos</span> dos medicamentos oncológicos sugeridos. Os medicamentos foram agrupados por <span class="highlight">subclasse terapêutica</span>, reunindo medicamentos semelhantes quanto ao mecanismo de ação, farmacologia e indicações clínicas específicas. Esta análise fornece uma base sólida para decisões estratégicas.</p>
+
+    <div class="chart">
+        <canvas id="chartDistribuicao"></canvas>
+        <small>Eixo vertical representa o custo médio unitário dos medicamentos.</small>
+    </div>
+
+    <h3>Sobre o Custo Médio Unitário</h3>
+    <p>O <span class="highlight">custo médio unitário</span> refere-se ao valor médio por unidade de medicamento dentro de cada subclasse. Este indicador é estratégico pois destaca subclasses com potencial impacto financeiro significativo mesmo com baixo volume de uso.</p>
+
+    <h2>Insights Estratégicos para Ação</h2>
+
+    <div class="insight">
+        <h3>1. Sensibilidade Financeira e Poder de Negociação</h3>
+        <p><strong>Princípio:</strong> Medicamentos de alto custo unitário têm grande impacto financeiro mesmo com baixo uso.</p>
+        <p><strong>Ação prática combinada:</strong> Classificação estratégica dos medicamentos:</p>
+        <ul>
+            <li><strong>Críticos:</strong> Bevacizumabe, Pembrolizumabe</li>
+            <li><strong>Moderados:</strong> Trastuzumabe, Rituximabe</li>
+            <li><strong>Baixo Impacto:</strong> Filgrastim, Pegfilgrastim</li>
+        </ul>
+        <p>Priorizar negociação e aquisições estratégicas antecipadas.</p>
+        <p><strong>Resultado esperado:</strong> Economia expressiva imediata.</p>
+    </div>
+
+    <div class="chart"><canvas id="chartInsight1"></canvas></div>
+
+    <div class="insight">
+        <h3>2. Potencial de Otimização Terapêutica</h3>
+        <p><strong>Princípio:</strong> Medicamentos caros têm alternativas eficazes econômicas pouco utilizadas.</p>
+        <p><strong>Ação prática:</strong> Identificar subclasses com grande variação de custo, realizar campanhas e protocolos internos para promover medicamentos mais econômicos.</p>
+        <p><strong>Exemplos:</strong> Substituir Pembrolizumabe por alternativas eficazes em casos selecionados.</p>
+        <p><strong>Resultado esperado:</strong> Redução sustentável dos custos sem perda assistencial.</p>
+    </div>
+
+    <div class="chart"><canvas id="chartInsight2"></canvas></div>
+
+    <div class="insight">
+        <h3>3. Análise Estratégica (Curva ABC Simplificada)</h3>
+        <p><strong>Princípio:</strong> Aplicação do princípio de Pareto para classificar medicamentos por prioridade.</p>
+        <ul>
+            <li><strong>Grupo A:</strong> Bevacizumabe, Pembrolizumabe</li>
+            <li><strong>Grupo B:</strong> Trastuzumabe, Rituximabe</li>
+            <li><strong>Grupo C:</strong> Filgrastim, Pegfilgrastim</li>
+        </ul>
+        <p><strong>Ações:</strong> Controle intensivo do grupo A, revisão periódica do B, gestão simplificada do C.</p>
+        <p><strong>Resultado esperado:</strong> Otimização imediata dos recursos.</p>
+    </div>
+
+    <div class="chart"><canvas id="chartInsight3"></canvas></div>
+
+    <div class="footer">
+        <p>Relatório elaborado por Guilherme Thomé - Superintendente Médico - Líder VMO - Unimed Governador Valadares, Abril de 2025.</p>
+    </div>
+</div>
+
+<script>
+new Chart(document.getElementById('chartDistribuicao'), {type:'bar',data:{labels:['Anticorpos','Hormônios','Diferenciadores','Tirosina Quinase','Proteassoma'],datasets:[{data:[2903,1244,456,212,77],backgroundColor:['#00995d','#8baf1f','#004e4c','#f47920','#903189']}]},options:{plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('chartInsight1'), {type:'pie',data:{labels:['Críticos','Moderados','Baixo Impacto'],datasets:[{data:[40,35,25],backgroundColor:['#004E4C','#8baf1f','#f2c51d']}]}});
+new Chart(document.getElementById('chartInsight2'), {type:'bar',data:{labels:['Alto Custo','Alternativas Econômicas'],datasets:[{data:[3000,1500],backgroundColor:['#004E4C','#8baf1f']}]}});
+new Chart(document.getElementById('chartInsight3'), {type:'doughnut',data:{labels:['Grupo A','Grupo B','Grupo C'],datasets:[{data:[20,30,50],backgroundColor:['#004E4C','#8baf1f','#f2c51d']}]}});
+</script>
+</body>
+</html>

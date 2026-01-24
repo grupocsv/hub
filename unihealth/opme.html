@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adequações no Fluxo de Utilização OPME - Corpo Clínico</title>
+    <style>
+        body {
+            font-family: Verdana, sans-serif;
+            background-color: #013d19;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+        h1, h2, h3 {
+            color: #013d19;
+        }
+        h1 {
+            font-size: 20px;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 18px;
+            border-bottom: 2px solid #ec7106;
+            padding-bottom: 5px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        ul li::marker {
+            color: #ec7106;
+        }
+        .highlight {
+            color: #ec7106;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #ec7106;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #013d19;
+        }
+        .logo img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+            box-sizing: border-box;
+            font-family: Verdana, sans-serif;
+        }
+    </style>
+    <script>
+        function sendFeedback() {
+            var feedback = document.getElementById("feedbackText").value;
+            var subject = encodeURIComponent("Feedback Plano Ação OPME - Unihealth GV");
+            var body = encodeURIComponent(feedback);
+            window.location.href = "mailto:guilherme.thome@unihealthgv.org.br?subject=" + subject + "&body=" + body;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.imgur.com/Jk8AWJS.png" alt="Logo Unihealth">
+        </div>
+
+        <h1>Adequações no Fluxo de Utilização OPME - Corpo Clínico</h1>
+        <p><em>Hospital Unihealth – Comitê de Gestão Assistencial e Operacional Integrado</em></p>
+
+        <h2>Contexto e Importância do Médico</h2>
+        <p>Frente ao cenário desafiador das negociações contratuais com fornecedores de OPMEs, sua participação ativa torna-se essencial para garantir resultados positivos. Você, médico, é fundamental para assegurar que nossos pacientes recebam o melhor cuidado, de maneira ética e economicamente sustentável.</p>
+
+        <h2>Objetivo Conjunto</h2>
+        <p>Trabalharmos juntos na garantia da estabilidade clínica e operacional, alinhando governança assistencial e segurança dos nossos pacientes, sustentando a excelência na assistência prestada.</p>
+
+        <h2>Passos Estratégicos e Seu Papel</h2>
+
+        <h3>1. Eixo Operacional</h3>
+        <p>Garantir negociações firmes e transparentes, buscando equilíbrio econômico e qualidade assistencial. Sua colaboração na identificação de pontos críticos é muito valiosa. Sua comunicação direta com a Diretoria é essencial para que possamos resolver rapidamente e de maneira eficaz quaisquer dificuldades no Centro Cirúrgico e demais áreas que utilizam OPME.</p>
+
+        <h3>2. Eixo Assistencial</h3>
+        <p>Este eixo é crucial para envolver diretamente você, profissional médico, em três fases:</p>
+
+        <ul>
+            <li><strong>Fase 1:</strong> Garantia técnica da pertinência das prescrições (sua atuação baseada em evidências é fundamental).</li>
+            <li><strong>Fase 2:</strong> Sua participação nas reuniões presenciais será essencial para construir uma narrativa clara e ética.</li>
+            <li><strong>Fase 3:</strong> Apoio direto da liderança médica no centro cirúrgico para resolver rapidamente eventuais intercorrências.</li>
+        </ul>
+
+        <h2>Sugestões de Implementação Prática</h2>
+
+        <ul>
+            <li class="highlight">Criação da Comissão Médica de OPME para avaliação contínua e participativa das decisões relacionadas às OPMEs.</li>
+            <li class="highlight">Criação de um canal direto de feedback médico via QR Code no centro cirúrgico, proporcionando comunicação rápida e eficaz sobre eventos relacionados às OPMEs.</li>
+        </ul>
+
+        <h2>Indicadores para Avaliarmos Juntos</h2>
+        <ul>
+            <li>Redução significativa de intercorrências relacionadas às OPMEs;</li>
+            <li>Ausência de cancelamentos cirúrgicos associados às negociações contratuais;</li>
+            <li>Acompanhamento ativo e aceitação formal do plano por parte do corpo clínico.</li>
+        </ul>
+
+        <h2>Considerações Finais</h2>
+        <p>Este plano é uma oportunidade para fortalecermos juntos a governança clínica e a sustentabilidade financeira da nossa instituição. A participação ativa e o diálogo aberto são fundamentais. Contamos com você!</p>
+
+        <textarea id="feedbackText" placeholder="Envie sugestões e comentários"></textarea>
+        <button class="btn" onclick="sendFeedback()">Enviar feedback por e-mail</button>
+    </div>
+</body>
+</html>

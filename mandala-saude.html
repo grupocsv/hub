@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandala de Cuidado em Saúde</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7f9fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .mandala-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        /* Círculo central - Paciente */
+        .circle-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #1f2933;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        /* Anel interno com os segmentos */
+        .segments-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+        }
+
+        .segment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        /* Segmento Acompanhamento (120° à esquerda/superior) */
+        .segment-acompanhamento {
+            background: #E5F1FB;
+            clip-path: polygon(50% 50%, 0% 50%, 6.7% 25%, 25% 6.7%, 50% 0%, 50% 50%);
+        }
+
+        /* Segmento Atendimento (120° à direita/superior) */
+        .segment-atendimento {
+            background: #CDEFF7;
+            clip-path: polygon(50% 50%, 50% 0%, 75% 6.7%, 93.3% 25%, 100% 50%, 50% 50%);
+        }
+
+        /* Segmento Acesso (120° inferior) */
+        .segment-acesso {
+            background: #E7F6EC;
+            clip-path: polygon(50% 50%, 100% 50%, 93.3% 75%, 75% 93.3%, 50% 100%, 25% 93.3%, 6.7% 75%, 0% 50%, 50% 50%);
+        }
+
+        /* Labels dos segmentos */
+        .segment-label {
+            position: absolute;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #1f2933;
+        }
+
+        .label-acompanhamento {
+            top: 28%;
+            left: 15%;
+            transform: rotate(-30deg);
+        }
+
+        .label-atendimento {
+            top: 28%;
+            right: 15%;
+            transform: rotate(30deg);
+        }
+
+        .label-acesso {
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Touchpoints externos */
+        .touchpoint {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #3e4c59;
+            font-weight: 500;
+            max-width: 180px;
+        }
+
+        .touchpoint-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+
+        /* Ícones por grupo */
+        .icon-acompanhamento {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .icon-atendimento {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .icon-acesso {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Posicionamento dos touchpoints - Grupo Acompanhamento (esquerda) */
+        .tp-telemonitoramento {
+            top: 12%;
+            left: 2%;
+        }
+
+        .tp-coleta-dados {
+            top: 28%;
+            left: -2%;
+        }
+
+        .tp-assistente {
+            top: 44%;
+            left: 0%;
+        }
+
+        .tp-sinalizacao {
+            top: 60%;
+            left: 3%;
+        }
+
+        /* Posicionamento dos touchpoints - Grupo Atendimento (direita) */
+        .tp-ambulatorial {
+            top: 12%;
+            right: 2%;
+            text-align: right;
+            flex-direction: row-reverse;
+        }
+
+        .tp-especialistas {
+            top: 28%;
+            right: -2%;
+            text-align: right;
+            flex-direction: row-reverse;
+        }
+
+        .tp-teleconsulta {
+            top: 44%;
+            right: 0%;
+            text-align: right;
+            flex-direction: row-reverse;
+        }
+
+        /* Posicionamento dos touchpoints - Grupo Acesso (inferior) */
+        .tp-autorizacao {
+            bottom: 8%;
+            left: 8%;
+        }
+
+        .tp-abastecimento {
+            bottom: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tp-entrega {
+            bottom: 8%;
+            right: 8%;
+            text-align: right;
+            flex-direction: row-reverse;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .mandala-container {
+                transform: scale(0.75);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mandala-container {
+                transform: scale(0.55);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mandala-container">
+        <!-- Anel de segmentos -->
+        <div class="segments-ring">
+            <div class="segment segment-acompanhamento"></div>
+            <div class="segment segment-atendimento"></div>
+            <div class="segment segment-acesso"></div>
+
+            <!-- Labels dos segmentos -->
+            <div class="segment-label label-acompanhamento">Acompanhamento</div>
+            <div class="segment-label label-atendimento">Atendimento</div>
+            <div class="segment-label label-acesso">Acesso</div>
+        </div>
+
+        <!-- Círculo central -->
+        <div class="circle-center">Paciente</div>
+
+        <!-- Touchpoints - Grupo Acompanhamento -->
+        <div class="touchpoint tp-telemonitoramento">
+            <div class="touchpoint-icon icon-acompanhamento">📱</div>
+            <span>Telemonitoramento</span>
+        </div>
+
+        <div class="touchpoint tp-coleta-dados">
+            <div class="touchpoint-icon icon-acompanhamento">📊</div>
+            <span>Coleta de dados</span>
+        </div>
+
+        <div class="touchpoint tp-assistente">
+            <div class="touchpoint-icon icon-acompanhamento">🧭</div>
+            <span>Assistente pessoal (navegação)</span>
+        </div>
+
+        <div class="touchpoint tp-sinalizacao">
+            <div class="touchpoint-icon icon-acompanhamento">🔔</div>
+            <span>Sinalização de consumo/abastecimento</span>
+        </div>
+
+        <!-- Touchpoints - Grupo Atendimento -->
+        <div class="touchpoint tp-ambulatorial">
+            <div class="touchpoint-icon icon-atendimento">🏥</div>
+            <span>Atendimento ambulatorial/hospitalar</span>
+        </div>
+
+        <div class="touchpoint tp-especialistas">
+            <div class="touchpoint-icon icon-atendimento">👨‍⚕️</div>
+            <span>Consulta com especialistas</span>
+        </div>
+
+        <div class="touchpoint tp-teleconsulta">
+            <div class="touchpoint-icon icon-atendimento">💻</div>
+            <span>Teleconsulta</span>
+        </div>
+
+        <!-- Touchpoints - Grupo Acesso -->
+        <div class="touchpoint tp-autorizacao">
+            <div class="touchpoint-icon icon-acesso">✓</div>
+            <span>Autorização</span>
+        </div>
+
+        <div class="touchpoint tp-abastecimento">
+            <div class="touchpoint-icon icon-acesso">📦</div>
+            <span>Abastecimento</span>
+        </div>
+
+        <div class="touchpoint tp-entrega">
+            <div class="touchpoint-icon icon-acesso">🚚</div>
+            <span>Entrega de medicamentos</span>
+        </div>
+    </div>
+</body>
+</html>

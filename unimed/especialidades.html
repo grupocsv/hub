@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Variabilidade Assistencial por Especialidade | Unimed GV</title>
+  <meta name="description" content="Dashboard executivo de análise de variabilidade assistencial por especialidade médica">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    :root {
+      --verde1: #00995D;
+      --verde2: #8BAF1F;
+      --verde3: #004E4C;
+      --laranja: #F47920;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+    input[type="range"] { -webkit-appearance: none; height: 6px; background: #E5E7EB; border-radius: 3px; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--verde1); border-radius: 50%; cursor: pointer; }
+    select:focus, input:focus { outline: none; box-shadow: 0 0 0 2px rgba(0,153,93,0.2); }
+  
+    .logo-unimed { max-width: 180px; height: auto; }
+    .selo-evs { max-width: 110px; height: auto; }
+    @media (max-width: 640px) {
+      .logo-unimed { max-width: 140px; }
+      .selo-evs { max-width: 85px; }
+    }
+
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div id="root"></div>
+  
+  <script type="text/javascript">
+    // ============================================================
+    // DADOS CONFERIDOS - 108 prestadores, 97.988 consultas, R$ 21,76M
+    // ============================================================
+    const DADOS_ESPECIALIDADES = {
+      "gastro": {
+            "nome": "Gastroenterologia",
+            "periodo": "Janeiro a Outubro 2025",
+            "data": [
+                  {
+                        "nome": "MARCO ALIPIO RIBEIRO JUNIOR",
+                        "nome_curto": "MARCO J.",
+                        "consultas": 2500,
+                        "custo_medio": 86.47,
+                        "driver": 2500,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LUCIANO ANDREY FERREIRA BICALHO",
+                        "nome_curto": "LUCIANO B.",
+                        "consultas": 2044,
+                        "custo_medio": 86.85,
+                        "driver": 2044,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FABIO JOSE MORAIS RAMOS",
+                        "nome_curto": "FABIO R.",
+                        "consultas": 1935,
+                        "custo_medio": 86.87,
+                        "driver": 1935,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ROMULO CESAR LEITE COELHO",
+                        "nome_curto": "ROMULO C.",
+                        "consultas": 1619,
+                        "custo_medio": 86.93,
+                        "driver": 1619,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "PAULO ROBERTO RODRIGUES BICALHO",
+                        "nome_curto": "PAULO B.",
+                        "consultas": 1024,
+                        "custo_medio": 86.9,
+                        "driver": 1024,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCELO ARIMATEIA ESTEVES GUEDES",
+                        "nome_curto": "MARCELO G.",
+                        "consultas": 947,
+                        "custo_medio": 86.68,
+                        "driver": 947,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ARTHUR ROSADO DE QUEIROZ",
+                        "nome_curto": "ARTHUR Q.",
+                        "consultas": 787,
+                        "custo_medio": 87.23,
+                        "driver": 787,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "SARAH DIAS MIRANDA",
+                        "nome_curto": "SARAH M.",
+                        "consultas": 774,
+                        "custo_medio": 86.55,
+                        "driver": 774,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FABRICIO MUNHEN FERREIRA",
+                        "nome_curto": "FABRICIO F.",
+                        "consultas": 706,
+                        "custo_medio": 86.61,
+                        "driver": 706,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "SILLAS MOURAO PINTO",
+                        "nome_curto": "SILLAS P.",
+                        "consultas": 577,
+                        "custo_medio": 86.9,
+                        "driver": 577,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ALVARO CARVALHO SALGADO",
+                        "nome_curto": "ALVARO S.",
+                        "consultas": 518,
+                        "custo_medio": 87.1,
+                        "driver": 518,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCUS FLAVIO CARVALHO CARVALHO",
+                        "nome_curto": "MARCUS C.",
+                        "consultas": 420,
+                        "custo_medio": 87.46,
+                        "driver": 420,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOAO LUIS OLIVEIRA GUSMAO DE ANDRADE",
+                        "nome_curto": "JOAO A.",
+                        "consultas": 333,
+                        "custo_medio": 86.38,
+                        "driver": 333,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "POLIBIO GUEDES FERREIRA LOPES",
+                        "nome_curto": "POLIBIO L.",
+                        "consultas": 290,
+                        "custo_medio": 87.18,
+                        "driver": 290,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CHARLES FRANCA CHAVES",
+                        "nome_curto": "CHARLES C.",
+                        "consultas": 97,
+                        "custo_medio": 86.32,
+                        "driver": 97,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CARLOS EDUARDO GUERRA VILAS",
+                        "nome_curto": "CARLOS V.",
+                        "consultas": 89,
+                        "custo_medio": 86.64,
+                        "driver": 89,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCO VINICIUS VIEIRA FILHO",
+                        "nome_curto": "MARCO F.",
+                        "consultas": 70,
+                        "custo_medio": 86.13,
+                        "driver": 70,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "NIRLEY DE PINHO TAVARES",
+                        "nome_curto": "NIRLEY T.",
+                        "consultas": 1,
+                        "custo_medio": 85.0,
+                        "driver": 1,
+                        "clinica": "Independente"
+                  }
+            ],
+            "tem_clinica": false,
+            "driver_label": "Consultas",
+            "driver_prefix": ""
+      },
+      "gineco": {
+            "nome": "Ginecologia",
+            "periodo": "Janeiro a Outubro 2025",
+            "data": [
+                  {
+                        "nome": "POLIANA DE ASSIS FARAJ",
+                        "nome_curto": "POLIANA F.",
+                        "consultas": 1586,
+                        "custo_medio": 104.38,
+                        "driver": 1586,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "HOMERO AFONSO DE MAGALHAES",
+                        "nome_curto": "HOMERO M.",
+                        "consultas": 1556,
+                        "custo_medio": 104.97,
+                        "driver": 1556,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LUIS EDUARDO GONCALVES RIBEIRO",
+                        "nome_curto": "LUIS R.",
+                        "consultas": 1481,
+                        "custo_medio": 104.9,
+                        "driver": 1481,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARIA DE FATIMA LOPES DOS SANTOS",
+                        "nome_curto": "MARIA S.",
+                        "consultas": 1389,
+                        "custo_medio": 104.91,
+                        "driver": 1389,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "PAULO ALMEIDA CAMPOS",
+                        "nome_curto": "PAULO C.",
+                        "consultas": 1390,
+                        "custo_medio": 104.18,
+                        "driver": 1390,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "NATALIA DE ANDRADE MACHADO",
+                        "nome_curto": "NATALIA M.",
+                        "consultas": 1234,
+                        "custo_medio": 104.87,
+                        "driver": 1234,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LINDOLFO HENRIQUE STRAPPA MARTINS",
+                        "nome_curto": "LINDOLFO M.",
+                        "consultas": 1190,
+                        "custo_medio": 105.08,
+                        "driver": 1190,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "GRIMALDO SILVA DE PAULA",
+                        "nome_curto": "GRIMALDO P.",
+                        "consultas": 1155,
+                        "custo_medio": 105.52,
+                        "driver": 1155,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ROBERTO CARLOS MACHADO",
+                        "nome_curto": "ROBERTO M.",
+                        "consultas": 1048,
+                        "custo_medio": 104.58,
+                        "driver": 1048,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "THAIS BOLDRIM SANTOS DE FREITAS LIMA PIRES",
+                        "nome_curto": "THAIS P.",
+                        "consultas": 904,
+                        "custo_medio": 104.1,
+                        "driver": 904,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RIMACK ANTONIO ROSA ALMEIDA",
+                        "nome_curto": "RIMACK A.",
+                        "consultas": 856,
+                        "custo_medio": 104.77,
+                        "driver": 856,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "GUILHERME VITOI ROSA NOMINATO",
+                        "nome_curto": "GUILHERME N.",
+                        "consultas": 770,
+                        "custo_medio": 104.73,
+                        "driver": 770,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ARTHUR ANDRADE ALVES",
+                        "nome_curto": "ARTHUR A.",
+                        "consultas": 717,
+                        "custo_medio": 104.73,
+                        "driver": 717,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "EDVANA MARIA CLARA FLORENCIO",
+                        "nome_curto": "EDVANA F.",
+                        "consultas": 611,
+                        "custo_medio": 103.88,
+                        "driver": 611,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "YASMIN DIAS NETTO ALVES GUEDES",
+                        "nome_curto": "YASMIN G.",
+                        "consultas": 590,
+                        "custo_medio": 105.16,
+                        "driver": 590,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JESSICA LEARDINI ZAMBONI",
+                        "nome_curto": "JESSICA Z.",
+                        "consultas": 581,
+                        "custo_medio": 105.94,
+                        "driver": 581,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FERNANDA DE ASSIS VIEIRA",
+                        "nome_curto": "FERNANDA V.",
+                        "consultas": 574,
+                        "custo_medio": 104.6,
+                        "driver": 574,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "VITOR BASTOS JARDIM",
+                        "nome_curto": "VITOR J.",
+                        "consultas": 551,
+                        "custo_medio": 104.52,
+                        "driver": 551,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CRISLENE MENDONCA QUEIROZ FEITOSA",
+                        "nome_curto": "CRISLENE F.",
+                        "consultas": 541,
+                        "custo_medio": 105.79,
+                        "driver": 541,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "YASMIN MARIA MOURA BATISTA PEREIRA",
+                        "nome_curto": "YASMIN P.",
+                        "consultas": 528,
+                        "custo_medio": 103.98,
+                        "driver": 528,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "TAMILLIS GUIDI VENTURIM",
+                        "nome_curto": "TAMILLIS V.",
+                        "consultas": 521,
+                        "custo_medio": 105.36,
+                        "driver": 521,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LAIS COIMBRA CREMASCO TAVARES",
+                        "nome_curto": "LAIS T.",
+                        "consultas": 518,
+                        "custo_medio": 104.29,
+                        "driver": 518,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RAMON PRADO DE ANDRADE",
+                        "nome_curto": "RAMON A.",
+                        "consultas": 510,
+                        "custo_medio": 104.79,
+                        "driver": 510,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LETHICIA SILVA SAO JOAQUIM BESSA",
+                        "nome_curto": "LETHICIA B.",
+                        "consultas": 481,
+                        "custo_medio": 104.33,
+                        "driver": 481,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "NILO SERGIO NOMINATO",
+                        "nome_curto": "NILO N.",
+                        "consultas": 465,
+                        "custo_medio": 104.74,
+                        "driver": 465,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ELIANA COELHO DINIZ",
+                        "nome_curto": "ELIANA D.",
+                        "consultas": 375,
+                        "custo_medio": 105.56,
+                        "driver": 375,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FREDSON GUILHERME GOMES",
+                        "nome_curto": "FREDSON G.",
+                        "consultas": 344,
+                        "custo_medio": 103.58,
+                        "driver": 344,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MANOEL ARCISIO ROCHA ARAUJO",
+                        "nome_curto": "MANOEL A.",
+                        "consultas": 333,
+                        "custo_medio": 104.23,
+                        "driver": 333,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCELO DE FIGUEIREDO MURTA",
+                        "nome_curto": "MARCELO M.",
+                        "consultas": 312,
+                        "custo_medio": 106.49,
+                        "driver": 312,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "VITAL VIEIRA NETO",
+                        "nome_curto": "VITAL N.",
+                        "consultas": 288,
+                        "custo_medio": 104.43,
+                        "driver": 288,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "BRUNO MORAIS CAMPOS",
+                        "nome_curto": "BRUNO C.",
+                        "consultas": 274,
+                        "custo_medio": 104.27,
+                        "driver": 274,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSENIRA LEONI CARDOSO",
+                        "nome_curto": "JOSENIRA C.",
+                        "consultas": 249,
+                        "custo_medio": 103.86,
+                        "driver": 249,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARIO MOREIRA MURTA",
+                        "nome_curto": "MARIO M.",
+                        "consultas": 205,
+                        "custo_medio": 106.22,
+                        "driver": 205,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSE ANTONIO COELHO",
+                        "nome_curto": "JOSE C.",
+                        "consultas": 175,
+                        "custo_medio": 104.71,
+                        "driver": 175,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FLAVIANO DE PINHO AMARAL",
+                        "nome_curto": "FLAVIANO A.",
+                        "consultas": 146,
+                        "custo_medio": 104.93,
+                        "driver": 146,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LUCIANO DE OLIVEIRA E SILVA",
+                        "nome_curto": "LUCIANO S.",
+                        "consultas": 116,
+                        "custo_medio": 102.2,
+                        "driver": 116,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MAFRAN TEMPONI LIMA",
+                        "nome_curto": "MAFRAN L.",
+                        "consultas": 107,
+                        "custo_medio": 103.79,
+                        "driver": 107,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ISSA MIHESSEN NETO",
+                        "nome_curto": "ISSA N.",
+                        "consultas": 93,
+                        "custo_medio": 103.55,
+                        "driver": 93,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JONES SILVIO DE ASSIS",
+                        "nome_curto": "JONES A.",
+                        "consultas": 82,
+                        "custo_medio": 105.49,
+                        "driver": 82,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "PAULO RODRIGO FERNANDES LEAL",
+                        "nome_curto": "PAULO L.",
+                        "consultas": 79,
+                        "custo_medio": 103.61,
+                        "driver": 79,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MYRIAN DE PINHO BARROSO",
+                        "nome_curto": "MYRIAN B.",
+                        "consultas": 59,
+                        "custo_medio": 102.8,
+                        "driver": 59,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ROGERIO TEIXEIRA CESAR",
+                        "nome_curto": "ROGERIO C.",
+                        "consultas": 42,
+                        "custo_medio": 103.57,
+                        "driver": 42,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "WILLIANS SUEIRO MAZEGA",
+                        "nome_curto": "WILLIANS M.",
+                        "consultas": 41,
+                        "custo_medio": 105.12,
+                        "driver": 41,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "DANIELLA LIMA ALVES",
+                        "nome_curto": "DANIELLA A.",
+                        "consultas": 1,
+                        "custo_medio": 115.0,
+                        "driver": 1,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CLINICA DR. FLAVIANO DE PINHO AMARAL EIRELLI",
+                        "nome_curto": "CLINICA E.",
+                        "consultas": 1,
+                        "custo_medio": 115.0,
+                        "driver": 1,
+                        "clinica": "Independente"
+                  }
+            ],
+            "tem_clinica": false,
+            "driver_label": "Consultas",
+            "driver_prefix": ""
+      },
+      "oftalmo": {
+            "nome": "Oftalmologia",
+            "periodo": "Novembro 2024 a Outubro 2025",
+            "data": [
+                  {
+                        "nome": "RIMACK ANTONIO ROSA ALMEIDA FILHO",
+                        "nome_curto": "RIMACK F.",
+                        "consultas": 337,
+                        "custo_medio": 104.14,
+                        "driver": 337,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "GUILHERME FRAGA TORRES PASCOAL",
+                        "nome_curto": "GUILHERME P.",
+                        "consultas": 560,
+                        "custo_medio": 103.48,
+                        "driver": 560,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FILIPE GARCIA MOREIRA",
+                        "nome_curto": "FILIPE M.",
+                        "consultas": 1309,
+                        "custo_medio": 104.21,
+                        "driver": 1309,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CHARLES PORTO PETRUCELI CARAYON",
+                        "nome_curto": "CHARLES C.",
+                        "consultas": 504,
+                        "custo_medio": 103.78,
+                        "driver": 504,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ROBSON SILVA FRANCO",
+                        "nome_curto": "ROBSON F.",
+                        "consultas": 990,
+                        "custo_medio": 104.36,
+                        "driver": 990,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LEONIDAS RICARDO LOPEZ MONGE",
+                        "nome_curto": "LEONIDAS M.",
+                        "consultas": 1319,
+                        "custo_medio": 104.28,
+                        "driver": 1319,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARIA PAULA AMARAL PIRES",
+                        "nome_curto": "MARIA P.",
+                        "consultas": 268,
+                        "custo_medio": 104.59,
+                        "driver": 268,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MAURICIO CAMPOS DUTRA",
+                        "nome_curto": "MAURICIO D.",
+                        "consultas": 122,
+                        "custo_medio": 103.57,
+                        "driver": 122,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ESTELA GERALDINI TORRES PASCOAL",
+                        "nome_curto": "ESTELA P.",
+                        "consultas": 965,
+                        "custo_medio": 104.35,
+                        "driver": 965,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LETICIA FONSECA LOPES REZENDE",
+                        "nome_curto": "LETICIA R.",
+                        "consultas": 351,
+                        "custo_medio": 103.59,
+                        "driver": 351,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "EDILAINE MARCIA FERNANDES",
+                        "nome_curto": "EDILAINE F.",
+                        "consultas": 1137,
+                        "custo_medio": 103.82,
+                        "driver": 1137,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ANTONIO GILBERTO BOECHAT DA SILVA",
+                        "nome_curto": "ANTONIO S.",
+                        "consultas": 686,
+                        "custo_medio": 104.29,
+                        "driver": 686,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "VICTOR FERREIRA MASSON",
+                        "nome_curto": "VICTOR M.",
+                        "consultas": 985,
+                        "custo_medio": 104.28,
+                        "driver": 985,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "POLIANA DIAS PIRES MURTA",
+                        "nome_curto": "POLIANA M.",
+                        "consultas": 1451,
+                        "custo_medio": 103.89,
+                        "driver": 1451,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LUANA VASCONCELOS DE PINHO",
+                        "nome_curto": "LUANA P.",
+                        "consultas": 1735,
+                        "custo_medio": 103.89,
+                        "driver": 1735,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "PEDRO FALCI PAGOTO",
+                        "nome_curto": "PEDRO P.",
+                        "consultas": 788,
+                        "custo_medio": 104.66,
+                        "driver": 788,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "WAGNER COELHO DE OLIVEIRA",
+                        "nome_curto": "WAGNER O.",
+                        "consultas": 1827,
+                        "custo_medio": 103.65,
+                        "driver": 1827,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ROQUE DE ASSIS JUNIOR",
+                        "nome_curto": "ROQUE J.",
+                        "consultas": 578,
+                        "custo_medio": 103.53,
+                        "driver": 578,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSE LUCAS ABREU DINIZ",
+                        "nome_curto": "JOSE D.",
+                        "consultas": 837,
+                        "custo_medio": 103.76,
+                        "driver": 837,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "DANIEL RIBEIRO CORTES",
+                        "nome_curto": "DANIEL C.",
+                        "consultas": 725,
+                        "custo_medio": 103.5,
+                        "driver": 725,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "WESLEY DANIEL DA SILVA",
+                        "nome_curto": "WESLEY S.",
+                        "consultas": 1021,
+                        "custo_medio": 103.83,
+                        "driver": 1021,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RHAWSON LOPES TONELO",
+                        "nome_curto": "RHAWSON T.",
+                        "consultas": 1133,
+                        "custo_medio": 104.14,
+                        "driver": 1133,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSE CARLOS PIRES FILHO",
+                        "nome_curto": "JOSE F.",
+                        "consultas": 974,
+                        "custo_medio": 104.39,
+                        "driver": 974,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CLENNIO OTTONI DE ALMEIDA AREDES",
+                        "nome_curto": "CLENNIO A.",
+                        "consultas": 777,
+                        "custo_medio": 103.98,
+                        "driver": 777,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSE LUIZ DE OLIVEIRA NETO",
+                        "nome_curto": "JOSE N.",
+                        "consultas": 1966,
+                        "custo_medio": 104.02,
+                        "driver": 1966,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "EMILIO PEREIRA CIPRIANO",
+                        "nome_curto": "EMILIO C.",
+                        "consultas": 1611,
+                        "custo_medio": 104.23,
+                        "driver": 1611,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCIO TEIXEIRA FONSECA",
+                        "nome_curto": "MARCIO F.",
+                        "consultas": 525,
+                        "custo_medio": 104.23,
+                        "driver": 525,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "PAULO PETRUCELI CARAYON",
+                        "nome_curto": "PAULO C.",
+                        "consultas": 400,
+                        "custo_medio": 104.16,
+                        "driver": 400,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LILIAN DE PAULA MORDEHACHVILI",
+                        "nome_curto": "LILIAN M.",
+                        "consultas": 1571,
+                        "custo_medio": 104.35,
+                        "driver": 1571,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "GUSTAVO HERINGER DIAS",
+                        "nome_curto": "GUSTAVO D.",
+                        "consultas": 451,
+                        "custo_medio": 103.39,
+                        "driver": 451,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JANINE RADD FERREIRA PINTO",
+                        "nome_curto": "JANINE P.",
+                        "consultas": 927,
+                        "custo_medio": 104.06,
+                        "driver": 927,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "BEATRICE PORTO PETRUCELI CARAYON",
+                        "nome_curto": "BEATRICE C.",
+                        "consultas": 338,
+                        "custo_medio": 104.62,
+                        "driver": 338,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JOSE LEVINDO DIAS PIRES",
+                        "nome_curto": "JOSE P.",
+                        "consultas": 747,
+                        "custo_medio": 103.39,
+                        "driver": 747,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "ALDINEI GONCALVES BARBOSA",
+                        "nome_curto": "ALDINEI B.",
+                        "consultas": 2588,
+                        "custo_medio": 103.79,
+                        "driver": 2588,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CELSO RESENDE COSTA",
+                        "nome_curto": "CELSO C.",
+                        "consultas": 1123,
+                        "custo_medio": 103.7,
+                        "driver": 1123,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "EDGARD MARIANTE",
+                        "nome_curto": "EDGARD M.",
+                        "consultas": 2226,
+                        "custo_medio": 103.79,
+                        "driver": 2226,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LARA RESENDE COSTA",
+                        "nome_curto": "LARA C.",
+                        "consultas": 85,
+                        "custo_medio": 102.47,
+                        "driver": 85,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARIO DE PAULA DIAS",
+                        "nome_curto": "MARIO D.",
+                        "consultas": 1189,
+                        "custo_medio": 103.75,
+                        "driver": 1189,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "SIMONE TEIXEIRA DE PAULA",
+                        "nome_curto": "SIMONE P.",
+                        "consultas": 1807,
+                        "custo_medio": 104.8,
+                        "driver": 1807,
+                        "clinica": "Independente"
+                  }
+            ],
+            "tem_clinica": false,
+            "driver_label": "Consultas",
+            "driver_prefix": ""
+      },
+      "otorrino": {
+            "nome": "Otorrinolaringologia",
+            "periodo": "Janeiro a Outubro 2025",
+            "data": [
+                  {
+                        "nome": "DAVID ALBUQUERQUE MOURAO",
+                        "nome_curto": "DAVID M.",
+                        "consultas": 3,
+                        "custo_medio": 100.0,
+                        "driver": 3,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "CRISTIANO RAMOS MONTE ALTO",
+                        "nome_curto": "CRISTIANO A.",
+                        "consultas": 2524,
+                        "custo_medio": 104.89,
+                        "driver": 2524,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "EMERSON MONTEIRO RODRIGUES",
+                        "nome_curto": "EMERSON R.",
+                        "consultas": 739,
+                        "custo_medio": 105.16,
+                        "driver": 739,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "AMIM SOUZA FELIPE DA SILVA",
+                        "nome_curto": "AMIM S.",
+                        "consultas": 909,
+                        "custo_medio": 105.45,
+                        "driver": 909,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RICARDO MARCIO MORAIS",
+                        "nome_curto": "RICARDO M.",
+                        "consultas": 3042,
+                        "custo_medio": 104.68,
+                        "driver": 3042,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCUS MIGUEL DE MORAIS JUNIOR",
+                        "nome_curto": "MARCUS J.",
+                        "consultas": 1165,
+                        "custo_medio": 103.93,
+                        "driver": 1165,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "FREDERICO COSTA RIBEIRO",
+                        "nome_curto": "FREDERICO R.",
+                        "consultas": 1130,
+                        "custo_medio": 104.67,
+                        "driver": 1130,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RODRIGO MARCIO MORAIS",
+                        "nome_curto": "RODRIGO M.",
+                        "consultas": 2758,
+                        "custo_medio": 104.46,
+                        "driver": 2758,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCO AURELIO LINHARES",
+                        "nome_curto": "MARCO L.",
+                        "consultas": 264,
+                        "custo_medio": 106.14,
+                        "driver": 264,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "AMARILDO NUNES DA COSTA",
+                        "nome_curto": "AMARILDO C.",
+                        "consultas": 615,
+                        "custo_medio": 104.56,
+                        "driver": 615,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "MARCO AURELIO DE ASSIS",
+                        "nome_curto": "MARCO A.",
+                        "consultas": 1023,
+                        "custo_medio": 104.37,
+                        "driver": 1023,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "JAQUELINE MARTA DE OLIVEIRA",
+                        "nome_curto": "JAQUELINE O.",
+                        "consultas": 3341,
+                        "custo_medio": 104.64,
+                        "driver": 3341,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "RODRIGO DIAS GODINHO",
+                        "nome_curto": "RODRIGO G.",
+                        "consultas": 981,
+                        "custo_medio": 108.0,
+                        "driver": 981,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "LUIZ PAULO MONTEIRO SANTOS",
+                        "nome_curto": "LUIZ S.",
+                        "consultas": 1176,
+                        "custo_medio": 104.09,
+                        "driver": 1176,
+                        "clinica": "Independente"
+                  },
+                  {
+                        "nome": "DANIEL CALDEIRA TEIXEIRA",
+                        "nome_curto": "DANIEL T.",
+                        "consultas": 872,
+                        "custo_medio": 106.18,
+                        "driver": 872,
+                        "clinica": "Independente"
+                  }
+            ],
+            "tem_clinica": false,
+            "driver_label": "Consultas",
+            "driver_prefix": ""
+      }
+};
+
+    const CORES = {
+      verde1: '#00995D',
+      verde2: '#8BAF1F',
+      verde3: '#004E4C',
+      laranja: '#F47920',
+      cinzaEscuro: '#374151',
+      cinzaMedio: '#6B7280',
+      cinzaClaro: '#9CA3AF'
+    };
+
+    const CORES_CLINICA = {
+      'HOGV': '#1E3A5F',
+      'Ocular': '#7C3AED',
+      'Boechat': '#0891B2',
+      'Rimack Filho': '#059669',
+      'Othorrinus': '#1E3A5F',
+      'Otorrino Center': '#7C3AED',
+      'Independente': '#D1D5DB'
+    };
+
+    // Funções utilitárias
+    const calcularEstatisticas = (data) => {
+      if (!data || data.length === 0) return null;
+      const custos = data.map(d => d.custo_medio).sort((a, b) => a - b);
+      const n = custos.length;
+      const soma = custos.reduce((a, b) => a + b, 0);
+      const media = soma / n;
+      const mediana = n % 2 === 0 ? (custos[n/2 - 1] + custos[n/2]) / 2 : custos[Math.floor(n/2)];
+      const q1 = custos[Math.floor(n * 0.25)];
+      const q3 = custos[Math.floor(n * 0.75)];
+      const variancia = custos.reduce((acc, val) => acc + Math.pow(val - media, 2), 0) / n;
+      const desvioPadrao = Math.sqrt(variancia);
+      const cv = (desvioPadrao / media) * 100;
+      
+      const drivers = data.map(d => d.driver);
+      const mediaDriver = drivers.reduce((a, b) => a + b, 0) / n;
+      let numerador = 0, denomDriver = 0, denomCusto = 0;
+      for (let i = 0; i < n; i++) {
+        const diffDriver = drivers[i] - mediaDriver;
+        const diffCusto = data[i].custo_medio - media;
+        numerador += diffDriver * diffCusto;
+        denomDriver += diffDriver * diffDriver;
+        denomCusto += diffCusto * diffCusto;
+      }
+      const correlacao = denomDriver && denomCusto ? numerador / Math.sqrt(denomDriver * denomCusto) : 0;
+      const totalConsultas = data.reduce((a, b) => a + b.consultas, 0);
+      const custoTotal = data.reduce((a, b) => a + (b.custo_medio * b.consultas), 0);
+      
+      return { n, media, mediana, q1, q3, cv, correlacao, totalConsultas, custoTotal, min: custos[0], max: custos[n-1] };
+    };
+
+    const getQuartil = (custo, q1, q3) => custo < q1 ? 'Q1' : custo > q3 ? 'Q3' : 'Q2';
+    const getCorQuartil = (quartil) => quartil === 'Q1' ? CORES.verde2 : quartil === 'Q3' ? CORES.laranja : CORES.verde1;
+    const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    const formatNumber = (value) => new Intl.NumberFormat('pt-BR').format(value);
+
+    const { useState, useMemo, useEffect, useRef } = React;
+
+    // Gráfico Canvas com escala logarítmica
+    function ScatterPlotCanvas({ especialidade, filtros, searchTerm }) {
+      const canvasRef = useRef(null);
+      const containerRef = useRef(null);
+      const [tooltip, setTooltip] = useState(null);
+      const [dimensions, setDimensions] = useState({ width: 900, height: 520 });
+      
+      const spec = DADOS_ESPECIALIDADES[especialidade];
+      const allStats = useMemo(() => calcularEstatisticas(spec.data), [spec.data]);
+      
+      const dadosFiltrados = useMemo(() => {
+        let dados = spec.data;
+        if (filtros.quartil !== 'todos') {
+          dados = dados.filter(d => getQuartil(d.custo_medio, allStats.q1, allStats.q3) === filtros.quartil);
+        }
+        if (filtros.clinica !== 'todas') {
+          dados = dados.filter(d => d.clinica === filtros.clinica);
+        }
+        if (filtros.volumeMin > 0) {
+          dados = dados.filter(d => d.consultas >= filtros.volumeMin);
+        }
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          dados = dados.filter(d => d.nome.toLowerCase().includes(term) || d.nome_curto.toLowerCase().includes(term));
+        }
+        return dados;
+      }, [spec.data, filtros, searchTerm, allStats]);
+
+      const stats = useMemo(() => calcularEstatisticas(dadosFiltrados), [dadosFiltrados]);
+
+      useEffect(() => {
+        const updateDimensions = () => {
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setDimensions({ width: rect.width, height: Math.max(450, Math.min(rect.width * 0.55, 520)) });
+          }
+        };
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+        return () => window.removeEventListener('resize', updateDimensions);
+      }, []);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !stats) return;
+        
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const { width, height } = dimensions;
+        
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.scale(dpr, dpr);
+        
+        const margin = { top: 35, right: 40, bottom: 55, left: 75 };
+        const plotWidth = width - margin.left - margin.right;
+        const plotHeight = height - margin.top - margin.bottom;
+        
+        // ESCALA LOGARÍTMICA no eixo X
+        const minX = Math.max(50, Math.min(...dadosFiltrados.map(d => d.consultas)) * 0.8);
+        const maxX = Math.max(...dadosFiltrados.map(d => d.consultas)) * 1.15;
+        const logMinX = Math.log10(minX);
+        const logMaxX = Math.log10(maxX);
+        
+        const minY = Math.min(...dadosFiltrados.map(d => d.custo_medio)) * 0.92;
+        const maxY = Math.max(...dadosFiltrados.map(d => d.custo_medio)) * 1.06;
+        const maxDriver = Math.max(...spec.data.map(d => d.driver));
+        
+        const scaleX = (val) => margin.left + ((Math.log10(val) - logMinX) / (logMaxX - logMinX)) * plotWidth;
+        const scaleY = (val) => margin.top + plotHeight - ((val - minY) / (maxY - minY)) * plotHeight;
+        
+        // Clear
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+        
+        // Background sutil
+        ctx.fillStyle = '#FAFBFC';
+        ctx.fillRect(margin.left, margin.top, plotWidth, plotHeight);
+        
+        // Faixa Q1-Q3
+        ctx.fillStyle = 'rgba(0, 153, 93, 0.06)';
+        const y1 = scaleY(allStats.q3);
+        const y2 = scaleY(allStats.q1);
+        ctx.fillRect(margin.left, Math.max(margin.top, y1), plotWidth, Math.min(y2 - y1, plotHeight));
+        
+        // Grid
+        ctx.strokeStyle = '#E5E7EB';
+        ctx.lineWidth = 1;
+        
+        // Grid Y
+        const yTicks = 6;
+        for (let i = 0; i <= yTicks; i++) {
+          const y = margin.top + (plotHeight / yTicks) * i;
+          ctx.beginPath();
+          ctx.moveTo(margin.left, y);
+          ctx.lineTo(width - margin.right, y);
+          ctx.stroke();
+        }
+        
+        // Grid X (logarítmico)
+        const xTickValues = [50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= minX && v <= maxX);
+        xTickValues.forEach(val => {
+          const x = scaleX(val);
+          if (x >= margin.left && x <= width - margin.right) {
+            ctx.beginPath();
+            ctx.moveTo(x, margin.top);
+            ctx.lineTo(x, height - margin.bottom);
+            ctx.stroke();
+          }
+        });
+        
+        // Linha Q1
+        ctx.strokeStyle = CORES.verde2;
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.6;
+        const yQ1 = scaleY(allStats.q1);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, yQ1);
+        ctx.lineTo(width - margin.right, yQ1);
+        ctx.stroke();
+        
+        // Linha Q3
+        ctx.strokeStyle = CORES.laranja;
+        const yQ3 = scaleY(allStats.q3);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, yQ3);
+        ctx.lineTo(width - margin.right, yQ3);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        
+        // Mediana
+        ctx.strokeStyle = CORES.verde3;
+        ctx.setLineDash([8, 4]);
+        ctx.lineWidth = 2;
+        const yMed = scaleY(allStats.mediana);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, yMed);
+        ctx.lineTo(width - margin.right, yMed);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Label mediana
+        ctx.fillStyle = CORES.verde3;
+        ctx.font = '600 11px Inter, system-ui';
+        ctx.textAlign = 'right';
+        ctx.fillText(`Mediana: ${formatCurrency(allStats.mediana)}`, width - margin.right - 8, yMed - 6);
+        
+        // Bolhas
+        const pointsData = [];
+        dadosFiltrados.forEach(d => {
+          const x = scaleX(d.consultas);
+          const y = scaleY(d.custo_medio);
+          const r = 9 + (d.driver / maxDriver) * 16;
+          const quartil = getQuartil(d.custo_medio, allStats.q1, allStats.q3);
+          const cor = getCorQuartil(quartil);
+          
+          pointsData.push({ x, y, r, data: d });
+          
+          // Borda de clínica
+          if (spec.tem_clinica && d.clinica !== 'Independente') {
+            ctx.beginPath();
+            ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+            ctx.fillStyle = CORES_CLINICA[d.clinica];
+            ctx.fill();
+          }
+          
+          // Bolha
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fillStyle = cor;
+          ctx.globalAlpha = 0.85;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+        
+        // Labels
+        if (dadosFiltrados.length <= 18) {
+          ctx.font = '600 9px Inter, system-ui';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = CORES.verde3;
+          dadosFiltrados.forEach(d => {
+            const x = scaleX(d.consultas);
+            const y = scaleY(d.custo_medio);
+            const r = 9 + (d.driver / maxDriver) * 16;
+            ctx.fillText(d.nome_curto, x, y - r - 4);
+          });
+        }
+        
+        // Eixo X
+        ctx.fillStyle = CORES.cinzaEscuro;
+        ctx.font = '600 12px Inter, system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('Volume de Consultas (escala log)', width / 2, height - 12);
+        
+        ctx.font = '500 10px Inter, system-ui';
+        ctx.fillStyle = CORES.cinzaMedio;
+        xTickValues.forEach(val => {
+          const x = scaleX(val);
+          if (x >= margin.left && x <= width - margin.right) {
+            ctx.fillText(formatNumber(val), x, height - margin.bottom + 18);
+          }
+        });
+        
+        // Eixo Y
+        ctx.save();
+        ctx.translate(18, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = '600 12px Inter, system-ui';
+        ctx.fillStyle = CORES.cinzaEscuro;
+        ctx.textAlign = 'center';
+        ctx.fillText('Custo Médio por Consulta (R$)', 0, 0);
+        ctx.restore();
+        
+        ctx.font = '500 10px Inter, system-ui';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = CORES.cinzaMedio;
+        for (let i = 0; i <= yTicks; i++) {
+          const val = maxY - ((maxY - minY) / yTicks) * i;
+          const y = margin.top + (plotHeight / yTicks) * i;
+          ctx.fillText(`R$ ${Math.round(val)}`, margin.left - 8, y + 4);
+        }
+        
+        canvas._pointsData = pointsData;
+        canvas._spec = spec;
+        canvas._allStats = allStats;
+        
+      }, [dadosFiltrados, dimensions, spec, stats, allStats]);
+
+      const handleMouseMove = (e) => {
+        const canvas = canvasRef.current;
+        if (!canvas || !canvas._pointsData) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        let found = null;
+        for (const p of canvas._pointsData) {
+          const dist = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
+          if (dist <= p.r + 5) {
+            found = { ...p, mouseX: e.clientX, mouseY: e.clientY };
+            break;
+          }
+        }
+        setTooltip(found);
+      };
+
+      if (!stats) return React.createElement('div', { className: 'p-8 text-center text-gray-500' }, 'Nenhum dado encontrado com os filtros aplicados.');
+
+      return React.createElement('div', { ref: containerRef, className: 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden' },
+        // Header
+        React.createElement('div', { className: 'px-5 py-4 border-b border-gray-100' },
+          React.createElement('div', { className: 'flex items-center justify-between flex-wrap gap-3' },
+            React.createElement('div', null,
+              React.createElement('h3', { className: 'text-lg font-semibold', style: { color: CORES.verde3 } }, spec.nome),
+              React.createElement('p', { className: 'text-sm text-gray-500 mt-0.5' }, 
+                'Volume ', React.createElement('span', { className: 'text-gray-400' }, 'x'), ' Custo Médio ',
+                React.createElement('span', { className: 'text-gray-400' }, 'x'), ' ', spec.driver_label
+              )
+            ),
+            React.createElement('div', { className: 'flex gap-6 text-sm' },
+              React.createElement('div', { className: 'text-right' },
+                React.createElement('p', { className: 'text-xs text-gray-400 uppercase tracking-wide' }, 'Correlação'),
+                React.createElement('p', { className: 'text-xl font-bold', style: { color: stats.correlacao > 0.7 ? CORES.verde1 : stats.correlacao > 0.5 ? CORES.cinzaMedio : CORES.laranja } }, 
+                  stats.correlacao.toFixed(2)
+                )
+              ),
+              React.createElement('div', { className: 'text-right' },
+                React.createElement('p', { className: 'text-xs text-gray-400 uppercase tracking-wide' }, 'Prestadores'),
+                React.createElement('p', { className: 'text-xl font-bold', style: { color: CORES.verde3 } }, stats.n)
+              )
+            )
+          )
+        ),
+        // Canvas
+        React.createElement('div', { className: 'relative p-4' },
+          React.createElement('canvas', {
+            ref: canvasRef,
+            onMouseMove: handleMouseMove,
+            onMouseLeave: () => setTooltip(null),
+            className: 'cursor-crosshair'
+          }),
+          // Tooltip
+          tooltip && React.createElement('div', {
+            className: 'fixed bg-white p-4 rounded-lg shadow-xl border border-gray-200 z-50 animate-fadeIn',
+            style: { left: tooltip.mouseX + 15, top: tooltip.mouseY - 15, maxWidth: 300, minWidth: 220 }
+          },
+            React.createElement('p', { className: 'font-semibold text-gray-900 text-base' }, tooltip.data.nome_curto),
+            React.createElement('p', { className: 'text-xs text-gray-400 mb-3 leading-tight' }, tooltip.data.nome),
+            React.createElement('div', { className: 'space-y-2 text-sm' },
+              React.createElement('div', { className: 'flex justify-between' },
+                React.createElement('span', { className: 'text-gray-500' }, 'Consultas'),
+                React.createElement('span', { className: 'font-medium text-gray-900' }, formatNumber(tooltip.data.consultas))
+              ),
+              React.createElement('div', { className: 'flex justify-between' },
+                React.createElement('span', { className: 'text-gray-500' }, 'Custo médio'),
+                React.createElement('span', { className: 'font-medium', style: { color: getCorQuartil(getQuartil(tooltip.data.custo_medio, canvas._allStats.q1, canvas._allStats.q3)) } }, 
+                  formatCurrency(tooltip.data.custo_medio)
+                )
+              ),
+              React.createElement('div', { className: 'flex justify-between' },
+                React.createElement('span', { className: 'text-gray-500' }, spec.driver_label),
+                React.createElement('span', { className: 'font-medium text-gray-900' }, 
+                  spec.driver_prefix ? `${spec.driver_prefix} ${tooltip.data.driver}` : tooltip.data.driver.toFixed(2)
+                )
+              ),
+              React.createElement('div', { className: 'flex justify-between' },
+                React.createElement('span', { className: 'text-gray-500' }, 'Custo total período'),
+                React.createElement('span', { className: 'font-medium text-gray-900' }, 
+                  formatCurrency(tooltip.data.consultas * tooltip.data.custo_medio)
+                )
+              ),
+              spec.tem_clinica && tooltip.data.clinica !== 'Independente' && 
+                React.createElement('div', { className: 'flex justify-between pt-2 border-t border-gray-100 mt-2' },
+                  React.createElement('span', { className: 'text-gray-500' }, 'Vínculo'),
+                  React.createElement('span', { className: 'font-medium', style: { color: CORES_CLINICA[tooltip.data.clinica] } }, tooltip.data.clinica)
+                )
+            )
+          )
+        ),
+        // Legenda
+        React.createElement('div', { className: 'px-5 pb-4 flex flex-wrap gap-5 justify-center border-t border-gray-100 pt-4' },
+          React.createElement('div', { className: 'flex items-center gap-2' },
+            React.createElement('div', { className: 'w-3 h-3 rounded-full', style: { backgroundColor: CORES.verde2 } }),
+            React.createElement('span', { className: 'text-xs text-gray-600' }, 'Abaixo Q1 (eficiente)')
+          ),
+          React.createElement('div', { className: 'flex items-center gap-2' },
+            React.createElement('div', { className: 'w-3 h-3 rounded-full', style: { backgroundColor: CORES.verde1 } }),
+            React.createElement('span', { className: 'text-xs text-gray-600' }, 'Faixa Q1-Q3')
+          ),
+          React.createElement('div', { className: 'flex items-center gap-2' },
+            React.createElement('div', { className: 'w-3 h-3 rounded-full', style: { backgroundColor: CORES.laranja } }),
+            React.createElement('span', { className: 'text-xs text-gray-600' }, 'Acima Q3 (alerta)')
+          ),
+          spec.tem_clinica && React.createElement('div', { className: 'flex items-center gap-2 ml-3 pl-3 border-l border-gray-200' },
+            React.createElement('span', { className: 'text-xs text-gray-500' }, 'Borda colorida indica vínculo institucional')
+          )
+        )
+      );
+    }
+
+    // Tabela
+    function TabelaDados({ especialidade, filtros, searchTerm }) {
+      const [sortConfig, setSortConfig] = useState({ key: 'custo_medio', direction: 'desc' });
+      const spec = DADOS_ESPECIALIDADES[especialidade];
+      const allStats = calcularEstatisticas(spec.data);
+      
+      const dadosFiltrados = useMemo(() => {
+        let dados = spec.data;
+        if (filtros.quartil !== 'todos') {
+          dados = dados.filter(d => getQuartil(d.custo_medio, allStats.q1, allStats.q3) === filtros.quartil);
+        }
+        if (filtros.clinica !== 'todas') {
+          dados = dados.filter(d => d.clinica === filtros.clinica);
+        }
+        if (filtros.volumeMin > 0) {
+          dados = dados.filter(d => d.consultas >= filtros.volumeMin);
+        }
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          dados = dados.filter(d => d.nome.toLowerCase().includes(term) || d.nome_curto.toLowerCase().includes(term));
+        }
+        return [...dados].sort((a, b) => sortConfig.direction === 'asc' ? a[sortConfig.key] - b[sortConfig.key] : b[sortConfig.key] - a[sortConfig.key]);
+      }, [spec.data, filtros, searchTerm, sortConfig, allStats]);
+      
+      const handleSort = (key) => setSortConfig(prev => ({ key, direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc' }));
+      
+      const SortIcon = ({ active, direction }) => React.createElement('span', { className: `ml-1 text-xs ${active ? 'text-gray-700' : 'text-gray-300'}` }, 
+        active ? (direction === 'asc' ? '▲' : '▼') : '▼'
+      );
+
+      return React.createElement('div', { className: 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden' },
+        React.createElement('div', { className: 'overflow-x-auto custom-scrollbar' },
+          React.createElement('table', { className: 'w-full' },
+            React.createElement('thead', { className: 'bg-gray-50 border-b border-gray-200' },
+              React.createElement('tr', null,
+                React.createElement('th', { className: 'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider' }, 'Prestador'),
+                React.createElement('th', { className: 'px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none', onClick: () => handleSort('consultas') }, 
+                  'Consultas', React.createElement(SortIcon, { active: sortConfig.key === 'consultas', direction: sortConfig.direction })
+                ),
+                React.createElement('th', { className: 'px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none', onClick: () => handleSort('custo_medio') }, 
+                  'Custo Médio', React.createElement(SortIcon, { active: sortConfig.key === 'custo_medio', direction: sortConfig.direction })
+                ),
+                React.createElement('th', { className: 'px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none', onClick: () => handleSort('driver') }, 
+                  spec.driver_label, React.createElement(SortIcon, { active: sortConfig.key === 'driver', direction: sortConfig.direction })
+                ),
+                React.createElement('th', { className: 'px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider' }, 'Status'),
+                spec.tem_clinica && React.createElement('th', { className: 'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider' }, 'Vínculo')
+              )
+            ),
+            React.createElement('tbody', { className: 'divide-y divide-gray-100' },
+              dadosFiltrados.map((row, idx) => {
+                const quartil = getQuartil(row.custo_medio, allStats.q1, allStats.q3);
+                return React.createElement('tr', { key: idx, className: 'hover:bg-gray-50 transition-colors' },
+                  React.createElement('td', { className: 'px-4 py-3' },
+                    React.createElement('div', null,
+                      React.createElement('p', { className: 'font-medium text-gray-900 text-sm' }, row.nome_curto),
+                      React.createElement('p', { className: 'text-xs text-gray-400 truncate max-w-xs' }, row.nome)
+                    )
+                  ),
+                  React.createElement('td', { className: 'px-4 py-3 text-sm text-right font-medium text-gray-700' }, formatNumber(row.consultas)),
+                  React.createElement('td', { className: 'px-4 py-3 text-sm text-right font-semibold', style: { color: getCorQuartil(quartil) } }, formatCurrency(row.custo_medio)),
+                  React.createElement('td', { className: 'px-4 py-3 text-sm text-right font-medium text-gray-700' }, 
+                    spec.driver_prefix ? `${spec.driver_prefix} ${row.driver}` : row.driver.toFixed(2)
+                  ),
+                  React.createElement('td', { className: 'px-4 py-3 text-center' },
+                    React.createElement('span', { 
+                      className: 'px-2 py-1 text-xs font-medium rounded',
+                      style: { backgroundColor: `${getCorQuartil(quartil)}15`, color: getCorQuartil(quartil) }
+                    }, quartil === 'Q1' ? 'Eficiente' : quartil === 'Q3' ? 'Alerta' : 'Esperado')
+                  ),
+                  spec.tem_clinica && React.createElement('td', { className: 'px-4 py-3' },
+                    row.clinica !== 'Independente' 
+                      ? React.createElement('span', { className: 'text-xs font-medium', style: { color: CORES_CLINICA[row.clinica] } }, row.clinica)
+                      : React.createElement('span', { className: 'text-xs text-gray-300' }, '—')
+                  )
+                );
+              })
+            )
+          )
+        ),
+        React.createElement('div', { className: 'px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500' },
+          `Exibindo ${dadosFiltrados.length} de ${spec.data.length} prestadores`
+        )
+      );
+    }
+
+    // Filtros
+    function PainelFiltros({ especialidade, filtros, setFiltros, searchTerm, setSearchTerm }) {
+      const spec = DADOS_ESPECIALIDADES[especialidade];
+      const clinicas = [...new Set(spec.data.map(d => d.clinica))].filter(c => c !== 'Independente').sort();
+      
+      return React.createElement('div', { className: 'bg-white rounded-lg shadow-sm border border-gray-200 p-4' },
+        React.createElement('div', { className: 'flex items-center gap-2 mb-4' },
+          React.createElement('svg', { className: 'w-4 h-4 text-gray-500', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
+            React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 2, d: 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z' })
+          ),
+          React.createElement('span', { className: 'font-medium text-gray-700 text-sm' }, 'Filtros')
+        ),
+        React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' },
+          React.createElement('div', null,
+            React.createElement('label', { className: 'block text-xs font-medium text-gray-500 mb-1.5' }, 'Buscar prestador'),
+            React.createElement('input', {
+              type: 'text',
+              value: searchTerm,
+              onChange: (e) => setSearchTerm(e.target.value),
+              placeholder: 'Digite o nome...',
+              className: 'w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-100 focus:border-green-500'
+            })
+          ),
+          React.createElement('div', null,
+            React.createElement('label', { className: 'block text-xs font-medium text-gray-500 mb-1.5' }, 'Quartil de custo'),
+            React.createElement('select', {
+              value: filtros.quartil,
+              onChange: (e) => setFiltros(prev => ({ ...prev, quartil: e.target.value })),
+              className: 'w-full py-2 px-3 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-100 focus:border-green-500'
+            },
+              React.createElement('option', { value: 'todos' }, 'Todos os quartis'),
+              React.createElement('option', { value: 'Q1' }, 'Abaixo Q1 (eficiente)'),
+              React.createElement('option', { value: 'Q2' }, 'Faixa Q1-Q3'),
+              React.createElement('option', { value: 'Q3' }, 'Acima Q3 (alerta)')
+            )
+          ),
+          spec.tem_clinica && React.createElement('div', null,
+            React.createElement('label', { className: 'block text-xs font-medium text-gray-500 mb-1.5' }, 'Vínculo institucional'),
+            React.createElement('select', {
+              value: filtros.clinica,
+              onChange: (e) => setFiltros(prev => ({ ...prev, clinica: e.target.value })),
+              className: 'w-full py-2 px-3 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-100 focus:border-green-500'
+            },
+              React.createElement('option', { value: 'todas' }, 'Todas as clínicas'),
+              clinicas.map(c => React.createElement('option', { key: c, value: c }, c)),
+              React.createElement('option', { value: 'Independente' }, 'Independente')
+            )
+          ),
+          React.createElement('div', null,
+            React.createElement('label', { className: 'block text-xs font-medium text-gray-500 mb-1.5' }, 
+              `Volume mínimo: ${filtros.volumeMin > 0 ? formatNumber(filtros.volumeMin) + ' consultas' : 'Sem filtro'}`
+            ),
+            React.createElement('input', {
+              type: 'range',
+              min: 0,
+              max: 1500,
+              step: 50,
+              value: filtros.volumeMin,
+              onChange: (e) => setFiltros(prev => ({ ...prev, volumeMin: parseInt(e.target.value) })),
+              className: 'w-full mt-2'
+            })
+          )
+        ),
+        (filtros.quartil !== 'todos' || filtros.clinica !== 'todas' || filtros.volumeMin > 0 || searchTerm) &&
+          React.createElement('div', { className: 'mt-4 pt-3 border-t border-gray-100' },
+            React.createElement('button', {
+              onClick: () => { setFiltros({ quartil: 'todos', clinica: 'todas', volumeMin: 0 }); setSearchTerm(''); },
+              className: 'text-xs text-gray-500 hover:text-gray-700 font-medium'
+            }, 'Limpar filtros')
+          )
+      );
+    }
+
+    // Card estatística
+    function StatCard({ label, value, subvalue, color, highlight }) {
+      return React.createElement('div', { 
+        className: `bg-white rounded-lg p-4 shadow-sm border ${highlight ? 'border-l-4' : 'border-gray-200'}`,
+        style: highlight ? { borderLeftColor: color } : {}
+      },
+        React.createElement('p', { className: 'text-xs text-gray-400 uppercase tracking-wider font-medium' }, label),
+        React.createElement('p', { className: 'text-xl font-bold mt-1', style: { color: color || CORES.cinzaEscuro } }, value),
+        subvalue && React.createElement('p', { className: 'text-xs text-gray-400 mt-0.5' }, subvalue)
+      );
+    }
+
+    // Dashboard
+    function Dashboard() {
+      const [especialidade, setEspecialidade] = useState('gastro');
+      const [viewMode, setViewMode] = useState('grafico');
+      const [filtros, setFiltros] = useState({ quartil: 'todos', clinica: 'todas', volumeMin: 0 });
+      const [searchTerm, setSearchTerm] = useState('');
+      
+      const spec = DADOS_ESPECIALIDADES[especialidade];
+      const stats = calcularEstatisticas(spec.data);
+      
+      const handleEspecialidadeChange = (esp) => {
+        setEspecialidade(esp);
+        setFiltros({ quartil: 'todos', clinica: 'todas', volumeMin: 0 });
+        setSearchTerm('');
+      };
+
+      const INSIGHTS = {
+        gastro: `A taxa de endoscopia/colonoscopia por consulta apresenta correlação de ${stats.correlacao.toFixed(2)} com o custo. Prestadores com taxa acima de 0.8 apresentam custos significativamente maiores. A variabilidade de ${stats.cv.toFixed(0)}% indica oportunidade de padronização de condutas.`,
+        gineco: `O custo de ultrassonografia por consulta apresenta correlação de ${stats.correlacao.toFixed(2)} com o custo total. Prestadores que realizam US em praticamente toda consulta (acima de R$ 200/consulta) apresentam custos 3 vezes maiores. Identificada oportunidade de revisão de protocolos.`,
+        oftalmo: `A densidade de exames combinada com vínculo institucional determina o padrão de custos (correlação ${stats.correlacao.toFixed(2)}). HOGV concentra 15 profissionais e Ocular 7 profissionais, com perfis distintos. Prestadores acima de 4 exames por consulta requerem análise de apropriação.`,
+        otorrino: `A densidade de exames por consulta é o principal preditor de custo (correlação ${stats.correlacao.toFixed(2)}). Destaque para prestadores com densidade acima de 4.0 exames por consulta e alto volume, que representam maior impacto financeiro absoluto.`
+      };
+
+      return React.createElement('div', { className: 'min-h-screen bg-gray-50' },
+        // Header
+        React.createElement('header', { className: 'bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50' },
+          React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6' },
+            React.createElement('div', { className: 'flex items-center justify-between h-16' },
+              React.createElement('div', { className: 'flex items-center gap-4' },
+                React.createElement('div', { className: 'w-8 h-8 rounded-lg flex items-center justify-center', style: { backgroundColor: CORES.verde1 } },
+                  React.createElement('span', { className: 'text-white font-bold text-sm' }, 'PS')
+                ),
+                React.createElement('div', null,
+                  React.createElement('h1', { className: 'text-base font-semibold text-gray-900' }, 'Análise de Variabilidade Assistencial'),
+                  React.createElement('p', { className: 'text-xs text-gray-500' }, 'Superintendência Executiva')
+                )
+              ),
+              React.createElement('div', { className: 'text-right hidden sm:block' },
+                React.createElement('p', { className: 'text-sm font-medium', style: { color: CORES.verde1 } }, 'Unimed Governador Valadares'),
+                React.createElement('p', { className: 'text-xs text-gray-400' }, 'Provimento de Saúde')
+              )
+            )
+          )
+        ),
+        
+        // Main
+        React.createElement('main', { className: 'max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5' },
+          // Tabs especialidade
+          React.createElement('div', { className: 'flex flex-wrap gap-2' },
+            Object.entries(DADOS_ESPECIALIDADES).map(([key, value]) => {
+              const isActive = especialidade === key;
+              return React.createElement('button', {
+                key,
+                onClick: () => handleEspecialidadeChange(key),
+                className: `px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive ? 'text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`,
+                style: isActive ? { backgroundColor: CORES.verde1 } : {}
+              }, 
+                value.nome,
+                React.createElement('span', { className: `ml-2 px-1.5 py-0.5 rounded text-xs ${isActive ? 'bg-white/20' : 'bg-gray-100'}` }, value.data.length)
+              );
+            })
+          ),
+          
+          // Cards estatísticas
+          React.createElement('div', { className: 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3' },
+            React.createElement(StatCard, { label: 'Prestadores', value: stats.n, color: CORES.verde3 }),
+            React.createElement(StatCard, { label: 'Consultas', value: formatNumber(stats.totalConsultas), color: CORES.verde1 }),
+            React.createElement(StatCard, { label: 'Mediana', value: formatCurrency(stats.mediana), subvalue: `Q1: ${formatCurrency(stats.q1)} | Q3: ${formatCurrency(stats.q3)}`, color: CORES.verde3, highlight: true }),
+            React.createElement(StatCard, { label: 'Correlação', value: stats.correlacao.toFixed(2), subvalue: `${spec.driver_label} x Custo`, color: stats.correlacao > 0.7 ? CORES.verde1 : CORES.laranja, highlight: true }),
+            React.createElement(StatCard, { label: 'CV', value: `${stats.cv.toFixed(0)}%`, subvalue: 'Coef. Variação', color: stats.cv > 30 ? CORES.laranja : CORES.verde2 }),
+            React.createElement(StatCard, { label: 'Custo Total', value: formatCurrency(stats.custoTotal), subvalue: spec.periodo, color: CORES.verde3 })
+          ),
+          
+          // Filtros
+          React.createElement(PainelFiltros, { especialidade, filtros, setFiltros, searchTerm, setSearchTerm }),
+          
+          // Toggle view
+          React.createElement('div', { className: 'flex justify-between items-center' },
+            React.createElement('p', { className: 'text-xs text-gray-400' }, spec.periodo),
+            React.createElement('div', { className: 'bg-white rounded-lg p-1 inline-flex shadow-sm border border-gray-200' },
+              React.createElement('button', {
+                onClick: () => setViewMode('grafico'),
+                className: `px-3 py-1.5 rounded text-xs font-medium transition-colors ${viewMode === 'grafico' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`
+              }, 'Gráfico'),
+              React.createElement('button', {
+                onClick: () => setViewMode('tabela'),
+                className: `px-3 py-1.5 rounded text-xs font-medium transition-colors ${viewMode === 'tabela' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`
+              }, 'Tabela')
+            )
+          ),
+          
+          // Conteúdo
+          viewMode === 'grafico' 
+            ? React.createElement(ScatterPlotCanvas, { especialidade, filtros, searchTerm })
+            : React.createElement(TabelaDados, { especialidade, filtros, searchTerm }),
+          
+          // Insight
+          React.createElement('div', { className: 'bg-white rounded-lg p-5 shadow-sm border border-gray-200' },
+            React.createElement('h4', { className: 'text-sm font-semibold text-gray-700 mb-2' }, 'Análise: ', spec.nome),
+            React.createElement('p', { className: 'text-sm text-gray-600 leading-relaxed' }, INSIGHTS[especialidade])
+          )
+        ),
+        
+        // Footer
+        React.createElement('footer', { className: 'bg-white border-t border-gray-200 mt-8' },
+          React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 py-4' },
+            React.createElement('div', { className: 'flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500' },
+              React.createElement('p', null, '© 2025 Unimed Governador Valadares'),
+              React.createElement('p', null, 'AxiaCare Webpages | Escritório de Valor em Saúde')
+            )
+          )
+        )
+      );
+    }
+
+    ReactDOM.render(React.createElement(Dashboard), document.getElementById('root'));
+  </script>
+</body>
+</html>

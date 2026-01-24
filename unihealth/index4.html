@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unihealth - Hub de Ferramentas Profissionais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --unihealth-green: #013d19;
+            --unihealth-orange: #ec7106;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --bg-gradient-start: #f7f9fc;
+            --bg-gradient-end: #e8eef5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, rgba(1, 61, 25, 0.04) 0%, rgba(1, 61, 25, 0.02) 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+            border: 1px solid rgba(1, 61, 25, 0.12);
+        }
+
+        .logo-link {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-link:hover {
+            transform: scale(1.05);
+        }
+
+        .logo {
+            width: 280px;
+            max-width: 90%;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--unihealth-green);
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, rgba(1, 61, 25, 0.03) 0%, rgba(1, 61, 25, 0.05) 100%);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(1, 61, 25, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--unihealth-green) 0%, var(--unihealth-orange) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(1, 61, 25, 0.15);
+            background: linear-gradient(135deg, rgba(1, 61, 25, 0.06) 0%, rgba(1, 61, 25, 0.08) 100%);
+            border-color: rgba(1, 61, 25, 0.2);
+        }
+
+        .tool-card.featured {
+            background: linear-gradient(135deg, var(--unihealth-green) 0%, #025a27 100%);
+            color: white;
+            border-color: var(--unihealth-green);
+        }
+
+        .tool-card.featured .tool-title {
+            color: white;
+        }
+
+        .tool-card.featured .tool-date {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .tool-card.featured .tool-link {
+            background: var(--unihealth-orange);
+            border: 2px solid var(--unihealth-orange);
+        }
+
+        .tool-card.featured .tool-link:hover {
+            background: #ff8519;
+            border-color: #ff8519;
+            transform: translateY(-2px);
+        }
+
+        .tool-card.featured::after {
+            content: 'NOVO';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--unihealth-orange);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(236, 113, 6, 0.4);
+        }
+
+        .tool-title {
+            color: var(--unihealth-green);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            flex-grow: 1;
+        }
+
+        .tool-date {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .tool-link {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--unihealth-green);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid var(--unihealth-green);
+        }
+
+        .tool-link:hover {
+            background: var(--unihealth-orange);
+            border-color: var(--unihealth-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 113, 6, 0.3);
+        }
+
+        .tool-link.disabled {
+            background: #94a3b8;
+            border-color: #94a3b8;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .tool-link.disabled:hover {
+            background: #94a3b8;
+            border-color: #94a3b8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 25px 15px;
+            background-color: #f8f5f0;
+            text-align: center;
+            font-family: Verdana, sans-serif;
+            border-top: 2px solid #006b68;
+            border-radius: 16px;
+        }
+
+        .footer-logo {
+            width: 140px;
+            margin: 0 auto 10px auto;
+            display: block;
+        }
+
+        .footer-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0 18px;
+        }
+
+        .footer-links,
+        .footer-social {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links a,
+        .footer-social a {
+            color: #004E4C;
+            text-decoration: none;
+            position: relative;
+            padding: 0 4px;
+            transition: all 0.2s ease;
+        }
+
+        .footer-links a:hover,
+        .footer-social a:hover {
+            color: #002c2a;
+            text-decoration: underline;
+        }
+
+        .footer .separator {
+            color: #bbb;
+            margin: 0 4px;
+        }
+
+        .footer-copyright {
+            margin-top: 18px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                width: 220px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .tool-card {
+                padding: 24px;
+            }
+
+            .tool-card:active {
+                transform: scale(0.98);
+            }
+
+            .tool-link:active {
+                transform: scale(0.95);
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .tool-card::before {
+                transform: scaleX(1);
+            }
+            
+            .tool-card {
+                background: linear-gradient(135deg, rgba(1, 61, 25, 0.05) 0%, rgba(1, 61, 25, 0.07) 100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="https://icds.org.br/hospital-unimed-governador-valadares/" target="_blank" class="logo-link">
+                <img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth Logo" class="logo">
+            </a>
+            <h1>Hub Unihealth</h1>
+            <p class="subtitle">Gestão em Saúde Inteligente</p>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card featured">
+                <div class="tool-title">Calculadora Plantões Médicos</div>
+                <span class="tool-date">Outubro-25</span>
+                <a href="calc-plantao.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">[Desativado] Análise Reprocir</div>
+                <span class="tool-date">Setembro-25</span>
+                <a href="reprocir.html" class="tool-link disabled">Desativado</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">Orçamento Médico</div>
+                <span class="tool-date">Setembro-25</span>
+                <a href="orcamento-medico-ugv.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">Análise Reajuste Suturas</div>
+                <span class="tool-date">Julho-25</span>
+                <a href="fios.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">Análise Utilização PA</div>
+                <span class="tool-date">Março-25</span>
+                <a href="retornopa.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">Análise de Indicadores</div>
+                <span class="tool-date">Março-25</span>
+                <a href="marco25.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">Plano de Ação OPME</div>
+                <span class="tool-date">Março-25</span>
+                <a href="opme.html" class="tool-link">Acessar</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-title">ISC Cesarianas</div>
+                <span class="tool-date">Maio-25</span>
+                <a href="isc-cesarianas.html" class="tool-link">Acessar</a>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+            <div class="footer-title">AxView™ | WebApps - Gestão e Consultoria em Saúde</div>
+            <div class="footer-links">
+                <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+                <span class="separator">|</span>
+                <a href="https://www.axcare.com.br">axcare.com.br</a>
+                <span class="separator">|</span>
+                <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://guithome.com.br">guithome.com.br</a>
+                <span class="separator">|</span>
+                <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+                <span class="separator">|</span>
+                <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+            </div>
+            <div class="footer-copyright">
+                Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

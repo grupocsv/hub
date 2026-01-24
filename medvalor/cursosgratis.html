@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dicas de cursos grátis - Gestão em Saúde | MedValor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://medvalor.med.br/favicon.ico" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Dicas de cursos grátis para você começar a estudar gestão em saúde ainda hoje | MedValor" />
+  <meta property="og:description" content="Seleção curada de cursos introdutórios e gratuitos em gestão em saúde, inovação, telessaúde, economia e qualidade do cuidado." />
+  <meta property="og:image" content="https://i.imgur.com/nq9Nnuk.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.medvalor.med.br/cursos-gratis-gestao-saude.html" />
+  <meta property="og:site_name" content="MedValor" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dicas de cursos grátis para você começar a estudar gestão em saúde ainda hoje | MedValor" />
+  <meta name="twitter:description" content="Seleção curada de cursos introdutórios e gratuitos em gestão em saúde, inovação, telessaúde, economia e qualidade do cuidado." />
+  <meta name="twitter:image" content="https://i.imgur.com/nq9Nnuk.png" />
+
+  <style>
+    :root{
+      --azul:#196396;
+      --azul-escuro:#103b63;
+      --bg:#f6f8fc;
+      --texto:#2e2e2e;
+      --borda:#e6ebf1;
+      --shadow:0 6px 20px rgba(16,59,99,0.10);
+      --radius:14px;
+      --verde:#2fa36b;
+      --verde-escuro:#218354;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Verdana, sans-serif;
+      color:var(--texto);
+      background:var(--bg);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .container{
+      width:min(720px,94vw);
+      margin:28px 0 0;
+      background:#fff;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:clamp(18px,3.2vw,32px);
+    }
+
+    .brand{
+      display:flex;
+      justify-content:center;
+      margin-bottom:8px;
+    }
+    .brand-link{
+      display:inline-block;
+      line-height:0;
+    }
+    .brand-link img{
+      width:min(240px,70%);
+      height:auto;
+    }
+    .brand-link:focus-visible{
+      outline:3px solid #9bd3ff;
+      border-radius:6px;
+    }
+
+    /* Título mais sóbrio */
+    h1{
+      margin:8px 0 18px;
+      color:#1f2937; /* cinza escuro */
+      font-size:clamp(18px,2.2vw,24px);
+      line-height:1.3;
+      text-align:center;
+      font-weight:700;
+    }
+    h1 .accent{ color:var(--azul); }
+
+    /* Card do curso */
+    .course-card{
+      border:1px solid var(--borda);
+      border-radius:12px;
+      padding:16px;
+      margin:14px 0;
+      background:#fff;
+      transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+    }
+    .course-card:hover{
+      box-shadow:0 8px 22px rgba(0,0,0,.08);
+      transform:translateY(-2px);
+      border-color:#d6dde6;
+    }
+
+    .course-head{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+    }
+    .course-info{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .course-title{
+      font-weight:700;
+      color:#111827; /* quase preto */
+      font-size:clamp(14px,2.1vw,18px);
+      margin:0;
+    }
+    .course-inst{
+      font-size:12px;
+      color:#4b5563; /* cinza mais escuro */
+      line-height:1.2;
+      margin:0;
+    }
+
+    /* Botão com hover verde */
+    .btn{
+      appearance:none;
+      border:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px 16px;
+      border-radius:10px;
+      background:linear-gradient(180deg, #2b5f96, var(--azul));
+      color:#fff;
+      font-weight:700;
+      text-decoration:none;
+      line-height:1;
+      box-shadow:0 4px 10px rgba(25,99,150,.25);
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      background:linear-gradient(180deg, var(--verde), var(--verde-escuro));
+      box-shadow:0 6px 16px rgba(47,163,107,.30);
+      transform:translateY(-2px);
+    }
+    .btn:active{ transform:translateY(0); }
+    .btn .arrow{
+      font-weight:900;
+      transform:translateX(0);
+      transition:transform .15s ease;
+    }
+    .btn:hover .arrow{ transform:translateX(2px); }
+
+    /* Disclosure profissional */
+    .disclosure{
+      margin-top:18px;
+      font-size:12px;
+      color:#5b5b5b;
+      border-top:1px dashed var(--borda);
+      padding-top:12px;
+      text-align:justify;
+    }
+
+    /* Footer institucional (padrão) */
+    .footer{
+      width:100%;
+      margin-top:24px;
+      padding:25px 15px;
+      background-color:#f8f5f0;
+      text-align:center;
+      font-family: Verdana, sans-serif;
+      border-top:2px solid #006b68;
+    }
+    .footer .wrap{ width:min(920px,96vw); margin:0 auto; }
+    .footer-logo{ width:140px; margin:0 auto 10px; display:block; }
+    .footer-title{ font-size:15px; font-weight:bold; color:#333; margin:10px 0 18px; }
+    .footer-links,.footer-social{
+      display:flex; flex-wrap:wrap; justify-content:center; gap:8px; font-size:14px; margin-bottom:10px;
+    }
+    .footer-links a,.footer-social a{ color:#004E4C; text-decoration:none; padding:0 4px; }
+    .footer-links a:hover,.footer-social a:hover{ color:#002c2a; text-decoration:underline; }
+    .footer .separator{ color:#bbb; margin:0 4px; }
+    .footeropyright{ margin-top:18px; font-size:11px; color:#999; }
+
+    /* Responsividade */
+    @media (max-width:540px){
+      .course-head{ grid-template-columns:1fr; }
+      .btn{ width:100%; padding:13px 18px; }
+      .container{ margin-top:16px; border-radius:12px; padding:18px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <div class="brand">
+      <a class="brand-link" href="https://medvalor.med.br" target="_blank" rel="noopener" aria-label="Site MedValor">
+        <img src="https://i.imgur.com/N0lXklP.png" alt="MedValor" />
+      </a>
+    </div>
+
+    <h1>
+      Dicas de cursos grátis para você começar a estudar <span class="accent">gestão em saúde</span> ainda hoje
+    </h1>
+
+    <!-- 1 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">1. Inovação em saúde</p>
+          <p class="course-inst">Harvard University</p>
+        </div>
+        <a class="btn" href="https://pll.harvard.edu/course/innovating-health-care" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">2. Telessaúde</p>
+          <p class="course-inst">Stanford University</p>
+        </div>
+        <a class="btn" href="https://www.edx.org/learn/healthcare/stanford-university-telehealth-implementation-organizational-billing-reimbursement-and-legal-considerations?index=product&objectID=course-aadb214e-f5ba-4ee1-b485-e406d7e2e220&webview=false&campaign=Telehealth+Implementation%3A+Organizational%2C+Billing%2C+Reimbursement%2C+and+Legal+Considerations&source=edX&product_category=course&placement_url=https%3A%2F%2Fwww.edx.org%2Flearn%2Fmedicine" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 3 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">3. A economia dos serviços de saúde</p>
+          <p class="course-inst">The Wharton School (University of Pennsylvania)</p>
+        </div>
+        <a class="btn" href="https://www.coursera.org/learn/health-economics-us-healthcare-systems" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">4. Coordenação do cuidado</p>
+          <p class="course-inst">Hospital Israelita Albert Einstein</p>
+        </div>
+        <a class="btn" href="https://ensino.einstein.br/curso_gratuito_coordenacao_do_cuidado_desa_p14564/p?sku=7904&cidade=ead" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 5 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">5. Design thinking aplicado à saúde</p>
+          <p class="course-inst">Fundação Getúlio Vargas</p>
+        </div>
+        <a class="btn" href="https://educacao-executiva.fgv.br/cursos/online/curta-media-duracao-online/design-thinking-aplicado-area-da-saude" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 6 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">6. Avaliação da qualidade dos serviços de saúde</p>
+          <p class="course-inst">Northeastern University</p>
+        </div>
+        <a class="btn" href="https://www.coursera.org/learn/quality-of-healthcare?specialization=healthcare-trends-business-professionals" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 7 -->
+    <article class="course-card">
+      <div class="course-head">
+        <div class="course-info">
+          <p class="course-title">7. Inovação em saúde</p>
+          <p class="course-inst">Fundação Getúlio Vargas</p>
+        </div>
+        <a class="btn" href="https://educacao-executiva.fgv.br/cursos/online/curta-media-duracao-online/inovacao-em-saude-propositos-e-desafios-nas-organizacoes" target="_blank" rel="noopener">
+          Acessar curso <span class="arrow">›</span>
+        </a>
+      </div>
+    </article>
+
+    <p class="disclosure">
+      Aviso: Nesta página a MedValor atua exclusivamente como agregadora de referências públicas. Os cursos listados pertencem aos respectivos provedores, que são integralmente responsáveis por seu conteúdo, disponibilidade, certificações e condições de acesso. Seleção e verificação realizadas em agosto de 2025.
+    </p>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+      <div class="footer-title">AxView™ | Pages - Gestão e Consultoria em Saúde</div>
+
+      <div class="footer-links">
+        <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+        <span class="separator">|</span>
+        <a href="https://www.axcare.com.br">axcare.com.br</a>
+        <span class="separator">|</span>
+        <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://guithome.com.br">guithome.com.br</a>
+        <span class="separator">|</span>
+        <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+        <span class="separator">|</span>
+        <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+      </div>
+
+      <div class="footeropyright">
+        Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa GTCorp.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

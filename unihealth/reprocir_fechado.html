@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Proposta Reprocir | AxView™</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ESTILOS GERAIS */
+        body { margin: 0; padding: 0; background-color: #f8f5f0; font-family: Aptos, Arial, Helvetica, sans-serif; color: #333; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 12px; }
+
+        /* CABEÇALHO */
+        .header { padding: 24px; background-color: #f8f5f0; }
+        .header-table { width: 100%; }
+        .header-logo img { width: 140px; height: auto; opacity: .9; }
+        .header-title { text-align: right; vertical-align: middle; }
+        .header-title h1 { font: 700 26px/32px Aptos, Arial, sans-serif; color: #1e3d22; margin: 0; }
+        .header-title p { font: 400 15px/22px Aptos, Arial, sans-serif; color: #333; margin: 4px 0 0 0; }
+        .header-title .meta { font: 400 12px/18px Aptos, Arial, sans-serif; color: #666; margin-top: 2px; }
+
+        /* CARDS E SEÇÕES */
+        .card { background: #fff; border: 1px solid #e6e0d9; margin-bottom: 20px; border-radius: 4px; overflow: hidden; }
+        .card-main-header { padding: 16px 20px; background: #e9efe7; font: 700 18px/26px Aptos, Arial, sans-serif; color: #1e3d22; }
+        .card-body { padding: 20px; font-size: 14px; line-height: 1.6; }
+        .card-body h4 { font: 700 15px/22px Aptos,Arial,Helvetica,sans-serif; color: #1e3d22; margin-top: 20px; margin-bottom: 8px; border-bottom: 1px solid #e6e0d9; padding-bottom: 4px; }
+        .card-body ul { margin: 0 0 16px 20px; padding: 0; }
+
+        /* TABELAS AGRUPADAS E INTERATIVAS */
+        .table-group-header {
+            font: 700 14px/22px Aptos, Arial, sans-serif; color: #004E4C; padding: 12px 20px; background-color: #faf6f1;
+            border-top: 1px solid #e6e0d9; border-bottom: 1px solid #e6e0d9; cursor: pointer; position: relative;
+            user-select: none; display: flex; justify-content: space-between; align-items: center;
+        }
+        .toggle-button {
+            background-color: #006b68; color: #fff; border: none; border-radius: 4px; padding: 6px 12px;
+            font-size: 12px; font-weight: 700; cursor: pointer; transition: background-color 0.3s;
+        }
+        .toggle-button:hover { background-color: #004E4C; }
+        .table-group-content { display: none; } /* Inicia recolhido */
+        .responsive-table { width: 100%; border-collapse: collapse; }
+        .responsive-table td { padding: 10px 12px; border-bottom: 1px solid #e6e0d9; text-align: left; font-size: 13px; vertical-align: middle; }
+        .responsive-table tr:last-child td { border-bottom: none; }
+        .responsive-table .code-col { text-align: center; font-family: 'Courier New', Courier, monospace; }
+        
+        /* ANÁLISE FINANCEIRA E GRÁFICOS */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .summary-container { grid-column: 1 / -1; }
+        .summary-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 20px; }
+        .chart-container, .top-items-container, .text-analysis-container { background-color: #fff; padding: 20px; border: 1px solid #e6e0d9; border-radius: 4px; }
+        .chart-container h5, .summary-container h5, .top-items-container h5, .text-analysis-container h5 { font: 700 16px/24px Aptos,Arial,Helvetica,sans-serif; color: #1e3d22; margin: 0 0 20px 0; text-align: center; }
+        .summary-box { text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #e6e0d9; }
+        .summary-box .label { font-size: 13px; color: #666; }
+        .summary-box .value { font-size: 30px; font-weight: 700; color: #1e3d22; margin-top: 4px; }
+        .summary-box .value.increase { color: #c00; }
+        .top-items-list { list-style: none; padding: 0; margin: 0; }
+        .top-items-list li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e6e0d9; font-size: 13px; align-items: center; }
+        .top-items-list li:last-child { border-bottom: none; }
+        .top-items-list .item-name { color: #333; text-align: left; padding-right: 10px; }
+        .top-items-list .item-impact { font-weight: 700; color: #004E4C; text-align: right; white-space: nowrap; }
+        .text-analysis-list { list-style: none; padding: 0; margin: 0; }
+        .text-analysis-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .text-analysis-list li:last-child { border-bottom: none; }
+        .text-analysis-list .category-name { color: #333; }
+        .text-analysis-list .category-value { font-weight: 700; color: #c00; }
+        .text-analysis-list .category-value.negative { color: #006b68; }
+
+        /* RODAPÉ */
+        .footer { margin-top: 40px; padding: 25px 15px; background-color: #f8f5f0; text-align: center; font-family: Verdana, sans-serif; border-top: 2px solid #006b68; }
+        .footer-logo { width: 140px; margin: 0 auto 10px auto; display: block; }
+        .footer-title { font-size: 15px; font-weight: bold; color: #333; margin: 10px 0 18px; }
+        .footer-links, .footer-social { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 10px; }
+        .footer-links a, .footer-social a { color: #004E4C; text-decoration: none; position: relative; padding: 0 4px; }
+        .footer-links a:hover, .footer-social a:hover { color: #002c2a; text-decoration: underline; }
+        .footer .separator { color: #bbb; }
+        .footer-copyright { margin-top: 18px; font-size: 11px; color: #999; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .header-title h1 { font-size: 20px; }
+            .header-title p { font-size: 13px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .header-table, .header-table tbody, .header-table tr, .header-table td { display: block; width: 100%; }
+            .header-title { text-align: left; margin-top: 15px; }
+            .responsive-table thead { display: none; }
+            .responsive-table .table-group-content tr { display: block; margin-bottom: 15px; border: 1px solid #e6e0d9; border-radius: 4px; overflow: hidden; }
+            .responsive-table td { display: block; width: auto; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid #e6e0d9; }
+            .responsive-table td:last-child { border-bottom: none; }
+            .responsive-table td::before { content: attr(data-label); position: absolute; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: 700; color: #1e3d22; }
+            .table-group-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <table class="header-table">
+                <tr>
+                    <td class="header-logo">
+                        <img src="https://i.imgur.com/XouXBck.png" alt="Unihealth Logo">
+                    </td>
+                    <td class="header-title">
+                        <h1>Análise Proposta Reprocir</h1>
+                        <p>Correspondência de Itens, Análise de Reajuste e Impacto Financeiro</p>
+                        <p class="meta">Data da Análise: 26 de Setembro de 2025</p>
+                    </td>
+                </tr>
+            </table>
+        </header>
+
+        <section id="correspondencia-section" class="card">
+            <div class="card-main-header">
+                Parte 1: Análise de Correspondência vs. Tabela TNUMM-LPM
+            </div>
+            <div class="card-body" style="display: block;">
+                <p>Realizamos uma análise comparativa minuciosa entre os itens da proposta e a Tabela TNUMM-LPM. O cruzamento permitiu validar a correspondência e codificação dos itens, ainda que os valores de referência na TNUMM estejam zerados para esta classe de materiais.</p>
+                
+                <h4>Itens Não Localizados na Tabela TNUMM</h4>
+                <p>Os seguintes itens não possuem correspondência direta, podendo requerer cadastramento ou análise de equivalência técnica:</p>
+                <ul>
+                    <li>Placa Corretiva Chambart 4,5mm</li>
+                    <li>Paraf. Canulado Dupla Compressão Até 4,5mm Cabeça Anatômica</li>
+                    <li>Âncora de Sutura Tec. Juggerkont</li>
+                    <li>Malha de tração (dedeira)</li>
+                    <li>Clamp</li>
+                </ul>
+
+                <h4>Tabela de Correspondência Completa (Agrupada por Categoria)</h4>
+                <div style="overflow-x:auto;">
+                    <table class="responsive-table">
+                        <tbody id="correspondence-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="financeiro-section" class="card">
+            <div class="card-main-header">
+                Parte 2: Análise de Reajuste e Impacto Financeiro da Proposta
+            </div>
+            <div class="card-body" style="display: block;">
+                <h4>Resumo da Proposta</h4>
+                <p>A proposta comercial da Reprocir contempla a atualização de preços para um portfólio de 216 itens, com reajustes escalonados em quatro datas principais. A análise a seguir considera o impacto financeiro do primeiro reajuste, válido a partir de <b>1º de Outubro de 2025</b>, com base no consumo médio anual registrado em Valadares (ago/24 a jul/25).</p>
+                
+                <div class="summary-container">
+                    <h5>Resumo Executivo do Impacto Financeiro</h5>
+                    <div class="summary-panel">
+                        <div class="summary-box">
+                            <span class="label">Custo Mensal Anterior</span>
+                            <span class="value" id="custo-antigo">R$ 0,00</span>
+                        </div>
+                        <div class="summary-box">
+                            <span class="label">Custo Mensal Projetado</span>
+                            <span class="value" id="custo-novo">R$ 0,00</span>
+                        </div>
+                        <div class="summary-box">
+                            <span class="label">Aumento Médio Ponderado</span>
+                            <span class="value increase" id="aumento-medio">+0,00%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="text-analysis-container">
+                        <h5>Reajuste Médio Ponderado por Categoria</h5>
+                        <ul id="reajuste-list" class="text-analysis-list">
+                           </ul>
+                    </div>
+                    <div class="top-items-container">
+                        <h5>Top 5 Itens com Maior Impacto no Custo Mensal</h5>
+                        <ul id="top-impact-list" class="top-items-list">
+                            </ul>
+                    </div>
+                    <div class="chart-container" style="grid-column: 1 / -1;">
+                        <h5>Distribuição do Custo Mensal Projetado por Categoria</h5>
+                         <canvas id="impactoChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="footer">
+          <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+          <div class="footer-title">AxView™ | Pages - Gestão e Consultoria em Saúde</div>
+          <div class="footer-links">
+            <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+            <span class="separator">|</span>
+            <a href="https://www.axcare.com.br">axcare.com.br</a>
+            <span class="separator">|</span>
+            <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+          </div>
+          <div class="footer-social">
+            <a href="https://guithome.com.br">guithome.com.br</a>
+            <span class="separator">|</span>
+            <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+            <span class="separator">|</span>
+            <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+          </div>
+          <div class="footer-copyright">
+            Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV
+          </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS COMPLETOS E DEFINITIVOS DA PROPOSTA ---
+        const proposalData = [
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: "Arruela para parafuso peq.", oldPrice: 7.6, newPrice: 14.4, consumption: 6, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 1,5mm", oldPrice: null, newPrice: 42.6, consumption: 0, tnummName: "PARAFUSO CORTICAL 1.5MM", tnummCode: "71195655" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 2,0mm", oldPrice: 22.9, newPrice: 42.6, consumption: 48, tnummName: "PARAFUSO CORTICAL 2.0MM", tnummCode: "70476721" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 2,7mm", oldPrice: 22.9, newPrice: 42.6, consumption: 26, tnummName: "PARAFUSO CORTICAL 2.7MM", tnummCode: "70476837" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Mini Placa 1,5mm', oldPrice: null, newPrice: 189.25, consumption: 2, tnummName: "MINI PLACA RETA 1.5MM", tnummCode: "71195604" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Mini Placa 2,0mm', oldPrice: 169, newPrice: 189.25, consumption: 1, tnummName: "MINI PLACA RETA 2.0MM", tnummCode: "70476624" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Mini Placa 2,7mm', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "MINI PLACA RETA 2.7MM", tnummCode: "70476772" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa Reta 2,0mm 1/4 tubo', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "PLACA 1/4 DE TUBO", tnummCode: "70477140" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa Reta 2,0mm DCP', oldPrice: 169, newPrice: 189.25, consumption: 1, tnummName: "PLACA DE AUTO COMPRESSAO DCP 2.0MM", tnummCode: "70476713" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa Reta 2,7mm 1/4 tubo', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "PLACA 1/4 DE TUBO", tnummCode: "70477140" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa Reta 2,7mm DCP', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "PLACA DE AUTO COMPRESSAO DCP 2.7MM", tnummCode: "70476829" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "L" Dir./Esq. 2,0mm', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "MINI PLACA EM L 2.0MM", tnummCode: "70476659" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "L" Obliqua Dir./Esq. 2,0mm', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "MINI PLACA EM L OBLIQUA 2.0MM", tnummCode: "70476667" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "T" 2,0mm', oldPrice: 169, newPrice: 189.25, consumption: 3, tnummName: "MINI PLACA EM T 2.0MM", tnummCode: "70476632" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "L" Dir./Esq. 2,7mm', oldPrice: 169, newPrice: 189.25, consumption: 2, tnummName: "MINI PLACA EM L 2.7MM", tnummCode: "70476780" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "L" Obliqua Dir./Esq. 2,7mm', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "MINI PLACA EM L OBLIQUA 2.7MM", tnummCode: "70476799" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa em "T" 2,7mm', oldPrice: 169, newPrice: 189.25, consumption: 1, tnummName: "MINI PLACA EM T 2.7MM", tnummCode: "70476802" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 E 2,7MM - CONVENCIONAL - AÇO", item: 'Placa Multi Fargmentos 2,7mm', oldPrice: 169, newPrice: 189.25, consumption: 0, tnummName: "PLACA RECONSTRUCAO 2.7MM", tnummCode: "70476810" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Bloqueio Sistema 1,5mm', oldPrice: 129, newPrice: 148.35, consumption: 21, tnummName: "PARAFUSO BLOQUEADO 1.5MM", tnummCode: "71195663" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Bloqueio Sistema 2,0mm', oldPrice: 129, newPrice: 148.35, consumption: 26, tnummName: "PARAFUSO BLOQUEADO 2.0MM", tnummCode: "71195639" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Bloqueio Sistema 2,4mm', oldPrice: 129, newPrice: 156, consumption: 67, tnummName: "PARAFUSO BLOQUEADO 2.4MM", tnummCode: "71195647" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Bloqueio Sistema 2,7mm', oldPrice: 129, newPrice: 156, consumption: 45, tnummName: "PARAFUSO BLOQUEADO 2.7MM", tnummCode: "70477817" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Sem Bloqueio Sistema 1,5mm', oldPrice: 129, newPrice: 146, consumption: 14, tnummName: "PARAFUSO CORTICAL 1.5MM", tnummCode: "71195655" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Sem Bloqueio Sistema 2,0mm', oldPrice: 129, newPrice: 146, consumption: 10, tnummName: "PARAFUSO CORTICAL 2.0MM", tnummCode: "70476721" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Sem Bloqueio Sistema 2,4mm', oldPrice: 129, newPrice: 146, consumption: 10, tnummName: "PARAFUSO CORTICAL 2.4MM", tnummCode: "70477434" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Parafuso Sem Bloqueio Sistema 2,7mm', oldPrice: 129, newPrice: 146, consumption: 9, tnummName: "PARAFUSO CORTICAL 2.7MM", tnummCode: "70476837" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa "H" Bloqueada Direita/Esquerda Sistema 1,5mm', oldPrice: 890, newPrice: 975, consumption: 3, tnummName: "MINI PLACA EM H BLOQUEADA 1.5MM", tnummCode: "71195612" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Bloqueada Sistema 1,5mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "MINI PLACA RETA BLOQUEADA 1.5MM", tnummCode: "71195620" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Bloqueada Sistema 2,0mm', oldPrice: 890, newPrice: 975, consumption: 1, tnummName: "MINI PLACA RETA BLOQUEADA 2.0MM", tnummCode: "71195574" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Bloqueada Sistema 2,4mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "MINI PLACA RETA BLOQUEADA 2.4MM", tnummCode: "71195582" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Bloqueada Sistema 2,7mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 2.7MM", tnummCode: "70477841" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Condilar Bloqueada Direita/Esquerda Sistema 1,5mm', oldPrice: 890, newPrice: 975, consumption: 4, tnummName: "PLACA CONDILAR BLOQUEADA 1.5MM", tnummCode: "71195590" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Condilar Bloqueada Direita/Esquerda Sistema 2,0mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA CONDILAR BLOQUEADA 2.0MM", tnummCode: "71195531" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Condilar Bloqueada Direita/Esquerda Sistema 2,4mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA CONDILAR BLOQUEADA 2.4MM", tnummCode: "71195540" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Condilar Bloqueada Sistema 2,7mm', oldPrice: 890, newPrice: 975, consumption: 2, tnummName: "PLACA CONDILAR BLOQUEADA 2.7MM", tnummCode: "70477825" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "T" Bloqueada Sistema 1,5mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "MINI PLACA EM T BLOQUEADA 1.5MM", tnummCode: "71195566" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "T" Bloqueada Sistema 2,0mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "MINI PLACA EM T BLOQUEADA 2.0MM", tnummCode: "71195515" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "T" Bloqueada Sistema 2,4mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM T BLOQUEADA 2.4MM", tnummCode: "71195523" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "T" Bloqueada Sistema 2,7mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM T BLOQUEADA 2.7MM", tnummCode: "70477850" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "Y" Bloqueada Sistema 1,5mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM Y BLOQUEADA 1.5MM", tnummCode: "71195558" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "Y" Bloqueada Sistema 2,0mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM Y BLOQUEADA 2.0MM", tnummCode: "71195485" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "Y" Bloqueada Sistema 2,4mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM Y BLOQUEADA 2.4MM", tnummCode: "71195493" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa em "Y" Bloqueada Sistema 2,7mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA EM Y BLOQUEADA 2.7MM", tnummCode: "70477868" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Peq. Frag. Bloqueada Sistema 2,0mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 2.0MM", tnummCode: "70477426" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Peq. Frag. Bloqueada Sistema 2,4mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 2.4MM", tnummCode: "70477469" },
+            { category: "MINI MICRO FRAGMENTOS 1,5 / 2,0 / 2,4 E 2,7MM - BLOQUEADO - TITÂNIO", item: 'Placa Peq. Frag. Bloqueada Sistema 2,7mm', oldPrice: 890, newPrice: 975, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 2.7MM", tnummCode: "70477841" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Arruela para parafuso peq.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 3,5mm", oldPrice: 15.6, newPrice: 19.9, consumption: 484, tnummName: "PARAFUSO CORTICAL 3.5MM", tnummCode: "70477027" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Parafuso Esponjoso 4,0mm", oldPrice: 25, newPrice: 33.5, consumption: 0, tnummName: "PARAFUSO ESPONJOSO 4.0MM", tnummCode: "70477086" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Placa Reta DCP 3,5mm", oldPrice: 169, newPrice: 228, consumption: 0, tnummName: "PLACA DE AUTO COMPRESSAO DCP 3.5MM", tnummCode: "70477019" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Placa 1/3 Tubular 3,5mm", oldPrice: 90, newPrice: 180, consumption: 19, tnummName: "PLACA 1/3 DE TUBO", tnummCode: "70477000" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: "Placa de Reconstrução 3,5mm", oldPrice: 250, newPrice: 380, consumption: 11, tnummName: "PLACA DE RECONSTRUCAO RETA 3.5MM", tnummCode: "70477043" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em "T" Reta 3,5mm', oldPrice: 199, newPrice: 290, consumption: 11, tnummName: "PLACA EM T 3.5MM", tnummCode: "70477051" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em "T" Obliqua Dir./Esq 3,5mm', oldPrice: 199, newPrice: 290, consumption: 1, tnummName: "PLACA EM T OBLIQUA 3.5MM", tnummCode: "70477060" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em Trevo 3,5mm', oldPrice: null, newPrice: 350, consumption: 0, tnummName: "PLACA EM TREVO 3.5MM", tnummCode: "70477078" },
+            { category: "SISTEMA PEDIÁTRICO OCTO PLATE 3,5MM - CONVENCIONAL - AÇO", item: "Placa Octo Plate Ø12 / Ø14 / Ø16mm", oldPrice: 490, newPrice: 590, consumption: 2, tnummName: "PLACA OITO FUROS", tnummCode: "70477035" },
+            { category: "SISTEMA PEDIÁTRICO OCTO PLATE 3,5MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 3,5mm", oldPrice: 15.6, newPrice: null, consumption: 0, tnummName: "PARAFUSO CORTICAL 3.5MM", tnummCode: "70477027" },
+            { category: "SISTEMA PEDIÁTRICO OCTO PLATE 3,5MM - CONVENCIONAL - AÇO", item: "Parafuso Esponjoso 4,0mm", oldPrice: 25, newPrice: null, consumption: 0, tnummName: "PARAFUSO ESPONJOSO 4.0MM", tnummCode: "70477086" },
+            { category: "SISTEMA PEDIÁTRICO OCTO PLATE 3,5MM - CONVENCIONAL - AÇO", item: "Parafuso Canulado 3,5mm RP e RT", oldPrice: null, newPrice: null, consumption: 0, tnummName: "PARAFUSO CANULADO 3.5MM", tnummCode: "70477965" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Arruela para parafuso peq.", oldPrice: 7.6, newPrice: 14.4, consumption: 6, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Parafuso Cortical 3,5mm", oldPrice: 15.6, newPrice: 19.9, consumption: 15, tnummName: "PARAFUSO CORTICAL 3.5MM", tnummCode: "70477027" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Parafuso Cortical Auto Rosqueante de Bloqueio 3,5mm", oldPrice: 84, newPrice: 110, consumption: 689, tnummName: "PARAFUSO BLOQUEADO 3.5MM", tnummCode: "70477876" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Parafuso Esponjoso 4,0mm", oldPrice: 25, newPrice: 33.5, consumption: 27, tnummName: "PARAFUSO ESPONJOSO 4.0MM", tnummCode: "70477086" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa Reta DCP Bloqueada 3,5mm", oldPrice: 790, newPrice: 890, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 3.5MM", tnummCode: "70477884" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa 1/3 Tubular Bloqueada 3,5mm", oldPrice: 790, newPrice: 890, consumption: 74, tnummName: "PLACA 1/3 TUBO BLOQUEADA 3.5MM", tnummCode: "70477892" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa de Reconstrução Bloqueada 3,5mm", oldPrice: 790, newPrice: 915, consumption: 29, tnummName: "PLACA DE RECONSTRUCAO RETA BLOQUEADA 3.5MM", tnummCode: "70477906" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: 'Placa esp. em "T" Reta Bloqueada 3,5mm', oldPrice: 790, newPrice: 915, consumption: 0, tnummName: "PLACA EM T BLOQUEADA 3.5MM", tnummCode: "70477914" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: 'Placa esp. em "T" Obliqua Dir./Esq Bloqueada 3,5mm', oldPrice: 790, newPrice: 915, consumption: 8, tnummName: "PLACA EM T OBLIQUA BLOQUEADA 3.5MM", tnummCode: "70477922" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa Angulada para Úmero Proximal Bloqueada 3,5mm", oldPrice: 1250, newPrice: 1580, consumption: 0, tnummName: "PLACA PARA UMERO PROXIMAL BLOQUEADA 3.5MM", tnummCode: "70477930" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa Distal de Tíbia Bloqueada 3,5mm Dir/Esq.", oldPrice: 1140, newPrice: 1680, consumption: 0, tnummName: "PLACA PARA TIBIA DISTAL BLOQUEADA 3.5MM", tnummCode: "70477957" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa de Pilão Tíbia Bloqueada 3,5mm", oldPrice: 1590, newPrice: 1680, consumption: 0, tnummName: "PLACA PILAO TIBIAL BLOQUEADA 3.5MM", tnummCode: "70477949" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3.5MM - AÇO", item: "Placa p/ Calcâneo 3,5mm", oldPrice: 790, newPrice: 1858, consumption: 0, tnummName: "PLACA PARA CALCANEO BLOQUEADA 3.5MM", tnummCode: "70477809" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa p/ Clavícula 3,5mm", oldPrice: 1390, newPrice: 1507, consumption: 5, tnummName: "PLACA PARA CLAVICULA BLOQUEADA 3.5MM", tnummCode: "70477787" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - AÇO", item: "Placa p/ Clavícula Distal 3,5mm", oldPrice: 1390, newPrice: 1507, consumption: 0, tnummName: "PLACA PARA CLAVICULA DISTAL BLOQUEADA 3.5MM", tnummCode: "70477795" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Arruela para parafuso peq.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Parafuso Cortical 3,5mm", oldPrice: 129, newPrice: 162, consumption: 1, tnummName: "PARAFUSO CORTICAL 3.5MM", tnummCode: "70477027" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Parafuso Cortical Auto Rosqueante de Bloqueio 3,5mm", oldPrice: 129, newPrice: 162, consumption: 122, tnummName: "PARAFUSO BLOQUEADO 3.5MM", tnummCode: "70477876" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Parafuso Esponjoso 4,0mm", oldPrice: 129, newPrice: 199, consumption: 1, tnummName: "PARAFUSO ESPONJOSO 4.0MM", tnummCode: "70477086" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa Reta DCP Bloqueada 3,5mm", oldPrice: 890, newPrice: 1655, consumption: 0, tnummName: "PLACA RETA BLOQUEADA 3.5MM", tnummCode: "70477884" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa 1/3 Tubular Bloqueada 3,5mm", oldPrice: 890, newPrice: 1655, consumption: 0, tnummName: "PLACA 1/3 TUBO BLOQUEADA 3.5MM", tnummCode: "70477892" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa de Reconstrução Bloqueada 3,5mm", oldPrice: 890, newPrice: 1800, consumption: 0, tnummName: "PLACA DE RECONSTRUCAO RETA BLOQUEADA 3.5MM", tnummCode: "70477906" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: 'Placa esp. em "T" Reta Bloqueada 3,5mm', oldPrice: 890, newPrice: 1800, consumption: 0, tnummName: "PLACA EM T BLOQUEADA 3.5MM", tnummCode: "70477914" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: 'Placa esp. em "T" Obliqua Dir./Esq Bloqueada 3,5mm', oldPrice: 890, newPrice: 1800, consumption: 0, tnummName: "PLACA EM T OBLIQUA BLOQUEADA 3.5MM", tnummCode: "70477922" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa Angulada para Úmero Proximal Bloqueada 3,5mm", oldPrice: 2280, newPrice: 2560, consumption: 0, tnummName: "PLACA PARA UMERO PROXIMAL BLOQUEADA 3.5MM", tnummCode: "70477930" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa para Artrodese de Punho Reta/Curva Curta/Curva Longa", oldPrice: 1590, newPrice: 2560, consumption: 2, tnummName: "PLACA PARA ARTRODESE DE PUNHO", tnummCode: "70477779" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa Úmero Medial 3,5mm", oldPrice: 2280, newPrice: 2560, consumption: 28, tnummName: "PLACA PARA UMERO MEDIAL BLOQUEADA 3.5MM", tnummCode: "70477760" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa Úmero Lateral 3,5mm", oldPrice: 2280, newPrice: 2800, consumption: 2, tnummName: "PLACA PARA UMERO LATERAL BLOQUEADA 3.5MM", tnummCode: "70477752" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa de Olecrano 3,5mm", oldPrice: 2680, newPrice: 2800, consumption: 6, tnummName: "PLACA PARA OLECRANO BLOQUEADA 3.5MM", tnummCode: "70477744" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa p/ Calcâneo 3,5mm", oldPrice: 1590, newPrice: 1828.5, consumption: 0, tnummName: "PLACA PARA CALCANEO BLOQUEADA 3.5MM", tnummCode: "70477809" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa p/ Clavícula 3,5mm", oldPrice: 2680, newPrice: 2250, consumption: 8, tnummName: "PLACA PARA CLAVICULA BLOQUEADA 3.5MM", tnummCode: "70477787" },
+            { category: "PEQUENOS FRAGMENTOS 3,5MM BLOQUEADO / ALCP 3,5MM - TITÂNIO", item: "Placa p/ Clavícula Distal 3,5mm", oldPrice: 2680, newPrice: 2250, consumption: 4, tnummName: "PLACA PARA CLAVICULA DISTAL BLOQUEADA 3.5MM", tnummCode: "70477795" },
+            { category: "PLACA VOLAR/DISTAL DE PUNHO BLOQUEADO - TITÂNIO", item: "Pino 2,0mm", oldPrice: 129, newPrice: 162, consumption: 0, tnummName: "PINO LISO 2.0MM", tnummCode: "70477132" },
+            { category: "PLACA VOLAR/DISTAL DE PUNHO BLOQUEADO - TITÂNIO", item: "Parafuso Volar 2,5mm RP/RT", oldPrice: 129, newPrice: 162, consumption: 92, tnummName: "PARAFUSO VOLAR BLOQUEADO 2.5MM", tnummCode: "70477736" },
+            { category: "PLACA VOLAR/DISTAL DE PUNHO BLOQUEADO - TITÂNIO", item: "Parafuso Cortical Auto Rosqueante de Bloqueio 3,5mm", oldPrice: 129, newPrice: 162, consumption: 0, tnummName: "PARAFUSO BLOQUEADO 3.5MM", tnummCode: "70477876" },
+            { category: "PLACA VOLAR/DISTAL DE PUNHO BLOQUEADO - TITÂNIO", item: "Placa Volar em T Obliqua Dir/Esq. A. Fixo", oldPrice: 1490, newPrice: 1597.5, consumption: 0, tnummName: "PLACA VOLAR PARA RADIO DISTAL 2.5MM", tnummCode: "70477710" },
+            { category: "PLACA VOLAR/DISTAL DE PUNHO BLOQUEADO - TITÂNIO", item: "Placa Volar em T Obliqua Dir/Esq. A. Var", oldPrice: 1490, newPrice: 1597.5, consumption: 17, tnummName: "PLACA VOLAR PARA RADIO DISTAL 2.5MM", tnummCode: "70477710" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Arruela para parafusos gr.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 4,5mm", oldPrice: 20.6, newPrice: 24, consumption: 73, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Parafuso Esponjoso 6,5mm", oldPrice: 25, newPrice: 35, consumption: 10, tnummName: "PARAFUSO ESPONJOSO 6.5MM", tnummCode: "70477205" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Parafuso Maleolar 4,5mm", oldPrice: 23, newPrice: 31, consumption: 0, tnummName: "PARAFUSO MALEOLAR 4.5MM", tnummCode: "70477213" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Placa Reta DCP Estreita 4,5mm", oldPrice: 141, newPrice: 178.25, consumption: 4, tnummName: "PLACA DE AUTO COMPRESSAO ESTREITA 4.5MM", tnummCode: "70477159" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Placa Reta DCP Larga 4,5mm", oldPrice: 210, newPrice: 383, consumption: 0, tnummName: "PLACA DE AUTO COMPRESSAO LARGA 4.5MM", tnummCode: "70477175" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: "Placa Semi-Tubular 4,5mm", oldPrice: 78, newPrice: 121, consumption: 0, tnummName: "PLACA SEMI-TUBULAR 4.5MM", tnummCode: "70477183" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em Trevo 4,5mm', oldPrice: 255, newPrice: 450, consumption: 2, tnummName: "PLACA EM TREVO 4.5MM", tnummCode: "70477191" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em T 4,5mm', oldPrice: 255, newPrice: 303.75, consumption: 9, tnummName: "PLACA EM T 4.5MM", tnummCode: "70477221" },
+            { category: "GRANDES FRAGMENTOS 4,5MM - CONVENCIONAL - AÇO", item: 'Placa esp. em "L" Dir./Esq. 4,5mm', oldPrice: 255, newPrice: 303.75, consumption: 4, tnummName: "PLACA EM L 4.5MM", tnummCode: "70477230" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Arruela para parafusos gr.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Parafuso Cortical 4,5mm", oldPrice: 20.6, newPrice: 24, consumption: 186, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Parafuso Cortical Auto Rosqueante de bloqueio 4,5mm", oldPrice: 84, newPrice: 146.2, consumption: 62, tnummName: "PARAFUSO BLOQUEADO 4.5MM", tnummCode: "70477663" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Parafuso Esponjoso 6,5mm", oldPrice: 25, newPrice: 35, consumption: 15, tnummName: "PARAFUSO ESPONJOSO 6.5MM", tnummCode: "70477205" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Parafuso Maleolar 4,5mm", oldPrice: 23, newPrice: 31, consumption: 0, tnummName: "PARAFUSO MALEOLAR 4.5MM", tnummCode: "70477213" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Placa Reta DCP Estreita 4,5mm", oldPrice: 890, newPrice: 1065, consumption: 9, tnummName: "PLACA RETA BLOQUEADA 4.5MM", tnummCode: "70477647" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Placa Reta DCP Larga 4,5mm", oldPrice: 890, newPrice: 1065, consumption: 4, tnummName: "PLACA RETA LARGA BLOQUEADA 4.5MM", tnummCode: "70477655" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Placa Semi-Tubular 4,5mm", oldPrice: 890, newPrice: 1390, consumption: 0, tnummName: "PLACA SEMI-TUBULAR BLOQUEADA 4.5MM", tnummCode: "70477639" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Placa de Sustentação Tibial Dir/Esq. 4,5mm", oldPrice: 1200, newPrice: 1180, consumption: 5, tnummName: "PLACA SUPORTE CONDILAR BLOQUEADA 4.5MM", tnummCode: "70477671" },
+            { category: "GRANDES FRAGMENTOS 4,5MM BLOQUEADO - ALCP 4,5MM - AÇO", item: "Placa de Sustentação Femural Distal Dir/Esq. 4,5mm", oldPrice: 1378, newPrice: 2200, consumption: 0, tnummName: "PLACA PARA FEMUR DISTAL BLOQUEADA 4.5MM", tnummCode: "70477680" },
+            { category: "PLACA DISTAL DE FEMUR MIPLATE BLOQUEADO - AÇO", item: "Placa Distal de Femoral Dir/Esq.", oldPrice: 1378, newPrice: 2200, consumption: 8, tnummName: "PLACA PARA FEMUR DISTAL BLOQUEADA 4.5MM", tnummCode: "70477680" },
+            { category: "PLACA DISTAL DE FEMUR MIPLATE BLOQUEADO - AÇO", item: "Parafuso Cortical Ø4,5mm", oldPrice: 84, newPrice: 146.2, consumption: 0, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "PLACA DISTAL DE FEMUR MIPLATE BLOQUEADO - AÇO", item: "Parafuso Autorroqueante Ø5,0mm", oldPrice: 84, newPrice: 146.2, consumption: 159, tnummName: "PARAFUSO BLOQUEADO 5.0MM", tnummCode: "70477698" },
+            { category: "PLACA DISTAL DE FEMUR MIPLATE BLOQUEADO - AÇO", item: "Parafuso Cortical Auto Rosqueante de bloqueio Ø5,0mm", oldPrice: 84, newPrice: 146.2, consumption: 0, tnummName: "PARAFUSO BLOQUEADO 5.0MM", tnummCode: "70477698" },
+            { category: "PLACA CORRETIVA (PUDDU) 4,5MM - CONVENCIONAL - AÇO", item: "Arruela para parafusos gr.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PLACA CORRETIVA (PUDDU) 4,5MM - CONVENCIONAL - AÇO", item: "Parafuso Cortical 4,5mm", oldPrice: 20.6, newPrice: 24, consumption: 9, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "PLACA CORRETIVA (PUDDU) 4,5MM - CONVENCIONAL - AÇO", item: "Parafuso Esponjoso 6,5mm", oldPrice: 25, newPrice: 35, consumption: 0, tnummName: "PARAFUSO ESPONJOSO 6.5MM", tnummCode: "70477205" },
+            { category: "PLACA CORRETIVA (PUDDU) 4,5MM - CONVENCIONAL - AÇO", item: "Placa Corretiva Conv. Aço Tibial 4,5mm", oldPrice: 445.6, newPrice: 730, consumption: 1, tnummName: "PLACA PUDDU", tnummCode: "70477701" },
+            { category: "PLACA CORRETIVA (PUDDU) 4,5MM - CONVENCIONAL - AÇO", item: "Placa Corretiva Conv. Aço Fêmur 4,5mm", oldPrice: 445.6, newPrice: 730, consumption: 1, tnummName: "PLACA PUDDU", tnummCode: "70477701" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Arruela para parafusos gr.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Parafuso Cortical 4,5mm", oldPrice: 20.6, newPrice: 24, consumption: 0, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Parafuso Esponjoso 6,5mm", oldPrice: 25, newPrice: 35, consumption: 2, tnummName: "PARAFUSO ESPONJOSO 6.5MM", tnummCode: "70477205" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Parafuso Cortical Auto Rosqueante de bloqueio 4,5mm", oldPrice: 84, newPrice: 146.2, consumption: 0, tnummName: "PARAFUSO BLOQUEADO 4.5MM", tnummCode: "70477663" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Calço 5 / 7,5 / 10 / 12,5 / 15mm", oldPrice: 390, newPrice: 270, consumption: 0, tnummName: "CALCO PARA PLACA PUDDU", tnummCode: "70477728" },
+            { category: "PLACA CORRETIVA (CHAMBART) 4,5MM - BLOQUEADO - AÇO", item: "Placa Corretiva Chambart 4,5mm", oldPrice: 891, newPrice: 1290, consumption: 2, tnummName: null, tnummCode: null },
+            { category: "HASTES INTRAMEDULARES (INTERLOCKING) - CONVENCIONAL - AÇO", item: "Haste Intramedular Bloq. de Fêmur", oldPrice: 880, newPrice: 1510, consumption: 82, tnummName: "HASTE INTRAMEDULAR DE FEMUR BLOQUEADA", tnummCode: "70478029" },
+            { category: "HASTES INTRAMEDULARES (INTERLOCKING) - CONVENCIONAL - AÇO", item: "Haste Intramedular Bloq. de Tíbia", oldPrice: 880, newPrice: 1510, consumption: 15, tnummName: "HASTE INTRAMEDULAR DE TIBIA BLOQUEADA", tnummCode: "70478037" },
+            { category: "HASTES INTRAMEDULARES (INTERLOCKING) - CONVENCIONAL - AÇO", item: "Parafuso Tampão p/ haste intramedular", oldPrice: 98, newPrice: 149, consumption: 48, tnummName: "PARAFUSO DE TAPA HASTE", tnummCode: "70478053" },
+            { category: "HASTES INTRAMEDULARES (INTERLOCKING) - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 4,5/4,9mm", oldPrice: 110, newPrice: 149, consumption: 115, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 4.9MM", tnummCode: "70478061" },
+            { category: "HASTES INTRAMEDULARES (INTERLOCKING) - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 6,4/6,5mm", oldPrice: 110, newPrice: 149, consumption: 2, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 6.4MM", tnummCode: "70478070" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Haste Intramedular C/Bloq. Cefálico Curta de Fêmur", oldPrice: 990, newPrice: 1510, consumption: 40, tnummName: "HASTE FEMURAL PROXIMAL COM BLOQUEIO CEFALICO CURTA", tnummCode: "70478002" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Haste Intramedular C/Bloq. Cefálico Longa de Fêmur", oldPrice: 1754.1, newPrice: 1990, consumption: 18, tnummName: "HASTE FEMURAL PROXIMAL COM BLOQUEIO CEFALICO LONGA", tnummCode: "70478010" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Parafuso Tampão p/ haste intramedular C/Bloq. Cefálico", oldPrice: 98, newPrice: 149, consumption: 28, tnummName: "PARAFUSO DE TAPA HASTE", tnummCode: "70478053" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Parafuso Deslizante p/ haste intram. C/Bloq. Cefálico", oldPrice: 210, newPrice: 310, consumption: 21, tnummName: "PARAFUSO DESLIZANTE PARA HASTE FEMURAL", tnummCode: "70478088" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 4,5/4,9mm", oldPrice: 110, newPrice: 149, consumption: 114, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 4.9MM", tnummCode: "70478061" },
+            { category: "HASTES INTRAMEDULARES C/ BLOQ. CEFÁLICO - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 6,4/6,5mm", oldPrice: 110, newPrice: 149, consumption: 2, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 6.4MM", tnummCode: "70478070" },
+            { category: "HASTES INTRAMEDULARES (RETROGRADA) - CONVENCIONAL - AÇO", item: "Haste Intramedular Bloq. de Fêmur Retrograda", oldPrice: 990, newPrice: 1510, consumption: 11, tnummName: "HASTE INTRAMEDULAR DE FEMUR RETROGRADA", tnummCode: "70478142" },
+            { category: "HASTES INTRAMEDULARES (RETROGRADA) - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 4,5/4,9mm", oldPrice: 110, newPrice: 149, consumption: 0, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 4.9MM", tnummCode: "70478061" },
+            { category: "HASTES INTRAMEDULARES (RETROGRADA) - CONVENCIONAL - AÇO", item: "Parafuso de Bloqueio p/ haste intramedular 6,4/6,5mm", oldPrice: 110, newPrice: 149, consumption: 2, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 6.4MM", tnummCode: "70478070" },
+            { category: "HASTES INTRAM. (RETROGRADA) - CONVENCIONAL - TITÂNIO", item: "Haste Intramedular Bloq. de Tíbia Retrograda Titânio", oldPrice: 1140, newPrice: 2250, consumption: 0, tnummName: "HASTE INTRAMEDULAR DE TIBIA RETROGRADA", tnummCode: "70478150" },
+            { category: "HASTES INTRAM. (RETROGRADA) - CONVENCIONAL - TITÂNIO", item: "Parafuso de Bloqueio p/ haste intramedular 3,9mm Titânio", oldPrice: 120, newPrice: 322, consumption: 7, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 3.9MM", tnummCode: "70478169" },
+            { category: "HASTES INTRAM. ÚMERO - CONVENCIONAL - TITÂNIO", item: "Haste Intramedular Bloq. de Úmero Titânio", oldPrice: 2860, newPrice: 2250, consumption: 0, tnummName: "HASTE INTRAMEDULAR DE UMERO BLOQUEADA", tnummCode: "70478177" },
+            { category: "HASTES INTRAM. ÚMERO - CONVENCIONAL - TITÂNIO", item: "Parafuso de Bloqueio p/ haste intramedular 3,9mm Titânio", oldPrice: 280, newPrice: 322, consumption: 0, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE 3.9MM", tnummCode: "70478169" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Parafuso Cortical 4,5mm", oldPrice: 20.6, newPrice: 24, consumption: 0, tnummName: "PARAFUSO CORTICAL 4.5MM", tnummCode: "70477167" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Parafuso Esponjoso 6,5mm", oldPrice: 25, newPrice: 35, consumption: 0, tnummName: "PARAFUSO ESPONJOSO 6.5MM", tnummCode: "70477205" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Parafuso de compressão ou contra parafuso", oldPrice: 37.8, newPrice: 55, consumption: 0, tnummName: "PARAFUSO DE COMPRESSAO PARA PLACA DHS", tnummCode: "70478207" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Parafuso Deslizante DHS/DCS", oldPrice: 330, newPrice: 379, consumption: 62, tnummName: "PARAFUSO DESLIZANTE PARA PLACA DHS", tnummCode: "70478215" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Placa DHS 135º", oldPrice: 568, newPrice: 815, consumption: 4, tnummName: "PLACA DHS 135 GRAUS", tnummCode: "70478185" },
+            { category: "PLACA TUBO DHS/DCS - CONVENCIONAL - AÇO", item: "Placa DCS 95º", oldPrice: 568, newPrice: 815, consumption: 0, tnummName: "PLACA DCS 95 GRAUS", tnummCode: "70478193" },
+            { category: "PARAFUSOS CANULADOS - AÇO", item: "Arruela para parafuso peq.", oldPrice: 7.6, newPrice: 14.4, consumption: 35, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PARAFUSOS CANULADOS - AÇO", item: "Parafuso Canulado 3,5mm RP e RT", oldPrice: 109, newPrice: 139.13, consumption: 49, tnummName: "PARAFUSO CANULADO 3.5MM", tnummCode: "70477965" },
+            { category: "PARAFUSOS CANULADOS - AÇO", item: "Arruela para parafusos gr.", oldPrice: 7.6, newPrice: 14.4, consumption: 0, tnummName: "ARRUELA LISA PARA PARAFUSO", tnummCode: "70478096" },
+            { category: "PARAFUSOS CANULADOS - AÇO", item: "Parafuso Canulado 4,5mm RP e RT", oldPrice: 109, newPrice: 139.13, consumption: 12, tnummName: "PARAFUSO CANULADO 4.5MM", tnummCode: "70477973" },
+            { category: "PARAFUSOS CANULADOS - AÇO", item: "Parafuso Canulado 7,0mm RP e RT", oldPrice: 105, newPrice: 139.13, consumption: 31, tnummName: "PARAFUSO CANULADO 7.0MM", tnummCode: "70477981" },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Mini Parafuso Canulado de Dupla Compressão RC/RL 2,2mm', oldPrice: 950, newPrice: 950, consumption: 0, tnummName: "PARAFUSO CANULADO 2.2MM", tnummCode: "70477990" },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Parafuso Canulado Cônico até 4,5mm', oldPrice: 950, newPrice: 950, consumption: 72, tnummName: "PARAFUSO CANULADO CONICO 4.5MM", tnummCode: "70478339" },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Parafuso Canulado Dupla Compressão RC/RL até 4,5mm', oldPrice: 950, newPrice: 950, consumption: 1, tnummName: "PARAFUSO CANULADO DUPLA COMPRESSAO 4.5MM", tnummCode: "70478347" },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Parafuso Canulado Dupla Compressão RC/RL de 5,0 a 6,5mm', oldPrice: 1200, newPrice: 950, consumption: 0, tnummName: "PARAFUSO CANULADO DUPLA COMPRESSAO 6.5MM", tnummCode: "70478355" },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Paraf. Canulado Dupla Compressão Até 4,5mm Cabeça Anatômica', oldPrice: 1390, newPrice: 950, consumption: 12, tnummName: null, tnummCode: null },
+            { category: "CANULADOS, CÔNICO E DUPLA COMPRESSÃO - TITÂNIO", item: 'Parafuso SNAP OFF 2,0/2,5mm', oldPrice: 525, newPrice: 750, consumption: 0, tnummName: "PARAFUSO SNAP-OFF", tnummCode: "70478363" },
+            { category: "ÂNCORAS", item: "Âncora Metálica Titânio c/aplicador e fios fiber Ø1,7mm", oldPrice: 1500, newPrice: 1635, consumption: 8, tnummName: "ANCORA DE TITANIO 1.7MM", tnummCode: "70478371" },
+            { category: "ÂNCORAS", item: "Âncora Metálica Titânio c/aplicador e fios fiber Ø1,9mm", oldPrice: 1500, newPrice: 1635, consumption: 3, tnummName: "ANCORA DE TITANIO 1.9MM", tnummCode: "70478380" },
+            { category: "ÂNCORAS", item: "Âncora Metálica Titânio Ø2,0 / Ø2,7 / Ø4,0 /Ø4,5 / Ø5,0mm", oldPrice: 280, newPrice: 438, consumption: 7, tnummName: "ANCORA DE TITANIO", tnummCode: "70478398" },
+            { category: "ÂNCORAS", item: "Âncora Metálica Titânio c/aplicador e fios fiber Ø3,5/ Ø5,0mm", oldPrice: 469, newPrice: 600, consumption: 6, tnummName: "ANCORA DE TITANIO", tnummCode: "70478398" },
+            { category: "ÂNCORAS", item: "Âncora de Sutura Bioabsorvível PLDL Ø3,2 / Ø5mm", oldPrice: 1500, newPrice: 1929, consumption: 528, tnummName: "ANCORA BIOABSORVIVEL", tnummCode: "70478401" },
+            { category: "ÂNCORAS", item: "Âncora de Sutura Tec. Juggerkont", oldPrice: 2200, newPrice: 2500, consumption: 89, tnummName: null, tnummCode: null },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Parafuso de Interferência Titânio", oldPrice: 385, newPrice: 486.29, consumption: 250, tnummName: "PARAFUSO DE INTERFERENCIA DE TITANIO", tnummCode: "70478410" },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Parafuso de Interferência PLDL", oldPrice: null, newPrice: 0, consumption: 23, tnummName: "PARAFUSO DE INTERFERENCIA BIOABSORVIVEL", tnummCode: "70478428" },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Grampo de Blount Ligamentar CRO CO", oldPrice: 385, newPrice: 486.29, consumption: 0, tnummName: "GRAMPO DE BLOUNT", tnummCode: "70478436" },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Sutura Meniscal All Inside-out", oldPrice: 1320, newPrice: null, consumption: 0, tnummName: "SUTURA DE MENISCO", tnummCode: "70478444" },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Sutura Meniscal All Inside-in Importado", oldPrice: 3970, newPrice: 4500, consumption: 0, tnummName: "SUTURA DE MENISCO", tnummCode: "70478444" },
+            { category: "INTERFERÊNCIA (LCA/LCP) / SUTURAS MENISCAIS", item: "Sutura Meniscal All Inside-in Nacional", oldPrice: null, newPrice: 3650, consumption: 7, tnummName: "SUTURA DE MENISCO", tnummCode: "70478444" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina de Shaver Reta CMA (Joelho/Ombro)", oldPrice: 300, newPrice: 341.75, consumption: 579, tnummName: "LAMINA DE SHAVER", tnummCode: "70478452" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina de shaver Reta BO/BR (Joelho/Ombro)", oldPrice: 300, newPrice: 341.75, consumption: 10, tnummName: "LAMINA DE SHAVER", tnummCode: "70478452" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina de Shaver Reta Mini (Joelho/Ombro/Otorrino) - Pequenas Articulações", oldPrice: 300, newPrice: 531, consumption: 5, tnummName: "LAMINA DE SHAVER", tnummCode: "70478452" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina Blade STC (Túnel do Carpo)", oldPrice: 2190, newPrice: null, consumption: 56, tnummName: "LAMINA PARA SINDROME DO TUNEL DO CARPO", tnummCode: "70478460" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina de Beaver / Lamina percutanea", oldPrice: 450, newPrice: 450, consumption: 31, tnummName: "LAMINA DE BEAVER", tnummCode: "70478479" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Cânula de ombro", oldPrice: 147, newPrice: 238, consumption: 333, tnummName: "CANULA DE ARTROSCOPIA", tnummCode: "70478487" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Ponteira de Radiofrequencia ABLATOR", oldPrice: 480, newPrice: 760, consumption: 179, tnummName: "PONTEIRA DE RADIOFREQUENCIA", tnummCode: "70478495" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Equipo p/ Irrigação Artrocopia em Bomba c/ Sensor", oldPrice: 360, newPrice: 390, consumption: 29, tnummName: "EQUIPO DE IRRIGACAO PARA ARTROSCOPIA", tnummCode: "70478509" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Equipo p/ irrigação Gravitacional", oldPrice: 50, newPrice: 45, consumption: 0, tnummName: "EQUIPO DE IRRIGACAO PARA ARTROSCOPIA", tnummCode: "70478509" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo Linear 200/300/350mm", oldPrice: 700, newPrice: 900, consumption: 30, tnummName: "FIXADOR EXTERNO LINEAR", tnummCode: "70478517" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo de Punho Tipo Colles", oldPrice: 700, newPrice: 800, consumption: 4, tnummName: "FIXADOR EXTERNO PARA PUNHO", tnummCode: "70478525" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo Pélvico 400mm", oldPrice: 950, newPrice: 900, consumption: 9, tnummName: "FIXADOR EXTERNO PELVICO", tnummCode: "70478533" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo p/ Falange", oldPrice: 620, newPrice: 700, consumption: 4, tnummName: "FIXADOR EXTERNO PARA METACARPO E FALANGES", tnummCode: "70478541" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo ILIZAROV por segmento", oldPrice: 3280, newPrice: 4630, consumption: 0, tnummName: "FIXADOR EXTERNO CIRCULAR ILIZAROV", tnummCode: "70478550" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fixador Externo Tubo a Tubo por segmento", oldPrice: 1990, newPrice: 2990, consumption: 0, tnummName: "FIXADOR EXTERNO TUBO A TUBO", tnummCode: "70478568" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Fresa de Corte Adulto (Shannon, Wegde)", oldPrice: 980, newPrice: 1050, consumption: 34, tnummName: "FRESA CIRURGICA", tnummCode: "70478576" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Surtufix fio de alta resistencia agulhado", oldPrice: 280, newPrice: 890, consumption: 2, tnummName: "FIO DE SUTURA", tnummCode: "70478584" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Cimento Ortopedico s/antibiotico nacional", oldPrice: 107.34, newPrice: 165, consumption: 326, tnummName: "CIMENTO ORTOPEDICO", tnummCode: "70478592" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Cimento Ortopedico s/antibiotico Importado", oldPrice: 260, newPrice: 350, consumption: 0, tnummName: "CIMENTO ORTOPEDICO", tnummCode: "70478592" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Cimento Ortopedico c/antibiotico Importado", oldPrice: 2750, newPrice: 2750, consumption: 0, tnummName: "CIMENTO ORTOPEDICO COM ANTIBIOTICO", tnummCode: "70478606" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Enxerto Osseo granulado 10g", oldPrice: null, newPrice: 830, consumption: 240, tnummName: "ENXERTO OSSEO", tnummCode: "70478614" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Enxerto Osseo bloco Orthogen", oldPrice: 2842.5, newPrice: 3625, consumption: 0, tnummName: "ENXERTO OSSEO", tnummCode: "70478614" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Enxerto Mineralizado", oldPrice: 3885, newPrice: 3625, consumption: 4, tnummName: "ENXERTO OSSEO", tnummCode: "70478614" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Lâmina de Serra Cirúrgica p/Osso", oldPrice: 270, newPrice: 300, consumption: 76, tnummName: "LAMINA DE SERRA", tnummCode: "70478622" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Kit de vertebroplastia (01 unid. Aplicador + 01 unid. Cimento p/Verteb. ) - por segmento", oldPrice: 4450, newPrice: 4680, consumption: 21, tnummName: "KIT VERTEBROPLASTIA", tnummCode: "70478630" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Capa para Videocirurgia", oldPrice: null, newPrice: 8.2, consumption: 0, tnummName: "CAPA PARA CAMERA DE VIDEO", tnummCode: "70478649" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Agulha p/ biopsia Ossea / Vertebroplastia", oldPrice: 1250, newPrice: 990, consumption: 0, tnummName: "AGULHA PARA BIOPSIA OSSEA", tnummCode: "70478657" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Agulha Flexivel p/Sutura", oldPrice: 890, newPrice: 1180, consumption: 0, tnummName: "AGULHA DE SUTURA", tnummCode: "70478665" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Campo/Adesivo Cirurgico descartavel", oldPrice: null, newPrice: 250, consumption: 0, tnummName: "CAMPO CIRURGICO", tnummCode: "70478673" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Sistema de Lavagem Pulsavac", oldPrice: null, newPrice: 1150, consumption: 0, tnummName: "SISTEMA DE IRRIGACAO E ASPIRACAO", tnummCode: "70478681" },
+            { category: "MATERIAL DESCARTÁVEL - ESTÉRIL", item: "Malha de tração (dedeira)", oldPrice: null, newPrice: 0, consumption: 0, tnummName: null, tnummCode: null },
+            { category: "PRÓTESE CABEÇA DE RÁDIO", item: "Prótese Cabeçade Rádio", oldPrice: 1690, newPrice: 1790, consumption: 0, tnummName: "PROTESE DE CABECA DE RADIO", tnummCode: "70478703" },
+            { category: "FIOS METÁLICOS", item: 'Fio de Kirschnner Ø0,8 / Ø1,0 / Ø1,5 / Ø2,0mm', oldPrice: 16.9, newPrice: 16.5, consumption: 348, tnummName: "FIO DE KIRSCHNER", tnummCode: "70478711" },
+            { category: "FIOS METÁLICOS", item: 'Fio de Steimann Ø2,5mm', oldPrice: 18.9, newPrice: 18.9, consumption: 202, tnummName: "FIO DE STEINMANN", tnummCode: "70478720" },
+            { category: "FIOS METÁLICOS", item: 'Fio de Steimann Ø3,0 / Ø3,5 / Ø4,0 / ,Ø4,5 / Ø5,0mm', oldPrice: 24, newPrice: 18.9, consumption: 0, tnummName: "FIO DE STEINMANN", tnummCode: "70478720" },
+            { category: "FIOS METÁLICOS", item: 'Fio para Cerclagem convencional Ø 0,8 / Ø1,0 / Ø1,2 / Ø1,5mm', oldPrice: 32, newPrice: 46, consumption: 26, tnummName: "FIO DE CERCLAGEM", tnummCode: "70478738" },
+            { category: "PRÓTESE PARCIAL DE QUADRIL CIMENTADA - NACIONAL", item: "Componente Femoral Primário Cimentado", oldPrice: 1071.9, newPrice: 2338, consumption: 123, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE QUADRIL CIMENTADO", tnummCode: "70478746" },
+            { category: "PRÓTESE PARCIAL DE QUADRIL CIMENTADA - NACIONAL", item: "Componente Acetabular Met. + Polietileno", oldPrice: 990, newPrice: 2320, consumption: 4, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE PARCIAL DE QUADRIL CIMENTADA - NACIONAL", item: "Cabeça intercambiável Metálico Ø22 / Ø28mm", oldPrice: 607.2, newPrice: 1080, consumption: 0, tnummName: "CABECA FEMORAL PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478762" },
+            { category: "PRÓTESE PARCIAL DE QUADRIL CIMENTADA - NACIONAL", item: "Centralizador Femoral", oldPrice: 104, newPrice: 193, consumption: 0, tnummName: "CENTRALIZADOR FEMORAL", tnummCode: "70478770" },
+            { category: "PRÓTESE PARCIAL DE QUADRIL CIMENTADA - NACIONAL", item: "Restritor de Cimento", oldPrice: 104, newPrice: 135, consumption: 0, tnummName: "RESTRITOR DE CIMENTO", tnummCode: "70478789" },
+            { category: "PRÓTESE TOTAL DE QUADRIL CIMENTADA PRIMÁRIA - NACIONAL", item: "Componente Femoral Primário Cimentado", oldPrice: 1071.9, newPrice: 2338, consumption: 14, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE QUADRIL CIMENTADO", tnummCode: "70478746" },
+            { category: "PRÓTESE TOTAL DE QUADRIL CIMENTADA PRIMÁRIA - NACIONAL", item: "Componente Acetabular Polietileno Constritor", oldPrice: 300, newPrice: 1009, consumption: 42, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE TOTAL DE QUADRIL CIMENTADA PRIMÁRIA - NACIONAL", item: "Cabeça intercambiável Metálico Ø22 / Ø28mm", oldPrice: 607.2, newPrice: 1080, consumption: 46, tnummName: "CABECA FEMORAL PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478762" },
+            { category: "PRÓTESE TOTAL DE QUADRIL CIMENTADA PRIMÁRIA - NACIONAL", item: "Centralizador Femoral", oldPrice: 104, newPrice: 193, consumption: 9, tnummName: "CENTRALIZADOR FEMORAL", tnummCode: "70478770" },
+            { category: "PRÓTESE TOTAL DE QUADRIL CIMENTADA PRIMÁRIA - NACIONAL", item: "Restritor de Cimento", oldPrice: 104, newPrice: 135, consumption: 0, tnummName: "RESTRITOR DE CIMENTO", tnummCode: "70478789" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA - NACIONAL", item: "Componente Femoral Primário S-Cimento", oldPrice: 2496.4, newPrice: 3330, consumption: 0, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE QUADRIL NAO CIMENTADO", tnummCode: "70478800" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA - NACIONAL", item: "Componente Acetabular Polietileno", oldPrice: 300, newPrice: 1190, consumption: 31, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA - NACIONAL", item: "Componente Acetabular Metálico", oldPrice: 957.33, newPrice: 2880, consumption: 10, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA - NACIONAL", item: "Cabeça intercambiável Metálico Ø22 / Ø28mm", oldPrice: 607.2, newPrice: 1080, consumption: 0, tnummName: "CABECA FEMORAL PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478762" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA - NACIONAL", item: "Parafuso Fixação Acetabular", oldPrice: 160, newPrice: 233, consumption: 0, tnummName: "PARAFUSO PARA COMPONENTE ACETABULAR", tnummCode: "70478819" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - NACIONAL", item: "Componente Femoral Primário", oldPrice: null, newPrice: 3559.87, consumption: 0, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478827" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - NACIONAL", item: "Inserto Articular Tibial Primário", oldPrice: null, newPrice: 1890, consumption: 0, tnummName: "INSERTO TIBIAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478835" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - NACIONAL", item: "Componente Tibial Primário", oldPrice: null, newPrice: 2550, consumption: 120, tnummName: "COMPONENTE TIBIAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478843" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - NACIONAL", item: "Componente Patelar", oldPrice: null, newPrice: 678.37, consumption: 98, tnummName: "COMPONENTE PATELAR PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478851" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Componente Femoral Primário S-Cimento", oldPrice: 7293, newPrice: 6200, consumption: 12, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE QUADRIL NAO CIMENTADO", tnummCode: "70478800" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Componente Acetabular Polietileno ( Line)", oldPrice: 1020, newPrice: 1452, consumption: 12, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Componente Acetabular Cerâmica", oldPrice: 5300, newPrice: 5300, consumption: 10, tnummName: "COMPONENTE ACETABULAR DE CERAMICA", tnummCode: "70478860" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Componente Acetabular Metálico", oldPrice: 3000, newPrice: 3500, consumption: 23, tnummName: "COMPONENTE ACETABULAR PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478754" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Cabeça Intercambiável Metálico Ø22 / Ø28 / Ø32 / Ø36mm", oldPrice: 1875, newPrice: 2050, consumption: 1, tnummName: "CABECA FEMORAL PARA ARTROPLASTIA DE QUADRIL", tnummCode: "70478762" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Cabeça Intercambiável Cerâmica Ø22 / Ø28 / Ø32 / Ø36mm", oldPrice: 4300, newPrice: 5775, consumption: 36, tnummName: "CABECA FEMORAL DE CERAMICA", tnummCode: "70478878" },
+            { category: "PRÓTESE TOTAL DE QUADRIL S-CIMENTADO PRIMÁRIA- IMPORTADA", item: "Parafuso de Fixação Acetabular", oldPrice: 306, newPrice: null, consumption: 5, tnummName: "PARAFUSO PARA COMPONENTE ACETABULAR", tnummCode: "70478819" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - IMPORTADA", item: "Componente Femoral Primário", oldPrice: 4484.45, newPrice: 4990, consumption: 20, tnummName: "COMPONENTE FEMORAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478827" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - IMPORTADA", item: "Inserto Articular Tibial Primário", oldPrice: 1498.74, newPrice: 3000, consumption: 22, tnummName: "INSERTO TIBIAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478835" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - IMPORTADA", item: "Componente Tibial Primário", oldPrice: 4386.86, newPrice: 4590, consumption: 0, tnummName: "COMPONENTE TIBIAL PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478843" },
+            { category: "PRÓTESE TOTAL DE JOELHO PRIMÁRIA - IMPORTADA", item: "Componente Patelar", oldPrice: 619.95, newPrice: 914.93, consumption: 42, tnummName: "COMPONENTE PATELAR PARA ARTROPLASTIA DE JOELHO", tnummCode: "70478851" },
+            { category: "DISPOSITIVO INTERSOMÁTICO - CAGE - PEEK", item: "Dispositivo Intersomático em PEEK - Cervical", oldPrice: 1290, newPrice: 1890, consumption: 0, tnummName: "CAGE INTERSOMATICO CERVICAL", tnummCode: "70478908" },
+            { category: "DISPOSITIVO INTERSOMÁTICO - CAGE - PEEK", item: "Dispositivo Intersomático em PEEK - Lombar", oldPrice: 1290, newPrice: 1890, consumption: 6, tnummName: "CAGE INTERSOMATICO LOMBAR", tnummCode: "70478916" },
+            { category: "COLUNA CERVICAL - ANTERIOR", item: "Placa Cervical via Anterior", oldPrice: 1590, newPrice: 1647.5, consumption: 3, tnummName: "PLACA CERVICAL ANTERIOR", tnummCode: "70478924" },
+            { category: "COLUNA CERVICAL - ANTERIOR", item: "Parafuso de fixação p/placa Cervical", oldPrice: 289, newPrice: 299.75, consumption: 14, tnummName: "PARAFUSO PARA PLACA CERVICAL", tnummCode: "70478932" },
+            { category: "COLUNA LOMBAR/TORACO", item: "Haste/Barra Longitudinal", oldPrice: 435, newPrice: 500, consumption: 20, tnummName: "HASTE PARA FIXACAO DE COLUNA", tnummCode: "70478940" },
+            { category: "COLUNA LOMBAR/TORACO", item: "Parafuso Pedicular Mono/Poliaxial", oldPrice: 397, newPrice: 500, consumption: 66, tnummName: "PARAFUSO PEDICULAR", tnummCode: "70478959" },
+            { category: "COLUNA LOMBAR/TORACO", item: "Parafuso de Bloqueio", oldPrice: 179, newPrice: 250, consumption: 66, tnummName: "PARAFUSO DE BLOQUEIO PARA HASTE", tnummCode: "70478061" },
+            { category: "COLUNA LOMBAR/TORACO", item: "Dipositivo de Fixação Transversal (Cross-Link / DTT)", oldPrice: 798, newPrice: 1250, consumption: 0, tnummName: "BARRA TRANSVERSAL PARA FIXACAO DE COLUNA", tnummCode: "70478967" },
+            { category: "COLUNA LOMBAR/TORACO", item: "Clamp", oldPrice: 671, newPrice: 0, consumption: 0, tnummName: null, tnummCode: null },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Haste Primária/Mini/Micro", oldPrice: 8380, newPrice: 8380, consumption: null, tnummName: "COMPONENTE UMERAL PARA ARTROPLASTIA DE OMBRO", tnummCode: "70478983" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Bandeja Umeral", oldPrice: 11027, newPrice: 11027, consumption: 2, tnummName: "COMPONENTE UMERAL PARA ARTROPLASTIA DE OMBRO", tnummCode: "70478983" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Liner/Inserto Umeral", oldPrice: 1837, newPrice: 1837, consumption: 12, tnummName: "INSERTO UMERAL", tnummCode: "70478991" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Placa Base", oldPrice: 10843, newPrice: 10843, consumption: 3, tnummName: "PLACA BASE GLENOIDAL", tnummCode: "70479009" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Glenosfera", oldPrice: 6427.5, newPrice: 6427.5, consumption: 5, tnummName: "GLENOSFERA", tnummCode: "70479017" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Parafuso Central", oldPrice: 1415, newPrice: 1415, consumption: 3, tnummName: "PARAFUSO CENTRAL GLENOIDAL", tnummCode: "70479025" },
+            { category: "PROTESE DE OMBRO - IMPORTADO", item: "Kit Parafuso Lateral (inclui até 4 unidades de parafuso)", oldPrice: 5070.5, newPrice: 5070.5, consumption: 42, tnummName: "PARAFUSO LATERAL", tnummCode: "70479033" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- LÓGICA PARA INTERATIVIDADE ---
+            function setupToggle() {
+                document.querySelectorAll('.table-group-header').forEach(header => {
+                    const button = header.querySelector('.toggle-button');
+                    const contentContainer = header.closest('tr').nextElementSibling;
+                    const contentTable = contentContainer.querySelector('.table-group-content');
+                    
+                    header.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        const isCollapsed = !contentTable || contentTable.style.display === 'none';
+                        if (contentTable) {
+                           contentTable.style.display = isCollapsed ? 'table' : 'none';
+                           button.textContent = isCollapsed ? 'Recolher' : 'Expandir';
+                        }
+                    });
+                });
+            }
+
+            // --- FUNÇÃO PARA RENDERIZAR TABELA DE CORRESPONDÊNCIA ---
+            function renderCorrespondenceTable() {
+                const tableBody = document.getElementById('correspondence-table-body');
+                if (!tableBody) return;
+                
+                const groupedData = proposalData.reduce((acc, p) => {
+                    if (!acc[p.category]) acc[p.category] = [];
+                    acc[p.category].push(p);
+                    return acc;
+                }, {});
+
+                for (const category in groupedData) {
+                    const headerRow = document.createElement('tr');
+                    headerRow.innerHTML = `<td colspan="3" class="table-group-header"><span>${category}</span><button class="toggle-button">Expandir</button></td>`;
+                    tableBody.appendChild(headerRow);
+                    
+                    const contentRow = document.createElement('tr');
+                    const contentCell = document.createElement('td');
+                    contentCell.colSpan = 3;
+                    contentCell.style.padding = 0;
+                    
+                    const innerTable = document.createElement('table');
+                    innerTable.className = 'responsive-table table-group-content';
+                    const innerTbody = document.createElement('tbody');
+
+                    groupedData[category].forEach(p => {
+                        const dataRow = document.createElement('tr');
+                        dataRow.innerHTML = `
+                            <td data-label="Item (Proposta Reprocir)">${p.item}</td>
+                            <td data-label="Correspondência (Tabela TNUMM)">${p.tnummName || 'N/A'}</td>
+                            <td data-label="Código TNUMM" class="code-col">${p.tnummCode || 'N/A'}</td>
+                        `;
+                        innerTbody.appendChild(dataRow);
+                    });
+                    innerTable.appendChild(innerTbody);
+                    contentCell.appendChild(innerTable);
+                    contentRow.appendChild(contentCell);
+                    tableBody.appendChild(contentRow);
+                }
+                setupToggle();
+            }
+
+            // --- FUNÇÃO PARA ANÁLISE FINANCEIRA E GRÁFICOS ---
+            function performFinancialAnalysis() {
+                const categoryAnalysis = {};
+                let totalOldCost = 0;
+                let totalNewCost = 0;
+                const itemImpacts = [];
+
+                proposalData.forEach(p => {
+                    if (p.oldPrice === null || p.newPrice === null || p.consumption === null || p.consumption === 0) return;
+                    
+                    const monthlyConsumption = p.consumption / 12;
+                    const oldItemCost = monthlyConsumption * p.oldPrice;
+                    const newItemCost = monthlyConsumption * p.newPrice;
+
+                    const category = p.category;
+                    if (!categoryAnalysis[category]) {
+                        categoryAnalysis[category] = { oldCost: 0, newCost: 0 };
+                    }
+                    categoryAnalysis[category].oldCost += oldItemCost;
+                    categoryAnalysis[category].newCost += newItemCost;
+                    
+                    totalOldCost += oldItemCost;
+                    totalNewCost += newItemCost;
+                    
+                    itemImpacts.push({ name: p.item, impact: newItemCost - oldItemCost });
+                });
+                
+                const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('custo-antigo').textContent = formatCurrency(totalOldCost);
+                document.getElementById('custo-novo').textContent = formatCurrency(totalNewCost);
+                const avgIncrease = totalOldCost > 0 ? ((totalNewCost / totalOldCost) - 1) * 100 : 0;
+                document.getElementById('aumento-medio').textContent = `+${avgIncrease.toFixed(2)}%`;
+
+                const top5Impact = itemImpacts.sort((a, b) => b.impact - a.impact).slice(0, 5);
+                const topImpactList = document.getElementById('top-impact-list');
+                top5Impact.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="item-name">${item.name}</span><span class="item-impact">+ ${formatCurrency(item.impact)}/mês</span>`;
+                    topImpactList.appendChild(li);
+                });
+
+                const reajusteList = document.getElementById('reajuste-list');
+                const sortedCategories = Object.keys(categoryAnalysis)
+                    .map(cat => {
+                        const data = categoryAnalysis[cat];
+                        const increase = data.oldCost > 0 ? ((data.newCost / data.oldCost) - 1) * 100 : 0;
+                        return { name: cat, increase: increase };
+                    })
+                    .sort((a, b) => b.increase - a.increase);
+
+                sortedCategories.forEach(cat => {
+                    const li = document.createElement('li');
+                    const valueClass = cat.increase >= 0 ? 'category-value' : 'category-value negative';
+                    li.innerHTML = `<span class="category-name">${cat.name}</span><span class="${valueClass}">${cat.increase >= 0 ? '+' : ''}${cat.increase.toFixed(2)}%</span>`;
+                    reajusteList.appendChild(li);
+                });
+                
+                const chartLabels = Object.keys(categoryAnalysis).filter(cat => categoryAnalysis[cat].newCost > 0);
+                const chartData = chartLabels.map(cat => categoryAnalysis[cat].newCost);
+                
+                const chartFont = { size: 12, family: 'Aptos, Arial, sans-serif' };
+                const axiaColors = ['#004E4C', '#006b68', '#5b9e9c', '#a1bca4', '#c2d1c6', '#333', '#6c757d', '#adb5bd'];
+
+                new Chart(document.getElementById('impactoChart'), {
+                    type: 'doughnut',
+                    data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: axiaColors }] },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { position: 'right', labels: { font: chartFont, boxWidth: 20 } }, 
+                            tooltip: { callbacks: { label: (c) => `${c.label}: ${formatCurrency(parseFloat(c.raw))}` } }
+                        } 
+                    }
+                });
+            }
+
+            renderCorrespondenceTable();
+            performFinancialAnalysis();
+        });
+    </script>
+</body>
+</html>
