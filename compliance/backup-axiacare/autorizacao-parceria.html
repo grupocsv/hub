@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Autorização de Parceria – Uso de Marca | AxiaCare®</title>
+  <meta name="description" content="Termo para autorização de uso de nome e logomarca em parceria institucional.">
+  <meta name="author" content="AxiaCare®">
+  <link rel="canonical" href="https://hub.axcare.com.br/autorizacao-parceria">
+  <link rel="icon" href="https://axcare.com.br/favicon.ico">
+  <meta name="theme-color" content="#196396">
+
+  <meta property="og:title" content="Autorização de Parceria – Citação de Marca | AxiaCare®">
+  <meta property="og:description" content="Autorização para citação como parceira institucional (nome e logomarca) em canais oficiais da AxiaCare®.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://i.imgur.com/wY4gVDs.png">
+  <meta property="og:site_name" content="AxiaCare®">
+  <meta property="og:url" content="https://hub.axcare.com.br/autorizacao-parceria">
+  <meta property="og:locale" content="pt_BR">
+
+  <style>
+    :root{
+      --brand-primary:#196396; --brand-accent:#2DBF7F; --brand-dark:#2d3445; --brand-off:#f8f5f0; --white:#fff;
+      --text:#1b1e24; --muted:#5b6470; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.08);
+      --maxw:960px; --pad:24px; --focus:0 0 0 3px rgba(25,99,150,.25);
+      --ok:#0f7a48; --ok-bg:#e9f7f1; --err:#a61b1b; --err-bg:#fdecec;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      font-size:16px;line-height:1.6;color:var(--text);background:linear-gradient(180deg,#fff 0%,var(--brand-off) 100%);
+      padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)
+    }
+    img{max-width:100%;height:auto;display:block}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Cabeçalho padronizado */
+    header{background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);padding-top:env(safe-area-inset-top)}
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:52px} /* menor no desktop */
+    .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:#fff;background:#196396;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);text-decoration:none}
+    .badge:hover{background:#16537d}
+    /* Chip elegante no mobile */
+    @media (max-width:480px){
+      .badge{background:transparent;color:#196396;border:1px solid #d5e6f6;padding:6px 10px;font-size:.85rem;border-radius:999px;box-shadow:none}
+      .wrap{gap:10px}.brand img{height:46px}
+    }
+
+    main{max-width:var(--maxw);margin:32px auto;padding:0 var(--pad)}
+    .hero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(20px,4vw,32px);box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px;font-size:clamp(1.5rem,2.2vw + 1rem,1.875rem);color:var(--brand-primary)}
+    .hero p{margin:0;color:var(--muted);font-size:clamp(.95rem,1vw,1rem)}
+
+    section.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(16px,3.2vw,24px);margin:18px 0;box-shadow:var(--shadow)}
+    h2{font-size:clamp(1.15rem,1.4vw + .8rem,1.375rem);margin:0 0 8px;color:var(--brand-dark)}
+    p{margin:0 0 10px} ul{margin:0 0 10px 18px} li{margin:6px 0}
+    a{color:var(--brand-primary);text-decoration:none}
+    a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:2px}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;margin:6px 0 4px}
+    input,textarea{width:100%;padding:10px 12px;border:1px solid #d6d6d6;border-radius:10px;font:inherit}
+    .muted{color:var(--muted)} .small{font-size:.9rem} .legal{font-size:.95rem}
+    .hr{height:1px;background:#eee;margin:14px 0}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+
+    /* Botões com hovers suaves */
+    .btn{padding:12px 16px;border:0;border-radius:10px;cursor:pointer;font:inherit;transition:transform .15s ease, box-shadow .15s ease, filter .15s ease}
+    .btn.primary{background:var(--brand-primary);color:#fff}
+    .btn.primary:hover{transform:translateY(-1px);filter:saturate(1.05);box-shadow:0 8px 20px rgba(25,99,150,.18)}
+    .btn.secondary{background:#eef4fa;color:#1b2a3a}
+    .btn.secondary:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(13,38,76,.12)}
+    .btn.ghost{background:#efefef}
+    .btn.ghost:hover{background:#e7e7e7}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* Status/Toast */
+    .status{margin-top:12px;border-radius:10px;padding:10px 12px;border:1px solid transparent}
+    .status.ok{background:#e9f7f1;border-color:#0f7a48;color:#0f7a48}
+    .status.err{background:#fdecec;border-color:#a61b1b;color:#a61b1b}
+    .toast{position:fixed;right:16px;bottom:16px;background:#fff;border:1px solid rgba(0,0,0,.18);box-shadow:var(--shadow);border-radius:10px;padding:10px 12px;display:none;z-index:9999;min-width:240px}
+    .toast.ok{border-color:rgba(15,122,72,.35)} .toast.err{border-color:rgba(166,27,27,.35)}
+
+    /* Hash monoespaçado e móvel-friendly */
+    #docMeta{
+      display:inline-block;max-width:100%;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+      font-size:.9rem;background:#f7fafc;border:1px solid #e2ecf6;color:#34405a;
+      padding:8px 10px;border-radius:10px;overflow-wrap:anywhere;word-break:break-word;
+    }
+    /* Data/Hora (autoridade) */
+    .timestamp{
+      display:inline-flex;align-items:center;gap:8px;background:#eef4fa;border:1px solid #cfe1f5;color:#0b3b63;
+      padding:6px 12px;border-radius:999px;font-weight:600;letter-spacing:.2px;margin-top:6px
+    }
+    .timestamp::before{content:"";width:8px;height:8px;border-radius:999px;background:#2DBF7F;box-shadow:0 0 0 2px rgba(45,191,127,.18)}
+
+    /* Mobile refinements */
+    @media (max-width:480px){
+      .btn-top{right:12px;bottom:12px}
+    }
+
+    /* Rodapé mais limpo no desktop */
+    footer .footer{gap:10px}
+  </style>
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Autorização de Parceria – Uso de Marca","about":{"@type":"Thing","name":"Autorização para uso de marca/logomarca"},"publisher":{"@type":"Organization","name":"AxiaCare"},"inLanguage":"pt-BR"}
+  </script>
+</head>
+<body>
+<header id="topo">
+  <div class="wrap">
+    <a class="brand" href="https://axcare.com.br" aria-label="AxiaCare"><img src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare" decoding="async" fetchpriority="high"><span class="sr-only">AxiaCare®</span></a>
+    <a class="badge" href="mailto:compliance@axcare.com.br" title="Canal de Compliance">Canal de Compliance</a>
+  </div>
+</header>
+
+<main id="printArea">
+  <div class="hero" role="banner">
+    <h1>Autorização de Parceria – Uso de nome e logomarca</h1>
+    <p class="small">Termo para permitir a citação da parceira (nome e logomarca) em canais oficiais da AxiaCare®.</p>
+  </div>
+
+  <section class="card legal" id="termo">
+    <h2>1. Objeto e condições</h2>
+    <p>A parte abaixo identificada, doravante “Autorizante”, autoriza Axia Gestão em Saúde Ltda – AxiaCare® (“Autorizada”) a utilizar o <strong>nome empresarial</strong> e a <strong>logomarca</strong> da Autorizante nas seguintes frentes:</p>
+    <ul>
+      <li>Seções institucionais do site axcare.com.br e perfis oficiais da AxiaCare® em redes sociais; e</li>
+      <li>Materiais institucionais (apresentações, relatórios e peças de comunicação) que mencionem a parceria.</li>
+    </ul>
+    <p>O uso é <strong>estritamente institucional</strong>, gratuito, não exclusivo, sem criação de vínculo societário, trabalhista ou obrigação financeira. A Autorizada respeitará as <strong>diretrizes de marca</strong> fornecidas pela Autorizante.</p>
+
+    <h2>2. Limites e salvaguardas</h2>
+    <ul>
+      <li>É vedado sugerir endosso comercial, clínico ou técnico inexistente, ou associar a marca a conteúdos que contrariem a lei ou as políticas da Autorizante.</li>
+      <li>Não alterar a logomarca além do permitido nas diretrizes.</li>
+      <li>Não há transferência de titularidade/licença além desta autorização.</li>
+    </ul>
+
+    <h2>3. Proteção de dados e contato</h2>
+    <p>Os dados informados serão usados apenas para <strong>registro</strong> desta autorização, conforme a Política de Privacidade (hub.axcare.com.br/privacidade). Canal: <a href="mailto:compliance@axcare.com.br">compliance@axcare.com.br</a>.</p>
+
+    <h2>4. Vigência</h2>
+    <p>Vigência por prazo indeterminado, enquanto não houver revogação pela Autorizante ou comunicação da Autorizada em sentido diverso.</p>
+
+    <p class="small muted" id="docMeta">Registro técnico • SHA-256: (calculando…)</p>
+    <p class="timestamp" id="liveTimer" aria-live="off">Data/Hora: --/--/-- --:--:--</p>
+  </section>
+
+  <section class="card">
+    <h2>5. Identificação e contato</h2>
+    <div class="grid">
+      <div>
+        <label>Responsável/razão social (Autorizante)</label>
+        <input type="text" id="identificacao" placeholder="Nome do responsável (PF) ou razão social (PJ)" required>
+      </div>
+      <div>
+        <label>CPF/CNPJ (somente números)</label>
+        <input type="text" id="documento" inputmode="numeric" maxlength="14" placeholder="00000000000 ou 00000000000000" required>
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label>E-mail</label>
+        <input type="email" id="email_parceiro" placeholder="nome@empresa.com.br" required>
+      </div>
+      <div>
+        <label>Observações (opcional)</label>
+        <input type="text" id="obs" placeholder="Diretrizes de marca, link de assets etc.">
+      </div>
+    </div>
+
+    <div class="hr"></div>
+    <div class="actions">
+      <button class="btn primary" id="btnSend">Enviar autorização</button>
+      <button class="btn secondary" id="btnEmail">Enviar informações por e-mail</button>
+      <button class="btn ghost" id="btnPrint">Salvar em PDF</button>
+      <div id="status" class="status" role="status" aria-live="polite" tabindex="-1" aria-atomic="true"></div>
+    </div>
+    <p class="small muted">Valide seus dados antes de enviar.</p>
+  </section>
+
+  <footer>
+    <div class="footer">
+      <div class="brand-mini"><img src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare"> AxiaCare®</div>
+      <div class="links">
+        <a href="https://axcare.com.br" rel="noopener">Site</a>
+        <span>•</span>
+        <a href="https://hub.axcare.com.br/compliance" rel="noopener">Compliance</a>
+        <span>•</span>
+        <a href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Topo</a>
+      </div>
+      <div class="small">© 2025 AxiaCare®. Todos os direitos reservados.</div>
+    </div>
+  </footer>
+</main>
+
+<div class="toast" id="toast"></div>
+<button class="btn-top" id="btnTop" aria-label="Voltar ao topo">Topo</button>
+
+<script>
+  const ENDPOINT_URL = "https://hook.us2.make.com/zuj8lwlscyofvu2iwdlefbp6pll7uw0i";
+
+  /* Botão topo */
+  const btnTop=document.getElementById('btnTop');
+  window.addEventListener('scroll',()=>{btnTop.style.display=window.scrollY>320?'block':'none';});
+  btnTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  /* Toast + Status */
+  const toastEl=document.getElementById('toast');
+  function toast(msg,type='ok'){ toastEl.textContent=msg; toastEl.className='toast '+type; toastEl.style.display='block'; setTimeout(()=>toastEl.style.display='none',4000); }
+  const statusEl=document.getElementById('status');
+  function setStatus(msg,type='ok'){ statusEl.className='status '+type; statusEl.textContent=msg; statusEl.focus({preventScroll:false}); }
+
+  /* Hash SHA-256 do bloco "termo" */
+  async function sha256(message){
+    const msgUint8=new TextEncoder().encode(message);
+    const hashBuffer=await crypto.subtle.digest('SHA-256',msgUint8);
+    return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  async function atualizarHash(){
+    const termoHtml=document.getElementById('termo').innerHTML;
+    const hash=await sha256(termoHtml);
+    document.getElementById('docMeta').textContent='Registro técnico • SHA-256: '+hash;
+    return hash;
+  }
+  atualizarHash();
+
+  /* Data/Hora em tempo real (autoridade) */
+  (function startClock(){
+    const el=document.getElementById('liveTimer');
+    function tick(){
+      const agora=new Date();
+      const str=agora.toLocaleString('pt-BR',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      el.textContent='Data/Hora: '+str;
+    }
+    tick(); setInterval(tick,1000);
+  })();
+
+  /* Coleta/validação */
+  function getFormData(){
+    const identificacao=(document.getElementById('identificacao').value||'').trim();
+    const documento=(document.getElementById('documento').value||'').trim();
+    const email=(document.getElementById('email_parceiro').value||'').trim();
+    const obs=(document.getElementById('obs').value||'').trim();
+    return {identificacao,documento,email,obs};
+  }
+  function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+
+  /* 1) Enviar autorização (POST JSON) */
+  async function sendAuthorization(){
+    const btn=document.getElementById('btnSend');
+    const {identificacao,documento,email,obs}=getFormData();
+    if(!identificacao||!documento||!email||!validEmail(email)){
+      setStatus('Preencha os campos obrigatórios com e-mail válido.','err'); toast('Preencha os campos obrigatórios com e-mail válido.','err'); return;
+    }
+    btn.disabled=true;
+    try{
+      const hash=await atualizarHash();
+      const payload={type:'autorizacao_parceria',timestamp:new Date().toISOString(),identificacao,documento,email,obs,hash,page_url:location.href,user_agent:navigator.userAgent};
+      const res=await fetch(ENDPOINT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!res.ok) throw new Error('Falha no envio ('+res.status+')');
+      setStatus('Autorização enviada com sucesso.','ok'); toast('Autorização enviada com sucesso.','ok');
+    }catch(e){
+      console.error(e); setStatus('Não foi possível enviar. Tente novamente.','err'); toast('Não foi possível enviar. Tente novamente.','err');
+    }finally{ btn.disabled=false; }
+  }
+
+  /* 2) Enviar por e-mail (mailto) com hash + data/hora */
+  function buildMailto(hash,when){
+    const {identificacao,documento,email,obs}=getFormData();
+    const assunto=`Parceria para uso de marca – ${identificacao||'Parceiro'}`;
+    const corpo=[
+      'Prezados,','',
+      'Encaminho a autorização para uso do nome e logomarca como parceira institucional da AxiaCare®, nos termos publicados em https://hub.axcare.com.br/autorizacao-parceria.','',
+      'Identificação:',
+      `Responsável/Razão social: ${identificacao||'-'}`,
+      `CPF/CNPJ: ${documento||'-'}`,
+      (obs? `Observações: ${obs}`:''),
+      '',
+      'Rastreadores:',
+      `SHA-256: ${hash || '-'}`,
+      `Data/Hora do envio: ${when || '-'}`,
+      '',
+      'Atenciosamente,',
+      (identificacao||'—')
+    ].join('\n');
+    return `mailto:compliance@axcare.com.br?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}&cc=${encodeURIComponent(email)}`;
+  }
+
+  /* 3) Salvar em PDF (impressão nativa) */
+  function printPDF(){ window.print(); }
+
+  /* Listeners */
+  document.getElementById('btnSend').addEventListener('click',sendAuthorization);
+  document.getElementById('btnEmail').addEventListener('click', async ()=>{
+    const hash=await atualizarHash();
+    const when=new Date().toLocaleString('pt-BR',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    location.href=buildMailto(hash,when);
+    setStatus('Abrindo seu e-mail com a mensagem preenchida…','ok');
+  });
+  document.getElementById('btnPrint').addEventListener('click',()=>{ printPDF(); setStatus('Abrindo a caixa de impressão (salvar em PDF).','ok'); });
+</script>
+</body>
+</html>

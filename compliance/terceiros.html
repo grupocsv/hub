@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Política de Relacionamento com Terceiros e Due Diligence – Grupo CSV</title>
+  <meta name="description" content="Critérios de seleção, avaliação e monitoramento de terceiros na Grupo CSV.">
+  <meta name="author" content="Grupo CSV">
+  <link rel="canonical" href="/compliance/terceiros.html">
+  <link rel="icon" href="https://grupocsv.com/favicon.ico">
+  <meta name="theme-color" content="#196396">
+
+  <meta property="og:title" content="Política de Relacionamento com Terceiros e Due Diligence – Grupo CSV">
+  <meta property="og:description" content="Requisitos contratuais, classificação de risco e monitoramento de terceiros.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/logo_csv.png">
+  <meta property="og:site_name" content="Grupo CSV">
+  <meta property="og:url" content="https://hub.grupocsv.com/terceiros">
+  <meta property="og:locale" content="pt_BR">
+
+  <style>
+    :root{
+      --brand-primary:#196396; --brand-accent:#2DBF7F; --brand-dark:#2d3445; --brand-off:#f8f5f0; --white:#ffffff;
+      --text:#1b1e24; --muted:#5b6470; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.08);
+      --maxw:960px; --pad:24px; --focus:0 0 0 3px rgba(25,99,150,.25);
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";font-size:16px;line-height:1.6;color:var(--text);background:linear-gradient(180deg,#fff 0%,var(--brand-off) 100%);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+    img{max-width:100%;height:auto;display:block}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    header{
+      background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.06);
+      position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);
+      padding-top:env(safe-area-inset-top)
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:56px}
+    .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:#fff;background:#196396;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);text-decoration:none}
+    .badge:hover{background:#16537d}
+    @media (max-width:480px){
+      .badge{background:transparent;color:#196396;border:1px solid #d5e6f6;padding:6px 10px;font-size:.85rem;box-shadow:none}
+      .wrap{gap:10px}.brand img{height:46px}
+    }
+
+    main{max-width:var(--maxw);margin:32px auto;padding:0 var(--pad)}
+    .hero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(20px,4vw,32px);box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px;font-size:clamp(1.5rem,2.2vw + 1rem,1.875rem);color:var(--brand-primary)}
+    .hero p{margin:0;color:var(--muted);font-size:clamp(.95rem,1vw,1rem)}
+
+    section.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(16px,3.2vw,24px);margin:18px 0;box-shadow:var(--shadow)}
+    h2{font-size:clamp(1.15rem,1.4vw + .8rem,1.375rem);margin:0 0 8px;color:var(--brand-dark)}
+    p{margin:0 0 10px} ul{margin:0 0 10px 18px} li{margin:6px 0}
+
+    table{width:100%;border-collapse:separate;border-spacing:0;margin:10px 0 0;border:1px solid rgba(0,0,0,.05);border-radius:12px;overflow:hidden}
+    th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.06);background:#fff}
+    th{background:#f6f9fc;color:#334;font-weight:600}
+    tr:last-child td{border-bottom:none}
+
+    footer{margin:42px 0 24px;text-align:center}
+    .footer{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;align-items:center;padding:16px}
+    .footer .brand-mini{display:flex;align-items:center;gap:10px}
+    .footer .brand-mini img{height:22px}
+    .footer .links{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem}
+    .footer .links a{color:var(--brand-primary)}
+    .footer .links a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px}
+    .small{font-size:.85rem;color:var(--muted)}
+
+    .btn-top{position:fixed;right:16px;bottom:16px;background:#196396;color:#fff;border:none;border-radius:999px;padding:12px 16px;box-shadow:var(--shadow);display:none}
+    @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+  </style>
+</head>
+<body>
+<header id="topo">
+  <div class="wrap">
+    <a class="brand" href="https://grupocsv.com" aria-label="Grupo CSV"><img src="/logo_csv.png" alt="Grupo CSV"><span class="sr-only">Grupo CSV</span></a>
+    <a class="badge" href="mailto:compliance@grupocsv.com" title="Canal de Compliance">Canal de Compliance</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero" role="banner">
+    <h1>Política de Relacionamento com Terceiros e Due Diligence</h1>
+    <p>Última atualização: 01/2026</p>
+    <p class="small">Define critérios de seleção, avaliação, contratação e monitoramento de terceiros: fornecedores, representantes, parceiros e prestadores de serviços.</p>
+  </div>
+
+  <section class="card">
+    <h2>1. Princípios e alcance</h2>
+    <ul>
+      <li>Seleção baseada em critérios técnicos, éticos e de integridade.</li>
+      <li>Proporcionalidade de controles ao risco do terceiro e do contrato.</li>
+      <li>Rastreabilidade e documentação de decisões relevantes.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>2. Classificação de risco</h2>
+    <ul>
+      <li>Risco baixo: serviços padronizados sem interface com poder público; diligência básica.</li>
+      <li>Risco médio: serviços com acesso a dados ou ativos; diligência intermediária.</li>
+      <li>Risco alto: interface com agentes públicos, pagamentos sensíveis ou representação institucional; diligência avançada.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>3. Due diligence</h2>
+    <ul>
+      <li>Coleta de documentos societários, fiscais e de integridade.</li>
+      <li>Checagens reputacionais e restritivas compatíveis com a classe de risco.</li>
+      <li>Validação de beneficiário final quando aplicável.</li>
+      <li>Registro formal da análise e decisão.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>4. Cláusulas contratuais mínimas</h2>
+    <ul>
+      <li>Compromisso de cumprimento do Código de Conduta e políticas Grupo CSV.</li>
+      <li>Cláusulas anticorrupção, antissuborno e proteção de dados, com direito de auditoria.</li>
+      <li>Obrigação de notificar incidentes relevantes e cooperação em investigações.</li>
+      <li>Rescisão por violação de integridade ou descumprimento grave.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>5. Monitoramento e renovação</h2>
+    <p>Contratos críticos devem prever indicadores de desempenho, revisões periódicas e revalidação da due diligence em prazos definidos.</p>
+    <div class="empresas-box" style="background:#f6f9fc; border-radius:12px; padding:16px; margin:12px 0">
+      <p style="margin:0 0 8px; font-weight:600; color:#2d3445">Esta política aplica-se a todas as empresas do Grupo CSV:</p>
+      <ul style="margin:0; padding-left:20px">
+        <li><strong>AxiaCare®</strong> – Gestão e Governança Clínica</li>
+        <li><strong>MedValor®</strong> – Educação e Formação de Lideranças</li>
+        <li><strong>TheraTech®</strong> – Tecnologia e Inteligência Artificial</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>6. Pagamentos e registros</h2>
+    <p>Pagamentos devem ocorrer somente após comprovação de entrega e conforme condições contratuais, com registros contábeis fidedignos.</p>
+  </section>
+
+  <section class="card">
+    <h2>7. Consequências</h2>
+    <p>Violações sujeitam terceiros a advertência, plano corretivo, suspensão e rescisão contratual, sem prejuízo de medidas legais.</p>
+  </section>
+
+  <section class="card">
+    <h2>8. Canal de Compliance</h2>
+    <p>Comunicações formais sobre integridade de terceiros: <a href="mailto:compliance@grupocsv.com">compliance@grupocsv.com</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>9. Atualizações</h2>
+    <p>Revisões periódicas para alinhamento a melhores práticas e requisitos regulatórios.</p>
+  </section>
+
+  <footer>
+    <div class="footer">
+      <div class="brand-mini"><img src="/logo_csv.png" alt="Grupo CSV"><strong>Grupo CSV</strong></div>
+      <div class="links"><a href="https://grupocsv.com" rel="noopener">Site</a><span>•</span><a href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Topo</a><span>•</span><a href="mailto:compliance@grupocsv.com">Compliance</a></div>
+      <div class="small">© 2026 Grupo CSV. Todos os direitos reservados.</div>
+    </div>
+  </footer>
+</main>
+
+<button class="btn-top" id="btnTop" aria-label="Voltar ao topo">Topo</button>
+<script>
+  const btn=document.getElementById('btnTop');
+  window.addEventListener('scroll',()=>{btn.style.display=window.scrollY>320?'block':'none';});
+  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>

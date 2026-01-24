@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Código de Ética e Conduta – Grupo CSV</title>
+  <meta name="description" content="Código de Ética e Conduta da Grupo CSV. Diretrizes para atuação ética, relacionamento e integridade.">
+  <meta name="author" content="Grupo CSV">
+  <link rel="canonical" href="/compliance/codigo-de-conduta.html">
+  <link rel="icon" href="https://grupocsv.com/favicon.ico">
+  <meta name="theme-color" content="#196396">
+  <meta property="og:title" content="Código de Ética e Conduta – Grupo CSV">
+  <meta property="og:description" content="Princípios, condutas esperadas e diretrizes de integridade da Grupo CSV.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/logo_csv.png">
+  <meta property="og:site_name" content="Grupo CSV">
+  <meta property="og:url" content="https://hub.grupocsv.com/codigo-de-conduta">
+  <meta property="og:locale" content="pt_BR">
+
+  <style>
+    :root{
+      --brand-primary:#196396; --brand-accent:#2DBF7F; --brand-dark:#2d3445; --brand-off:#f8f5f0; --white:#ffffff;
+      --text:#1b1e24; --muted:#5b6470;
+      --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.08);
+      --maxw:960px; --pad:24px; --focus:0 0 0 3px rgba(25,99,150,.25);
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";font-size:16px;line-height:1.6;color:var(--text);background:linear-gradient(180deg,#fff 0%,var(--brand-off) 100%);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+    img{max-width:100%;height:auto;display:block}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Header padronizado com chip em mobile */
+    header{
+      background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.06);
+      position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);
+      padding-top:env(safe-area-inset-top)
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:56px;width:auto}
+    .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:#fff;background:#196396;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);text-decoration:none}
+    .badge:hover{background:#16537d}
+    @media (max-width:480px){
+      .badge{background:transparent;color:#196396;border:1px solid #d5e6f6;padding:6px 10px;font-size:.85rem;box-shadow:none}
+      .wrap{gap:10px}.brand img{height:46px}
+    }
+
+    main{max-width:var(--maxw);margin:32px auto;padding:0 var(--pad)}
+    .hero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(20px,4vw,32px);box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px 0;font-size:clamp(1.5rem,2.2vw + 1rem,1.875rem);color:var(--brand-primary)}
+    .hero p{margin:0;color:var(--muted);font-size:clamp(.95rem,1vw,1rem)}
+
+    section.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(16px,3.2vw,24px);margin:18px 0;box-shadow:var(--shadow)}
+    h2{font-size:clamp(1.15rem,1.4vw + .8rem,1.375rem);margin:0 0 8px 0;color:var(--brand-dark)}
+    h3{font-size:1rem;margin:12px 0 6px 0;color:var(--brand-dark)}
+    p{margin:0 0 10px} ul{margin:0 0 10px 18px} li{margin:6px 0}
+
+    a{color:var(--brand-primary);text-decoration:none}
+    a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:2px}
+
+    footer{margin:42px 0 24px;text-align:center}
+    .footer{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;align-items:center;padding:16px}
+    .footer .brand-mini{display:flex;align-items:center;gap:10px}
+    .footer .brand-mini img{height:22px}
+    .footer .links{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem}
+    .footer .links a{color:var(--brand-primary)}
+    .footer .links a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px}
+    .small{font-size:.85rem;color:var(--muted)}
+
+    @media print{header,.btn-top{display:none !important};body{background:#fff}.hero,section.card{box-shadow:none;border-color:#ddd}a{color:#000;text-decoration:underline}}
+    .btn-top{position:fixed;right:16px;bottom:16px;background:var(--brand-primary);color:#fff;border:none;border-radius:999px;padding:12px 16px;box-shadow:var(--shadow);display:none}
+    .btn-top:focus{outline:none;box-shadow:var(--focus)}
+    @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+    @media (max-width:420px){.brand img{height:50px}}
+  </style>
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Código de Ética e Conduta – Grupo CSV","about":{"@type":"Thing","name":"Código de Ética e Conduta"},"publisher":{"@type":"Organization","name":"Grupo CSV"},"inLanguage":"pt-BR"}
+  </script>
+</head>
+<body>
+<header id="topo">
+  <div class="wrap">
+    <a class="brand" href="https://grupocsv.com" aria-label="Grupo CSV"><img src="/logo_csv.png" alt="Grupo CSV" decoding="async" fetchpriority="high"><span class="sr-only">Grupo CSV</span></a>
+    <a class="badge" href="mailto:compliance@grupocsv.com" title="Canal de Compliance">Canal de Compliance</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero" role="banner">
+    <h1>Código de Ética e Conduta</h1>
+    <p>Última atualização: 01/2026</p>
+    <p class="small">Este documento consolida princípios e diretrizes para a atuação ética dos integrantes da Grupo CSV, incluindo alta administração, colaboradores próprios e terceiros.</p>
+  </div>
+
+  <section class="card" aria-labelledby="escopo">
+    <h2 id="escopo">1. Finalidade e escopo</h2>
+    <p>Definir condutas esperadas, prevenir conflitos de interesse, orientar relacionamentos internos e externos e promover um ambiente seguro, respeitoso e íntegro.</p>
+  </section>
+
+  <section class="card" aria-labelledby="principios">
+    <h2 id="principios">2. Princípios</h2>
+    <ul>
+      <li>Integridade, legalidade e transparência.</li>
+      <li>Respeito à dignidade, diversidade e não discriminação.</li>
+      <li>Confidencialidade e proteção de dados (LGPD).</li>
+      <li>Imparcialidade em decisões e uso responsável de recursos.</li>
+      <li>Tolerância zero a fraude, corrupção e assédio.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="condutas-positivas">
+    <h2 id="condutas-positivas">3. Condutas esperadas</h2>
+    <ul>
+      <li>Agir com urbanidade, zelo e profissionalismo em todas as interações.</li>
+      <li>Usar informações e ativos da Grupo CSV apenas para fins autorizados.</li>
+      <li>Reportar potenciais violações de forma responsável ao compliance.</li>
+      <li>Respeitar direitos autorais, marcas e propriedade intelectual.</li>
+      <li>Cumprir políticas complementares (brindes, anticorrupção, terceiros, etc.).</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="condutas-vedadas">
+    <h2 id="condutas-vedadas">4. Condutas vedadas</h2>
+    <ul>
+      <li>Assédio moral/sexual, discriminação, retaliação.</li>
+      <li>Uso indevido de informações confidenciais ou pessoais.</li>
+      <li>Receber ou oferecer vantagens indevidas (ver Política de Brindes e Anticorrupção).</li>
+      <li>Manipular registros ou induzir terceiros a erro.</li>
+      <li>Praticar atividades concorrentes em conflito com responsabilidades assumidas, sem autorização prévia.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="conflitos">
+    <h2 id="conflitos">5. Conflitos de interesse</h2>
+    <p>Configura-se conflito quando interesses pessoais possam influenciar a independência de julgamento. Deve-se declarar e mitigar o conflito com apoio do compliance antes de qualquer decisão.</p>
+  </section>
+
+  <section class="card" aria-labelledby="relacionamentos">
+    <h2 id="relacionamentos">6. Relacionamentos e comunicação</h2>
+    <ul>
+      <li>Com clientes, parceiros e órgãos públicos: atuar com lisura, sem promessas ou vantagens indevidas.</li>
+      <li>Em redes sociais e comunicações externas: manter postura institucional, sem divulgar informações internas ou sigilosas.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="responsabilidades">
+    <h2 id="responsabilidades">7. Responsabilidades</h2>
+    <ul>
+      <li>Todos: conhecer e cumprir o Código e políticas associadas.</li>
+      <li>Lideranças: exemplificar condutas, prevenir riscos e apoiar apurações.</li>
+      <li>Compliance: orientar, treinar, registrar e monitorar o cumprimento.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="consequencias">
+    <h2 id="consequencias">8. Consequências por descumprimento</h2>
+    <p>Medidas disciplinares proporcionais, incluindo advertência, suspensão, desligamento e medidas legais cabíveis, conforme gravidade e legislação.</p>
+  </section>
+
+  <section class="card" aria-labelledby="contato">
+    <h2 id="contato">9. Canal de Compliance</h2>
+    <p>Dúvidas ou comunicações formais devem ser enviadas para <a href="mailto:compliance@grupocsv.com">compliance@grupocsv.com</a>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="atualizacoes">
+    <h2 id="atualizacoes">10. Atualizações</h2>
+    <p>Este Código pode ser atualizado para refletir ajustes legais ou organizacionais. A versão vigente é a publicada nesta página.</p>
+  </section>
+
+  <footer>
+    <div class="footer">
+      <div class="brand-mini"><img src="/logo_csv.png" alt="Grupo CSV"><strong>Grupo CSV</strong></div>
+      <div class="links"><a href="https://grupocsv.com" rel="noopener">Site</a><span>•</span><a href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Topo</a><span>•</span><a href="mailto:compliance@grupocsv.com">Compliance</a></div>
+      <div class="small">© 2026 Grupo CSV. Todos os direitos reservados.</div>
+    </div>
+  </footer>
+</main>
+
+<button class="btn-top" id="btnTop" aria-label="Voltar ao topo">Topo</button>
+<script>
+  const btn=document.getElementById('btnTop');
+  const onScroll=()=>{btn.style.display=window.scrollY>320?'block':'none';};
+  window.addEventListener('scroll',onScroll);
+  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cláusulas-Padrão de Integridade para Contratos – AxiaCare®</title>
+  <meta name="description" content="Anexo padrão com obrigações de integridade, anticorrupção, proteção de dados e auditoria para contratos da AxiaCare®.">
+  <meta name="author" content="AxiaCare®">
+  <link rel="canonical" href="https://hub.axcare.com.br/integridade">
+  <link rel="icon" href="https://axcare.com.br/favicon.ico">
+  <meta name="theme-color" content="#196396">
+  <meta property="og:title" content="Cláusulas-Padrão de Integridade para Contratos – AxiaCare®">
+  <meta property="og:description" content="Compromissos mínimos de integridade a serem inseridos em contratos com terceiros.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://i.imgur.com/wY4gVDs.png">
+  <meta property="og:site_name" content="AxiaCare®">
+  <meta property="og:url" content="https://hub.axcare.com.br/integridade">
+  <meta property="og:locale" content="pt_BR">
+  <style>
+    :root{--brand-primary:#196396;--brand-accent:#2DBF7F;--brand-dark:#2d3445;--brand-off:#f8f5f0;--white:#fff;--text:#1b1e24;--muted:#5b6470;--radius:16px;--shadow:0 8px 24px rgba(0,0,0,.08);--maxw:960px;--pad:24px;--focus:0 0 0 3px rgba(25,99,150,.25)}
+    *{box-sizing:border-box}html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";font-size:16px;line-height:1.6;color:var(--text);background:linear-gradient(180deg,#fff 0%,var(--brand-off) 100%);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+    img{max-width:100%;height:auto;display:block}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    header{background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);padding-top:env(safe-area-inset-top)}
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:56px}
+    .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:#fff;background:#196396;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);text-decoration:none}
+    .badge:hover{background:#16537d}
+    @media (max-width:480px){
+      .badge{background:transparent;color:#196396;border:1px solid #d5e6f6;padding:6px 10px;font-size:.85rem;box-shadow:none}
+      .wrap{gap:10px}.brand img{height:46px}
+    }
+    main{max-width:var(--maxw);margin:32px auto;padding:0 var(--pad)}
+    .hero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(20px,4vw,32px);box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px;font-size:clamp(1.5rem,2.2vw + 1rem,1.875rem);color:var(--brand-primary)}
+    .hero p{margin:0;color:var(--muted);font-size:clamp(.95rem,1vw,1rem)}
+    section.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(16px,3.2vw,24px);margin:18px 0;box-shadow:var(--shadow)}
+    h2{font-size:clamp(1.15rem,1.4vw + .8rem,1.375rem);margin:0 0 8px;color:var(--brand-dark)}
+    a{color:var(--brand-primary);text-decoration:none}a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:2px}
+    ol{margin:0 0 10px 18px} li{margin:6px 0}
+    footer{margin:42px 0 24px;text-align:center}
+    .footer{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;align-items:center;padding:16px}
+    .footer .brand-mini{display:flex;align-items:center;gap:10px}.footer .brand-mini img{height:22px}
+    .footer .links{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem}.footer .links a{color:var(--brand-primary)}
+    .footer .links a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px}
+    .small{font-size:.85rem;color:var(--muted)}
+    .btn-top{position:fixed;right:16px;bottom:16px;background:#196396;color:#fff;border:none;border-radius:999px;padding:12px 16px;display:none;box-shadow:var(--shadow)}
+    @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+  </style>
+</head>
+<body>
+<header id="topo">
+  <div class="wrap">
+    <a class="brand" href="https://axcare.com.br" aria-label="AxiaCare"><img src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare"><span class="sr-only">AxiaCare®</span></a>
+    <a class="badge" href="mailto:compliance@axcare.com.br" title="Canal de Compliance">Canal de Compliance</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero" role="banner">
+    <h1>Cláusulas-Padrão de Integridade para Contratos</h1>
+    <p>Última atualização: 09/2025</p>
+    <p>Anexo contratual com obrigações mínimas de integridade a serem aplicadas em contratos celebrados com terceiros.</p>
+  </div>
+
+  <section class="card">
+    <h2>1. Cumprimento normativo e políticas</h2>
+    <ol>
+      <li>O CONTRATADO declara que cumprirá toda legislação aplicável, incluindo leis anticorrupção, concorrencial, trabalhista e de proteção de dados pessoais.</li>
+      <li>O CONTRATADO aderirá ao Código de Ética e Conduta e às políticas da CONTRATANTE, disponíveis em hub.axcare.com.br/compliance.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>2. Anticorrupção e antissuborno</h2>
+    <ol>
+      <li>É vedado oferecer, prometer, autorizar, solicitar ou receber vantagem indevida, direta ou indireta, a agentes públicos ou privados, bem como efetuar pagamentos de facilitação.</li>
+      <li>Doações, patrocínios e hospitalidade somente poderão ocorrer com finalidade legítima, documentação idônea e aprovações prévias exigidas.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>3. Conflitos de interesse e brindes</h2>
+    <ol>
+      <li>O CONTRATADO comunicará potenciais conflitos de interesse e observará a Política de Brindes, Presentes e Hospitalidade da CONTRATANTE.</li>
+      <li>É proibido conceder brindes/benefícios em desacordo com as políticas aplicáveis.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>4. Terceiros, subcontratação e due diligence</h2>
+    <ol>
+      <li>Subcontratações relevantes exigem consentimento prévio e escrito da CONTRATANTE.</li>
+      <li>O CONTRATADO assegura que seus subcontratados atenderão a requisitos equivalentes de integridade e aceita auditoria para comprovação.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>5. Proteção de dados e confidencialidade</h2>
+    <ol>
+      <li>As partes tratarão dados pessoais nos termos da LGPD e da Política de Privacidade da CONTRATANTE, adotando medidas técnicas e administrativas adequadas.</li>
+      <li>Informações confidenciais somente serão usadas para execução do contrato, resguardado o sigilo e a devolução/eliminação ao final.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>6. Registros, auditoria e reporte</h2>
+    <ol>
+      <li>O CONTRATADO manterá registros fidedignos das transações relacionadas ao contrato e os disponibilizará quando solicitado.</li>
+      <li>A CONTRATANTE poderá auditar o cumprimento destas cláusulas, mediante aviso razoável e em horário comercial.</li>
+      <li>Incidentes relevantes (inclusive suspeitas de fraude e vazamento de dados) devem ser comunicados imediatamente à CONTRATANTE.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>7. Consequências e rescisão</h2>
+    <ol>
+      <li>O descumprimento destas cláusulas poderá ensejar advertência, plano corretivo, suspensão de pagamentos e/ou rescisão por justa causa, sem prejuízo de indenizações.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>8. Canal de Compliance</h2>
+    <p>Dúvidas e comunicações formais: <a href="mailto:compliance@axcare.com.br">compliance@axcare.com.br</a>.</p>
+  </section>
+
+  <footer>
+    <div class="footer">
+      <div class="brand-mini"><img src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare"><strong>AxiaCare®</strong></div>
+      <div class="links"><a href="https://axcare.com.br" rel="noopener">Site</a><span>•</span><a href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Topo</a><span>•</span><a href="mailto:compliance@axcare.com.br">Compliance</a></div>
+      <div class="small">© 2025 AxiaCare®. Todos os direitos reservados.</div>
+    </div>
+  </footer>
+</main>
+
+<button class="btn-top" id="btnTop" aria-label="Voltar ao topo">Topo</button>
+<script>
+  const btn=document.getElementById('btnTop');
+  window.addEventListener('scroll',()=>{btn.style.display=window.scrollY>320?'block':'none';});
+  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>

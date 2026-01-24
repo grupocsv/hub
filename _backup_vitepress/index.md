@@ -1,6 +1,5 @@
 ---
 layout: home
-
 hero:
   name: "Grupo CSV"
   text: "Hub Central"
@@ -10,9 +9,8 @@ hero:
       text: Definições Core
       link: /csv-core/definition
     - theme: alt
-      text: Ver Repositório
-      link: https://github.com/grupocsv/hub
-
+      text: Central de Compliance
+      link: /compliance/
 features:
   - title: AxiaCare®
     details: Consultoria estratégica, governança clínica e operações de saúde.
@@ -42,7 +40,7 @@ features:
 
 <div class="container" style="margin-top: 64px; text-align: center;">
   <h2>Recursos Transversais</h2>
-  <p class="text-muted">Documentação canônica e ferramentas de governança.</p>
+  <p class="text-muted">Documentação canônica, compliance e ferramentas de governança.</p>
 </div>
 
 <div class="grid grid-2" style="margin-top: 32px;">
@@ -50,8 +48,16 @@ features:
     <h3>CSV Core Definitions ↗</h3>
     <p>Definições canônicas, princípios e manifesto do grupo.</p>
   </a>
+  <a href="/compliance/" class="card">
+    <h3>Central de Compliance ↗</h3>
+    <p>Políticas de privacidade, termos, integridade e conduta.</p>
+  </a>
   <a href="/csv-core/identity-system" class="card">
     <h3>Sistema de Identidade ↗</h3>
     <p>Tokens de design, logos e regras visuais.</p>
+  </a>
+  <a href="/csv-core/assets" class="card">
+    <h3>Central de Assets ↗</h3>
+    <p>Logos, wallpapers e materiais de marca.</p>
   </a>
 </div>
