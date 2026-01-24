@@ -20,9 +20,18 @@ Este repositório contém o hub central do Grupo CSV, servindo como ponto de con
 hub/
 ├── index.html                  # Homepage principal
 ├── cv.html                     # Currículo Guilherme Thomé
-├── privacidade.html            # Política de privacidade
 ├── mandala-saude.html          # Mandala da Saúde
 ├── CNAME                       # hub.grupocsv.com
+├── compliance/                 # Central de Compliance
+│   ├── index.html              # Portal principal
+│   ├── privacidade.html        # Política de Privacidade (Grupo)
+│   ├── termos.html             # Termos de Uso (Grupo)
+│   ├── cookies.html            # Política de Cookies
+│   ├── codigo-de-conduta.html  # Código de Ética
+│   ├── anticorrupcao.html      # Política Anticorrupção
+│   ├── axiacare/               # Políticas AxiaCare
+│   ├── medvalor/               # Políticas MedValor
+│   └── thera/                  # Políticas Thera
 ├── axia/                       # AxiaCare assets
 │   ├── themis.html
 │   ├── radar/                  # Radar de maturidade
@@ -108,6 +117,18 @@ Para informações detalhadas sobre identidade visual, consulte:
 
 ---
 
+## Central de Compliance
+
+Acesse a Central de Compliance do Grupo CSV em [`/compliance/`](./compliance/).
+
+| Categoria | Documentos |
+|-----------|------------|
+| **Políticas do Grupo** | Privacidade, Termos de Uso, Cookies, Código de Conduta |
+| **Integridade** | Anticorrupção, Brindes, Terceiros, Cláusulas Contratuais |
+| **Por Empresa** | Privacidade e Termos específicos (AxiaCare, MedValor, Thera) |
+
+---
+
 ## Histórico de Migração
 
 | Data | Evento |
@@ -116,6 +137,8 @@ Para informações detalhadas sobre identidade visual, consulte:
 | 24/01/2026 | Extração de todos os ZIPs de logos (5 marcas + criativos) |
 | 24/01/2026 | Atualização completa da documentação de identidade visual |
 | 24/01/2026 | Configuração do domínio `hub.grupocsv.com` |
+| 24/01/2026 | Central de Compliance implementada (migrada da AxiaCare) |
+| 24/01/2026 | Correção de cores nas páginas de Compliance (MedValor/Thera) |
 
 ---
 
