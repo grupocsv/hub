@@ -18,7 +18,7 @@ features:
     details: Consultoria estratégica, governança clínica e operações de saúde.
     link: /axiacare/mandate
     icon:
-      src: /axia-logo.webp
+      src: /axia-logo.png
       alt: AxiaCare Logo
       width: 80
       height: 80
@@ -26,7 +26,7 @@ features:
     details: Formação de lideranças, cultura organizacional e ensino híbrido.
     link: /medvalor/mandate
     icon:
-      src: /medvalor-logo.webp
+      src: /medvalor-logo.png
       alt: MedValor Logo
       width: 80
       height: 80
@@ -34,7 +34,7 @@ features:
     details: Fábrica de software, inteligência artificial e plataformas SaaS.
     link: /thera/mandate
     icon:
-      src: /thera-logo.webp
+      src: /thera-logo.png
       alt: TheraTech Logo
       width: 80
       height: 80
