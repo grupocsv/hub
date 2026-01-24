@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel Populacional - Oncologia (em terapia VO)</title>
+<meta name="description" content="Painel interativo para análise de pacientes em terapia oncológica via oral." />
+<!-- Libs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --brand:#196396; --brand-600:#15527a; --accent:#2DBF7F;
+  --bg:#ffffff; --panel:#f8fafc; --line:#e5e7eb; --muted:#6b7280; --ink:#1f2937;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+a{color:inherit}
+
+.header{background:linear-gradient(180deg,var(--brand),var(--brand-600));color:#fff;border-bottom:4px solid var(--accent)}
+.header-inner{max-width:1200px;margin:0 auto;padding:18px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.brand{display:flex;gap:12px;align-items:center}
+.brand img{height:40px;width:auto;display:block}
+.brand h1{margin:0;font-size:20px;font-weight:800}
+.brand .subtitle{margin:2px 0 0;font-size:12px;opacity:.95}
+.header-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:1px solid transparent;background:var(--accent);color:#053b2a;padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.btn:hover{filter:brightness(.98)} .btn.secondary{background:#fff;color:var(--brand);border-color:#d1d5db}
+
+.container{max-width:1200px;margin:0 auto;padding:16px}
+
+.grid{display:grid;gap:16px}
+.grid.kpis{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1024px){.grid.kpis{grid-template-columns:repeat(2,1fr)}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:700}
+.kpi{display:flex;justify-content:space-between;align-items:baseline}
+.kpi .value{font-size:28px;font-weight:900;color:var(--brand)}
+
+.toolbar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toolbar .group{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+@media (max-width:1024px){.toolbar{grid-template-columns:1fr}}
+
+.canvas-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:1024px){.canvas-grid{grid-template-columns:1fr}}
+.canvas-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;position:relative;height:340px}
+.canvas-wrap canvas{display:block;width:100% !important;height:100% !important}
+.legend{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+.table{width:100%;border-collapse:separate;border-spacing:0;min-width:1000px}
+.table thead th{position:sticky;top:0;background:#f9fafb;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+.table tbody td{padding:10px;border-bottom:1px solid var(--line);font-size:14px}
+.table tbody tr:hover{background:#fbfdff}
+
+.page-actions{margin:18px 0 32px;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+.hidden{display:none !important}
+
+/* Footer AxiaCare */
+.footer{margin-top:40px;padding:25px 15px;background:#f8f5f0;text-align:center;font-family:Verdana,sans-serif;border-top:2px solid #006b68}
+.footer-logo{width:140px;margin:0 auto 10px;display:block}
+.footer-title{font-size:15px;font-weight:bold;color:#333;margin:10px 0 18px}
+.footer-links,.footer-social{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;font-size:14px;margin-bottom:10px}
+.footer a{color:#004E4C;text-decoration:none;padding:0 4px}
+.footer a:hover{text-decoration:underline}
+.footer .separator{color:#bbb;margin:0 4px}
+.footer-copyright{margin-top:18px;font-size:11px;color:#999}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <img src="https://i.imgur.com/6Ye2PA6.png" alt="Escritório de Valor" />
+      <div>
+        <h1>Painel Populacional - Oncologia (em terapia VO)</h1>
+        <div class="subtitle">Escritório de Valor em Saúde - Unimed GV</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <label class="btn secondary">
+        <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" class="hidden" />
+        Importar novo arquivo
+      </label>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="grid kpis">
+    <div class="card"><h3>Total de pacientes</h3><div class="kpi"><div class="value" id="kpiTotal">–</div></div></div>
+    <div class="card"><h3>Pacientes ativos</h3><div class="kpi"><div class="value" id="kpiAtivos">–</div></div></div>
+    <div class="card"><h3>Idade média</h3><div class="kpi"><div class="value" id="kpiIdadeMed">–</div></div></div>
+    <div class="card"><h3>Distribuição por sexo</h3><div class="kpi"><div class="value" id="kpiSexo">–</div></div></div>
+  </section>
+
+  <section class="toolbar" style="margin-top:16px;">
+    <div class="group">
+      <input id="q" class="input" placeholder="Buscar por nome, matrícula, CID, descrição ou observação" />
+    </div>
+    <div class="group">
+      <select id="fSexo"><option value="">Sexo (todos)</option><option value="M">M</option><option value="F">F</option></select>
+      <select id="fStatus"><option value="">Status (todos)</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+      <select id="fCID"><option value="">CID (todos)</option></select>
+    </div>
+  </section>
+
+  <section class="canvas-grid" style="margin-top:16px;">
+    <div class="canvas-wrap"><div class="legend">Top CIDs por frequência</div><canvas id="chartCIDs"></canvas></div>
+    <div class="canvas-wrap"><div class="legend">Distribuição por sexo</div><canvas id="chartSexo"></canvas></div>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <h3>Tabela de pacientes</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th><th>Matrícula</th><th>Idade</th><th>Sexo</th>
+            <th>CID</th><th>Descrição CID</th><th>Status</th><th>Observações</th>
+          </tr>
+        </thead>
+        <tbody id="tbl"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="page-actions">
+    <div>Este painel é client-side. Os dados não saem do seu navegador.</div>
+    <div><button class="btn secondary" id="btnExport">Exportar dados filtrados (CSV)</button></div>
+  </section>
+
+  <div class="footer">
+    <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+    <div class="footer-title">AxView™ | Pages - Gestão e Consultoria em Saúde</div>
+    <div class="footer-links">
+      <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+      <span class="separator">|</span>
+      <a href="https://www.axcare.com.br">axcare.com.br</a>
+      <span class="separator">|</span>
+      <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://guithome.com.br">guithome.com.br</a>
+      <span class="separator">|</span>
+      <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+      <span class="separator">|</span>
+      <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+    </div>
+    <div class="footer-copyright">Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa GTCorp.</div>
+  </div>
+</main>
+
+<script>
+/* ======== Parâmetros de carregamento dinâmico ======== */
+/* Se o HTML e o XLSX estiverem na MESMA pasta, não toque aqui. */
+const RELATIVE_XLSX = './oncologia-vo.xlsx';
+
+/* Opcional: se quiser forçar leitura via RAW do GitHub, preencha a linha abaixo.
+   Exemplo:
+   const RAW_XLSX = 'https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/unimed/oncologia-vo.xlsx';
+*/
+const RAW_XLSX = '';
+
+/* ======== Utils & Mapeamento ======== */
+function normalizeHeader(h){return String(h||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+const headerKeys={
+  nome:['nome','paciente','beneficiario','beneficiário','nome do paciente','nome_paciente'],
+  matricula:['matricula','matrícula','carteira','nr_carteira','nº carteira','numero carteira','número da carteirinha','numero da carteirinha'],
+  idade:['idade','anos'], sexo:['sexo','genero','gênero'],
+  cid:['cid','cid10','cid-10'],
+  cid_desc:['descricao cid','descrição cid','descricao do cid','descrição do cid','desc cid','descricao','descrição'],
+  ativo:['ativo','status','status populacional','situacao','situação','ativo?'],
+  obs:['observacoes','observações','observacao','observação','obervacoes','obervações','motivo cancelamento','motivo de cancelamento']
+};
+function mapHeaders(headers){
+  const n=headers.map(normalizeHeader), find=ls=>{for(const k of ls){const i=n.indexOf(k); if(i!==-1) return i} return -1};
+  return {nome:find(headerKeys.nome),matricula:find(headerKeys.matricula),idade:find(headerKeys.idade),sexo:find(headerKeys.sexo),
+          cid:find(headerKeys.cid),cid_desc:find(headerKeys.cid_desc),ativo:find(headerKeys.ativo),obs:find(headerKeys.obs)};
+}
+function toNumber(x){const n=Number(String(x||'').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:null}
+function toSex(x){const s=String(x||'').trim().toUpperCase();if(['M','MASC','MASCULINO'].includes(s))return 'M';if(['F','FEM','FEMININO'].includes(s))return 'F';return ''}
+function toBoolActive(x){const s=normalizeHeader(x);return ['sim','s','1','true','ativo','yes','y'].includes(s)}
+function escapeHTML(s){return String(s).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+/* ======== Estado ======== */
+let DATA=[]; let chartCIDs=null; let chartSexo=null;
+const q=document.getElementById('q'), fSexo=document.getElementById('fSexo'), fStatus=document.getElementById('fStatus'), fCID=document.getElementById('fCID');
+[q,fSexo,fStatus,fCID].forEach(el=>el.addEventListener('input',()=>refreshAll(getFiltered())));
+
+/* ======== Parsing ======== */
+function parseCSV(text){
+  const sep=(text.indexOf(';')>-1&&text.indexOf(',')>-1)?';':(text.indexOf(';')>-1?';':',');
+  const lines=text.split(/\r?\n/).filter(x=>x.trim().length>0);
+  if(!lines.length) return {headers:[],rows:[]};
+  const headers=lines[0].split(sep).map(h=>h.replace(/^\uFEFF/,'')), rows=lines.slice(1).map(l=>l.split(sep));
+  return {headers,rows};
+}
+function loadFrom(headers, rows){
+  const M=mapHeaders(headers); const get=(r,i)=>(i>=0?r[i]:'');
+  DATA = rows.map(r=>{
+    const nome=String(get(r,M.nome)||'').trim();
+    const matricula=String(get(r,M.matricula)||'').trim();
+    const idade=toNumber(get(r,M.idade));
+    const sexo=toSex(get(r,M.sexo));
+    const cid=String(get(r,M.cid)||'').trim();
+    const cid_desc=String(get(r,M.cid_desc)||'').trim();
+    const ativoVal=get(r,M.ativo);
+    const obsRaw=String(get(r,M.obs)||'').trim();
+    let status='ativo';
+    if(M.ativo>=0){ status = toBoolActive(ativoVal) ? 'ativo':'inativo'; }
+    else { const t=normalizeHeader(obsRaw); if(t.includes('obito')||t.includes('óbito')) status='inativo'; }
+    return {nome,matricula,idade,sexo,cid,cid_desc,status,obs:obsRaw};
+  }).filter(d=>d.nome && d.matricula);
+  refreshFilters(); refreshAll(getFiltered());
+}
+
+/* ======== UI ======== */
+function refreshFilters(){
+  const cids=[...new Set(DATA.map(d=>d.cid).filter(Boolean))].sort(); const cur=fCID.value;
+  fCID.innerHTML='<option value="">CID (todos)</option>'+cids.map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(cids.includes(cur)) fCID.value=cur;
+}
+function getFiltered(){
+  let list=DATA.slice(); const term=q.value.trim().toLowerCase();
+  if(term){
+    list=list.filter(d=>(d.nome||'').toLowerCase().includes(term)||(d.matricula||'').toLowerCase().includes(term)||(d.cid||'').toLowerCase().includes(term)||(d.cid_desc||'').toLowerCase().includes(term)||(d.obs||'').toLowerCase().includes(term));
+  }
+  if(fSexo.value) list=list.filter(d=>d.sexo===fSexo.value);
+  if(fStatus.value) list=list.filter(d=>d.status===fStatus.value);
+  if(fCID.value) list=list.filter(d=>d.cid===fCID.value);
+  return list;
+}
+function refreshAll(list){ refreshKPIs(list); refreshTable(list); refreshCharts(list); }
+function refreshKPIs(list){
+  const total=DATA.length, ativos=DATA.filter(d=>d.status==='ativo').length;
+  const idades=list.filter(d=>Number.isFinite(d.idade)).map(d=>d.idade);
+  const idadeMed=idades.length?Math.round(idades.reduce((a,b)=>a+b,0)/idades.length):'–';
+  const m=list.filter(d=>d.sexo==='M').length, f=list.filter(d=>d.sexo==='F').length;
+  document.getElementById('kpiTotal').textContent=total||0;
+  document.getElementById('kpiAtivos').textContent=ativos||0;
+  document.getElementById('kpiIdadeMed').textContent=idadeMed;
+  document.getElementById('kpiSexo').textContent=`${m} M / ${f} F`;
+}
+function refreshTable(list){
+  const tbody=document.getElementById('tbl');
+  tbody.innerHTML=list.map(d=>`<tr>
+    <td>${escapeHTML(d.nome)}</td>
+    <td>${escapeHTML(d.matricula)}</td>
+    <td>${d.idade??''}</td>
+    <td>${d.sexo}</td>
+    <td>${escapeHTML(d.cid)}</td>
+    <td>${escapeHTML(d.cid_desc)}</td>
+    <td>${d.status}</td>
+    <td>${escapeHTML(d.obs)}</td>
+  </tr>`).join('');
+}
+function refreshCharts(list){
+  const freq={}; for(const d of list){ if(d.cid){ freq[d.cid]=(freq[d.cid]||0)+1; } }
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const labelsCID=top.map(([k])=>k), dataCID=top.map(([,v])=>v);
+  const m=list.filter(d=>d.sexo==='M').length, f=list.filter(d=>d.sexo==='F').length;
+
+  if(chartCIDs) chartCIDs.destroy(); if(chartSexo) chartSexo.destroy();
+
+  chartCIDs=new Chart(document.getElementById('chartCIDs'),{
+    type:'bar',
+    data:{labels:labelsCID,datasets:[{label:'Pacientes',data:dataCID,maxBarThickness:28}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>` ${ctx.parsed.y} pacientes`}}},scales:{y:{beginAtZero:true}}}
+  });
+
+  chartSexo=new Chart(document.getElementById('chartSexo'),{
+    type:'doughnut',
+    data:{labels:['M','F'],datasets:[{data:[m,f]}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+/* ======== Carregamento dinâmico do XLSX do GitHub ======== */
+async function tryFetchXLSX(url){
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const buf = await res.arrayBuffer();
+  const wb = XLSX.read(buf, {type:'array'});
+  const sh = wb.Sheets[wb.SheetNames[0]];
+  const arr = XLSX.utils.sheet_to_json(sh, {header:1, raw:false, blankrows:false});
+  if(!arr.length) throw new Error('Planilha vazia');
+  const headers=(arr[0]||[]).map(String), rows=arr.slice(1);
+  loadFrom(headers, rows);
+}
+
+/* ======== Boot: tenta ./oncologia-vo.xlsx -> RAW (opcional) -> fallback demo ======== */
+const fallbackCSV = `NOME,MATRICULA,IDADE,SEXO,CID,DESCRIÇÃO CID,OBSERVAÇÕES
+Ana Silva,0001,63,F,C50,Neoplasia maligna da mama,
+João Souza,0002,71,M,C18,Neoplasia maligna do cólon,
+`;
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+  try {
+    await tryFetchXLSX(RELATIVE_XLSX);
+  } catch(e1){
+    if(RAW_XLSX){
+      try { await tryFetchXLSX(RAW_XLSX); }
+      catch(e2){
+        const {headers,rows}=parseCSV(fallbackCSV); loadFrom(headers, rows);
+      }
+    } else {
+      const {headers,rows}=parseCSV(fallbackCSV); loadFrom(headers, rows);
+    }
+  }
+});
+
+/* ======== Importar/Substituir manualmente ======== */
+document.getElementById('fileInput').addEventListener('change', async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='csv'){
+    const text=await file.text(); const {headers,rows}=parseCSV(text); loadFrom(headers,rows);
+  }else if(ext==='xlsx'||ext==='xls'){
+    const data=await file.arrayBuffer(); const wb=XLSX.read(data,{type:'array'});
+    const sh=wb.Sheets[wb.SheetNames[0]]; const arr=XLSX.utils.sheet_to_json(sh,{header:1,raw:false,blankrows:false});
+    if(!arr.length) return; const headers=(arr[0]||[]).map(String); const rows=arr.slice(1); loadFrom(headers, rows);
+  }else{ alert('Formato não suportado. Use CSV, XLSX ou XLS.'); }
+});
+
+/* ======== Exportar filtrados ======== */
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const list=getFiltered(); if(!list.length){ alert('Nenhum registro para exportar.'); return; }
+  const headers=['Nome','Matrícula','Idade','Sexo','CID','Descrição CID','Status','Observações'];
+  const lines=[headers.join(',')];
+  for(const d of list){
+    const arr=[d.nome,d.matricula,d.idade??'',d.sexo,d.cid,d.cid_desc,d.status,d.obs];
+    lines.push(arr.map(s=>{s=(s===undefined||s===null)?'':String(s); return /[,"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(','));
+  }
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'}), url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='oncologia_vo_filtrado.csv'; a.click(); URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Formulário RADAR³ para registro de avaliações">
+  <title>RADAR³™ - Avaliação de Equipes</title>
+  <link rel="icon" href="https://www.axcare.com.br/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#196396">
+</head>
+<body>
+  <div id="radar-container" class="container">
+  <div class="container">
+    <a href="https://axcare.com.br" target="_blank">
+      <img src="https://i.imgur.com/yAUQciP.png" class="logo" alt="AxiaCare Logo">
+    </a>
+
+    <h1>RADAR³™</h1>
+    <h2><span class="highlight-letter">R</span>evisão <span class="highlight-letter">Á</span>gil: <span class="highlight-letter">D</span>emandas, <span class="highlight-letter">A</span>ções <span class="highlight-letter">R</span>eflexões</h2>
+
+    <form id="radarForm">
+      <label for="dataAvaliacao">Data da Avaliação:</label>
+      <input type="date" id="dataAvaliacao" class="box">
+
+      <label for="equipe">Identificação da Equipe Avaliada:</label>
+      <input type="text" id="equipe" class="box" placeholder="Informe a equipe avaliada">
+
+      <label for="avaliador">Avaliador:</label>
+      <input type="text" id="avaliador" class="box" placeholder="Informe o nome do avaliador">
+
+      <label for="periodicidade">Selecione a Periodicidade "Ciclo RADAR³":</label>
+      <select id="periodicidade" class="box">
+        <option>Semanal</option>
+        <option>Quinzenal</option>
+        <option>Mensal</option>
+        <option>Outro</option>
+      </select>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ABERTURA</th>
+            <th>ENCAMINHAMENTOS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="section-title"><span class="highlight-letter">R</span>elatos Relevantes<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+            <td class="section-title"><span class="highlight-letter">R</span>egistros<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+          </tr>
+          <tr>
+            <td class="section-title"><span class="highlight-letter">A</span>bertos Importantes<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+            <td class="section-title"><span class="highlight-letter">A</span>ções<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+          </tr>
+          <tr>
+            <td class="section-title"><span class="highlight-letter">D</span>irecionadores de Impacto<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+            <td class="section-title"><span class="highlight-letter">D</span>efinições<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+          </tr>
+          <tr>
+            <td class="section-title"><span class="highlight-letter">A</span>genda e Articulações<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+            <td class="section-title"><span class="highlight-letter">A</span>linhamentos<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+          </tr>
+          <tr>
+            <td class="section-title"><span class="highlight-letter">R</span>iscos e Reflexões Estratégicas<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+            <td class="section-title"><span class="highlight-letter">R</span>ecomendações<ul><li><textarea></textarea></li><li><textarea></textarea></li><li><textarea></textarea></li></ul></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="email-container">
+        <input type="email" id="email" placeholder="Digite o e-mail" required>
+        <button type="submit">Enviar Avaliação</button>
+        <button id="downloadPDF" type="button" onclick="window.print()">Imprimir / Salvar como PDF</button>
+      </div>
+    </form>
+
+    <div class="footer">
+      <p>Dr. Guilherme Thomé | <a href="https://guithome.com.br">guithome.com.br</a> | <a href="https://linkedin.com/in/guithome">LinkedIn</a> | <a href="https://www.instagram.com/gui.thome/">Instagram</a><br>
+      <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a> | <a href="https://www.axcare.com.br">axcare.com.br</a> | <a href="https://www.medvalor.med.br">medvalor.med.br</a><br>
+      Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa GT Corp.</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="script.js"></script>
+  <a href="https://guithome.com.br" target="_blank">
+    <img src="https://i.imgur.com/csETwOT.png" style="position: fixed; bottom: 10px; right: 25px; width: 100px; height: auto;" alt="GuiThome logo">
+  </a>
+</body>
+</html>

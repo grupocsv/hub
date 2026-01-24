@@ -1,0 +1,30 @@
+name: Atualizar direx.html automaticamente
+
+on:
+  push:
+    paths:
+      - 'unimed/.env'
+      - 'unimed/direx.template.html'
+
+jobs:
+  atualizar-direx:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: unimed
+
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v3
+
+      - name: Gerar novo direx.html com o link atualizado
+        run: |
+          source .env
+          sed "s|{{LINK}}|$LINK|g" direx.template.html > direx.html
+      - name: Subir direx.html atualizado
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'actions@github.com'
+          git add direx.html
+          git commit -m "Atualização automática do direx.html via .env"
+          git push

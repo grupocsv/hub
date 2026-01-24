@@ -1,0 +1,59 @@
+/* Importando fontes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Fontes */
+  --vp-font-family-base: 'Inter', system-ui, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', monospace;
+
+  /* Cores da Marca */
+  --vp-c-brand-1: #196396; /* Axia Blue */
+  --vp-c-brand-2: #14527d;
+  --vp-c-brand-3: #0f3d5e;
+  
+  /* Acentos */
+  --color-thera: #2DBF7F;
+  --color-medvalor: #c2410c;
+
+  /* Layout */
+  --vp-layout-max-width: 1400px;
+}
+
+/* Customizações Swiss Modern */
+.vp-doc h1 { 
+  font-weight: 800; 
+  letter-spacing: -0.03em;
+}
+
+.vp-doc h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: none;
+}
+
+/* Badges Customizados */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.badge.axia { background: #e0f2fe; color: #0369a1; }
+.badge.thera { background: #dcfce7; color: #15803d; }
+.badge.med { background: #fff7ed; color: #c2410c; }
+
+/* Ajuste de tamanho da Logo no Header */
+.VPNavBarTitle .logo {
+  height: 40px !important; /* Aumentado de 24px para 40px */
+  width: auto !important;
+  margin-right: 12px;
+}
+
+/* Ajuste para garantir que o texto não fique colado */
+.VPNavBarTitle {
+  display: flex;
+  align-items: center;
+}

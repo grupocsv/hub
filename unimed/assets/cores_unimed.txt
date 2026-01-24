@@ -1,0 +1,2 @@
+Cores Principais: #00995d ; #8baf1f ; #004e4c ; #f47920
+Cores Secundárias: #cde3bb ; #ece3d9

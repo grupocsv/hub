@@ -1,0 +1,1809 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel GCE | Gerenciamento de Casos Especiais 2025</title>
+<meta name="description" content="Painel de Gerenciamento do Programa GCE - Espaço Viver Bem (Casa Unimed)">
+<meta name="author" content="Guilherme Thomé - AxiaCare">
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/guicthome/guilherme/072f6b53c297b30bc2e6cad6a1bd9262dd5a2160/favicon.ico">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Painel GCE | Gerenciamento de Casos Especiais 2025">
+<meta property="og:description" content="Painel de Gerenciamento do Programa GCE - Espaço Viver Bem (Casa Unimed)">
+<meta property="og:image" content="https://raw.githubusercontent.com/guicthome/guilherme/072f6b53c297b30bc2e6cad6a1bd9262dd5a2160/OG_unimed.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+
+<style>
+/* =========================
+   Design System - Cores Unimed
+   ========================= */
+:root {
+  /* Cores Unimed */
+  --unimed-green: #00995d;
+  --unimed-lime: #8baf1f;
+  --unimed-teal: #004e4c;
+  --unimed-orange: #f47920;
+  
+  /* Principais */
+  --primary: #00995d;
+  --primary-hover: #007a4a;
+  --accent: #8baf1f;
+  --accent-hover: #739916;
+  
+  /* Escala de cinzas */
+  --ink: #0F172A;
+  --ink-2: #334155;
+  --muted: #64748B;
+  --muted-light: #94A3B8;
+  --border: #E2E8F0;
+  --bg: #F8FAFC;
+  --bg-2: #F1F5F9;
+  --panel: #FFFFFF;
+  
+  /* Semântica */
+  --success: #00995d;
+  --warning: #f47920;
+  --error: #DC2626;
+  --info: #004e4c;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 24px 16px;
+  }
+}
+
+/* =========================
+   Header
+   ========================= */
+.header {
+  background: linear-gradient(135deg, #00995d 0%, #007a4a 100%);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: 36px 40px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.h-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.h-subtitle {
+  font-size: 16px;
+  opacity: 0.95;
+  margin: 0 0 6px;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+.h-meta {
+  font-size: 13px;
+  opacity: 0.85;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 24px 20px;
+  }
+  
+  .header > div {
+    flex-direction: column !important;
+    gap: 20px;
+  }
+  
+  .header img {
+    height: 60px !important;
+    align-self: center;
+  }
+  
+  .h-title {
+    font-size: 24px;
+  }
+  
+  .h-subtitle {
+    font-size: 14px;
+  }
+  
+  .h-meta {
+    font-size: 12px;
+  }
+}
+
+/* =========================
+   Team Cards (Expansíveis)
+   ========================= */
+.team-card {
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.team-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.team-header {
+  padding: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--panel);
+  transition: background 0.2s ease;
+}
+
+.team-header:hover {
+  background: var(--bg);
+}
+
+.team-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.team-icon.pacientes {
+  background: linear-gradient(135deg, #004e4c 0%, #006b68 100%);
+  color: #fff;
+}
+
+.team-icon.medicos {
+  background: linear-gradient(135deg, #00995d 0%, #00b36f 100%);
+  color: #fff;
+}
+
+.team-icon.enfermagem {
+  background: linear-gradient(135deg, #8baf1f 0%, #a0c736 100%);
+  color: #fff;
+}
+
+.team-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.team-info {
+  flex: 1;
+}
+
+.team-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 8px;
+}
+
+.team-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.team-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.team-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg-2);
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.team-meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.toggle-arrow {
+  width: 28px;
+  height: 28px;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.team-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  border-top: 1px solid transparent;
+}
+
+.team-content.open {
+  max-height: 2000px;
+  border-top-color: var(--border);
+}
+
+.team-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.team-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.team-list li:hover {
+  background: var(--bg);
+}
+
+.team-list li:last-child {
+  border-bottom: none;
+}
+
+.member-name {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.member-count {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.nivel-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+
+.nivel-badge.nivel-ii {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.nivel-badge.nivel-iii {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.nivel-badge.nivel-id {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.team-note {
+  padding: 20px 24px;
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+}
+
+.team-note h5 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.team-note p {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* =========================
+   KPIs Grid Simples
+   ========================= */
+.kpis-simple {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 32px 0;
+}
+
+.kpi-simple {
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.kpi-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.kpi-simple-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 12px;
+}
+
+.kpi-simple-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -1.5px;
+}
+
+.kpi-simple-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.kpi-simple-meta.positive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* =========================
+   Sections
+   ========================= */
+.section {
+  margin: 48px 0;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.section-description {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.chart-wrapper {
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.chart-container {
+  position: relative;
+  height: 340px;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* =========================
+   Grid Layout
+   ========================= */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+  .kpis-simple {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .team-card {
+    margin-bottom: 16px;
+  }
+  
+  .team-header {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .team-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .team-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .team-number {
+    font-size: 32px;
+  }
+  
+  .team-label {
+    font-size: 12px;
+  }
+  
+  .team-meta {
+    font-size: 12px;
+  }
+  
+  .team-list li {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .member-name {
+    font-size: 13px;
+  }
+  
+  .member-count {
+    font-size: 14px;
+  }
+  
+  .nivel-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    margin-left: 6px;
+  }
+  
+  .kpi-simple {
+    padding: 20px;
+  }
+  
+  .kpi-simple-number {
+    font-size: 40px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+  }
+  
+  .section-description {
+    font-size: 13px;
+  }
+  
+  .chart-wrapper {
+    padding: 20px;
+  }
+  
+  .data-table {
+    font-size: 12px;
+  }
+  
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 10px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 16px 12px;
+  }
+  
+  .header {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  
+  .h-title {
+    font-size: 20px;
+  }
+  
+  .h-subtitle {
+    font-size: 13px;
+  }
+  
+  .badge {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+  
+  .team-header {
+    padding: 16px;
+  }
+  
+  .team-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .team-number {
+    font-size: 28px;
+  }
+  
+  .kpi-simple-number {
+    font-size: 36px;
+  }
+  
+  .chart-wrapper {
+    padding: 16px;
+  }
+  
+  .chart-container {
+    height: 250px !important;
+  }
+  
+  .data-table {
+    font-size: 11px;
+  }
+  
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 8px 6px;
+  }
+}
+
+/* =========================
+   Table
+   ========================= */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.data-table thead th {
+  background: var(--bg-2);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.data-table tbody td {
+  padding: 12px 14px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg);
+}
+
+/* =========================
+   Actions
+   ========================= */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background: var(--panel);
+  color: var(--primary);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background: var(--bg);
+  border-color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* =========================
+   Footer AxiaCare
+   ========================= */
+.footer {
+  margin-top: 60px;
+  padding: 25px 15px;
+  background-color: #f8f5f0;
+  text-align: center;
+  font-family: Verdana, sans-serif;
+  border-top: 2px solid #006b68;
+}
+
+.footer-logo {
+  width: 140px;
+  margin: 0 auto 10px auto;
+  display: block;
+}
+
+.footer-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0 18px;
+}
+
+.footer-links,
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.footer-links a,
+.footer-social a {
+  color: #004E4C;
+  text-decoration: none;
+  position: relative;
+  padding: 0 4px;
+}
+
+.footer-links a:hover,
+.footer-social a:hover {
+  color: #002c2a;
+  text-decoration: underline;
+}
+
+.footer .separator {
+  color: #bbb;
+  margin: 0 4px;
+}
+
+.footer-copyright {
+  margin-top: 18px;
+  font-size: 11px;
+  color: #999;
+}
+
+/* =========================
+   Print
+   ========================= */
+@media print {
+  body {
+    background: #fff;
+  }
+  
+  .wrapper {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .header {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  .actions {
+    display: none !important;
+  }
+  
+  .team-card,
+  .chart-wrapper,
+  .kpi-simple {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  
+  .section {
+    break-inside: avoid;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1;">
+        <div style="flex: 1;">
+          <span class="badge">Painel de Gerenciamento • Atenção Domiciliar</span>
+          <h1 class="h-title">Gerenciamento de Casos Especiais (GCE)</h1>
+          <p class="h-subtitle">Espaço Viver Bem (Casa Unimed) • Unimed Gov. Valadares</p>
+          <p class="h-meta">Período: Janeiro a Outubro de 2025</p>
+        </div>
+        <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed Logo" style="height: 80px; opacity: 0.95;">
+      </div>
+    </header>
+
+    <!-- Card Pacientes Ativos (com lista expansível) -->
+    <div class="team-card">
+      <div class="team-header" onclick="toggleTeam('pacientes')">
+        <div class="team-icon pacientes">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+        </div>
+        <div class="team-info">
+          <h3 class="team-label">Pacientes Ativos</h3>
+          <div class="team-stats">
+            <div class="team-number">263</div>
+            <span class="team-tag">cadastrados</span>
+          </div>
+          <div class="team-meta">Base cadastral no momento</div>
+        </div>
+        <svg class="toggle-arrow" id="togglePacientes" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+        </svg>
+      </div>
+      
+      <div class="team-content" id="contentPacientes">
+        <ul class="team-list" id="listaPacientes">
+          <!-- Preenchido via JS -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- KPIs Simples (Visitas e Crescimento) -->
+    <div class="kpis-simple">
+      <div class="kpi-simple">
+        <h3 class="kpi-simple-label">Total de Visitas</h3>
+        <div class="kpi-simple-number">5.018</div>
+        <div class="kpi-simple-meta">Janeiro a Outubro 2025</div>
+      </div>
+
+      <div class="kpi-simple">
+        <h3 class="kpi-simple-label">Média Visitas/Paciente</h3>
+        <div class="kpi-simple-number">19,1</div>
+        <div class="kpi-simple-meta">Período de 10 meses</div>
+      </div>
+
+      <div class="kpi-simple">
+        <h3 class="kpi-simple-label">Crescimento Mensal</h3>
+        <div class="kpi-simple-number">+5,0%</div>
+        <div class="kpi-simple-meta positive">Taxa média mensal</div>
+      </div>
+    </div>
+
+    <!-- Cards das Equipes -->
+    <div class="grid-2">
+      <!-- Equipe Médica -->
+      <div class="team-card">
+        <div class="team-header" onclick="toggleTeam('medicos')">
+          <div class="team-icon medicos">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+            </svg>
+          </div>
+          <div class="team-info">
+            <h3 class="team-label">Equipe Médica</h3>
+            <div class="team-stats">
+              <div class="team-number">13</div>
+              <span class="team-tag">médicos</span>
+            </div>
+            <div class="team-meta">Média 20 pacientes/médico</div>
+          </div>
+          <svg class="toggle-arrow" id="toggleMedicos" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+          </svg>
+        </div>
+        
+        <div class="team-content" id="contentMedicos">
+          <ul class="team-list">
+            <li><span class="member-name">Aroldo de Paula Andrade</span><span class="member-count">41</span></li>
+            <li><span class="member-name">Mônica Barbosa Pacheco</span><span class="member-count">31</span></li>
+            <li><span class="member-name">Sebastião Fontes Santiago</span><span class="member-count">30</span></li>
+            <li><span class="member-name">Camila Borba Pereira</span><span class="member-count">25</span></li>
+            <li><span class="member-name">Diogo Lima Machado de Souza</span><span class="member-count">21</span></li>
+            <li><span class="member-name">Guilherme Rhis</span><span class="member-count">21</span></li>
+            <li><span class="member-name">Poliana Libório dos Santos Vilas Boas</span><span class="member-count">17</span></li>
+            <li><span class="member-name">José do Carmo Filho</span><span class="member-count">15</span></li>
+            <li><span class="member-name">Jorge Carlos do Amaral Júnior</span><span class="member-count">14</span></li>
+            <li><span class="member-name">Lara Ribeiro Vilela</span><span class="member-count">11</span></li>
+            <li><span class="member-name">Erica Prata</span><span class="member-count">1</span></li>
+            <li><span class="member-name">Márcio Brandão (Médico da Família)</span><span class="member-count">1</span></li>
+            <li><span class="member-name">Luísa Moraes</span><span class="member-count">1</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Equipe Enfermagem -->
+      <div class="team-card">
+        <div class="team-header" onclick="toggleTeam('enfermagem')">
+          <div class="team-icon enfermagem">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <div class="team-info">
+            <h3 class="team-label">Equipe Enfermagem</h3>
+            <div class="team-stats">
+              <div class="team-number">5</div>
+              <span class="team-tag">enfermeiros</span>
+            </div>
+            <div class="team-meta">Média 53 pacientes/enfermeiro</div>
+          </div>
+          <svg class="toggle-arrow" id="toggleEnfermagem" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+          </svg>
+        </div>
+        
+        <div class="team-content" id="contentEnfermagem">
+          <ul class="team-list">
+            <li><span class="member-name">Rosilda de Souza Santos</span><span class="member-count">61</span></li>
+            <li><span class="member-name">Rafaela Bolonha Reverte Araújo</span><span class="member-count">56</span></li>
+            <li><span class="member-name">Mayara Garcia da Silva</span><span class="member-count">51</span></li>
+            <li><span class="member-name">Maria Tertuliana de Almeida Rocha</span><span class="member-count">47</span></li>
+            <li><span class="member-name">Urcelia Conceição de Carvalho</span><span class="member-count">47</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visitas Mensais -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Visitas Mensais (2025)</h2>
+        <p class="section-description">Evolução das visitas médicas e de enfermagem com linha de tendência. Dados consolidados de janeiro a outubro.</p>
+      </div>
+      
+      <div class="chart-wrapper">
+        <div class="chart-container">
+          <canvas id="chartVisitasMensais"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid 2 Colunas -->
+    <div class="grid-2">
+      <!-- Estratificação -->
+      <section class="section" style="margin: 0;">
+        <div class="section-header">
+          <h2 class="section-title">Estratificação por Complexidade</h2>
+          <p class="section-description">Distribuição dos 263 pacientes por nível assistencial.</p>
+        </div>
+        
+        <div class="chart-wrapper">
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="chartEstratos"></canvas>
+          </div>
+          <div style="margin-top: 20px; padding: 16px; background: var(--bg-2); border-radius: var(--radius); border: 1px solid var(--border);">
+            <h5 style="font-size: 13px; font-weight: 700; color: var(--ink); margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.5px;">Nota sobre Estratificação:</h5>
+            <p style="font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.8;">
+              <strong>Nível II:</strong> Média complexidade (33 pacientes)<br>
+              <strong>Nível III:</strong> Alta complexidade (197 pacientes)<br>
+              <strong>ID:</strong> Intervenção Domiciliar - medicações a domicílio (32 pacientes)
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visitas por Profissão -->
+      <section class="section" style="margin: 0;">
+        <div class="section-header">
+          <h2 class="section-title">Visitas por Categoria Profissional</h2>
+          <p class="section-description">Comparativo mensal entre visitas médicas e de enfermagem.</p>
+        </div>
+        
+        <div class="chart-wrapper">
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="chartProfissoes"></canvas>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Detalhamento Mensal -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Detalhamento Mensal das Visitas</h2>
+        <p class="section-description">Breakdown completo da produção por mês e categoria profissional.</p>
+      </div>
+
+      <div class="chart-wrapper">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th style="text-align: right;">Visitas Médicas</th>
+                <th style="text-align: right;">Visitas Enfermagem</th>
+                <th style="text-align: right;">Total</th>
+                <th style="text-align: right;">Variação MoM</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaMensal">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+          <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+        </svg>
+        Imprimir Painel
+      </button>
+      <button class="btn btn-secondary" onclick="alert('Exportação em desenvolvimento')">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+        </svg>
+        Exportar Dados
+      </button>
+    </div>
+
+    <!-- Footer AxiaCare -->
+    <div class="footer">
+      <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+      <div class="footer-title">AxView™ | WebApps - Gestão e Consultoria em Saúde</div>
+      <div class="footer-links">
+        <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+        <span class="separator">|</span>
+        <a href="https://www.axcare.com.br">axcare.com.br</a>
+        <span class="separator">|</span>
+        <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+      </div>
+      <div class="footer-social">
+        <a href="https://guithome.com.br">guithome.com.br</a>
+        <span class="separator">|</span>
+        <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+        <span class="separator">|</span>
+        <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+      </div>
+      <div class="footer-copyright">
+        Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  
+  <script>
+    // ====================================
+    // Toggle Team Cards
+    // ====================================
+    function toggleTeam(team) {
+      const content = document.getElementById('content' + team.charAt(0).toUpperCase() + team.slice(1));
+      const icon = document.getElementById('toggle' + team.charAt(0).toUpperCase() + team.slice(1));
+      
+      if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        icon.classList.remove('open');
+      } else {
+        content.classList.add('open');
+        icon.classList.add('open');
+      }
+    }
+
+    // ====================================
+    // Popular lista de pacientes COM NÍVEIS
+    // ====================================
+    const pacientesComNivel = [
+  {nome: 'Adalberto Ramos Ribeiro', nivel: 'III'},
+  {nome: 'Adalgisa Vieira Cruz', nivel: 'III'},
+  {nome: 'Adila Ramos de Oliveira', nivel: 'III'},
+  {nome: 'Aguida Genero da Silva Nascimento', nivel: 'ID'},
+  {nome: 'Aidê Rodrigues Millen', nivel: 'II'},
+  {nome: 'Alceia Queiroz Lima', nivel: 'III'},
+  {nome: 'Alda Cordeiro da Silva Morais', nivel: 'II'},
+  {nome: 'Alice Maria de Souza', nivel: 'III'},
+  {nome: 'Almerinda Fe\' da Silva', nivel: 'III'},
+  {nome: 'Alzerina Melquiodes Rosa', nivel: 'II'},
+  {nome: 'Alzira Eça de Argolo Faustino', nivel: 'III'},
+  {nome: 'Amanda de Matos Nalon', nivel: 'III'},
+  {nome: 'Ana Beatriz Santos Braga', nivel: 'ID'},
+  {nome: 'Ana Candida da Silva', nivel: 'III'},
+  {nome: 'Ana Laura Silveira Improta', nivel: 'III'},
+  {nome: 'Ana Lúcia Alves da Silva', nivel: 'III'},
+  {nome: 'Ana Lúcia de Almeida Santos', nivel: 'II'},
+  {nome: 'Ana Lucia Dos Santos', nivel: 'III'},
+  {nome: 'Ana Lucia Souza Barbosa', nivel: 'III'},
+  {nome: 'Ana Maria Alves Almeida', nivel: 'ID'},
+  {nome: 'Ana Maria Rodrigues Resende', nivel: 'III'},
+  {nome: 'Ana Paula Afonso Vieira', nivel: 'III'},
+  {nome: 'Anaide Guimarães de Oliveira', nivel: 'III'},
+  {nome: 'Andre Luiz Rodrigues de Moraes', nivel: 'III'},
+  {nome: 'Andreiva Corrêa da Cruz', nivel: 'III'},
+  {nome: 'Antonia Aparecida Amaro de Lira', nivel: 'III'},
+  {nome: 'Antonia Diniz de Oliveira', nivel: 'III'},
+  {nome: 'Antonia Lúcia de Almeida Alvarenga', nivel: 'III'},
+  {nome: 'Antonio Alves do Nascimento Júnior', nivel: 'III'},
+  {nome: 'Antonio Aparecido Corrêa', nivel: 'III'},
+  {nome: 'Antonio Carlos Coelho Lopes', nivel: 'ID'},
+  {nome: 'Aparecida da Penha Caldeira', nivel: 'III'},
+  {nome: 'Aparecida da Penha Gomes', nivel: 'III'},
+  {nome: 'Aparecida de Fatima Maciel da Silva', nivel: 'III'},
+  {nome: 'Aparecida de Fátima Rodrigues Soares', nivel: 'II'},
+  {nome: 'Aparecida Luzia do Nascimento', nivel: 'III'},
+  {nome: 'Arlene Gualberto de Jesus', nivel: 'III'},
+  {nome: 'Arminda Dias Filho', nivel: 'ID'},
+  {nome: 'Aylene Maria Vieira', nivel: 'III'},
+  {nome: 'Benedita Rodrigues de Medeiros', nivel: 'III'},
+  {nome: 'Bernadete da Penha Coelho Cunha', nivel: 'ID'},
+  {nome: 'Bernardete Ferreira Alves', nivel: 'III'},
+  {nome: 'Cacilia Maria dos Santos', nivel: 'III'},
+  {nome: 'Carlos Alberto da Silva', nivel: 'III'},
+  {nome: 'Carlos José Neri da Silva', nivel: 'ID'},
+  {nome: 'Carmem de Souza Lima', nivel: 'III'},
+  {nome: 'Cássia Preis', nivel: 'III'},
+  {nome: 'Celia Lopes de Freitas Afonso', nivel: 'III'},
+  {nome: 'Celia Maria dos Santos', nivel: 'III'},
+  {nome: 'Célia Souza dos Santos', nivel: 'ID'},
+  {nome: 'Celso de Oliveira', nivel: 'III'},
+  {nome: 'Cicero Barbosa de Oliveira', nivel: 'II'},
+  {nome: 'Cíntia Magalhães Lima', nivel: 'III'},
+  {nome: 'Claudete Lopes da Silva', nivel: 'III'},
+  {nome: 'Cleia Conceição de Aguiar Silva', nivel: 'II'},
+  {nome: 'Cleonice Amaro Cruz', nivel: 'III'},
+  {nome: 'Conceição Aparecida Duarte Fonseca', nivel: 'III'},
+  {nome: 'Conceição Aparecida Ferreira Pereira', nivel: 'III'},
+  {nome: 'Cristiane Francisca Costa', nivel: 'III'},
+  {nome: 'Cristina Sales Badaró', nivel: 'ID'},
+  {nome: 'Dalva de Souza Machado', nivel: 'III'},
+  {nome: 'Dalva Lucia Lopes Dias', nivel: 'III'},
+  {nome: 'Delma Paiva de Souza', nivel: 'III'},
+  {nome: 'Delzuita Silva de Jesus', nivel: 'III'},
+  {nome: 'Deonilda Araujo Souza', nivel: 'III'},
+  {nome: 'Dgnar Margarida', nivel: 'III'},
+  {nome: 'Dilma Rodrigues Neves', nivel: 'III'},
+  {nome: 'Dirce Marques da Cruz', nivel: 'III'},
+  {nome: 'Divânia Ribeiro Barbosa Ferreira', nivel: 'III'},
+  {nome: 'Domingas Rodrigues dos Santos', nivel: 'III'},
+  {nome: 'Domingos Alves Batista', nivel: 'III'},
+  {nome: 'Donizete Gonzaga de Oliveira', nivel: 'ID'},
+  {nome: 'Dorcas Araújo Mesquita', nivel: 'III'},
+  {nome: 'Doroteia da Silva Machado', nivel: 'III'},
+  {nome: 'Edineia Rodrigues da Cunha', nivel: 'III'},
+  {nome: 'Edith Siqueira Moreira', nivel: 'III'},
+  {nome: 'Edivalda Nunes Brito Santos', nivel: 'III'},
+  {nome: 'Edna Cabral da Silva', nivel: 'III'},
+  {nome: 'Eduardo Corrêa Ribeiro', nivel: 'III'},
+  {nome: 'Efigênia Maria de Jesus', nivel: 'III'},
+  {nome: 'Eli Badaró da Conceição', nivel: 'III'},
+  {nome: 'Eliana Donizette da Silva', nivel: 'III'},
+  {nome: 'Eliane de Souza Almeida', nivel: 'III'},
+  {nome: 'Eliete José de Jesus', nivel: 'II'},
+  {nome: 'Elisangela Jesus da Cruz Braga', nivel: 'III'},
+  {nome: 'Elisete De Oliveira Bispo', nivel: 'III'},
+  {nome: 'Elizangela Lopes Lourenço', nivel: 'III'},
+  {nome: 'Elizete Afonso da Silva', nivel: 'III'},
+  {nome: 'Elza Barbosa de Meneses', nivel: 'III'},
+  {nome: 'Emerson Klinger Costa da Silva', nivel: 'III'},
+  {nome: 'Ermelinda Braz de Paula Pereira', nivel: 'III'},
+  {nome: 'Esmeralda Alves Barbosa', nivel: 'III'},
+  {nome: 'Esmeralda Silva Pinto', nivel: 'III'},
+  {nome: 'Esther Luciana Felicio Barbosa', nivel: 'III'},
+  {nome: 'Eufrasia Barbosa Pereira', nivel: 'III'},
+  {nome: 'Eunice Miguel dos Santos', nivel: 'III'},
+  {nome: 'Eva Coutinho da Silva', nivel: 'III'},
+  {nome: 'Eva de Jesus Pereira', nivel: 'III'},
+  {nome: 'Evanir Maria Neres Rodrigues', nivel: 'III'},
+  {nome: 'Fatima Divina das Graças Pereira Oliveira', nivel: 'III'},
+  {nome: 'Fatima Lopes dos Santos', nivel: 'III'},
+  {nome: 'Fernanda Kellen Alves Carneiro', nivel: 'III'},
+  {nome: 'Francisca de Fátima Barbosa Silva', nivel: 'III'},
+  {nome: 'Francisca de Fátima Rodrigues Machado', nivel: 'III'},
+  {nome: 'Francisca Lopes dos Santos', nivel: 'III'},
+  {nome: 'Francisca Lopes dos Santos Oliveira', nivel: 'II'},
+  {nome: 'Francisca Ribeiro da Silva Santos', nivel: 'III'},
+  {nome: 'Francisco Coelho de Sá', nivel: 'III'},
+  {nome: 'Francisco de Paula Rosa Faria', nivel: 'III'},
+  {nome: 'Francisco Gomes de Almeida', nivel: 'ID'},
+  {nome: 'Gabriel Camargo da Silva', nivel: 'III'},
+  {nome: 'Geralda Batista de Souza', nivel: 'III'},
+  {nome: 'Geralda Moreira Silva', nivel: 'III'},
+  {nome: 'Geraldo José Custódio', nivel: 'III'},
+  {nome: 'Gercina Rodrigues Fernandes de Souza', nivel: 'III'},
+  {nome: 'Gilda Costa Lopes de Souza', nivel: 'III'},
+  {nome: 'Gisele Martins de Oliveira Gonzaga', nivel: 'III'},
+  {nome: 'Gracinda Silveira Andrade', nivel: 'III'},
+  {nome: 'Guilhermina de Souza Araujo', nivel: 'III'},
+  {nome: 'Haideê Alves Pinheiro', nivel: 'III'},
+  {nome: 'Hosana Maria Almeida Fernandes', nivel: 'III'},
+  {nome: 'Ieda Maria Silva', nivel: 'III'},
+  {nome: 'Ignacia Dias Rosa', nivel: 'III'},
+  {nome: 'Ilma Neves Carvalho Damião', nivel: 'III'},
+  {nome: 'Inêz Coutinho da Silva', nivel: 'III'},
+  {nome: 'Inês Maria Duarte Oliveira', nivel: 'III'},
+  {nome: 'Iratêmis Geraldo Duarte', nivel: 'III'},
+  {nome: 'Irene Ferreira de Souza', nivel: 'III'},
+  {nome: 'Isabel Carvalho da Silva', nivel: 'III'},
+  {nome: 'Isabel da Conceição Mattos', nivel: 'III'},
+  {nome: 'Isaltina Batista de Souza', nivel: 'III'},
+  {nome: 'Isaltina Romualdo da Silva Feliciano', nivel: 'III'},
+  {nome: 'Isia Maria Vilela Silva', nivel: 'III'},
+  {nome: 'Isneci Souza de Lima', nivel: 'III'},
+  {nome: 'Iva Couto Gualberto', nivel: 'III'},
+  {nome: 'Ivete Barbosa de Jesus', nivel: 'III'},
+  {nome: 'Izabel Custódio dos Santos', nivel: 'III'},
+  {nome: 'Jairo Mendes de Oliveira', nivel: 'II'},
+  {nome: 'Jandira da Silva', nivel: 'III'},
+  {nome: 'Jarina Barbosa', nivel: 'III'},
+  {nome: 'João Carlos Freitas Afonso', nivel: 'II'},
+  {nome: 'João Coelho de Souza', nivel: 'III'},
+  {nome: 'Joao Evangelista de Barros', nivel: 'ID'},
+  {nome: 'Joacir Gregório de Jesus', nivel: 'III'},
+  {nome: 'Joaquina Rodrigues Dias', nivel: 'III'},
+  {nome: 'Jose Alves da Silva', nivel: 'III'},
+  {nome: 'Jose Aparecido Martins de Castro', nivel: 'ID'},
+  {nome: 'José Bertoldo Fernandes', nivel: 'ID'},
+  {nome: 'José de Jesus Amorim', nivel: 'III'},
+  {nome: 'Jose Gomes de Abreu Junior', nivel: 'III'},
+  {nome: 'José Gomes de Almeida', nivel: 'III'},
+  {nome: 'José Gonçalves dos Santos', nivel: 'III'},
+  {nome: 'José Marçal Belo de Santana', nivel: 'III'},
+  {nome: 'Jose Rodrigues da Silva', nivel: 'III'},
+  {nome: 'Juliana Paulina Rosa Vieira', nivel: 'III'},
+  {nome: 'Juvenal Vicente de Paulo Gomes', nivel: 'ID'},
+  {nome: 'Laura Maria Corrêa', nivel: 'III'},
+  {nome: 'Laurinda Silva dos Santos', nivel: 'II'},
+  {nome: 'Laudileia Mota da Silva', nivel: 'III'},
+  {nome: 'Leda Cardoso de Souza', nivel: 'III'},
+  {nome: 'Leila da Cruz Santos', nivel: 'III'},
+  {nome: 'Lenice Alves Nascimento', nivel: 'III'},
+  {nome: 'Leticia Vani da Silva Barbosa', nivel: 'III'},
+  {nome: 'Lourdes Coelho Ribeiro', nivel: 'III'},
+  {nome: 'Lourdes dos Santos Oliveira', nivel: 'III'},
+  {nome: 'Lourdes Martins Rocha', nivel: 'III'},
+  {nome: 'Luara Kétilla Barcelos de Souza', nivel: 'III'},
+  {nome: 'Lúcia da Silva Pereira', nivel: 'III'},
+  {nome: 'Luciana Aparecida Castilho', nivel: 'III'},
+  {nome: 'Luciano Moreira dos Santos', nivel: 'II'},
+  {nome: 'Luciene Fabiana de Souza', nivel: 'III'},
+  {nome: 'Lucilene Lucia de Almeida Rodrigues', nivel: 'ID'},
+  {nome: 'Lucilene Silva Santos', nivel: 'III'},
+  {nome: 'Lucimar da Silva Pereira', nivel: 'III'},
+  {nome: 'Lucinéia de Oliveira', nivel: 'II'},
+  {nome: 'Luiza Cardoso do Nascimento', nivel: 'III'},
+  {nome: 'Luzia de Paula', nivel: 'III'},
+  {nome: 'Madalena Pereira Rodrigues', nivel: 'III'},
+  {nome: 'Manoel Bernardo Filho', nivel: 'III'},
+  {nome: 'Manoel Fernando de Souza', nivel: 'III'},
+  {nome: 'Marcia Darcília Fonseca de Souza Passos', nivel: 'III'},
+  {nome: 'Marcia dos Santos', nivel: 'III'},
+  {nome: 'Marcia Helena Souza', nivel: 'III'},
+  {nome: 'Marco Antonio Rocha', nivel: 'III'},
+  {nome: 'Marcos Vinicius Oliveira Vieira', nivel: 'III'},
+  {nome: 'Margaret Anjos Assunção Gonçalves', nivel: 'III'},
+  {nome: 'Maria Alves dos Santos', nivel: 'II'},
+  {nome: 'Maria Aparecida Alves de Oliveira', nivel: 'III'},
+  {nome: 'Maria Aparecida Conceição Silva', nivel: 'III'},
+  {nome: 'Maria Aparecida da Silva', nivel: 'III'},
+  {nome: 'Maria Aparecida de Oliveira', nivel: 'ID'},
+  {nome: 'Maria Aparecida Lopes Badaró', nivel: 'III'},
+  {nome: 'Maria Auxiliadora de Oliveira da Silva', nivel: 'III'},
+  {nome: 'Maria Auxiliadora dos Santos', nivel: 'III'},
+  {nome: 'Maria Auxiliadora dos Santos Rodrigues', nivel: 'III'},
+  {nome: 'Maria Bernadete Almeida de Aquino', nivel: 'III'},
+  {nome: 'Maria Cardoso de Jesus', nivel: 'III'},
+  {nome: 'Maria Cardoso de Souza', nivel: 'III'},
+  {nome: 'Maria da Conceição de Jesus Bittencourt', nivel: 'III'},
+  {nome: 'Maria da Conceição Duarte da Silva', nivel: 'III'},
+  {nome: 'Maria da Conceição Gualberto', nivel: 'III'},
+  {nome: 'Maria da Conceição Silva Rodrigues', nivel: 'III'},
+  {nome: 'Maria da Gloria Dias de Souza', nivel: 'II'},
+  {nome: 'Maria da Penha Rodrigues Coura', nivel: 'III'},
+  {nome: 'Maria Das Graças Braz de Jesus', nivel: 'III'},
+  {nome: 'Maria das Graças Ferreira Silva', nivel: 'III'},
+  {nome: 'Maria Das Graças Rodrigues Assumpção', nivel: 'III'},
+  {nome: 'Maria de Fatima Rosa Souza', nivel: 'III'},
+  {nome: 'Maria de Lourdes Alves Martins', nivel: 'III'},
+  {nome: 'Maria de Lourdes da Silva Gonzaga', nivel: 'II'},
+  {nome: 'Maria de Lourdes Pinto Guabiraba', nivel: 'III'},
+  {nome: 'Maria de Lourdes Rodrigues Lima', nivel: 'III'},
+  {nome: 'Maria do Carmo dos Santos de Oliveira', nivel: 'II'},
+  {nome: 'Maria Dos Santos Reis', nivel: 'III'},
+  {nome: 'Maria Eleonora Caldeira Campos', nivel: 'III'},
+  {nome: 'Maria Eliza Silva Reis', nivel: 'ID'},
+  {nome: 'Maria Geralda Moreira Silva', nivel: 'III'},
+  {nome: 'Maria Helena de Mendonça', nivel: 'III'},
+  {nome: 'Maria Helena dos Santos', nivel: 'III'},
+  {nome: 'Maria Helena Ferreira Ribeiro', nivel: 'ID'},
+  {nome: 'Maria Ines Santiago Souza', nivel: 'III'},
+  {nome: 'Maria Jose Barbosa de Freitas', nivel: 'III'},
+  {nome: 'Maria Jose da Silva Oliveira', nivel: 'III'},
+  {nome: 'Maria José de Castro', nivel: 'III'},
+  {nome: 'Maria Jose Dias de Oliveira', nivel: 'III'},
+  {nome: 'Maria Jose Dos Santos Silva', nivel: 'III'},
+  {nome: 'Maria José Rodrigues da Silva', nivel: 'III'},
+  {nome: 'Maria Jurema de Assis Souza', nivel: 'III'},
+  {nome: 'Maria Lucinda Rodrigues Tavares', nivel: 'III'},
+  {nome: 'Maria Luiza Vieira de Souza', nivel: 'III'},
+  {nome: 'Maria Tereza Rodrigues de Oliveira', nivel: 'III'},
+  {nome: 'Marina dos Santos Afonso', nivel: 'III'},
+  {nome: 'Marinez Corrêa da Cruz', nivel: 'III'},
+  {nome: 'Marivane Silveira Couto', nivel: 'II'},
+  {nome: 'Marlene Ramos de Assis Maia', nivel: 'III'},
+  {nome: 'Marlene Rodrigues Pereira', nivel: 'III'},
+  {nome: 'Marluce Rodrigues de Oliveira', nivel: 'III'},
+  {nome: 'Mary de Jesus Souza', nivel: 'III'},
+  {nome: 'Maura Barbosa Rodrigues', nivel: 'III'},
+  {nome: 'Maura de Fátima Rodrigues Silva', nivel: 'III'},
+  {nome: 'Mauricia Alves', nivel: 'III'},
+  {nome: 'Maximiano Pereira de Queiroz', nivel: 'II'},
+  {nome: 'Miguel Pereira de Souza', nivel: 'III'},
+  {nome: 'Milton Cesar de Barros', nivel: 'III'},
+  {nome: 'Milton Gonçalves Martins', nivel: 'III'},
+  {nome: 'Milton Pereira da Silva', nivel: 'III'},
+  {nome: 'Miralda de Jesus Silva', nivel: 'III'},
+  {nome: 'Miriam Alves de Araújo', nivel: 'III'},
+  {nome: 'Miriam Coelho Amorim', nivel: 'ID'},
+  {nome: 'Nair Araujo Ferreira', nivel: 'III'},
+  {nome: 'Nazaré Fernandes Monteiro', nivel: 'III'},
+  {nome: 'Neide Ivo Badaró', nivel: 'III'},
+  {nome: 'Neuza Ribeiro Souza', nivel: 'III'},
+  {nome: 'Nora Ribeiro Queiroz da Silva', nivel: 'ID'},
+  {nome: 'Norma de Lourdes da Silva', nivel: 'III'},
+  {nome: 'Odineia Barbosa da Silva', nivel: 'III'},
+  {nome: 'Odovina das Dores Rosa Pereira', nivel: 'III'},
+  {nome: 'Olga de Jesus Santos', nivel: 'III'},
+  {nome: 'Onorina Rodrigues Lima', nivel: 'III'},
+  {nome: 'Orlinda Maria Martins', nivel: 'III'},
+  {nome: 'Oscarina Maria Rodrigues da Silva', nivel: 'III'},
+  {nome: 'Osualdo Gonçalves de Almeida', nivel: 'III'},
+  {nome: 'Otavio Corrêa de Abreu', nivel: 'III'},
+  {nome: 'Ozelia Barbosa Duarte', nivel: 'III'},
+  {nome: 'Palmira Da Silva Ferreira De Oliveira', nivel: 'III'},
+  {nome: 'Palmira Ribeiro Soares', nivel: 'III'},
+  {nome: 'Paulo Afonso', nivel: 'III'},
+  {nome: 'Paulo dos Santos Rodrigues', nivel: 'III'},
+  {nome: 'Penha Rosa de Jesus', nivel: 'III'},
+  {nome: 'Regina Coeli Gonçalves de Araújo', nivel: 'III'},
+  {nome: 'Regina Pereira de Lima', nivel: 'ID'},
+  {nome: 'Reginaldo Ferreira da Silva', nivel: 'III'},
+  {nome: 'Rita De Cássia Cardoso de Souza', nivel: 'III'},
+  {nome: 'Roberval José Cabral de Castro', nivel: 'III'},
+  {nome: 'Ronaldo Jose de Oliveira', nivel: 'III'},
+  {nome: 'Roque Lima Rosa', nivel: 'III'},
+  {nome: 'Rosa Maria Caldeira Campos', nivel: 'III'},
+  {nome: 'Rosangela Viana Ribeiro', nivel: 'III'},
+  {nome: 'Rosinda Alves Silva', nivel: 'III'},
+  {nome: 'Roseni Gomes Pinto', nivel: 'III'},
+  {nome: 'Rozenilde do Sacramento Mazo', nivel: 'III'},
+  {nome: 'Santina Fernandes Souza Cardoso', nivel: 'ID'},
+  {nome: 'Sebastiana Rosa Lourenço', nivel: 'III'},
+  {nome: 'Selma Silva dos Santos', nivel: 'III'},
+  {nome: 'Sheila Aparecida Barbosa Silva', nivel: 'III'},
+  {nome: 'Silmara Ribeiro Barbosa', nivel: 'III'},
+  {nome: 'Simão Corrêa da Cruz', nivel: 'III'},
+  {nome: 'Sinaida Maria Corrêa da Silva', nivel: 'III'},
+  {nome: 'Sonia Gonçalves Fernandes', nivel: 'III'},
+  {nome: 'Teófilo João Figueiredo', nivel: 'III'},
+  {nome: 'Teofilo Salvador Gualberto', nivel: 'III'},
+  {nome: 'Terezinha Batista da Silva', nivel: 'III'},
+  {nome: 'Terezinha de Jesus da Silva', nivel: 'III'},
+  {nome: 'Terezinha Duarte da Silva', nivel: 'III'},
+  {nome: 'Terezinha Lima da Silva', nivel: 'III'},
+  {nome: 'Terezinha Moreira Souza', nivel: 'III'},
+  {nome: 'Terezinha Rosa Dias', nivel: 'III'},
+  {nome: 'Valdemary Dias de Aguiar', nivel: 'III'},
+  {nome: 'Valdina Rodrigues de Oliveira', nivel: 'III'},
+  {nome: 'Valéria de Paula Ribeiro', nivel: 'III'},
+  {nome: 'Vanda Silva', nivel: 'III'},
+  {nome: 'Vera Lucia de Oliveira Ferreira', nivel: 'III'},
+  {nome: 'Vilma Dos Santos Rodrigues', nivel: 'III'},
+  {nome: 'Vilma Pereira de Jesus Santos', nivel: 'III'},
+  {nome: 'Vilma Rodrigues de Paula', nivel: 'III'},
+  {nome: 'Vitorina Rodrigues Silva', nivel: 'III'},
+  {nome: 'Zelia Silva Alvarenga', nivel: 'III'},
+  {nome: 'Zenaide Fernandes de Souza', nivel: 'III'},
+  {nome: 'Zilda Freitas Gonçalves', nivel: 'III'},
+  {nome: 'Zilda Pereira Dos Santos', nivel: 'III'}
+];
+
+    const listaPacientes = document.getElementById('listaPacientes');
+    pacientesComNivel.forEach(p => {
+      let badgeHTML = '';
+      if (p.nivel) {
+        const nivelClass = p.nivel === 'II' ? 'nivel-ii' : (p.nivel === 'III' ? 'nivel-iii' : 'nivel-id');
+        badgeHTML = `<span class="nivel-badge ${nivelClass}">${p.nivel}</span>`;
+      }
+      listaPacientes.innerHTML += `<li><span class="member-name">${p.nome}${badgeHTML}</span></li>`;
+    });
+
+    // Configurações globais
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = '#64748B';
+
+    const primaryColor = '#00995d';
+    const accentColor = '#8baf1f';
+    const warningColor = '#f47920';
+    const errorColor = '#DC2626';
+    const tealColor = '#004e4c';
+
+    // Dados
+    const mesesLabel = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const mesesComDados = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT'];
+    
+    const visitasMedico = [183, 180, 185, 187, 234, 238, 255, 270, 291, 283, null, null];
+    const visitasEnfermagem = [217, 235, 214, 247, 227, 214, 270, 380, 370, 338, null, null];
+    const visitasTotal = [400, 415, 399, 434, 461, 452, 525, 650, 661, 621, null, null];
+
+    // ====================================
+    // Gráfico 1: Visitas Mensais com Tendência
+    // ====================================
+    const ctxMensal = document.getElementById('chartVisitasMensais').getContext('2d');
+    
+    // Calcular linha de tendência
+    const dadosComValor = visitasTotal.filter(v => v !== null);
+    const n = dadosComValor.length;
+    let somaX = 0, somaY = 0, somaXY = 0, somaX2 = 0;
+    
+    for (let i = 0; i < n; i++) {
+      somaX += i;
+      somaY += dadosComValor[i];
+      somaXY += i * dadosComValor[i];
+      somaX2 += i * i;
+    }
+    
+    const inclinacao = (n * somaXY - somaX * somaY) / (n * somaX2 - somaX * somaX);
+    const intercepto = (somaY - inclinacao * somaX) / n;
+    
+    const tendencia = mesesLabel.map((_, i) => {
+      if (i < n) {
+        return Math.round(inclinacao * i + intercepto);
+      }
+      return null;
+    });
+
+    new Chart(ctxMensal, {
+      type: 'line',
+      data: {
+        labels: mesesLabel,
+        datasets: [
+          {
+            label: 'Visitas Totais',
+            data: visitasTotal,
+            borderColor: primaryColor,
+            backgroundColor: 'rgba(0, 153, 93, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            spanGaps: false
+          },
+          {
+            label: 'Linha de Tendência',
+            data: tendencia,
+            borderColor: errorColor,
+            borderWidth: 2,
+            borderDash: [8, 4],
+            fill: false,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            spanGaps: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12,
+                weight: '600'
+              },
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 8,
+              boxHeight: 8
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            padding: 14,
+            titleColor: '#fff',
+            titleFont: {
+              size: 14,
+              weight: 'bold'
+            },
+            bodyColor: '#fff',
+            bodyFont: {
+              size: 13
+            },
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1,
+            displayColors: true,
+            callbacks: {
+              title: function(context) {
+                return context[0].label + '/2025';
+              },
+              label: function(context) {
+                if (context.parsed.y !== null) {
+                  return ' ' + context.dataset.label + ': ' + context.parsed.y + ' visitas';
+                }
+                return null;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString('pt-BR');
+              },
+              font: {
+                size: 12
+              }
+            },
+            grid: {
+              color: 'rgba(226, 232, 240, 0.5)',
+              drawBorder: false
+            },
+            border: {
+              display: false
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              font: {
+                size: 12,
+                weight: '600'
+              }
+            },
+            border: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+
+    // ====================================
+    // Gráfico 2: Estratificação
+    // ====================================
+    const ctxEstratos = document.getElementById('chartEstratos').getContext('2d');
+    new Chart(ctxEstratos, {
+      type: 'doughnut',
+      data: {
+        labels: ['Nível III (Alta Complexidade)', 'Nível II (Média Complexidade)', 'ID (Intervenção Domiciliar)'],
+        datasets: [{
+          data: [197, 33, 32],
+          backgroundColor: [primaryColor, accentColor, warningColor],
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 13,
+                weight: '600'
+              },
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return ' ' + context.label + ': ' + value + ' pacientes (' + percentage + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // ====================================
+    // Gráfico 3: Médico vs Enfermagem
+    // ====================================
+    const ctxProfissoes = document.getElementById('chartProfissoes').getContext('2d');
+    new Chart(ctxProfissoes, {
+      type: 'bar',
+      data: {
+        labels: mesesLabel,
+        datasets: [
+          {
+            label: 'Visitas Médicas',
+            data: visitasMedico,
+            backgroundColor: 'rgba(0, 153, 93, 0.8)',
+            borderColor: primaryColor,
+            borderWidth: 1,
+            borderRadius: 6
+          },
+          {
+            label: 'Visitas Enfermagem',
+            data: visitasEnfermagem,
+            backgroundColor: 'rgba(139, 175, 31, 0.8)',
+            borderColor: accentColor,
+            borderWidth: 1,
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12,
+                weight: '600'
+              },
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                if (context.parsed.y !== null) {
+                  return ' ' + context.dataset.label + ': ' + context.parsed.y + ' visitas';
+                }
+                return null;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString('pt-BR');
+              }
+            },
+            grid: {
+              color: 'rgba(226, 232, 240, 0.5)',
+              drawBorder: false
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+
+    // ====================================
+    // Tabela mensal
+    // ====================================
+    const tabelaMensal = document.getElementById('tabelaMensal');
+    for (let i = 0; i < 10; i++) {
+      const mes = mesesLabel[i];
+      const med = visitasMedico[i];
+      const enf = visitasEnfermagem[i];
+      const total = visitasTotal[i];
+      
+      let variacao = '-';
+      if (i > 0 && visitasTotal[i-1]) {
+        const var_pct = (((total - visitasTotal[i-1]) / visitasTotal[i-1]) * 100).toFixed(1);
+        const sinal = var_pct >= 0 ? '+' : '';
+        const cor = var_pct >= 0 ? '#00995d' : '#DC2626';
+        variacao = `<span style="color: ${cor}; font-weight: 700;">${sinal}${var_pct}%</span>`;
+      }
+      
+      tabelaMensal.innerHTML += `
+        <tr>
+          <td style="font-weight: 600;">${mes}/2025</td>
+          <td style="text-align: right;">${med}</td>
+          <td style="text-align: right;">${enf}</td>
+          <td style="text-align: right; font-weight: 700;">${total}</td>
+          <td style="text-align: right;">${variacao}</td>
+        </tr>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Infográfico - ISC Cesarianas</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Verdana, sans-serif;
+      background-color: #013d19;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #f2f2f2;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #013d19;
+    }
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 18px;
+      border-bottom: 2px solid #ec7106;
+      padding-bottom: 5px;
+      margin-top: 30px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    ul li::marker {
+      color: #ec7106;
+    }
+    .highlight {
+      color: #ec7106;
+      font-weight: bold;
+    }
+    canvas {
+      max-width: 100%;
+      margin: 20px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-top: 15px;
+      box-sizing: border-box;
+      font-family: Verdana, sans-serif;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 15px;
+      background-color: #ec7106;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 10px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      font-weight: bold;
+      cursor: pointer;
+      border: 2px solid #013d19;
+    }
+    .btn:hover {
+      background-color: #013d19;
+    }
+    .logo {
+      width: 220px;
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+    .footer-logo {
+      width: 100%;
+      max-width: 800px;
+      display: block;
+      margin: 40px auto 0 auto;
+      opacity: 0.95;
+    }
+    .footer {
+     margin-top: auto;
+     padding: 10px;
+     text-align: center;
+     font-size: 0.9em;
+     color: #fafafa;
+    }
+    .footer a {
+     color: #d7fafc;
+     text-decoration: none;
+    }
+  </style>
+  <script>
+    function sendFeedback() {
+      var feedback = document.getElementById("feedbackText").value;
+      var subject = encodeURIComponent("Feedback Surto SCIH - Unihealth");
+      var body = encodeURIComponent(feedback);
+      window.location.href = "mailto:guilherme.thome@unihealthgv.org.br?subject=" + subject + "&body=" + body;
+    }
+
+    window.onload = function () {
+      new Chart(document.getElementById('taxaChart'), {
+        type: 'line',
+        data: {
+          labels: ['Jul/24','Ago/24','Set/24','Out/24','Nov/24','Dez/24','Jan/25','Fev/25','Mar/25','Abr/25','Mai/25'],
+          datasets: [{
+            label: 'Taxa de Infecção Cesárea (%)',
+            data: [0, 0, 0, 2.94, 0, 0, 0, 0, 1.52, 1.72, 10.0],
+            borderColor: '#ec7106',
+            backgroundColor: 'rgba(236,113,6,0.2)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, max: 12 },
+            x: { title: { display: true, text: 'Mês/Ano' }}
+          }
+        }
+      });
+
+      new Chart(document.getElementById('salasChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Sala 1','Sala 2','Sala 3','Sala 4','Sala 5','Sala 6'],
+          datasets: [{
+            label: 'Número de ISCs',
+            data: [1, 1, 1, 1, 1, 3],
+            backgroundColor: '#ec7106'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true },
+            x: { title: { display: true, text: 'Sala Cirúrgica' }}
+          }
+        }
+      });
+
+      new Chart(document.getElementById('medicoPie'), {
+        type: 'pie',
+        data: {
+          labels: ['Profissional A (4 casos)', 'Profissional B (2)', 'Profissional C (1)', 'Profissional D (1)', 'Outro (1)'],
+          datasets: [{
+            data: [4, 2, 1, 1, 1],
+            backgroundColor: ['#ec7106', '#457B9D', '#A8DADC', '#F4A261', '#264653']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/ac2rphe.png" alt="Logo Unihealth" class="logo">
+
+    <h1>Infográfico - ISC Cesarianas</h1>
+    <p><em>Unihealth - Hospital Governador Valadares - Maio 2025</em></p>
+
+    <h2>Resumo</h2>
+    <ul>
+      <li>Foram identificados 9 casos de infecção de sítio cirúrgico (ISC) em pacientes submetidas à cesariana.</li>
+      <li>A taxa de ISC atingiu <span class="highlight">10%</span> em maio de 2025, ultrapassando o nível endêmico (&lt;2%).</li>
+      <li>O surto foi identificado via busca ativa, com 6 pacientes retornando ao PS e uma reinternação.</li>
+    </ul>
+
+    <h2>Taxa de Infecção Cesárea</h2>
+    <canvas id="taxaChart" height="200"></canvas>
+
+    <h2>Salas Cirúrgicas Envolvidas</h2>
+    <canvas id="salasChart" height="200"></canvas>
+
+    <h2>Distribuição de Casos por Profissional Médico(a)</h2>
+    <canvas id="medicoPie" height="250"></canvas>
+
+    <h2>Fatores Identificados</h2>
+    <ul>
+      <li>Presença recorrente de um(a) profissional médico(a) em 4 dos 9 casos.</li>
+      <li>Sala cirúrgica 6 esteve envolvida em 33% das ocorrências.</li>
+      <li>Rompimento de campo operatório e manipulação precoce de curativos.</li>
+    </ul>
+
+    <h2>Recomendações do SCIH</h2>
+    <ul>
+      <li>Reforço de antissepsia cirúrgica, troca de curativos e esterilidade do campo operatório.</li>
+      <li>Proibição de adornos e unhas artificiais entre os profissionais.</li>
+      <li>Treinamento e comunicação direta com as equipes envolvidas.</li>
+    </ul>
+
+    <h2>Envie Seu Feedback</h2>
+    <textarea id="feedbackText" placeholder="Contribua com sugestões ou percepções sobre o plano de ação."></textarea>
+    <button class="btn" onclick="sendFeedback()">Enviar feedback por e-mail</button>
+    <a class="btn" href="https://icdsgestaoemsaude-my.sharepoint.com/:b:/g/personal/guilherme_thome_unihealthgv_org_br/EQYBiRq0t01LkDyQTGSA6_oBeNpbm9A5x01OuP3IZMcbLw?e=YmLMhF" target="_blank">Acesse o relatório completo</a>
+
+    <img src="https://i.imgur.com/Jk8AWJS.png" alt="Rodapé Unihealth" class="footer-logo">
+  </div>
+</body>
+    <div class="footer">
+      <p>Dr. Guilherme Thomé | <a href="https://guithome.com.br">guithome.com.br</a> | <a href="https://linkedin.com/in/guithome">LinkedIn</a> | <a href="https://www.instagram.com/gui.thome/">Instagram</a><br>
+      <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a> | <a href="https://www.axcare.com.br">axcare.com.br</a> | <a href="https://www.medvalor.med.br">medvalor.med.br</a><br>
+      Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa GT Corp.</p>
+    </div>
+</html>

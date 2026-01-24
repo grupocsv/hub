@@ -1,0 +1,621 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+  <meta property="og:title" content="Análise de Reajuste da Linha de Suturas">
+  <meta property="og:description" content="Relatório Análise de Pareto | linha Ethicon (J&J Medtech).">
+  <meta property="og:image" content="https://i.imgur.com/ZOKRps9.png">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.axcare.com.br">
+  <link rel="icon" type="image/x-icon" href="https://www.axcare.com.br/favicon.ico">
+
+  <meta charset="UTF-8">
+  <title>Análise de Pareto | Reajuste da Linha de Suturas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Aptos', 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 680px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    h1 {
+      color: #196396;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #196396;
+      font-size: 18px;
+      margin-top: 36px;
+    }
+    p {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+    }
+    ul {
+      padding-left: 18px;
+    }
+    .abc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 13px;
+    }
+    .abc-table th, .abc-table td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      text-align: right;
+    }
+    .abc-table th:first-child, .abc-table td:first-child {
+      text-align: left;
+    }
+    
+
+.footer {
+  background: #fdfaf5;
+  max-width: 680px;
+  margin: 60px auto 0 auto;
+  padding: 32px 16px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  border-top: 2px solid #006b68;
+  border-radius: 0 0 8px 8px;
+}
+.footer-logo {
+  width: 120px;
+  margin: 0 auto 12px;
+}
+.footer-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.footer-links,
+.footer-social {
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.footer-links a,
+.footer-social a {
+  white-space: nowrap;
+}
+
+.footer-links a, .footer-social a {
+  color: #004E4C;
+  text-decoration: none;
+}
+.footer-links .separator, .footer-social .separator {
+  color: #888;
+}
+.footer-copyright {
+  font-size: 12px;
+  color: #666;
+  margin-top: 16px;
+}
+
+
+    .footer-logo {
+      width: 140px;
+      margin: 0 auto 10px auto;
+      display: block;
+    }
+    .footer-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+      margin: 10px 0 18px;
+    }
+    
+.footer-links,
+.footer-social {
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.footer-links a,
+.footer-social a {
+  white-space: nowrap;
+}
+
+    .footer-links a,
+    .footer-social a {
+      color: #004E4C;
+      text-decoration: none;
+    }
+    .footer-copyright {
+      font-size: 12px;
+      color: #555;
+    }
+    button#print-button {
+      padding: 12px 24px;
+      font-size: 15px;
+      background: #196396;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 32px auto 0;
+      display: block;
+    }
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 90% !important;
+    padding: 20px !important;
+  }
+  .abc-table {
+    font-size: 12px;
+  }
+  .abc-table th, .abc-table td {
+    padding: 4px 6px;
+  }
+  
+.footer-links,
+.footer-social {
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.footer-links a,
+.footer-social a {
+  white-space: nowrap;
+}
+
+  .footer-logo {
+    width: 100px;
+  }
+  button#print-button {
+    width: 100%;
+  }
+  .logo-duo {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  .logo-duo img {
+    height: auto !important;
+    max-width: 70% !important;
+  }
+}
+
+
+/* Responsividade aprimorada */
+@media screen and (max-width: 768px) {
+  .container {
+    width: 95% !important;
+    padding: 20px !important;
+  }
+  .logo-duo {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  .logo-duo img {
+    max-width: 180px !important;
+    height: auto !important;
+  }
+  .abc-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .abc-table {
+    min-width: 700px;
+  }
+  canvas {
+    margin-bottom: 24px !important;
+  }
+  
+.footer-links,
+.footer-social {
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.footer-links a,
+.footer-social a {
+  white-space: nowrap;
+}
+
+  .footer-logo {
+    width: 100px !important;
+  }
+}
+
+
+
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+
+<div class="logo-duo" style="background: #e0e0e0; padding: 12px 24px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 32px;">
+  <a href="https://axcare.com.br" target="_blank" style="display: block;">
+    <img src="https://i.imgur.com/yAUQciP.png" alt="Logo AxiaCare" style="height: 60px;">
+  </a>
+  <a href="https://icds.org.br/governador-valadares7" target="_blank" style="display: block;">
+    <img src="https://i.imgur.com/ac2rphe.png" alt="Logo Unihealth GV" style="height: 50px;">
+  </a>
+</div>
+
+  <h1>Análise de Pareto | Reajuste da Linha de Suturas</h1>
+  
+<p>Após apontado o reajuste na reunião da <strong>Comissão de Farmácia e Terapêutica (CFT)</strong>, 
+realizada esta análise com o objetivo de compreender o impacto orçamentário do reajuste na linha suturas absorvíveis, 
+especialmente diante da migração progressiva para a linha <em>Vicryl Plus</em>.</p>
+
+
+  <h2>Gráfico 1 – Curva ABC</h2>
+  <canvas id="graficoABC" height="280"></canvas>
+
+  <h2>Gráfico 2 – Preço vs. Consumo</h2>
+  <canvas id="graficoDispersao" height="280"></canvas>
+
+  <h2>Tabela Comparativa com Classificação ABC</h2>
+<div class="abc-table-wrapper">
+  <table class="dataframe abc-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Descrição do Fio</th>
+      <th>Consumo Anual</th>
+      <th>Preço Antigo (R$)</th>
+      <th>Preço Novo (R$)</th>
+      <th>Impacto Financeiro (R$)</th>
+      <th>Impacto Acumulado (R$)</th>
+      <th>% Acumulado</th>
+      <th>Classe ABC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Catgut Cromado 1</td>
+      <td>1673</td>
+      <td>12.06</td>
+      <td>20.82</td>
+      <td>14655.48</td>
+      <td>14655.48</td>
+      <td>38.031973</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>Vicryl 1</td>
+      <td>2464</td>
+      <td>25.47</td>
+      <td>28.38</td>
+      <td>7170.24</td>
+      <td>21825.72</td>
+      <td>56.639236</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>Vicryl 1 (outra ref)</td>
+      <td>236</td>
+      <td>12.94</td>
+      <td>28.38</td>
+      <td>3643.84</td>
+      <td>25469.56</td>
+      <td>66.095250</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>Vicryl 2‑0</td>
+      <td>703</td>
+      <td>17.86</td>
+      <td>21.50</td>
+      <td>2558.92</td>
+      <td>28028.48</td>
+      <td>72.735822</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>Vicryl 3‑0</td>
+      <td>578</td>
+      <td>21.50</td>
+      <td>24.70</td>
+      <td>1849.60</td>
+      <td>29878.08</td>
+      <td>77.535661</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>Vicryl 2‑0 (ref 2)</td>
+      <td>564</td>
+      <td>20.00</td>
+      <td>22.90</td>
+      <td>1635.60</td>
+      <td>31513.68</td>
+      <td>81.780155</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Vicryl 3‑0 (ref 2)</td>
+      <td>392</td>
+      <td>15.65</td>
+      <td>18.48</td>
+      <td>1109.36</td>
+      <td>32623.04</td>
+      <td>84.659020</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Catgut Cromado 3‑0</td>
+      <td>174</td>
+      <td>12.14</td>
+      <td>18.48</td>
+      <td>1103.16</td>
+      <td>33726.20</td>
+      <td>87.521795</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Vicryl 0</td>
+      <td>279</td>
+      <td>18.17</td>
+      <td>21.83</td>
+      <td>1021.14</td>
+      <td>34747.34</td>
+      <td>90.171723</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Catgut Simples 4‑0</td>
+      <td>73</td>
+      <td>11.84</td>
+      <td>24.42</td>
+      <td>918.34</td>
+      <td>35665.68</td>
+      <td>92.554879</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Vicryl 0 (ref 2)</td>
+      <td>68</td>
+      <td>8.91</td>
+      <td>19.11</td>
+      <td>693.60</td>
+      <td>36359.28</td>
+      <td>94.354818</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>Catgut Cromado 2‑0</td>
+      <td>32</td>
+      <td>4.59</td>
+      <td>20.82</td>
+      <td>519.36</td>
+      <td>36878.64</td>
+      <td>95.702593</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Catgut Simples 2‑0</td>
+      <td>164</td>
+      <td>12.38</td>
+      <td>14.39</td>
+      <td>329.64</td>
+      <td>37208.28</td>
+      <td>96.558031</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Vicryl 1 (ref 3)</td>
+      <td>619</td>
+      <td>20.33</td>
+      <td>20.82</td>
+      <td>303.31</td>
+      <td>37511.59</td>
+      <td>97.345141</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Vicryl 3‑0 (ref 3)</td>
+      <td>137</td>
+      <td>21.70</td>
+      <td>23.76</td>
+      <td>282.22</td>
+      <td>37793.81</td>
+      <td>98.077521</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Catgut Simples 3‑0</td>
+      <td>27</td>
+      <td>8.24</td>
+      <td>18.48</td>
+      <td>276.48</td>
+      <td>38070.29</td>
+      <td>98.795006</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Catgut Cromado 4‑0</td>
+      <td>15</td>
+      <td>14.28</td>
+      <td>23.76</td>
+      <td>142.20</td>
+      <td>38212.49</td>
+      <td>99.164025</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Caprofyl 1</td>
+      <td>49</td>
+      <td>10.70</td>
+      <td>13.50</td>
+      <td>137.20</td>
+      <td>38349.69</td>
+      <td>99.520068</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Vicryl 0 (outra ref)</td>
+      <td>82</td>
+      <td>27.23</td>
+      <td>28.38</td>
+      <td>94.30</td>
+      <td>38443.99</td>
+      <td>99.764783</td>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>Vicryl 4‑0</td>
+      <td>44</td>
+      <td>21.70</td>
+      <td>23.76</td>
+      <td>90.64</td>
+      <td>38534.63</td>
+      <td>100.000000</td>
+      <td>C</td>
+    </tr>
+  </tbody>
+</table>
+
+  
+</div>
+<h2>Sugestões Estratégicas</h2>
+<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+  <div style="background: #f2f8fc; border-left: 5px solid #196396; padding: 12px;">
+    <strong>1. Validar motivação da migração para Vicryl Plus:</strong><br>
+    Verificar ativamente se trata-se de uma medida do distribuidor ou fabricante, considerando que o catálogo oficial ainda mantém ambas as linhas.
+    Validar pertinência técnica da substituição.
+  </div>
+  <div style="background: #fef7ec; border-left: 5px solid #cc9a00; padding: 12px;">
+    <strong>2. Considerar incluir a linha no contrato Johnson & Johnson MedTech:</strong><br>
+    Via Intraconecta, explorar alternativas mais vantajosas de precificação para a linha de suturas, em conjunto com a linha de energias e grampeadores.
+  </div>
+</div>
+<p style="margin-top:32px;">Atenciosamente,</p>
+<p style="font-weight:bold;">Guilherme Thomé</p>
+
+  
+<div style="text-align:center; margin-top:40px;">
+  <button id="print-button" onclick="window.print()" style="padding:12px 24px; font-size:15px; background:#196396; color:white; border:none; border-radius:4px; cursor:pointer;">
+    Salvar em PDF
+  </button>
+</div>
+
+</div>
+
+<div class="footer">
+  <img class="footer-logo" src="https://i.imgur.com/yAUQciP.png" alt="AxiaCare Logo">
+  <div class="footer-title">AxView™ | Templates - Gestão e Consultoria em Saúde</div>
+  <div class="footer-links">
+    <a href="https://linktr.ee/gui.thome">Conheça nossas soluções.</a>
+    <span class="separator">|</span>
+    <a href="https://www.axcare.com.br">axcare.com.br</a>
+    <span class="separator">|</span>
+    <a href="https://www.medvalor.med.br">medvalor.med.br</a>
+  </div>
+  <div class="footer-social">
+    <a href="https://guithome.com.br">guithome.com.br</a>
+    <span class="separator">|</span>
+    <a href="https://linkedin.com/in/guithome">LinkedIn</a>
+    <span class="separator">|</span>
+    <a href="https://www.instagram.com/gui.thome/">Instagram</a>
+  </div>
+  <div class="footer-copyright">
+    Copyright © 2025 AxiaCare | Todos os direitos reservados | Uma empresa GTCorp.
+  </div>
+</div>
+
+
+<script>
+const labels = ['Catgut Cromado 1', 'Vicryl 1', 'Vicryl 1 (outra ref)', 'Vicryl 2‑0', 'Vicryl 3‑0', 'Vicryl 2‑0 (ref 2)', 'Vicryl 3‑0 (ref 2)', 'Catgut Cromado 3‑0', 'Vicryl 0', 'Catgut Simples 4‑0'];
+const impactos = [14655.48, 7170.24, 3643.84, 2558.92, 1849.6, 1635.6, 1109.36, 1103.16, 1021.14, 918.34];
+const acumulado_pct = [38.03, 56.64, 66.1, 72.74, 77.54, 81.78, 84.66, 87.52, 90.17, 92.55];
+
+new Chart(document.getElementById('graficoABC'), {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Impacto Financeiro (R$)',
+        data: impactos,
+        backgroundColor: '#196396',
+        yAxisID: 'y',
+      },
+      {
+        label: '% Acumulado',
+        data: acumulado_pct,
+        type: 'line',
+        borderColor: '#c93',
+        yAxisID: 'y1',
+        tension: 0.4,
+        pointRadius: 6
+      }
+    ]
+  },
+  options: {
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    scales: {
+      y: {
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
+        title: { display: true, text: 'Impacto (R$)' }
+      },
+      y1: {
+        type: 'linear',
+        position: 'right',
+        beginAtZero: true,
+        max: 100,
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: '% Acumulado' }
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('graficoDispersao'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Fios', pointRadius: 7,
+      data: [{'x': 1673, 'y': 72.64}, {'x': 2464, 'y': 11.43}, {'x': 236, 'y': 119.32}, {'x': 703, 'y': 20.38}, {'x': 578, 'y': 14.88}, {'x': 564, 'y': 14.5}, {'x': 392, 'y': 18.08}, {'x': 174, 'y': 52.22}, {'x': 279, 'y': 20.14}, {'x': 73, 'y': 106.25}, {'x': 68, 'y': 114.48}, {'x': 32, 'y': 353.59}, {'x': 164, 'y': 16.24}, {'x': 619, 'y': 2.41}, {'x': 137, 'y': 9.49}, {'x': 27, 'y': 124.27}, {'x': 15, 'y': 66.39}, {'x': 49, 'y': 26.17}, {'x': 82, 'y': 4.22}, {'x': 44, 'y': 9.49}],
+      backgroundColor: '#196396'
+    }]
+  },
+  options: {
+    scales: {
+      x: {
+        title: { display: true, text: 'Consumo Anual (un)' }
+      },
+      y: {
+        title: { display: true, text: 'Variação de Preço (%)' }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
