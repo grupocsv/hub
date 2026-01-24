@@ -34,8 +34,7 @@ hub/
 │   └── thera/                  # Políticas Thera
 ├── axia/                       # AxiaCare assets
 │   ├── themis.html
-│   ├── radar/                  # Radar de maturidade
-│   └── radar3/                 # Radar v3
+│   └── assets/
 ├── medvalor/                   # MedValor landing pages
 │   ├── cursosgratis.html
 │   ├── masterclass-processos.html
@@ -45,9 +44,11 @@ hub/
 ├── unimed/                     # Projetos Unimed
 │   ├── direx.template.html     # Template DIREX
 │   └── assets/
-└── _backup_vitepress/          # Hub VitePress (documentação de marca)
+└── _infra/                     # Infraestrutura Cognitiva e Operacional
     ├── csv-core/               # Sistema de identidade visual
     │   ├── identity-system.md  # Documentação completa de marca
+    │   ├── definition.md       # Definição canônica do Grupo CSV
+    │   ├── playbook-hub.md     # Playbook para agentes de IA
     │   └── assets.md           # Central de assets
     ├── uploads_usuario/        # Uploads processados
     │   └── upload_001/         # Logos e criativos extraídos
@@ -73,7 +74,7 @@ O ecossistema possui **5 marcas** com assets completos:
 ### Localização dos Assets
 
 ```
-_backup_vitepress/uploads_usuario/upload_001/logos_extraidos/
+_infra/uploads_usuario/upload_001/logos_extraidos/
 ├── grupo_csv/          # 4 arquivos PNG
 ├── axiacare/           # 8 variações × 6 formatos
 ├── medvalor/           # 12 variações × 6 formatos (Laranja + Azul)
@@ -98,9 +99,9 @@ Para informações detalhadas sobre identidade visual, consulte:
 
 | Documento | Descrição |
 |-----------|-----------|
-| [`_backup_vitepress/csv-core/identity-system.md`](./_backup_vitepress/csv-core/identity-system.md) | Sistema completo de identidade visual |
-| [`_backup_vitepress/csv-core/assets.md`](./_backup_vitepress/csv-core/assets.md) | Central de assets e downloads |
-| [`_backup_vitepress/uploads_usuario/README.md`](./_backup_vitepress/uploads_usuario/README.md) | Instruções de upload e processamento |
+| [`_infra/csv-core/identity-system.md`](./_infra/csv-core/identity-system.md) | Sistema completo de identidade visual |
+| [`_infra/csv-core/assets.md`](./_infra/csv-core/assets.md) | Central de assets e downloads |
+| [`_infra/uploads_usuario/README.md`](./_infra/uploads_usuario/README.md) | Instruções de upload e processamento |
 
 ---
 
@@ -129,6 +130,21 @@ Acesse a Central de Compliance do Grupo CSV em [`/compliance/`](./compliance/).
 
 ---
 
+## Infraestrutura Cognitiva
+
+A pasta `_infra/` contém a **fonte da verdade** para desenvolvedores e agentes de IA:
+
+| Documento | Propósito |
+|-----------|-----------|
+| `csv-core/definition.md` | Definição canônica do Grupo CSV |
+| `csv-core/identity-system.md` | Sistema de identidade visual completo |
+| `csv-core/playbook-hub.md` | Playbook para agentes de IA |
+| `csv-core/assets.md` | Inventário de assets disponíveis |
+
+**Acesso:** [github.com/grupocsv/hub/tree/main/_infra](https://github.com/grupocsv/hub/tree/main/_infra)
+
+---
+
 ## Histórico de Migração
 
 | Data | Evento |
@@ -139,6 +155,9 @@ Acesse a Central de Compliance do Grupo CSV em [`/compliance/`](./compliance/).
 | 24/01/2026 | Configuração do domínio `hub.grupocsv.com` |
 | 24/01/2026 | Central de Compliance implementada (migrada da AxiaCare) |
 | 24/01/2026 | Correção de cores nas páginas de Compliance (MedValor/Thera) |
+| 24/01/2026 | Renomeação `_backup_vitepress` → `_infra` (Infraestrutura Cognitiva) |
+| 24/01/2026 | Remoção do Radar (fora do escopo) |
+| 24/01/2026 | Novo portal unificado com seções de Compliance e Infra |
 
 ---
 
