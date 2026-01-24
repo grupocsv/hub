@@ -23,7 +23,6 @@ export default defineConfig({
       { text: 'TheraTech', link: '/thera/mandate' },
       { text: 'Assets', link: '/csv-core/assets' },
       { text: 'Founder', link: '/csv-core/founder' },
-      { text: 'Compliance', link: '/csv-core/compliance/index' },
     ],
 
     sidebar: {
@@ -61,15 +60,6 @@ export default defineConfig({
             { text: 'Sistema de Identidade', link: '/csv-core/identity-system' },
             { text: 'Central de Assets', link: '/csv-core/assets' },
             { text: 'Founder Profile', link: '/csv-core/founder' },
-          ]
-        },
-        {
-          text: 'Compliance',
-          items: [
-            { text: 'Central de Compliance', link: '/csv-core/compliance/index' },
-            { text: 'Privacidade (LGPD)', link: '/csv-core/compliance/privacidade' },
-            { text: 'Termos de Uso', link: '/csv-core/compliance/termos' },
-            { text: 'Código de Conduta', link: '/csv-core/compliance/codigo-de-conduta' },
           ]
         }
       ]

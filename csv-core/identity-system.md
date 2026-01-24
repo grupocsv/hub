@@ -31,11 +31,20 @@ O sistema utiliza uma abordagem "Swiss Modern" com foco em legibilidade e hierar
 
 ## 3. Regras de Aplicação de Logos
 
-### TheraTech®
-- **Positivo:** Usar sobre fundos claros (`#ffffff`, `#f4f6f8`).
-  - Arquivo: `/assets/identity/thera/logo-horizontal-positive.png`
-- **Negativo:** Usar sobre fundos escuros (`#196396`, `#1b1e24`).
-  - Arquivo: `/assets/identity/thera/logo-horizontal-negative.png`
+### Logos Disponíveis
+Os logos oficiais estão na [Central de Assets](/csv-core/assets):
+
+| Empresa | Arquivo | Formato |
+| :--- | :--- | :--- |
+| Grupo CSV | `/csv-header-logo.png` | PNG (horizontal) |
+| Grupo CSV | `/csv-logo.webp` | WebP (símbolo) |
+| AxiaCare® | `/axia-logo.webp` | WebP |
+| MedValor® | `/medvalor-logo.webp` | WebP |
+| TheraTech® | `/thera-logo.webp` | WebP |
+
+### Regras de Uso
+- **Fundo claro:** Usar versões padrão sobre `#ffffff` ou `#f4f6f8`.
+- **Fundo escuro:** Garantir contraste adequado com cores primárias.
 
 ### Proibições Estritas
 - **NUNCA** distorcer a proporção dos logos.
@@ -43,13 +52,14 @@ O sistema utiliza uma abordagem "Swiss Modern" com foco em legibilidade e hierar
 - **NUNCA** usar cores fora da paleta oficial para elementos de marca.
 
 ## 4. Wallpapers e Fundos
-Os wallpapers oficiais estão localizados em `/assets/identity/wallpapers/`.
 
-| Arquivo Canônico | Uso Recomendado |
+::: warning Em Desenvolvimento
+Os wallpapers oficiais serão disponibilizados em breve. Quando prontos, seguirão este padrão de nomenclatura:
+:::
+
+| Tipo | Uso Recomendado |
 | :--- | :--- |
-| `wallpaper-ecosystem-hero.png` | Telas de login, capas de apresentação (Hero). |
-| `background-videocall-default.png` | Fundo oficial para reuniões virtuais. |
-| `wallpaper-ecosystem-ultrawide.png` | Monitores ultrawide, banners largos. |
-| `wallpaper-brand-dark.png` | Fundos de aplicações em Dark Mode. |
-| `wallpaper-brand-light.png` | Fundos de aplicações em Light Mode. |
-| `wallpaper-thera-hero.png` | Específico para produtos TheraTech. |
+| `wallpaper-ecosystem-hero` | Telas de login, capas de apresentação (Hero). |
+| `background-videocall-default` | Fundo oficial para reuniões virtuais. |
+| `wallpaper-brand-dark` | Fundos de aplicações em Dark Mode. |
+| `wallpaper-brand-light` | Fundos de aplicações em Light Mode. |

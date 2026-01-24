@@ -11,15 +11,15 @@ Para baixar um arquivo, clique com o botão direito na imagem e selecione "Salva
 | Versão | Preview |
 | :--- | :--- |
 | **Logo Horizontal (Positivo)** | ![Logo CSV](/csv-header-logo.png) |
-| **Símbolo (Quadrado)** | ![Símbolo CSV](/csv-logo.png) |
+| **Símbolo (Quadrado)** | ![Símbolo CSV](/csv-logo.webp) |
 
 ## Empresas do Ecossistema
 
 | Empresa | Logo |
 | :--- | :--- |
-| **AxiaCare®** | ![AxiaCare Logo](/axia-logo.jpg) |
-| **MedValor®** | ![MedValor Logo](/medvalor-logo.jpg) |
-| **TheraTech®** | ![TheraTech Logo](/thera-logo.jpg) |
+| **AxiaCare®** | ![AxiaCare Logo](/axia-logo.webp) |
+| **MedValor®** | ![MedValor Logo](/medvalor-logo.webp) |
+| **TheraTech®** | ![TheraTech Logo](/thera-logo.webp) |
 
 ---
 
