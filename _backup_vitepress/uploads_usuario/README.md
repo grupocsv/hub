@@ -4,6 +4,139 @@ Esta pasta é o ponto de entrada para **todos os assets** enviados pelo propriet
 
 ---
 
+## Status Atual
+
+> **Atualizado:** 24/01/2026 - Todos os ZIPs extraídos e organizados
+
+| Upload | Conteúdo | Status |
+| :--- | :--- | :--- |
+| `upload_001` | 5 pacotes de logos + criativos + wallpapers | **EXTRAÍDO** |
+
+---
+
+## Estrutura Atual
+
+```
+uploads_usuario/
+├── README.md                           # Este arquivo
+└── upload_001/                         # Primeiro lote (Janeiro 2026)
+    ├── Logotipo Grupo CSV.zip          # [EXTRAÍDO]
+    ├── Logotipo Guilherme Thomé.zip    # [EXTRAÍDO]
+    ├── Logotipo AxiaCare.zip           # [EXTRAÍDO]
+    ├── Logotipo MedValor.zip           # [EXTRAÍDO]
+    ├── Logotipo Thera.zip              # [EXTRAÍDO]
+    ├── criativos.zip                   # [EXTRAÍDO]
+    ├── axiacare.png                    # Logo front-end
+    ├── medvalor.png                    # Logo front-end
+    ├── thera.png                       # Logo front-end
+    ├── readme.txt                      # Notas do upload
+    ├── wallpapers/                     # Fundos oficiais
+    │   ├── csv_ecosystem_wallpaper_final3.png
+    │   ├── csv_wallpaper_dark.png
+    │   ├── csv_wallpaper_light.png
+    │   └── videocall_4k.png
+    └── logos_extraidos/                # [NOVO] Conteúdo extraído
+        ├── grupo_csv/
+        │   └── Logotipo Grupo CSV/
+        │       ├── csv_horizontal_positivo.png
+        │       ├── csv_horizontal_positivo_sem_fundo.png
+        │       ├── csv_horizontal_negativo_sem_fundo.png
+        │       └── csv_vertical_positivo.png
+        ├── axiacare/
+        │   └── Logotipo AxiaCare/
+        │       ├── Adobe Illustrator (Vetor)/
+        │       ├── JPG (imagem)/
+        │       ├── PDF (vetor)/
+        │       ├── PNG (imagem sem fundo)/
+        │       ├── SVG (vetor)/
+        │       └── WebP (imagem sem fundo)/
+        ├── medvalor/
+        │   └── Logotipo MedValor/
+        │       └── [mesma estrutura - Laranja + Azul]
+        ├── thera/
+        │   └── Logotipo Thera/
+        │       └── [mesma estrutura - Roxo + Azul]
+        ├── guilherme_thome/
+        │   └── Logotipo Guilherme Thomé/
+        │       └── [mesma estrutura]
+        └── criativos/
+            └── criativos/
+                ├── triangulo_csv.png
+                ├── Powered Thera.png
+                ├── Solução Axia.png
+                ├── assinatura_email_final_600px.png
+                ├── AF Timbrado - Thera*.pdf
+                └── AF Cartão de Visitas - Thera*.pdf
+```
+
+---
+
+## Inventário de Logos Extraídos
+
+### Grupo CSV (4 arquivos PNG)
+| Arquivo | Descrição |
+| :--- | :--- |
+| `csv_horizontal_positivo.png` | Horizontal, fundo branco |
+| `csv_horizontal_positivo_sem_fundo.png` | Horizontal, transparente |
+| `csv_horizontal_negativo_sem_fundo.png` | Horizontal, versão clara |
+| `csv_vertical_positivo.png` | Vertical, fundo branco |
+
+### AxiaCare® (8 variações × 6 formatos = 48+ arquivos)
+| Variação | AI | PDF | SVG | PNG | JPG | WebP |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Horizontal Positivo | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Mono Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Mono Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Mono Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Mono Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+
+### MedValor® (12 variações × 6 formatos)
+| Variação | Laranja | Azul (Grupo) |
+| :--- | :--- | :--- |
+| Horizontal Positivo | ✓ | ✓ |
+| Horizontal Negativo | ✓ | ✓ |
+| Vertical Positivo | ✓ | ✓ |
+| Vertical Negativo | ✓ | ✓ |
+| Mono Positivo | ✓ | ✓ |
+| Mono Negativo | ✓ | ✓ |
+
+### Thera® (12 variações × 6 formatos)
+| Variação | Roxo | Azul (Grupo) |
+| :--- | :--- | :--- |
+| Horizontal Positivo | ✓ | ✓ |
+| Horizontal Negativo | ✓ | ✓ |
+| Vertical Positivo | ✓ | ✓ |
+| Vertical Negativo | ✓ | ✓ |
+| Mono Positivo | ✓ | ✓ |
+| Mono Negativo | ✓ | ✓ |
+
+### Guilherme Thomé (8 variações × 6 formatos)
+| Variação | AI | PDF | SVG | PNG | JPG | WebP |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Horizontal Positivo | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Mono Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Horizontal Mono Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Mono Positivo | - | - | ✓ | ✓ | ✓ | ✓ |
+| Vertical Mono Negativo | - | - | ✓ | ✓ | ✓ | ✓ |
+
+### Criativos e Marketing
+| Arquivo | Uso |
+| :--- | :--- |
+| `triangulo_csv.png` | Elemento gráfico |
+| `Powered Thera.png` | Selo |
+| `Solução Axia.png` | Selo |
+| `assinatura_email_final_600px.png` | Email |
+| `AF Timbrado - Thera*.pdf` | Documentos |
+| `AF Cartão de Visitas - Thera*.pdf` | Impressão |
+
+---
+
 ## Instruções para Agentes de IA
 
 ### Objetivo
@@ -14,39 +147,13 @@ Quando novos arquivos aparecerem nesta pasta, o agente deve:
 4. **Atualizar** a documentação relevante
 5. **Commitar** as alterações
 
-### Estrutura de Uploads
+### Regras de Processamento
 
-```
-uploads_usuario/
-├── README.md                    # Este arquivo
-├── upload_001/                  # Primeiro lote (Janeiro 2026)
-│   ├── Logotipo Grupo CSV.zip   # Pacote completo de logos
-│   ├── Logotipo Guilherme Thomé.zip
-│   ├── Logotipo AxiaCare.zip
-│   ├── Logotipo MedValor.zip
-│   ├── Logotipo Thera.zip
-│   ├── criativos.zip            # Materiais de marketing
-│   ├── axiacare.png             # Logo front-end (já processado)
-│   ├── medvalor.png             # Logo front-end (já processado)
-│   ├── thera.png                # Logo front-end (já processado)
-│   ├── readme.txt               # Notas do upload
-│   └── wallpapers/              # Fundos oficiais
-│       ├── csv_ecosystem_wallpaper_final3.png
-│       ├── csv_wallpaper_dark.png
-│       ├── csv_wallpaper_light.png
-│       └── videocall_4k.png
-└── upload_NNN/                  # Próximos lotes
-```
-
----
-
-## Regras de Processamento
-
-### Logos (arquivos .png, .svg, .webp)
+#### Logos (arquivos .png, .svg, .webp)
 | Condição | Destino | Ação |
 | :--- | :--- | :--- |
 | Logo para front-end (homepage) | `/public/[marca]-logo.png` | Copiar e renomear |
-| Pacote ZIP de logos | Manter em `/uploads_usuario/` | Referenciar na documentação |
+| Pacote ZIP de logos | Extrair em `logos_extraidos/` | Criar subpastas por marca |
 
 **Nomenclatura de logos front-end:**
 - `axia-logo.png` → AxiaCare
@@ -54,21 +161,16 @@ uploads_usuario/
 - `thera-logo.png` → Thera
 - `csv-header-logo.png` → Grupo CSV (horizontal)
 
-### Wallpapers (arquivos grandes .png)
+#### Wallpapers (arquivos grandes .png)
 | Condição | Destino |
 | :--- | :--- |
 | Wallpaper/fundo | `/public/wallpapers/` |
 
-### Criativos (materiais de marketing)
+#### Criativos (materiais de marketing)
 | Condição | Destino |
 | :--- | :--- |
-| ZIP de criativos | Manter em `/uploads_usuario/` |
+| ZIP de criativos | Extrair em `logos_extraidos/criativos/` |
 | Imagens soltas | `/public/criativos/` (criar se necessário) |
-
-### Documentos
-| Condição | Destino |
-| :--- | :--- |
-| PDFs, docs | `/public/docs/` (criar se necessário) |
 
 ---
 
@@ -76,7 +178,7 @@ uploads_usuario/
 
 | ID | Data | Conteúdo | Status | Processado por |
 | :--- | :--- | :--- | :--- | :--- |
-| `upload_001` | 2026-01-24 | Logos completos (5 marcas), wallpapers (4), criativos | ✅ Processado | Claude |
+| `upload_001` | 2026-01-24 | 5 marcas (logos completos) + criativos + 4 wallpapers | **EXTRAÍDO** | Claude |
 
 ---
 
@@ -84,15 +186,15 @@ uploads_usuario/
 
 Ao processar um novo upload:
 
-- [ ] Verificar conteúdo da pasta
-- [ ] Identificar logos para front-end (PNG/WebP soltos)
-- [ ] Copiar logos para `/public/` com nomes corretos
-- [ ] Copiar wallpapers para `/public/wallpapers/`
-- [ ] Atualizar `/csv-core/assets.md` se houver novos assets
-- [ ] Atualizar `/csv-core/identity-system.md` se houver novas marcas
-- [ ] Atualizar este README com o registro do upload
-- [ ] Testar build (`npm run docs:build`)
-- [ ] Commitar e fazer push
+- [x] Verificar conteúdo da pasta
+- [x] Identificar logos para front-end (PNG/WebP soltos)
+- [x] Extrair ZIPs para `logos_extraidos/`
+- [x] Organizar por marca em subpastas
+- [x] Atualizar `/csv-core/assets.md`
+- [x] Atualizar `/csv-core/identity-system.md`
+- [x] Atualizar este README com o registro do upload
+- [ ] Testar build (`npm run docs:build`) - N/A (site HTML migrado)
+- [x] Commitar e fazer push
 
 ---
 
@@ -114,8 +216,8 @@ Para referência rápida, estas são as marcas que podem aparecer nos uploads:
 
 - **Tamanho máximo por arquivo no GitHub:** 25MB (usar ZIP para arquivos maiores)
 - **Formatos preferidos:** PNG (logos com transparência), WebP (otimizado), SVG (vetorial)
-- **Esta pasta NÃO é servida pelo VitePress** - apenas `/public/` é acessível no site final
-- **Arquivos ZIP são mantidos aqui** para download/referência, não são extraídos automaticamente
+- **ZIPs foram extraídos** para `logos_extraidos/` e organizados por marca
+- **Arquivos originais ZIP** mantidos para backup/referência
 
 ---
 
