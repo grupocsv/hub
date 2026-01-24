@@ -7,8 +7,8 @@ hero:
   tagline: Infraestrutura Cognitiva e Operacional
   actions:
     - theme: brand
-      text: Compliance
-      link: /csv-core/compliance/index
+      text: Definições Core
+      link: /csv-core/definition
     - theme: alt
       text: Ver Repositório
       link: https://github.com/grupocsv/hub
@@ -18,7 +18,7 @@ features:
     details: Consultoria estratégica, governança clínica e operações de saúde.
     link: /axiacare/mandate
     icon:
-      src: /axia-logo.jpg
+      src: /axia-logo.webp
       alt: AxiaCare Logo
       width: 80
       height: 80
@@ -26,7 +26,7 @@ features:
     details: Formação de lideranças, cultura organizacional e ensino híbrido.
     link: /medvalor/mandate
     icon:
-      src: /medvalor-logo.jpg
+      src: /medvalor-logo.webp
       alt: MedValor Logo
       width: 80
       height: 80
@@ -34,7 +34,7 @@ features:
     details: Fábrica de software, inteligência artificial e plataformas SaaS.
     link: /thera/mandate
     icon:
-      src: /thera-logo.jpg
+      src: /thera-logo.webp
       alt: TheraTech Logo
       width: 80
       height: 80

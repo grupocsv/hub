@@ -6,28 +6,61 @@ Repositório oficial de marcas, logotipos e elementos visuais do Grupo CSV e sua
 Para baixar um arquivo, clique com o botão direito na imagem e selecione "Salvar imagem como...".
 :::
 
-## Grupo CSV (Institucional)
+## Grupo CSV (Corporativo)
 
 | Versão | Preview |
 | :--- | :--- |
-| **Logo Horizontal (Positivo)** | ![Logo CSV](/csv-header-logo.png) |
-| **Símbolo (Quadrado)** | ![Símbolo CSV](/csv-logo.png) |
+| **Logo Horizontal (Positiva)** | ![Logo CSV Horizontal](/csv-header-logo.png) |
 
-## Empresas do Ecossistema
+::: warning Assets Pendentes
+Os seguintes assets estão em processo de upload:
+- Logo Vertical Positiva
+- Logo Horizontal Negativa
+:::
 
-| Empresa | Logo |
+---
+
+## AxiaCare® (Gestão)
+
+| Versão | Preview |
 | :--- | :--- |
-| **AxiaCare®** | ![AxiaCare Logo](/axia-logo.jpg) |
-| **MedValor®** | ![MedValor Logo](/medvalor-logo.jpg) |
-| **TheraTech®** | ![TheraTech Logo](/thera-logo.jpg) |
+| **Logo Vertical (Positiva)** | ![AxiaCare Logo](/axia-logo.webp) |
+
+**Cores:** Azul e Verde (mesma paleta do Grupo CSV)
+
+---
+
+## MedValor® (Educação)
+
+| Versão | Preview |
+| :--- | :--- |
+| **Logo Vertical (Positiva - Cor Individual)** | ![MedValor Logo](/medvalor-logo.webp) |
+
+**Cores disponíveis:**
+- Cor Grupo: Azul e Verde
+- Cor Individual: Laranja e Verde
+
+---
+
+## Thera® (Tecnologia)
+
+| Versão | Preview |
+| :--- | :--- |
+| **Logo Vertical (Positiva - Cor Individual)** | ![Thera Logo](/thera-logo.webp) |
+
+**Cores disponíveis:**
+- Cor Grupo: Azul e Verde
+- Cor Individual: Roxo e Verde
 
 ---
 
 ## Links Oficiais
 
-*   🌐 **Grupo CSV:** [grupocsv.com](https://grupocsv.com)
-*   🏥 **AxiaCare:** [axcare.com.br](https://axcare.com.br)
-*   💻 **TheraTech:** [thera.tech](https://thera.tech)
-*   🎓 **MedValor:** [medvalor.med.br](https://medvalor.med.br)
+| Empresa | Website |
+| :--- | :--- |
+| **Grupo CSV** | [grupocsv.com](https://grupocsv.com) |
+| **AxiaCare** | [axcare.com.br](https://axcare.com.br) |
+| **Thera** | [thera.tech](https://thera.tech) |
+| **MedValor** | [medvalor.med.br](https://medvalor.med.br) |
 
-📧 **Contato:** [contato@grupocsv.com](mailto:contato@grupocsv.com)
+**Contato:** [contato@grupocsv.com](mailto:contato@grupocsv.com)
