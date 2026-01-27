@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: "Hub Grupo CSV",
-  description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, Thera®",
+  description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, TheraTech®",
   lang: 'pt-BR',
 
   head: [
@@ -11,7 +11,7 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicons/favicon-32x32.png' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicons/favicon-16x16.png' }],
     ['meta', { property: 'og:title', content: 'Hub Grupo CSV | Portal Central' }],
-    ['meta', { property: 'og:description', content: 'Ecossistema de soluções em saúde: AxiaCare®, MedValor®, Thera®' }],
+    ['meta', { property: 'og:description', content: 'Ecossistema de soluções em saúde: AxiaCare®, MedValor®, TheraTech®' }],
     ['meta', { property: 'og:image', content: '/logos/marca_csv.png' }],
     ['meta', { property: 'og:url', content: 'https://hub.grupocsv.com' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -29,7 +29,7 @@ export default defineConfig({
         items: [
           { text: 'AxiaCare', link: '/axia/' },
           { text: 'MedValor', link: '/medvalor/' },
-          { text: 'Thera', link: '/thera/' },
+          { text: 'TheraTech', link: '/thera/' },
         ]
       },
       {
@@ -53,7 +53,7 @@ export default defineConfig({
             { text: 'CSV Core', link: '/_infra/csv-core/' },
             { text: 'AxiaCare Mandate', link: '/_infra/axiacare/' },
             { text: 'MedValor Mandate', link: '/_infra/medvalor/' },
-            { text: 'Thera Mandate', link: '/_infra/thera/' },
+            { text: 'TheraTech Mandate', link: '/_infra/thera/' },
           ]
         }
       ]
@@ -66,7 +66,7 @@ export default defineConfig({
 
     footer: {
       message: 'Cuidados em Saúde com Valor',
-      copyright: '© 2026 Grupo CSV. Todos os direitos reservados. | AxiaCare® • MedValor® • Thera®'
+      copyright: '© 2026 Grupo CSV. Todos os direitos reservados. | AxiaCare® • MedValor® • TheraTech®'
     },
 
     search: {

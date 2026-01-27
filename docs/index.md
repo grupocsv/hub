@@ -28,7 +28,6 @@ hero:
   --vp-home-hero-image-filter: blur(44px);
 }
 
-/* Logo maior no header */
 .VPNavBarTitle .logo {
   height: 36px !important;
   width: auto !important;
@@ -47,6 +46,14 @@ hero:
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -73,6 +80,13 @@ hero:
   object-fit: contain;
 }
 
+.card-logo-only {
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
 .card-title {
   font-weight: 700;
   font-size: 1.25rem;
@@ -82,7 +96,7 @@ hero:
 
 .card-desc {
   font-size: 0.95rem;
-  opacity: 0.85;
+  color: var(--vp-c-text-2);
   line-height: 1.6;
 }
 
@@ -106,6 +120,26 @@ hero:
   margin-bottom: 32px;
   max-width: 700px;
 }
+
+.partner-card {
+  background: var(--vp-c-bg-soft);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--vp-c-divider);
+  transition: all 0.3s;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.partner-card:hover {
+  border-color: var(--vp-c-brand-1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+}
 </style>
 
 <div id="empresas"></div>
@@ -128,8 +162,8 @@ hero:
   </a>
 
   <a href="/thera/" class="card">
-    <img src="/logos/marca_thera.png" alt="Thera" class="card-logo">
-    <div class="card-title">Thera®</div>
+    <img src="/logos/marca_thera.png" alt="TheraTech" class="card-logo">
+    <div class="card-title">TheraTech®</div>
     <div class="card-desc">Fábrica de software, inteligência artificial e plataformas SaaS. Tecnologia desenvolvida para simplificar a saúde.</div>
   </a>
 </div>
@@ -140,17 +174,13 @@ hero:
 
 <p class="section-desc">Entregáveis e ferramentas desenvolvidas para nossos principais parceiros:</p>
 
-<div class="card-grid">
-  <a href="/unimed/" class="card">
-    <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed GV" class="card-logo">
-    <div class="card-title">Unimed Governador Valadares</div>
-    <div class="card-desc">Dashboards de variabilidade assistencial, coordenação do cuidado, oncologia, pediatria ambulatorial e gestão de crônicos.</div>
+<div class="card-grid-2">
+  <a href="/unimed/" class="partner-card">
+    <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed Governador Valadares" class="card-logo-only">
   </a>
 
-  <a href="/unihealth/" class="card">
-    <img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth" class="card-logo">
-    <div class="card-title">Unihealth</div>
-    <div class="card-desc">Calculadoras de plantão médico, análise de indicadores, orçamento médico e ferramentas de gestão hospitalar.</div>
+  <a href="/unihealth/" class="partner-card">
+    <img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth" class="card-logo-only">
   </a>
 </div>
 
@@ -198,7 +228,7 @@ hero:
 
 <div style="text-align: center; padding: 40px 20px;">
 
-**Grupo CSV** — AxiaCare® · MedValor® · Thera®
+**Grupo CSV** — AxiaCare® · MedValor® · TheraTech®
 
 [contato@grupocsv.com](mailto:contato@grupocsv.com) · [compliance@grupocsv.com](mailto:compliance@grupocsv.com)
 
