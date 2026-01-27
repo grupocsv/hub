@@ -10,7 +10,7 @@ Portal central do ecossistema **Grupo CSV** - Cuidados em Saúde com Valor.
 
 Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress](https://vitepress.dev/), servindo como ponto de entrada unificado para:
 
-- **Empresas do Grupo** - AxiaCare®, MedValor®, Thera®
+- **Empresas do Grupo** - AxiaCare®, MedValor®, TheraTech®
 - **Instituições Parceiras** - Entregáveis para Unimed GV e Unihealth
 - **Governança e Compliance** - Políticas, termos e documentação de integridade
 - **Fundador** - Informações sobre Guilherme Thomé
@@ -66,7 +66,7 @@ grupocsv/hub/
 |---------|-----|--------|
 | **AxiaCare®** | Azul/Verde (#196396 + #2DBF7F) | Placeholder |
 | **MedValor®** | Laranja (#c2410c) | Placeholder |
-| **Thera®** | Roxo (#6B5B95) | Placeholder |
+| **TheraTech®** | Roxo (#6B5B95) | Placeholder |
 
 ### Módulo 2 - Instituições Parceiras
 - **Unimed Governador Valadares** - Dashboards, relatórios, ferramentas
@@ -154,4 +154,4 @@ O workflow:
 
 © 2026 Grupo CSV. Todos os direitos reservados.
 
-**AxiaCare®**, **MedValor®** e **Thera®** são marcas registradas do Grupo CSV.
+**AxiaCare®**, **MedValor®** e **TheraTech®** são marcas registradas do Grupo CSV.
