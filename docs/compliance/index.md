@@ -181,7 +181,7 @@ title: Central de Compliance
 
     <div class="empresa-block">
       <div class="empresa-header">
-        <img src="/logos/marca_thera.png" alt="TheraTech">
+        <img src="/logos/logo_thera.png" alt="TheraTech">
         <h4>TheraTech® – Tecnologia e IA</h4>
       </div>
       <div class="btn-grid">
