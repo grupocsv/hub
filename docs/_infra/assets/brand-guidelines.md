@@ -339,12 +339,12 @@ title: Brand Guidelines
     </p>
     <div class="polarity-grid">
       <div class="polarity-box polarity-light">
-        <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive.png" alt="Positiva">
+        <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive.png" alt="Positiva" />
         <div class="label">POSITIVE</div>
         <div class="desc">Logo escura sobre fundo claro. Uso em superficies brancas, cremes ou claras.</div>
       </div>
       <div class="polarity-box polarity-dark">
-        <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="Negativa">
+        <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="Negativa" />
         <div class="label">NEGATIVE</div>
         <div class="desc">Logo clara sobre fundo escuro. Uso em superficies pretas, azuis escuras ou gradientes.</div>
       </div>

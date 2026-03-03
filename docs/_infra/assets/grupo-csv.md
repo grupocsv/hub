@@ -215,28 +215,28 @@ title: "Assets Grupo CSV"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="grupo-csv_logo_horizontal_full-color_negative_transparent.png" loading="lazy">
+      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="grupo-csv_logo_horizontal_full-color_negative_transparent.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo escuro</div>
     <a href="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive.png" alt="grupo-csv_logo_horizontal_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive.png" alt="grupo-csv_logo_horizontal_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="grupo-csv_logo_horizontal_full-color_positive_transparent.png" loading="lazy">
+      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="grupo-csv_logo_horizontal_full-color_positive_transparent.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_vertical_full-color_positive.png" alt="grupo-csv_logo_vertical_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_vertical_full-color_positive.png" alt="grupo-csv_logo_vertical_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo claro</div>
     <a href="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_vertical_full-color_positive.png" download class="dl-link">Download PNG</a>
@@ -250,12 +250,12 @@ title: "Assets Grupo CSV"
     <p class="format-note">Imagens para perfis em redes sociais e plataformas.</p>
 <div class="avatar-grid">
   <div class="avatar-item">
-    <img src="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v1.png" alt="grupo-csv_avatar_v1.png" loading="lazy">
+    <img src="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v1.png" alt="grupo-csv_avatar_v1.png" loading="lazy" />
     <div class="logo-label">grupo-csv_avatar_v1.png</div>
     <a href="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v1.png" download class="dl-link">Download</a>
   </div>
   <div class="avatar-item">
-    <img src="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v2.png" alt="grupo-csv_avatar_v2.png" loading="lazy">
+    <img src="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v2.png" alt="grupo-csv_avatar_v2.png" loading="lazy" />
     <div class="logo-label">grupo-csv_avatar_v2.png</div>
     <a href="/visual-identity/grupo-csv/avatar/grupo-csv_avatar_v2.png" download class="dl-link">Download</a>
   </div>

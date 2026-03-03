@@ -215,56 +215,56 @@ title: "Assets AxiaCare®"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" alt="axiacare_logo_horizontal_full-color_negative.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" alt="axiacare_logo_horizontal_full-color_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="axiacare_logo_horizontal_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="axiacare_logo_horizontal_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_negative.png" alt="axiacare_logo_horizontal_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_negative.png" alt="axiacare_logo_horizontal_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_positive.png" alt="axiacare_logo_horizontal_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_positive.png" alt="axiacare_logo_horizontal_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_monochrome_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_negative.png" alt="axiacare_logo_vertical_full-color_negative.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_negative.png" alt="axiacare_logo_vertical_full-color_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" alt="axiacare_logo_vertical_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" alt="axiacare_logo_vertical_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_negative.png" alt="axiacare_logo_vertical_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_negative.png" alt="axiacare_logo_vertical_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_positive.png" alt="axiacare_logo_vertical_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_positive.png" alt="axiacare_logo_vertical_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_monochrome_positive.png" download class="dl-link">Download PNG</a>
@@ -359,56 +359,56 @@ title: "Assets AxiaCare®"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_negative.jpg" alt="axiacare_logo_horizontal_full-color_negative.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_negative.jpg" alt="axiacare_logo_horizontal_full-color_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_positive.jpg" alt="axiacare_logo_horizontal_full-color_positive.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_positive.jpg" alt="axiacare_logo_horizontal_full-color_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_full-color_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_negative.jpg" alt="axiacare_logo_horizontal_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_negative.jpg" alt="axiacare_logo_horizontal_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_positive.jpg" alt="axiacare_logo_horizontal_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_positive.jpg" alt="axiacare_logo_horizontal_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_horizontal_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light" style="padding:16px;">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_preview.jpg" alt="axiacare_logo_preview.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_preview.jpg" alt="axiacare_logo_preview.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Preview</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_preview.jpg" download class="dl-link">Download</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_full-color_negative.jpg" alt="axiacare_logo_vertical_full-color_negative.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_full-color_negative.jpg" alt="axiacare_logo_vertical_full-color_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_full-color_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_negative.jpg" alt="axiacare_logo_vertical_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_negative.jpg" alt="axiacare_logo_vertical_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_positive.jpg" alt="axiacare_logo_vertical_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_positive.jpg" alt="axiacare_logo_vertical_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/axiacare/logo/jpg/axiacare_logo_vertical_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
@@ -438,12 +438,12 @@ title: "Assets AxiaCare®"
     <p class="format-note">Imagens para perfis em redes sociais e plataformas.</p>
 <div class="avatar-grid">
   <div class="avatar-item">
-    <img src="/visual-identity/axiacare/avatar/axiacare_avatar_v1.png" alt="axiacare_avatar_v1.png" loading="lazy">
+    <img src="/visual-identity/axiacare/avatar/axiacare_avatar_v1.png" alt="axiacare_avatar_v1.png" loading="lazy" />
     <div class="logo-label">axiacare_avatar_v1.png</div>
     <a href="/visual-identity/axiacare/avatar/axiacare_avatar_v1.png" download class="dl-link">Download</a>
   </div>
   <div class="avatar-item">
-    <img src="/visual-identity/axiacare/avatar/axiacare_avatar_v2.png" alt="axiacare_avatar_v2.png" loading="lazy">
+    <img src="/visual-identity/axiacare/avatar/axiacare_avatar_v2.png" alt="axiacare_avatar_v2.png" loading="lazy" />
     <div class="logo-label">axiacare_avatar_v2.png</div>
     <a href="/visual-identity/axiacare/avatar/axiacare_avatar_v2.png" download class="dl-link">Download</a>
   </div>

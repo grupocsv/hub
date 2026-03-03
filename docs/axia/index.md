@@ -223,7 +223,7 @@ head:
 
 <div class="empresa-page">
   <div class="frame hero-section">
-    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" alt="AxiaCare" class="brand-logo">
+    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" alt="AxiaCare" class="brand-logo" />
     <div class="hero-text">
       <h1>AxiaCare®</h1>
       <p class="razao">Axia Gestão em Saúde Ltda · CNPJ 58.323.596/0001-40</p>

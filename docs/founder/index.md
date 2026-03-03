@@ -197,7 +197,7 @@ head:
 
 <div class="founder-page">
   <div class="frame hero-section">
-    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" alt="Guilherme Thomé" class="profile-img">
+    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" alt="Guilherme Thomé" class="profile-img" />
     <div class="hero-text">
       <h1>Guilherme Thomé</h1>
       <p class="role">Médico Executivo e Consultor em Saúde</p>

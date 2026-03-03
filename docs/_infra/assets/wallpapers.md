@@ -137,42 +137,42 @@ title: Wallpapers
     <div class="wp-grid">
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_light.png" alt="Light" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_light.png" alt="Light" loading="lazy" />
         </div>
         <div class="wp-label">Light</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_light.png" download class="dl-link">Download</a>
       </div>
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_dark.png" alt="Dark" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_dark.png" alt="Dark" loading="lazy" />
         </div>
         <div class="wp-label">Dark</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_dark.png" download class="dl-link">Download</a>
       </div>
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_ecosystem.png" alt="Ecosystem" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_ecosystem.png" alt="Ecosystem" loading="lazy" />
         </div>
         <div class="wp-label">Ecosystem</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_ecosystem.png" download class="dl-link">Download</a>
       </div>
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_videocall-4k.png" alt="Videocall 4K" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_videocall-4k.png" alt="Videocall 4K" loading="lazy" />
         </div>
         <div class="wp-label">Videocall 4K</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_videocall-4k.png" download class="dl-link">Download</a>
       </div>
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_ultrawide-8k.png" alt="Ultrawide 8K" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_ultrawide-8k.png" alt="Ultrawide 8K" loading="lazy" />
         </div>
         <div class="wp-label">Ultrawide 8K</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_ultrawide-8k.png" download class="dl-link">Download</a>
       </div>
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_spectra.png" alt="Spectra" loading="lazy">
+          <img src="/visual-identity/_wallpapers/grupo-csv_wallpaper_spectra.png" alt="Spectra" loading="lazy" />
         </div>
         <div class="wp-label">Spectra</div>
         <a href="/visual-identity/_wallpapers/grupo-csv_wallpaper_spectra.png" download class="dl-link">Download</a>
@@ -185,7 +185,7 @@ title: Wallpapers
     <div class="wp-grid">
       <div class="wp-item">
         <div class="wp-preview">
-          <img src="/visual-identity/_wallpapers/thera_wallpaper_8k.png" alt="Thera 8K" loading="lazy">
+          <img src="/visual-identity/_wallpapers/thera_wallpaper_8k.png" alt="Thera 8K" loading="lazy" />
         </div>
         <div class="wp-label">Thera 8K</div>
         <a href="/visual-identity/_wallpapers/thera_wallpaper_8k.png" download class="dl-link">Download</a>

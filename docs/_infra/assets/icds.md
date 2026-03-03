@@ -149,21 +149,21 @@ title: "Assets ICDS"
     <div class="logo-grid">
       <div class="logo-item">
         <div class="preview-dark" style="background:#1B3A5C;">
-          <img src="/visual-identity/icds/logo/png/icds_horizontal_fundo_azul.png" alt="ICDS Horizontal Fundo Azul" loading="lazy">
+          <img src="/visual-identity/icds/logo/png/icds_horizontal_fundo_azul.png" alt="ICDS Horizontal Fundo Azul" loading="lazy" />
         </div>
         <div class="logo-label">Horizontal / Fundo azul institucional</div>
         <a href="/visual-identity/icds/logo/png/icds_horizontal_fundo_azul.png" download class="dl-link">Download PNG</a>
       </div>
       <div class="logo-item">
         <div class="preview-light">
-          <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" alt="ICDS Horizontal Positivo" loading="lazy">
+          <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" alt="ICDS Horizontal Positivo" loading="lazy" />
         </div>
         <div class="logo-label">Horizontal / Sem fundo / Positivo (fundo claro)</div>
         <a href="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" download class="dl-link">Download PNG</a>
       </div>
       <div class="logo-item">
         <div class="preview-dark">
-          <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png" alt="ICDS Horizontal Negativo" loading="lazy">
+          <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png" alt="ICDS Horizontal Negativo" loading="lazy" />
         </div>
         <div class="logo-label">Horizontal / Sem fundo / Negativo (fundo escuro)</div>
         <a href="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png" download class="dl-link">Download PNG</a>

@@ -143,9 +143,9 @@ title: Infraestrutura Cognitiva
     <h2 class="section-title">Mandatos por Empresa</h2>
     <p class="section-desc">Cada empresa do ecossistema possui um mandato que define seu escopo de atuação, público-alvo, domínios oficiais e diretrizes específicas para agentes de IA.</p>
 
-<div class="empresa-block" style="border-top: none; margin-top: 0; padding-top: 0;"><div class="empresa-header"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare"><h4>AxiaCare® — Consultoria e Governança Clínica</h4></div><div class="resource-grid"><a class="resource-btn axia" href="/_infra/axiacare/mandate">Mandato AxiaCare</a></div></div>
-<div class="empresa-block"><div class="empresa-header"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor"><h4>MedValor® — Educação e Capacitação</h4></div><div class="resource-grid"><a class="resource-btn medvalor" href="/_infra/medvalor/mandate">Mandato MedValor</a></div></div>
-<div class="empresa-block"><div class="empresa-header"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech"><h4>TheraTech® — Desenvolvimento de Software e IA</h4></div><div class="resource-grid"><a class="resource-btn thera" href="/_infra/thera/mandate">Mandato TheraTech</a></div></div>
+<div class="empresa-block" style="border-top: none; margin-top: 0; padding-top: 0;"><div class="empresa-header"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" /><h4>AxiaCare® — Consultoria e Governança Clínica</h4></div><div class="resource-grid"><a class="resource-btn axia" href="/_infra/axiacare/mandate">Mandato AxiaCare</a></div></div>
+<div class="empresa-block"><div class="empresa-header"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" /><h4>MedValor® — Educação e Capacitação</h4></div><div class="resource-grid"><a class="resource-btn medvalor" href="/_infra/medvalor/mandate">Mandato MedValor</a></div></div>
+<div class="empresa-block"><div class="empresa-header"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" /><h4>TheraTech® — Desenvolvimento de Software e IA</h4></div><div class="resource-grid"><a class="resource-btn thera" href="/_infra/thera/mandate">Mandato TheraTech</a></div></div>
   </div>
 
   <div class="frame">

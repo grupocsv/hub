@@ -96,7 +96,7 @@ Os links usam `flex-wrap: wrap` para quebrar naturalmente em telas estreitas.
 <div class="page-foot">
   <img class="foot-logo"
        src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png"
-       alt="AxiaCare">
+       alt="AxiaCare" />
   <div class="foot-slogan">Gestão e Consultoria em Saúde</div>
   <div class="foot-links">
     <a href="https://linktr.ee/gui.thome">Conheça nossas soluções</a>

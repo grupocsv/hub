@@ -170,7 +170,7 @@ head:
 
 <div class="empresa-page">
   <div class="frame hero-section">
-    <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_positive.png" alt="MedValor" class="brand-logo">
+    <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_positive.png" alt="MedValor" class="brand-logo" />
     <div class="hero-text">
       <h1>MedValor®</h1>
       <p class="razao">Medvalor Conteúdo em Saúde Ltda · CNPJ 58.323.964/0001-50</p>

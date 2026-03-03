@@ -150,7 +150,7 @@ head:
 <div class="unimed-page">
   <div class="page-header">
     <a href="https://www.unimed.coop.br/site/web/governadorvaladares" target="_blank" class="logo-link">
-      <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed Governador Valadares" class="logo">
+      <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed Governador Valadares" class="logo" />
     </a>
     <h1>Hub Unimed Governador Valadares</h1>
     <p class="subtitle">Operadora de Planos de Saúde</p>
@@ -197,7 +197,7 @@ head:
 
   <div style="text-align:center; margin-bottom:30px;"><a href="https://hub.grupocsv.com" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; background:#00995d; color:white; text-decoration:none; font-weight:600; font-size:0.9rem; transition:all 0.2s;">← Voltar ao Hub</a></div>
   <div class="page-foot">
-    <img class="foot-logo" src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare">
+    <img class="foot-logo" src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" />
     <div class="foot-slogan">Gestão e Consultoria em Saúde</div>
     <div class="foot-links">
       <a href="https://linktr.ee/gui.thome">Conheça nossas soluções</a>

@@ -215,84 +215,84 @@ title: "Assets MedValor®"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_negative.png" alt="medvalor_logo_horizontal_blue_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_negative.png" alt="medvalor_logo_horizontal_blue_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Blue / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_positive.png" alt="medvalor_logo_horizontal_blue_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_positive.png" alt="medvalor_logo_horizontal_blue_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Blue / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_blue_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_negative.png" alt="medvalor_logo_horizontal_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_negative.png" alt="medvalor_logo_horizontal_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_positive.png" alt="medvalor_logo_horizontal_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_positive.png" alt="medvalor_logo_horizontal_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_monochrome_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_negative.png" alt="medvalor_logo_horizontal_orange_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_negative.png" alt="medvalor_logo_horizontal_orange_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Orange / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="medvalor_logo_horizontal_orange_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="medvalor_logo_horizontal_orange_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Orange / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_negative.png" alt="medvalor_logo_vertical_blue_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_negative.png" alt="medvalor_logo_vertical_blue_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Blue / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_positive.png" alt="medvalor_logo_vertical_blue_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_positive.png" alt="medvalor_logo_vertical_blue_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Blue / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_blue_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_negative.png" alt="medvalor_logo_vertical_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_negative.png" alt="medvalor_logo_vertical_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_positive.png" alt="medvalor_logo_vertical_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_positive.png" alt="medvalor_logo_vertical_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_monochrome_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_negative.png" alt="medvalor_logo_vertical_orange_negative.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_negative.png" alt="medvalor_logo_vertical_orange_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Orange / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_positive.png" alt="medvalor_logo_vertical_orange_positive.png" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_positive.png" alt="medvalor_logo_vertical_orange_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Orange / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/png/medvalor_logo_vertical_orange_positive.png" download class="dl-link">Download PNG</a>
@@ -419,84 +419,84 @@ title: "Assets MedValor®"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_negative.jpg" alt="medvalor_logo_horizontal_blue_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_negative.jpg" alt="medvalor_logo_horizontal_blue_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Blue / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_positive.jpg" alt="medvalor_logo_horizontal_blue_positive.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_positive.jpg" alt="medvalor_logo_horizontal_blue_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Blue / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_blue_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_negative.jpg" alt="medvalor_logo_horizontal_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_negative.jpg" alt="medvalor_logo_horizontal_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_positive.jpg" alt="medvalor_logo_horizontal_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_positive.jpg" alt="medvalor_logo_horizontal_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_negative.jpg" alt="medvalor_logo_horizontal_orange_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_negative.jpg" alt="medvalor_logo_horizontal_orange_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Orange / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_positive.jpg" alt="medvalor_logo_horizontal_orange_positive.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_positive.jpg" alt="medvalor_logo_horizontal_orange_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Orange / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_horizontal_orange_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light" style="padding:16px;">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_preview.jpg" alt="medvalor_logo_preview.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_preview.jpg" alt="medvalor_logo_preview.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Preview</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_preview.jpg" download class="dl-link">Download</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_blue_negative.jpg" alt="medvalor_logo_vertical_blue_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_blue_negative.jpg" alt="medvalor_logo_vertical_blue_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Blue / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_blue_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_negative.jpg" alt="medvalor_logo_vertical_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_negative.jpg" alt="medvalor_logo_vertical_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_positive.jpg" alt="medvalor_logo_vertical_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_positive.jpg" alt="medvalor_logo_vertical_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_negative.jpg" alt="medvalor_logo_vertical_orange_negative.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_negative.jpg" alt="medvalor_logo_vertical_orange_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Orange / Fundo escuro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_positive.jpg" alt="medvalor_logo_vertical_orange_positive.jpg" loading="lazy">
+      <img src="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_positive.jpg" alt="medvalor_logo_vertical_orange_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Orange / Fundo claro</div>
     <a href="/visual-identity/medvalor/logo/jpg/medvalor_logo_vertical_orange_positive.jpg" download class="dl-link">Download PNG</a>
@@ -526,12 +526,12 @@ title: "Assets MedValor®"
     <p class="format-note">Imagens para perfis em redes sociais e plataformas.</p>
 <div class="avatar-grid">
   <div class="avatar-item">
-    <img src="/visual-identity/medvalor/avatar/medvalor_avatar_v1.png" alt="medvalor_avatar_v1.png" loading="lazy">
+    <img src="/visual-identity/medvalor/avatar/medvalor_avatar_v1.png" alt="medvalor_avatar_v1.png" loading="lazy" />
     <div class="logo-label">medvalor_avatar_v1.png</div>
     <a href="/visual-identity/medvalor/avatar/medvalor_avatar_v1.png" download class="dl-link">Download</a>
   </div>
   <div class="avatar-item">
-    <img src="/visual-identity/medvalor/avatar/medvalor_avatar_v2.png" alt="medvalor_avatar_v2.png" loading="lazy">
+    <img src="/visual-identity/medvalor/avatar/medvalor_avatar_v2.png" alt="medvalor_avatar_v2.png" loading="lazy" />
     <div class="logo-label">medvalor_avatar_v2.png</div>
     <a href="/visual-identity/medvalor/avatar/medvalor_avatar_v2.png" download class="dl-link">Download</a>
   </div>

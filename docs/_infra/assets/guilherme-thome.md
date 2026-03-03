@@ -215,56 +215,56 @@ title: "Assets Dr. Guilherme C. Thomé"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_negative.png" alt="guilherme-thome_logo_horizontal_full-color_negative.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_negative.png" alt="guilherme-thome_logo_horizontal_full-color_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_positive.png" alt="guilherme-thome_logo_horizontal_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_positive.png" alt="guilherme-thome_logo_horizontal_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_full-color_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_negative.png" alt="guilherme-thome_logo_horizontal_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_negative.png" alt="guilherme-thome_logo_horizontal_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_positive.png" alt="guilherme-thome_logo_horizontal_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_positive.png" alt="guilherme-thome_logo_horizontal_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_horizontal_monochrome_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_negative.png" alt="guilherme-thome_logo_vertical_full-color_negative.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_negative.png" alt="guilherme-thome_logo_vertical_full-color_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_positive.png" alt="guilherme-thome_logo_vertical_full-color_positive.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_positive.png" alt="guilherme-thome_logo_vertical_full-color_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_full-color_positive.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_negative.png" alt="guilherme-thome_logo_vertical_monochrome_negative.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_negative.png" alt="guilherme-thome_logo_vertical_monochrome_negative.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_negative.png" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_positive.png" alt="guilherme-thome_logo_vertical_monochrome_positive.png" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_positive.png" alt="guilherme-thome_logo_vertical_monochrome_positive.png" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/png/guilherme-thome_logo_vertical_monochrome_positive.png" download class="dl-link">Download PNG</a>
@@ -359,56 +359,56 @@ title: "Assets Dr. Guilherme C. Thomé"
 <div class="logo-grid">
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_negative.jpg" alt="guilherme-thome_logo_horizontal_full-color_negative.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_negative.jpg" alt="guilherme-thome_logo_horizontal_full-color_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_positive.jpg" alt="guilherme-thome_logo_horizontal_full-color_positive.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_positive.jpg" alt="guilherme-thome_logo_horizontal_full-color_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Full Color / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_full-color_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_negative.jpg" alt="guilherme-thome_logo_horizontal_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_negative.jpg" alt="guilherme-thome_logo_horizontal_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_positive.jpg" alt="guilherme-thome_logo_horizontal_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_positive.jpg" alt="guilherme-thome_logo_horizontal_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Horizontal / Monochrome / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_horizontal_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_negative.jpg" alt="guilherme-thome_logo_vertical_full-color_negative.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_negative.jpg" alt="guilherme-thome_logo_vertical_full-color_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_positive.jpg" alt="guilherme-thome_logo_vertical_full-color_positive.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_positive.jpg" alt="guilherme-thome_logo_vertical_full-color_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Full Color / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_full-color_positive.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-dark">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_negative.jpg" alt="guilherme-thome_logo_vertical_monochrome_negative.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_negative.jpg" alt="guilherme-thome_logo_vertical_monochrome_negative.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo escuro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_negative.jpg" download class="dl-link">Download PNG</a>
   </div>
   <div class="logo-item">
     <div class="preview-light">
-      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_positive.jpg" alt="guilherme-thome_logo_vertical_monochrome_positive.jpg" loading="lazy">
+      <img src="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_positive.jpg" alt="guilherme-thome_logo_vertical_monochrome_positive.jpg" loading="lazy" />
     </div>
     <div class="logo-label">Vertical / Monochrome / Fundo claro</div>
     <a href="/visual-identity/guilherme-thome/logo/jpg/guilherme-thome_logo_vertical_monochrome_positive.jpg" download class="dl-link">Download PNG</a>
@@ -438,17 +438,17 @@ title: "Assets Dr. Guilherme C. Thomé"
     <p class="format-note">Imagens para perfis em redes sociais e plataformas.</p>
 <div class="avatar-grid">
   <div class="avatar-item">
-    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" alt="guilherme-thome_avatar_current.png" loading="lazy">
+    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" alt="guilherme-thome_avatar_current.png" loading="lazy" />
     <div class="logo-label">guilherme-thome_avatar_current.png</div>
     <a href="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" download class="dl-link">Download</a>
   </div>
   <div class="avatar-item">
-    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current_low-res.png" alt="guilherme-thome_avatar_current_low-res.png" loading="lazy">
+    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current_low-res.png" alt="guilherme-thome_avatar_current_low-res.png" loading="lazy" />
     <div class="logo-label">guilherme-thome_avatar_current_low-res.png</div>
     <a href="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current_low-res.png" download class="dl-link">Download</a>
   </div>
   <div class="avatar-item">
-    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_with-name.png" alt="guilherme-thome_avatar_with-name.png" loading="lazy">
+    <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_with-name.png" alt="guilherme-thome_avatar_with-name.png" loading="lazy" />
     <div class="logo-label">guilherme-thome_avatar_with-name.png</div>
     <a href="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_with-name.png" download class="dl-link">Download</a>
   </div>

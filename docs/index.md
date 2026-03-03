@@ -485,7 +485,7 @@ head:
 
 <div class="hub-hero">
   <div class="inner">
-    <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="Grupo CSV" class="logo">
+    <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="Grupo CSV" class="logo" />
     <h1>Hub Grupo CSV</h1>
     <div class="hero-rule"></div>
     <p class="tagline">Cuidados em Saúde com Valor</p>
@@ -523,19 +523,19 @@ head:
     <div class="empresas-grid">
       <a href="/axia/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #196396, #2DBF7F);"></div>
-        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="card-logo">
+        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="card-logo" />
         <div class="card-name">AxiaCare®</div>
         <div class="card-desc">Consultoria estratégica, governança clínica e operações de saúde.</div>
       </a>
       <a href="/medvalor/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #ea580c, #f97316);"></div>
-        <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="card-logo">
+        <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="card-logo" />
         <div class="card-name">MedValor®</div>
         <div class="card-desc">Educação executiva e capacitação estratégica para líderes em saúde.</div>
       </a>
       <a href="/thera/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #6B5B95, #7c3aed);"></div>
-        <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="card-logo">
+        <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="card-logo" />
         <div class="card-name">TheraTech®</div>
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
       </a>
@@ -543,7 +543,7 @@ head:
     <!-- AxiaCare -->
     <div class="partner-section collapsed" id="empresa-axia">
       <div class="partner-header">
-        <a href="/axia/" class="p-logo-link"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="p-logo"></a>
+        <a href="/axia/" class="p-logo-link"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="p-logo" /></a>
         <div class="p-info">
           <div class="p-name">AxiaCare®</div>
           <div class="p-sub">Consultoria, Gestão e Inteligência em Saúde</div>
@@ -564,7 +564,7 @@ head:
     <!-- MedValor -->
     <div class="partner-section collapsed" id="empresa-medvalor">
       <div class="partner-header">
-        <a href="/medvalor/" class="p-logo-link"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="p-logo"></a>
+        <a href="/medvalor/" class="p-logo-link"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="p-logo" /></a>
         <div class="p-info">
           <div class="p-name">MedValor®</div>
           <div class="p-sub">Educação Executiva e Capacitação Estratégica</div>
@@ -583,7 +583,7 @@ head:
     <!-- TheraTech -->
     <div class="partner-section collapsed" id="empresa-thera">
       <div class="partner-header">
-        <a href="/thera/" class="p-logo-link"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="p-logo"></a>
+        <a href="/thera/" class="p-logo-link"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="p-logo" /></a>
         <div class="p-info">
           <div class="p-name">TheraTech®</div>
           <div class="p-sub">Tecnologia, IA e Plataformas SaaS para Saúde</div>
@@ -619,7 +619,7 @@ head:
     <!-- Unimed -->
     <div class="partner-section collapsed" id="partner-unimed">
       <div class="partner-header">
-        <a href="/unimed/" class="p-logo-link"><img src="https://i.imgur.com/prZGWXK.png" alt="Unimed GV" class="p-logo"></a>
+        <a href="/unimed/" class="p-logo-link"><img src="https://i.imgur.com/prZGWXK.png" alt="Unimed GV" class="p-logo" /></a>
         <div class="p-info">
           <div class="p-name">Unimed Governador Valadares</div>
           <div class="p-sub">Operadora de Planos de Saúde</div>
@@ -680,7 +680,7 @@ head:
     <!-- Unihealth -->
     <div class="partner-section collapsed" id="partner-unihealth">
       <div class="partner-header">
-        <a href="/unihealth/" class="p-logo-link"><img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth" class="p-logo"></a>
+        <a href="/unihealth/" class="p-logo-link"><img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth" class="p-logo" /></a>
         <div class="p-info">
           <div class="p-name">Unihealth Governador Valadares</div>
           <div class="p-sub">Hospital de Média/Alta Complexidade</div>
@@ -721,7 +721,7 @@ head:
     <!-- ICDS -->
     <div class="partner-section collapsed" id="partner-icds">
       <div class="partner-header">
-        <a href="/icds/" class="p-logo-link"><img src="/visual-identity/icds/logo/png/icds_horizontal_fundo_azul.png" alt="ICDS" class="p-logo" style="border-radius:8px;"></a>
+        <a href="/icds/" class="p-logo-link"><img src="/visual-identity/icds/logo/png/icds_horizontal_fundo_azul.png" alt="ICDS" class="p-logo" style="border-radius:8px;" /></a>
         <div class="p-info">
           <div class="p-name">ICDS</div>
           <div class="p-sub">Entidade Filantrópica e Gestora Assistencial</div>
@@ -771,11 +771,11 @@ head:
   <!-- ═══ FOOTER ═══ -->
   <div class="hub-footer">
     <div class="footer-logos">
-      <a href="https://grupocsv.com" target="_blank" title="Grupo CSV"><img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://grupocsv.com" target="_blank" title="Grupo CSV"><img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;" /></a>
       <span class="logo-divider"></span>
-      <a href="https://axcare.com.br" target="_blank" title="AxiaCare®"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
-      <a href="https://medvalor.med.br" target="_blank" title="MedValor®"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
-      <a href="https://thera.tech" target="_blank" title="TheraTech®"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://axcare.com.br" target="_blank" title="AxiaCare®"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;" /></a>
+      <a href="https://medvalor.med.br" target="_blank" title="MedValor®"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;" /></a>
+      <a href="https://thera.tech" target="_blank" title="TheraTech®"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;" /></a>
     </div>
     <div class="footer-contacts">
       <a href="mailto:contato@grupocsv.com">contato@grupocsv.com</a>
