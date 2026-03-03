@@ -540,6 +540,72 @@ head:
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
       </a>
     </div>
+    <!-- AxiaCare -->
+    <div class="partner-section collapsed" id="empresa-axia">
+      <div class="partner-header">
+        <a href="/axia/" class="p-logo-link"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="p-logo"></a>
+        <div class="p-info">
+          <div class="p-name">AxiaCare®</div>
+          <div class="p-sub">Consultoria, Gestão e Inteligência em Saúde</div>
+        </div>
+        <a href="/axia/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
+        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+      </div>
+      <div class="partner-tools-wrapper">
+      <div class="partner-tools">
+        <a href="/axia/propostas.html" data-direct class="tool-item">
+          <span class="dot" style="background:#196396;"></span>
+          Propostas Comerciais
+          <span class="arrow">›</span>
+        </a>
+      </div>
+      </div>
+    </div>
+    <!-- MedValor -->
+    <div class="partner-section collapsed" id="empresa-medvalor">
+      <div class="partner-header">
+        <a href="/medvalor/" class="p-logo-link"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="p-logo"></a>
+        <div class="p-info">
+          <div class="p-name">MedValor®</div>
+          <div class="p-sub">Educação Executiva e Capacitação Estratégica</div>
+        </div>
+        <a href="/medvalor/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
+        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+      </div>
+      <div class="partner-tools-wrapper">
+      <div class="partner-tools">
+        <span class="tool-item disabled" style="justify-content:center; font-style:italic; color:#5b6470 !important; font-weight:400;">
+          Ferramentas em desenvolvimento
+        </span>
+      </div>
+      </div>
+    </div>
+    <!-- TheraTech -->
+    <div class="partner-section collapsed" id="empresa-thera">
+      <div class="partner-header">
+        <a href="/thera/" class="p-logo-link"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="p-logo"></a>
+        <div class="p-info">
+          <div class="p-name">TheraTech®</div>
+          <div class="p-sub">Tecnologia, IA e Plataformas SaaS para Saúde</div>
+        </div>
+        <a href="/thera/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
+        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+      </div>
+      <div class="partner-tools-wrapper">
+      <div class="partner-tools">
+        <a href="https://spectra.thera.tech" target="_blank" class="tool-item">
+          <span class="dot" style="background:#2DBF7F;"></span>
+          Spectra AI
+          <span class="arrow">›</span>
+        </a>
+        <a href="https://veritas.thera.tech" target="_blank" class="tool-item">
+          <span class="dot" style="background:#6B5B95;"></span>
+          Veritas
+          <span class="arrow">›</span>
+        </a>
+      </div>
+      </div>
+    </div>
   </div>
 
   <div class="divider"></div>

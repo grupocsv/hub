@@ -137,6 +137,59 @@ head:
 .status-banner h3 { margin: 0 0 8px; font-size: 1.1rem; border: none; color: white; }
 .status-banner p { margin: 0; font-size: 0.9rem; opacity: 0.85; }
 
+.tools-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.tool-card {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(25,99,150,.10);
+  border-radius: 14px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.tool-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(25,99,150,.14); }
+.dark .tool-card { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); }
+.tool-card h4 { margin: 0; font-size: 0.95rem; color: #196396; border: none; line-height: 1.4; }
+.dark .tool-card h4 { color: #5da9e0; }
+.tool-card .tool-desc { margin: 0; font-size: 0.84rem; color: #5b6470; line-height: 1.5; flex-grow: 1; }
+.tool-card .tool-btn {
+  display: inline-block;
+  padding: 10px 0;
+  background: linear-gradient(135deg, #196396, #2DBF7F);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.tool-card .tool-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.tool-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  width: fit-content;
+}
+.tool-badge.active { background: #d1fae5; color: #065f46; }
+.tool-badge.dev { background: #fef3c7; color: #92400e; }
+.dark .tool-badge.active { background: #064e3b; color: #6ee7b7; }
+.dark .tool-badge.dev { background: #78350f; color: #fde68a; }
+.tool-card .tool-btn.disabled {
+  background: #d1d5db;
+  cursor: default;
+  pointer-events: none;
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -179,6 +232,20 @@ head:
         empresas de tecnologia, indústria farmacêutica e operadores logísticos em alianças
         multi-organizacionais orientadas a desfechos e eficiência operacional.
       </p>
+    </div>
+  </div>
+
+  <div class="frame">
+    <h2 class="section-title">Ferramentas</h2>
+    <p class="section-desc">Soluções digitais desenvolvidas pela AxiaCare para operações em saúde.</p>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <span class="tool-badge active">Ativo</span>
+        <h4>Propostas Comerciais</h4>
+        <p class="tool-desc">Gerador de propostas comerciais padronizadas para consultoria e projetos.</p>
+        <a href="/axia/propostas.html" data-direct class="tool-btn">Acessar</a>
+      </div>
+
     </div>
   </div>
 

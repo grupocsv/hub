@@ -3,128 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AxiaCare® | Grupo CSV</title>
-  <meta name="description" content="AxiaCare® - Consultoria estratégica, governança clínica e operações de saúde.">
+  <title>AxiaCare® | Hub Grupo CSV</title>
+  <meta name="description" content="AxiaCare® — Ferramentas, consultoria estratégica, governança clínica e operações de saúde.">
 
   <!-- Favicon -->
-  <link rel="icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" href="/favicons/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="AxiaCare® | Grupo CSV">
-  <meta property="og:description" content="Consultoria estratégica, governança clínica e operações de saúde.">
-  <meta property="og:image" content="/assets/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png">
+  <meta property="og:title" content="AxiaCare® | Hub Grupo CSV">
+  <meta property="og:description" content="Ferramentas digitais e consultoria estratégica em saúde baseada em valor.">
+  <meta property="og:image" content="https://hub.grupocsv.com/og/og_axiacare.png">
   <meta property="og:url" content="https://hub.grupocsv.com/axia/">
   <meta property="og:type" content="website">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #196396 0%, #2DBF7F 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background:
+        radial-gradient(1400px 600px at -10% -20%, #e8f0f6 0%, transparent 60%),
+        radial-gradient(1200px 500px at 110% 0%, #e6f4ed 0%, transparent 60%),
+        #F6F4EF;
       min-height: 100vh;
+      color: #2d3445;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 1040px; margin: 0 auto; padding: 32px 24px 48px; }
+
+    .frame {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(13,38,76,.06);
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(13,38,76,.14);
+      padding: clamp(18px, 4vw, 28px);
+      margin-bottom: 24px;
+    }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    @media (max-width: 640px) { .hero { flex-direction: column; text-align: center; } }
+    .hero .brand-logo { height: 100px; object-fit: contain; }
+    .hero h1 { font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem); color: #1a2b3c; margin: 0 0 4px; }
+    .hero .razao { font-size: 0.82rem; color: #6c757d; margin: 0 0 10px; }
+    .hero .subtitle { font-size: 0.92rem; color: #5b6470; margin: 0; line-height: 1.6; }
+
+    /* Section titles */
+    .section-title {
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: #2d3445;
+      font-size: clamp(1.15rem, 1.1vw + 0.9rem, 1.35rem);
+    }
+    .section-desc { color: #5b6470; font-size: 0.92rem; margin-bottom: 16px; line-height: 1.6; }
+
+    /* Tools grid */
+    .tools-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    .tool-card {
+      background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(25,99,150,.10);
+      border-radius: 14px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(25,99,150,.14); }
+    .tool-card h4 { margin: 0; font-size: 0.95rem; color: #196396; line-height: 1.4; }
+    .tool-card .tool-desc { margin: 0; font-size: 0.84rem; color: #5b6470; line-height: 1.5; flex-grow: 1; }
+    .tool-card .tool-btn {
+      display: inline-block;
+      padding: 10px 0;
+      background: linear-gradient(135deg, #196396, #2DBF7F);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .tool-card .tool-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .tool-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      width: fit-content;
+    }
+    .tool-badge.active { background: #d1fae5; color: #065f46; }
+    .tool-badge.dev { background: #fef3c7; color: #92400e; }
+    .tool-card .tool-btn.disabled {
+      background: #d1d5db;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      background: #196396;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .back-link:hover { background: #1d7ab5; transform: translateY(-2px); }
+
+    /* Footer */
+    .page-footer {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(13,38,76,.10);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      color: white;
+      gap: 6px;
+      padding: 16px;
       text-align: center;
-      padding: 20px;
     }
-
-    .container {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 60px 40px;
-      max-width: 600px;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .logo {
-      width: 200px;
-      margin-bottom: 30px;
-      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.2));
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .tagline {
-      font-size: 1.2rem;
-      opacity: 0.9;
-      margin-bottom: 30px;
-    }
-
-    .description {
-      font-size: 1rem;
-      line-height: 1.6;
-      opacity: 0.85;
-      margin-bottom: 40px;
-    }
-
-    .coming-soon {
-      background: rgba(255,255,255,0.2);
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 30px;
-      display: inline-block;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 14px 28px;
-      background: white;
-      color: #196396;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .footer {
-      margin-top: 40px;
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-
-    .footer a {
-      color: white;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-    }
+    .page-footer .small { font-size: 0.85rem; color: #5b6470; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="/assets/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="logo">
-    <h1>AxiaCare®</h1>
-    <p class="tagline">Consultoria, Gestão e Inteligência em Saúde</p>
-    <p class="description">
-      Transformamos organizações de saúde através de governança clínica,
-      eficiência operacional e implementação de modelos de cuidado baseado em valor.
-    </p>
-    <div class="coming-soon">Em construção</div>
-    <br><br>
-    <a href="/" class="btn">← Voltar ao Hub CSV</a>
+<div class="page">
+
+  <!-- Hero -->
+  <div class="frame hero">
+    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_vertical_full-color_positive.png" alt="AxiaCare" class="brand-logo">
+    <div>
+      <h1>AxiaCare®</h1>
+      <p class="razao">Axia Gestão em Saúde Ltda · CNPJ 58.323.596/0001-40</p>
+      <p class="subtitle">
+        Orquestrador B2B2X de saúde baseada em valor. Conectamos operadoras, hospitais, prestadores,
+        empresas de tecnologia, indústria farmacêutica e operadores logísticos em alianças
+        multi-organizacionais orientadas a desfechos e eficiência operacional.
+      </p>
+    </div>
   </div>
 
-  <div class="footer">
-    <p>Grupo CSV | <a href="/compliance/">Compliance</a> | <a href="mailto:contato@axcare.com.br">contato@axcare.com.br</a></p>
+  <!-- Ferramentas -->
+  <div class="frame">
+    <h2 class="section-title">Ferramentas</h2>
+    <p class="section-desc">Soluções digitais desenvolvidas pela AxiaCare para operações em saúde.</p>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <span class="tool-badge active">Ativo</span>
+        <h4>Propostas Comerciais</h4>
+        <p class="tool-desc">Gerador de propostas comerciais padronizadas para consultoria e projetos.</p>
+        <a href="/axia/propostas.html" class="tool-btn">Acessar</a>
+      </div>
+
+    </div>
   </div>
+
+  <!-- Voltar -->
+  <div style="text-align:center; margin-bottom:24px;">
+    <a href="/" class="back-link">← Voltar ao Hub</a>
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <strong>AxiaCare® — Grupo CSV</strong>
+    <div class="small">© 2026 Grupo CSV. Cuidados em Saúde com Valor. Todos os direitos reservados.</div>
+  </div>
+
+</div>
 </body>
 </html>
