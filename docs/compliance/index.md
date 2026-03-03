@@ -116,6 +116,15 @@ head:
 .policy-btn.axia { background: linear-gradient(180deg, #1d6fa0, #195f86); }
 .policy-btn.medvalor { background: linear-gradient(180deg, #ea580c, #c2410c); }
 .policy-btn.thera { background: linear-gradient(180deg, #8B7CB5, #6B5B95); }
+.policy-btn.spectra { background: linear-gradient(180deg, #0d9488, #0f766e); }
+
+.produto-block { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,.08); }
+.dark .produto-block { border-color: var(--vp-c-divider); }
+.produto-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.produto-header h4 { margin: 0; font-size: 1.05rem; color: #2d3445; }
+.dark .produto-header h4 { color: var(--vp-c-text-1); }
+.produto-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: #0d9488; background: rgba(13,148,136,.1); padding: 2px 10px; border-radius: 20px; }
+.dark .produto-badge { color: #2dd4bf; background: rgba(45,212,191,.12); }
 
 .empresa-block { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,.08); }
 .dark .empresa-block { border-color: var(--vp-c-divider); }
@@ -148,7 +157,7 @@ head:
 <div class="compliance-page">
   <div class="frame hero-section">
     <h1>Central de Compliance</h1>
-    <p class="date">Última atualização: 01/2026</p>
+    <p class="date">Última atualização: 03/2026</p>
     <p class="subtitle">Documentos institucionais do <strong>Grupo CSV</strong> e suas empresas sobre privacidade, termos e integridade.</p>
   </div>
 
@@ -173,6 +182,22 @@ head:
       <a class="policy-btn secondary" data-direct href="/compliance/terceiros.html">Relacionamento com Terceiros e Due Diligence</a>
       <a class="policy-btn secondary" data-direct href="/compliance/integridade.html">Cláusulas-Padrão de Integridade</a>
     </div>
+  </div>
+
+  <div class="frame">
+    <h2 class="section-title">Políticas por Produto</h2>
+    <p class="section-desc">Documentos específicos de produtos e plataformas do ecossistema Grupo CSV.</p>
+
+<div class="produto-block" style="border-top: none; margin-top: 0; padding-top: 0;">
+<div class="produto-header">
+<h4>Linha Spectra™ <span class="produto-badge">Produto TheraTech</span></h4>
+</div>
+<div class="btn-grid">
+<a class="policy-btn spectra" data-direct href="/compliance/spectra/termos.html">Termo de Uso Responsável</a>
+<a class="policy-btn spectra" data-direct href="/compliance/spectra/privacidade.html">Política de Privacidade</a>
+<a class="policy-btn spectra" data-direct href="/compliance/spectra/retencao.html">Política de Retenção de Dados</a>
+</div>
+</div>
   </div>
 
   <div class="frame">
