@@ -1,4 +1,4 @@
-# Signal S20/2026
+# Signal S19/2026
 **Periodo:** 11 a 17 de maio de 2026  
 **Gerado em:** 18/05/2026  
 **Executivo:** Guilherme Thome, MD, MBA
@@ -17,4 +17,4 @@
 - Olga Kena inicia atividades conjuntas com EVS a partir de 18/05 (governanca tecnica Ymunity).
 - SA BPM — Linha de Cuidado do Idoso em operacao no Hospital Unihealth.
 ## PDF
-[Download Signal S20/2026](./assets/Signal_S20_2026.pdf)
+[Download Signal S19/2026](./assets/Signal_S19_2026.pdf)
