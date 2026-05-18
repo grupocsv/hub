@@ -10,6 +10,7 @@
 2. **Acentuação e cedilha** devem ser rigorosamente respeitadas em todo o conteúdo (PDF, Markdown, metadados).
 3. **Consultar o Dicionário Oficial** antes de gerar qualquer texto para garantir grafias corretas.
 4. **Nunca usar `replace_content` para edições pontuais no Notion.** Para correções de grafia ou atualizações parciais, usar exclusivamente o comando `update_content` com `content_updates`. O comando `replace_content` substitui TODO o conteúdo da página e só deve ser usado para reescrita total intencional. Violação desta regra causa perda de dados (incidente S11/2026).
+5. **A numeração da edição é sempre a última edição publicada + 1.** Consultar o sidebar (`docs/.vitepress/config.mts`) ou o `docs/signal/index.md` para confirmar o número correto antes de criar a pasta. NÃO usar a semana ISO do calendário. Exemplo: se a última edição publicada é S18, a próxima é S19, independentemente da semana do ano em que estamos.
 
 ---
 
