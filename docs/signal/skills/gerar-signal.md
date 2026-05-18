@@ -11,6 +11,7 @@
 3. **Consultar o Dicionário Oficial** antes de gerar qualquer texto para garantir grafias corretas.
 4. **Nunca usar `replace_content` para edições pontuais no Notion.** Para correções de grafia ou atualizações parciais, usar exclusivamente o comando `update_content` com `content_updates`. O comando `replace_content` substitui TODO o conteúdo da página e só deve ser usado para reescrita total intencional. Violação desta regra causa perda de dados (incidente S11/2026).
 5. **A numeração da edição é sempre a última edição publicada + 1.** Consultar o sidebar (`docs/.vitepress/config.mts`) ou o `docs/signal/index.md` para confirmar o número correto antes de criar a pasta. NÃO usar a semana ISO do calendário. Exemplo: se a última edição publicada é S18, a próxima é S19, independentemente da semana do ano em que estamos.
+6. **Acentuação no e-mail é obrigatória.** O assunto, corpo, from_name e todos os textos do payload de envio devem conter acentos, cedilhas e caracteres especiais do português brasileiro. Nunca omitir diacríticos por receio de encoding — a API csv-mail aceita UTF-8 nativamente.
 
 ---
 
