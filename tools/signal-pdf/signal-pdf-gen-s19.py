@@ -8,7 +8,7 @@ import os
 from fpdf import FPDF
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_DIR = os.path.join(SCRIPT_DIR, "_fonts")
-LOGO_PATH = os.path.join(SCRIPT_DIR, "grupo_csv_logo.png")
+LOGO_PATH = os.path.join(SCRIPT_DIR, "grupo_csv_logo_negative.png")
 CSV_BLUE   = (25, 99, 150)
 CSV_GREEN  = (45, 191, 127)
 CSV_DARK   = (27, 30, 36)

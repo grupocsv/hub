@@ -7,11 +7,18 @@
 ## Regras Invioláveis
 
 1. **O PDF do Signal™ deve ter exatamente 1 (uma) página.** Essa restrição é absoluta. Ajustar diagramação, tamanho de fonte e comprimento dos resumos para garantir que todo o conteúdo caiba em uma única página A4.
-2. **Acentuação e cedilha** devem ser rigorosamente respeitadas em todo o conteúdo (PDF, Markdown, metadados).
-3. **Consultar o Dicionário Oficial** antes de gerar qualquer texto para garantir grafias corretas.
+
+2. **Português brasileiro com acentuação e cedilha em TODOS os artefatos.** Isso inclui: PDF (títulos, resumos, observações), signal.md, metadata.yml, corpo do e-mail (text e html), assunto do e-mail, from_name, e qualquer outro texto gerado. Nunca omitir diacríticos por receio de encoding. A API csv-mail e a biblioteca fpdf2 aceitam UTF-8 nativamente. Violação desta regra invalida a edição.
+
+3. **Consultar o Dicionário Oficial** antes de gerar qualquer texto para garantir grafias corretas de nomes, instituições, projetos e siglas.
+
 4. **Nunca usar `replace_content` para edições pontuais no Notion.** Para correções de grafia ou atualizações parciais, usar exclusivamente o comando `update_content` com `content_updates`. O comando `replace_content` substitui TODO o conteúdo da página e só deve ser usado para reescrita total intencional. Violação desta regra causa perda de dados (incidente S11/2026).
+
 5. **A numeração da edição é sempre a última edição publicada + 1.** Consultar o sidebar (`docs/.vitepress/config.mts`) ou o `docs/signal/index.md` para confirmar o número correto antes de criar a pasta. NÃO usar a semana ISO do calendário. Exemplo: se a última edição publicada é S18, a próxima é S19, independentemente da semana do ano em que estamos.
-6. **Acentuação no e-mail é obrigatória.** O assunto, corpo, from_name e todos os textos do payload de envio devem conter acentos, cedilhas e caracteres especiais do português brasileiro. Nunca omitir diacríticos por receio de encoding — a API csv-mail aceita UTF-8 nativamente.
+
+6. **Logo no PDF: usar SEMPRE a versão negativa (branca) sobre o header azul.** O arquivo correto é `grupo_csv_logo_negative.png` (logo horizontal full-color negative com fundo transparente). Nunca usar a logo azul padrão (`grupo_csv_logo.png`) sobre fundo azul — resulta em logo ilegível. Caminho do asset de referência: `assets/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png`.
+
+7. **Sidebar do VitePress é obrigatório.** Toda nova edição DEVE ser adicionada ao arquivo `docs/.vitepress/config.mts` na seção `/signal/`. Sem essa entrada, a edição não aparece na navegação lateral do Hub.
 
 ---
 
@@ -34,25 +41,28 @@ Este processo é executado semanalmente, tipicamente às segundas-feiras, para c
 
 ### Fase 3: Criação da Edição
 
-1.  **Criar Estrutura de Pastas:** No diretório `signal/edicoes/AAAA/`, criar uma nova pasta `SNN` (e.g., `S08`). Dentro dela, criar a subpasta `assets`.
-2.  **Criar `signal.md`:** Usar o `templates/signal_template.md` para criar o arquivo `signal/edicoes/AAAA/SNN/signal.md`. Preencher com os fatos e movimentações sintetizados na Fase 2.
-3.  **Criar `metadata.yml`:** Usar o `templates/metadata_template.yml` para criar o arquivo `signal/edicoes/AAAA/SNN/metadata.yml`. Preencher todos os campos.
+1.  **Determinar Número da Edição:** Consultar `docs/signal/index.md` ou `docs/.vitepress/config.mts`. O número é a última edição publicada + 1. NÃO calcular pela semana ISO.
+2.  **Criar Estrutura de Pastas:** No diretório `signal/edicoes/AAAA/`, criar uma nova pasta `SNN` (e.g., `S19`). Dentro dela, criar a subpasta `assets`.
+3.  **Criar `signal.md`:** Usar o `templates/signal_template.md` para criar o arquivo `signal/edicoes/AAAA/SNN/signal.md`. Preencher com os fatos e movimentações sintetizados na Fase 2.
+4.  **Criar `metadata.yml`:** Usar o `templates/metadata_template.yml` para criar o arquivo `signal/edicoes/AAAA/SNN/metadata.yml`. Preencher todos os campos.
 
 ### Fase 4: Geração do PDF
 
 1.  **Atualizar Script:** Atualizar o script `tools/signal-pdf/signal-pdf-gen.py` com o conteúdo da nova edição.
-2.  **Executar Script:** Rodar o script para gerar o PDF.
+2.  **Verificar Logo:** Confirmar que `LOGO_PATH` aponta para `grupo_csv_logo_negative.png` (logo branca para header azul).
+3.  **Verificar Acentuação:** Confirmar que TODOS os textos no script (PERIODO, EXECUTIVO, FATOS, OBSERVACOES) contêm acentuação e cedilha corretas em PT-BR.
+4.  **Executar Script:** Rodar o script para gerar o PDF.
     ```bash
-    python3 tools/signal-pdf/signal-pdf-gen.py
+    python3 tools/signal-pdf/signal-pdf-gen-sNN.py
     ```
-3.  **Validar 1 Página:** Confirmar que o PDF gerado tem exatamente 1 página. Se ultrapassar, reduzir resumos e reexecutar.
-4.  **Mover PDF:** Mover o arquivo PDF gerado (e.g., `Signal_S08_2026.pdf`) para a pasta `signal/edicoes/AAAA/SNN/assets/`.
+5.  **Validar 1 Página:** Confirmar que o PDF gerado tem exatamente 1 página. Se ultrapassar, reduzir resumos e reexecutar.
+6.  **Mover PDF:** Copiar o arquivo PDF gerado (e.g., `Signal_S19_2026.pdf`) para a pasta `signal/edicoes/AAAA/SNN/assets/`.
 
 ### Fase 5: Publicação no Repositório
 
 1.  **Espelhar Arquivos:** Copiar a pasta da nova edição (`signal/edicoes/AAAA/SNN/`) para o diretório `docs/signal/edicoes/AAAA/SNN/`.
-2.  **Atualizar Índice:** Editar o arquivo `signal/README.md` e `docs/signal/index.md`, adicionando a nova edição à tabela de "Edições publicadas".
-3.  **Atualizar Sidebar:** Editar o arquivo `docs/.vitepress/config.mts` para adicionar a nova edição na barra lateral do Signal™.
+2.  **Atualizar Índice:** Editar o arquivo `docs/signal/index.md`, adicionando a nova edição à tabela de "Edições publicadas".
+3.  **Atualizar Sidebar:** Editar o arquivo `docs/.vitepress/config.mts` para adicionar a nova edição na barra lateral do Signal™. Formato: `{ text: 'SNN — DD-DD Mês', link: '/signal/edicoes/AAAA/SNN/signal' }`.
 4.  **Commit e Push:**
     ```bash
     git add .
@@ -72,10 +82,11 @@ Este processo é executado semanalmente, tipicamente às segundas-feiras, para c
         -   `naline@grupocsv.com`
         -   `naline.rocha@unimedgv.com.br`
     -   **Tags obrigatórias:** `source:manus`, `project:signal`
-    -   **from_name:** `Guilherme Thomé`
+    -   **from_name:** `Guilherme Thomé` (com acento obrigatório)
+    -   **from_email:** `guilherme@mail.grupocsv.com`
     -   **reply_to:** `guilherme@grupocsv.com`
-2.  **Assunto do E-mail:** `Signal™ SNN/AAAA — Resumo Semanal Estratégico (DD a DD de mês)`
-3.  **Corpo HTML:** Parágrafo breve indicando a edição, o período, o número de fatos estratégicos e os destaques principais.
+2.  **Assunto do E-mail:** `Signal™ SNN/AAAA — Resumo Semanal Estratégico (DD a DD de mês)` — com acentos e ™.
+3.  **Corpo do E-mail (text):** Parágrafo breve indicando a edição, o período, o número de fatos estratégicos e os destaques principais. OBRIGATORIAMENTE em português brasileiro com acentuação e cedilha completas.
 4.  **Confirmar e Entregar:** Após a confirmação do envio (verificar `success: true` e `id` retornado), o PDF é disponibilizado ao usuário para download.
 
 ---
@@ -143,12 +154,16 @@ Este comando apaga todo o conteúdo da página e substitui por "Relay™". O par
 ## Checklist de Qualidade
 
 - [ ] O PDF tem exatamente 1 (uma) página? (REGRA INVIOLÁVEL)
-- [ ] Acentuação e cedilha estão corretas em todo o conteúdo?
+- [ ] A logo no PDF é a versão negativa (branca) sobre o header azul?
+- [ ] Acentuação e cedilha estão corretas em TODO o conteúdo (PDF, Markdown, e-mail)?
+- [ ] O número da edição foi confirmado via index.md/config.mts (última + 1)?
 - [ ] O PDF foi gerado em alta qualidade e revisado visualmente?
 - [ ] O nome do arquivo PDF segue o padrão `Signal_SNN_AAAA.pdf`?
 - [ ] O arquivo `signal.md` está preenchido e formatado corretamente?
 - [ ] O arquivo `metadata.yml` está completo e válido?
-- [ ] A nova edição foi adicionada aos dois arquivos de índice (`README.md` e `index.md`)?
-- [ ] A sidebar do VitePress (`config.mts`) foi atualizada?
+- [ ] A nova edição foi adicionada ao `docs/signal/index.md`?
+- [ ] A sidebar do VitePress (`config.mts`) foi atualizada com a nova entrada?
 - [ ] Todos os links funcionam como esperado?
 - [ ] Todos os nomes conferem com o Dicionário Oficial?
+- [ ] O e-mail foi enviado para os 4 destinatários da lista de distribuição?
+- [ ] O assunto e corpo do e-mail contêm acentuação correta em PT-BR?
