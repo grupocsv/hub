@@ -187,6 +187,7 @@ head:
 <a class="policy-btn axia" data-direct href="/compliance/axiacare/privacidade.html">Privacidade – AxiaCare</a>
 <a class="policy-btn axia" data-direct href="/compliance/axiacare/termos.html">Termos de Uso – AxiaCare</a>
 <a class="policy-btn axia" data-direct href="/compliance/axiacare/nda.html">Acordo de Confidencialidade (NDA) – AxiaCare</a>
+<a class="policy-btn axia" data-direct href="/compliance/axiacare/cnds.html">Certidões Negativas de Débito (CNDs) – AxiaCare</a>
 </div>
 </div>
 
