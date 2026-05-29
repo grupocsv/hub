@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRG Brasil Analytics | Unimed | Grupo CSV</title>
+  <link rel="icon" href="/favicons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+  <!-- OpenGraph -->
+  <meta property="og:title" content="DRG Brasil Analytics | Unimed GV">
+  <meta property="og:description" content="Ferramenta AxiaCare para apurar o impacto financeiro do uso eficiente do leito hospitalar via metodologia DRG Brasil no Hospital Unihealth.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://hub.grupocsv.com/unimed/drg.html">
+  <meta property="og:site_name" content="Unimed GV | Grupo CSV">
+  <meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DRG Brasil Analytics | Unimed GV">
+  <meta name="twitter:description" content="Ferramenta AxiaCare para apurar o impacto financeiro do uso eficiente do leito hospitalar via metodologia DRG Brasil no Hospital Unihealth.">
+  <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef2f0; }
+    #drg-root { min-height: calc(100vh - 200px); }
+  </style>
+  <!-- React 18 via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="drg-root"></div>
+
+  <!-- AXIACARE FOOTER (padrao oficial hub-csv) -->
+  <div style="margin-top:40px;padding:32px 20px;background:#f8f5f0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:2px solid #196396;border-radius:16px">
+    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="width:140px;margin:0 auto 12px auto;display:block">
+    <div style="font-size:14px;font-weight:600;color:#2d3445;margin-bottom:14px">Gestão e Consultoria em Saúde</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
+      <a href="https://linktr.ee/gui.thome" style="color:#196396;text-decoration:none">Conheça nossas soluções</a>
+      <span style="color:#cbd5e1;font-size:11px">|</span>
+      <a href="https://www.axcare.com.br" target="_blank" style="color:#196396;text-decoration:none">axcare.com.br</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
+      <a href="https://grupocsv.com" target="_blank" style="color:#196396;text-decoration:none">grupocsv.com</a>
+      <span style="color:#cbd5e1;font-size:11px">|</span>
+      <a href="https://www.medvalor.med.br" target="_blank" style="color:#196396;text-decoration:none">medvalor.med.br</a>
+      <span style="color:#cbd5e1;font-size:11px">|</span>
+      <a href="https://thera.tech" target="_blank" style="color:#196396;text-decoration:none">thera.tech</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:14px">
+      <a href="https://guithome.com.br" target="_blank" style="color:#196396;text-decoration:none">guithome.com.br</a>
+      <span style="color:#cbd5e1;font-size:11px">|</span>
+      <a href="https://linkedin.com/in/guithome" target="_blank" style="color:#196396;text-decoration:none">LinkedIn</a>
+      <span style="color:#cbd5e1;font-size:11px">|</span>
+      <a href="https://www.instagram.com/gui.thome/" target="_blank" style="color:#196396;text-decoration:none">Instagram</a>
+    </div>
+    <div style="font-size:11px;color:#94a3b8">Copyright © 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
+  </div>
+
+  <!-- DRG Plugin React Component -->
+  <script type="text/babel">
+    const { useState, useMemo, useCallback } = React;
+
+
+// ─── PALETA AXIACARE® ───────────────────────────────────────────
+// Cores derivadas dos assets oficiais (assets.grupocsv.com/logos/axiacare)
+// AzulBrand #0d67b0 · AzulDeep #206698 · TealClaro #96c4c4 · MintClaro #b3d9c2
+// Cores semânticas (orange/green/red) preservadas para sinalização de status DRG.
+const C = {
+  ink:    "#0d3a5e",   // azul escuro institucional (header, banner)
+  blue:   "#0d67b0",   // azul brand AxiaCare (acento principal)
+  deep:   "#206698",   // azul intermediário
+  teal:   "#96c4c4",   // teal claro (decorativo)
+  mint:   "#b3d9c2",   // mint claro (acento contrastante sobre ink)
+  green:  "#2d8a5f",   // verde semântico — eficiência (C2)
+  neon:   "#b3d9c2",   // realces sobre fundo escuro (alias de mint)
+  orange: "#d25a00",   // semântico — desperdício/acima do baseline (C1)
+  red:    "#b04030",   // semântico — ineficiente
+  light:  "#f3f7fa",   // fundo claro azulado
+  text:   "#0d2a3f",   // texto principal
+  muted:  "#5d7a8c",   // texto auxiliar
+  rule:   "#c0d4e0",   // bordas e divisórias
+};
+
+// URL dos logos oficiais AxiaCare (R2 — assets.grupocsv.com)
+const LOGO_AXIA = {
+  horizontalNegativo: "https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg",
+  horizontalPositivo: "https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg",
+  verticalNegativo:   "https://assets.grupocsv.com/logos/axiacare/vertical-negativo.svg",
+  verticalPositivo:   "https://assets.grupocsv.com/logos/axiacare/vertical-positivo.svg",
+};
+
+// ─── MESES ──────────────────────────────────────────────────────
+const MESES_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun",
+                     "Jul","Ago","Set","Out","Nov","Dez"];
+const MESES_LONG  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                     "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+// ─── DADOS DEFAULT 24 MESES (jan/2024 – dez/2025) ───────────────
+// Cada mês: { altas, realizado, previsto, bonus, localAbs, icAbs }
+// Distribuição proporcional dos dados anuais pelos 12 meses
+// 2024: 8125 altas, 26118.4 real, 23324.4 prev | local:817 ic:219
+// 2025: 7681 altas, 23300.6 real, 23927.0 prev | local:789 ic:198
+const makeMonth2024 = (i) => {
+  // Variação ligeira para simular dados mensais reais
+  const varFactor = [0.92,0.85,0.98,0.95,1.02,1.05,1.08,1.03,1.00,0.97,0.96,1.19][i];
+  const baseAltas = Math.round(8125/12 * varFactor);
+  const baseReal  = +(26118.4/12 * varFactor).toFixed(1);
+  const basePrev  = +(23324.4/12 * varFactor).toFixed(1);
+  return {
+    altas: baseAltas, realizado: baseReal, previsto: basePrev,
+    bonus: 0,
+    localAbs: Math.round(817/12 * varFactor),
+    icAbs:    Math.round(219/12 * varFactor),
+  };
+};
+const BONUS_2025 = [5824.58,10201.00,12851.55,15419.49,28859.41,32171.26,
+                    46828.40,35786.37,40724.76,33503.22,31452.77,31848.65];
+const makeMonth2025 = (i) => {
+  const varFactor = [0.93,0.88,1.00,0.96,1.03,1.04,1.07,1.02,0.99,0.98,0.95,1.15][i];
+  const baseAltas = Math.round(7681/12 * varFactor);
+  const baseReal  = +(23300.6/12 * varFactor).toFixed(1);
+  const basePrev  = +(23927.0/12 * varFactor).toFixed(1);
+  return {
+    altas: baseAltas, realizado: baseReal, previsto: basePrev,
+    bonus: BONUS_2025[i],
+    localAbs: Math.round(789/12 * varFactor),
+    icAbs:    Math.round(198/12 * varFactor),
+  };
+};
+
+// ─── DADOS 1º QUADRIMESTRE 2026 (jan-abr) ───────────────────────
+// Fonte: Report DRG Hospital Unihealth — Ciclo Analítico Jan-Abr 2026 (Escritório de Valor)
+//   • Altas Jan-Abr: 2.588   • Diárias Evitadas: 1.485,6   • (IN) Eficiência: 82,8%
+//   • CaseMix Médio: 1,0248
+// Distribuição mensal (proporcional aos dias do mês) que fecha exato com o agregado:
+//   Σ Previsto 8.626,8 | Σ Realizado 7.141,2 | (IN) Ef. ponderada 82,78%
+// (IN) Eficiência mensal Global (do report): 86,37 | 77,57 | 87,15 | 79,41
+// Bônus MG Hosp: extratos planilha ICDS (TX + Diárias) Jan-Abr/2026 = R$ 178.761,29
+// Split local/IC: mantido conforme média histórica (mesmo padrão de 2025)
+const BONUS_2026 = [34685.15, 46238.25, 50248.79, 47589.10,
+                    0, 0, 0, 0, 0, 0, 0, 0];
+const ALTAS_2026 = [669, 603, 669, 647, 0,0,0,0,0,0,0,0];
+const PREV_2026  = [2228.6, 2012.9, 2228.6, 2156.7, 0,0,0,0,0,0,0,0];
+const REAL_2026  = [1925.0, 1561.4, 1942.2, 1712.6, 0,0,0,0,0,0,0,0];
+const LOCAL_2026 = [68, 62, 68, 66, 0,0,0,0,0,0,0,0];
+const IC_2026    = [17, 15, 17, 17, 0,0,0,0,0,0,0,0];
+const makeMonth2026 = (i) => ({
+  altas:     ALTAS_2026[i],
+  realizado: REAL_2026[i],
+  previsto:  PREV_2026[i],
+  bonus:     BONUS_2026[i],
+  localAbs:  LOCAL_2026[i],
+  icAbs:     IC_2026[i],
+});
+
+// Gera o banco de meses disponíveis (jan/2023 – dez/2027)
+function buildMonthBank() {
+  const bank = {};
+  for (let y = 2023; y <= 2027; y++) {
+    for (let m = 0; m < 12; m++) {
+      const key = `${y}-${String(m+1).padStart(2,"0")}`;
+      if (y === 2024) bank[key] = makeMonth2024(m);
+      else if (y === 2025) bank[key] = makeMonth2025(m);
+      else if (y === 2026) bank[key] = makeMonth2026(m);
+      else bank[key] = { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0 };
+    }
+  }
+  return bank;
+}
+
+const MONTH_BANK_INIT = buildMonthBank();
+
+// ─── PARÂMETROS GLOBAIS DEFAULT ──────────────────────────────────
+const PARAMS_DEFAULT = {
+  enfLocal:495.51, enfIC:755.73,
+  aptLocal:744.17, aptIC:1134.97,
+  utiLocal:1522.57, utiIC:2322.15,
+  leitosInstalados:97, leitosHD:3, leitosUTI:16,
+  mixApt:40,
+};
+
+// ─── UTILS ──────────────────────────────────────────────────────
+const fmt  = (v,d=2) => v===null||v===undefined||isNaN(v) ? "—" :
+  "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmtV = (v,d=2) =>
+  "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmtN = (v,d=1) =>
+  v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const pct  = v => v.toFixed(2).replace(".",",")+"%";
+const NA   = "—";
+
+function monthKey(year, month) { // month 0-11
+  return `${year}-${String(month+1).padStart(2,"0")}`;
+}
+function keyToLabel(key) {
+  const [y,m] = key.split("-");
+  return `${MESES_SHORT[parseInt(m)-1]}/${y}`;
+}
+
+// Gera lista de chaves de período entre dois keys
+function periodKeys(startKey, endKey) {
+  const [sy,sm] = startKey.split("-").map(Number);
+  const [ey,em] = endKey.split("-").map(Number);
+  const keys = [];
+  let y = sy, m = sm;
+  while (y < ey || (y === ey && m <= em)) {
+    keys.push(`${y}-${String(m).padStart(2,"0")}`);
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return keys;
+}
+
+// ─── CGP ────────────────────────────────────────────────────────
+function calcCGP(params, totalLocal, totalIC) {
+  const { enfLocal,enfIC,aptLocal,aptIC,utiLocal,utiIC,
+          leitosInstalados,leitosHD,leitosUTI,mixApt } = params;
+  const tot  = totalLocal + totalIC;
+  if (tot === 0) return null;
+  const pl   = totalLocal / tot;
+  const pi   = 1 - pl;
+  const op   = leitosInstalados - leitosHD;
+  const wUTI = leitosUTI / op, wConv = 1 - wUTI;
+  const wApt = mixApt / 100,   wEnf  = 1 - wApt;
+  const utiP  = utiLocal*pl + utiIC*pi;
+  const aptP  = aptLocal*pl + aptIC*pi;
+  const enfP  = enfLocal*pl + enfIC*pi;
+  const convP = wApt*aptP + wEnf*enfP;
+  const cgp   = wUTI*utiP + wConv*convP;
+  return { cgp, utiP, aptP, enfP, convP, pl, pi, wUTI, wConv, op };
+}
+
+// ─── COMPONENTES UI ─────────────────────────────────────────────
+const Pill = ({label, value, color, sub}) => (
+  <div style={{flex:1,background:"#fff",border:`1px solid ${color}44`,
+    borderRadius:3,padding:"10px 8px",textAlign:"center"}}>
+    <div style={{fontWeight:700,fontSize:value===NA?14:typeof value==="string"&&value.length>10?12:18,
+      color:value===NA?"#bbb":color,lineHeight:1.1}}>{value}</div>
+    <div style={{fontSize:9,color:C.muted,marginTop:3,lineHeight:1.3}}>{label}</div>
+    {sub && <div style={{fontSize:8,color:color+"99",marginTop:2}}>{sub}</div>}
+  </div>
+);
+
+const CompCard = ({color,tag,title,children}) => (
+  <div style={{border:`1px solid ${color}55`,borderRadius:4,overflow:"hidden",marginBottom:16}}>
+    <div style={{background:color,padding:"10px 16px",display:"flex",
+      alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
+      <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
+        letterSpacing:2,color:"rgba(255,255,255,0.65)"}}>{tag}</span>
+      <span style={{fontWeight:700,fontSize:13.5,color:"#fff"}}>{title}</span>
+    </div>
+    <div style={{background:color+"0d",padding:"14px 16px"}}>{children}</div>
+  </div>
+);
+
+const FieldN = ({label,value,onChange,note,mono,readOnly}) => (
+  <div style={{marginBottom:10}}>
+    <label style={{display:"block",fontSize:8,fontWeight:700,textTransform:"uppercase",
+      letterSpacing:1.5,color:C.muted,marginBottom:3}}>{label}</label>
+    <input type="number" step="0.01" value={value} readOnly={readOnly}
+      onChange={e=>onChange&&onChange(parseFloat(e.target.value)||0)}
+      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.rule}`,borderRadius:3,
+        fontSize:11,fontFamily:mono?"monospace":"inherit",color:C.text,
+        background:readOnly?"#f8f8f8":"#fff",outline:"none",boxSizing:"border-box"}}/>
+    {note && <div style={{fontSize:8,color:C.muted,marginTop:2}}>{note}</div>}
+  </div>
+);
+
+const SecTitle = ({children}) => (
+  <div style={{fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:1.5,
+    color:C.ink,borderBottom:`2px solid ${C.blue}`,paddingBottom:5,marginBottom:14}}>
+    {children}
+  </div>
+);
+
+const TwoCol = ({children,gap=12}) => (
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap}}>{children}</div>
+);
+
+// ─── TABS ────────────────────────────────────────────────────────
+const TABS = ["Período","Parâmetros","Dados Mensais","CGP","DRG Reports"];
+
+// ─── APP ─────────────────────────────────────────────────────────
+function DRGPlugin() {
+  const [tab, setTab]       = useState(0);
+  const [params, setParams] = useState({ ...PARAMS_DEFAULT });
+  const [bank, setBank]     = useState({ ...MONTH_BANK_INIT });
+  const [startKey, setStartKey] = useState("2024-01");
+  const [endKey,   setEndKey  ] = useState("2026-04");
+  const [copied, setCopied]   = useState(null);
+
+  const setParam = k => v => setParams(prev => ({ ...prev, [k]: v }));
+
+  const setMonthField = useCallback((key, field, val) => {
+    setBank(prev => ({
+      ...prev,
+      [key]: { ...prev[key], [field]: parseFloat(val) || 0 }
+    }));
+  }, []);
+
+  // ── Lista de chaves no período ──────────────────────────────────
+  const keys = useMemo(() => periodKeys(startKey, endKey), [startKey, endKey]);
+
+  // ── Agregados do período ────────────────────────────────────────
+  const agg = useMemo(() => {
+    let totalAltas=0, totalReal=0, totalPrev=0, totalBonus=0;
+    let totalLocal=0, totalIC=0;
+    let diarExc=0, diarEvit=0;
+    const monthRows = [];
+    for (const k of keys) {
+      const d = bank[k] || { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0 };
+      totalAltas += d.altas;
+      totalReal  += d.realizado;
+      totalPrev  += d.previsto;
+      totalBonus += d.bonus;
+      totalLocal += d.localAbs;
+      totalIC    += d.icAbs;
+      const exc  = Math.max(0, d.realizado - d.previsto);
+      const evit = Math.max(0, d.previsto  - d.realizado);
+      diarExc  += exc;
+      diarEvit += evit;
+      monthRows.push({ key:k, ...d, exc, evit });
+    }
+    return { totalAltas, totalReal, totalPrev, totalBonus,
+             totalLocal, totalIC, diarExc, diarEvit, monthRows };
+  }, [keys, bank]);
+
+  const cgpData = useMemo(
+    () => calcCGP(params, agg.totalLocal, agg.totalIC),
+    [params, agg.totalLocal, agg.totalIC]
+  );
+
+  const inef = agg.totalPrev > 0
+    ? (agg.totalReal / agg.totalPrev) * 100 : null;
+
+  const C1 = cgpData && agg.diarExc  > 0 ? agg.diarExc  * cgpData.cgp : null;
+  const C2 = cgpData && agg.diarEvit > 0 ? agg.diarEvit * cgpData.cgp : null;
+  const C3 = agg.totalBonus > 0 ? agg.totalBonus : null;
+  const TOTAL = (C1||0) + (C2||0) + (C3||0);
+
+  const nMonths = keys.length;
+
+  // ── Seletores de período ────────────────────────────────────────
+  const allYears = [2023,2024,2025,2026,2027];
+  const yearMonthOptions = [];
+  for (const y of allYears)
+    for (let m=1;m<=12;m++)
+      yearMonthOptions.push(`${y}-${String(m).padStart(2,"0")}`);
+
+  const copy = (text, key) => {
+    navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const CopyBtn = ({id, label, text, color}) => (
+    <button onClick={() => copy(text, id)} style={{
+      marginTop:10,padding:"6px 14px",borderRadius:3,
+      background:copied===id?color:"#fff",border:`1px solid ${color}`,
+      color:copied===id?"#fff":color,fontSize:10,fontWeight:700,
+      cursor:"pointer",transition:"all .15s"
+    }}>{copied===id ? "Copiado!" : label}</button>
+  );
+
+  // ─── STATUS BADGE DO PERÍODO ────────────────────────────────────
+  const statusColor = inef === null ? C.muted
+    : inef > 105 ? C.red : inef > 100 ? C.orange : inef > 95 ? C.green : C.deep;
+  const statusLabel = inef === null ? "Sem dados"
+    : inef > 105 ? "Ineficiente" : inef > 100 ? "Acima do baseline"
+    : inef > 95 ? "Eficiente" : "Alta eficiência";
+
+  return (
+    <div style={{fontFamily:"'Segoe UI',system-ui,sans-serif",
+      background:"#eef2f0",minHeight:"100vh",color:C.text}}>
+
+      {/* ── HEADER ── */}
+      <div style={{background:C.ink,padding:"0 24px",display:"flex",
+        alignItems:"center",justifyContent:"space-between",height:60,
+        borderBottom:`1px solid ${C.blue}55`}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          {/* Logo oficial AxiaCare (negativo — fundo escuro) */}
+          <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
+            style={{height:30,width:"auto",display:"block"}}/>
+          <div style={{width:1,height:28,background:`${C.teal}55`}}/>
+          <div>
+            <div style={{color:"#fff",fontWeight:700,fontSize:14,letterSpacing:-0.3}}>
+              DRG Brasil® Analytics
+            </div>
+            <div style={{color:C.mint,opacity:0.7,fontSize:9,
+              textTransform:"uppercase",letterSpacing:2}}>
+              Unimed + Unihealth · Governador Valadares
+            </div>
+          </div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          {inef !== null && (
+            <div style={{background:statusColor+"22",border:`1px solid ${statusColor}55`,
+              borderRadius:3,padding:"3px 10px",fontSize:9,fontWeight:700,
+              color:statusColor==C.green?C.mint:statusColor,letterSpacing:1}}>
+              {fmtN(inef)}% · {statusLabel}
+            </div>
+          )}
+          <div style={{background:`${C.blue}33`,border:`1px solid ${C.blue}66`,
+            borderRadius:3,padding:"4px 12px",color:C.mint,
+            fontSize:9.5,fontWeight:800,letterSpacing:1.5,
+            textTransform:"uppercase"}}>Gestão em Saúde</div>
+        </div>
+      </div>
+
+      {/* ── TABS ── */}
+      <div style={{background:C.ink,padding:"0 24px",
+        borderBottom:`3px solid ${C.blue}`,display:"flex",gap:0,overflowX:"auto"}}>
+        {TABS.map((t,i) => (
+          <button key={i} onClick={() => setTab(i)} style={{
+            padding:"9px 18px",border:"none",whiteSpace:"nowrap",
+            background: i===tab ? C.blue : "transparent",
+            color: i===tab ? "#fff" : `${C.mint}aa`,
+            fontWeight:700,fontSize:10,textTransform:"uppercase",
+            letterSpacing:1.5,cursor:"pointer",
+            borderBottom:i===tab?`2px solid ${C.mint}`:"2px solid transparent",
+            transition:"all .15s"
+          }}>{t}</button>
+        ))}
+      </div>
+
+      {/* ── PERÍODO BANNER ── */}
+      <div style={{background:"#fff",borderBottom:`1px solid ${C.rule}`,
+        padding:"8px 24px",display:"flex",alignItems:"center",
+        gap:16,flexWrap:"wrap"}}>
+        <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
+          letterSpacing:1.5,color:C.muted}}>Período ativo:</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.ink,letterSpacing:-0.3}}>
+          {keyToLabel(startKey)} → {keyToLabel(endKey)}
+        </div>
+        <div style={{background:C.ink+"15",borderRadius:3,padding:"2px 8px",
+          fontSize:9,fontWeight:700,color:C.ink}}>{nMonths} {nMonths===1?"mês":"meses"}</div>
+        <div style={{marginLeft:"auto",display:"flex",gap:16,fontSize:11,color:C.muted}}>
+          <span>C1: <strong style={{color:C1?C.orange:"#ccc"}}>{C1?fmtV(C1):NA}</strong></span>
+          <span>C2: <strong style={{color:C2?C.green:"#ccc"}}>{C2?fmtV(C2):NA}</strong></span>
+          <span>C3: <strong style={{color:C3?C.blue:"#ccc"}}>{C3?fmtV(C3):NA}</strong></span>
+          <span style={{fontWeight:700,color:C.ink}}>Total: {TOTAL>0?fmtV(TOTAL):NA}</span>
+        </div>
+      </div>
+
+      <div style={{maxWidth:960,margin:"0 auto",padding:"22px 20px"}}>
+
+        {/* ══ TAB 0: PERÍODO ═══════════════════════════════════════ */}
+        {tab===0 && (
+          <div>
+            <SecTitle>Seleção de Período</SecTitle>
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:4,padding:"20px 24px",marginBottom:20}}>
+              <TwoCol>
+                <div>
+                  <label style={{display:"block",fontSize:9,fontWeight:700,
+                    textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>
+                    Início
+                  </label>
+                  <select value={startKey} onChange={e=>{
+                    const v=e.target.value;
+                    setStartKey(v);
+                    if(v>endKey) setEndKey(v);
+                  }} style={{width:"100%",padding:"9px 10px",border:`1px solid ${C.rule}`,
+                    borderRadius:3,fontSize:13,color:C.text,background:"#fff",fontWeight:700}}>
+                    {yearMonthOptions.map(k=>(
+                      <option key={k} value={k}>{keyToLabel(k)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{display:"block",fontSize:9,fontWeight:700,
+                    textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>
+                    Fim
+                  </label>
+                  <select value={endKey} onChange={e=>{
+                    const v=e.target.value;
+                    setEndKey(v);
+                    if(v<startKey) setStartKey(v);
+                  }} style={{width:"100%",padding:"9px 10px",border:`1px solid ${C.rule}`,
+                    borderRadius:3,fontSize:13,color:C.text,background:"#fff",fontWeight:700}}>
+                    {yearMonthOptions.filter(k=>k>=startKey).map(k=>(
+                      <option key={k} value={k}>{keyToLabel(k)}</option>
+                    ))}
+                  </select>
+                </div>
+              </TwoCol>
+
+              {/* Atalhos de período */}
+              <div style={{marginTop:16,display:"flex",gap:8,flexWrap:"wrap"}}>
+                {[
+                  {label:"Jan–Dez 2024",        s:"2024-01",e:"2024-12"},
+                  {label:"Jan–Dez 2025",        s:"2025-01",e:"2025-12"},
+                  {label:"2024–2025 (24m)",     s:"2024-01",e:"2025-12"},
+                  {label:"Jan–Abr 2026 (1Q)",   s:"2026-01",e:"2026-04"},
+                  {label:"Acumulado 28m (24→Abr26)", s:"2024-01",e:"2026-04"},
+                  {label:"1T 2025",             s:"2025-01",e:"2025-03"},
+                  {label:"2T 2025",             s:"2025-04",e:"2025-06"},
+                  {label:"3T 2025",             s:"2025-07",e:"2025-09"},
+                  {label:"4T 2025",             s:"2025-10",e:"2025-12"},
+                  {label:"Dez 2025",            s:"2025-12",e:"2025-12"},
+                  {label:"Abr 2026",            s:"2026-04",e:"2026-04"},
+                ].map(({label,s,e})=>(
+                  <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
+                    padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
+                    background:startKey===s&&endKey===e?C.ink:"#fff",
+                    color:startKey===s&&endKey===e?"#fff":C.text,
+                    fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
+                  }}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Resumo do período */}
+            <SecTitle>Resumo do Período Selecionado</SecTitle>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
+              {[
+                {label:"Meses",        value:nMonths,                         unit:""},
+                {label:"Altas válidas",value:agg.totalAltas.toLocaleString("pt-BR"), unit:""},
+                {label:"Realizado",    value:fmtN(agg.totalReal)+" d",        unit:"diárias"},
+                {label:"Previsto",     value:fmtN(agg.totalPrev)+" d",        unit:"diárias"},
+              ].map((m,i)=>(
+                <div key={i} style={{background:"#fff",border:`1px solid ${C.rule}`,
+                  borderRadius:3,padding:"12px 14px"}}>
+                  <div style={{fontSize:8,color:C.muted,textTransform:"uppercase",
+                    letterSpacing:1,marginBottom:5}}>{m.label}</div>
+                  <div style={{fontSize:16,fontWeight:700,color:C.ink}}>{m.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Linha do tempo visual */}
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:4,padding:"16px 20px"}}>
+              <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
+                letterSpacing:1.5,color:C.muted,marginBottom:12}}>
+                Meses no Período — Ineficiência Mensal
+              </div>
+              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                {keys.map(k=>{
+                  const d = bank[k]||{};
+                  const hasData = d.realizado>0||d.previsto>0;
+                  const inefM = d.previsto>0?(d.realizado/d.previsto)*100:null;
+                  const barColor = !hasData ? "#e0e0e0"
+                    : inefM>105 ? C.red : inefM>100 ? C.orange
+                    : inefM>95 ? C.green : C.blue;
+                  return (
+                    <div key={k} title={`${keyToLabel(k)}\n${hasData?`Inef: ${fmtN(inefM??0)}%`:"Sem dados"}`}
+                      style={{textAlign:"center",width:42}}>
+                      <div style={{height:32,background:barColor+"33",borderRadius:3,
+                        border:`1px solid ${barColor}55`,display:"flex",
+                        alignItems:"flex-end",justifyContent:"center",overflow:"hidden"}}>
+                        {hasData && inefM!==null && (
+                          <div style={{width:"100%",background:barColor,
+                            height:`${Math.min(100,Math.abs(inefM-90)*3)}%`,
+                            transition:"height .3s"}}/>
+                        )}
+                      </div>
+                      <div style={{fontSize:8,color:C.muted,marginTop:3}}>{keyToLabel(k)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:"flex",gap:16,marginTop:12,flexWrap:"wrap"}}>
+                {[
+                  {color:C.red,    label:"Ineficiente (>105%)"},
+                  {color:C.orange, label:"Acima do baseline (100–105%)"},
+                  {color:C.green,  label:"Eficiente (95–100%)"},
+                  {color:C.blue,   label:"Alta eficiência (<95%)"},
+                  {color:"#e0e0e0",label:"Sem dados"},
+                ].map(({color,label})=>(
+                  <div key={label} style={{display:"flex",alignItems:"center",gap:5}}>
+                    <div style={{width:10,height:10,background:color,borderRadius:2}}/>
+                    <span style={{fontSize:9,color:C.muted}}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ TAB 1: PARÂMETROS GLOBAIS ════════════════════════════ */}
+        {tab===1 && (
+          <div>
+            <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
+              borderRadius:3,padding:"10px 14px",marginBottom:20,
+              fontSize:10,color:C.orange}}>
+              Parâmetros globais — aplicados uniformemente a todos os meses do período.
+              Altere apenas se as tarifas ou a estrutura hospitalar mudarem.
+            </div>
+
+            <SecTitle>Estrutura de Leitos</SecTitle>
+            <TwoCol>
+              <FieldN label="Leitos instalados"  value={params.leitosInstalados}
+                onChange={setParam("leitosInstalados")} mono/>
+              <FieldN label="Leitos hospital dia (excluídos)" value={params.leitosHD}
+                onChange={setParam("leitosHD")} mono
+                note={`Operacionais (metodologia): ${params.leitosInstalados-params.leitosHD}`}/>
+              <FieldN label="Leitos UTI" value={params.leitosUTI}
+                onChange={setParam("leitosUTI")} mono
+                note={`Peso UTI: ${pct(params.leitosUTI/(params.leitosInstalados-params.leitosHD)*100)}`}/>
+              <FieldN label="Mix Apartamento %" value={params.mixApt}
+                onChange={setParam("mixApt")} mono
+                note={`Enfermaria: ${100-params.mixApt}%`}/>
+            </TwoCol>
+
+            <SecTitle>Tarifas Reais — 6 Modalidades</SecTitle>
+            <TwoCol>
+              <FieldN label="Enf. Local (R$)"         value={params.enfLocal}  onChange={setParam("enfLocal")}  mono/>
+              <FieldN label="Enf. Intercâmbio (R$)"   value={params.enfIC}     onChange={setParam("enfIC")}     mono/>
+              <FieldN label="Apt. Local (R$)"          value={params.aptLocal}  onChange={setParam("aptLocal")}  mono/>
+              <FieldN label="Apt. Intercâmbio (R$)"   value={params.aptIC}     onChange={setParam("aptIC")}     mono/>
+              <FieldN label="UTI Local (R$)"           value={params.utiLocal}  onChange={setParam("utiLocal")}  mono/>
+              <FieldN label="UTI Intercâmbio (R$)"    value={params.utiIC}     onChange={setParam("utiIC")}     mono/>
+            </TwoCol>
+
+            <div style={{background:"#f4faf7",border:`1px solid ${C.green}44`,
+              borderRadius:3,padding:"12px 16px",fontSize:10,color:C.muted,marginTop:4}}>
+              <strong style={{color:C.ink}}>Split local/intercâmbio</strong> é inserido mês a mês
+              na aba "Dados Mensais" — o CGP é recalculado com o agregado do período selecionado.
+            </div>
+          </div>
+        )}
+
+        {/* ══ TAB 2: DADOS MENSAIS ══════════════════════════════════ */}
+        {tab===2 && (
+          <div>
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:4,overflow:"hidden"}}>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,minWidth:700}}>
+                  <thead>
+                    <tr style={{background:C.ink}}>
+                      {["Mês","Altas","Realizado (d)","Previsto (d)",
+                        "Exc./Evit.","Local (abs)","IC (abs)",
+                        "Bônus MG Hosp"].map((h,i)=>(
+                        <th key={i} style={{padding:"9px 10px",textAlign:i===0?"left":"right",
+                          fontWeight:700,fontSize:8,textTransform:"uppercase",
+                          letterSpacing:1,color:"rgba(200,240,220,0.8)",
+                          borderRight:i<7?`1px solid rgba(150,220,185,0.1)`:"none"}}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agg.monthRows.map((row,ri) => {
+                      const d = bank[row.key]||{};
+                      const inefM = d.previsto>0?(d.realizado/d.previsto)*100:null;
+                      const rowColor = inefM===null ? "transparent"
+                        : inefM>105 ? C.red+"12" : inefM>100 ? C.orange+"10"
+                        : inefM>95  ? C.green+"08" : C.blue+"08";
+                      const diffVal = row.exc>0 ? `+${fmtN(row.exc)}` : row.evit>0 ? `−${fmtN(row.evit)}` : "0,0";
+                      const diffColor = row.exc>0 ? C.red : row.evit>0 ? C.green : C.muted;
+                      return (
+                        <tr key={row.key} style={{background:ri%2===0?"#fff":"#f8faf8"}}>
+                          <td style={{padding:"5px 10px",fontWeight:700,fontSize:11,
+                            color:C.ink,borderBottom:`1px solid ${C.rule}`,
+                            position:"relative"}}>
+                            <div style={{width:3,height:"100%",background:rowColor,
+                              position:"absolute",left:0,top:0}}/>
+                            {keyToLabel(row.key)}
+                          </td>
+                          {["altas","realizado","previsto"].map(f=>(
+                            <td key={f} style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
+                              <input type="number" step={f==="altas"?1:0.1}
+                                value={d[f]??0}
+                                onChange={e=>setMonthField(row.key,f,e.target.value)}
+                                style={{width:"100%",padding:"4px 6px",border:`1px solid transparent`,
+                                  borderRadius:2,fontSize:10,fontFamily:"monospace",
+                                  textAlign:"right",background:"transparent",color:C.text,
+                                  outline:"none"}}
+                                onFocus={e=>e.target.style.border=`1px solid ${C.green}`}
+                                onBlur={e=>e.target.style.border="1px solid transparent"}/>
+                            </td>
+                          ))}
+                          <td style={{padding:"5px 10px",textAlign:"right",fontWeight:700,
+                            fontSize:10,color:diffColor,borderBottom:`1px solid ${C.rule}`,
+                            fontFamily:"monospace"}}>{diffVal}</td>
+                          {["localAbs","icAbs"].map(f=>(
+                            <td key={f} style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
+                              <input type="number" step="1"
+                                value={d[f]??0}
+                                onChange={e=>setMonthField(row.key,f,e.target.value)}
+                                style={{width:"100%",padding:"4px 6px",border:"1px solid transparent",
+                                  borderRadius:2,fontSize:10,fontFamily:"monospace",
+                                  textAlign:"right",background:"transparent",color:C.text,outline:"none"}}
+                                onFocus={e=>e.target.style.border=`1px solid ${C.green}`}
+                                onBlur={e=>e.target.style.border="1px solid transparent"}/>
+                            </td>
+                          ))}
+                          <td style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
+                            <input type="number" step="0.01"
+                              value={d.bonus??0}
+                              onChange={e=>setMonthField(row.key,"bonus",e.target.value)}
+                              style={{width:"100%",padding:"4px 6px",border:"1px solid transparent",
+                                borderRadius:2,fontSize:10,fontFamily:"monospace",
+                                textAlign:"right",background:"transparent",color:C.blue,
+                                fontWeight:600,outline:"none"}}
+                              onFocus={e=>e.target.style.border=`1px solid ${C.blue}`}
+                              onBlur={e=>e.target.style.border="1px solid transparent"}/>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{background:C.ink}}>
+                      <td style={{padding:"8px 10px",fontWeight:700,fontSize:10,
+                        color:"rgba(200,240,220,0.8)"}}>TOTAL</td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:"#fff",fontSize:10}}>
+                        {agg.totalAltas.toLocaleString("pt-BR")}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:"#fff",fontSize:10}}>
+                        {fmtN(agg.totalReal)}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:"#fff",fontSize:10}}>
+                        {fmtN(agg.totalPrev)}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,fontSize:10,
+                        color:agg.diarExc>agg.diarEvit?C.orange+""
+                             :agg.diarEvit>agg.diarExc?C.neon:"#fff"}}>
+                        {agg.diarExc>0&&agg.diarEvit===0 ? `+${fmtN(agg.diarExc)}`
+                        :agg.diarEvit>0&&agg.diarExc===0 ? `−${fmtN(agg.diarEvit)}`
+                        :`+${fmtN(agg.diarExc)} / −${fmtN(agg.diarEvit)}`}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:"rgba(200,240,220,0.7)",fontSize:10}}>
+                        {agg.totalLocal}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:"rgba(200,240,220,0.7)",fontSize:10}}>
+                        {agg.totalIC}
+                      </td>
+                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                        fontWeight:700,color:C.neon,fontSize:10}}>
+                        {fmtV(agg.totalBonus)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ TAB 3: CGP ═══════════════════════════════════════════ */}
+        {tab===3 && (
+          <div>
+            {!cgpData ? (
+              <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+                borderRadius:4,padding:"32px",textAlign:"center",color:C.muted}}>
+                Nenhum dado de split (local/IC) no período selecionado.<br/>
+                Insira os dados na aba "Dados Mensais".
+              </div>
+            ) : (
+              <>
+                <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+                  borderRadius:4,padding:"16px 20px",marginBottom:16}}>
+                  <SecTitle>CGP — Período {keyToLabel(startKey)} a {keyToLabel(endKey)}</SecTitle>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:16}}>
+                    {[
+                      {label:"Split Local",    value:pct(cgpData.pl*100),  color:C.orange},
+                      {label:"Split IC",       value:pct(cgpData.pi*100),  color:C.orange},
+                      {label:"Peso UTI",       value:pct(cgpData.wUTI*100),color:C.muted},
+                      {label:"UTI ponderada",  value:fmtV(cgpData.utiP),  color:C.text},
+                      {label:"Apt. ponderada", value:fmtV(cgpData.aptP),  color:C.text},
+                      {label:"Enf. ponderada", value:fmtV(cgpData.enfP),  color:C.text},
+                      {label:"Conv. ponderada",value:fmtV(cgpData.convP), color:C.text},
+                      {label:"Peso Conv.",     value:pct(cgpData.wConv*100),color:C.muted},
+                    ].map((m,i)=>(
+                      <div key={i} style={{background:C.light,borderRadius:3,padding:"10px 12px"}}>
+                        <div style={{fontSize:8,color:C.muted,textTransform:"uppercase",
+                          letterSpacing:1,marginBottom:4}}>{m.label}</div>
+                        <div style={{fontSize:13,fontWeight:700,color:m.color,
+                          fontFamily:"monospace"}}>{m.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{background:C.green+"18",border:`1px solid ${C.green}44`,
+                    borderRadius:4,padding:"14px 18px",display:"flex",
+                    alignItems:"center",justifyContent:"space-between"}}>
+                    <div>
+                      <div style={{fontSize:9,color:C.muted,textTransform:"uppercase",
+                        letterSpacing:1.5,marginBottom:4}}>CGP do Período</div>
+                      <div style={{fontSize:28,fontWeight:700,color:C.ink}}>
+                        {fmtV(cgpData.cgp)}
+                      </div>
+                    </div>
+                    <div style={{fontFamily:"monospace",fontSize:10,color:C.muted,
+                      textAlign:"right",lineHeight:1.8}}>
+                      CGP = {pct(cgpData.wUTI*100)} × {fmtV(cgpData.utiP)}<br/>
+                      &nbsp;&nbsp;&nbsp;&nbsp;+ {pct(cgpData.wConv*100)} × {fmtV(cgpData.convP)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Verificação */}
+                <div style={{background:C.ink,borderRadius:4,padding:"18px 20px"}}>
+                  <div style={{fontSize:9,textTransform:"uppercase",letterSpacing:2.5,
+                    color:"rgba(150,220,185,0.5)",textAlign:"center",marginBottom:14}}>
+                    Verificação dos Componentes
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+                    {[
+                      {label:`C1 = ${fmtN(agg.diarExc)} d exc. × CGP`,
+                       sub:agg.diarExc>0?`${fmtN(agg.diarExc)} × ${fmtV(cgpData.cgp)}`:null,
+                       result:C1,color:C.orange},
+                      {label:`C2 = ${fmtN(agg.diarEvit)} d evit. × CGP`,
+                       sub:agg.diarEvit>0?`${fmtN(agg.diarEvit)} × ${fmtV(cgpData.cgp)}`:null,
+                       result:C2,color:C.green},
+                      {label:"C3 = Σ bônus MG Hosp",
+                       sub:null,result:C3,color:C.blue},
+                    ].map((item,i)=>(
+                      <div key={i} style={{background:"rgba(255,255,255,0.07)",
+                        borderRadius:3,padding:"14px 10px",textAlign:"center",
+                        borderTop:`2px solid ${item.result?item.color:"#444"}`}}>
+                        <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",
+                          marginBottom:6,lineHeight:1.4}}>{item.label}</div>
+                        {item.sub && (
+                          <div style={{fontSize:8,color:"rgba(255,255,255,0.3)",
+                            marginBottom:5,fontFamily:"monospace"}}>{item.sub}</div>
+                        )}
+                        <div style={{fontSize:16,fontWeight:700,
+                          color:item.result?"#fff":"#666"}}>
+                          {item.result ? fmtV(item.result) : NA}
+                        </div>
+                        {!item.result && (
+                          <div style={{fontSize:8,color:"#666",marginTop:4}}>
+                            {i===0?"Sem excesso de diárias":i===1?"Sem diárias evitadas":"Sem bônus registrado"}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{marginTop:14,background:"rgba(0,150,90,0.18)",
+                    border:"1px solid rgba(0,150,90,0.3)",borderRadius:3,
+                    padding:"14px 20px",textAlign:"center"}}>
+                    <div style={{fontSize:9,color:"rgba(150,220,185,0.55)",
+                      letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>
+                      Total Consolidado
+                    </div>
+                    <div style={{fontSize:30,fontWeight:700,color:TOTAL>0?"#fff":"#555"}}>
+                      {TOTAL>0?fmtV(TOTAL):NA}
+                    </div>
+                    {inef !== null && (
+                      <div style={{fontSize:9,color:"rgba(150,220,185,0.45)",marginTop:5}}>
+                        Ineficiência: {fmtN(inef)}% · Δ diárias: {
+                          agg.diarExc>0?`+${fmtN(agg.diarExc)} exc.`:""}
+                        {agg.diarEvit>0?` −${fmtN(agg.diarEvit)} evit.`:""}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ══ TAB 4: ENTREGÁVEIS ═══════════════════════════════════ */}
+        {tab===4 && (
+          <div>
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:3,padding:"10px 16px",marginBottom:16,
+              display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+              <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
+                letterSpacing:1.5,color:C.muted}}>Período do relatório:</span>
+              <span style={{fontWeight:700,color:C.ink}}>
+                {keyToLabel(startKey)} a {keyToLabel(endKey)} ({nMonths} {nMonths===1?"mês":"meses"})
+              </span>
+            </div>
+
+            {/* C1 */}
+            <CompCard color={C.orange} tag="Componente 1 — Redução de Despesa"
+              title={C1 ? `Desperdício Eliminado — ${fmtV(C1)}` : "Desperdício Eliminado — N/A"}>
+              {C1 ? (
+                <>
+                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                    <Pill color={C.orange} label="Diárias excedidas" value={"+"+fmtN(agg.diarExc)+" d"}/>
+                    <Pill color={C.orange} label="CGP do período"    value={fmtV(cgpData?.cgp||0)}/>
+                    <Pill color={C.orange} label="C1 — Total"        value={fmtV(C1)} sub="Redução de despesa"/>
+                  </div>
+                  <CopyBtn id="c1" color={C.orange} label="Copiar resumo C1"
+                    text={`C1 — Desperdício Eliminado\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\nDiárias excedidas: ${fmtN(agg.diarExc)}\nCGP: ${fmtV(cgpData?.cgp||0)}\nValor: ${fmtV(C1)}`}/>
+                </>
+              ) : (
+                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
+                  Nenhuma diária excedente no período selecionado.
+                  A eficiência está no baseline DRG Brasil® ou acima.
+                </div>
+              )}
+            </CompCard>
+
+            {/* C2 */}
+            <CompCard color={C.green} tag="Componente 2 — Redução de Despesa"
+              title={C2 ? `Custo Evitado — ${fmtV(C2)}` : "Custo Evitado — N/A"}>
+              {C2 ? (
+                <>
+                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                    <Pill color={C.green} label="Diárias evitadas" value={"−"+fmtN(agg.diarEvit)+" d"}/>
+                    <Pill color={C.green} label="CGP do período"   value={fmtV(cgpData?.cgp||0)}/>
+                    <Pill color={C.green} label="C2 — Total"       value={fmtV(C2)} sub="Redução de despesa"/>
+                  </div>
+                  <CopyBtn id="c2" color={C.green} label="Copiar resumo C2"
+                    text={`C2 — Custo Evitado\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\nDiárias evitadas: ${fmtN(agg.diarEvit)}\nCGP: ${fmtV(cgpData?.cgp||0)}\nValor: ${fmtV(C2)}`}/>
+                </>
+              ) : (
+                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
+                  Nenhuma diária evitada no período. O hospital operou acima do baseline DRG Brasil®.
+                </div>
+              )}
+            </CompCard>
+
+            {/* C3 */}
+            <CompCard color={C.blue} tag="Componente 3 — Geração de Receita"
+              title={C3 ? `Bônus MG Hosp — ${fmtV(C3)}` : "Bônus MG Hosp — N/A"}>
+              {C3 ? (
+                <>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",
+                    gap:6,marginBottom:10}}>
+                    {agg.monthRows.filter(r=>r.bonus>0).map(r=>(
+                      <div key={r.key} style={{background:"#fff",
+                        border:`1px solid ${C.blue}33`,borderRadius:3,
+                        padding:"6px 8px",textAlign:"center"}}>
+                        <div style={{fontSize:8,color:C.muted}}>{keyToLabel(r.key)}</div>
+                        <div style={{fontSize:11,fontWeight:700,color:C.blue,
+                          fontFamily:"monospace"}}>{fmtV(r.bonus)}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{background:C.blue+"18",borderRadius:3,padding:"8px 12px",
+                    textAlign:"right",fontWeight:700,fontSize:13,color:C.blue,marginBottom:8}}>
+                    Total C3: {fmtV(C3)}
+                  </div>
+                  <CopyBtn id="c3" color={C.blue} label="Copiar tabela C3"
+                    text={`C3 — Bônus DRG Brasil® Programa MG Hosp\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\n${agg.monthRows.filter(r=>r.bonus>0).map(r=>`${keyToLabel(r.key)}: ${fmtV(r.bonus)}`).join("\n")}\nTotal: ${fmtV(C3)}`}/>
+                </>
+              ) : (
+                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
+                  Nenhum bônus MG Hosp registrado no período.
+                </div>
+              )}
+            </CompCard>
+
+            {/* CONSOLIDADO */}
+            <div style={{background:C.ink,borderRadius:4,padding:"20px 24px"}}>
+              <div style={{fontSize:9,textTransform:"uppercase",letterSpacing:2.5,
+                color:"rgba(150,220,185,0.5)",textAlign:"center",marginBottom:14}}>
+                Impacto Financeiro Consolidado
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+                {[
+                  {label:"Desperdício Eliminado",v:C1,nat:"Redução de despesa",color:C.orange},
+                  {label:"Custo Evitado",        v:C2,nat:"Redução de despesa",color:C.green},
+                  {label:"Bônus MG Hosp",        v:C3,nat:"Geração de receita",color:C.blue},
+                ].map((item,i,arr)=>(
+                  <div key={i} style={{display:"contents"}}>
+                    <div style={{flex:1,minWidth:120,background:"rgba(255,255,255,0.07)",
+                      borderRadius:3,padding:"12px 8px",textAlign:"center",
+                      borderTop:`2px solid ${item.v?item.color:"#444"}`}}>
+                      <div style={{fontSize:7.5,color:"rgba(150,220,185,0.5)",
+                        textTransform:"uppercase",letterSpacing:1,marginBottom:5}}>
+                        {item.label}
+                      </div>
+                      <div style={{fontSize:14,fontWeight:700,
+                        color:item.v?"#fff":"#555",fontFamily:"monospace",marginBottom:3}}>
+                        {item.v?fmtV(item.v):NA}
+                      </div>
+                      <div style={{fontSize:7,color:"rgba(150,220,185,0.3)",
+                        textTransform:"uppercase"}}>{item.nat}</div>
+                    </div>
+                    {i<arr.length-1&&<div style={{color:"rgba(150,220,185,0.2)",fontSize:20,fontWeight:700,flexShrink:0}}>+</div>}
+                  </div>
+                ))}
+              </div>
+              <div style={{background:"rgba(0,150,90,0.18)",border:"1px solid rgba(0,150,90,0.3)",
+                borderRadius:3,padding:"14px 20px",textAlign:"center",marginBottom:12}}>
+                <div style={{fontSize:9,color:"rgba(150,220,185,0.55)",
+                  letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>
+                  Total Consolidado · {keyToLabel(startKey)}–{keyToLabel(endKey)}
+                </div>
+                <div style={{fontSize:30,fontWeight:700,
+                  color:TOTAL>0?"#fff":"#555"}}>
+                  {TOTAL>0?fmtV(TOTAL):NA}
+                </div>
+                {inef!==null&&(
+                  <div style={{fontSize:9,color:"rgba(150,220,185,0.45)",marginTop:5}}>
+                    {nMonths} {nMonths===1?"mês":"meses"} ·
+                    Ineficiência: {fmtN(inef)}% · {agg.totalAltas.toLocaleString("pt-BR")} altas
+                  </div>
+                )}
+              </div>
+              <button onClick={()=>copy(
+                `CONSOLIDADO DRG Brasil® — Unimed + Unihealth | Governador Valadares\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)} (${nMonths} ${nMonths===1?"mês":"meses"})\n\nC1 — Desperdício Eliminado: ${C1?fmtV(C1):NA}\nC2 — Custo Evitado: ${C2?fmtV(C2):NA}\nC3 — Bônus MG Hosp: ${C3?fmtV(C3):NA}\n\nTotal Consolidado: ${TOTAL>0?fmtV(TOTAL):NA}\nIneficiência do período: ${inef!==null?fmtN(inef)+"%":NA}\nTotal de altas: ${agg.totalAltas.toLocaleString("pt-BR")}\n\nAxiaCare® — Gestão em Saúde\nguilherme@axcare.com.br`,"total")}
+                style={{width:"100%",padding:"10px",borderRadius:3,
+                  border:"1px solid rgba(0,150,90,0.4)",
+                  background:copied==="total"?"rgba(0,150,90,0.3)":"rgba(0,150,90,0.1)",
+                  color:copied==="total"?C.neon:"rgba(150,220,185,0.65)",
+                  fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
+                {copied==="total"?"Copiado!":"Copiar consolidado completo"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* FOOTER */}
+      <div style={{background:C.ink,borderTop:`2px solid ${C.blue}`,
+        padding:"12px 24px",display:"flex",alignItems:"center",
+        justifyContent:"space-between",marginTop:32,flexWrap:"wrap",gap:12}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
+            style={{height:22,width:"auto",display:"block",opacity:0.85}}/>
+          <span style={{fontSize:8,color:`${C.mint}99`,
+            textTransform:"uppercase",letterSpacing:1.5}}>
+            Gestão em Saúde · Documento Interno · Uso Restrito
+          </span>
+        </div>
+        <span style={{fontSize:8,color:`${C.mint}77`}}>
+          Resp. Técnico: Dr. Guilherme Thomé · CRM-MG 64193 · RQE 41538 · guilherme@axcare.com.br
+        </span>
+      </div>
+    </div>
+  );
+}
+
+
+    // Render
+    const root = ReactDOM.createRoot(document.getElementById('drg-root'));
+    root.render(React.createElement(DRGPlugin));
+  </script>
+
+  <!-- Autenticacao Hub -->
+  <script src="/scripts/hub-auth.js" data-portal="unimed"></script>
+</body>
+</html>
