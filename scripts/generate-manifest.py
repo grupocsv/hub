@@ -88,6 +88,7 @@ PRODUCT_TAXONOMY = {
     "unimed/ped-amb.html":            {"category": "dashboard",    "entity": "Unimed GV",  "title": "Pediatria Ambulatorial"},
     "unimed/variabilidade-exames.html": {"category": "dashboard",  "entity": "Unimed GV",  "title": "Variabilidade de Exames"},
     "unimed/vivapleno.html":          {"category": "dashboard",    "entity": "Unimed GV",  "title": "Viva Pleno"},
+    "unimed/drg.html":                {"category": "tool",         "entity": "Unimed GV",  "title": "DRG Brasil Analytics"},
     "unihealth/fios.html":            {"category": "dashboard",    "entity": "Unihealth",  "title": "FIOS"},
     "unihealth/isc-cesarianas.html":  {"category": "dashboard",    "entity": "Unihealth",  "title": "ISC Cesarianas"},
     "unihealth/opme.html":            {"category": "dashboard",    "entity": "Unihealth",  "title": "OPME"},

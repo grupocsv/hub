@@ -193,6 +193,10 @@ head:
       <div class="tool-title">Psiquiatria: Modelo Assistencial Unificado</div>
       <a data-direct href="/unimed/psiquiatria.html" class="tool-link">Acessar</a>
     </div>
+    <div class="tool-card">
+      <div class="tool-title">DRG Brasil Analytics: Impacto Financeiro do Leito</div>
+      <a data-direct href="/unimed/drg.html" class="tool-link">Acessar</a>
+    </div>
   </div>
 
   <div style="text-align:center; margin-bottom:30px;"><a href="https://hub.grupocsv.com" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; background:#00995d; color:white; text-decoration:none; font-weight:600; font-size:0.9rem; transition:all 0.2s;">← Voltar ao Hub</a></div>
