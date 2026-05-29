@@ -1,0 +1,27 @@
+edicao: S20
+ano: 2026
+periodo: "18 a 22 de maio de 2026"
+data_geracao: "2026-05-25"
+executivo: "Guilherme Thomé, MD, MBA"
+cargo: "Superintendente Médico | Fundador Grupo CSV"
+status: publicado
+metricas:
+  paginas_notion: 6
+  threads_gmail: 50
+  novos_projetos: 2
+  novas_siglas: 3
+  registros_atualizados: 7
+fatos:
+  - tag: "Governança"
+    titulo: "Governança Geriátrica — Contingência e Reestruturação CCC (Viva Pleno)"
+  - tag: "Linhas de Cuidado"
+    titulo: "LC Neurodesenvolvimento TEA — Cadência Operacional IBRAVS"
+  - tag: "Linhas de Cuidado"
+    titulo: "Navegação Oncológica Ativada + Campanha Aprovada"
+  - tag: "Relações Institucionais"
+    titulo: "Sandoz Access Summit (SAS) — Representação Institucional"
+  - tag: "Jornada Cirúrgica"
+    titulo: "Projeto Axys-Teller em Implantação"
+  - tag: "Parcerias e Contratos"
+    titulo: "NeuroSteps — Termo de Cessão em Validação Jurídica"
+pdf: "Signal_S20_2026.pdf"

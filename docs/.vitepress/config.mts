@@ -91,6 +91,7 @@ export default defineConfig({
               text: '2026',
               collapsed: false,
               items: [
+                { text: 'S20 — 18-22 Mai', link: '/signal/edicoes/2026/S20/signal' },
                 { text: 'S19 — 11-17 Mai', link: '/signal/edicoes/2026/S19/signal' },
                 { text: 'S18 \u2014 04-10 Mai', link: '/signal/edicoes/2026/S18/signal' },
                 { text: 'S16 \u2014 20-26 Abr', link: '/signal/edicoes/2026/S16/signal' },
