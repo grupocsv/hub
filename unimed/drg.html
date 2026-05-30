@@ -538,15 +538,163 @@
     .badge--danger { background: rgba(196,77,45,0.08); color: #c44d2d; }
     .badge--info { background: rgba(0,78,76,0.06); color: var(--u-dark); }
 
-    /* ═══ RESPONSIVE ═══ */
+    /* ═══ RESPONSIVE — TABLET (768px) ═══ */
     @media (max-width: 768px) {
       .drg-header { padding: 0 16px; height: 48px; }
-      .drg-tabs { padding: 0 16px; }
+      .drg-header__logo { height: 20px; }
+      .drg-header__title { font-size: 14px; }
+      .drg-tabs { padding: 0 12px; }
+      .drg-tabs__btn { padding: 12px 14px; font-size: 11px; }
       .drg-banner { padding: 8px 16px; }
+      .drg-banner__period { font-size: 13px; }
       .drg-content { padding: 20px 16px; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi__value { font-size: 17px; }
       .two-col { grid-template-columns: 1fr; }
       .drg-banner__kpis { display: none; }
+      .card { padding: 18px 18px; border-radius: var(--radius-md); }
+      .comp-card__header { padding: 10px 14px; }
+      .comp-card__body { padding: 14px; }
+      .chart-wrap { padding: 14px; }
+      .drg-footer__top { padding: 12px 16px; }
+      .drg-footer__bottom { padding: 8px 16px; }
+    }
+
+    /* ═══ RESPONSIVE — MOBILE (480px) ═══ */
+    @media (max-width: 480px) {
+      .drg-header { padding: 0 12px; height: 44px; gap: 10px; }
+      .drg-header__logo { height: 18px; }
+      .drg-header__sep { display: none; }
+      .drg-header__title { font-size: 13px; }
+      .drg-header__sub { display: none; }
+
+      /* Tabs: horizontal scroll with snap, touch-friendly */
+      .drg-tabs {
+        padding: 0 8px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+      }
+      .drg-tabs::-webkit-scrollbar { display: none; }
+      .drg-tabs__btn {
+        padding: 12px 12px;
+        font-size: 11px;
+        min-height: 44px;
+        scroll-snap-align: start;
+      }
+
+      /* Banner: stack vertically */
+      .drg-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 8px 12px;
+      }
+      .drg-banner__period { font-size: 12px; }
+      .drg-banner__badge { font-size: 9px; }
+
+      /* Content: tighter padding */
+      .drg-content { padding: 16px 12px; }
+
+      /* KPIs: single column on very small screens */
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .kpi { padding: 12px 10px; }
+      .kpi__value { font-size: 16px; }
+      .kpi__label { font-size: 9px; }
+
+      /* Cards: tighter */
+      .card { padding: 14px 12px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+      .card--compact { padding: 12px 10px; }
+
+      /* Chips: horizontal scroll with touch */
+      .chip-group__row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .chip-group__row::-webkit-scrollbar { display: none; }
+      .chip {
+        scroll-snap-align: start;
+        flex-shrink: 0;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Buttons: full width stacked */
+      .btn-group {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .btn-group .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+      }
+
+      /* Form fields: prevent iOS zoom */
+      .field__input, .field__select {
+        font-size: 16px;
+        padding: 12px 14px;
+      }
+
+      /* Table: scroll indicator gradient */
+      .drg-table-wrap {
+        border-radius: var(--radius-sm);
+        position: relative;
+      }
+      .drg-table-scroll {
+        -webkit-overflow-scrolling: touch;
+      }
+      .drg-table-wrap::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 32px;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.9));
+        pointer-events: none;
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      }
+      .drg-table { min-width: 700px; }
+      .drg-table .cell-input { font-size: 14px; padding: 8px 6px; }
+
+      /* Two-col: always single column */
+      .two-col { grid-template-columns: 1fr; gap: 10px; }
+
+      /* Comp cards: tighter */
+      .comp-card__header { padding: 10px 12px; gap: 8px; }
+      .comp-card__title { font-size: 12px; }
+      .comp-card__body { padding: 12px; }
+
+      /* Chart: smaller */
+      .chart-wrap { padding: 12px 8px; border-radius: var(--radius-sm); }
+
+      /* Timeline dots: smaller */
+      .timeline__dot { width: 20px; height: 20px; font-size: 6px; border-radius: 4px; }
+      .timeline { gap: 2px; }
+
+      /* Footer: stack */
+      .drg-footer__top {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+        gap: 8px;
+      }
+      .drg-footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 12px;
+        gap: 6px;
+      }
+      .drg-footer__links { flex-wrap: wrap; gap: 10px; }
+
+      /* Section titles */
+      .sec-title { font-size: 10px; margin-bottom: 10px; }
     }
   </style>
   <!-- React 18 via CDN -->
@@ -1033,7 +1181,7 @@ function DRGPlugin() {
 
             <div className="card">
               <SecTitle>Ações</SecTitle>
-              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+              <div className="btn-group" style={{display:"flex",gap:10,flexWrap:"wrap"}}>
                 <button className="btn btn--danger btn--sm" onClick={resetToDefaults}>Resetar para defaults</button>
                 <button className="btn btn--primary btn--sm" onClick={saveToSupabase} disabled={supaStatus==="loading"}>
                   {supaStatus==="loading" ? "Salvando..." : supaStatus==="saved" ? "Salvo!" : "Salvar no Supabase"}
@@ -1158,7 +1306,7 @@ function DRGPlugin() {
                 <Pill label="(In)Eficiência" value={inef ? pct(inef) : NA} color={statusColor}/>
               </div>
             </div>
-            <div style={{display:"flex",gap:10,marginTop:16}}>
+            <div className="btn-group" style={{display:"flex",gap:10,marginTop:16}}>
               <button className="btn btn--primary" onClick={exportPDF}>Exportar Relatório PDF</button>
               <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
                 {copied==="total" ? "Copiado!" : "Copiar Total"}
