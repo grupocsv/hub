@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -20,14 +20,534 @@
   <meta name="twitter:title" content="DRG Brasil Analytics | Unimed GV">
   <meta name="twitter:description" content="Ferramenta AxiaCare para apurar o impacto financeiro do uso eficiente do leito hospitalar via metodologia DRG Brasil no Hospital Unihealth.">
   <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+  <!-- Fonts: Inter (display) + Source Serif Pro (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
+    /* ═══ DESIGN SYSTEM — Tokens Unimed ═══ */
+    :root {
+      --u-green: #00995d;
+      --u-green-700: #007a4b;
+      --u-green-300: #7fcaa5;
+      --u-green-200: #cfe5bc;
+      --u-green-100: #eaf3df;
+      --u-citrus: #8baf1f;
+      --u-dark: #004e4c;
+      --u-orange: #f47920;
+      --u-paper: #fafaf7;
+      --u-white: #ffffff;
+      --u-cloud: #f1f1ec;
+      --u-line: #e3e3dc;
+      --u-ash: #c9c9c0;
+      --u-stone: #6b6f6c;
+      --u-coal: #2a2f2d;
+      --font-display: "Inter", "Helvetica Neue", Arial, sans-serif;
+      --font-body: "Source Serif 4", Georgia, serif;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 9999px;
+      --shadow-soft: 0 1px 2px rgba(0,78,76,0.04), 0 6px 24px rgba(0,78,76,0.06);
+      --ease-out: cubic-bezier(.2,.8,.2,1);
+      --dur-base: 220ms;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef2f0; padding-top: 0; }
-    #drg-root { min-height: calc(100vh - 200px); }
-    /* Compensar a barra fixa do hub-auth (64px) quando nao esta dentro do VitePress */
-    @supports (padding-top: env(safe-area-inset-top)) { body { padding-top: 0; } }
-    @media print { body { background: #fff; } #hub-auth-logout { display: none !important; } }
+    html { height: 100%; }
+    body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--u-dark);
+      background: var(--u-paper);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    #drg-root { min-height: 100vh; display: flex; flex-direction: column; }
+    @media print { body { background: #fff; } .drg-header, .drg-tabs, .drg-footer { display: none !important; } }
+
+    /* ═══ HEADER ═══ */
+    .drg-header {
+      background: var(--u-dark);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drg-header__brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .drg-header__logo { height: 22px; width: auto; display: block; opacity: 0.95; }
+    .drg-header__sep { width: 1px; height: 28px; background: rgba(255,255,255,0.12); }
+    .drg-header__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .drg-header__sub {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--u-green-300);
+      opacity: 0.7;
+    }
+
+    /* ═══ TABS ═══ */
+    .drg-tabs {
+      background: var(--u-white);
+      border-bottom: 1px solid var(--u-line);
+      padding: 0 28px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .drg-tabs__btn {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      padding: 14px 20px;
+      border: none;
+      background: transparent;
+      color: var(--u-stone);
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .drg-tabs__btn:hover { color: var(--u-dark); }
+    .drg-tabs__btn--active {
+      color: var(--u-green);
+      border-bottom-color: var(--u-green);
+    }
+
+    /* ═══ PERIOD BANNER ═══ */
+    .drg-banner {
+      background: var(--u-white);
+      border-bottom: 1px solid var(--u-line);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .drg-banner__label {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--u-stone);
+    }
+    .drg-banner__period {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--u-dark);
+      letter-spacing: -0.01em;
+    }
+    .drg-banner__badge {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--u-green-100);
+      color: var(--u-green);
+    }
+    .drg-banner__kpis {
+      margin-left: auto;
+      display: flex;
+      gap: 18px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--u-stone);
+    }
+    .drg-banner__kpis strong { font-weight: 700; }
+
+    /* ═══ CONTENT AREA ═══ */
+    .drg-content {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      flex: 1;
+    }
+
+    /* ═══ SECTION TITLE ═══ */
+    .sec-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--u-green);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--u-line);
+    }
+
+    /* ═══ CARDS ═══ */
+    .card {
+      background: var(--u-white);
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+    .card--compact { padding: 16px 20px; border-radius: var(--radius-md); }
+    .card--brand {
+      background: var(--u-green);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* ═══ KPI PILLS ═══ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--u-white);
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .kpi__value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.1;
+      color: var(--u-dark);
+      font-feature-settings: "tnum" 1;
+    }
+    .kpi__label {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--u-stone);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ═══ CHIPS (period shortcuts) ═══ */
+    .chip-group {
+      margin-bottom: 14px;
+    }
+    .chip-group__label {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--u-stone);
+      margin-bottom: 6px;
+    }
+    .chip-group__row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      background: var(--u-white);
+      color: var(--u-dark);
+      border: 1px solid var(--u-line);
+      cursor: pointer;
+      transition: all 160ms var(--ease-out);
+    }
+    .chip:hover { border-color: var(--u-green-300); background: var(--u-green-100); }
+    .chip--active {
+      background: var(--u-dark);
+      color: #fff;
+      border-color: var(--u-dark);
+    }
+
+    /* ═══ BUTTONS ═══ */
+    .btn {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 180ms var(--ease-out);
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn--primary { background: var(--u-green); color: #fff; }
+    .btn--primary:hover { background: var(--u-green-700); }
+    .btn--secondary { background: transparent; color: var(--u-dark); border-color: var(--u-line); }
+    .btn--secondary:hover { background: var(--u-cloud); }
+    .btn--ghost { background: transparent; color: var(--u-green); padding: 10px 8px; }
+    .btn--ghost:hover { color: var(--u-green-700); }
+    .btn--danger { background: transparent; color: #c44d2d; border-color: rgba(196,77,45,0.3); }
+    .btn--danger:hover { background: rgba(196,77,45,0.06); }
+    .btn--sm { font-size: 11px; padding: 7px 14px; }
+
+    /* ═══ FORM FIELDS ═══ */
+    .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .field__label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--u-dark);
+      letter-spacing: 0.04em;
+    }
+    .field__input, .field__select {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--u-line);
+      background: var(--u-white);
+      color: var(--u-dark);
+      outline: none;
+      transition: border-color 180ms;
+      font-feature-settings: "tnum" 1;
+    }
+    .field__input:focus, .field__select:focus {
+      border-color: var(--u-green);
+      box-shadow: 0 0 0 3px rgba(0,153,93,0.12);
+    }
+    .field__input--mono { font-family: "SF Mono", "Fira Code", monospace; font-size: 13px; }
+    .field__hint {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--u-stone);
+    }
+
+    /* ═══ TABLE ═══ */
+    .drg-table-wrap {
+      background: var(--u-white);
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .drg-table-scroll { overflow-x: auto; }
+    .drg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-display);
+      font-size: 12px;
+    }
+    .drg-table thead tr {
+      background: var(--u-dark);
+    }
+    .drg-table th {
+      padding: 10px 12px;
+      font-weight: 700;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .drg-table th:first-child { text-align: left; }
+    .drg-table td {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--u-line);
+      text-align: right;
+      color: var(--u-dark);
+    }
+    .drg-table td:first-child { text-align: left; font-weight: 600; }
+    .drg-table tbody tr:hover { background: var(--u-green-100); }
+    .drg-table .cell-input {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      text-align: right;
+      background: transparent;
+      color: var(--u-dark);
+      outline: none;
+      transition: border-color 120ms;
+    }
+    .drg-table .cell-input:focus {
+      border-color: var(--u-green);
+      background: var(--u-white);
+    }
+
+    /* ═══ COMP CARD (C1, C2, C3, CGP) ═══ */
+    .comp-card {
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .comp-card__header {
+      padding: 12px 18px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .comp-card__tag {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      color: #fff;
+    }
+    .comp-card__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+    .comp-card__body {
+      padding: 16px 18px;
+      background: var(--u-white);
+    }
+
+    /* ═══ TIMELINE DOTS ═══ */
+    .timeline {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+    .timeline__dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 7px;
+      font-weight: 700;
+      color: #fff;
+      cursor: default;
+    }
+
+    /* ═══ CHART CONTAINER ═══ */
+    .chart-wrap {
+      background: var(--u-white);
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* ═══ TWO COL GRID ═══ */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ═══ FOOTER ═══ */
+    .drg-footer {
+      background: var(--u-dark);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: auto;
+    }
+    .drg-footer__top {
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .drg-footer__brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .drg-footer__logo { height: 20px; width: auto; opacity: 0.85; }
+    .drg-footer__slogan {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--u-green-300);
+      opacity: 0.6;
+    }
+    .drg-footer__doc {
+      font-family: var(--font-display);
+      font-size: 9px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.04em;
+    }
+    .drg-footer__resp {
+      font-family: var(--font-display);
+      font-size: 9px;
+      color: rgba(255,255,255,0.45);
+    }
+    .drg-footer__bottom {
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .drg-footer__links {
+      display: flex;
+      gap: 14px;
+    }
+    .drg-footer__links a {
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--u-green-300);
+      opacity: 0.6;
+      text-decoration: none;
+      transition: opacity 160ms;
+    }
+    .drg-footer__links a:hover { opacity: 1; }
+    .drg-footer__copy {
+      font-family: var(--font-display);
+      font-size: 9px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ═══ BADGES ═══ */
+    .badge {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge--warning { background: #fef3cd; color: #856404; }
+    .badge--success { background: var(--u-green-100); color: var(--u-green); }
+    .badge--danger { background: rgba(196,77,45,0.08); color: #c44d2d; }
+    .badge--info { background: rgba(0,78,76,0.06); color: var(--u-dark); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .drg-header { padding: 0 16px; height: 48px; }
+      .drg-tabs { padding: 0 16px; }
+      .drg-banner { padding: 8px 16px; }
+      .drg-content { padding: 20px 16px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+      .drg-banner__kpis { display: none; }
+    }
   </style>
   <!-- React 18 via CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -37,23 +557,25 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <!-- Supabase JS SDK via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- DRG Report Template (fonts + images) -->
+  <!-- DRG Report Template -->
   <script src="drg-report-template.js"></script>
 </head>
 <body>
-  <header style="background:#1a3c34;position:sticky;top:0;z-index:100">
-    <div class="flex items-center justify-between" style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:36px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" alt="AxiaCare" style="height:18px;opacity:0.9">
-        <span style="color:#94d8c8;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Hub Unimed</span>
+  <header class="drg-header">
+    <div class="drg-header__brand flex items-center justify-between" style="display:flex;align-items:center;justify-content:space-between;width:100%">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" alt="AxiaCare" class="drg-header__logo">
+        <div class="drg-header__sep"></div>
+        <div>
+          <div class="drg-header__title">DRG Brasil&reg; Analytics</div>
+          <div class="drg-header__sub">Unimed + Unihealth &middot; Governador Valadares</div>
+        </div>
       </div>
     </div>
   </header>
   <div id="drg-root"></div>
 
-
-
-  <!-- DRG Plugin React Component v2 -->
+  <!-- DRG Plugin React Component v3 (Design System Unimed) -->
   <script type="text/babel">
     const { useState, useMemo, useCallback, useEffect, useRef } = React;
 
@@ -67,99 +589,59 @@ try {
 
 // ─── LOCALSTORAGE HELPERS ───────────────────────────────────────
 const LS_KEY = "drg_analytics_v2";
-function lsSave(data) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
-}
-function lsLoad() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch(e) { return null; }
-}
-function lsClear() {
-  try { localStorage.removeItem(LS_KEY); } catch(e) {}
-}
+function lsSave(data) { try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {} }
+function lsLoad() { try { const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; } }
+function lsClear() { try { localStorage.removeItem(LS_KEY); } catch(e) {} }
 
-// ─── PALETA AXIACARE ────────────────────────────────────────────
+// ─── PALETA (usada em badges e graficos) ────────────────────────
 const C = {
-  ink:    "#0d3a5e",
-  blue:   "#0d67b0",
-  deep:   "#206698",
-  teal:   "#96c4c4",
-  mint:   "#b3d9c2",
-  green:  "#2d8a5f",
-  neon:   "#b3d9c2",
-  orange: "#d25a00",
-  red:    "#b04030",
-  light:  "#f3f7fa",
-  text:   "#0d2a3f",
-  muted:  "#5d7a8c",
-  rule:   "#c0d4e0",
+  ink:"#004e4c", blue:"#0d67b0", deep:"#206698", teal:"#96c4c4",
+  mint:"#b3d9c2", green:"#00995d", neon:"#b3d9c2", orange:"#f47920",
+  red:"#c44d2d", light:"#fafaf7", text:"#004e4c", muted:"#6b6f6c", rule:"#e3e3dc",
 };
 
 const LOGO_AXIA = {
   horizontalNegativo: "https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg",
   horizontalPositivo: "https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg",
-  verticalNegativo:   "https://assets.grupocsv.com/logos/axiacare/vertical-negativo.svg",
-  verticalPositivo:   "https://assets.grupocsv.com/logos/axiacare/vertical-positivo.svg",
 };
 
 // ─── MESES ──────────────────────────────────────────────────────
-const MESES_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun",
-                     "Jul","Ago","Set","Out","Nov","Dez"];
-const MESES_LONG  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                     "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const MESES_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MESES_LONG  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
-// ─── DADOS DEFAULT 24 MESES (jan/2024 – dez/2025) ───────────────
+// ─── DADOS DEFAULT ──────────────────────────────────────────────
 const makeMonth2024 = (i) => {
   const varFactor = [0.92,0.85,0.98,0.95,1.02,1.05,1.08,1.03,1.00,0.97,0.96,1.19][i];
   const baseAltas = Math.round(8125/12 * varFactor);
   const baseReal  = +(26118.4/12 * varFactor).toFixed(1);
   const basePrev  = +(23324.4/12 * varFactor).toFixed(1);
-  return {
-    altas: baseAltas, realizado: baseReal, previsto: basePrev,
-    bonus: 0,
-    localAbs: Math.round(817/12 * varFactor),
-    icAbs:    Math.round(219/12 * varFactor),
-    hasData: true,
-  };
+  return { altas: baseAltas, realizado: baseReal, previsto: basePrev, bonus: 0,
+    localAbs: Math.round(817/12 * varFactor), icAbs: Math.round(219/12 * varFactor), hasData: true };
 };
-const BONUS_2025 = [5824.58,10201.00,12851.55,15419.49,28859.41,32171.26,
-                    46828.40,35786.37,40724.76,33503.22,31452.77,31848.65];
+const BONUS_2025 = [5824.58,10201.00,12851.55,15419.49,28859.41,32171.26,46828.40,35786.37,40724.76,33503.22,31452.77,31848.65];
 const makeMonth2025 = (i) => {
   const varFactor = [0.93,0.88,1.00,0.96,1.03,1.04,1.07,1.02,0.99,0.98,0.95,1.15][i];
   const baseAltas = Math.round(7681/12 * varFactor);
   const baseReal  = +(23300.6/12 * varFactor).toFixed(1);
   const basePrev  = +(23927.0/12 * varFactor).toFixed(1);
-  return {
-    altas: baseAltas, realizado: baseReal, previsto: basePrev,
-    bonus: BONUS_2025[i],
-    localAbs: Math.round(789/12 * varFactor),
-    icAbs:    Math.round(198/12 * varFactor),
-    hasData: true,
-  };
+  return { altas: baseAltas, realizado: baseReal, previsto: basePrev, bonus: BONUS_2025[i],
+    localAbs: Math.round(789/12 * varFactor), icAbs: Math.round(198/12 * varFactor), hasData: true };
 };
-
-const BONUS_2026 = [34685.15, 46238.25, 50248.79, 47589.10,
-                    0, 0, 0, 0, 0, 0, 0, 0];
+const BONUS_2026 = [34685.15, 46238.25, 50248.79, 47589.10, 0,0,0,0,0,0,0,0];
 const ALTAS_2026 = [669, 603, 669, 647, 0,0,0,0,0,0,0,0];
 const PREV_2026  = [2228.6, 2012.9, 2228.6, 2156.7, 0,0,0,0,0,0,0,0];
 const REAL_2026  = [1925.0, 1561.4, 1942.2, 1712.6, 0,0,0,0,0,0,0,0];
 const LOCAL_2026 = [68, 62, 68, 66, 0,0,0,0,0,0,0,0];
 const IC_2026    = [17, 15, 17, 17, 0,0,0,0,0,0,0,0];
 const makeMonth2026 = (i) => ({
-  altas:     ALTAS_2026[i],
-  realizado: REAL_2026[i],
-  previsto:  PREV_2026[i],
-  bonus:     BONUS_2026[i],
-  localAbs:  LOCAL_2026[i],
-  icAbs:     IC_2026[i],
-  hasData:   ALTAS_2026[i] > 0 || REAL_2026[i] > 0 || PREV_2026[i] > 0,
+  altas: ALTAS_2026[i], realizado: REAL_2026[i], previsto: PREV_2026[i],
+  bonus: BONUS_2026[i], localAbs: LOCAL_2026[i], icAbs: IC_2026[i],
+  hasData: ALTAS_2026[i] > 0 || REAL_2026[i] > 0 || PREV_2026[i] > 0,
 });
 
 function buildMonthBank() {
   const bank = {};
-  for (let y = 2023; y <= 2027; y++) {
+  for (let y = 2023; y <= 2027; y++)
     for (let m = 0; m < 12; m++) {
       const key = `${y}-${String(m+1).padStart(2,"0")}`;
       if (y === 2024) bank[key] = makeMonth2024(m);
@@ -167,270 +649,171 @@ function buildMonthBank() {
       else if (y === 2026) bank[key] = makeMonth2026(m);
       else bank[key] = { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0, hasData:false };
     }
-  }
   return bank;
 }
-
 const MONTH_BANK_INIT = buildMonthBank();
-
-const PARAMS_DEFAULT = {
-  enfLocal:495.51, enfIC:755.73,
-  aptLocal:744.17, aptIC:1134.97,
-  utiLocal:1522.57, utiIC:2322.15,
-  leitosInstalados:97, leitosHD:3, leitosUTI:16,
-  mixApt:40,
-};
+const PARAMS_DEFAULT = { enfLocal:495.51, enfIC:755.73, aptLocal:744.17, aptIC:1134.97,
+  utiLocal:1522.57, utiIC:2322.15, leitosInstalados:97, leitosHD:3, leitosUTI:16, mixApt:40 };
 
 // ─── UTILS ──────────────────────────────────────────────────────
-const fmt  = (v,d=2) => v===null||v===undefined||isNaN(v) ? "—" :
-  "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-const fmtV = (v,d=2) =>
-  "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-const fmtN = (v,d=1) =>
-  v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmt  = (v,d=2) => v===null||v===undefined||isNaN(v) ? "—" : "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmtV = (v,d=2) => "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmtN = (v,d=1) => v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
 const pct  = v => v.toFixed(2).replace(".",",")+"%";
 const NA   = "—";
-
-function monthKey(year, month) {
-  return `${year}-${String(month+1).padStart(2,"0")}`;
-}
-function keyToLabel(key) {
-  const [y,m] = key.split("-");
-  return `${MESES_SHORT[parseInt(m)-1]}/${y}`;
-}
-
+function monthKey(year, month) { return `${year}-${String(month+1).padStart(2,"0")}`; }
+function keyToLabel(key) { const [y,m] = key.split("-"); return `${MESES_SHORT[parseInt(m)-1]}/${y}`; }
 function periodKeys(startKey, endKey) {
   const [sy,sm] = startKey.split("-").map(Number);
   const [ey,em] = endKey.split("-").map(Number);
-  const keys = [];
-  let y = sy, m = sm;
-  while (y < ey || (y === ey && m <= em)) {
-    keys.push(`${y}-${String(m).padStart(2,"0")}`);
-    m++;
-    if (m > 12) { m = 1; y++; }
-  }
+  const keys = []; let y = sy, m = sm;
+  while (y < ey || (y === ey && m <= em)) { keys.push(`${y}-${String(m).padStart(2,"0")}`); m++; if (m > 12) { m = 1; y++; } }
   return keys;
 }
 
 // ─── CGP ────────────────────────────────────────────────────────
 function calcCGP(params, totalLocal, totalIC) {
-  const { enfLocal,enfIC,aptLocal,aptIC,utiLocal,utiIC,
-          leitosInstalados,leitosHD,leitosUTI,mixApt } = params;
-  const tot  = totalLocal + totalIC;
+  const { enfLocal,enfIC,aptLocal,aptIC,utiLocal,utiIC, leitosInstalados,leitosHD,leitosUTI,mixApt } = params;
+  const tot = totalLocal + totalIC;
   if (tot === 0) return null;
-  const pl   = totalLocal / tot;
-  const pi   = 1 - pl;
-  const op   = leitosInstalados - leitosHD;
+  const pl = totalLocal / tot, pi = 1 - pl;
+  const op = leitosInstalados - leitosHD;
   if (op === 0) return null;
   const wUTI = leitosUTI / op, wConv = 1 - wUTI;
-  const wApt = mixApt / 100,   wEnf  = 1 - wApt;
-  const utiP  = utiLocal*pl + utiIC*pi;
-  const aptP  = aptLocal*pl + aptIC*pi;
-  const enfP  = enfLocal*pl + enfIC*pi;
+  const wApt = mixApt / 100, wEnf = 1 - wApt;
+  const utiP = utiLocal*pl + utiIC*pi;
+  const aptP = aptLocal*pl + aptIC*pi;
+  const enfP = enfLocal*pl + enfIC*pi;
   const convP = wApt*aptP + wEnf*enfP;
-  const cgp   = wUTI*utiP + wConv*convP;
+  const cgp = wUTI*utiP + wConv*convP;
   return { cgp, utiP, aptP, enfP, convP, pl, pi, wUTI, wConv, op };
 }
 
-// ─── COMPONENTES UI ─────────────────────────────────────────────
-const Pill = ({label, value, color, sub}) => (
-  <div style={{flex:1,background:"#fff",border:`1px solid ${color}44`,
-    borderRadius:3,padding:"10px 8px",textAlign:"center"}}>
-    <div style={{fontWeight:700,fontSize:value===NA?14:typeof value==="string"&&value.length>10?12:18,
-      color:value===NA?"#bbb":color,lineHeight:1.1}}>{value}</div>
-    <div style={{fontSize:9,color:C.muted,marginTop:3,lineHeight:1.3}}>{label}</div>
-    {sub && <div style={{fontSize:8,color:color+"99",marginTop:2}}>{sub}</div>}
-  </div>
-);
-
-const CompCard = ({color,tag,title,children}) => (
-  <div style={{border:`1px solid ${color}55`,borderRadius:4,overflow:"hidden",marginBottom:16}}>
-    <div style={{background:color,padding:"10px 16px",display:"flex",
-      alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
-      <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
-        letterSpacing:2,color:"rgba(255,255,255,0.65)"}}>{tag}</span>
-      <span style={{fontWeight:700,fontSize:13.5,color:"#fff"}}>{title}</span>
-    </div>
-    <div style={{background:color+"0d",padding:"14px 16px"}}>{children}</div>
-  </div>
-);
-
-const FieldN = ({label,value,onChange,note,mono,readOnly}) => (
-  <div style={{marginBottom:10}}>
-    <label style={{display:"block",fontSize:8,fontWeight:700,textTransform:"uppercase",
-      letterSpacing:1.5,color:C.muted,marginBottom:3}}>{label}</label>
-    <input type="number" step="0.01" value={value} readOnly={readOnly}
-      onChange={e=>{const v=parseFloat(e.target.value);if(onChange&&!isNaN(v)&&isFinite(v))onChange(v);else if(onChange&&e.target.value==='')onChange(0);}}
-      style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.rule}`,borderRadius:3,
-        fontSize:11,fontFamily:mono?"monospace":"inherit",color:C.text,
-        background:readOnly?"#f8f8f8":"#fff",outline:"none",boxSizing:"border-box"}}/>
-    {note && <div style={{fontSize:8,color:C.muted,marginTop:2}}>{note}</div>}
-  </div>
-);
-
-const SecTitle = ({children}) => (
-  <div style={{fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:1.5,
-    color:C.ink,borderBottom:`2px solid ${C.blue}`,paddingBottom:5,marginBottom:14}}>
-    {children}
-  </div>
-);
-
-const TwoCol = ({children,gap=12}) => (
-  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap}}>{children}</div>
-);
-
-// ─── BADGE SEM DADOS ────────────────────────────────────────────
-const NoDataBadge = ({monthData}) => {
-  if (!monthData) return null;
-  const allZero = monthData.altas === 0 && monthData.realizado === 0 &&
-    monthData.previsto === 0 && monthData.bonus === 0;
-  if (!allZero) return null;
-  const isMarkedHasData = monthData.hasData === true;
-  return (
-    <span title={isMarkedHasData
-      ? "Valores reais zerados (confirmado)"
-      : "Sem dados inseridos para este mês"}
-      style={{display:"inline-block",marginLeft:4,padding:"1px 5px",
-        borderRadius:2,fontSize:7,fontWeight:700,letterSpacing:0.5,
-        background: isMarkedHasData ? C.green+"22" : "#fef3cd",
-        color: isMarkedHasData ? C.green : "#856404",
-        border: `1px solid ${isMarkedHasData ? C.green+"44" : "#ffc107"}`}}>
-      {isMarkedHasData ? "Zero real" : "Sem dados"}
-    </span>
-  );
-};
-
 // ─── TABS ────────────────────────────────────────────────────────
-const TABS = ["Período","Parâmetros","Dados Mensais","CGP","DRG Reports",
-              "Tendência","Comparativo","Simulador"];
+const TABS = ["Período","Parâmetros","Dados Mensais","CGP","DRG Reports","Tendência","Comparativo","Simulador"];
 
 // ─── CHART COMPONENT ────────────────────────────────────────────
 const ChartCanvas = ({id, config, height=300}) => {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   useEffect(() => {
-    if (chartRef.current) { chartRef.current.destroy(); }
+    if (chartRef.current) chartRef.current.destroy();
     if (canvasRef.current && config) {
       const ctx = canvasRef.current.getContext("2d");
       chartRef.current = new Chart(ctx, config);
     }
     return () => { if (chartRef.current) chartRef.current.destroy(); };
   }, [config]);
-  return <canvas ref={canvasRef} id={id} style={{width:"100%",height:height,maxHeight:height}}/>;
+  return <canvas ref={canvasRef} id={id} style={{width:"100%",height,maxHeight:height}}/>;
 };
+
+// ─── HELPER COMPONENTS (using CSS classes) ──────────────────────
+const SecTitle = ({children}) => <div className="sec-title">{children}</div>;
+const TwoCol = ({children}) => <div className="two-col">{children}</div>;
+
+const Pill = ({label, value, color, sub}) => (
+  <div className="kpi" style={{borderColor: color+"33"}}>
+    <div className="kpi__value" style={{color: value===NA?"var(--u-ash)":color}}>{value}</div>
+    <div className="kpi__label">{label}</div>
+    {sub && <div style={{fontSize:9,color:color+"99",marginTop:2}}>{sub}</div>}
+  </div>
+);
+
+const CompCard = ({color,tag,title,children}) => (
+  <div className="comp-card" style={{borderColor: color+"44"}}>
+    <div className="comp-card__header" style={{background:color}}>
+      <span className="comp-card__tag">{tag}</span>
+      <span className="comp-card__title">{title}</span>
+    </div>
+    <div className="comp-card__body">{children}</div>
+  </div>
+);
+
+const FieldN = ({label,value,onChange,note,mono,readOnly}) => (
+  <div className="field">
+    <label className="field__label">{label}</label>
+    <input type="number" step="0.01" value={value} readOnly={readOnly}
+      className={`field__input ${mono?"field__input--mono":""}`}
+      style={{background: readOnly?"var(--u-cloud)":"var(--u-white)"}}
+      onChange={e=>{const v=parseFloat(e.target.value);if(onChange&&!isNaN(v)&&isFinite(v))onChange(v);else if(onChange&&e.target.value==='')onChange(0);}}/>
+    {note && <div className="field__hint">{note}</div>}
+  </div>
+);
+
+const NoDataBadge = ({monthData}) => {
+  if (!monthData) return null;
+  const allZero = monthData.altas === 0 && monthData.realizado === 0 && monthData.previsto === 0 && monthData.bonus === 0;
+  if (!allZero) return null;
+  const isMarkedHasData = monthData.hasData === true;
+  return (
+    <span className={`badge ${isMarkedHasData ? "badge--success" : "badge--warning"}`}
+      title={isMarkedHasData ? "Valores reais zerados (confirmado)" : "Sem dados inseridos para este mês"}>
+      {isMarkedHasData ? "Zero real" : "Sem dados"}
+    </span>
+  );
+};
+
 
 // ─── APP ─────────────────────────────────────────────────────
 function DRGPlugin() {
-  // ── State initialization with localStorage fallback ──────────
   const saved = useMemo(() => lsLoad(), []);
-  const [tab, setTab]       = useState(0);
+  const [tab, setTab] = useState(0);
   const [params, setParams] = useState(saved?.params || { ...PARAMS_DEFAULT });
-  const [bank, setBank]     = useState(saved?.bank || { ...MONTH_BANK_INIT });
+  const [bank, setBank] = useState(saved?.bank || { ...MONTH_BANK_INIT });
   const [startKey, setStartKey] = useState(saved?.startKey || "2024-01");
-  const [endKey,   setEndKey  ] = useState(saved?.endKey || "2026-04");
-  const [copied, setCopied]   = useState(null);
-  const [supaStatus, setSupaStatus] = useState("idle"); // idle|loading|saved|error
-  const [dataSource, setDataSource] = useState("local"); // local|supabase
+  const [endKey, setEndKey] = useState(saved?.endKey || "2026-04");
+  const [copied, setCopied] = useState(null);
+  const [supaStatus, setSupaStatus] = useState("idle");
+  const [dataSource, setDataSource] = useState("local");
 
-  // ── M1: Auto-save to localStorage ──────────────────────────────
-  useEffect(() => {
-    lsSave({ params, bank, startKey, endKey });
-  }, [params, bank, startKey, endKey]);
+  useEffect(() => { lsSave({ params, bank, startKey, endKey }); }, [params, bank, startKey, endKey]);
 
-  // ── M1: Reset to defaults ──────────────────────────────────────
   const resetToDefaults = () => {
-    setParams({ ...PARAMS_DEFAULT });
-    setBank({ ...MONTH_BANK_INIT });
-    setStartKey("2024-01");
-    setEndKey("2026-04");
-    lsClear();
-    setDataSource("local");
+    setParams({ ...PARAMS_DEFAULT }); setBank({ ...MONTH_BANK_INIT });
+    setStartKey("2024-01"); setEndKey("2026-04"); lsClear(); setDataSource("local");
   };
-
   const setParam = k => v => setParams(prev => ({ ...prev, [k]: v }));
-
   const setMonthField = useCallback((key, field, val) => {
-    setBank(prev => ({
-      ...prev,
-      [key]: { ...prev[key], [field]: parseFloat(val) || 0, hasData: true }
-    }));
+    setBank(prev => ({ ...prev, [key]: { ...prev[key], [field]: parseFloat(val) || 0, hasData: true } }));
   }, []);
 
-  // ── Lista de chaves no periodo ──────────────────────────────────
   const keys = useMemo(() => periodKeys(startKey, endKey), [startKey, endKey]);
 
-  // ── Agregados do periodo ────────────────────────────────────────
   const agg = useMemo(() => {
-    let totalAltas=0, totalReal=0, totalPrev=0, totalBonus=0;
-    let totalLocal=0, totalIC=0;
-    let diarExc=0, diarEvit=0;
+    let totalAltas=0, totalReal=0, totalPrev=0, totalBonus=0, totalLocal=0, totalIC=0, diarExc=0, diarEvit=0;
     const monthRows = [];
     for (const k of keys) {
       const d = bank[k] || { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0 };
-      totalAltas += d.altas;
-      totalReal  += d.realizado;
-      totalPrev  += d.previsto;
-      totalBonus += d.bonus;
-      totalLocal += d.localAbs;
-      totalIC    += d.icAbs;
-      const exc  = Math.max(0, d.realizado - d.previsto);
-      const evit = Math.max(0, d.previsto  - d.realizado);
-      diarExc  += exc;
-      diarEvit += evit;
+      totalAltas += d.altas; totalReal += d.realizado; totalPrev += d.previsto;
+      totalBonus += d.bonus; totalLocal += d.localAbs; totalIC += d.icAbs;
+      const exc = Math.max(0, d.realizado - d.previsto);
+      const evit = Math.max(0, d.previsto - d.realizado);
+      diarExc += exc; diarEvit += evit;
       monthRows.push({ key:k, ...d, exc, evit });
     }
-    return { totalAltas, totalReal, totalPrev, totalBonus,
-             totalLocal, totalIC, diarExc, diarEvit, monthRows };
+    return { totalAltas, totalReal, totalPrev, totalBonus, totalLocal, totalIC, diarExc, diarEvit, monthRows };
   }, [keys, bank]);
 
-  const cgpData = useMemo(
-    () => calcCGP(params, agg.totalLocal, agg.totalIC),
-    [params, agg.totalLocal, agg.totalIC]
-  );
-
-  const inef = agg.totalPrev > 0
-    ? (agg.totalReal / agg.totalPrev) * 100 : null;
-
-  const C1 = cgpData && agg.diarExc  > 0 ? agg.diarExc  * cgpData.cgp : null;
+  const cgpData = useMemo(() => calcCGP(params, agg.totalLocal, agg.totalIC), [params, agg.totalLocal, agg.totalIC]);
+  const inef = agg.totalPrev > 0 ? (agg.totalReal / agg.totalPrev) * 100 : null;
+  const C1 = cgpData && agg.diarExc > 0 ? agg.diarExc * cgpData.cgp : null;
   const C2 = cgpData && agg.diarEvit > 0 ? agg.diarEvit * cgpData.cgp : null;
   const C3 = agg.totalBonus > 0 ? agg.totalBonus : null;
   const TOTAL = (C1||0) + (C2||0) + (C3||0);
-
   const nMonths = keys.length;
 
-  // ── Seletores de periodo ────────────────────────────────────────
   const allYears = [2023,2024,2025,2026,2027];
   const yearMonthOptions = [];
-  for (const y of allYears)
-    for (let m=1;m<=12;m++)
-      yearMonthOptions.push(`${y}-${String(m).padStart(2,"0")}`);
+  for (const y of allYears) for (let m=1;m<=12;m++) yearMonthOptions.push(`${y}-${String(m).padStart(2,"0")}`);
 
-  const copy = (text, key) => {
-    navigator.clipboard.writeText(text);
-    setCopied(key);
-    setTimeout(() => setCopied(null), 2000);
-  };
+  const copy = (text, key) => { navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(null), 2000); };
 
-  const CopyBtn = ({id, label, text, color}) => (
-    <button onClick={() => copy(text, id)} style={{
-      marginTop:10,padding:"6px 14px",borderRadius:3,
-      background:copied===id?color:"#fff",border:`1px solid ${color}`,
-      color:copied===id?"#fff":color,fontSize:10,fontWeight:700,
-      cursor:"pointer",transition:"all .15s"
-    }}>{copied===id ? "Copiado!" : label}</button>
-  );
+  const statusColor = inef === null ? C.muted : inef > 105 ? C.red : inef > 100 ? C.orange : inef > 95 ? C.green : C.deep;
+  const statusLabel = inef === null ? "Sem dados" : inef > 105 ? "Ineficiente" : inef > 100 ? "Acima do baseline" : inef > 95 ? "Eficiente" : "Alta eficiência";
 
-  // ── Status badge do periodo ─────────────────────────────────────
-  const statusColor = inef === null ? C.muted
-    : inef > 105 ? C.red : inef > 100 ? C.orange : inef > 95 ? C.green : C.deep;
-  const statusLabel = inef === null ? "Sem dados"
-    : inef > 105 ? "Ineficiente" : inef > 100 ? "Acima do baseline"
-    : inef > 95 ? "Eficiente" : "Alta eficiência";
-
-  // ── M5: Comparativo YoY helpers ─────────────────────────────────
+  // ── M5: Comparativo YoY ──
   const [yoyCycle1, setYoyCycle1] = useState("2024");
   const [yoyCycle2, setYoyCycle2] = useState("2025");
-
   const calcCycleMetrics = (year) => {
     const ks = periodKeys(`${year}-01`, `${year}-12`);
     let tAltas=0,tReal=0,tPrev=0,tBonus=0,tLocal=0,tIC=0,dExc=0,dEvit=0;
@@ -447,1441 +830,472 @@ function DRGPlugin() {
     const c3 = tBonus;
     const total = c1 + c2 + c3;
     const inefPct = tPrev > 0 ? (tReal/tPrev)*100 : null;
-    return { altas:tAltas, realizado:tReal, previsto:tPrev, inef:inefPct,
-             c1, c2, c3, total, cgp: cgp?.cgp||0 };
+    return { altas:tAltas, realizado:tReal, previsto:tPrev, inef:inefPct, c1, c2, c3, total, cgp: cgp?.cgp||0 };
   };
 
-  // ── M6: Simulador What-If ───────────────────────────────────────
+  // ── M6: Simulador What-If ──
   const [simParams, setSimParams] = useState({ ...PARAMS_DEFAULT });
-  const [simMeta, setSimMeta] = useState(95); // meta de ineficiencia %
-
-  const simCgpData = useMemo(
-    () => calcCGP(simParams, agg.totalLocal, agg.totalIC),
-    [simParams, agg.totalLocal, agg.totalIC]
-  );
+  const [simMeta, setSimMeta] = useState(95);
+  const simCgpData = useMemo(() => calcCGP(simParams, agg.totalLocal, agg.totalIC), [simParams, agg.totalLocal, agg.totalIC]);
   const simC1 = simCgpData && agg.diarExc > 0 ? agg.diarExc * simCgpData.cgp : null;
   const simC2 = simCgpData && agg.diarEvit > 0 ? agg.diarEvit * simCgpData.cgp : null;
   const simTOTAL = (simC1||0) + (simC2||0) + (C3||0);
 
-  // ── M7: Supabase integration ────────────────────────────────────
+  // ── M7: Supabase ──
   const saveToSupabase = async () => {
     if (!supabaseClient) { setSupaStatus("error"); return; }
     setSupaStatus("loading");
     try {
-      // Upsert config
-      const { data: cfgData, error: cfgErr } = await supabaseClient
-        .from("drg_configs")
-        .upsert({ config_name: "default", params: params, description: "Configuracao padrao DRG Analytics", is_active: true, updated_at: new Date().toISOString() }, { onConflict: "config_name" })
-        .select().single();
+      const { data: cfgData, error: cfgErr } = await supabaseClient.from("drg_configs").upsert({ config_name: "default", params, description: "Configuracao padrao DRG Analytics", is_active: true, updated_at: new Date().toISOString() }, { onConflict: "config_name" }).select().single();
       if (cfgErr) throw cfgErr;
       const configId = cfgData.id;
-
-      // Upsert monthly data
-      const rows = Object.entries(bank).map(([mk, d]) => ({
-        config_id: configId,
-        month_key: mk,
-        altas: d.altas || 0,
-        realizado: d.realizado || 0,
-        previsto: d.previsto || 0,
-        bonus: d.bonus || 0,
-        local_abs: d.localAbs || 0,
-        ic_abs: d.icAbs || 0,
-        has_data: d.hasData || false,
-        source: "manual",
-        updated_at: new Date().toISOString(),
-      }));
-      // Batch in chunks of 50
+      const rows = Object.entries(bank).map(([mk, d]) => ({ config_id: configId, month_key: mk, altas: d.altas||0, realizado: d.realizado||0, previsto: d.previsto||0, bonus: d.bonus||0, local_abs: d.localAbs||0, ic_abs: d.icAbs||0, has_data: d.hasData||false, source: "manual", updated_at: new Date().toISOString() }));
       for (let i = 0; i < rows.length; i += 50) {
         const chunk = rows.slice(i, i + 50);
-        const { error: mdErr } = await supabaseClient
-          .from("drg_monthly_data")
-          .upsert(chunk, { onConflict: "config_id,month_key" });
+        const { error: mdErr } = await supabaseClient.from("drg_monthly_data").upsert(chunk, { onConflict: "config_id,month_key" });
         if (mdErr) throw mdErr;
       }
-
-      // Save snapshot
-      const { error: snapErr } = await supabaseClient
-        .from("drg_snapshots")
-        .insert({
-          config_id: configId,
-          period_start: startKey,
-          period_end: endKey,
-          n_months: nMonths,
-          c1_value: C1 || 0,
-          c2_value: C2 || 0,
-          c3_value: C3 || 0,
-          total_value: TOTAL,
-          inef_pct: inef,
-          cgp_value: cgpData?.cgp || 0,
-          params_snapshot: params,
-          monthly_data_snapshot: bank,
-        });
+      const { error: snapErr } = await supabaseClient.from("drg_snapshots").insert({ config_id: configId, period_start: startKey, period_end: endKey, n_months: nMonths, c1_value: C1||0, c2_value: C2||0, c3_value: C3||0, total_value: TOTAL, inef_pct: inef, cgp_value: cgpData?.cgp||0, params_snapshot: params, monthly_data_snapshot: bank });
       if (snapErr) throw snapErr;
-
-      setSupaStatus("saved");
-      setDataSource("supabase");
+      setSupaStatus("saved"); setDataSource("supabase");
       setTimeout(() => setSupaStatus("idle"), 3000);
-    } catch(e) {
-      console.error("Erro ao salvar no Supabase:", e);
-      setSupaStatus("error");
-      setTimeout(() => setSupaStatus("idle"), 5000);
-    }
+    } catch(e) { console.error("Erro Supabase:", e); setSupaStatus("error"); setTimeout(() => setSupaStatus("idle"), 5000); }
   };
-
   const loadFromSupabase = async () => {
     if (!supabaseClient) return;
     setSupaStatus("loading");
     try {
-      const { data: cfg, error: cfgErr } = await supabaseClient
-        .from("drg_configs")
-        .select("*")
-        .eq("config_name", "default")
-        .eq("is_active", true)
-        .single();
+      const { data: cfg, error: cfgErr } = await supabaseClient.from("drg_configs").select("*").eq("config_name", "default").eq("is_active", true).single();
       if (cfgErr || !cfg) { setSupaStatus("idle"); return; }
-
-      const { data: md, error: mdErr } = await supabaseClient
-        .from("drg_monthly_data")
-        .select("*")
-        .eq("config_id", cfg.id);
+      const { data: md, error: mdErr } = await supabaseClient.from("drg_monthly_data").select("*").eq("config_id", cfg.id);
       if (mdErr) throw mdErr;
-
       if (cfg.params) setParams(cfg.params);
       if (md && md.length > 0) {
         const newBank = { ...MONTH_BANK_INIT };
-        for (const row of md) {
-          newBank[row.month_key] = {
-            altas: row.altas,
-            realizado: parseFloat(row.realizado),
-            previsto: parseFloat(row.previsto),
-            bonus: parseFloat(row.bonus),
-            localAbs: row.local_abs,
-            icAbs: row.ic_abs,
-            hasData: row.has_data,
-          };
-        }
+        for (const row of md) { newBank[row.month_key] = { altas: row.altas, realizado: parseFloat(row.realizado), previsto: parseFloat(row.previsto), bonus: parseFloat(row.bonus), localAbs: row.local_abs, icAbs: row.ic_abs, hasData: row.has_data }; }
         setBank(newBank);
       }
-      setDataSource("supabase");
-      setSupaStatus("saved");
+      setDataSource("supabase"); setSupaStatus("saved");
       setTimeout(() => setSupaStatus("idle"), 2000);
-    } catch(e) {
-      console.error("Erro ao carregar do Supabase:", e);
-      setSupaStatus("error");
-      setTimeout(() => setSupaStatus("idle"), 5000);
-    }
+    } catch(e) { console.error("Erro Supabase:", e); setSupaStatus("error"); setTimeout(() => setSupaStatus("idle"), 5000); }
   };
 
-  // ── M2: PDF Export (Padrão Institucional AxiaCare - 5 páginas A4) ──
+  // ── M2: PDF Export (Padrão Institucional AxiaCare) ──
   const exportPDF = () => {
     const T = window.DRG_REPORT_TEMPLATE;
-    if (!T) { alert("Template de relatório não carregado. Aguarde o carregamento completo da página."); return; }
-
+    if (!T) { alert("Template de relatório não carregado. Aguarde."); return; }
     const periodLabel = `${keyToLabel(startKey)} a ${keyToLabel(endKey)}`;
-    const nM = nMonths;
     const today = new Date();
     const pubDate = today.toLocaleDateString("pt-BR", {day:"2-digit",month:"2-digit",year:"numeric"});
-
-    // Determine cycles covered
     const months2024 = agg.monthRows.filter(r => r.key.startsWith("2024"));
     const months2025 = agg.monthRows.filter(r => r.key.startsWith("2025"));
     const months2026 = agg.monthRows.filter(r => r.key.startsWith("2026"));
-
-    // Calculate per-cycle aggregates
-    const calcCycle = (rows) => {
-      let real=0, prev=0, altas=0, bonus=0;
-      rows.forEach(r => {
-        const d = bank[r.key] || {};
-        real += d.realizado || 0;
-        prev += d.previsto || 0;
-        altas += d.altas || 0;
-        bonus += d.bonus || 0;
-      });
-      return { real, prev, altas, bonus, inef: prev > 0 ? (real/prev)*100 : null };
-    };
-
-    const c2024 = calcCycle(months2024);
-    const c2025 = calcCycle(months2025);
-    const c2026 = calcCycle(months2026);
-
-    // CGP per cycle
-    // Use the app's calcCGP with proper params
-    const cgpParams = { enfLocal:495.51, enfIC:755.73, aptLocal:744.17, aptIC:1134.97,
-                        utiLocal:1522.57, utiIC:2322.15, leitosInstalados:97, leitosHD:3,
-                        leitosUTI:16, mixApt:40 };
+    const calcCycle = (rows) => { let real=0,prev=0,altas=0,bonus=0; rows.forEach(r => { const d = bank[r.key]||{}; real += d.realizado||0; prev += d.previsto||0; altas += d.altas||0; bonus += d.bonus||0; }); return { real, prev, altas, bonus, inef: prev > 0 ? (real/prev)*100 : null }; };
+    const c2024 = calcCycle(months2024), c2025 = calcCycle(months2025), c2026 = calcCycle(months2026);
+    const cgpParams = { ...params };
     const cgp2024 = calcCGP(cgpParams, 817, 219);
     const cgp2025 = calcCGP(cgpParams, 789, 198);
-    const cgp2026 = calcCGP(cgpParams, 789, 198); // same split as 2025
-
-    // C1 (only 2024 had inef > 100%)
+    const cgp2026 = calcCGP(cgpParams, 789, 198);
     const diarExc2024 = Math.max(0, c2024.real - c2024.prev);
-    const C1_val = diarExc2024 * cgp2024.cgp;
-
-    // C2 (2025 + 2026 had inef < 100%)
+    const C1_val = diarExc2024 * (cgp2024?.cgp||0);
     const diarEvit2025 = Math.max(0, c2025.prev - c2025.real);
     const diarEvit2026 = Math.max(0, c2026.prev - c2026.real);
-    const C2_2025 = diarEvit2025 * cgp2025.cgp;
-    const C2_2026 = diarEvit2026 * cgp2026.cgp;
+    const C2_2025 = diarEvit2025 * (cgp2025?.cgp||0);
+    const C2_2026 = diarEvit2026 * (cgp2026?.cgp||0);
     const C2_total = C2_2025 + C2_2026;
-
-    // C3
-    const C3_2025 = c2025.bonus;
-    const C3_2026 = c2026.bonus;
-    const C3_total = C3_2025 + C3_2026;
-
-    // Total
-    const TOTAL = C1_val + C2_total + C3_total;
-
-    // Delta p.p.
+    const C3_2025 = c2025.bonus, C3_2026 = c2026.bonus, C3_total = C3_2025 + C3_2026;
+    const TOTAL_PDF = C1_val + C2_total + C3_total;
     const inef2024 = c2024.inef || 112.0;
     const inefFinal = c2026.inef || c2025.inef || 82.8;
     const deltaPP = Math.abs(inef2024 - inefFinal);
-
-    // Period description
-    const periodDesc = months2026.length > 0 ? "2024 — Abr/2026" : (months2025.length > 0 ? "2024–2025" : "2024");
-    const periodShort = periodDesc;
+    const periodDesc = months2026.length > 0 ? "2024 — Abr/2026" : "2024–2025";
     const cyclesDesc = months2026.length > 0 ? "2024 + 2025 + 1Q/2026" : "2024 + 2025";
     const nMonthsC3 = months2025.length + months2026.length;
-
-    // Bonus table rows
-    const bonusRows = [...months2025, ...months2026]
-      .filter(r => (bank[r.key]||{}).bonus > 0)
-      .map(r => {
-        const d = bank[r.key] || {};
-        return `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV(d.bonus)}</td></tr>`;
-      }).join("\n");
-
-    const bonusSubtotal2025 = C3_2025 > 0 ? `<tr class="total"><td>Subtotal 2025 (${months2025.length} meses)</td><td class="num">${fmtV(C3_2025)}</td></tr>` : "";
-    const bonusSubtotal2026 = C3_2026 > 0 ? `<tr class="total"><td>Subtotal 1Q/2026 (${months2026.length} meses)</td><td class="num">${fmtV(C3_2026)}</td></tr>` : "";
-
-    // Build bonus rows with subtotals inserted at correct positions
     const bonusRows2025 = months2025.filter(r => (bank[r.key]||{}).bonus > 0).map(r => `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV((bank[r.key]||{}).bonus)}</td></tr>`).join("\n");
     const bonusRows2026 = months2026.filter(r => (bank[r.key]||{}).bonus > 0).map(r => `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV((bank[r.key]||{}).bonus)}</td></tr>`).join("\n");
-
+    const bonusSubtotal2025 = C3_2025 > 0 ? `<tr class="total"><td>Subtotal 2025 (${months2025.length} meses)</td><td class="num">${fmtV(C3_2025)}</td></tr>` : "";
+    const bonusSubtotal2026 = C3_2026 > 0 ? `<tr class="total"><td>Subtotal 1Q/2026 (${months2026.length} meses)</td><td class="num">${fmtV(C3_2026)}</td></tr>` : "";
     const fullBonusBody = `${bonusRows2025}\n${bonusSubtotal2025}\n${bonusRows2026}\n${bonusSubtotal2026}\n<tr class="total"><td>Total acumulado (${nMonthsC3} meses)</td><td class="num">${fmtV(C3_total)}</td></tr>`;
-
-    // Images from template
     const IMG = T.images;
-
-    // Build the 5-page HTML
-    const html = `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8">
-<style>${T.css}</style>
-</head><body>
-
-<!-- CAPA -->
-<div class="page cover">
-  <div class="cover-top">
-    <img class="lg-uni" src="${IMG[0]}" alt="Unihealth">
-    <img class="lg-evs" src="${IMG[1]}" alt="Escritório de Valor em Saúde">
-    <img class="lg-umed" src="${IMG[2]}" alt="Unimed Governador Valadares">
-  </div>
-  <div class="cover-body">
-    <div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div>
-    <div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div>
-    <div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div>
-    <div class="cov-divider"></div>
-    <div class="cov-cols">
-      <div class="cov-col">
-        <div class="cov-bar" style="background:var(--orange)"></div>
-        <div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div>
-        <div class="cov-col-v">${fmtV(C1_val)}</div>
-        <div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024.cgp)}</div>
-      </div>
-      <div class="cov-col">
-        <div class="cov-bar" style="background:var(--green)"></div>
-        <div class="cov-col-eyebrow">C2 — Custo Evitado</div>
-        <div class="cov-col-v">${fmtV(C2_total)}</div>
-        <div class="cov-col-s">${fmtN(diarEvit2025 + diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025.cgp)}</div>
-      </div>
-      <div class="cov-col">
-        <div class="cov-bar" style="background:var(--blue)"></div>
-        <div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div>
-        <div class="cov-col-v">${fmtV(C3_total)}</div>
-        <div class="cov-col-s">${nMonthsC3} meses consecutivos</div>
-      </div>
-    </div>
-    <div class="cov-total">
-      <div class="cov-total-left">
-        <div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div>
-        <div class="cov-total-v">${fmtV(TOTAL)}</div>
-      </div>
-      <div class="cov-total-right">
-        <div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div>
-        <div class="cov-pp-s">em ${nM} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div>
-      </div>
-    </div>
-  </div>
-  <div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div>
-  <div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;Resp. Técnico: Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div>
-</div>
-
-<!-- PÁGINA 2 -->
-<div class="page">
-  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodShort}</div></div>
-  <div class="pbody">
-    <div class="sec-title">1. Contexto e Escopo</div>
-    <p class="para">A análise avalia o impacto financeiro decorrente da melhoria sustentada na eficiência operacional do uso do leito ao longo de ${nM} meses, entre ${keyToLabel(startKey)} e ${keyToLabel(endKey)}, medida pela metodologia DRG (Diagnosis Related Groups) adaptada para o contexto brasileiro (DRG Brasil®), que compara a permanência hospitalar realizada com a permanência esperada para o perfil de risco de cada internação codificada. O escopo cobre exclusivamente diárias do convênio Unimed — aproximadamente 88% da ocupação codificada em 2024, 90% em 2025 e 90% no 1º quadrimestre de 2026. Os volumes de altas e permanências de 2024 e 2025 são valores exatos do sistema DRG Brasil®; para o 1º quadrimestre de 2026, foram derivados matematicamente a partir da (IN) Eficiência reportada e do saldo de diárias evitadas — método matematicamente consistente e validado.</p>
-    <table>
-      <thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead>
-      <tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr>
-<tr><td>Leitos operacionais considerados na metodologia *</td><td class="num">94</td></tr>
-<tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr>
-<tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr>
-<tr><td>Mix de acomodação — Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr>
-<tr><td>UTI — distinção por acomodação</td><td class="num">Não (tarifa única)</td></tr>
-<tr><td>Unimed codificável 2024 / 2025 / 1Q 2026</td><td class="num">88% / 90% / 90%</td></tr></tbody>
-    </table>
-    <div class="footnote">* Foram excluídos 03 leitos de hospital dia.</div>
-
-    <div class="sec-title mt">2. Componentes do Impacto Financeiro</div>
-    
-    <div class="card card-orange">
-      <div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div>
-      <div class="card-body">
-        <p class="card-text">Com ${c2024.altas.toLocaleString("pt-BR")} altas válidas, o hospital realizou ${fmtN(c2024.real)} diárias contra uma permanência prevista pelo DRG de ${fmtN(c2024.prev)} diárias. O excesso de ${fmtN(diarExc2024)} diárias representa internações que duraram além do que o perfil de risco de cada paciente justificava — custo real incorrido sem remuneração adicional pelo convênio.</p>
-        <div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência DRG 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada · CGP 2024 = R$${fmtN(cgp2024.cgp)}</div></div></div>
-      </div>
-    </div>
-    
-    <div class="card card-green">
-      <div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado Além do Baseline DRG (2025 + 1Q/2026)</span></div>
-      <div class="card-body">
-        <p class="card-text">De janeiro de 2025 a abril de 2026 — ${nMonthsC3} meses consecutivos —, o hospital operou abaixo do baseline DRG. Em 2025 (${c2025.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2025.real)} diárias contra ${fmtN(c2025.prev)} previstas (−${fmtN(diarEvit2025)} diárias). No 1º quadrimestre de 2026 (${c2026.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2026.real)} diárias contra ${fmtN(c2026.prev)} previstas (−${fmtN(diarEvit2026)} diárias) — patamar de eficiência ainda mais consistente, com (IN) Eficiência de ${c2026.inef ? fmtN(c2026.inef) : "82,8"}% no quadrimestre.</p>
-        <div class="pills"><div class="pill"><div class="pill-v">${c2026.inef ? fmtN(c2026.inef) : "82,8"}% / ${c2025.inef ? fmtN(c2025.inef) : "97,4"}%</div><div class="pill-l">(In)Eficiência 1Q 2026 / 2025</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025 + diarEvit2026)}</div><div class="pill-l">Diárias evitadas (${nMonthsC3} meses)</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado · CGP 2025 = R$${fmtN(cgp2025.cgp)}</div></div></div>
-      </div>
-    </div>
-  </div>
-  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
-</div>
-
-<!-- PÁGINA 3 -->
-<div class="page">
-  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodShort}</div></div>
-  <div class="pbody">
-    
-    <div class="card card-blue">
-      <div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp / Federação Minas (2025 + 1Q/2026)</span></div>
-      <div class="card-body">
-        <p class="card-text">A eficiência sustentada posicionou o hospital em zonas de bonificação do Programa MG Hosp da Federação Minas durante ${nMonthsC3} meses consecutivos (todos os 12 meses de 2025 e os ${months2026.length} meses do 1º quadrimestre de 2026). Diferentemente dos componentes anteriores, este é entrada de caixa real — receita adicional paga pela Federação como reconhecimento direto da performance DRG.</p>
-      </div>
-    </div>
-    <table class="bonus">
-      <thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead>
-      <tbody>
-        ${fullBonusBody}
-      </tbody>
-    </table>
-
-    <div class="consol">
-      <div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div>
-      <div class="consol-row">
-        <div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div>
-        <div class="plus">+</div>
-        <div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div>
-        <div class="plus">+</div>
-        <div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div>
-      </div>
-      <div class="total-block">
-        <div class="total-block-l">Total Consolidado</div>
-        <div class="total-block-v">${fmtV(TOTAL)}</div>
-        <div class="total-block-s">Ganho de ${fmtN(deltaPP)} pontos percentuais em ${nM} meses&nbsp;&middot;&nbsp;De ${fmtN(inef2024)}% para ${fmtN(inefFinal)}%</div>
-      </div>
-    </div>
-  </div>
-  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
-</div>
-
-<!-- PÁGINA 4 -->
-<div class="page">
-  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div>
-  <div class="pbody">
-    <div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div>
-    <p class="para">A média simples entre as 6 tarifas não reflete o custo real — ignora o volume relativo de cada modalidade. O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário. É calculado separadamente por ciclo, pois o split local/intercâmbio pode variar entre os períodos. Para o 1º quadrimestre de 2026, o split foi mantido conforme a média histórica de 2025, resultando em CGP idêntico.</p>
-
-    <div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div>
-    <table>
-      <thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead>
-      <tbody><tr><td>Internação Convencional</td><td>Enfermaria</td><td>Local</td><td class="num tarifa">R$ 495,51</td></tr>
-<tr><td>Internação Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num tarifa">R$ 755,73</td></tr>
-<tr><td>Internação Convencional</td><td>Apartamento</td><td>Local</td><td class="num tarifa">R$ 744,17</td></tr>
-<tr><td>Internação Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num tarifa">R$ 1.134,97</td></tr>
-<tr><td>UTI</td><td>—</td><td>Local</td><td class="num tarifa">R$ 1.522,57</td></tr>
-<tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num tarifa">R$ 2.322,15</td></tr></tbody>
-    </table>
-
-    <div class="eyebrow-blk">Pesos Estruturais e Split por Ano</div>
-    <table>
-      <thead><tr><th>Dimensão</th><th>Base</th><th>2024</th><th>2025</th><th>1Q 2026</th></tr></thead>
-      <tbody>
-        <tr><td>UTI / Total leitos</td><td>16 / 94</td><td>0,17021</td><td>0,17021</td><td>0,17021</td></tr>
-        <tr><td>Convencional / Total</td><td>78 / 94</td><td>0,82979</td><td>0,82979</td><td>0,82979</td></tr>
-        <tr><td>Apartamento / Enfermaria</td><td>Mix conv.</td><td>40% / 60%</td><td>40% / 60%</td><td>40% / 60%</td></tr>
-        <tr><td>Unimed Local</td><td>817 / 789 / 264 (abs.)</td><td class="green">78,86%</td><td class="green">79,94%</td><td class="green">79,94%</td></tr>
-        <tr><td>Intercâmbio</td><td>219 / 198 / 66 (abs.)</td><td class="green">21,14%</td><td class="green">20,06%</td><td class="green">20,06%</td></tr>
-      </tbody>
-    </table>
-
-    <div class="eyebrow-blk">Matrizes de Cálculo</div>
-    <table class="cgp cgp-2024">
-      <tbody>
-        <tr class="title-row"><td colspan="3">CGP 2024</td></tr>
-        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024.utiP)}</td></tr>
-<tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7886 + 1.134,97×0,2114</td><td class="res">R$ ${fmtN(cgp2024.aptP)}</td></tr>
-<tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7886 + 755,73×0,2114</td><td class="res">R$ ${fmtN(cgp2024.enfP)}</td></tr>
-<tr class="calc alt"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2024.aptP)} + 0,60×${fmtN(cgp2024.enfP)}</td><td class="res">R$ ${fmtN(cgp2024.convP)}</td></tr>
-        <tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×${fmtN(cgp2024.utiP)} + 0,82979×${fmtN(cgp2024.convP)}</td><td class="res">R$ ${fmtN(cgp2024.cgp)}</td></tr>
-      </tbody>
-    </table>
-    <table class="cgp cgp-2025">
-      <tbody>
-        <tr class="title-row"><td colspan="3">CGP 2025</td></tr>
-        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025.utiP)}</td></tr>
-<tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7994 + 1.134,97×0,2006</td><td class="res">R$ ${fmtN(cgp2025.aptP)}</td></tr>
-<tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7994 + 755,73×0,2006</td><td class="res">R$ ${fmtN(cgp2025.enfP)}</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
-</div>
-
-<!-- PÁGINA 5 -->
-<div class="page">
-  <div class="pbody cont" style="padding-top:14mm;">
-    <table class="cgp cgp-2025">
-      <tbody>
-        <tr class="title-row"><td colspan="3">CGP 2025</td></tr>
-        <tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2025.aptP)} + 0,60×${fmtN(cgp2025.enfP)}</td><td class="res">R$ ${fmtN(cgp2025.convP)}</td></tr>
-        <tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×${fmtN(cgp2025.utiP)} + 0,82979×${fmtN(cgp2025.convP)}</td><td class="res">R$ ${fmtN(cgp2025.cgp)}</td></tr>
-      </tbody>
-    </table>
-
-    <table class="cgp cgp-2025">
-      <tbody>
-        <tr class="title-row"><td colspan="3">CGP 1Q/2026</td></tr>
-        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2026.utiP)}</td></tr>
-        <tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7994 + 1.134,97×0,2006</td><td class="res">R$ ${fmtN(cgp2026.aptP)}</td></tr>
-        <tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7994 + 755,73×0,2006</td><td class="res">R$ ${fmtN(cgp2026.enfP)}</td></tr>
-        <tr class="calc alt"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2026.aptP)} + 0,60×${fmtN(cgp2026.enfP)}</td><td class="res">R$ ${fmtN(cgp2026.convP)}</td></tr>
-        <tr class="total-row"><td colspan="2">CGP 1Q/2026 = 0,17021×${fmtN(cgp2026.utiP)} + 0,82979×${fmtN(cgp2026.convP)}&nbsp;&nbsp;(≡ CGP 2025)</td><td class="res">R$ ${fmtN(cgp2026.cgp)}</td></tr>
-      </tbody>
-    </table>
-
-    <div class="calc">
-      <div class="calc-line">C1 (2024):&nbsp;&nbsp;${fmtN(diarExc2024)} × R$ ${fmtN(cgp2024.cgp)} = ${fmtV(C1_val)}</div>
-      <div class="calc-line">C2 (2025):&nbsp;&nbsp;${fmtN(diarEvit2025)} × R$ ${fmtN(cgp2025.cgp)} = ${fmtV(C2_2025)}</div>
-      <div class="calc-line">C2 (1Q/2026):&nbsp;&nbsp;${fmtN(diarEvit2026)} × R$ ${fmtN(cgp2026.cgp)} = ${fmtV(C2_2026)}</div>
-      <div class="calc-line"><b>C2 total: ${fmtV(C2_total)}</b></div>
-      <div class="calc-line">C3 (2025):&nbsp;&nbsp;${fmtV(C3_2025)}&nbsp;&nbsp;(extratos mensais — Programa MG Hosp)</div>
-      <div class="calc-line">C3 (1Q/2026):&nbsp;&nbsp;${fmtV(C3_2026)}&nbsp;&nbsp;(extratos mensais — Programa MG Hosp)</div>
-      <div class="calc-line"><b>C3 total: ${fmtV(C3_total)}</b></div>
-      <div class="calc-total">Total = ${fmtV(TOTAL)}</div>
-    </div>
-
-    <div class="premissas">
-      <p><b>Premissas declaradas:</b> Tarifas reais aplicadas uniformemente aos ${nM} meses (sem reajuste no período). Mix de acomodação (40%/60%) e estrutura de leitos (94 operacionais, 16 UTI — excluídos 03 leitos de hospital dia dos 97 instalados) estáveis entre os ciclos. Split local/intercâmbio calculado por ciclo com base nos números absolutos exatos de procedimentos codificados em 2024 e 2025; no 1º quadrimestre de 2026, mantido conforme a média histórica do ciclo anterior. C3 apurado diretamente dos extratos mensais do Programa MG Hosp para 2025; para o 1º quadrimestre de 2026, apurado a partir do levantamento mensal de diárias e taxas ICDS (Nível 9 + 10%) consolidado em 27/05/2026. Volumes de altas e permanências de 2024 e 2025 são valores exatos do sistema DRG Brasil®; para o 1º quadrimestre de 2026, derivados matematicamente a partir da (IN) Eficiência reportada e do saldo de diárias evitadas — método matematicamente consistente.</p>
-    </div>
-
-    <div class="cta">
-      <div class="cta-head">
-        <h3>Esta análise foi útil para você?</h3>
-        <p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p>
-      </div>
-      <div class="cta-body">
-        <div class="cta-top">
-          <img class="cta-avatar" src="${IMG[7]}" alt="Dr. Guilherme Thomé">
-          <div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise! Precisamos falar mais sobre o melhor cuidado com um sistema saudável!<br>Abraços,</div>
-        </div>
-        <div class="cta-bottom">
-          <div class="cta-sig"><img src="${IMG[8]}" alt="Assinatura Dr. Guilherme Thomé"></div>
-          <div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">guilherme@axcare.com.br</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
-</div>
-
+    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${T.css}</style></head><body>
+<div class="page cover"><div class="cover-top"><img class="lg-uni" src="${IMG[0]}" alt="Unihealth"><img class="lg-evs" src="${IMG[1]}" alt="EVS"><img class="lg-umed" src="${IMG[2]}" alt="Unimed GV"></div><div class="cover-body"><div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div><div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div><div class="cov-divider"></div><div class="cov-cols"><div class="cov-col"><div class="cov-bar" style="background:var(--orange)"></div><div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div><div class="cov-col-v">${fmtV(C1_val)}</div><div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--green)"></div><div class="cov-col-eyebrow">C2 — Custo Evitado</div><div class="cov-col-v">${fmtV(C2_total)}</div><div class="cov-col-s">${fmtN(diarEvit2025+diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--blue)"></div><div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div><div class="cov-col-v">${fmtV(C3_total)}</div><div class="cov-col-s">${nMonthsC3} meses consecutivos</div></div></div><div class="cov-total"><div class="cov-total-left"><div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div><div class="cov-total-v">${fmtV(TOTAL_PDF)}</div></div><div class="cov-total-right"><div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div><div class="cov-pp-s">em ${nMonths} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div></div></div></div><div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div><div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;Resp. Técnico: Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="sec-title">1. Contexto e Escopo</div><p class="para">A análise avalia o impacto financeiro decorrente da melhoria sustentada na eficiência operacional do uso do leito ao longo de ${nMonths} meses, entre ${keyToLabel(startKey)} e ${keyToLabel(endKey)}, medida pela metodologia DRG (Diagnosis Related Groups) adaptada para o contexto brasileiro (DRG Brasil®).</p><table><thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead><tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr><tr><td>Leitos operacionais *</td><td class="num">94</td></tr><tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr><tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr><tr><td>Mix Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr></tbody></table><div class="footnote">* Excluídos 03 leitos de hospital dia.</div><div class="sec-title mt">2. Componentes do Impacto Financeiro</div><div class="card card-orange"><div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div><div class="card-body"><p class="card-text">Com ${c2024.altas.toLocaleString("pt-BR")} altas válidas, o hospital realizou ${fmtN(c2024.real)} diárias contra ${fmtN(c2024.prev)} previstas. Excesso de ${fmtN(diarExc2024)} diárias.</p><div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada</div></div></div></div></div><div class="card card-green"><div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">De janeiro de 2025 a abril de 2026 — ${nMonthsC3} meses —, o hospital operou abaixo do baseline DRG.</p><div class="pills"><div class="pill"><div class="pill-v">${c2026.inef?fmtN(c2026.inef):"82,8"}%</div><div class="pill-l">(In)Eficiência 1Q 2026</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025+diarEvit2026)}</div><div class="pill-l">Diárias evitadas</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="card card-blue"><div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">A eficiência sustentada posicionou o hospital em zonas de bonificação durante ${nMonthsC3} meses consecutivos.</p></div></div><table class="bonus"><thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead><tbody>${fullBonusBody}</tbody></table><div class="consol"><div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div><div class="consol-row"><div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div></div><div class="total-block"><div class="total-block-l">Total Consolidado</div><div class="total-block-v">${fmtV(TOTAL_PDF)}</div><div class="total-block-s">Ganho de ${fmtN(deltaPP)} p.p. em ${nMonths} meses</div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div><div class="pbody"><div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div><p class="para">O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário.</p><div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div><table><thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead><tbody><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Local</td><td class="num">R$ 495,51</td></tr><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num">R$ 755,73</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Local</td><td class="num">R$ 744,17</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num">R$ 1.134,97</td></tr><tr><td>UTI</td><td>—</td><td>Local</td><td class="num">R$ 1.522,57</td></tr><tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num">R$ 2.322,15</td></tr></tbody></table><div class="eyebrow-blk">Matrizes de Cálculo</div><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2024</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2024?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2024?.cgp||0)}</td></tr></tbody></table><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2025 / 1Q 2026</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2025?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2025?.cgp||0)}</td></tr></tbody></table></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
+<div class="page"><div class="pbody cont" style="padding-top:14mm;"><div class="cta"><div class="cta-head"><h3>Esta análise foi útil para você?</h3><p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p></div><div class="cta-body"><div class="cta-top"><img class="cta-avatar" src="${IMG[7]}" alt="Dr. Guilherme Thomé"><div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise!<br>Abraços,</div></div><div class="cta-bottom"><div class="cta-sig"><img src="${IMG[8]}" alt="Assinatura"></div><div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">guilherme@axcare.com.br</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
 </body></html>`;
-
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
-    if (w) {
-      w.onload = () => { setTimeout(() => w.print(), 800); };
-    }
+    if (w) { w.onload = () => { setTimeout(() => w.print(), 800); }; }
   };
 
-
-  // ── M3: Tendencia chart configs ─────────────────────────────────
+  // ── M3: Tendencia chart configs ──
   const trendInefConfig = useMemo(() => {
     const labels = agg.monthRows.map(r => keyToLabel(r.key));
-    const inefData = agg.monthRows.map(r => {
-      const d = bank[r.key] || {};
-      return d.previsto > 0 ? (d.realizado / d.previsto) * 100 : null;
-    });
-    return {
-      type: "line",
-      data: {
-        labels,
-        datasets: [{
-          label: "Ineficiência Mensal (%)",
-          data: inefData,
-          borderColor: C.orange,
-          backgroundColor: C.orange + "22",
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-          pointBackgroundColor: inefData.map(v => v === null ? "transparent" : v > 100 ? C.red : C.green),
-          spanGaps: false,
-        }, {
-          label: "Baseline (100%)",
-          data: inefData.map(() => 100),
-          borderColor: C.muted + "66",
-          borderDash: [5, 5],
-          pointRadius: 0,
-          fill: false,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom", labels: { font: { size: 10 } } },
-          tooltip: {
-            callbacks: {
-              label: ctx => ctx.dataset.label === "Baseline (100%)" ? null : `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`
-            }
-          }
-        },
-        scales: {
-          y: { title: { display: true, text: "Ineficiência (%)", font: { size: 10 } },
-               suggestedMin: 70, suggestedMax: 120 },
-          x: { ticks: { font: { size: 8 }, maxRotation: 45 } }
-        }
-      }
-    };
+    const inefData = agg.monthRows.map(r => { const d = bank[r.key]||{}; return d.previsto > 0 ? (d.realizado/d.previsto)*100 : null; });
+    return { type:"line", data:{ labels, datasets:[{ label:"Ineficiência Mensal (%)", data:inefData, borderColor:C.orange, backgroundColor:C.orange+"22", fill:true, tension:0.3, pointRadius:3, pointBackgroundColor:inefData.map(v => v===null?"transparent":v>100?C.red:C.green), spanGaps:false },{ label:"Baseline (100%)", data:inefData.map(()=>100), borderColor:C.muted+"66", borderDash:[5,5], pointRadius:0, fill:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:"bottom",labels:{font:{size:10}}}, tooltip:{callbacks:{label:ctx=>ctx.dataset.label==="Baseline (100%)"?null:`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`}} }, scales:{ y:{title:{display:true,text:"Ineficiência (%)",font:{size:10}},suggestedMin:70,suggestedMax:120}, x:{ticks:{font:{size:8},maxRotation:45}} } } };
   }, [agg.monthRows, bank]);
 
   const trendFinConfig = useMemo(() => {
     const labels = agg.monthRows.map(r => keyToLabel(r.key));
-    const c1Data = agg.monthRows.map(r => {
-      const d = bank[r.key] || {};
-      const exc = Math.max(0, (d.realizado||0) - (d.previsto||0));
-      const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0);
-      return cgpM && exc > 0 ? exc * cgpM.cgp : 0;
-    });
-    const c2Data = agg.monthRows.map(r => {
-      const d = bank[r.key] || {};
-      const evit = Math.max(0, (d.previsto||0) - (d.realizado||0));
-      const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0);
-      return cgpM && evit > 0 ? evit * cgpM.cgp : 0;
-    });
+    const c1Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const exc = Math.max(0,(d.realizado||0)-(d.previsto||0)); const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0); return cgpM && exc > 0 ? exc * cgpM.cgp : 0; });
+    const c2Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const evit = Math.max(0,(d.previsto||0)-(d.realizado||0)); const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0); return cgpM && evit > 0 ? evit * cgpM.cgp : 0; });
     const c3Data = agg.monthRows.map(r => r.bonus || 0);
-    return {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          { label: "C1 — Desperdício Eliminado", data: c1Data, backgroundColor: C.orange + "cc", stack: "stack0" },
-          { label: "C2 — Custo Evitado", data: c2Data, backgroundColor: C.green + "cc", stack: "stack0" },
-          { label: "C3 — Bônus MG Hosp", data: c3Data, backgroundColor: C.blue + "cc", stack: "stack0" },
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom", labels: { font: { size: 10 } } },
-          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtV(ctx.parsed.y)}` } }
-        },
-        scales: {
-          y: { stacked: true, title: { display: true, text: "Valor (R$)", font: { size: 10 } },
-               ticks: { callback: v => "R$ " + (v/1000).toFixed(0) + "k" } },
-          x: { stacked: true, ticks: { font: { size: 8 }, maxRotation: 45 } }
-        }
-      }
-    };
+    return { type:"bar", data:{ labels, datasets:[ {label:"C1 — Desperdício Eliminado",data:c1Data,backgroundColor:C.orange+"cc",stack:"s0"}, {label:"C2 — Custo Evitado",data:c2Data,backgroundColor:C.green+"cc",stack:"s0"}, {label:"C3 — Bônus MG Hosp",data:c3Data,backgroundColor:C.blue+"cc",stack:"s0"} ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:"bottom",labels:{font:{size:10}}}, tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtV(ctx.parsed.y)}`}} }, scales:{ y:{stacked:true,title:{display:true,text:"Valor (R$)",font:{size:10}},ticks:{callback:v=>"R$ "+(v/1000).toFixed(0)+"k"}}, x:{stacked:true,ticks:{font:{size:8},maxRotation:45}} } } };
   }, [agg.monthRows, bank, params]);
 
 
+  // ── RENDER ──
   return (
-    <div style={{fontFamily:"'Segoe UI',system-ui,sans-serif",
-      background:"#eef2f0",minHeight:"100vh",color:C.text}}>
-
-      {/* ── HEADER ── */}
-      <div style={{background:C.ink,padding:"0 24px",display:"flex",
-        alignItems:"center",justifyContent:"space-between",height:60,
-        borderBottom:`1px solid ${C.blue}55`}}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
-            style={{height:38,width:"auto",display:"block"}}/>
-          <div style={{width:1,height:32,background:`${C.teal}55`}}/>
-          <div>
-            <div style={{color:"#fff",fontWeight:700,fontSize:15,letterSpacing:-0.3}}>
-              DRG Brasil&reg; Analytics
-            </div>
-            <div style={{color:C.mint,opacity:0.7,fontSize:9,
-              textTransform:"uppercase",letterSpacing:2}}>
-              Unimed + Unihealth &middot; Governador Valadares
-            </div>
-          </div>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-        </div>
-      </div>
-
-      {/* ── TABS ── */}
-      <div role="tablist" aria-label="Abas de navegação" style={{background:C.ink,padding:"0 24px",
-        borderBottom:`3px solid ${C.blue}`,display:"flex",gap:0,overflowX:"auto"}}>
+    <React.Fragment>
+      {/* TABS */}
+      <nav className="drg-tabs" role="tablist">
         {TABS.map((t,i) => (
-          <button key={i} role="tab" aria-selected={i===tab} aria-controls={`tabpanel-${i}`}
-            onClick={() => setTab(i)} style={{
-            padding:"9px 18px",border:"none",whiteSpace:"nowrap",
-            background: i===tab ? C.blue : "transparent",
-            color: i===tab ? "#fff" : `${C.mint}aa`,
-            fontWeight:700,fontSize:10,textTransform:"uppercase",
-            letterSpacing:1.5,cursor:"pointer",
-            borderBottom:i===tab?`2px solid ${C.mint}`:"2px solid transparent",
-            transition:"all .15s"
-          }}>{t}</button>
+          <button key={i} className={`drg-tabs__btn ${tab===i?"drg-tabs__btn--active":""}`}
+            role="tab" aria-selected={tab===i} onClick={() => setTab(i)}>{t}</button>
         ))}
-      </div>
+      </nav>
 
-      {/* ── PERIODO BANNER ── */}
-      <div style={{background:"#fff",borderBottom:`1px solid ${C.rule}`,
-        padding:"8px 24px",display:"flex",alignItems:"center",
-        gap:16,flexWrap:"wrap"}}>
-        <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
-          letterSpacing:1.5,color:C.muted}}>Per&iacute;odo ativo:</div>
-        <div style={{fontWeight:700,fontSize:13,color:C.ink,letterSpacing:-0.3}}>
-          {keyToLabel(startKey)} &rarr; {keyToLabel(endKey)}
-        </div>
-        <div style={{background:C.ink+"15",borderRadius:3,padding:"2px 8px",
-          fontSize:9,fontWeight:700,color:C.ink}}>{nMonths} {nMonths===1?"mês":"meses"}</div>
-        <div style={{marginLeft:"auto",display:"flex",gap:16,fontSize:11,color:C.muted}}>
-          <span>C1: <strong style={{color:C1?C.orange:"#ccc"}}>{C1?fmtV(C1):NA}</strong></span>
-          <span>C2: <strong style={{color:C2?C.green:"#ccc"}}>{C2?fmtV(C2):NA}</strong></span>
-          <span>C3: <strong style={{color:C3?C.blue:"#ccc"}}>{C3?fmtV(C3):NA}</strong></span>
-          <span style={{fontWeight:700,color:C.ink}}>Total: {TOTAL>0?fmtV(TOTAL):NA}</span>
+      {/* BANNER */}
+      <div className="drg-banner">
+        <span className="drg-banner__label">Período</span>
+        <span className="drg-banner__period">{keyToLabel(startKey)} — {keyToLabel(endKey)} ({nMonths}m)</span>
+        <span className="drg-banner__badge" style={{background: statusColor+"18", color: statusColor}}>
+          {inef !== null ? pct(inef) : "—"} &middot; {statusLabel}
+        </span>
+        <div className="drg-banner__kpis">
+          <span>C1: <strong style={{color:C.orange}}>{C1 ? fmtV(C1) : NA}</strong></span>
+          <span>C2: <strong style={{color:C.green}}>{C2 ? fmtV(C2) : NA}</strong></span>
+          <span>C3: <strong style={{color:C.blue}}>{C3 ? fmtV(C3) : NA}</strong></span>
+          <span>Total: <strong>{fmtV(TOTAL)}</strong></span>
         </div>
       </div>
 
-      <div style={{maxWidth:960,margin:"0 auto",padding:"22px 20px"}}>
+      {/* CONTENT */}
+      <div className="drg-content">
 
-        {/* ══ TAB 0: PERIODO ═══════════════════════════════════════ */}
-        {tab===0 && (
+        {/* TAB 0: Período */}
+        {tab === 0 && (
           <div>
-            <SecTitle>Sele&ccedil;&atilde;o de Per&iacute;odo</SecTitle>
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:4,padding:"20px 24px",marginBottom:20}}>
+            <div className="card">
+              <SecTitle>Selecionar Período</SecTitle>
               <TwoCol>
-                <div>
-                  <label style={{display:"block",fontSize:9,fontWeight:700,
-                    textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>
-                    In&iacute;cio
-                  </label>
-                  <select value={startKey} onChange={e=>{
-                    const v=e.target.value;
-                    setStartKey(v);
-                    if(v>endKey) setEndKey(v);
-                  }} style={{width:"100%",padding:"9px 10px",border:`1px solid ${C.rule}`,
-                    borderRadius:3,fontSize:13,color:C.text,background:"#fff",fontWeight:700}}>
-                    {yearMonthOptions.map(k=>(
-                      <option key={k} value={k}>{keyToLabel(k)}</option>
-                    ))}
+                <div className="field">
+                  <label className="field__label">Início</label>
+                  <select className="field__select" value={startKey} onChange={e => setStartKey(e.target.value)}>
+                    {yearMonthOptions.map(k => <option key={k} value={k}>{keyToLabel(k)}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={{display:"block",fontSize:9,fontWeight:700,
-                    textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>
-                    Fim
-                  </label>
-                  <select value={endKey} onChange={e=>{
-                    const v=e.target.value;
-                    setEndKey(v);
-                    if(v<startKey) setStartKey(v);
-                  }} style={{width:"100%",padding:"9px 10px",border:`1px solid ${C.rule}`,
-                    borderRadius:3,fontSize:13,color:C.text,background:"#fff",fontWeight:700}}>
-                    {yearMonthOptions.filter(k=>k>=startKey).map(k=>(
-                      <option key={k} value={k}>{keyToLabel(k)}</option>
-                    ))}
+                <div className="field">
+                  <label className="field__label">Fim</label>
+                  <select className="field__select" value={endKey} onChange={e => setEndKey(e.target.value)}>
+                    {yearMonthOptions.map(k => <option key={k} value={k}>{keyToLabel(k)}</option>)}
                   </select>
                 </div>
               </TwoCol>
+            </div>
 
-              {/* Atalhos de periodo — Ciclos anuais */}
-              <div style={{marginTop:16}}>
-                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>Ciclos Anuais</div>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  {[
-                    {label:"Jan\u2013Dez 2024",        s:"2024-01",e:"2024-12"},
-                    {label:"Jan\u2013Dez 2025",        s:"2025-01",e:"2025-12"},
-                    {label:"Jan\u2013Abr 2026 (1Q)",   s:"2026-01",e:"2026-04"},
-                  ].map(({label,s,e})=>(
-                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
-                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
-                      background:startKey===s&&endKey===e?C.ink:"#fff",
-                      color:startKey===s&&endKey===e?"#fff":C.text,
-                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
-                    }}>{label}</button>
-                  ))}
-                </div>
-                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Acumulados</div>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  {[
-                    {label:"2024\u20132025 (24m)",     s:"2024-01",e:"2025-12"},
-                    {label:"Acumulado 28m (24\u2192Abr26)", s:"2024-01",e:"2026-04"},
-                  ].map(({label,s,e})=>(
-                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
-                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
-                      background:startKey===s&&endKey===e?C.ink:"#fff",
-                      color:startKey===s&&endKey===e?"#fff":C.text,
-                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
-                    }}>{label}</button>
-                  ))}
-                </div>
-                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Trimestres 2025</div>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  {[
-                    {label:"1T 2025",s:"2025-01",e:"2025-03"},
-                    {label:"2T 2025",s:"2025-04",e:"2025-06"},
-                    {label:"3T 2025",s:"2025-07",e:"2025-09"},
-                    {label:"4T 2025",s:"2025-10",e:"2025-12"},
-                  ].map(({label,s,e})=>(
-                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
-                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
-                      background:startKey===s&&endKey===e?C.ink:"#fff",
-                      color:startKey===s&&endKey===e?"#fff":C.text,
-                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
-                    }}>{label}</button>
-                  ))}
-                </div>
-                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Mês Isolado</div>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  {[
-                    {label:"Dez 2025",s:"2025-12",e:"2025-12"},
-                    {label:"Abr 2026",s:"2026-04",e:"2026-04"},
-                  ].map(({label,s,e})=>(
-                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
-                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
-                      background:startKey===s&&endKey===e?C.ink:"#fff",
-                      color:startKey===s&&endKey===e?"#fff":C.text,
-                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
-                    }}>{label}</button>
-                  ))}
+            <div className="card">
+              <SecTitle>Atalhos de Período</SecTitle>
+              <div className="chip-group">
+                <div className="chip-group__label">Ciclos Anuais</div>
+                <div className="chip-group__row">
+                  <button className={`chip ${startKey==="2024-01"&&endKey==="2024-12"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2024-12")}}>Jan–Dez 2024</button>
+                  <button className={`chip ${startKey==="2025-01"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-01");setEndKey("2025-12")}}>Jan–Dez 2025</button>
+                  <button className={`chip ${startKey==="2026-01"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2026-01");setEndKey("2026-04")}}>Jan–Abr 2026 (1Q)</button>
                 </div>
               </div>
+              <div className="chip-group">
+                <div className="chip-group__label">Acumulados</div>
+                <div className="chip-group__row">
+                  <button className={`chip ${startKey==="2024-01"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2025-12")}}>2024–2025 (24m)</button>
+                  <button className={`chip ${startKey==="2024-01"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2026-04")}}>Acumulado 28m (24→Abr26)</button>
+                </div>
+              </div>
+              <div className="chip-group">
+                <div className="chip-group__label">Trimestres 2025</div>
+                <div className="chip-group__row">
+                  <button className={`chip ${startKey==="2025-01"&&endKey==="2025-03"?"chip--active":""}`} onClick={()=>{setStartKey("2025-01");setEndKey("2025-03")}}>1T 2025</button>
+                  <button className={`chip ${startKey==="2025-04"&&endKey==="2025-06"?"chip--active":""}`} onClick={()=>{setStartKey("2025-04");setEndKey("2025-06")}}>2T 2025</button>
+                  <button className={`chip ${startKey==="2025-07"&&endKey==="2025-09"?"chip--active":""}`} onClick={()=>{setStartKey("2025-07");setEndKey("2025-09")}}>3T 2025</button>
+                  <button className={`chip ${startKey==="2025-10"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-10");setEndKey("2025-12")}}>4T 2025</button>
+                </div>
+              </div>
+              <div className="chip-group">
+                <div className="chip-group__label">Mês Isolado</div>
+                <div className="chip-group__row">
+                  <button className={`chip ${startKey==="2025-12"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-12");setEndKey("2025-12")}}>Dez 2025</button>
+                  <button className={`chip ${startKey==="2026-04"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2026-04");setEndKey("2026-04")}}>Abr 2026</button>
+                </div>
+              </div>
+            </div>
 
-              {/* M1: Reset + Supabase buttons */}
-              <div style={{marginTop:16,display:"flex",gap:8,flexWrap:"wrap",
-                borderTop:`1px solid ${C.rule}`,paddingTop:12}}>
-                <button onClick={resetToDefaults} style={{
-                  padding:"6px 14px",borderRadius:3,border:`1px solid ${C.red}55`,
-                  background:"#fff",color:C.red,fontSize:10,fontWeight:700,
-                  cursor:"pointer"}}>
-                  Resetar para defaults
+            <div className="card">
+              <SecTitle>Ações</SecTitle>
+              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                <button className="btn btn--danger btn--sm" onClick={resetToDefaults}>Resetar para defaults</button>
+                <button className="btn btn--primary btn--sm" onClick={saveToSupabase} disabled={supaStatus==="loading"}>
+                  {supaStatus==="loading" ? "Salvando..." : supaStatus==="saved" ? "Salvo!" : "Salvar no Supabase"}
                 </button>
-                {supabaseClient && (
-                  <>
-                    <button onClick={saveToSupabase} disabled={supaStatus==="loading"} style={{
-                      padding:"6px 14px",borderRadius:3,border:`1px solid ${C.green}55`,
-                      background:supaStatus==="saved"?C.green+"22":"#fff",
-                      color:C.green,fontSize:10,fontWeight:700,cursor:"pointer"}}>
-                      {supaStatus==="loading"?"Salvando...":supaStatus==="saved"?"Salvo no Supabase":"Salvar no Supabase"}
-                    </button>
-                    <button onClick={loadFromSupabase} disabled={supaStatus==="loading"} style={{
-                      padding:"6px 14px",borderRadius:3,border:`1px solid ${C.blue}55`,
-                      background:"#fff",color:C.blue,fontSize:10,fontWeight:700,cursor:"pointer"}}>
-                      {supaStatus==="loading"?"Carregando...":"Carregar do Supabase"}
-                    </button>
-                  </>
-                )}
-                {supaStatus==="error" && (
-                  <span style={{fontSize:10,color:C.red,alignSelf:"center"}}>Erro na opera&ccedil;&atilde;o Supabase</span>
-                )}
+                <button className="btn btn--secondary btn--sm" onClick={loadFromSupabase} disabled={supaStatus==="loading"}>
+                  {supaStatus==="loading" ? "Carregando..." : "Carregar do Supabase"}
+                </button>
               </div>
+              {dataSource === "supabase" && <div className="badge badge--info" style={{marginTop:10}}>Dados sincronizados com Supabase</div>}
             </div>
+          </div>
+        )}
 
-            {/* Resumo do periodo */}
-            <SecTitle>Resumo do Per&iacute;odo Selecionado</SecTitle>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-              {[
-                {label:"Meses",        value:nMonths,                         unit:""},
-                {label:"Altas válidas",value:agg.totalAltas.toLocaleString("pt-BR"), unit:""},
-                {label:"Realizado",    value:fmtN(agg.totalReal)+" d",        unit:"diárias"},
-                {label:"Previsto",     value:fmtN(agg.totalPrev)+" d",        unit:"diárias"},
-              ].map((m,i)=>(
-                <div key={i} style={{background:"#fff",border:`1px solid ${C.rule}`,
-                  borderRadius:3,padding:"12px 14px"}}>
-                  <div style={{fontSize:8,color:C.muted,textTransform:"uppercase",
-                    letterSpacing:1,marginBottom:5}}>{m.label}</div>
-                  <div style={{fontSize:16,fontWeight:700,color:C.ink}}>{m.value}</div>
+        {/* TAB 1: Parâmetros */}
+        {tab === 1 && (
+          <div>
+            <div className="card">
+              <SecTitle>Tarifas por Modalidade</SecTitle>
+              <TwoCol>
+                <div>
+                  <FieldN label="Enfermaria — Local" value={params.enfLocal} onChange={setParam("enfLocal")} mono/>
+                  <FieldN label="Enfermaria — Intercâmbio" value={params.enfIC} onChange={setParam("enfIC")} mono/>
+                  <FieldN label="Apartamento — Local" value={params.aptLocal} onChange={setParam("aptLocal")} mono/>
+                  <FieldN label="Apartamento — Intercâmbio" value={params.aptIC} onChange={setParam("aptIC")} mono/>
+                  <FieldN label="UTI — Local" value={params.utiLocal} onChange={setParam("utiLocal")} mono/>
+                  <FieldN label="UTI — Intercâmbio" value={params.utiIC} onChange={setParam("utiIC")} mono/>
                 </div>
-              ))}
-            </div>
-
-            {/* Linha do tempo visual */}
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:4,padding:"16px 20px"}}>
-              <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
-                letterSpacing:1.5,color:C.muted,marginBottom:12}}>
-                Meses no Per&iacute;odo &mdash; Inefici&ecirc;ncia Mensal
-              </div>
-              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {keys.map(k=>{
-                  const d = bank[k]||{};
-                  const hasData = d.realizado>0||d.previsto>0;
-                  const inefM = d.previsto>0?(d.realizado/d.previsto)*100:null;
-                  const barColor = !hasData ? "#e0e0e0"
-                    : inefM>105 ? C.red : inefM>100 ? C.orange
-                    : inefM>95 ? C.green : C.blue;
-                  return (
-                    <div key={k} title={`${keyToLabel(k)}\n${hasData?`Inef: ${fmtN(inefM??0)}%`:"Sem dados inseridos"}`}
-                      style={{textAlign:"center",width:42}}>
-                      <div style={{height:32,background:barColor+"33",borderRadius:3,
-                        border:`1px solid ${barColor}55`,display:"flex",
-                        alignItems:"flex-end",justifyContent:"center",overflow:"hidden"}}>
-                        {hasData && inefM!==null && (
-                          <div style={{width:"100%",background:barColor,
-                            height:`${Math.min(100,Math.abs(inefM-90)*3)}%`,
-                            transition:"height .3s"}}/>
-                        )}
-                      </div>
-                      <div style={{fontSize:8,color:C.muted,marginTop:3}}>
-                        {keyToLabel(k)}
-                        <NoDataBadge monthData={bank[k]}/>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{display:"flex",gap:16,marginTop:12,flexWrap:"wrap"}}>
-                {[
-                  {color:C.red,    label:"Ineficiente (>105%)"},
-                  {color:C.orange, label:"Acima do baseline (100–105%)"},
-                  {color:C.green,  label:"Eficiente (95–100%)"},
-                  {color:C.blue,   label:"Alta eficiência (<95%)"},
-                  {color:"#e0e0e0",label:"Sem dados"},
-                ].map(({color,label})=>(
-                  <div key={label} style={{display:"flex",alignItems:"center",gap:5}}>
-                    <div style={{width:10,height:10,background:color,borderRadius:2}}/>
-                    <span style={{fontSize:9,color:C.muted}}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══ TAB 1: PARAMETROS GLOBAIS ════════════════════════════ */}
-        {tab===1 && (
-          <div>
-            <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
-              borderRadius:3,padding:"10px 14px",marginBottom:20,
-              fontSize:10,color:C.orange}}>
-              Par&acirc;metros globais &mdash; aplicados uniformemente a todos os meses do per&iacute;odo.
-              Altere apenas se as tarifas ou a estrutura hospitalar mudarem.
-            </div>
-
-            <SecTitle>Estrutura de Leitos</SecTitle>
-            <TwoCol>
-              <FieldN label="Leitos instalados"  value={params.leitosInstalados}
-                onChange={setParam("leitosInstalados")} mono/>
-              <FieldN label="Leitos hospital dia (exclu&iacute;dos)" value={params.leitosHD}
-                onChange={setParam("leitosHD")} mono
-                note={`Operacionais (metodologia): ${params.leitosInstalados-params.leitosHD}`}/>
-              <FieldN label="Leitos UTI" value={params.leitosUTI}
-                onChange={setParam("leitosUTI")} mono
-                note={`Peso UTI: ${pct(params.leitosUTI/(params.leitosInstalados-params.leitosHD)*100)}`}/>
-              <FieldN label="Mix Apartamento %" value={params.mixApt}
-                onChange={setParam("mixApt")} mono
-                note={`Enfermaria: ${100-params.mixApt}%`}/>
-            </TwoCol>
-
-            <SecTitle>Tarifas Reais &mdash; 6 Modalidades</SecTitle>
-            <TwoCol>
-              <FieldN label="Enf. Local (R$)"         value={params.enfLocal}  onChange={setParam("enfLocal")}  mono/>
-              <FieldN label="Enf. Interc&acirc;mbio (R$)"   value={params.enfIC}     onChange={setParam("enfIC")}     mono/>
-              <FieldN label="Apt. Local (R$)"          value={params.aptLocal}  onChange={setParam("aptLocal")}  mono/>
-              <FieldN label="Apt. Interc&acirc;mbio (R$)"   value={params.aptIC}     onChange={setParam("aptIC")}     mono/>
-              <FieldN label="UTI Local (R$)"           value={params.utiLocal}  onChange={setParam("utiLocal")}  mono/>
-              <FieldN label="UTI Interc&acirc;mbio (R$)"    value={params.utiIC}     onChange={setParam("utiIC")}     mono/>
-            </TwoCol>
-
-            <div style={{background:"#f4faf7",border:`1px solid ${C.green}44`,
-              borderRadius:3,padding:"12px 16px",fontSize:10,color:C.muted,marginTop:4}}>
-              <strong style={{color:C.ink}}>Split local/interc&acirc;mbio</strong> &eacute; inserido m&ecirc;s a m&ecirc;s
-              na aba &quot;Dados Mensais&quot; &mdash; o CGP &eacute; recalculado com o agregado do per&iacute;odo selecionado.
-            </div>
-          </div>
-        )}
-
-        {/* ══ TAB 2: DADOS MENSAIS ══════════════════════════════════ */}
-        {tab===2 && (
-          <div>
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:4,overflow:"hidden"}}>
-              <div style={{overflowX:"auto"}}>
-                <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,minWidth:700}}>
-                  <thead>
-                    <tr style={{background:C.ink}}>
-                      {["Mês","Altas","Realizado (d)","Previsto (d)",
-                        "Exc./Evit.","Local (abs)","IC (abs)",
-                        "Bônus MG Hosp"].map((h,i)=>(
-                        <th key={i} style={{padding:"9px 10px",textAlign:i===0?"left":"right",
-                          fontWeight:700,fontSize:8,textTransform:"uppercase",
-                          letterSpacing:1,color:"rgba(200,240,220,0.8)",
-                          borderRight:i<7?`1px solid rgba(150,220,185,0.1)`:"none"}}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agg.monthRows.map((row,ri) => {
-                      const d = bank[row.key]||{};
-                      const inefM = d.previsto>0?(d.realizado/d.previsto)*100:null;
-                      const rowColor = inefM===null ? "transparent"
-                        : inefM>105 ? C.red+"12" : inefM>100 ? C.orange+"10"
-                        : inefM>95  ? C.green+"08" : C.blue+"08";
-                      const diffVal = row.exc>0 ? `+${fmtN(row.exc)}` : row.evit>0 ? `−${fmtN(row.evit)}` : "0,0";
-                      const diffColor = row.exc>0 ? C.red : row.evit>0 ? C.green : C.muted;
-                      return (
-                        <tr key={row.key} style={{background:ri%2===0?"#fff":"#f8faf8"}}>
-                          <td style={{padding:"5px 10px",fontWeight:700,fontSize:11,
-                            color:C.ink,borderBottom:`1px solid ${C.rule}`,
-                            position:"relative"}}>
-                            <div style={{width:3,height:"100%",background:rowColor,
-                              position:"absolute",left:0,top:0}}/>
-                            {keyToLabel(row.key)}
-                            <NoDataBadge monthData={bank[row.key]}/>
-                          </td>
-                          {["altas","realizado","previsto"].map(f=>(
-                            <td key={f} style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
-                              <input type="number" step={f==="altas"?1:0.1}
-                                value={d[f]??0}
-                                onChange={e=>setMonthField(row.key,f,e.target.value)}
-                                style={{width:"100%",padding:"4px 6px",border:`1px solid transparent`,
-                                  borderRadius:2,fontSize:10,fontFamily:"monospace",
-                                  textAlign:"right",background:"transparent",color:C.text,
-                                  outline:"none"}}
-                                onFocus={e=>e.target.style.border=`1px solid ${C.green}`}
-                                onBlur={e=>e.target.style.border="1px solid transparent"}/>
-                            </td>
-                          ))}
-                          <td style={{padding:"5px 10px",textAlign:"right",fontWeight:700,
-                            fontSize:10,color:diffColor,borderBottom:`1px solid ${C.rule}`,
-                            fontFamily:"monospace"}}>{diffVal}</td>
-                          {["localAbs","icAbs"].map(f=>(
-                            <td key={f} style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
-                              <input type="number" step="1"
-                                value={d[f]??0}
-                                onChange={e=>setMonthField(row.key,f,e.target.value)}
-                                style={{width:"100%",padding:"4px 6px",border:"1px solid transparent",
-                                  borderRadius:2,fontSize:10,fontFamily:"monospace",
-                                  textAlign:"right",background:"transparent",color:C.text,outline:"none"}}
-                                onFocus={e=>e.target.style.border=`1px solid ${C.green}`}
-                                onBlur={e=>e.target.style.border="1px solid transparent"}/>
-                            </td>
-                          ))}
-                          <td style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
-                            <input type="number" step="0.01"
-                              value={d.bonus??0}
-                              onChange={e=>setMonthField(row.key,"bonus",e.target.value)}
-                              style={{width:"100%",padding:"4px 6px",border:"1px solid transparent",
-                                borderRadius:2,fontSize:10,fontFamily:"monospace",
-                                textAlign:"right",background:"transparent",color:C.blue,
-                                fontWeight:600,outline:"none"}}
-                              onFocus={e=>e.target.style.border=`1px solid ${C.blue}`}
-                              onBlur={e=>e.target.style.border="1px solid transparent"}/>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr style={{background:C.ink}}>
-                      <td style={{padding:"8px 10px",fontWeight:700,fontSize:10,
-                        color:"rgba(200,240,220,0.8)"}}>TOTAL</td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:"#fff",fontSize:10}}>
-                        {agg.totalAltas.toLocaleString("pt-BR")}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:"#fff",fontSize:10}}>
-                        {fmtN(agg.totalReal)}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:"#fff",fontSize:10}}>
-                        {fmtN(agg.totalPrev)}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,fontSize:10,
-                        color:agg.diarExc>agg.diarEvit?C.orange+""
-                             :agg.diarEvit>agg.diarExc?C.neon:"#fff"}}>
-                        {agg.diarExc>0&&agg.diarEvit===0 ? `+${fmtN(agg.diarExc)}`
-                        :agg.diarEvit>0&&agg.diarExc===0 ? `−${fmtN(agg.diarEvit)}`
-                        :`+${fmtN(agg.diarExc)} / −${fmtN(agg.diarEvit)}`}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:"rgba(200,240,220,0.7)",fontSize:10}}>
-                        {agg.totalLocal}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:"rgba(200,240,220,0.7)",fontSize:10}}>
-                        {agg.totalIC}
-                      </td>
-                      <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                        fontWeight:700,color:C.neon,fontSize:10}}>
-                        {fmtV(agg.totalBonus)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {/* ══ TAB 3: CGP ═══════════════════════════════════════════ */}
-        {tab===3 && (
-          <div>
-            <SecTitle>Custo Global Ponderado (CGP)</SecTitle>
-            {cgpData ? (
-              <div>
-                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:16}}>
-                  <Pill label="CGP do Período" value={fmtV(cgpData.cgp)} color={C.blue}/>
-                  <Pill label="Leitos Operac." value={cgpData.op} color={C.ink}/>
-                  <Pill label="% Local" value={pct(cgpData.pl*100)} color={C.green}/>
-                  <Pill label="% IC" value={pct(cgpData.pi*100)} color={C.orange}/>
+                <div>
+                  <FieldN label="Leitos Instalados" value={params.leitosInstalados} onChange={setParam("leitosInstalados")}/>
+                  <FieldN label="Leitos Hospital Dia (excluídos)" value={params.leitosHD} onChange={setParam("leitosHD")}/>
+                  <FieldN label="Leitos UTI" value={params.leitosUTI} onChange={setParam("leitosUTI")}/>
+                  <FieldN label="Mix Apartamento (%)" value={params.mixApt} onChange={setParam("mixApt")} note="Restante = Enfermaria"/>
                 </div>
-
-                <CompCard color={C.blue} tag="Composição" title="Tarifas Ponderadas">
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                    <Pill label="UTI Ponderada" value={fmtV(cgpData.utiP)} color={C.blue}
-                      sub={`Peso: ${pct(cgpData.wUTI*100)}`}/>
-                    <Pill label="Apt. Ponderada" value={fmtV(cgpData.aptP)} color={C.deep}/>
-                    <Pill label="Enf. Ponderada" value={fmtV(cgpData.enfP)} color={C.teal}/>
-                  </div>
-                  <div style={{marginTop:10,fontSize:10,color:C.muted}}>
-                    Conv. Ponderada: <strong>{fmtV(cgpData.convP)}</strong> (Peso conv: {pct(cgpData.wConv*100)})
-                  </div>
-                </CompCard>
-
-                <CompCard color={C.ink} tag="Fórmula" title="CGP = wUTI × UTI_p + wConv × Conv_p">
-                  <div style={{fontFamily:"monospace",fontSize:11,lineHeight:1.8,color:C.text}}>
-                    <div>wUTI = {cgpData.wUTI.toFixed(4)} &middot; UTI_p = {fmtV(cgpData.utiP)}</div>
-                    <div>wConv = {cgpData.wConv.toFixed(4)} &middot; Conv_p = {fmtV(cgpData.convP)}</div>
-                    <div style={{marginTop:6,fontWeight:700,color:C.blue}}>
-                      CGP = {fmtV(cgpData.cgp)}
-                    </div>
-                  </div>
-                </CompCard>
-
-                <CopyBtn id="cgp" label="Copiar CGP completo" color={C.blue}
-                  text={`CGP do Período: ${fmtV(cgpData.cgp)}\nLocal: ${pct(cgpData.pl*100)} | IC: ${pct(cgpData.pi*100)}\nUTI pond.: ${fmtV(cgpData.utiP)} | Apt pond.: ${fmtV(cgpData.aptP)} | Enf pond.: ${fmtV(cgpData.enfP)}\nConv pond.: ${fmtV(cgpData.convP)}\nLeitos oper.: ${cgpData.op} | wUTI: ${cgpData.wUTI.toFixed(4)} | wConv: ${cgpData.wConv.toFixed(4)}`}/>
-              </div>
-            ) : (
-              <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
-                borderRadius:3,padding:"16px",fontSize:11,color:C.orange}}>
-                Insira dados de Local (abs) e IC (abs) na aba &quot;Dados Mensais&quot; para calcular o CGP.
+              </TwoCol>
+            </div>
+            {cgpData && (
+              <div className="card card--brand">
+                <SecTitle>CGP Calculado</SecTitle>
+                <div className="kpi-grid">
+                  <Pill label="CGP Final" value={fmtV(cgpData.cgp)} color="#fff"/>
+                  <Pill label="UTI Ponderada" value={fmtV(cgpData.utiP)} color="#fff"/>
+                  <Pill label="Conv. Ponderada" value={fmtV(cgpData.convP)} color="#fff"/>
+                  <Pill label="% Local" value={pct(cgpData.pl*100)} color="#fff"/>
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ══ TAB 4: DRG REPORTS ═══════════════════════════════════ */}
-        {tab===4 && (
+        {/* TAB 2: Dados Mensais */}
+        {tab === 2 && (
+          <div className="drg-table-wrap">
+            <div className="drg-table-scroll">
+              <table className="drg-table">
+                <thead><tr>
+                  <th>Mês</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
+                  <th>Bônus</th><th>Local</th><th>IC</th><th>Status</th>
+                </tr></thead>
+                <tbody>
+                  {agg.monthRows.map(r => (
+                    <tr key={r.key}>
+                      <td>{keyToLabel(r.key)}</td>
+                      <td><input className="cell-input" type="number" value={bank[r.key]?.altas||0} onChange={e=>setMonthField(r.key,"altas",e.target.value)}/></td>
+                      <td><input className="cell-input" type="number" step="0.1" value={bank[r.key]?.realizado||0} onChange={e=>setMonthField(r.key,"realizado",e.target.value)}/></td>
+                      <td><input className="cell-input" type="number" step="0.1" value={bank[r.key]?.previsto||0} onChange={e=>setMonthField(r.key,"previsto",e.target.value)}/></td>
+                      <td><input className="cell-input" type="number" step="0.01" value={bank[r.key]?.bonus||0} onChange={e=>setMonthField(r.key,"bonus",e.target.value)}/></td>
+                      <td><input className="cell-input" type="number" value={bank[r.key]?.localAbs||0} onChange={e=>setMonthField(r.key,"localAbs",e.target.value)}/></td>
+                      <td><input className="cell-input" type="number" value={bank[r.key]?.icAbs||0} onChange={e=>setMonthField(r.key,"icAbs",e.target.value)}/></td>
+                      <td><NoDataBadge monthData={bank[r.key]}/></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: CGP */}
+        {tab === 3 && cgpData && (
           <div>
-            <SecTitle>Relatórios DRG Brasil&reg;</SecTitle>
-
-            {/* C1 */}
-            <CompCard color={C.orange} tag="C1" title={`Desperdício Eliminado: ${C1?fmtV(C1):NA}`}>
-              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                <Pill label="Diárias excedidas" value={`+${fmtN(agg.diarExc)} d`} color={C.orange}/>
-                <Pill label="CGP" value={cgpData?fmtV(cgpData.cgp):NA} color={C.orange}/>
-                <Pill label="C1 Total" value={C1?fmtV(C1):NA} color={C.orange}
-                  sub="Redução de despesa"/>
+            <div className="card">
+              <SecTitle>Custo Global Ponderado da Diária</SecTitle>
+              <div className="kpi-grid">
+                <Pill label="CGP Final" value={fmtV(cgpData.cgp)} color={C.green}/>
+                <Pill label="UTI Ponderada" value={fmtV(cgpData.utiP)} color={C.blue}/>
+                <Pill label="Apt Ponderada" value={fmtV(cgpData.aptP)} color={C.deep}/>
+                <Pill label="Enf Ponderada" value={fmtV(cgpData.enfP)} color={C.deep}/>
+                <Pill label="Conv Ponderada" value={fmtV(cgpData.convP)} color={C.deep}/>
+                <Pill label="% Local" value={pct(cgpData.pl*100)} color={C.green}/>
+                <Pill label="% Intercâmbio" value={pct(cgpData.pi*100)} color={C.orange}/>
+                <Pill label="Leitos Operacionais" value={String(cgpData.op)} color={C.ink}/>
               </div>
-              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
-                Fórmula: C1 = diárias excedidas × CGP = {fmtN(agg.diarExc)} × {cgpData?fmtV(cgpData.cgp):NA}
-              </div>
-              <CopyBtn id="c1" label="Copiar C1" color={C.orange}
-                text={`C1 — Desperdício Eliminado\nDiárias excedidas: +${fmtN(agg.diarExc)}\nCGP: ${cgpData?fmtV(cgpData.cgp):NA}\nTotal C1: ${C1?fmtV(C1):NA}`}/>
-            </CompCard>
-
-            {/* C2 */}
-            <CompCard color={C.green} tag="C2" title={`Custo Evitado: ${C2?fmtV(C2):NA}`}>
-              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                <Pill label="Diárias evitadas" value={`−${fmtN(agg.diarEvit)} d`} color={C.green}/>
-                <Pill label="CGP" value={cgpData?fmtV(cgpData.cgp):NA} color={C.green}/>
-                <Pill label="C2 Total" value={C2?fmtV(C2):NA} color={C.green}
-                  sub="Redução de despesa"/>
-              </div>
-              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
-                Fórmula: C2 = diárias evitadas × CGP = {fmtN(agg.diarEvit)} × {cgpData?fmtV(cgpData.cgp):NA}
-              </div>
-              <CopyBtn id="c2" label="Copiar C2" color={C.green}
-                text={`C2 — Custo Evitado\nDiárias evitadas: −${fmtN(agg.diarEvit)}\nCGP: ${cgpData?fmtV(cgpData.cgp):NA}\nTotal C2: ${C2?fmtV(C2):NA}`}/>
-            </CompCard>
-
-            {/* C3 */}
-            <CompCard color={C.blue} tag="C3" title={`Bônus MG Hosp: ${C3?fmtV(C3):NA}`}>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                {agg.monthRows.filter(r=>r.bonus>0).map(r=>(
-                  <Pill key={r.key} label={keyToLabel(r.key)}
-                    value={fmtV(r.bonus)} color={C.blue}/>
-                ))}
-              </div>
-              <div style={{marginTop:8,textAlign:"right",fontWeight:700,
-                fontSize:13,color:C.blue}}>Total C3: {C3?fmtV(C3):NA}</div>
-              <CopyBtn id="c3" label="Copiar C3" color={C.blue}
-                text={`C3 — Bônus MG Hosp\n${agg.monthRows.filter(r=>r.bonus>0).map(r=>`${keyToLabel(r.key)}: ${fmtV(r.bonus)}`).join("\n")}\nTotal C3: ${C3?fmtV(C3):NA}`}/>
-            </CompCard>
-
-            {/* CONSOLIDADO */}
-            <div style={{background:C.ink,borderRadius:4,padding:"20px 24px"}}>
-              <div style={{fontSize:9,textTransform:"uppercase",letterSpacing:2.5,
-                color:"rgba(150,220,185,0.5)",textAlign:"center",marginBottom:14}}>
-                Impacto Financeiro Consolidado
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14,flexWrap:"wrap"}}>
-                {[
-                  {label:"Desperdício Eliminado",v:C1,nat:"Redução de despesa",color:C.orange},
-                  {label:"Custo Evitado",        v:C2,nat:"Redução de despesa",color:C.green},
-                  {label:"Bônus MG Hosp",        v:C3,nat:"Geração de receita",color:C.blue},
-                ].map((item,i,arr)=>(
-                  <div key={i} style={{display:"contents"}}>
-                    <div style={{flex:1,minWidth:120,background:"rgba(255,255,255,0.07)",
-                      borderRadius:3,padding:"12px 8px",textAlign:"center",
-                      borderTop:`2px solid ${item.v?item.color:"#444"}`}}>
-                      <div style={{fontSize:7.5,color:"rgba(150,220,185,0.5)",
-                        textTransform:"uppercase",letterSpacing:1,marginBottom:5}}>
-                        {item.label}
-                      </div>
-                      <div style={{fontSize:14,fontWeight:700,
-                        color:item.v?"#fff":"#555",fontFamily:"monospace",marginBottom:3}}>
-                        {item.v?fmtV(item.v):NA}
-                      </div>
-                      <div style={{fontSize:7,color:"rgba(150,220,185,0.3)",
-                        textTransform:"uppercase"}}>{item.nat}</div>
-                    </div>
-                    {i<arr.length-1&&<div style={{color:"rgba(150,220,185,0.2)",fontSize:20,fontWeight:700,flexShrink:0}}>+</div>}
-                  </div>
-                ))}
-              </div>
-              <div style={{background:"rgba(0,150,90,0.18)",border:"1px solid rgba(0,150,90,0.3)",
-                borderRadius:3,padding:"14px 20px",textAlign:"center",marginBottom:12}}>
-                <div style={{fontSize:9,color:"rgba(150,220,185,0.55)",
-                  letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>
-                  Total Consolidado &middot; {keyToLabel(startKey)}&ndash;{keyToLabel(endKey)}
-                </div>
-                <div style={{fontSize:30,fontWeight:700,
-                  color:TOTAL>0?"#fff":"#555"}}>
-                  {TOTAL>0?fmtV(TOTAL):NA}
-                </div>
-                {inef!==null&&(
-                  <div style={{fontSize:9,color:"rgba(150,220,185,0.45)",marginTop:5}}>
-                    {nMonths} {nMonths===1?"mês":"meses"} &middot;
-                    Ineficiência: {fmtN(inef)}% &middot; {agg.totalAltas.toLocaleString("pt-BR")} altas
-                  </div>
-                )}
-              </div>
-
-              {/* Action buttons */}
-              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                <button onClick={()=>copy(
-                  `CONSOLIDADO DRG Brasil® — Unimed + Unihealth | Governador Valadares\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)} (${nMonths} ${nMonths===1?"mês":"meses"})\n\nC1 — Desperdício Eliminado: ${C1?fmtV(C1):NA}\nC2 — Custo Evitado: ${C2?fmtV(C2):NA}\nC3 — Bônus MG Hosp: ${C3?fmtV(C3):NA}\n\nTotal Consolidado: ${TOTAL>0?fmtV(TOTAL):NA}\nIneficiência do período: ${inef!==null?fmtN(inef)+"%":NA}\nTotal de altas: ${agg.totalAltas.toLocaleString("pt-BR")}\n\nAxiaCare® — Gestão em Saúde\nguilherme@axcare.com.br`,"total")}
-                  style={{flex:1,padding:"10px",borderRadius:3,
-                    border:"1px solid rgba(0,150,90,0.4)",
-                    background:copied==="total"?"rgba(0,150,90,0.3)":"rgba(0,150,90,0.1)",
-                    color:copied==="total"?C.neon:"rgba(150,220,185,0.65)",
-                    fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
-                  {copied==="total"?"Copiado!":"Copiar consolidado"}
-                </button>
-                <button onClick={exportPDF}
-                  style={{flex:1,padding:"10px",borderRadius:3,
-                    border:`1px solid ${C.blue}66`,
-                    background:`${C.blue}22`,
-                    color:C.mint,
-                    fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
-                  Exportar PDF
-                </button>
+            </div>
+            <div className="card">
+              <SecTitle>Fórmula Detalhada</SecTitle>
+              <div style={{fontFamily:"monospace",fontSize:12,lineHeight:1.8,color:C.ink}}>
+                <div>UTI_pond = {fmtV(params.utiLocal)} × {(cgpData.pl).toFixed(4)} + {fmtV(params.utiIC)} × {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.utiP)}</strong></div>
+                <div>Apt_pond = {fmtV(params.aptLocal)} × {(cgpData.pl).toFixed(4)} + {fmtV(params.aptIC)} × {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.aptP)}</strong></div>
+                <div>Enf_pond = {fmtV(params.enfLocal)} × {(cgpData.pl).toFixed(4)} + {fmtV(params.enfIC)} × {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.enfP)}</strong></div>
+                <div>Conv_pond = 0,{params.mixApt}×Apt + 0,{100-params.mixApt}×Enf = <strong>{fmtV(cgpData.convP)}</strong></div>
+                <div style={{marginTop:8,fontWeight:700}}>CGP = {(cgpData.wUTI).toFixed(5)}×UTI + {(1-cgpData.wUTI).toFixed(5)}×Conv = <strong style={{color:C.green}}>{fmtV(cgpData.cgp)}</strong></div>
               </div>
             </div>
           </div>
         )}
 
-
-        {/* ══ TAB 5: TENDENCIA ═════════════════════════════════════ */}
-        {tab===5 && (
+        {/* TAB 4: DRG Reports */}
+        {tab === 4 && (
           <div>
-            <SecTitle>Tend&ecirc;ncia Temporal &mdash; Inefici&ecirc;ncia Mensal</SecTitle>
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:4,padding:"16px 20px",marginBottom:20}}>
+            <div className="kpi-grid">
+              <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null}/>
+              <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null}/>
+              <Pill label="C3 — Bônus MG Hosp" value={C3 ? fmtV(C3) : NA} color={C.blue} sub={C3 ? `${nMonths} meses acumulados` : null}/>
+              <Pill label="Total Consolidado" value={fmtV(TOTAL)} color={C.ink}/>
+            </div>
+            <div className="card">
+              <SecTitle>Resumo do Período</SecTitle>
+              <div className="kpi-grid">
+                <Pill label="Altas Válidas" value={agg.totalAltas.toLocaleString("pt-BR")} color={C.ink}/>
+                <Pill label="Diárias Realizadas" value={fmtN(agg.totalReal)} color={C.ink}/>
+                <Pill label="Diárias Previstas" value={fmtN(agg.totalPrev)} color={C.ink}/>
+                <Pill label="(In)Eficiência" value={inef ? pct(inef) : NA} color={statusColor}/>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:10,marginTop:16}}>
+              <button className="btn btn--primary" onClick={exportPDF}>Exportar Relatório PDF</button>
+              <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
+                {copied==="total" ? "Copiado!" : "Copiar Total"}
+              </button>
+            </div>
+          </div>
+        )}
+
+
+        {/* TAB 5: Tendência */}
+        {tab === 5 && (
+          <div>
+            <div className="chart-wrap">
+              <SecTitle>Ineficiência Mensal (%)</SecTitle>
               <ChartCanvas id="chart-inef" config={trendInefConfig} height={280}/>
-              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
-                Meses com barra acima da linha pontilhada (100%) indicam inefici&ecirc;ncia.
-                Meses sem dados n&atilde;o s&atilde;o plotados.
-              </div>
             </div>
-
-            <SecTitle>Impacto Financeiro Mensal (Empilhado)</SecTitle>
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:4,padding:"16px 20px"}}>
+            <div className="chart-wrap">
+              <SecTitle>Impacto Financeiro Mensal (R$)</SecTitle>
               <ChartCanvas id="chart-fin" config={trendFinConfig} height={280}/>
-              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
-                Composi&ccedil;&atilde;o mensal: C1 (desperd&iacute;cio eliminado), C2 (custo evitado) e C3 (b&ocirc;nus MG Hosp).
-              </div>
             </div>
           </div>
         )}
 
-        {/* ══ TAB 6: COMPARATIVO ANO-A-ANO ═════════════════════════ */}
-        {tab===6 && (() => {
+        {/* TAB 6: Comparativo */}
+        {tab === 6 && (() => {
           const m1 = calcCycleMetrics(yoyCycle1);
           const m2 = calcCycleMetrics(yoyCycle2);
-          const delta = (a,b) => b !== 0 ? ((a-b)/Math.abs(b))*100 : null;
-          const DeltaCell = ({v1,v2,fmt:fmtFn,invert}) => {
-            const d = delta(v2,v1);
-            const better = invert ? d < 0 : d > 0;
-            return (
-              <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",fontSize:10,
-                borderBottom:`1px solid ${C.rule}`}}>
-                {d !== null ? (
-                  <span style={{color:better?C.green:C.red,fontWeight:700}}>
-                    {d > 0 ? "+" : ""}{fmtN(d)}%
-                  </span>
-                ) : NA}
-              </td>
-            );
-          };
-          const rows = [
-            {label:"Altas válidas", v1:m1.altas, v2:m2.altas, fmt:v=>v.toLocaleString("pt-BR")},
-            {label:"Diárias realizadas", v1:m1.realizado, v2:m2.realizado, fmt:v=>fmtN(v)+" d", invert:true},
-            {label:"Diárias previstas", v1:m1.previsto, v2:m2.previsto, fmt:v=>fmtN(v)+" d"},
-            {label:"Ineficiência", v1:m1.inef, v2:m2.inef, fmt:v=>v?fmtN(v)+"%":NA, invert:true},
-            {label:"CGP", v1:m1.cgp, v2:m2.cgp, fmt:v=>fmtV(v)},
-            {label:"C1 — Desperdício", v1:m1.c1, v2:m2.c1, fmt:v=>fmtV(v), invert:true},
-            {label:"C2 — Custo Evitado", v1:m1.c2, v2:m2.c2, fmt:v=>fmtV(v)},
-            {label:"C3 — Bônus", v1:m1.c3, v2:m2.c3, fmt:v=>fmtV(v)},
-            {label:"Total Consolidado", v1:m1.total, v2:m2.total, fmt:v=>fmtV(v)},
-          ];
+          const delta = (a, b) => b - a;
+          const deltaPct = (a, b) => a > 0 ? ((b - a) / a * 100) : null;
           return (
             <div>
-              <SecTitle>Comparativo Ano-a-Ano</SecTitle>
-              <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
-                {[2024,2025,2026].map(y => (
-                  <div key={y} style={{display:"flex",gap:6}}>
-                    <button onClick={()=>setYoyCycle1(String(y))} style={{
-                      padding:"5px 12px",borderRadius:3,fontSize:10,fontWeight:700,cursor:"pointer",
-                      background:yoyCycle1===String(y)?C.ink:"#fff",
-                      color:yoyCycle1===String(y)?"#fff":C.text,
-                      border:`1px solid ${C.rule}`}}>
-                      {y} (A)
-                    </button>
-                    <button onClick={()=>setYoyCycle2(String(y))} style={{
-                      padding:"5px 12px",borderRadius:3,fontSize:10,fontWeight:700,cursor:"pointer",
-                      background:yoyCycle2===String(y)?C.blue:"#fff",
-                      color:yoyCycle2===String(y)?"#fff":C.text,
-                      border:`1px solid ${C.rule}`}}>
-                      {y} (B)
-                    </button>
-                  </div>
-                ))}
+              <div className="card" style={{marginBottom:20}}>
+                <SecTitle>Selecionar Ciclos</SecTitle>
+                <div style={{display:"flex",gap:14,alignItems:"center"}}>
+                  <select className="field__select" value={yoyCycle1} onChange={e => setYoyCycle1(e.target.value)}>
+                    {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  <span style={{fontFamily:"var(--font-display)",fontWeight:700,color:"var(--u-stone)"}}>vs</span>
+                  <select className="field__select" value={yoyCycle2} onChange={e => setYoyCycle2(e.target.value)}>
+                    {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
               </div>
-
-              <div style={{background:"#fff",border:`1px solid ${C.rule}`,borderRadius:4,overflow:"hidden"}}>
-                <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
-                  <thead>
-                    <tr style={{background:C.ink}}>
-                      <th style={{padding:"9px 10px",textAlign:"left",color:"rgba(200,240,220,0.8)",
-                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>M&eacute;trica</th>
-                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
-                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{yoyCycle1} (A)</th>
-                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
-                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{yoyCycle2} (B)</th>
-                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
-                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>Delta</th>
-                    </tr>
-                  </thead>
+              <div className="drg-table-wrap">
+                <table className="drg-table">
+                  <thead><tr><th>Métrica</th><th>{yoyCycle1}</th><th>{yoyCycle2}</th><th>Delta</th><th>%</th></tr></thead>
                   <tbody>
-                    {rows.map((r,i) => (
-                      <tr key={i} style={{background:i%2===0?"#fff":"#f8faf8"}}>
-                        <td style={{padding:"8px 10px",fontWeight:700,color:C.ink,
-                          borderBottom:`1px solid ${C.rule}`}}>{r.label}</td>
-                        <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                          fontSize:10,borderBottom:`1px solid ${C.rule}`}}>{r.fmt(r.v1)}</td>
-                        <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
-                          fontSize:10,borderBottom:`1px solid ${C.rule}`}}>{r.fmt(r.v2)}</td>
-                        <DeltaCell v1={r.v1} v2={r.v2} invert={r.invert}/>
-                      </tr>
-                    ))}
+                    <tr><td>Altas Válidas</td><td>{m1.altas.toLocaleString("pt-BR")}</td><td>{m2.altas.toLocaleString("pt-BR")}</td><td>{delta(m1.altas,m2.altas).toLocaleString("pt-BR")}</td><td>{deltaPct(m1.altas,m2.altas)!==null?fmtN(deltaPct(m1.altas,m2.altas))+"%":NA}</td></tr>
+                    <tr><td>Diárias Realizadas</td><td>{fmtN(m1.realizado)}</td><td>{fmtN(m2.realizado)}</td><td>{fmtN(delta(m1.realizado,m2.realizado))}</td><td>{deltaPct(m1.realizado,m2.realizado)!==null?fmtN(deltaPct(m1.realizado,m2.realizado))+"%":NA}</td></tr>
+                    <tr><td>Diárias Previstas</td><td>{fmtN(m1.previsto)}</td><td>{fmtN(m2.previsto)}</td><td>{fmtN(delta(m1.previsto,m2.previsto))}</td><td>{deltaPct(m1.previsto,m2.previsto)!==null?fmtN(deltaPct(m1.previsto,m2.previsto))+"%":NA}</td></tr>
+                    <tr><td>(In)Eficiência</td><td>{m1.inef?pct(m1.inef):NA}</td><td>{m2.inef?pct(m2.inef):NA}</td><td style={{color:m2.inef<m1.inef?C.green:C.red}}>{m1.inef&&m2.inef?fmtN(m2.inef-m1.inef)+" p.p.":NA}</td><td>—</td></tr>
+                    <tr><td>CGP</td><td>{fmtV(m1.cgp)}</td><td>{fmtV(m2.cgp)}</td><td>{fmtV(delta(m1.cgp,m2.cgp))}</td><td>{deltaPct(m1.cgp,m2.cgp)!==null?fmtN(deltaPct(m1.cgp,m2.cgp))+"%":NA}</td></tr>
+                    <tr><td>C1 — Desperdício</td><td>{fmtV(m1.c1)}</td><td>{fmtV(m2.c1)}</td><td>{fmtV(delta(m1.c1,m2.c1))}</td><td>—</td></tr>
+                    <tr><td>C2 — Custo Evitado</td><td>{fmtV(m1.c2)}</td><td>{fmtV(m2.c2)}</td><td>{fmtV(delta(m1.c2,m2.c2))}</td><td>—</td></tr>
+                    <tr><td>C3 — Bônus</td><td>{fmtV(m1.c3)}</td><td>{fmtV(m2.c3)}</td><td>{fmtV(delta(m1.c3,m2.c3))}</td><td>{deltaPct(m1.c3,m2.c3)!==null?fmtN(deltaPct(m1.c3,m2.c3))+"%":NA}</td></tr>
+                    <tr style={{fontWeight:700}}><td>Total</td><td>{fmtV(m1.total)}</td><td>{fmtV(m2.total)}</td><td style={{color:m2.total>m1.total?C.green:C.red}}>{fmtV(delta(m1.total,m2.total))}</td><td>{deltaPct(m1.total,m2.total)!==null?fmtN(deltaPct(m1.total,m2.total))+"%":NA}</td></tr>
                   </tbody>
                 </table>
-              </div>
-              <div style={{marginTop:12,fontSize:9,color:C.muted}}>
-                Delta positivo em verde = melhoria. Para inefici&ecirc;ncia e desperd&iacute;cio, redu&ccedil;&atilde;o (delta negativo) &eacute; melhoria.
               </div>
             </div>
           );
         })()}
 
-        {/* ══ TAB 7: SIMULADOR WHAT-IF ═════════════════════════════ */}
-        {tab===7 && (
+        {/* TAB 7: Simulador */}
+        {tab === 7 && (
           <div>
-            <SecTitle>Simulador What-If</SecTitle>
-            <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
-              borderRadius:3,padding:"10px 14px",marginBottom:20,fontSize:10,color:C.orange}}>
-              Ajuste tarifas e estrutura de leitos para simular cen&aacute;rios alternativos.
-              Os dados mensais do per&iacute;odo ativo s&atilde;o mantidos &mdash; apenas os par&acirc;metros mudam.
+            <div className="card">
+              <SecTitle>Parâmetros do Cenário</SecTitle>
+              <TwoCol>
+                <div>
+                  <FieldN label="Enfermaria — Local" value={simParams.enfLocal} onChange={v => setSimParams(p=>({...p,enfLocal:v}))} mono/>
+                  <FieldN label="Enfermaria — Intercâmbio" value={simParams.enfIC} onChange={v => setSimParams(p=>({...p,enfIC:v}))} mono/>
+                  <FieldN label="Apartamento — Local" value={simParams.aptLocal} onChange={v => setSimParams(p=>({...p,aptLocal:v}))} mono/>
+                  <FieldN label="Apartamento — Intercâmbio" value={simParams.aptIC} onChange={v => setSimParams(p=>({...p,aptIC:v}))} mono/>
+                  <FieldN label="UTI — Local" value={simParams.utiLocal} onChange={v => setSimParams(p=>({...p,utiLocal:v}))} mono/>
+                  <FieldN label="UTI — Intercâmbio" value={simParams.utiIC} onChange={v => setSimParams(p=>({...p,utiIC:v}))} mono/>
+                </div>
+                <div>
+                  <FieldN label="Leitos Instalados" value={simParams.leitosInstalados} onChange={v => setSimParams(p=>({...p,leitosInstalados:v}))}/>
+                  <FieldN label="Leitos Hospital Dia" value={simParams.leitosHD} onChange={v => setSimParams(p=>({...p,leitosHD:v}))}/>
+                  <FieldN label="Leitos UTI" value={simParams.leitosUTI} onChange={v => setSimParams(p=>({...p,leitosUTI:v}))}/>
+                  <FieldN label="Mix Apartamento (%)" value={simParams.mixApt} onChange={v => setSimParams(p=>({...p,mixApt:v}))}/>
+                  <FieldN label="Meta Ineficiência (%)" value={simMeta} onChange={v => setSimMeta(v)} note="Referência visual"/>
+                </div>
+              </TwoCol>
             </div>
 
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-              {/* Coluna: Parametros simulados */}
-              <div>
-                <div style={{fontWeight:700,fontSize:10,textTransform:"uppercase",
-                  letterSpacing:1.5,color:C.muted,marginBottom:10}}>Par&acirc;metros Simulados</div>
-                <TwoCol gap={8}>
-                  <FieldN label="Enf. Local (R$)" value={simParams.enfLocal}
-                    onChange={v=>setSimParams(p=>({...p,enfLocal:v}))} mono/>
-                  <FieldN label="Enf. IC (R$)" value={simParams.enfIC}
-                    onChange={v=>setSimParams(p=>({...p,enfIC:v}))} mono/>
-                  <FieldN label="Apt. Local (R$)" value={simParams.aptLocal}
-                    onChange={v=>setSimParams(p=>({...p,aptLocal:v}))} mono/>
-                  <FieldN label="Apt. IC (R$)" value={simParams.aptIC}
-                    onChange={v=>setSimParams(p=>({...p,aptIC:v}))} mono/>
-                  <FieldN label="UTI Local (R$)" value={simParams.utiLocal}
-                    onChange={v=>setSimParams(p=>({...p,utiLocal:v}))} mono/>
-                  <FieldN label="UTI IC (R$)" value={simParams.utiIC}
-                    onChange={v=>setSimParams(p=>({...p,utiIC:v}))} mono/>
-                </TwoCol>
-                <TwoCol gap={8}>
-                  <FieldN label="Leitos Instalados" value={simParams.leitosInstalados}
-                    onChange={v=>setSimParams(p=>({...p,leitosInstalados:v}))} mono/>
-                  <FieldN label="Leitos HD" value={simParams.leitosHD}
-                    onChange={v=>setSimParams(p=>({...p,leitosHD:v}))} mono/>
-                  <FieldN label="Leitos UTI" value={simParams.leitosUTI}
-                    onChange={v=>setSimParams(p=>({...p,leitosUTI:v}))} mono/>
-                  <FieldN label="Mix Apt (%)" value={simParams.mixApt}
-                    onChange={v=>setSimParams(p=>({...p,mixApt:v}))} mono/>
-                </TwoCol>
-                <button onClick={()=>setSimParams({...params})} style={{
-                  marginTop:8,padding:"6px 14px",borderRadius:3,border:`1px solid ${C.rule}`,
-                  background:"#fff",color:C.text,fontSize:10,fontWeight:700,cursor:"pointer"}}>
-                  Copiar par&acirc;metros atuais
-                </button>
+            <div className="card">
+              <SecTitle>Resultado do Cenário</SecTitle>
+              <div className="kpi-grid">
+                <Pill label="CGP Simulado" value={simCgpData ? fmtV(simCgpData.cgp) : NA} color={C.green}/>
+                <Pill label="C1 Simulado" value={simC1 ? fmtV(simC1) : NA} color={C.orange}/>
+                <Pill label="C2 Simulado" value={simC2 ? fmtV(simC2) : NA} color={C.green}/>
+                <Pill label="Total Simulado" value={fmtV(simTOTAL)} color={C.ink}/>
               </div>
-
-              {/* Coluna: Resultado */}
-              <div>
-                <div style={{fontWeight:700,fontSize:10,textTransform:"uppercase",
-                  letterSpacing:1.5,color:C.muted,marginBottom:10}}>Resultado da Simula&ccedil;&atilde;o</div>
-                <div style={{background:C.ink,borderRadius:4,padding:"16px"}}>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-                    <div style={{background:"rgba(255,255,255,0.07)",borderRadius:3,padding:"10px",textAlign:"center"}}>
-                      <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>CGP Simulado</div>
-                      <div style={{fontSize:16,fontWeight:700,color:"#fff",fontFamily:"monospace"}}>
-                        {simCgpData ? fmtV(simCgpData.cgp) : NA}
-                      </div>
-                      {cgpData && simCgpData && (
-                        <div style={{fontSize:8,color:simCgpData.cgp>cgpData.cgp?C.orange:C.neon,marginTop:3}}>
-                          {simCgpData.cgp>cgpData.cgp?"+":""}{fmtN(((simCgpData.cgp-cgpData.cgp)/cgpData.cgp)*100)}% vs atual
-                        </div>
-                      )}
-                    </div>
-                    <div style={{background:"rgba(255,255,255,0.07)",borderRadius:3,padding:"10px",textAlign:"center"}}>
-                      <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>CGP Atual</div>
-                      <div style={{fontSize:16,fontWeight:700,color:"rgba(200,240,220,0.5)",fontFamily:"monospace"}}>
-                        {cgpData ? fmtV(cgpData.cgp) : NA}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:12}}>
-                    {[
-                      {label:"C1 Simulado",v:simC1,color:C.orange},
-                      {label:"C2 Simulado",v:simC2,color:C.green},
-                      {label:"C3 (fixo)",v:C3,color:C.blue},
-                    ].map((item,i)=>(
-                      <div key={i} style={{background:"rgba(255,255,255,0.05)",borderRadius:3,
-                        padding:"8px",textAlign:"center",borderTop:`2px solid ${item.color}`}}>
-                        <div style={{fontSize:7,color:"rgba(150,220,185,0.4)",textTransform:"uppercase",
-                          letterSpacing:1,marginBottom:3}}>{item.label}</div>
-                        <div style={{fontSize:12,fontWeight:700,color:item.v?"#fff":"#555",
-                          fontFamily:"monospace"}}>{item.v?fmtV(item.v):NA}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{background:"rgba(0,150,90,0.18)",border:"1px solid rgba(0,150,90,0.3)",
-                    borderRadius:3,padding:"12px",textAlign:"center"}}>
-                    <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",
-                      letterSpacing:2,marginBottom:4}}>Total Simulado</div>
-                    <div style={{fontSize:24,fontWeight:700,color:simTOTAL>0?"#fff":"#555"}}>
-                      {simTOTAL>0?fmtV(simTOTAL):NA}
-                    </div>
-                    {TOTAL > 0 && simTOTAL > 0 && (
-                      <div style={{fontSize:9,color:simTOTAL>TOTAL?C.neon:C.orange,marginTop:4}}>
-                        {simTOTAL>TOTAL?"+":""}{fmtV(simTOTAL-TOTAL)} ({simTOTAL>TOTAL?"+":""}{fmtN(((simTOTAL-TOTAL)/TOTAL)*100)}%) vs atual
-                      </div>
-                    )}
+              {cgpData && simCgpData && (
+                <div className="card card--compact" style={{background:"var(--u-cloud)",border:"none",marginTop:12}}>
+                  <div style={{fontFamily:"var(--font-display)",fontSize:12,color:"var(--u-stone)"}}>
+                    <strong>Delta vs. Real:</strong>{" "}
+                    <span style={{color: simTOTAL > TOTAL ? C.green : C.red, fontWeight:700}}>
+                      {simTOTAL > TOTAL ? "+" : ""}{fmtV(simTOTAL - TOTAL)}
+                    </span>
+                    {" "}({simTOTAL > TOTAL ? "+" : ""}{((simTOTAL - TOTAL) / (TOTAL||1) * 100).toFixed(1)}%)
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
 
       </div>
 
-      {/* FOOTER COMPLETO */}
-      <div style={{background:C.ink,borderTop:`3px solid ${C.blue}`,marginTop:0}}>
-        {/* Linha 1: Logo + documento interno + resp tecnico */}
-        <div style={{padding:"14px 24px",display:"flex",alignItems:"center",
-          justifyContent:"space-between",flexWrap:"wrap",gap:12,
-          borderBottom:`1px solid ${C.blue}33`}}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
-              style={{height:24,width:"auto",display:"block",opacity:0.9}}/>
-            <span style={{fontSize:9,color:`${C.mint}bb`,
-              textTransform:"uppercase",letterSpacing:1.5,fontWeight:600}}>
-              Gest&atilde;o em Sa&uacute;de
-            </span>
-            <span style={{fontSize:8,color:`${C.mint}66`,letterSpacing:1}}>
-              Documento Interno &middot; Uso Restrito
-            </span>
+      {/* FOOTER */}
+      <footer className="drg-footer">
+        <div className="drg-footer__top">
+          <div className="drg-footer__brand">
+            <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare" className="drg-footer__logo"/>
+            <span className="drg-footer__slogan">Gestão em Saúde</span>
           </div>
-          <span style={{fontSize:9,color:`${C.mint}88`}}>
-            Resp. T&eacute;cnico: Dr. Guilherme Thom&eacute; &middot; CRM-MG 64193 &middot; RQE 41538 &middot; guilherme@axcare.com.br
-          </span>
+          <span className="drg-footer__doc">Documento Interno &middot; Uso Restrito</span>
         </div>
-        {/* Linha 2: Links + Copyright */}
-        <div style={{padding:"12px 24px",display:"flex",alignItems:"center",
-          justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-          <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
-            {[{l:"axcare.com.br",u:"https://www.axcare.com.br"},{l:"grupocsv.com",u:"https://grupocsv.com"},{l:"medvalor.med.br",u:"https://www.medvalor.med.br"},{l:"thera.tech",u:"https://thera.tech"}].map(({l,u})=>(
-              <a key={l} href={u} target="_blank" rel="noopener" style={{fontSize:9,color:`${C.teal}cc`,textDecoration:"none",letterSpacing:0.5}}>{l}</a>
-            ))}
+        <div className="drg-footer__bottom">
+          <div className="drg-footer__links">
+            <a href="https://axcare.com.br" target="_blank" rel="noopener">axcare.com.br</a>
+            <a href="https://grupocsv.com" target="_blank" rel="noopener">grupocsv.com</a>
+            <a href="https://medvalor.med.br" target="_blank" rel="noopener">medvalor.med.br</a>
+            <a href="https://thera.tech" target="_blank" rel="noopener">thera.tech</a>
           </div>
-          <span style={{fontSize:9,color:`${C.mint}55`}}>
-            &copy; {new Date().getFullYear()} AxiaCare &middot; Uma empresa do Grupo CSV
-          </span>
+          <span className="drg-footer__copy">&copy; {new Date().getFullYear()} AxiaCare &middot; Grupo CSV. Resp. Técnico: Dr. Guilherme Thomé &middot; CRM-MG 64193 &middot; RQE 41538</span>
         </div>
-      </div>
-    </div>
+      </footer>
+    </React.Fragment>
   );
 }
 
-
-    // Render
-    const root = ReactDOM.createRoot(document.getElementById('drg-root'));
-    root.render(React.createElement(DRGPlugin));
+ReactDOM.createRoot(document.getElementById("drg-root")).render(<DRGPlugin/>);
   </script>
-
-  <!-- Autenticacao Hub -->
-  <script src="/scripts/hub-auth.js" data-portal="unimed"></script>
+  <script src="/scripts/hub-auth.js" data-portal="unimed" defer></script>
 </body>
 </html>
