@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate portal tools.json
+        run: python3 scripts/generate-portal-tools.py .
+
       - name: Build with VitePress
         run: npm run docs:build
 
