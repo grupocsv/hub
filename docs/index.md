@@ -31,7 +31,7 @@ head:
       content: "https://hub.grupocsv.com/og/og_hub.png"
 ---
 
-<style scoped>
+<style>
 .VPPage { padding: 0 !important; }
 
 /* ── Hero ── */
