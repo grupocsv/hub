@@ -156,47 +156,8 @@ head:
     <p class="subtitle">Operadora de Planos de Saúde</p>
   </div>
 
-  <div class="tools-grid">
-    <div class="tool-card">
-      <div class="tool-title">Variabilidade Assistencial por Especialidade (v1)</div>
-      <a data-direct href="/unimed/especialidades.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Variabilidade Assistencial - Especialidades</div>
-      <a data-direct href="/unimed/variabilidade-exames.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Coordenação do Cuidado</div>
-      <a data-direct href="/unimed/cuidadocoordenado.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Oncologia: Painel Populacional</div>
-      <a data-direct href="/unimed/onco.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Pediatria Ambulatorial: Centro de Atendimento Integrado</div>
-      <a data-direct href="/unimed/ped-amb.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Viva Pleno: Vertical de Cuidados aos Idosos</div>
-      <a data-direct href="/unimed/vivapleno.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">GCE: Painel de Acompanhamento</div>
-      <a data-direct href="/unimed/gce.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Psicologia ABA: Análise de Rede</div>
-      <a data-direct href="/unimed/tea.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">Psiquiatria: Modelo Assistencial Unificado</div>
-      <a data-direct href="/unimed/psiquiatria.html" class="tool-link">Acessar</a>
-    </div>
-    <div class="tool-card">
-      <div class="tool-title">DRG Brasil Analytics: Impacto Financeiro do Leito</div>
-      <a data-direct href="/unimed/drg.html" class="tool-link">Acessar</a>
-    </div>
+  <div id="tools-grid-unimed" class="tools-grid">
+    <div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Carregando ferramentas...</div>
   </div>
 
   <div style="text-align:center; margin-bottom:30px;"><a href="https://hub.grupocsv.com" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; background:#00995d; color:white; text-decoration:none; font-weight:600; font-size:0.9rem; transition:all 0.2s;">← Voltar ao Hub</a></div>
@@ -229,11 +190,33 @@ head:
 <script setup>
 import { onMounted } from 'vue'
 onMounted(() => {
+  // Carregar hub-auth.js
   if (!document.querySelector('script[data-portal="unimed"]')) {
     const s = document.createElement('script')
     s.src = '/scripts/hub-auth.js'
     s.setAttribute('data-portal', 'unimed')
     document.body.appendChild(s)
   }
+
+  // Carregar tools.json e renderizar cards dinamicamente
+  fetch('/unimed/tools.json')
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById('tools-grid-unimed')
+      if (!grid || !data.tools || data.tools.length === 0) return
+      grid.innerHTML = data.tools.map((tool, i) => {
+        const href = tool.external ? tool.file : `/unimed/${tool.file}`
+        return `
+        <div class="tool-card${i === 0 ? ' featured' : ''}">
+          <div class="tool-title">${tool.title}</div>
+          <a data-direct href="${href}" class="tool-link">Acessar</a>
+        </div>
+      `}).join('')
+    })
+    .catch(() => {
+      // Fallback: manter o texto de carregamento ou mostrar erro
+      const grid = document.getElementById('tools-grid-unimed')
+      if (grid) grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Erro ao carregar ferramentas.</div>'
+    })
 })
 </script>

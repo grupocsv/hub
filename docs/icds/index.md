@@ -163,17 +163,8 @@ head:
     <p class="subtitle">Entidade Filantrópica e Gestora Assistencial</p>
   </div>
 
-  <div class="icds-grid">
-    <div class="icds-card">
-      <div class="icds-title">Gerador de Apresentações</div>
-      <span class="icds-date">Apresentações institucionais com branding ICDS</span>
-      <a href="/icds/slides.html" class="icds-link">Solicitar</a>
-    </div>
-    <div class="icds-card">
-      <div class="icds-title">TEA: Data Set Indicadores</div>
-      <span class="icds-date">Fevereiro-26</span>
-      <a data-direct href="/p/tea-dataset/" class="icds-link">Acessar</a>
-    </div>
+  <div id="tools-grid-icds" class="icds-grid">
+    <div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Carregando ferramentas...</div>
   </div>
 
   <div style="text-align:center; margin-bottom:30px;"><a href="https://hub.grupocsv.com" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; background:#1B3A5C; color:white; text-decoration:none; font-weight:600; font-size:0.9rem; transition:all 0.2s;">← Voltar ao Hub</a></div>
@@ -213,5 +204,24 @@ onMounted(() => {
     s.setAttribute('data-portal', 'icds')
     document.body.appendChild(s)
   }
+
+  fetch('/icds/tools.json')
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById('tools-grid-icds')
+      if (!grid || !data.tools || data.tools.length === 0) return
+      grid.innerHTML = data.tools.map(tool => {
+        const href = tool.external ? tool.file : `/icds/${tool.file}`
+        return `
+        <div class="icds-card">
+          <div class="icds-title">${tool.title}</div>
+          <a data-direct href="${href}" class="icds-link">Acessar</a>
+        </div>
+      `}).join('')
+    })
+    .catch(() => {
+      const grid = document.getElementById('tools-grid-icds')
+      if (grid) grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Erro ao carregar ferramentas.</div>'
+    })
 })
 </script>

@@ -162,32 +162,8 @@ head:
     <p class="subtitle">Hospital de Média/Alta Complexidade</p>
   </div>
 
-  <div class="uh-grid">
-    <div class="uh-card">
-      <div class="uh-title">Calculadora Plantões Médicos</div>
-      <span class="uh-date">Outubro-25</span>
-      <a data-direct href="/unihealth/calc-plantao.html" class="uh-link">Acessar</a>
-    </div>
-    <div class="uh-card">
-      <div class="uh-title">Análise Reajuste Suturas</div>
-      <span class="uh-date">Julho-25</span>
-      <a data-direct href="/unihealth/fios.html" class="uh-link">Acessar</a>
-    </div>
-    <div class="uh-card">
-      <div class="uh-title">Análise Utilização PA</div>
-      <span class="uh-date">Março-25</span>
-      <a data-direct href="/unihealth/retornopa.html" class="uh-link">Acessar</a>
-    </div>
-    <div class="uh-card">
-      <div class="uh-title">Plano de Ação OPME</div>
-      <span class="uh-date">Março-25</span>
-      <a data-direct href="/unihealth/opme.html" class="uh-link">Acessar</a>
-    </div>
-    <div class="uh-card">
-      <div class="uh-title">ISC Cesarianas</div>
-      <span class="uh-date">Maio-25</span>
-      <a data-direct href="/unihealth/isc-cesarianas.html" class="uh-link">Acessar</a>
-    </div>
+  <div id="tools-grid-unihealth" class="uh-grid">
+    <div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Carregando ferramentas...</div>
   </div>
 
   <div style="text-align:center; margin-bottom:30px;"><a href="https://hub.grupocsv.com" style="display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; background:#013d19; color:white; text-decoration:none; font-weight:600; font-size:0.9rem; transition:all 0.2s;">← Voltar ao Hub</a></div>
@@ -227,5 +203,24 @@ onMounted(() => {
     s.setAttribute('data-portal', 'unihealth')
     document.body.appendChild(s)
   }
+
+  fetch('/unihealth/tools.json')
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById('tools-grid-unihealth')
+      if (!grid || !data.tools || data.tools.length === 0) return
+      grid.innerHTML = data.tools.map(tool => {
+        const href = tool.external ? tool.file : `/unihealth/${tool.file}`
+        return `
+        <div class="uh-card">
+          <div class="uh-title">${tool.title}</div>
+          <a data-direct href="${href}" class="uh-link">Acessar</a>
+        </div>
+      `}).join('')
+    })
+    .catch(() => {
+      const grid = document.getElementById('tools-grid-unihealth')
+      if (grid) grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Erro ao carregar ferramentas.</div>'
+    })
 })
 </script>

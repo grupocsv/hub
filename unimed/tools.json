@@ -1,0 +1,85 @@
+{
+  "portal": "unimed",
+  "generatedAt": "2026-05-30T14:25:08.204544+00:00",
+  "totalTools": 13,
+  "tools": [
+    {
+      "file": "drg.html",
+      "title": "DRG Brasil Analytics",
+      "created": "2026-05-29T15:39:13+00:00",
+      "lastModified": "2026-05-30T13:01:27+00:00"
+    },
+    {
+      "file": "especialidades.html",
+      "title": "Variabilidade Assistencial por Especialidade",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-05-15T00:13:48+00:00"
+    },
+    {
+      "file": "cuidadocoordenado.html",
+      "title": "Coordenação do Cuidado",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "gce.html",
+      "title": "Painel GCE | Gerenciamento de Casos Especiais 2025",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "onco-antigo.html",
+      "title": "Análise Estratégica Medicamentos Oncológicos",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "onco.html",
+      "title": "Painel Populacional - Oncologia (em terapia VO)",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "painel-onco-vo.html",
+      "title": "Painel Populacional - Oncologia (em terapia VO)",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "ped-amb.html",
+      "title": "Pediatria Ambulatorial - Centro de Atendimento Integrado",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "psiquiatria.html",
+      "title": "Psiquiatria: Modelo Assistencial Unificado",
+      "created": "2026-03-02T20:55:11-05:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "relatorios-onco.html",
+      "title": "Oncologia – Terapias Orais | Amostra (IA) · Unimed GV",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "tea.html",
+      "title": "Painel Estratégico – ABA Psicologia",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "variabilidade-exames.html",
+      "title": "Variabilidade Assistencial - Especialidades",
+      "created": "2026-02-27T08:09:41-05:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    },
+    {
+      "file": "vivapleno.html",
+      "title": "#VivaPleno – Vertical de Cuidados ao Idoso",
+      "created": "2026-01-24T03:24:45+00:00",
+      "lastModified": "2026-03-07T08:44:14-05:00"
+    }
+  ]
+}

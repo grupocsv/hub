@@ -1,0 +1,20 @@
+{
+  "portal": "icds",
+  "generatedAt": "2026-05-30T14:25:08.296026+00:00",
+  "totalTools": 2,
+  "tools": [
+    {
+      "file": "slides.html",
+      "title": "Gerador de Apresentações",
+      "created": "2026-04-21T20:30:47-04:00",
+      "lastModified": "2026-05-11T21:45:23-04:00"
+    },
+    {
+      "file": "/p/tea-dataset/",
+      "title": "TEA: Data Set Indicadores",
+      "created": "2026-02-15T00:00:00+00:00",
+      "lastModified": "2026-02-15T00:00:00+00:00",
+      "external": true
+    }
+  ]
+}
