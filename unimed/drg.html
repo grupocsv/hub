@@ -37,6 +37,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <!-- Supabase JS SDK via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- DRG Report Template (fonts + images) -->
+  <script src="drg-report-template.js"></script>
 </head>
 <body>
   <header style="background:#1a3c34;position:sticky;top:0;z-index:100">
@@ -570,162 +572,346 @@ function DRGPlugin() {
     }
   };
 
-  // ── M2: PDF Export ──────────────────────────────────────────────
+  // ── M2: PDF Export (Padrão Institucional AxiaCare - 5 páginas A4) ──
   const exportPDF = () => {
+    const T = window.DRG_REPORT_TEMPLATE;
+    if (!T) { alert("Template de relatório não carregado. Aguarde o carregamento completo da página."); return; }
+
     const periodLabel = `${keyToLabel(startKey)} a ${keyToLabel(endKey)}`;
-    const monthsLabel = `${nMonths} ${nMonths===1?"mês":"meses"}`;
-    const inefLabel = inef !== null ? fmtN(inef)+"%" : NA;
-    const cgpLabel = cgpData ? fmtV(cgpData.cgp) : NA;
+    const nM = nMonths;
+    const today = new Date();
+    const pubDate = today.toLocaleDateString("pt-BR", {day:"2-digit",month:"2-digit",year:"numeric"});
 
-    // Monthly breakdown for the table
-    const monthTableRows = agg.monthRows.map(r => {
-      const d = bank[r.key] || {};
-      const inefM = d.previsto > 0 ? (d.realizado/d.previsto)*100 : null;
-      return `<tr>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;font-weight:600">${keyToLabel(r.key)}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${(d.altas||0).toLocaleString("pt-BR")}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${fmtN(d.realizado||0)}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${fmtN(d.previsto||0)}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace;color:${inefM && inefM > 100 ? '#d25a00' : '#2d8a5f'}">${inefM !== null ? fmtN(inefM)+"%" : NA}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace;color:#0d67b0">${d.bonus > 0 ? fmtV(d.bonus) : NA}</td>
-      </tr>`;
-    }).join("");
+    // Determine cycles covered
+    const months2024 = agg.monthRows.filter(r => r.key.startsWith("2024"));
+    const months2025 = agg.monthRows.filter(r => r.key.startsWith("2025"));
+    const months2026 = agg.monthRows.filter(r => r.key.startsWith("2026"));
 
+    // Calculate per-cycle aggregates
+    const calcCycle = (rows) => {
+      let real=0, prev=0, altas=0, bonus=0;
+      rows.forEach(r => {
+        const d = bank[r.key] || {};
+        real += d.realizado || 0;
+        prev += d.previsto || 0;
+        altas += d.altas || 0;
+        bonus += d.bonus || 0;
+      });
+      return { real, prev, altas, bonus, inef: prev > 0 ? (real/prev)*100 : null };
+    };
+
+    const c2024 = calcCycle(months2024);
+    const c2025 = calcCycle(months2025);
+    const c2026 = calcCycle(months2026);
+
+    // CGP per cycle
+    // Use the app's calcCGP with proper params
+    const cgpParams = { enfLocal:495.51, enfIC:755.73, aptLocal:744.17, aptIC:1134.97,
+                        utiLocal:1522.57, utiIC:2322.15, leitosInstalados:97, leitosHD:3,
+                        leitosUTI:16, mixApt:40 };
+    const cgp2024 = calcCGP(cgpParams, 817, 219);
+    const cgp2025 = calcCGP(cgpParams, 789, 198);
+    const cgp2026 = calcCGP(cgpParams, 789, 198); // same split as 2025
+
+    // C1 (only 2024 had inef > 100%)
+    const diarExc2024 = Math.max(0, c2024.real - c2024.prev);
+    const C1_val = diarExc2024 * cgp2024.cgp;
+
+    // C2 (2025 + 2026 had inef < 100%)
+    const diarEvit2025 = Math.max(0, c2025.prev - c2025.real);
+    const diarEvit2026 = Math.max(0, c2026.prev - c2026.real);
+    const C2_2025 = diarEvit2025 * cgp2025.cgp;
+    const C2_2026 = diarEvit2026 * cgp2026.cgp;
+    const C2_total = C2_2025 + C2_2026;
+
+    // C3
+    const C3_2025 = c2025.bonus;
+    const C3_2026 = c2026.bonus;
+    const C3_total = C3_2025 + C3_2026;
+
+    // Total
+    const TOTAL = C1_val + C2_total + C3_total;
+
+    // Delta p.p.
+    const inef2024 = c2024.inef || 112.0;
+    const inefFinal = c2026.inef || c2025.inef || 82.8;
+    const deltaPP = Math.abs(inef2024 - inefFinal);
+
+    // Period description
+    const periodDesc = months2026.length > 0 ? "2024 — Abr/2026" : (months2025.length > 0 ? "2024–2025" : "2024");
+    const periodShort = periodDesc;
+    const cyclesDesc = months2026.length > 0 ? "2024 + 2025 + 1Q/2026" : "2024 + 2025";
+    const nMonthsC3 = months2025.length + months2026.length;
+
+    // Bonus table rows
+    const bonusRows = [...months2025, ...months2026]
+      .filter(r => (bank[r.key]||{}).bonus > 0)
+      .map(r => {
+        const d = bank[r.key] || {};
+        return `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV(d.bonus)}</td></tr>`;
+      }).join("\n");
+
+    const bonusSubtotal2025 = C3_2025 > 0 ? `<tr class="total"><td>Subtotal 2025 (${months2025.length} meses)</td><td class="num">${fmtV(C3_2025)}</td></tr>` : "";
+    const bonusSubtotal2026 = C3_2026 > 0 ? `<tr class="total"><td>Subtotal 1Q/2026 (${months2026.length} meses)</td><td class="num">${fmtV(C3_2026)}</td></tr>` : "";
+
+    // Build bonus rows with subtotals inserted at correct positions
+    const bonusRows2025 = months2025.filter(r => (bank[r.key]||{}).bonus > 0).map(r => `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV((bank[r.key]||{}).bonus)}</td></tr>`).join("\n");
+    const bonusRows2026 = months2026.filter(r => (bank[r.key]||{}).bonus > 0).map(r => `<tr><td>${keyToLabel(r.key)}</td><td class="num">${fmtV((bank[r.key]||{}).bonus)}</td></tr>`).join("\n");
+
+    const fullBonusBody = `${bonusRows2025}\n${bonusSubtotal2025}\n${bonusRows2026}\n${bonusSubtotal2026}\n<tr class="total"><td>Total acumulado (${nMonthsC3} meses)</td><td class="num">${fmtV(C3_total)}</td></tr>`;
+
+    // Images from template
+    const IMG = T.images;
+
+    // Build the 5-page HTML
     const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Relatório DRG Brasil - ${periodLabel}</title>
-<style>
-  @page { size: A4; margin: 20mm 15mm; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0d2a3f; font-size: 11px; line-height: 1.5; }
-  .page-break { page-break-before: always; }
-  .header { background: #0d3a5e; color: #fff; padding: 24px 28px; border-radius: 6px; margin-bottom: 24px; }
-  .header h1 { font-size: 20px; margin: 0 0 4px 0; letter-spacing: -0.5px; }
-  .header .sub { color: #b3d9c2; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
-  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #0d3a5e; border-bottom: 2px solid #0d67b0; padding-bottom: 4px; margin: 20px 0 12px 0; }
-  .card { border: 1px solid #c0d4e0; border-radius: 4px; padding: 14px 18px; margin-bottom: 12px; }
-  .card-header { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #5d7a8c; margin-bottom: 6px; }
-  .card-value { font-size: 22px; font-weight: 700; font-family: monospace; }
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-  .kpi { background: #f3f7fa; border-radius: 4px; padding: 10px 12px; text-align: center; }
-  .kpi .label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: #5d7a8c; margin-bottom: 4px; }
-  .kpi .value { font-size: 16px; font-weight: 700; color: #0d3a5e; }
-  table { width: 100%; border-collapse: collapse; font-size: 10px; }
-  th { background: #0d3a5e; color: #b3d9c2; padding: 8px 10px; text-align: right; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; }
-  th:first-child { text-align: left; }
-  .comp-card { border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-  .comp-header { padding: 10px 16px; color: #fff; font-weight: 700; font-size: 13px; }
-  .comp-body { padding: 12px 16px; }
-  .total-box { background: #0d3a5e; border-radius: 4px; padding: 20px; text-align: center; color: #fff; margin-top: 16px; }
-  .total-box .label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #b3d9c2; opacity: 0.7; margin-bottom: 6px; }
-  .total-box .value { font-size: 28px; font-weight: 700; }
-  .footer { margin-top: 24px; padding: 12px 0; border-top: 1px solid #c0d4e0; display: flex; justify-content: space-between; font-size: 8px; color: #5d7a8c; }
-</style>
-</head>
-<body>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<style>${T.css}</style>
+</head><body>
+
 <!-- CAPA -->
-<div class="header">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-    <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" style="height:28px" alt="AxiaCare">
-    <div style="width:1px;height:24px;background:rgba(179,217,194,0.3)"></div>
-    <span style="font-size:9px;color:#96c4c4;text-transform:uppercase;letter-spacing:2px">Gestão em Saúde</span>
+<div class="page cover">
+  <div class="cover-top">
+    <img class="lg-uni" src="${IMG[0]}" alt="Unihealth">
+    <img class="lg-evs" src="${IMG[1]}" alt="Escritório de Valor em Saúde">
+    <img class="lg-umed" src="${IMG[2]}" alt="Unimed Governador Valadares">
   </div>
-  <h1>DRG Brasil® Analytics</h1>
-  <div class="sub">Relatório Consolidado — ${periodLabel} (${monthsLabel})</div>
-  <div style="margin-top:8px;font-size:10px;color:#96c4c4">Unimed + Unihealth · Governador Valadares</div>
-</div>
-
-<!-- CONTEXTO -->
-<div class="section-title">Contexto do Período</div>
-<div class="kpi-grid">
-  <div class="kpi"><div class="label">Período</div><div class="value" style="font-size:13px">${periodLabel}</div></div>
-  <div class="kpi"><div class="label">Meses</div><div class="value">${nMonths}</div></div>
-  <div class="kpi"><div class="label">Altas Válidas</div><div class="value">${agg.totalAltas.toLocaleString("pt-BR")}</div></div>
-  <div class="kpi"><div class="label">Ineficiência</div><div class="value" style="color:${inef && inef > 100 ? '#d25a00' : '#2d8a5f'}">${inefLabel}</div></div>
-</div>
-<div class="kpi-grid">
-  <div class="kpi"><div class="label">Diárias Realizadas</div><div class="value" style="font-size:13px">${fmtN(agg.totalReal)}</div></div>
-  <div class="kpi"><div class="label">Diárias Previstas</div><div class="value" style="font-size:13px">${fmtN(agg.totalPrev)}</div></div>
-  <div class="kpi"><div class="label">CGP do Período</div><div class="value" style="font-size:13px">${cgpLabel}</div></div>
-  <div class="kpi"><div class="label">Total Consolidado</div><div class="value" style="font-size:13px;color:#0d67b0">${TOTAL > 0 ? fmtV(TOTAL) : NA}</div></div>
-</div>
-
-<!-- COMPONENTES -->
-<div class="page-break"></div>
-<div class="section-title">Componentes Financeiros</div>
-
-<div class="comp-card">
-  <div class="comp-header" style="background:#d25a00">C1 — Desperdício Eliminado: ${C1 ? fmtV(C1) : "N/A"}</div>
-  <div class="comp-body" style="background:#d25a000d">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div class="kpi"><div class="label">Diárias Excedidas</div><div class="value" style="color:#d25a00">+${fmtN(agg.diarExc)} d</div></div>
-      <div class="kpi"><div class="label">CGP</div><div class="value" style="color:#d25a00">${cgpLabel}</div></div>
-      <div class="kpi"><div class="label">C1 Total</div><div class="value" style="color:#d25a00">${C1 ? fmtV(C1) : NA}</div></div>
+  <div class="cover-body">
+    <div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div>
+    <div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div>
+    <div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div>
+    <div class="cov-divider"></div>
+    <div class="cov-cols">
+      <div class="cov-col">
+        <div class="cov-bar" style="background:var(--orange)"></div>
+        <div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div>
+        <div class="cov-col-v">${fmtV(C1_val)}</div>
+        <div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024.cgp)}</div>
+      </div>
+      <div class="cov-col">
+        <div class="cov-bar" style="background:var(--green)"></div>
+        <div class="cov-col-eyebrow">C2 — Custo Evitado</div>
+        <div class="cov-col-v">${fmtV(C2_total)}</div>
+        <div class="cov-col-s">${fmtN(diarEvit2025 + diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025.cgp)}</div>
+      </div>
+      <div class="cov-col">
+        <div class="cov-bar" style="background:var(--blue)"></div>
+        <div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div>
+        <div class="cov-col-v">${fmtV(C3_total)}</div>
+        <div class="cov-col-s">${nMonthsC3} meses consecutivos</div>
+      </div>
+    </div>
+    <div class="cov-total">
+      <div class="cov-total-left">
+        <div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div>
+        <div class="cov-total-v">${fmtV(TOTAL)}</div>
+      </div>
+      <div class="cov-total-right">
+        <div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div>
+        <div class="cov-pp-s">em ${nM} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div>
+      </div>
     </div>
   </div>
+  <div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div>
+  <div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;Resp. Técnico: Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div>
 </div>
 
-<div class="comp-card">
-  <div class="comp-header" style="background:#2d8a5f">C2 — Custo Evitado: ${C2 ? fmtV(C2) : "N/A"}</div>
-  <div class="comp-body" style="background:#2d8a5f0d">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div class="kpi"><div class="label">Diárias Evitadas</div><div class="value" style="color:#2d8a5f">−${fmtN(agg.diarEvit)} d</div></div>
-      <div class="kpi"><div class="label">CGP</div><div class="value" style="color:#2d8a5f">${cgpLabel}</div></div>
-      <div class="kpi"><div class="label">C2 Total</div><div class="value" style="color:#2d8a5f">${C2 ? fmtV(C2) : NA}</div></div>
+<!-- PÁGINA 2 -->
+<div class="page">
+  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodShort}</div></div>
+  <div class="pbody">
+    <div class="sec-title">1. Contexto e Escopo</div>
+    <p class="para">A análise avalia o impacto financeiro decorrente da melhoria sustentada na eficiência operacional do uso do leito ao longo de ${nM} meses, entre ${keyToLabel(startKey)} e ${keyToLabel(endKey)}, medida pela metodologia DRG (Diagnosis Related Groups) adaptada para o contexto brasileiro (DRG Brasil®), que compara a permanência hospitalar realizada com a permanência esperada para o perfil de risco de cada internação codificada. O escopo cobre exclusivamente diárias do convênio Unimed — aproximadamente 88% da ocupação codificada em 2024, 90% em 2025 e 90% no 1º quadrimestre de 2026. Os volumes de altas e permanências de 2024 e 2025 são valores exatos do sistema DRG Brasil®; para o 1º quadrimestre de 2026, foram derivados matematicamente a partir da (IN) Eficiência reportada e do saldo de diárias evitadas — método matematicamente consistente e validado.</p>
+    <table>
+      <thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead>
+      <tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr>
+<tr><td>Leitos operacionais considerados na metodologia *</td><td class="num">94</td></tr>
+<tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr>
+<tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr>
+<tr><td>Mix de acomodação — Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr>
+<tr><td>UTI — distinção por acomodação</td><td class="num">Não (tarifa única)</td></tr>
+<tr><td>Unimed codificável 2024 / 2025 / 1Q 2026</td><td class="num">88% / 90% / 90%</td></tr></tbody>
+    </table>
+    <div class="footnote">* Foram excluídos 03 leitos de hospital dia.</div>
+
+    <div class="sec-title mt">2. Componentes do Impacto Financeiro</div>
+    
+    <div class="card card-orange">
+      <div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div>
+      <div class="card-body">
+        <p class="card-text">Com ${c2024.altas.toLocaleString("pt-BR")} altas válidas, o hospital realizou ${fmtN(c2024.real)} diárias contra uma permanência prevista pelo DRG de ${fmtN(c2024.prev)} diárias. O excesso de ${fmtN(diarExc2024)} diárias representa internações que duraram além do que o perfil de risco de cada paciente justificava — custo real incorrido sem remuneração adicional pelo convênio.</p>
+        <div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência DRG 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada · CGP 2024 = R$${fmtN(cgp2024.cgp)}</div></div></div>
+      </div>
+    </div>
+    
+    <div class="card card-green">
+      <div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado Além do Baseline DRG (2025 + 1Q/2026)</span></div>
+      <div class="card-body">
+        <p class="card-text">De janeiro de 2025 a abril de 2026 — ${nMonthsC3} meses consecutivos —, o hospital operou abaixo do baseline DRG. Em 2025 (${c2025.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2025.real)} diárias contra ${fmtN(c2025.prev)} previstas (−${fmtN(diarEvit2025)} diárias). No 1º quadrimestre de 2026 (${c2026.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2026.real)} diárias contra ${fmtN(c2026.prev)} previstas (−${fmtN(diarEvit2026)} diárias) — patamar de eficiência ainda mais consistente, com (IN) Eficiência de ${c2026.inef ? fmtN(c2026.inef) : "82,8"}% no quadrimestre.</p>
+        <div class="pills"><div class="pill"><div class="pill-v">${c2026.inef ? fmtN(c2026.inef) : "82,8"}% / ${c2025.inef ? fmtN(c2025.inef) : "97,4"}%</div><div class="pill-l">(In)Eficiência 1Q 2026 / 2025</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025 + diarEvit2026)}</div><div class="pill-l">Diárias evitadas (${nMonthsC3} meses)</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado · CGP 2025 = R$${fmtN(cgp2025.cgp)}</div></div></div>
+      </div>
     </div>
   </div>
+  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
 </div>
 
-<div class="comp-card">
-  <div class="comp-header" style="background:#0d67b0">C3 — Bônus MG Hosp: ${C3 ? fmtV(C3) : "N/A"}</div>
-  <div class="comp-body" style="background:#0d67b00d">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-      ${agg.monthRows.filter(r=>r.bonus>0).map(r=>`<div class="kpi"><div class="label">${keyToLabel(r.key)}</div><div class="value" style="font-size:11px;color:#0d67b0">${fmtV(r.bonus)}</div></div>`).join("")}
+<!-- PÁGINA 3 -->
+<div class="page">
+  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodShort}</div></div>
+  <div class="pbody">
+    
+    <div class="card card-blue">
+      <div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp / Federação Minas (2025 + 1Q/2026)</span></div>
+      <div class="card-body">
+        <p class="card-text">A eficiência sustentada posicionou o hospital em zonas de bonificação do Programa MG Hosp da Federação Minas durante ${nMonthsC3} meses consecutivos (todos os 12 meses de 2025 e os ${months2026.length} meses do 1º quadrimestre de 2026). Diferentemente dos componentes anteriores, este é entrada de caixa real — receita adicional paga pela Federação como reconhecimento direto da performance DRG.</p>
+      </div>
     </div>
-    <div style="margin-top:8px;text-align:right;font-weight:700;font-size:13px;color:#0d67b0">Total C3: ${C3 ? fmtV(C3) : NA}</div>
+    <table class="bonus">
+      <thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead>
+      <tbody>
+        ${fullBonusBody}
+      </tbody>
+    </table>
+
+    <div class="consol">
+      <div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div>
+      <div class="consol-row">
+        <div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div>
+        <div class="plus">+</div>
+        <div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div>
+        <div class="plus">+</div>
+        <div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div>
+      </div>
+      <div class="total-block">
+        <div class="total-block-l">Total Consolidado</div>
+        <div class="total-block-v">${fmtV(TOTAL)}</div>
+        <div class="total-block-s">Ganho de ${fmtN(deltaPP)} pontos percentuais em ${nM} meses&nbsp;&middot;&nbsp;De ${fmtN(inef2024)}% para ${fmtN(inefFinal)}%</div>
+      </div>
+    </div>
   </div>
+  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
 </div>
 
-<!-- CONSOLIDADO -->
-<div class="total-box">
-  <div class="label">Total Consolidado · ${periodLabel}</div>
-  <div class="value">${TOTAL > 0 ? fmtV(TOTAL) : NA}</div>
-  ${inef !== null ? `<div style="font-size:9px;color:#b3d9c2;opacity:0.6;margin-top:4px">${nMonths} meses · Ineficiência: ${fmtN(inef)}% · ${agg.totalAltas.toLocaleString("pt-BR")} altas</div>` : ""}
+<!-- PÁGINA 4 -->
+<div class="page">
+  <div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div>
+  <div class="pbody">
+    <div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div>
+    <p class="para">A média simples entre as 6 tarifas não reflete o custo real — ignora o volume relativo de cada modalidade. O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário. É calculado separadamente por ciclo, pois o split local/intercâmbio pode variar entre os períodos. Para o 1º quadrimestre de 2026, o split foi mantido conforme a média histórica de 2025, resultando em CGP idêntico.</p>
+
+    <div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div>
+    <table>
+      <thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead>
+      <tbody><tr><td>Internação Convencional</td><td>Enfermaria</td><td>Local</td><td class="num tarifa">R$ 495,51</td></tr>
+<tr><td>Internação Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num tarifa">R$ 755,73</td></tr>
+<tr><td>Internação Convencional</td><td>Apartamento</td><td>Local</td><td class="num tarifa">R$ 744,17</td></tr>
+<tr><td>Internação Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num tarifa">R$ 1.134,97</td></tr>
+<tr><td>UTI</td><td>—</td><td>Local</td><td class="num tarifa">R$ 1.522,57</td></tr>
+<tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num tarifa">R$ 2.322,15</td></tr></tbody>
+    </table>
+
+    <div class="eyebrow-blk">Pesos Estruturais e Split por Ano</div>
+    <table>
+      <thead><tr><th>Dimensão</th><th>Base</th><th>2024</th><th>2025</th><th>1Q 2026</th></tr></thead>
+      <tbody>
+        <tr><td>UTI / Total leitos</td><td>16 / 94</td><td>0,17021</td><td>0,17021</td><td>0,17021</td></tr>
+        <tr><td>Convencional / Total</td><td>78 / 94</td><td>0,82979</td><td>0,82979</td><td>0,82979</td></tr>
+        <tr><td>Apartamento / Enfermaria</td><td>Mix conv.</td><td>40% / 60%</td><td>40% / 60%</td><td>40% / 60%</td></tr>
+        <tr><td>Unimed Local</td><td>817 / 789 / 264 (abs.)</td><td class="green">78,86%</td><td class="green">79,94%</td><td class="green">79,94%</td></tr>
+        <tr><td>Intercâmbio</td><td>219 / 198 / 66 (abs.)</td><td class="green">21,14%</td><td class="green">20,06%</td><td class="green">20,06%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="eyebrow-blk">Matrizes de Cálculo</div>
+    <table class="cgp cgp-2024">
+      <tbody>
+        <tr class="title-row"><td colspan="3">CGP 2024</td></tr>
+        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024.utiP)}</td></tr>
+<tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7886 + 1.134,97×0,2114</td><td class="res">R$ ${fmtN(cgp2024.aptP)}</td></tr>
+<tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7886 + 755,73×0,2114</td><td class="res">R$ ${fmtN(cgp2024.enfP)}</td></tr>
+<tr class="calc alt"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2024.aptP)} + 0,60×${fmtN(cgp2024.enfP)}</td><td class="res">R$ ${fmtN(cgp2024.convP)}</td></tr>
+        <tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×${fmtN(cgp2024.utiP)} + 0,82979×${fmtN(cgp2024.convP)}</td><td class="res">R$ ${fmtN(cgp2024.cgp)}</td></tr>
+      </tbody>
+    </table>
+    <table class="cgp cgp-2025">
+      <tbody>
+        <tr class="title-row"><td colspan="3">CGP 2025</td></tr>
+        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025.utiP)}</td></tr>
+<tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7994 + 1.134,97×0,2006</td><td class="res">R$ ${fmtN(cgp2025.aptP)}</td></tr>
+<tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7994 + 755,73×0,2006</td><td class="res">R$ ${fmtN(cgp2025.enfP)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
 </div>
 
-<!-- DADOS MENSAIS -->
-<div class="page-break"></div>
-<div class="section-title">Dados Mensais Detalhados</div>
-<table>
-  <thead><tr>
-    <th style="text-align:left">Mês</th><th>Altas</th><th>Realizado (d)</th><th>Previsto (d)</th><th>Inef. %</th><th>Bônus MG Hosp</th>
-  </tr></thead>
-  <tbody>${monthTableRows}</tbody>
-  <tfoot><tr style="background:#0d3a5e;color:#fff;font-weight:700">
-    <td style="padding:8px 10px">TOTAL</td>
-    <td style="padding:8px 10px;text-align:right;font-family:monospace">${agg.totalAltas.toLocaleString("pt-BR")}</td>
-    <td style="padding:8px 10px;text-align:right;font-family:monospace">${fmtN(agg.totalReal)}</td>
-    <td style="padding:8px 10px;text-align:right;font-family:monospace">${fmtN(agg.totalPrev)}</td>
-    <td style="padding:8px 10px;text-align:right;font-family:monospace">${inefLabel}</td>
-    <td style="padding:8px 10px;text-align:right;font-family:monospace;color:#b3d9c2">${fmtV(agg.totalBonus)}</td>
-  </tr></tfoot>
-</table>
+<!-- PÁGINA 5 -->
+<div class="page">
+  <div class="pbody cont" style="padding-top:14mm;">
+    <table class="cgp cgp-2025">
+      <tbody>
+        <tr class="title-row"><td colspan="3">CGP 2025</td></tr>
+        <tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2025.aptP)} + 0,60×${fmtN(cgp2025.enfP)}</td><td class="res">R$ ${fmtN(cgp2025.convP)}</td></tr>
+        <tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×${fmtN(cgp2025.utiP)} + 0,82979×${fmtN(cgp2025.convP)}</td><td class="res">R$ ${fmtN(cgp2025.cgp)}</td></tr>
+      </tbody>
+    </table>
 
-<!-- FOOTER -->
-<div class="footer">
-  <div><img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" style="height:16px" alt="AxiaCare"> Gestão em Saúde · Documento Interno</div>
-  <div>Dr. Guilherme Thomé · CRM-MG 64193 · RQE 41538 · guilherme@axcare.com.br</div>
+    <table class="cgp cgp-2025">
+      <tbody>
+        <tr class="title-row"><td colspan="3">CGP 1Q/2026</td></tr>
+        <tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2026.utiP)}</td></tr>
+        <tr class="calc alt"><td class="lbl">Apt ponderada</td><td class="formula">744,17×0,7994 + 1.134,97×0,2006</td><td class="res">R$ ${fmtN(cgp2026.aptP)}</td></tr>
+        <tr class="calc"><td class="lbl">Enf ponderada</td><td class="formula">495,51×0,7994 + 755,73×0,2006</td><td class="res">R$ ${fmtN(cgp2026.enfP)}</td></tr>
+        <tr class="calc alt"><td class="lbl">Conv ponderada</td><td class="formula">0,40×${fmtN(cgp2026.aptP)} + 0,60×${fmtN(cgp2026.enfP)}</td><td class="res">R$ ${fmtN(cgp2026.convP)}</td></tr>
+        <tr class="total-row"><td colspan="2">CGP 1Q/2026 = 0,17021×${fmtN(cgp2026.utiP)} + 0,82979×${fmtN(cgp2026.convP)}&nbsp;&nbsp;(≡ CGP 2025)</td><td class="res">R$ ${fmtN(cgp2026.cgp)}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="calc">
+      <div class="calc-line">C1 (2024):&nbsp;&nbsp;${fmtN(diarExc2024)} × R$ ${fmtN(cgp2024.cgp)} = ${fmtV(C1_val)}</div>
+      <div class="calc-line">C2 (2025):&nbsp;&nbsp;${fmtN(diarEvit2025)} × R$ ${fmtN(cgp2025.cgp)} = ${fmtV(C2_2025)}</div>
+      <div class="calc-line">C2 (1Q/2026):&nbsp;&nbsp;${fmtN(diarEvit2026)} × R$ ${fmtN(cgp2026.cgp)} = ${fmtV(C2_2026)}</div>
+      <div class="calc-line"><b>C2 total: ${fmtV(C2_total)}</b></div>
+      <div class="calc-line">C3 (2025):&nbsp;&nbsp;${fmtV(C3_2025)}&nbsp;&nbsp;(extratos mensais — Programa MG Hosp)</div>
+      <div class="calc-line">C3 (1Q/2026):&nbsp;&nbsp;${fmtV(C3_2026)}&nbsp;&nbsp;(extratos mensais — Programa MG Hosp)</div>
+      <div class="calc-line"><b>C3 total: ${fmtV(C3_total)}</b></div>
+      <div class="calc-total">Total = ${fmtV(TOTAL)}</div>
+    </div>
+
+    <div class="premissas">
+      <p><b>Premissas declaradas:</b> Tarifas reais aplicadas uniformemente aos ${nM} meses (sem reajuste no período). Mix de acomodação (40%/60%) e estrutura de leitos (94 operacionais, 16 UTI — excluídos 03 leitos de hospital dia dos 97 instalados) estáveis entre os ciclos. Split local/intercâmbio calculado por ciclo com base nos números absolutos exatos de procedimentos codificados em 2024 e 2025; no 1º quadrimestre de 2026, mantido conforme a média histórica do ciclo anterior. C3 apurado diretamente dos extratos mensais do Programa MG Hosp para 2025; para o 1º quadrimestre de 2026, apurado a partir do levantamento mensal de diárias e taxas ICDS (Nível 9 + 10%) consolidado em 27/05/2026. Volumes de altas e permanências de 2024 e 2025 são valores exatos do sistema DRG Brasil®; para o 1º quadrimestre de 2026, derivados matematicamente a partir da (IN) Eficiência reportada e do saldo de diárias evitadas — método matematicamente consistente.</p>
+    </div>
+
+    <div class="cta">
+      <div class="cta-head">
+        <h3>Esta análise foi útil para você?</h3>
+        <p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p>
+      </div>
+      <div class="cta-body">
+        <div class="cta-top">
+          <img class="cta-avatar" src="${IMG[7]}" alt="Dr. Guilherme Thomé">
+          <div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise! Precisamos falar mais sobre o melhor cuidado com um sistema saudável!<br>Abraços,</div>
+        </div>
+        <div class="cta-bottom">
+          <div class="cta-sig"><img src="${IMG[8]}" alt="Assinatura Dr. Guilherme Thomé"></div>
+          <div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">guilherme@axcare.com.br</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | Governador Valadares&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare® — Gestão em Saúde&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
 </div>
+
 </body></html>`;
 
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
     if (w) {
-      w.onload = () => { setTimeout(() => w.print(), 500); };
+      w.onload = () => { setTimeout(() => w.print(), 800); };
     }
   };
+
 
   // ── M3: Tendencia chart configs ─────────────────────────────────
   const trendInefConfig = useMemo(() => {
