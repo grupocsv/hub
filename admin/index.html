@@ -1451,7 +1451,10 @@ function toggleAdminPw() {
                 <td><span class="badge ${u.status}">${u.status === 'active' ? 'Ativo' : u.status === 'pending' ? 'Pendente' : 'Revogado'}</span></td>
                 <td style="font-size:12px;">${u.tenants ? u.tenants.split(',').map(t => PORTAL_NAMES[t] || t).join(', ') : '-'}</td>
                 <td style="font-size:12px;">${formatDate(u.created_at)}</td>
-                <td>${u.status === 'active' ? '<button class="action-btn revoke" onclick="window._revoke(\'' + u.email + '\')">Revogar</button>' : ''}</td>
+                <td>
+                    ${u.status === 'active' ? '<button class="action-btn" style="background:#196396;color:#fff;margin-right:4px;" onclick="window._resetPw(\'' + u.email + '\')">Redefinir Senha</button>' : ''}
+                    ${u.status === 'active' ? '<button class="action-btn revoke" onclick="window._revoke(\'' + u.email + '\')">Revogar</button>' : ''}
+                </td>
             </tr>
         `).join('');
     }
@@ -1532,6 +1535,40 @@ function toggleAdminPw() {
             loadAll();
         } else {
             showToast(data?.error || 'Erro ao revogar', 'error');
+        }
+    };
+
+    window._resetPw = async function(email) {
+        const choice = prompt('Redefinir senha de ' + email + ':\n\n1 - Enviar link para o usu\u00e1rio definir\n2 - Definir senha manualmente\n\nDigite 1 ou 2:');
+        if (!choice) return;
+
+        if (choice === '1') {
+            const data = await apiCall('/admin/reset-user-password', {
+                method: 'POST',
+                body: JSON.stringify({ email }),
+            });
+            if (data && data.success) {
+                showToast('Link de defini\u00e7\u00e3o de senha enviado por e-mail', 'success');
+            } else {
+                showToast(data?.error || 'Erro ao enviar link', 'error');
+            }
+        } else if (choice === '2') {
+            const newPw = prompt('Digite a nova senha (m\u00edn. 6 caracteres):');
+            if (!newPw || newPw.length < 6) {
+                showToast('Senha deve ter no m\u00ednimo 6 caracteres', 'error');
+                return;
+            }
+            const data = await apiCall('/admin/reset-user-password', {
+                method: 'POST',
+                body: JSON.stringify({ email, new_password: newPw }),
+            });
+            if (data && data.success) {
+                showToast('Senha redefinida e e-mail enviado ao usu\u00e1rio', 'success');
+            } else {
+                showToast(data?.error || 'Erro ao redefinir senha', 'error');
+            }
+        } else {
+            showToast('Op\u00e7\u00e3o inv\u00e1lida', 'error');
         }
     };
 

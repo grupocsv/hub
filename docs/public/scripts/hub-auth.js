@@ -256,6 +256,18 @@
     </div>\
   </div>\
   <button class="ha-btn" id="ha-login-btn"><span class="ha-spinner"></span><span>Entrar</span></button>\
+  <div style="margin-top:12px;text-align:center;"><a href="#" id="ha-forgot-link" style="font-size:13px;color:' + colors.accent + ';text-decoration:none;">Esqueci minha senha</a></div>\
+</div>\
+<div class="ha-tab-content" data-tab="forgot">\
+  <div class="ha-error" id="ha-error-forgot"></div>\
+  <div class="ha-success" id="ha-success-forgot"></div>\
+  <p style="font-size:14px;color:#555;margin-bottom:16px;">Informe seu e-mail para receber o link de redefini\u00e7\u00e3o.</p>\
+  <div class="ha-field">\
+    <label>E-mail</label>\
+    <input type="email" id="ha-forgot-email" placeholder="seu@email.com">\
+  </div>\
+  <button class="ha-btn" id="ha-forgot-btn"><span class="ha-spinner"></span><span>Enviar Link</span></button>\
+  <div style="margin-top:12px;text-align:center;"><a href="#" id="ha-back-login" style="font-size:13px;color:' + colors.accent + ';text-decoration:none;">\u2190 Voltar ao Login</a></div>\
 </div>\
 <div class="ha-tab-content" data-tab="request">\
   <div class="ha-error" id="ha-error-request"></div>\
@@ -438,6 +450,75 @@
       }
     }
 
+    // Forgot Password link
+    if (IS_PARTNER) {
+      var forgotLink = overlay.querySelector('#ha-forgot-link');
+      if (forgotLink) {
+        forgotLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          overlay.querySelectorAll('.ha-tab-content').forEach(function(c) { c.classList.remove('active'); });
+          overlay.querySelectorAll('.ha-tab').forEach(function(t) { t.classList.remove('active'); });
+          var forgotTab = overlay.querySelector('.ha-tab-content[data-tab="forgot"]');
+          if (forgotTab) forgotTab.classList.add('active');
+        });
+      }
+
+      var backLogin = overlay.querySelector('#ha-back-login');
+      if (backLogin) {
+        backLogin.addEventListener('click', function(e) {
+          e.preventDefault();
+          overlay.querySelectorAll('.ha-tab-content').forEach(function(c) { c.classList.remove('active'); });
+          overlay.querySelectorAll('.ha-tab').forEach(function(t) { t.classList.remove('active'); });
+          var loginContent = overlay.querySelector('.ha-tab-content[data-tab="login"]');
+          var loginTab = overlay.querySelector('.ha-tab[data-tab="login"]');
+          if (loginContent) loginContent.classList.add('active');
+          if (loginTab) loginTab.classList.add('active');
+        });
+      }
+
+      var forgotBtn = overlay.querySelector('#ha-forgot-btn');
+      if (forgotBtn) {
+        forgotBtn.addEventListener('click', async function() {
+          var errorEl = overlay.querySelector('#ha-error-forgot');
+          var successEl = overlay.querySelector('#ha-success-forgot');
+          errorEl.style.display = 'none';
+          successEl.style.display = 'none';
+
+          var email = overlay.querySelector('#ha-forgot-email');
+          if (!email || !email.value) {
+            errorEl.textContent = 'Por favor, preencha o e-mail';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          forgotBtn.disabled = true;
+          forgotBtn.classList.add('loading');
+
+          try {
+            var resp = await fetch(AUTH_API + '/forgot-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: email.value }),
+            });
+            var data = await resp.json();
+            if (data.success) {
+              successEl.textContent = 'Se o e-mail estiver cadastrado, voc\u00ea receber\u00e1 um link para redefinir sua senha.';
+              successEl.style.display = 'block';
+              email.value = '';
+            } else {
+              errorEl.textContent = data.error || 'Erro ao processar';
+              errorEl.style.display = 'block';
+            }
+          } catch (e) {
+            errorEl.textContent = 'Erro de conex\u00e3o';
+            errorEl.style.display = 'block';
+          }
+          forgotBtn.disabled = false;
+          forgotBtn.classList.remove('loading');
+        });
+      }
+    }
+
     // Enter key
     var passwordInput = overlay.querySelector('#ha-password');
     if (passwordInput && loginBtn) {
@@ -547,8 +628,104 @@
     });
   }
 
+  // ===== Set Password Overlay =====
+  function showSetPasswordOverlay(token) {
+    var existing = document.getElementById('hub-auth-overlay');
+    if (existing) existing.remove();
+
+    document.body.style.overflow = 'hidden';
+
+    var overlay = document.createElement('div');
+    overlay.id = 'hub-auth-overlay';
+
+    overlay.innerHTML = '<style>' + buildCSS() + '</style>' +
+      '<div class="ha-modal">' +
+      '<img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" class="ha-logo">' +
+      ICON_LOCK +
+      '<h2 class="ha-title">Definir Senha</h2>' +
+      '<p class="ha-subtitle">Crie sua senha de acesso ao portal</p>' +
+      '<div class="ha-error" id="ha-error-setpw"></div>' +
+      '<div class="ha-success" id="ha-success-setpw"></div>' +
+      '<div class="ha-field"><label>Nova Senha</label><div class="ha-pw-wrap"><input type="password" id="ha-setpw-password" placeholder="M\u00ednimo 6 caracteres" autocomplete="new-password"></div></div>' +
+      '<div class="ha-field"><label>Confirmar Senha</label><div class="ha-pw-wrap"><input type="password" id="ha-setpw-confirm" placeholder="Repita a senha" autocomplete="new-password"></div></div>' +
+      '<button class="ha-btn" id="ha-setpw-btn"><span class="ha-spinner"></span><span>Definir Senha</span></button>' +
+      '<div class="ha-footer">Hub Grupo CSV</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    var btn = overlay.querySelector('#ha-setpw-btn');
+    btn.addEventListener('click', async function() {
+      var errorEl = overlay.querySelector('#ha-error-setpw');
+      var successEl = overlay.querySelector('#ha-success-setpw');
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      var pw = overlay.querySelector('#ha-setpw-password').value;
+      var confirmPw = overlay.querySelector('#ha-setpw-confirm').value;
+
+      if (!pw || pw.length < 6) {
+        errorEl.textContent = 'Senha deve ter no m\u00ednimo 6 caracteres';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (pw !== confirmPw) {
+        errorEl.textContent = 'As senhas n\u00e3o coincidem';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('loading');
+
+      try {
+        var resp = await fetch(AUTH_API + '/set-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token, password: pw }),
+        });
+        var data = await resp.json();
+        if (data.success) {
+          successEl.textContent = 'Senha definida com sucesso! Redirecionando...';
+          successEl.style.display = 'block';
+          btn.style.display = 'none';
+          overlay.querySelectorAll('.ha-field').forEach(function(f) { f.style.display = 'none'; });
+          var cleanUrl = window.location.href.split('?')[0];
+          window.history.replaceState({}, '', cleanUrl);
+          setTimeout(function() {
+            overlay.remove();
+            document.body.style.overflow = 'auto';
+            showAuthOverlay();
+          }, 2000);
+        } else {
+          errorEl.textContent = data.error || 'Erro ao definir senha';
+          errorEl.style.display = 'block';
+          btn.disabled = false;
+          btn.classList.remove('loading');
+        }
+      } catch (e) {
+        errorEl.textContent = 'Erro de conex\u00e3o. Tente novamente.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      }
+    });
+
+    overlay.querySelector('#ha-setpw-confirm').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') btn.click();
+    });
+  }
+
   // ===== Init =====
   async function init() {
+    // Verificar se ha token de set-password na URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var setPasswordToken = urlParams.get('set-password');
+    if (setPasswordToken) {
+      showSetPasswordOverlay(setPasswordToken);
+      return;
+    }
+
     var session = getStoredSession();
     if (session && session.token) {
       verifyToken(session.token).then(function(valid) {

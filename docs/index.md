@@ -295,8 +295,8 @@ head:
 
 .partner-tools-wrapper {
   overflow: hidden;
-  transition: max-height 0.4s ease, opacity 0.3s ease;
-  max-height: 600px;
+  transition: max-height 0.5s ease, opacity 0.3s ease;
+  max-height: 2000px;
   opacity: 1;
 }
 .partner-section.collapsed .partner-tools-wrapper {
@@ -593,52 +593,8 @@ head:
         <a href="/unimed/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
       <div class="partner-tools-wrapper">
-      <div class="partner-tools">
-        <a href="/unimed/especialidades.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Variabilidade Assistencial por Especialidade (v1)
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/variabilidade-exames.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Variabilidade Assistencial - Especialidades
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/cuidadocoordenado.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Coordenação do Cuidado
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/onco.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Oncologia: Painel Populacional
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/ped-amb.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Pediatria Ambulatorial: Centro de Atendimento Integrado
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/vivapleno.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Viva Pleno: Vertical de Cuidados aos Idosos
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/gce.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          GCE: Painel de Acompanhamento
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/tea.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Psicologia ABA: Análise de Rede
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unimed/psiquiatria.html" data-direct class="tool-item">
-          <span class="dot" style="background:#00995d;"></span>
-          Psiquiatria: Modelo Assistencial Unificado
-          <span class="arrow">›</span>
-        </a>
+      <div class="partner-tools" id="tools-unimed">
+        <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
       </div>
     </div>
@@ -654,32 +610,8 @@ head:
         <a href="/unihealth/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
       <div class="partner-tools-wrapper">
-      <div class="partner-tools">
-        <a href="/unihealth/calc-plantao.html" data-direct class="tool-item">
-          <span class="dot" style="background:#013d19;"></span>
-          Calculadora Plantões Médicos
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unihealth/fios.html" data-direct class="tool-item">
-          <span class="dot" style="background:#013d19;"></span>
-          Análise Reajuste Suturas
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unihealth/retornopa.html" data-direct class="tool-item">
-          <span class="dot" style="background:#013d19;"></span>
-          Análise Utilização PA
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unihealth/opme.html" data-direct class="tool-item">
-          <span class="dot" style="background:#013d19;"></span>
-          Plano de Ação OPME
-          <span class="arrow">›</span>
-        </a>
-        <a href="/unihealth/isc-cesarianas.html" data-direct class="tool-item">
-          <span class="dot" style="background:#013d19;"></span>
-          ISC Cesarianas
-          <span class="arrow">›</span>
-        </a>
+      <div class="partner-tools" id="tools-unihealth">
+        <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
       </div>
     </div>
@@ -695,17 +627,8 @@ head:
         <a href="/icds/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
       <div class="partner-tools-wrapper">
-      <div class="partner-tools">
-        <a href="/icds/slides.html" class="tool-item">
-          <span class="dot" style="background:#1B3A5C;"></span>
-          Gerador de Apresentações
-          <span class="arrow">›</span>
-        </a>
-        <a href="/p/tea-dataset/" data-direct class="tool-item">
-          <span class="dot" style="background:#1B3A5C;"></span>
-          TEA: Data Set Indicadores
-          <span class="arrow">›</span>
-        </a>
+      <div class="partner-tools" id="tools-icds">
+        <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
       </div>
     </div>
@@ -759,13 +682,46 @@ head:
 import { onMounted } from 'vue'
 
 onMounted(() => {
+  // Toggle parceiros
   document.querySelectorAll('.partner-header').forEach(header => {
     header.addEventListener('click', (e) => {
-      // Don't toggle if clicking the logo link or portal button
       if (e.target.closest('.p-logo-link') || e.target.closest('.p-portal-btn')) return;
       const section = header.closest('.partner-section');
       if (section) section.classList.toggle('collapsed');
     });
+  });
+
+  // Carregar ferramentas dinamicamente
+  const portals = [
+    { id: 'unimed', color: '#00995d', basePath: '/unimed/' },
+    { id: 'unihealth', color: '#013d19', basePath: '/unihealth/' },
+    { id: 'icds', color: '#1B3A5C', basePath: '/icds/' },
+  ];
+
+  portals.forEach(portal => {
+    const container = document.getElementById('tools-' + portal.id);
+    if (!container) return;
+
+    fetch(portal.basePath + 'tools.json')
+      .then(r => r.json())
+      .then(data => {
+        const tools = data.tools || [];
+        if (tools.length === 0) {
+          container.innerHTML = '<span class="tool-item disabled">Nenhuma ferramenta dispon\u00edvel</span>';
+          return;
+        }
+        container.innerHTML = tools.map(tool => {
+          const href = tool.external ? tool.file : (portal.basePath + tool.file);
+          return '<a href="' + href + '" class="tool-item">' +
+            '<span class="dot" style="background:' + portal.color + ';"></span>' +
+            tool.title +
+            '<span class="arrow">\u203a</span>' +
+            '</a>';
+        }).join('');
+      })
+      .catch(() => {
+        container.innerHTML = '<span class="tool-item disabled">Erro ao carregar ferramentas</span>';
+      });
   });
 });
 </script>
