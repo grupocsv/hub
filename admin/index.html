@@ -632,7 +632,13 @@
                 <div class="table-card" style="margin-top: 24px;">
                     <div class="tc-header">
                         <h3>Open Pages (open.grupocsv.com)</h3>
-                        <span class="count" id="op-count">Carregando...</span>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button onclick="window._openNewOP()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Nova Open Page
+                            </button>
+                            <span class="count" id="op-count">Carregando...</span>
+                        </div>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
@@ -1136,6 +1142,33 @@
         <input type="password" id="cpw-confirm" placeholder="Confirme a nova senha">
         <div class="modal-actions">
             <button class="btn-primary" id="cpw-submit">Alterar Senha</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nova Open Page -->
+<div class="modal-overlay hidden" id="op-upload-modal">
+    <div class="modal-box" style="max-width:520px;">
+        <h3>Publicar Nova Open Page</h3>
+        <p>Envie um HTML (e assets opcionais) para publicar em open.grupocsv.com</p>
+        <div id="op-upload-error" style="display:none;background:#fef2f2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;"></div>
+        <input type="text" id="op-slug" placeholder="Slug (ex: relatorio-q1)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <input type="text" id="op-title" placeholder="Título da página" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <input type="text" id="op-desc" placeholder="Descrição (opcional)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <div id="op-drop-zone" style="border:2px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all 0.2s;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:14px;color:var(--text-secondary);">Arraste arquivos aqui ou clique para selecionar</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">HTML, CSS, JS, imagens</div>
+            <input type="file" id="op-file-input" multiple style="display:none;" accept=".html,.css,.js,.png,.jpg,.jpeg,.gif,.svg,.webp,.ico,.woff,.woff2,.ttf,.json">
+        </div>
+        <div id="op-file-list" style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;"></div>
+        <div id="op-progress" style="display:none;margin-bottom:12px;">
+            <div style="background:var(--bg);border-radius:8px;height:6px;overflow:hidden;"><div id="op-progress-bar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div></div>
+            <div id="op-progress-text" style="font-size:12px;color:var(--text-secondary);margin-top:4px;text-align:center;">Enviando...</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="window._closeNewOP()">Cancelar</button>
+            <button class="btn-primary" id="op-submit-btn" onclick="window._submitOP()">Publicar</button>
         </div>
     </div>
 </div>
@@ -2075,6 +2108,129 @@ function toggleAdminPw() {
         }
         document.getElementById('s-services').textContent = onlineCount + '/' + services.length;
     }
+
+    // ===== Open Pages Upload Modal =====
+    const OP_API = 'https://open.grupocsv.com';
+    const OP_TOKEN = '68894645';
+    let opSelectedFiles = [];
+
+    window._openNewOP = function() {
+        document.getElementById('op-upload-modal').classList.remove('hidden');
+        document.getElementById('op-slug').value = '';
+        document.getElementById('op-title').value = '';
+        document.getElementById('op-desc').value = '';
+        document.getElementById('op-file-list').textContent = '';
+        document.getElementById('op-upload-error').style.display = 'none';
+        document.getElementById('op-progress').style.display = 'none';
+        document.getElementById('op-submit-btn').disabled = false;
+        opSelectedFiles = [];
+    };
+
+    window._closeNewOP = function() {
+        document.getElementById('op-upload-modal').classList.add('hidden');
+    };
+
+    // Drop zone interactions
+    (function() {
+        const dropZone = document.getElementById('op-drop-zone');
+        const fileInput = document.getElementById('op-file-input');
+        if (!dropZone || !fileInput) return;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = 'rgba(26,86,219,0.04)';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = 'var(--border)';
+            dropZone.style.background = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border)';
+            dropZone.style.background = 'transparent';
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+        function handleFiles(files) {
+            opSelectedFiles = Array.from(files);
+            const listEl = document.getElementById('op-file-list');
+            if (opSelectedFiles.length === 0) {
+                listEl.textContent = '';
+            } else {
+                listEl.innerHTML = '<strong>' + opSelectedFiles.length + ' arquivo(s):</strong> ' +
+                    opSelectedFiles.map(f => f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)').join(', ');
+            }
+        }
+    })();
+
+    window._submitOP = async function() {
+        const slug = document.getElementById('op-slug').value.trim();
+        const title = document.getElementById('op-title').value.trim();
+        const desc = document.getElementById('op-desc').value.trim();
+        const errEl = document.getElementById('op-upload-error');
+        const progressEl = document.getElementById('op-progress');
+        const progressBar = document.getElementById('op-progress-bar');
+        const progressText = document.getElementById('op-progress-text');
+        const submitBtn = document.getElementById('op-submit-btn');
+
+        errEl.style.display = 'none';
+
+        if (!slug) { errEl.textContent = 'Slug e obrigatorio'; errEl.style.display = 'block'; return; }
+        if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug) && !/^[a-z0-9]+$/.test(slug)) {
+            errEl.textContent = 'Slug invalido: use apenas letras minusculas, numeros e hifens';
+            errEl.style.display = 'block'; return;
+        }
+        if (!title) { errEl.textContent = 'Titulo e obrigatorio'; errEl.style.display = 'block'; return; }
+        if (opSelectedFiles.length === 0) { errEl.textContent = 'Selecione ao menos um arquivo'; errEl.style.display = 'block'; return; }
+
+        submitBtn.disabled = true;
+        progressEl.style.display = 'block';
+        progressBar.style.width = '30%';
+        progressText.textContent = 'Enviando arquivos...';
+
+        try {
+            const formData = new FormData();
+            formData.append('slug', slug);
+            formData.append('title', title);
+            if (desc) formData.append('description', desc);
+            opSelectedFiles.forEach(f => formData.append('files', f));
+
+            progressBar.style.width = '60%';
+
+            const resp = await fetch(OP_API + '/api/upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + OP_TOKEN },
+                body: formData
+            });
+
+            const data = await resp.json();
+            progressBar.style.width = '100%';
+
+            if (!resp.ok || data.error) {
+                errEl.textContent = data.error || 'Erro ao publicar';
+                errEl.style.display = 'block';
+                submitBtn.disabled = false;
+                progressEl.style.display = 'none';
+                return;
+            }
+
+            progressText.textContent = 'Publicado com sucesso!';
+            showToast('Open Page publicada: ' + data.public_url, 'success');
+
+            setTimeout(() => {
+                window._closeNewOP();
+                loadPublicLinks();
+            }, 1500);
+        } catch (e) {
+            errEl.textContent = 'Erro de rede: ' + e.message;
+            errEl.style.display = 'block';
+            submitBtn.disabled = false;
+            progressEl.style.display = 'none';
+        }
+    };
 
     // ===== Start =====
     init();
