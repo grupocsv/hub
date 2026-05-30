@@ -74,11 +74,10 @@ OBSERVACOES = [
     "BPM LC do Idoso (Hospital UniHealth): fluxo automatizado gerando alertas de atendimento.",
     "Boletim Intercâmbio Especial (29/05): edição especial distribuída.",
 ]
-
 class SignalPDF(FPDF):
     def __init__(self):
-        super().__init__("P", "mm", "A4")
-        self.set_auto_page_break(auto=False)
+        super().__init__()
+        self.set_auto_page_break(auto=False, margin=10)
         self.add_font("Inter", "", os.path.join(FONT_DIR, "Inter-Regular.ttf"))
         self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"))
         self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"))
@@ -87,20 +86,24 @@ class SignalPDF(FPDF):
         w = self.w
         self.set_fill_color(*CSV_BLUE)
         self.rect(0, 0, w, 34, "F")
-        self.image(LOGO_PATH, 12, 6, 38)
+        if os.path.exists(LOGO_PATH):
+            self.image(LOGO_PATH, x=12, y=5, h=7)
         self.set_font("Inter", "B", 14)
         self.set_text_color(*WHITE)
-        self.set_xy(12, 18)
-        self.cell(0, 6, f"Signal\u2122  S{SEMANA}")
+        self.set_xy(12, 14)
+        self.cell(0, 6, f"Signal\u2122 S{SEMANA}/2026")
         self.set_font("InterLight", "", 7)
-        self.set_xy(12, 25)
+        self.set_xy(12, 21)
         self.cell(0, 4, f"Resumo Semanal Estrat\u00e9gico  |  {PERIODO}")
-        self.set_font("InterLight", "", 6)
-        self.set_text_color(200, 215, 230)
-        self.set_xy(w - 80, 7)
-        self.cell(68, 4, EXECUTIVO, align="R")
-        self.set_xy(w - 80, 11)
-        self.cell(68, 4, CARGO, align="R")
+        self.set_font("InterLight", "", 5.5)
+        self.set_xy(12, 26)
+        self.cell(0, 4, f"{EXECUTIVO}  \u2014  {CARGO}")
+        self.set_fill_color(*CSV_GREEN)
+        self.rect(0, 34, w, 1.2, "F")
+        self.set_font("InterLight", "", 5)
+        self.set_text_color(*MID_TEXT)
+        self.set_xy(w - 50, 5)
+        self.cell(38, 4, f"Gerado em {DATA_GERACAO}", align="R")
         self.set_y(36)
     def footer(self):
         w = self.w
