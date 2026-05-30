@@ -25,11 +25,16 @@
     html, body { height: 100%; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef2f0; }
     #drg-root { min-height: calc(100vh - 200px); }
+    @media print { body { background: #fff; } }
   </style>
   <!-- React 18 via CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- Supabase JS SDK via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <div id="drg-root"></div>
@@ -57,35 +62,53 @@
       <span style="color:#cbd5e1;font-size:11px">|</span>
       <a href="https://www.instagram.com/gui.thome/" target="_blank" style="color:#196396;text-decoration:none">Instagram</a>
     </div>
-    <div style="font-size:11px;color:#94a3b8">Copyright © 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
+    <div style="font-size:11px;color:#94a3b8">Copyright &copy; <script>document.write(new Date().getFullYear())</script> AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
   </div>
 
-  <!-- DRG Plugin React Component -->
+  <!-- DRG Plugin React Component v2 -->
   <script type="text/babel">
-    const { useState, useMemo, useCallback } = React;
+    const { useState, useMemo, useCallback, useEffect, useRef } = React;
 
+// ─── SUPABASE CONFIG ────────────────────────────────────────────
+const SUPABASE_URL = "https://ctwkzbrroyaaitruehyt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0d2t6YnJyb3lhYWl0cnVlaHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNDE4OTIsImV4cCI6MjA1NzkxNzg5Mn0.rDmMBCNGhXqFBMq4oPzVdPOSrkBRNFRBFHpSa2_NKWI";
+let supabaseClient = null;
+try {
+  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e) { console.warn("Supabase SDK nao carregado, usando fallback local:", e); }
 
-// ─── PALETA AXIACARE® ───────────────────────────────────────────
-// Cores derivadas dos assets oficiais (assets.grupocsv.com/logos/axiacare)
-// AzulBrand #0d67b0 · AzulDeep #206698 · TealClaro #96c4c4 · MintClaro #b3d9c2
-// Cores semânticas (orange/green/red) preservadas para sinalização de status DRG.
+// ─── LOCALSTORAGE HELPERS ───────────────────────────────────────
+const LS_KEY = "drg_analytics_v2";
+function lsSave(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function lsLoad() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+function lsClear() {
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+}
+
+// ─── PALETA AXIACARE ────────────────────────────────────────────
 const C = {
-  ink:    "#0d3a5e",   // azul escuro institucional (header, banner)
-  blue:   "#0d67b0",   // azul brand AxiaCare (acento principal)
-  deep:   "#206698",   // azul intermediário
-  teal:   "#96c4c4",   // teal claro (decorativo)
-  mint:   "#b3d9c2",   // mint claro (acento contrastante sobre ink)
-  green:  "#2d8a5f",   // verde semântico — eficiência (C2)
-  neon:   "#b3d9c2",   // realces sobre fundo escuro (alias de mint)
-  orange: "#d25a00",   // semântico — desperdício/acima do baseline (C1)
-  red:    "#b04030",   // semântico — ineficiente
-  light:  "#f3f7fa",   // fundo claro azulado
-  text:   "#0d2a3f",   // texto principal
-  muted:  "#5d7a8c",   // texto auxiliar
-  rule:   "#c0d4e0",   // bordas e divisórias
+  ink:    "#0d3a5e",
+  blue:   "#0d67b0",
+  deep:   "#206698",
+  teal:   "#96c4c4",
+  mint:   "#b3d9c2",
+  green:  "#2d8a5f",
+  neon:   "#b3d9c2",
+  orange: "#d25a00",
+  red:    "#b04030",
+  light:  "#f3f7fa",
+  text:   "#0d2a3f",
+  muted:  "#5d7a8c",
+  rule:   "#c0d4e0",
 };
 
-// URL dos logos oficiais AxiaCare (R2 — assets.grupocsv.com)
 const LOGO_AXIA = {
   horizontalNegativo: "https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg",
   horizontalPositivo: "https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg",
@@ -100,12 +123,7 @@ const MESES_LONG  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                      "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
 // ─── DADOS DEFAULT 24 MESES (jan/2024 – dez/2025) ───────────────
-// Cada mês: { altas, realizado, previsto, bonus, localAbs, icAbs }
-// Distribuição proporcional dos dados anuais pelos 12 meses
-// 2024: 8125 altas, 26118.4 real, 23324.4 prev | local:817 ic:219
-// 2025: 7681 altas, 23300.6 real, 23927.0 prev | local:789 ic:198
 const makeMonth2024 = (i) => {
-  // Variação ligeira para simular dados mensais reais
   const varFactor = [0.92,0.85,0.98,0.95,1.02,1.05,1.08,1.03,1.00,0.97,0.96,1.19][i];
   const baseAltas = Math.round(8125/12 * varFactor);
   const baseReal  = +(26118.4/12 * varFactor).toFixed(1);
@@ -115,6 +133,7 @@ const makeMonth2024 = (i) => {
     bonus: 0,
     localAbs: Math.round(817/12 * varFactor),
     icAbs:    Math.round(219/12 * varFactor),
+    hasData: true,
   };
 };
 const BONUS_2025 = [5824.58,10201.00,12851.55,15419.49,28859.41,32171.26,
@@ -129,18 +148,10 @@ const makeMonth2025 = (i) => {
     bonus: BONUS_2025[i],
     localAbs: Math.round(789/12 * varFactor),
     icAbs:    Math.round(198/12 * varFactor),
+    hasData: true,
   };
 };
 
-// ─── DADOS 1º QUADRIMESTRE 2026 (jan-abr) ───────────────────────
-// Fonte: Report DRG Hospital Unihealth — Ciclo Analítico Jan-Abr 2026 (Escritório de Valor)
-//   • Altas Jan-Abr: 2.588   • Diárias Evitadas: 1.485,6   • (IN) Eficiência: 82,8%
-//   • CaseMix Médio: 1,0248
-// Distribuição mensal (proporcional aos dias do mês) que fecha exato com o agregado:
-//   Σ Previsto 8.626,8 | Σ Realizado 7.141,2 | (IN) Ef. ponderada 82,78%
-// (IN) Eficiência mensal Global (do report): 86,37 | 77,57 | 87,15 | 79,41
-// Bônus MG Hosp: extratos planilha ICDS (TX + Diárias) Jan-Abr/2026 = R$ 178.761,29
-// Split local/IC: mantido conforme média histórica (mesmo padrão de 2025)
 const BONUS_2026 = [34685.15, 46238.25, 50248.79, 47589.10,
                     0, 0, 0, 0, 0, 0, 0, 0];
 const ALTAS_2026 = [669, 603, 669, 647, 0,0,0,0,0,0,0,0];
@@ -155,9 +166,9 @@ const makeMonth2026 = (i) => ({
   bonus:     BONUS_2026[i],
   localAbs:  LOCAL_2026[i],
   icAbs:     IC_2026[i],
+  hasData:   ALTAS_2026[i] > 0 || REAL_2026[i] > 0 || PREV_2026[i] > 0,
 });
 
-// Gera o banco de meses disponíveis (jan/2023 – dez/2027)
 function buildMonthBank() {
   const bank = {};
   for (let y = 2023; y <= 2027; y++) {
@@ -166,7 +177,7 @@ function buildMonthBank() {
       if (y === 2024) bank[key] = makeMonth2024(m);
       else if (y === 2025) bank[key] = makeMonth2025(m);
       else if (y === 2026) bank[key] = makeMonth2026(m);
-      else bank[key] = { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0 };
+      else bank[key] = { altas:0, realizado:0, previsto:0, bonus:0, localAbs:0, icAbs:0, hasData:false };
     }
   }
   return bank;
@@ -174,7 +185,6 @@ function buildMonthBank() {
 
 const MONTH_BANK_INIT = buildMonthBank();
 
-// ─── PARÂMETROS GLOBAIS DEFAULT ──────────────────────────────────
 const PARAMS_DEFAULT = {
   enfLocal:495.51, enfIC:755.73,
   aptLocal:744.17, aptIC:1134.97,
@@ -193,7 +203,7 @@ const fmtN = (v,d=1) =>
 const pct  = v => v.toFixed(2).replace(".",",")+"%";
 const NA   = "—";
 
-function monthKey(year, month) { // month 0-11
+function monthKey(year, month) {
   return `${year}-${String(month+1).padStart(2,"0")}`;
 }
 function keyToLabel(key) {
@@ -201,7 +211,6 @@ function keyToLabel(key) {
   return `${MESES_SHORT[parseInt(m)-1]}/${y}`;
 }
 
-// Gera lista de chaves de período entre dois keys
 function periodKeys(startKey, endKey) {
   const [sy,sm] = startKey.split("-").map(Number);
   const [ey,em] = endKey.split("-").map(Number);
@@ -224,6 +233,7 @@ function calcCGP(params, totalLocal, totalIC) {
   const pl   = totalLocal / tot;
   const pi   = 1 - pl;
   const op   = leitosInstalados - leitosHD;
+  if (op === 0) return null;
   const wUTI = leitosUTI / op, wConv = 1 - wUTI;
   const wApt = mixApt / 100,   wEnf  = 1 - wApt;
   const utiP  = utiLocal*pl + utiIC*pi;
@@ -262,7 +272,7 @@ const FieldN = ({label,value,onChange,note,mono,readOnly}) => (
     <label style={{display:"block",fontSize:8,fontWeight:700,textTransform:"uppercase",
       letterSpacing:1.5,color:C.muted,marginBottom:3}}>{label}</label>
     <input type="number" step="0.01" value={value} readOnly={readOnly}
-      onChange={e=>onChange&&onChange(parseFloat(e.target.value)||0)}
+      onChange={e=>{const v=parseFloat(e.target.value);if(onChange&&!isNaN(v)&&isFinite(v))onChange(v);else if(onChange&&e.target.value==='')onChange(0);}}
       style={{width:"100%",padding:"6px 8px",border:`1px solid ${C.rule}`,borderRadius:3,
         fontSize:11,fontFamily:mono?"monospace":"inherit",color:C.text,
         background:readOnly?"#f8f8f8":"#fff",outline:"none",boxSizing:"border-box"}}/>
@@ -281,31 +291,87 @@ const TwoCol = ({children,gap=12}) => (
   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap}}>{children}</div>
 );
 
-// ─── TABS ────────────────────────────────────────────────────────
-const TABS = ["Período","Parâmetros","Dados Mensais","CGP","DRG Reports"];
+// ─── BADGE SEM DADOS ────────────────────────────────────────────
+const NoDataBadge = ({monthData}) => {
+  if (!monthData) return null;
+  const allZero = monthData.altas === 0 && monthData.realizado === 0 &&
+    monthData.previsto === 0 && monthData.bonus === 0;
+  if (!allZero) return null;
+  const isMarkedHasData = monthData.hasData === true;
+  return (
+    <span title={isMarkedHasData
+      ? "Valores reais zerados (confirmado)"
+      : "Sem dados inseridos para este mês"}
+      style={{display:"inline-block",marginLeft:4,padding:"1px 5px",
+        borderRadius:2,fontSize:7,fontWeight:700,letterSpacing:0.5,
+        background: isMarkedHasData ? C.green+"22" : "#fef3cd",
+        color: isMarkedHasData ? C.green : "#856404",
+        border: `1px solid ${isMarkedHasData ? C.green+"44" : "#ffc107"}`}}>
+      {isMarkedHasData ? "Zero real" : "Sem dados"}
+    </span>
+  );
+};
 
-// ─── APP ─────────────────────────────────────────────────────────
+// ─── TABS ────────────────────────────────────────────────────────
+const TABS = ["Período","Parâmetros","Dados Mensais","CGP","DRG Reports",
+              "Tendência","Comparativo","Simulador"];
+
+// ─── CHART COMPONENT ────────────────────────────────────────────
+const ChartCanvas = ({id, config, height=300}) => {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (chartRef.current) { chartRef.current.destroy(); }
+    if (canvasRef.current && config) {
+      const ctx = canvasRef.current.getContext("2d");
+      chartRef.current = new Chart(ctx, config);
+    }
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [config]);
+  return <canvas ref={canvasRef} id={id} style={{width:"100%",height:height,maxHeight:height}}/>;
+};
+
+// ─── APP ─────────────────────────────────────────────────────
 function DRGPlugin() {
+  // ── State initialization with localStorage fallback ──────────
+  const saved = useMemo(() => lsLoad(), []);
   const [tab, setTab]       = useState(0);
-  const [params, setParams] = useState({ ...PARAMS_DEFAULT });
-  const [bank, setBank]     = useState({ ...MONTH_BANK_INIT });
-  const [startKey, setStartKey] = useState("2024-01");
-  const [endKey,   setEndKey  ] = useState("2026-04");
+  const [params, setParams] = useState(saved?.params || { ...PARAMS_DEFAULT });
+  const [bank, setBank]     = useState(saved?.bank || { ...MONTH_BANK_INIT });
+  const [startKey, setStartKey] = useState(saved?.startKey || "2024-01");
+  const [endKey,   setEndKey  ] = useState(saved?.endKey || "2026-04");
   const [copied, setCopied]   = useState(null);
+  const [supaStatus, setSupaStatus] = useState("idle"); // idle|loading|saved|error
+  const [dataSource, setDataSource] = useState("local"); // local|supabase
+
+  // ── M1: Auto-save to localStorage ──────────────────────────────
+  useEffect(() => {
+    lsSave({ params, bank, startKey, endKey });
+  }, [params, bank, startKey, endKey]);
+
+  // ── M1: Reset to defaults ──────────────────────────────────────
+  const resetToDefaults = () => {
+    setParams({ ...PARAMS_DEFAULT });
+    setBank({ ...MONTH_BANK_INIT });
+    setStartKey("2024-01");
+    setEndKey("2026-04");
+    lsClear();
+    setDataSource("local");
+  };
 
   const setParam = k => v => setParams(prev => ({ ...prev, [k]: v }));
 
   const setMonthField = useCallback((key, field, val) => {
     setBank(prev => ({
       ...prev,
-      [key]: { ...prev[key], [field]: parseFloat(val) || 0 }
+      [key]: { ...prev[key], [field]: parseFloat(val) || 0, hasData: true }
     }));
   }, []);
 
-  // ── Lista de chaves no período ──────────────────────────────────
+  // ── Lista de chaves no periodo ──────────────────────────────────
   const keys = useMemo(() => periodKeys(startKey, endKey), [startKey, endKey]);
 
-  // ── Agregados do período ────────────────────────────────────────
+  // ── Agregados do periodo ────────────────────────────────────────
   const agg = useMemo(() => {
     let totalAltas=0, totalReal=0, totalPrev=0, totalBonus=0;
     let totalLocal=0, totalIC=0;
@@ -344,7 +410,7 @@ function DRGPlugin() {
 
   const nMonths = keys.length;
 
-  // ── Seletores de período ────────────────────────────────────────
+  // ── Seletores de periodo ────────────────────────────────────────
   const allYears = [2023,2024,2025,2026,2027];
   const yearMonthOptions = [];
   for (const y of allYears)
@@ -366,12 +432,406 @@ function DRGPlugin() {
     }}>{copied===id ? "Copiado!" : label}</button>
   );
 
-  // ─── STATUS BADGE DO PERÍODO ────────────────────────────────────
+  // ── Status badge do periodo ─────────────────────────────────────
   const statusColor = inef === null ? C.muted
     : inef > 105 ? C.red : inef > 100 ? C.orange : inef > 95 ? C.green : C.deep;
   const statusLabel = inef === null ? "Sem dados"
     : inef > 105 ? "Ineficiente" : inef > 100 ? "Acima do baseline"
     : inef > 95 ? "Eficiente" : "Alta eficiência";
+
+  // ── M5: Comparativo YoY helpers ─────────────────────────────────
+  const [yoyCycle1, setYoyCycle1] = useState("2024");
+  const [yoyCycle2, setYoyCycle2] = useState("2025");
+
+  const calcCycleMetrics = (year) => {
+    const ks = periodKeys(`${year}-01`, `${year}-12`);
+    let tAltas=0,tReal=0,tPrev=0,tBonus=0,tLocal=0,tIC=0,dExc=0,dEvit=0;
+    for (const k of ks) {
+      const d = bank[k] || {};
+      tAltas += d.altas||0; tReal += d.realizado||0; tPrev += d.previsto||0;
+      tBonus += d.bonus||0; tLocal += d.localAbs||0; tIC += d.icAbs||0;
+      dExc += Math.max(0,(d.realizado||0)-(d.previsto||0));
+      dEvit += Math.max(0,(d.previsto||0)-(d.realizado||0));
+    }
+    const cgp = calcCGP(params, tLocal, tIC);
+    const c1 = cgp && dExc > 0 ? dExc * cgp.cgp : 0;
+    const c2 = cgp && dEvit > 0 ? dEvit * cgp.cgp : 0;
+    const c3 = tBonus;
+    const total = c1 + c2 + c3;
+    const inefPct = tPrev > 0 ? (tReal/tPrev)*100 : null;
+    return { altas:tAltas, realizado:tReal, previsto:tPrev, inef:inefPct,
+             c1, c2, c3, total, cgp: cgp?.cgp||0 };
+  };
+
+  // ── M6: Simulador What-If ───────────────────────────────────────
+  const [simParams, setSimParams] = useState({ ...PARAMS_DEFAULT });
+  const [simMeta, setSimMeta] = useState(95); // meta de ineficiencia %
+
+  const simCgpData = useMemo(
+    () => calcCGP(simParams, agg.totalLocal, agg.totalIC),
+    [simParams, agg.totalLocal, agg.totalIC]
+  );
+  const simC1 = simCgpData && agg.diarExc > 0 ? agg.diarExc * simCgpData.cgp : null;
+  const simC2 = simCgpData && agg.diarEvit > 0 ? agg.diarEvit * simCgpData.cgp : null;
+  const simTOTAL = (simC1||0) + (simC2||0) + (C3||0);
+
+  // ── M7: Supabase integration ────────────────────────────────────
+  const saveToSupabase = async () => {
+    if (!supabaseClient) { setSupaStatus("error"); return; }
+    setSupaStatus("loading");
+    try {
+      // Upsert config
+      const { data: cfgData, error: cfgErr } = await supabaseClient
+        .from("drg_configs")
+        .upsert({ config_name: "default", params: params, description: "Configuracao padrao DRG Analytics", is_active: true, updated_at: new Date().toISOString() }, { onConflict: "config_name" })
+        .select().single();
+      if (cfgErr) throw cfgErr;
+      const configId = cfgData.id;
+
+      // Upsert monthly data
+      const rows = Object.entries(bank).map(([mk, d]) => ({
+        config_id: configId,
+        month_key: mk,
+        altas: d.altas || 0,
+        realizado: d.realizado || 0,
+        previsto: d.previsto || 0,
+        bonus: d.bonus || 0,
+        local_abs: d.localAbs || 0,
+        ic_abs: d.icAbs || 0,
+        has_data: d.hasData || false,
+        source: "manual",
+        updated_at: new Date().toISOString(),
+      }));
+      // Batch in chunks of 50
+      for (let i = 0; i < rows.length; i += 50) {
+        const chunk = rows.slice(i, i + 50);
+        const { error: mdErr } = await supabaseClient
+          .from("drg_monthly_data")
+          .upsert(chunk, { onConflict: "config_id,month_key" });
+        if (mdErr) throw mdErr;
+      }
+
+      // Save snapshot
+      const { error: snapErr } = await supabaseClient
+        .from("drg_snapshots")
+        .insert({
+          config_id: configId,
+          period_start: startKey,
+          period_end: endKey,
+          n_months: nMonths,
+          c1_value: C1 || 0,
+          c2_value: C2 || 0,
+          c3_value: C3 || 0,
+          total_value: TOTAL,
+          inef_pct: inef,
+          cgp_value: cgpData?.cgp || 0,
+          params_snapshot: params,
+          monthly_data_snapshot: bank,
+        });
+      if (snapErr) throw snapErr;
+
+      setSupaStatus("saved");
+      setDataSource("supabase");
+      setTimeout(() => setSupaStatus("idle"), 3000);
+    } catch(e) {
+      console.error("Erro ao salvar no Supabase:", e);
+      setSupaStatus("error");
+      setTimeout(() => setSupaStatus("idle"), 5000);
+    }
+  };
+
+  const loadFromSupabase = async () => {
+    if (!supabaseClient) return;
+    setSupaStatus("loading");
+    try {
+      const { data: cfg, error: cfgErr } = await supabaseClient
+        .from("drg_configs")
+        .select("*")
+        .eq("config_name", "default")
+        .eq("is_active", true)
+        .single();
+      if (cfgErr || !cfg) { setSupaStatus("idle"); return; }
+
+      const { data: md, error: mdErr } = await supabaseClient
+        .from("drg_monthly_data")
+        .select("*")
+        .eq("config_id", cfg.id);
+      if (mdErr) throw mdErr;
+
+      if (cfg.params) setParams(cfg.params);
+      if (md && md.length > 0) {
+        const newBank = { ...MONTH_BANK_INIT };
+        for (const row of md) {
+          newBank[row.month_key] = {
+            altas: row.altas,
+            realizado: parseFloat(row.realizado),
+            previsto: parseFloat(row.previsto),
+            bonus: parseFloat(row.bonus),
+            localAbs: row.local_abs,
+            icAbs: row.ic_abs,
+            hasData: row.has_data,
+          };
+        }
+        setBank(newBank);
+      }
+      setDataSource("supabase");
+      setSupaStatus("saved");
+      setTimeout(() => setSupaStatus("idle"), 2000);
+    } catch(e) {
+      console.error("Erro ao carregar do Supabase:", e);
+      setSupaStatus("error");
+      setTimeout(() => setSupaStatus("idle"), 5000);
+    }
+  };
+
+  // ── M2: PDF Export ──────────────────────────────────────────────
+  const exportPDF = () => {
+    const periodLabel = `${keyToLabel(startKey)} a ${keyToLabel(endKey)}`;
+    const monthsLabel = `${nMonths} ${nMonths===1?"mês":"meses"}`;
+    const inefLabel = inef !== null ? fmtN(inef)+"%" : NA;
+    const cgpLabel = cgpData ? fmtV(cgpData.cgp) : NA;
+
+    // Monthly breakdown for the table
+    const monthTableRows = agg.monthRows.map(r => {
+      const d = bank[r.key] || {};
+      const inefM = d.previsto > 0 ? (d.realizado/d.previsto)*100 : null;
+      return `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;font-weight:600">${keyToLabel(r.key)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${(d.altas||0).toLocaleString("pt-BR")}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${fmtN(d.realizado||0)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace">${fmtN(d.previsto||0)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace;color:${inefM && inefM > 100 ? '#d25a00' : '#2d8a5f'}">${inefM !== null ? fmtN(inefM)+"%" : NA}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right;font-family:monospace;color:#0d67b0">${d.bonus > 0 ? fmtV(d.bonus) : NA}</td>
+      </tr>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório DRG Brasil - ${periodLabel}</title>
+<style>
+  @page { size: A4; margin: 20mm 15mm; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0d2a3f; font-size: 11px; line-height: 1.5; }
+  .page-break { page-break-before: always; }
+  .header { background: #0d3a5e; color: #fff; padding: 24px 28px; border-radius: 6px; margin-bottom: 24px; }
+  .header h1 { font-size: 20px; margin: 0 0 4px 0; letter-spacing: -0.5px; }
+  .header .sub { color: #b3d9c2; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #0d3a5e; border-bottom: 2px solid #0d67b0; padding-bottom: 4px; margin: 20px 0 12px 0; }
+  .card { border: 1px solid #c0d4e0; border-radius: 4px; padding: 14px 18px; margin-bottom: 12px; }
+  .card-header { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #5d7a8c; margin-bottom: 6px; }
+  .card-value { font-size: 22px; font-weight: 700; font-family: monospace; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .kpi { background: #f3f7fa; border-radius: 4px; padding: 10px 12px; text-align: center; }
+  .kpi .label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: #5d7a8c; margin-bottom: 4px; }
+  .kpi .value { font-size: 16px; font-weight: 700; color: #0d3a5e; }
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  th { background: #0d3a5e; color: #b3d9c2; padding: 8px 10px; text-align: right; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  th:first-child { text-align: left; }
+  .comp-card { border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+  .comp-header { padding: 10px 16px; color: #fff; font-weight: 700; font-size: 13px; }
+  .comp-body { padding: 12px 16px; }
+  .total-box { background: #0d3a5e; border-radius: 4px; padding: 20px; text-align: center; color: #fff; margin-top: 16px; }
+  .total-box .label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #b3d9c2; opacity: 0.7; margin-bottom: 6px; }
+  .total-box .value { font-size: 28px; font-weight: 700; }
+  .footer { margin-top: 24px; padding: 12px 0; border-top: 1px solid #c0d4e0; display: flex; justify-content: space-between; font-size: 8px; color: #5d7a8c; }
+</style>
+</head>
+<body>
+<!-- CAPA -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" style="height:28px" alt="AxiaCare">
+    <div style="width:1px;height:24px;background:rgba(179,217,194,0.3)"></div>
+    <span style="font-size:9px;color:#96c4c4;text-transform:uppercase;letter-spacing:2px">Gestão em Saúde</span>
+  </div>
+  <h1>DRG Brasil® Analytics</h1>
+  <div class="sub">Relatório Consolidado — ${periodLabel} (${monthsLabel})</div>
+  <div style="margin-top:8px;font-size:10px;color:#96c4c4">Unimed + Unihealth · Governador Valadares</div>
+</div>
+
+<!-- CONTEXTO -->
+<div class="section-title">Contexto do Período</div>
+<div class="kpi-grid">
+  <div class="kpi"><div class="label">Período</div><div class="value" style="font-size:13px">${periodLabel}</div></div>
+  <div class="kpi"><div class="label">Meses</div><div class="value">${nMonths}</div></div>
+  <div class="kpi"><div class="label">Altas Válidas</div><div class="value">${agg.totalAltas.toLocaleString("pt-BR")}</div></div>
+  <div class="kpi"><div class="label">Ineficiência</div><div class="value" style="color:${inef && inef > 100 ? '#d25a00' : '#2d8a5f'}">${inefLabel}</div></div>
+</div>
+<div class="kpi-grid">
+  <div class="kpi"><div class="label">Diárias Realizadas</div><div class="value" style="font-size:13px">${fmtN(agg.totalReal)}</div></div>
+  <div class="kpi"><div class="label">Diárias Previstas</div><div class="value" style="font-size:13px">${fmtN(agg.totalPrev)}</div></div>
+  <div class="kpi"><div class="label">CGP do Período</div><div class="value" style="font-size:13px">${cgpLabel}</div></div>
+  <div class="kpi"><div class="label">Total Consolidado</div><div class="value" style="font-size:13px;color:#0d67b0">${TOTAL > 0 ? fmtV(TOTAL) : NA}</div></div>
+</div>
+
+<!-- COMPONENTES -->
+<div class="page-break"></div>
+<div class="section-title">Componentes Financeiros</div>
+
+<div class="comp-card">
+  <div class="comp-header" style="background:#d25a00">C1 — Desperdício Eliminado: ${C1 ? fmtV(C1) : "N/A"}</div>
+  <div class="comp-body" style="background:#d25a000d">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="kpi"><div class="label">Diárias Excedidas</div><div class="value" style="color:#d25a00">+${fmtN(agg.diarExc)} d</div></div>
+      <div class="kpi"><div class="label">CGP</div><div class="value" style="color:#d25a00">${cgpLabel}</div></div>
+      <div class="kpi"><div class="label">C1 Total</div><div class="value" style="color:#d25a00">${C1 ? fmtV(C1) : NA}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="comp-card">
+  <div class="comp-header" style="background:#2d8a5f">C2 — Custo Evitado: ${C2 ? fmtV(C2) : "N/A"}</div>
+  <div class="comp-body" style="background:#2d8a5f0d">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="kpi"><div class="label">Diárias Evitadas</div><div class="value" style="color:#2d8a5f">−${fmtN(agg.diarEvit)} d</div></div>
+      <div class="kpi"><div class="label">CGP</div><div class="value" style="color:#2d8a5f">${cgpLabel}</div></div>
+      <div class="kpi"><div class="label">C2 Total</div><div class="value" style="color:#2d8a5f">${C2 ? fmtV(C2) : NA}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="comp-card">
+  <div class="comp-header" style="background:#0d67b0">C3 — Bônus MG Hosp: ${C3 ? fmtV(C3) : "N/A"}</div>
+  <div class="comp-body" style="background:#0d67b00d">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+      ${agg.monthRows.filter(r=>r.bonus>0).map(r=>`<div class="kpi"><div class="label">${keyToLabel(r.key)}</div><div class="value" style="font-size:11px;color:#0d67b0">${fmtV(r.bonus)}</div></div>`).join("")}
+    </div>
+    <div style="margin-top:8px;text-align:right;font-weight:700;font-size:13px;color:#0d67b0">Total C3: ${C3 ? fmtV(C3) : NA}</div>
+  </div>
+</div>
+
+<!-- CONSOLIDADO -->
+<div class="total-box">
+  <div class="label">Total Consolidado · ${periodLabel}</div>
+  <div class="value">${TOTAL > 0 ? fmtV(TOTAL) : NA}</div>
+  ${inef !== null ? `<div style="font-size:9px;color:#b3d9c2;opacity:0.6;margin-top:4px">${nMonths} meses · Ineficiência: ${fmtN(inef)}% · ${agg.totalAltas.toLocaleString("pt-BR")} altas</div>` : ""}
+</div>
+
+<!-- DADOS MENSAIS -->
+<div class="page-break"></div>
+<div class="section-title">Dados Mensais Detalhados</div>
+<table>
+  <thead><tr>
+    <th style="text-align:left">Mês</th><th>Altas</th><th>Realizado (d)</th><th>Previsto (d)</th><th>Inef. %</th><th>Bônus MG Hosp</th>
+  </tr></thead>
+  <tbody>${monthTableRows}</tbody>
+  <tfoot><tr style="background:#0d3a5e;color:#fff;font-weight:700">
+    <td style="padding:8px 10px">TOTAL</td>
+    <td style="padding:8px 10px;text-align:right;font-family:monospace">${agg.totalAltas.toLocaleString("pt-BR")}</td>
+    <td style="padding:8px 10px;text-align:right;font-family:monospace">${fmtN(agg.totalReal)}</td>
+    <td style="padding:8px 10px;text-align:right;font-family:monospace">${fmtN(agg.totalPrev)}</td>
+    <td style="padding:8px 10px;text-align:right;font-family:monospace">${inefLabel}</td>
+    <td style="padding:8px 10px;text-align:right;font-family:monospace;color:#b3d9c2">${fmtV(agg.totalBonus)}</td>
+  </tr></tfoot>
+</table>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div><img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" style="height:16px" alt="AxiaCare"> Gestão em Saúde · Documento Interno</div>
+  <div>Dr. Guilherme Thomé · CRM-MG 64193 · RQE 41538 · guilherme@axcare.com.br</div>
+</div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, "_blank");
+    if (w) {
+      w.onload = () => { setTimeout(() => w.print(), 500); };
+    }
+  };
+
+  // ── M3: Tendencia chart configs ─────────────────────────────────
+  const trendInefConfig = useMemo(() => {
+    const labels = agg.monthRows.map(r => keyToLabel(r.key));
+    const inefData = agg.monthRows.map(r => {
+      const d = bank[r.key] || {};
+      return d.previsto > 0 ? (d.realizado / d.previsto) * 100 : null;
+    });
+    return {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Ineficiência Mensal (%)",
+          data: inefData,
+          borderColor: C.orange,
+          backgroundColor: C.orange + "22",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: inefData.map(v => v === null ? "transparent" : v > 100 ? C.red : C.green),
+          spanGaps: false,
+        }, {
+          label: "Baseline (100%)",
+          data: inefData.map(() => 100),
+          borderColor: C.muted + "66",
+          borderDash: [5, 5],
+          pointRadius: 0,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label === "Baseline (100%)" ? null : `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`
+            }
+          }
+        },
+        scales: {
+          y: { title: { display: true, text: "Ineficiência (%)", font: { size: 10 } },
+               suggestedMin: 70, suggestedMax: 120 },
+          x: { ticks: { font: { size: 8 }, maxRotation: 45 } }
+        }
+      }
+    };
+  }, [agg.monthRows, bank]);
+
+  const trendFinConfig = useMemo(() => {
+    const labels = agg.monthRows.map(r => keyToLabel(r.key));
+    const c1Data = agg.monthRows.map(r => {
+      const d = bank[r.key] || {};
+      const exc = Math.max(0, (d.realizado||0) - (d.previsto||0));
+      const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0);
+      return cgpM && exc > 0 ? exc * cgpM.cgp : 0;
+    });
+    const c2Data = agg.monthRows.map(r => {
+      const d = bank[r.key] || {};
+      const evit = Math.max(0, (d.previsto||0) - (d.realizado||0));
+      const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0);
+      return cgpM && evit > 0 ? evit * cgpM.cgp : 0;
+    });
+    const c3Data = agg.monthRows.map(r => r.bonus || 0);
+    return {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "C1 — Desperdício Eliminado", data: c1Data, backgroundColor: C.orange + "cc", stack: "stack0" },
+          { label: "C2 — Custo Evitado", data: c2Data, backgroundColor: C.green + "cc", stack: "stack0" },
+          { label: "C3 — Bônus MG Hosp", data: c3Data, backgroundColor: C.blue + "cc", stack: "stack0" },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { font: { size: 10 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtV(ctx.parsed.y)}` } }
+        },
+        scales: {
+          y: { stacked: true, title: { display: true, text: "Valor (R$)", font: { size: 10 } },
+               ticks: { callback: v => "R$ " + (v/1000).toFixed(0) + "k" } },
+          x: { stacked: true, ticks: { font: { size: 8 }, maxRotation: 45 } }
+        }
+      }
+    };
+  }, [agg.monthRows, bank, params]);
+
 
   return (
     <div style={{fontFamily:"'Segoe UI',system-ui,sans-serif",
@@ -382,17 +842,16 @@ function DRGPlugin() {
         alignItems:"center",justifyContent:"space-between",height:60,
         borderBottom:`1px solid ${C.blue}55`}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
-          {/* Logo oficial AxiaCare (negativo — fundo escuro) */}
           <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
             style={{height:30,width:"auto",display:"block"}}/>
           <div style={{width:1,height:28,background:`${C.teal}55`}}/>
           <div>
             <div style={{color:"#fff",fontWeight:700,fontSize:14,letterSpacing:-0.3}}>
-              DRG Brasil® Analytics
+              DRG Brasil&reg; Analytics
             </div>
             <div style={{color:C.mint,opacity:0.7,fontSize:9,
               textTransform:"uppercase",letterSpacing:2}}>
-              Unimed + Unihealth · Governador Valadares
+              Unimed + Unihealth &middot; Governador Valadares
             </div>
           </div>
         </div>
@@ -400,22 +859,30 @@ function DRGPlugin() {
           {inef !== null && (
             <div style={{background:statusColor+"22",border:`1px solid ${statusColor}55`,
               borderRadius:3,padding:"3px 10px",fontSize:9,fontWeight:700,
-              color:statusColor==C.green?C.mint:statusColor,letterSpacing:1}}>
-              {fmtN(inef)}% · {statusLabel}
+              color:statusColor===C.green?C.mint:statusColor,letterSpacing:1}}>
+              {fmtN(inef)}% &middot; {statusLabel}
             </div>
           )}
+          {/* Data source indicator */}
+          <div style={{background:dataSource==="supabase"?C.green+"22":C.blue+"22",
+            border:`1px solid ${dataSource==="supabase"?C.green:C.blue}44`,
+            borderRadius:3,padding:"3px 8px",fontSize:8,fontWeight:700,
+            color:dataSource==="supabase"?C.mint:C.teal,letterSpacing:1}}>
+            {dataSource==="supabase"?"Supabase":"Local"}
+          </div>
           <div style={{background:`${C.blue}33`,border:`1px solid ${C.blue}66`,
             borderRadius:3,padding:"4px 12px",color:C.mint,
             fontSize:9.5,fontWeight:800,letterSpacing:1.5,
-            textTransform:"uppercase"}}>Gestão em Saúde</div>
+            textTransform:"uppercase"}}>Gest&atilde;o em Sa&uacute;de</div>
         </div>
       </div>
 
       {/* ── TABS ── */}
-      <div style={{background:C.ink,padding:"0 24px",
+      <div role="tablist" aria-label="Abas de navegação" style={{background:C.ink,padding:"0 24px",
         borderBottom:`3px solid ${C.blue}`,display:"flex",gap:0,overflowX:"auto"}}>
         {TABS.map((t,i) => (
-          <button key={i} onClick={() => setTab(i)} style={{
+          <button key={i} role="tab" aria-selected={i===tab} aria-controls={`tabpanel-${i}`}
+            onClick={() => setTab(i)} style={{
             padding:"9px 18px",border:"none",whiteSpace:"nowrap",
             background: i===tab ? C.blue : "transparent",
             color: i===tab ? "#fff" : `${C.mint}aa`,
@@ -427,14 +894,14 @@ function DRGPlugin() {
         ))}
       </div>
 
-      {/* ── PERÍODO BANNER ── */}
+      {/* ── PERIODO BANNER ── */}
       <div style={{background:"#fff",borderBottom:`1px solid ${C.rule}`,
         padding:"8px 24px",display:"flex",alignItems:"center",
         gap:16,flexWrap:"wrap"}}>
         <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
-          letterSpacing:1.5,color:C.muted}}>Período ativo:</div>
+          letterSpacing:1.5,color:C.muted}}>Per&iacute;odo ativo:</div>
         <div style={{fontWeight:700,fontSize:13,color:C.ink,letterSpacing:-0.3}}>
-          {keyToLabel(startKey)} → {keyToLabel(endKey)}
+          {keyToLabel(startKey)} &rarr; {keyToLabel(endKey)}
         </div>
         <div style={{background:C.ink+"15",borderRadius:3,padding:"2px 8px",
           fontSize:9,fontWeight:700,color:C.ink}}>{nMonths} {nMonths===1?"mês":"meses"}</div>
@@ -448,17 +915,17 @@ function DRGPlugin() {
 
       <div style={{maxWidth:960,margin:"0 auto",padding:"22px 20px"}}>
 
-        {/* ══ TAB 0: PERÍODO ═══════════════════════════════════════ */}
+        {/* ══ TAB 0: PERIODO ═══════════════════════════════════════ */}
         {tab===0 && (
           <div>
-            <SecTitle>Seleção de Período</SecTitle>
+            <SecTitle>Sele&ccedil;&atilde;o de Per&iacute;odo</SecTitle>
             <div style={{background:"#fff",border:`1px solid ${C.rule}`,
               borderRadius:4,padding:"20px 24px",marginBottom:20}}>
               <TwoCol>
                 <div>
                   <label style={{display:"block",fontSize:9,fontWeight:700,
                     textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>
-                    Início
+                    In&iacute;cio
                   </label>
                   <select value={startKey} onChange={e=>{
                     const v=e.target.value;
@@ -489,7 +956,7 @@ function DRGPlugin() {
                 </div>
               </TwoCol>
 
-              {/* Atalhos de período */}
+              {/* Atalhos de periodo */}
               <div style={{marginTop:16,display:"flex",gap:8,flexWrap:"wrap"}}>
                 {[
                   {label:"Jan–Dez 2024",        s:"2024-01",e:"2024-12"},
@@ -512,10 +979,39 @@ function DRGPlugin() {
                   }}>{label}</button>
                 ))}
               </div>
+
+              {/* M1: Reset + Supabase buttons */}
+              <div style={{marginTop:16,display:"flex",gap:8,flexWrap:"wrap",
+                borderTop:`1px solid ${C.rule}`,paddingTop:12}}>
+                <button onClick={resetToDefaults} style={{
+                  padding:"6px 14px",borderRadius:3,border:`1px solid ${C.red}55`,
+                  background:"#fff",color:C.red,fontSize:10,fontWeight:700,
+                  cursor:"pointer"}}>
+                  Resetar para defaults
+                </button>
+                {supabaseClient && (
+                  <>
+                    <button onClick={saveToSupabase} disabled={supaStatus==="loading"} style={{
+                      padding:"6px 14px",borderRadius:3,border:`1px solid ${C.green}55`,
+                      background:supaStatus==="saved"?C.green+"22":"#fff",
+                      color:C.green,fontSize:10,fontWeight:700,cursor:"pointer"}}>
+                      {supaStatus==="loading"?"Salvando...":supaStatus==="saved"?"Salvo no Supabase":"Salvar no Supabase"}
+                    </button>
+                    <button onClick={loadFromSupabase} disabled={supaStatus==="loading"} style={{
+                      padding:"6px 14px",borderRadius:3,border:`1px solid ${C.blue}55`,
+                      background:"#fff",color:C.blue,fontSize:10,fontWeight:700,cursor:"pointer"}}>
+                      {supaStatus==="loading"?"Carregando...":"Carregar do Supabase"}
+                    </button>
+                  </>
+                )}
+                {supaStatus==="error" && (
+                  <span style={{fontSize:10,color:C.red,alignSelf:"center"}}>Erro na opera&ccedil;&atilde;o Supabase</span>
+                )}
+              </div>
             </div>
 
-            {/* Resumo do período */}
-            <SecTitle>Resumo do Período Selecionado</SecTitle>
+            {/* Resumo do periodo */}
+            <SecTitle>Resumo do Per&iacute;odo Selecionado</SecTitle>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
               {[
                 {label:"Meses",        value:nMonths,                         unit:""},
@@ -537,7 +1033,7 @@ function DRGPlugin() {
               borderRadius:4,padding:"16px 20px"}}>
               <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
                 letterSpacing:1.5,color:C.muted,marginBottom:12}}>
-                Meses no Período — Ineficiência Mensal
+                Meses no Per&iacute;odo &mdash; Inefici&ecirc;ncia Mensal
               </div>
               <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                 {keys.map(k=>{
@@ -548,7 +1044,7 @@ function DRGPlugin() {
                     : inefM>105 ? C.red : inefM>100 ? C.orange
                     : inefM>95 ? C.green : C.blue;
                   return (
-                    <div key={k} title={`${keyToLabel(k)}\n${hasData?`Inef: ${fmtN(inefM??0)}%`:"Sem dados"}`}
+                    <div key={k} title={`${keyToLabel(k)}\n${hasData?`Inef: ${fmtN(inefM??0)}%`:"Sem dados inseridos"}`}
                       style={{textAlign:"center",width:42}}>
                       <div style={{height:32,background:barColor+"33",borderRadius:3,
                         border:`1px solid ${barColor}55`,display:"flex",
@@ -559,7 +1055,10 @@ function DRGPlugin() {
                             transition:"height .3s"}}/>
                         )}
                       </div>
-                      <div style={{fontSize:8,color:C.muted,marginTop:3}}>{keyToLabel(k)}</div>
+                      <div style={{fontSize:8,color:C.muted,marginTop:3}}>
+                        {keyToLabel(k)}
+                        <NoDataBadge monthData={bank[k]}/>
+                      </div>
                     </div>
                   );
                 })}
@@ -582,13 +1081,13 @@ function DRGPlugin() {
           </div>
         )}
 
-        {/* ══ TAB 1: PARÂMETROS GLOBAIS ════════════════════════════ */}
+        {/* ══ TAB 1: PARAMETROS GLOBAIS ════════════════════════════ */}
         {tab===1 && (
           <div>
             <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
               borderRadius:3,padding:"10px 14px",marginBottom:20,
               fontSize:10,color:C.orange}}>
-              Parâmetros globais — aplicados uniformemente a todos os meses do período.
+              Par&acirc;metros globais &mdash; aplicados uniformemente a todos os meses do per&iacute;odo.
               Altere apenas se as tarifas ou a estrutura hospitalar mudarem.
             </div>
 
@@ -596,7 +1095,7 @@ function DRGPlugin() {
             <TwoCol>
               <FieldN label="Leitos instalados"  value={params.leitosInstalados}
                 onChange={setParam("leitosInstalados")} mono/>
-              <FieldN label="Leitos hospital dia (excluídos)" value={params.leitosHD}
+              <FieldN label="Leitos hospital dia (exclu&iacute;dos)" value={params.leitosHD}
                 onChange={setParam("leitosHD")} mono
                 note={`Operacionais (metodologia): ${params.leitosInstalados-params.leitosHD}`}/>
               <FieldN label="Leitos UTI" value={params.leitosUTI}
@@ -607,20 +1106,20 @@ function DRGPlugin() {
                 note={`Enfermaria: ${100-params.mixApt}%`}/>
             </TwoCol>
 
-            <SecTitle>Tarifas Reais — 6 Modalidades</SecTitle>
+            <SecTitle>Tarifas Reais &mdash; 6 Modalidades</SecTitle>
             <TwoCol>
               <FieldN label="Enf. Local (R$)"         value={params.enfLocal}  onChange={setParam("enfLocal")}  mono/>
-              <FieldN label="Enf. Intercâmbio (R$)"   value={params.enfIC}     onChange={setParam("enfIC")}     mono/>
+              <FieldN label="Enf. Interc&acirc;mbio (R$)"   value={params.enfIC}     onChange={setParam("enfIC")}     mono/>
               <FieldN label="Apt. Local (R$)"          value={params.aptLocal}  onChange={setParam("aptLocal")}  mono/>
-              <FieldN label="Apt. Intercâmbio (R$)"   value={params.aptIC}     onChange={setParam("aptIC")}     mono/>
+              <FieldN label="Apt. Interc&acirc;mbio (R$)"   value={params.aptIC}     onChange={setParam("aptIC")}     mono/>
               <FieldN label="UTI Local (R$)"           value={params.utiLocal}  onChange={setParam("utiLocal")}  mono/>
-              <FieldN label="UTI Intercâmbio (R$)"    value={params.utiIC}     onChange={setParam("utiIC")}     mono/>
+              <FieldN label="UTI Interc&acirc;mbio (R$)"    value={params.utiIC}     onChange={setParam("utiIC")}     mono/>
             </TwoCol>
 
             <div style={{background:"#f4faf7",border:`1px solid ${C.green}44`,
               borderRadius:3,padding:"12px 16px",fontSize:10,color:C.muted,marginTop:4}}>
-              <strong style={{color:C.ink}}>Split local/intercâmbio</strong> é inserido mês a mês
-              na aba "Dados Mensais" — o CGP é recalculado com o agregado do período selecionado.
+              <strong style={{color:C.ink}}>Split local/interc&acirc;mbio</strong> &eacute; inserido m&ecirc;s a m&ecirc;s
+              na aba &quot;Dados Mensais&quot; &mdash; o CGP &eacute; recalculado com o agregado do per&iacute;odo selecionado.
             </div>
           </div>
         )}
@@ -663,6 +1162,7 @@ function DRGPlugin() {
                             <div style={{width:3,height:"100%",background:rowColor,
                               position:"absolute",left:0,top:0}}/>
                             {keyToLabel(row.key)}
+                            <NoDataBadge monthData={bank[row.key]}/>
                           </td>
                           {["altas","realizado","previsto"].map(f=>(
                             <td key={f} style={{padding:"3px 6px",borderBottom:`1px solid ${C.rule}`}}>
@@ -751,202 +1251,101 @@ function DRGPlugin() {
           </div>
         )}
 
+
         {/* ══ TAB 3: CGP ═══════════════════════════════════════════ */}
         {tab===3 && (
           <div>
-            {!cgpData ? (
-              <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-                borderRadius:4,padding:"32px",textAlign:"center",color:C.muted}}>
-                Nenhum dado de split (local/IC) no período selecionado.<br/>
-                Insira os dados na aba "Dados Mensais".
-              </div>
-            ) : (
-              <>
-                <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-                  borderRadius:4,padding:"16px 20px",marginBottom:16}}>
-                  <SecTitle>CGP — Período {keyToLabel(startKey)} a {keyToLabel(endKey)}</SecTitle>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:16}}>
-                    {[
-                      {label:"Split Local",    value:pct(cgpData.pl*100),  color:C.orange},
-                      {label:"Split IC",       value:pct(cgpData.pi*100),  color:C.orange},
-                      {label:"Peso UTI",       value:pct(cgpData.wUTI*100),color:C.muted},
-                      {label:"UTI ponderada",  value:fmtV(cgpData.utiP),  color:C.text},
-                      {label:"Apt. ponderada", value:fmtV(cgpData.aptP),  color:C.text},
-                      {label:"Enf. ponderada", value:fmtV(cgpData.enfP),  color:C.text},
-                      {label:"Conv. ponderada",value:fmtV(cgpData.convP), color:C.text},
-                      {label:"Peso Conv.",     value:pct(cgpData.wConv*100),color:C.muted},
-                    ].map((m,i)=>(
-                      <div key={i} style={{background:C.light,borderRadius:3,padding:"10px 12px"}}>
-                        <div style={{fontSize:8,color:C.muted,textTransform:"uppercase",
-                          letterSpacing:1,marginBottom:4}}>{m.label}</div>
-                        <div style={{fontSize:13,fontWeight:700,color:m.color,
-                          fontFamily:"monospace"}}>{m.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{background:C.green+"18",border:`1px solid ${C.green}44`,
-                    borderRadius:4,padding:"14px 18px",display:"flex",
-                    alignItems:"center",justifyContent:"space-between"}}>
-                    <div>
-                      <div style={{fontSize:9,color:C.muted,textTransform:"uppercase",
-                        letterSpacing:1.5,marginBottom:4}}>CGP do Período</div>
-                      <div style={{fontSize:28,fontWeight:700,color:C.ink}}>
-                        {fmtV(cgpData.cgp)}
-                      </div>
-                    </div>
-                    <div style={{fontFamily:"monospace",fontSize:10,color:C.muted,
-                      textAlign:"right",lineHeight:1.8}}>
-                      CGP = {pct(cgpData.wUTI*100)} × {fmtV(cgpData.utiP)}<br/>
-                      &nbsp;&nbsp;&nbsp;&nbsp;+ {pct(cgpData.wConv*100)} × {fmtV(cgpData.convP)}
-                    </div>
-                  </div>
+            <SecTitle>Custo Global Ponderado (CGP)</SecTitle>
+            {cgpData ? (
+              <div>
+                <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:16}}>
+                  <Pill label="CGP do Período" value={fmtV(cgpData.cgp)} color={C.blue}/>
+                  <Pill label="Leitos Operac." value={cgpData.op} color={C.ink}/>
+                  <Pill label="% Local" value={pct(cgpData.pl*100)} color={C.green}/>
+                  <Pill label="% IC" value={pct(cgpData.pi*100)} color={C.orange}/>
                 </div>
 
-                {/* Verificação */}
-                <div style={{background:C.ink,borderRadius:4,padding:"18px 20px"}}>
-                  <div style={{fontSize:9,textTransform:"uppercase",letterSpacing:2.5,
-                    color:"rgba(150,220,185,0.5)",textAlign:"center",marginBottom:14}}>
-                    Verificação dos Componentes
+                <CompCard color={C.blue} tag="Composição" title="Tarifas Ponderadas">
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                    <Pill label="UTI Ponderada" value={fmtV(cgpData.utiP)} color={C.blue}
+                      sub={`Peso: ${pct(cgpData.wUTI*100)}`}/>
+                    <Pill label="Apt. Ponderada" value={fmtV(cgpData.aptP)} color={C.deep}/>
+                    <Pill label="Enf. Ponderada" value={fmtV(cgpData.enfP)} color={C.teal}/>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                    {[
-                      {label:`C1 = ${fmtN(agg.diarExc)} d exc. × CGP`,
-                       sub:agg.diarExc>0?`${fmtN(agg.diarExc)} × ${fmtV(cgpData.cgp)}`:null,
-                       result:C1,color:C.orange},
-                      {label:`C2 = ${fmtN(agg.diarEvit)} d evit. × CGP`,
-                       sub:agg.diarEvit>0?`${fmtN(agg.diarEvit)} × ${fmtV(cgpData.cgp)}`:null,
-                       result:C2,color:C.green},
-                      {label:"C3 = Σ bônus MG Hosp",
-                       sub:null,result:C3,color:C.blue},
-                    ].map((item,i)=>(
-                      <div key={i} style={{background:"rgba(255,255,255,0.07)",
-                        borderRadius:3,padding:"14px 10px",textAlign:"center",
-                        borderTop:`2px solid ${item.result?item.color:"#444"}`}}>
-                        <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",
-                          marginBottom:6,lineHeight:1.4}}>{item.label}</div>
-                        {item.sub && (
-                          <div style={{fontSize:8,color:"rgba(255,255,255,0.3)",
-                            marginBottom:5,fontFamily:"monospace"}}>{item.sub}</div>
-                        )}
-                        <div style={{fontSize:16,fontWeight:700,
-                          color:item.result?"#fff":"#666"}}>
-                          {item.result ? fmtV(item.result) : NA}
-                        </div>
-                        {!item.result && (
-                          <div style={{fontSize:8,color:"#666",marginTop:4}}>
-                            {i===0?"Sem excesso de diárias":i===1?"Sem diárias evitadas":"Sem bônus registrado"}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  <div style={{marginTop:10,fontSize:10,color:C.muted}}>
+                    Conv. Ponderada: <strong>{fmtV(cgpData.convP)}</strong> (Peso conv: {pct(cgpData.wConv*100)})
                   </div>
-                  <div style={{marginTop:14,background:"rgba(0,150,90,0.18)",
-                    border:"1px solid rgba(0,150,90,0.3)",borderRadius:3,
-                    padding:"14px 20px",textAlign:"center"}}>
-                    <div style={{fontSize:9,color:"rgba(150,220,185,0.55)",
-                      letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>
-                      Total Consolidado
+                </CompCard>
+
+                <CompCard color={C.ink} tag="Fórmula" title="CGP = wUTI × UTI_p + wConv × Conv_p">
+                  <div style={{fontFamily:"monospace",fontSize:11,lineHeight:1.8,color:C.text}}>
+                    <div>wUTI = {cgpData.wUTI.toFixed(4)} &middot; UTI_p = {fmtV(cgpData.utiP)}</div>
+                    <div>wConv = {cgpData.wConv.toFixed(4)} &middot; Conv_p = {fmtV(cgpData.convP)}</div>
+                    <div style={{marginTop:6,fontWeight:700,color:C.blue}}>
+                      CGP = {fmtV(cgpData.cgp)}
                     </div>
-                    <div style={{fontSize:30,fontWeight:700,color:TOTAL>0?"#fff":"#555"}}>
-                      {TOTAL>0?fmtV(TOTAL):NA}
-                    </div>
-                    {inef !== null && (
-                      <div style={{fontSize:9,color:"rgba(150,220,185,0.45)",marginTop:5}}>
-                        Ineficiência: {fmtN(inef)}% · Δ diárias: {
-                          agg.diarExc>0?`+${fmtN(agg.diarExc)} exc.`:""}
-                        {agg.diarEvit>0?` −${fmtN(agg.diarEvit)} evit.`:""}
-                      </div>
-                    )}
                   </div>
-                </div>
-              </>
+                </CompCard>
+
+                <CopyBtn id="cgp" label="Copiar CGP completo" color={C.blue}
+                  text={`CGP do Período: ${fmtV(cgpData.cgp)}\nLocal: ${pct(cgpData.pl*100)} | IC: ${pct(cgpData.pi*100)}\nUTI pond.: ${fmtV(cgpData.utiP)} | Apt pond.: ${fmtV(cgpData.aptP)} | Enf pond.: ${fmtV(cgpData.enfP)}\nConv pond.: ${fmtV(cgpData.convP)}\nLeitos oper.: ${cgpData.op} | wUTI: ${cgpData.wUTI.toFixed(4)} | wConv: ${cgpData.wConv.toFixed(4)}`}/>
+              </div>
+            ) : (
+              <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
+                borderRadius:3,padding:"16px",fontSize:11,color:C.orange}}>
+                Insira dados de Local (abs) e IC (abs) na aba &quot;Dados Mensais&quot; para calcular o CGP.
+              </div>
             )}
           </div>
         )}
 
-        {/* ══ TAB 4: ENTREGÁVEIS ═══════════════════════════════════ */}
+        {/* ══ TAB 4: DRG REPORTS ═══════════════════════════════════ */}
         {tab===4 && (
           <div>
-            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
-              borderRadius:3,padding:"10px 16px",marginBottom:16,
-              display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-              <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",
-                letterSpacing:1.5,color:C.muted}}>Período do relatório:</span>
-              <span style={{fontWeight:700,color:C.ink}}>
-                {keyToLabel(startKey)} a {keyToLabel(endKey)} ({nMonths} {nMonths===1?"mês":"meses"})
-              </span>
-            </div>
+            <SecTitle>Relatórios DRG Brasil&reg;</SecTitle>
 
             {/* C1 */}
-            <CompCard color={C.orange} tag="Componente 1 — Redução de Despesa"
-              title={C1 ? `Desperdício Eliminado — ${fmtV(C1)}` : "Desperdício Eliminado — N/A"}>
-              {C1 ? (
-                <>
-                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                    <Pill color={C.orange} label="Diárias excedidas" value={"+"+fmtN(agg.diarExc)+" d"}/>
-                    <Pill color={C.orange} label="CGP do período"    value={fmtV(cgpData?.cgp||0)}/>
-                    <Pill color={C.orange} label="C1 — Total"        value={fmtV(C1)} sub="Redução de despesa"/>
-                  </div>
-                  <CopyBtn id="c1" color={C.orange} label="Copiar resumo C1"
-                    text={`C1 — Desperdício Eliminado\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\nDiárias excedidas: ${fmtN(agg.diarExc)}\nCGP: ${fmtV(cgpData?.cgp||0)}\nValor: ${fmtV(C1)}`}/>
-                </>
-              ) : (
-                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
-                  Nenhuma diária excedente no período selecionado.
-                  A eficiência está no baseline DRG Brasil® ou acima.
-                </div>
-              )}
+            <CompCard color={C.orange} tag="C1" title={`Desperdício Eliminado: ${C1?fmtV(C1):NA}`}>
+              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                <Pill label="Diárias excedidas" value={`+${fmtN(agg.diarExc)} d`} color={C.orange}/>
+                <Pill label="CGP" value={cgpData?fmtV(cgpData.cgp):NA} color={C.orange}/>
+                <Pill label="C1 Total" value={C1?fmtV(C1):NA} color={C.orange}
+                  sub="Redução de despesa"/>
+              </div>
+              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
+                Fórmula: C1 = diárias excedidas × CGP = {fmtN(agg.diarExc)} × {cgpData?fmtV(cgpData.cgp):NA}
+              </div>
+              <CopyBtn id="c1" label="Copiar C1" color={C.orange}
+                text={`C1 — Desperdício Eliminado\nDiárias excedidas: +${fmtN(agg.diarExc)}\nCGP: ${cgpData?fmtV(cgpData.cgp):NA}\nTotal C1: ${C1?fmtV(C1):NA}`}/>
             </CompCard>
 
             {/* C2 */}
-            <CompCard color={C.green} tag="Componente 2 — Redução de Despesa"
-              title={C2 ? `Custo Evitado — ${fmtV(C2)}` : "Custo Evitado — N/A"}>
-              {C2 ? (
-                <>
-                  <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                    <Pill color={C.green} label="Diárias evitadas" value={"−"+fmtN(agg.diarEvit)+" d"}/>
-                    <Pill color={C.green} label="CGP do período"   value={fmtV(cgpData?.cgp||0)}/>
-                    <Pill color={C.green} label="C2 — Total"       value={fmtV(C2)} sub="Redução de despesa"/>
-                  </div>
-                  <CopyBtn id="c2" color={C.green} label="Copiar resumo C2"
-                    text={`C2 — Custo Evitado\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\nDiárias evitadas: ${fmtN(agg.diarEvit)}\nCGP: ${fmtV(cgpData?.cgp||0)}\nValor: ${fmtV(C2)}`}/>
-                </>
-              ) : (
-                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
-                  Nenhuma diária evitada no período. O hospital operou acima do baseline DRG Brasil®.
-                </div>
-              )}
+            <CompCard color={C.green} tag="C2" title={`Custo Evitado: ${C2?fmtV(C2):NA}`}>
+              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                <Pill label="Diárias evitadas" value={`−${fmtN(agg.diarEvit)} d`} color={C.green}/>
+                <Pill label="CGP" value={cgpData?fmtV(cgpData.cgp):NA} color={C.green}/>
+                <Pill label="C2 Total" value={C2?fmtV(C2):NA} color={C.green}
+                  sub="Redução de despesa"/>
+              </div>
+              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
+                Fórmula: C2 = diárias evitadas × CGP = {fmtN(agg.diarEvit)} × {cgpData?fmtV(cgpData.cgp):NA}
+              </div>
+              <CopyBtn id="c2" label="Copiar C2" color={C.green}
+                text={`C2 — Custo Evitado\nDiárias evitadas: −${fmtN(agg.diarEvit)}\nCGP: ${cgpData?fmtV(cgpData.cgp):NA}\nTotal C2: ${C2?fmtV(C2):NA}`}/>
             </CompCard>
 
             {/* C3 */}
-            <CompCard color={C.blue} tag="Componente 3 — Geração de Receita"
-              title={C3 ? `Bônus MG Hosp — ${fmtV(C3)}` : "Bônus MG Hosp — N/A"}>
-              {C3 ? (
-                <>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",
-                    gap:6,marginBottom:10}}>
-                    {agg.monthRows.filter(r=>r.bonus>0).map(r=>(
-                      <div key={r.key} style={{background:"#fff",
-                        border:`1px solid ${C.blue}33`,borderRadius:3,
-                        padding:"6px 8px",textAlign:"center"}}>
-                        <div style={{fontSize:8,color:C.muted}}>{keyToLabel(r.key)}</div>
-                        <div style={{fontSize:11,fontWeight:700,color:C.blue,
-                          fontFamily:"monospace"}}>{fmtV(r.bonus)}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{background:C.blue+"18",borderRadius:3,padding:"8px 12px",
-                    textAlign:"right",fontWeight:700,fontSize:13,color:C.blue,marginBottom:8}}>
-                    Total C3: {fmtV(C3)}
-                  </div>
-                  <CopyBtn id="c3" color={C.blue} label="Copiar tabela C3"
-                    text={`C3 — Bônus DRG Brasil® Programa MG Hosp\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)}\n${agg.monthRows.filter(r=>r.bonus>0).map(r=>`${keyToLabel(r.key)}: ${fmtV(r.bonus)}`).join("\n")}\nTotal: ${fmtV(C3)}`}/>
-                </>
-              ) : (
-                <div style={{padding:"12px 0",color:C.muted,fontSize:10}}>
-                  Nenhum bônus MG Hosp registrado no período.
-                </div>
-              )}
+            <CompCard color={C.blue} tag="C3" title={`Bônus MG Hosp: ${C3?fmtV(C3):NA}`}>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {agg.monthRows.filter(r=>r.bonus>0).map(r=>(
+                  <Pill key={r.key} label={keyToLabel(r.key)}
+                    value={fmtV(r.bonus)} color={C.blue}/>
+                ))}
+              </div>
+              <div style={{marginTop:8,textAlign:"right",fontWeight:700,
+                fontSize:13,color:C.blue}}>Total C3: {C3?fmtV(C3):NA}</div>
+              <CopyBtn id="c3" label="Copiar C3" color={C.blue}
+                text={`C3 — Bônus MG Hosp\n${agg.monthRows.filter(r=>r.bonus>0).map(r=>`${keyToLabel(r.key)}: ${fmtV(r.bonus)}`).join("\n")}\nTotal C3: ${C3?fmtV(C3):NA}`}/>
             </CompCard>
 
             {/* CONSOLIDADO */}
@@ -984,7 +1383,7 @@ function DRGPlugin() {
                 borderRadius:3,padding:"14px 20px",textAlign:"center",marginBottom:12}}>
                 <div style={{fontSize:9,color:"rgba(150,220,185,0.55)",
                   letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>
-                  Total Consolidado · {keyToLabel(startKey)}–{keyToLabel(endKey)}
+                  Total Consolidado &middot; {keyToLabel(startKey)}&ndash;{keyToLabel(endKey)}
                 </div>
                 <div style={{fontSize:30,fontWeight:700,
                   color:TOTAL>0?"#fff":"#555"}}>
@@ -992,23 +1391,257 @@ function DRGPlugin() {
                 </div>
                 {inef!==null&&(
                   <div style={{fontSize:9,color:"rgba(150,220,185,0.45)",marginTop:5}}>
-                    {nMonths} {nMonths===1?"mês":"meses"} ·
-                    Ineficiência: {fmtN(inef)}% · {agg.totalAltas.toLocaleString("pt-BR")} altas
+                    {nMonths} {nMonths===1?"mês":"meses"} &middot;
+                    Ineficiência: {fmtN(inef)}% &middot; {agg.totalAltas.toLocaleString("pt-BR")} altas
                   </div>
                 )}
               </div>
-              <button onClick={()=>copy(
-                `CONSOLIDADO DRG Brasil® — Unimed + Unihealth | Governador Valadares\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)} (${nMonths} ${nMonths===1?"mês":"meses"})\n\nC1 — Desperdício Eliminado: ${C1?fmtV(C1):NA}\nC2 — Custo Evitado: ${C2?fmtV(C2):NA}\nC3 — Bônus MG Hosp: ${C3?fmtV(C3):NA}\n\nTotal Consolidado: ${TOTAL>0?fmtV(TOTAL):NA}\nIneficiência do período: ${inef!==null?fmtN(inef)+"%":NA}\nTotal de altas: ${agg.totalAltas.toLocaleString("pt-BR")}\n\nAxiaCare® — Gestão em Saúde\nguilherme@axcare.com.br`,"total")}
-                style={{width:"100%",padding:"10px",borderRadius:3,
-                  border:"1px solid rgba(0,150,90,0.4)",
-                  background:copied==="total"?"rgba(0,150,90,0.3)":"rgba(0,150,90,0.1)",
-                  color:copied==="total"?C.neon:"rgba(150,220,185,0.65)",
-                  fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
-                {copied==="total"?"Copiado!":"Copiar consolidado completo"}
-              </button>
+
+              {/* Action buttons */}
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                <button onClick={()=>copy(
+                  `CONSOLIDADO DRG Brasil® — Unimed + Unihealth | Governador Valadares\nPeríodo: ${keyToLabel(startKey)} a ${keyToLabel(endKey)} (${nMonths} ${nMonths===1?"mês":"meses"})\n\nC1 — Desperdício Eliminado: ${C1?fmtV(C1):NA}\nC2 — Custo Evitado: ${C2?fmtV(C2):NA}\nC3 — Bônus MG Hosp: ${C3?fmtV(C3):NA}\n\nTotal Consolidado: ${TOTAL>0?fmtV(TOTAL):NA}\nIneficiência do período: ${inef!==null?fmtN(inef)+"%":NA}\nTotal de altas: ${agg.totalAltas.toLocaleString("pt-BR")}\n\nAxiaCare® — Gestão em Saúde\nguilherme@axcare.com.br`,"total")}
+                  style={{flex:1,padding:"10px",borderRadius:3,
+                    border:"1px solid rgba(0,150,90,0.4)",
+                    background:copied==="total"?"rgba(0,150,90,0.3)":"rgba(0,150,90,0.1)",
+                    color:copied==="total"?C.neon:"rgba(150,220,185,0.65)",
+                    fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
+                  {copied==="total"?"Copiado!":"Copiar consolidado"}
+                </button>
+                <button onClick={exportPDF}
+                  style={{flex:1,padding:"10px",borderRadius:3,
+                    border:`1px solid ${C.blue}66`,
+                    background:`${C.blue}22`,
+                    color:C.mint,
+                    fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all .15s"}}>
+                  Exportar PDF
+                </button>
+              </div>
             </div>
           </div>
         )}
+
+
+        {/* ══ TAB 5: TENDENCIA ═════════════════════════════════════ */}
+        {tab===5 && (
+          <div>
+            <SecTitle>Tend&ecirc;ncia Temporal &mdash; Inefici&ecirc;ncia Mensal</SecTitle>
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:4,padding:"16px 20px",marginBottom:20}}>
+              <ChartCanvas id="chart-inef" config={trendInefConfig} height={280}/>
+              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
+                Meses com barra acima da linha pontilhada (100%) indicam inefici&ecirc;ncia.
+                Meses sem dados n&atilde;o s&atilde;o plotados.
+              </div>
+            </div>
+
+            <SecTitle>Impacto Financeiro Mensal (Empilhado)</SecTitle>
+            <div style={{background:"#fff",border:`1px solid ${C.rule}`,
+              borderRadius:4,padding:"16px 20px"}}>
+              <ChartCanvas id="chart-fin" config={trendFinConfig} height={280}/>
+              <div style={{marginTop:8,fontSize:9,color:C.muted}}>
+                Composi&ccedil;&atilde;o mensal: C1 (desperd&iacute;cio eliminado), C2 (custo evitado) e C3 (b&ocirc;nus MG Hosp).
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ TAB 6: COMPARATIVO ANO-A-ANO ═════════════════════════ */}
+        {tab===6 && (() => {
+          const m1 = calcCycleMetrics(yoyCycle1);
+          const m2 = calcCycleMetrics(yoyCycle2);
+          const delta = (a,b) => b !== 0 ? ((a-b)/Math.abs(b))*100 : null;
+          const DeltaCell = ({v1,v2,fmt:fmtFn,invert}) => {
+            const d = delta(v2,v1);
+            const better = invert ? d < 0 : d > 0;
+            return (
+              <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",fontSize:10,
+                borderBottom:`1px solid ${C.rule}`}}>
+                {d !== null ? (
+                  <span style={{color:better?C.green:C.red,fontWeight:700}}>
+                    {d > 0 ? "+" : ""}{fmtN(d)}%
+                  </span>
+                ) : NA}
+              </td>
+            );
+          };
+          const rows = [
+            {label:"Altas válidas", v1:m1.altas, v2:m2.altas, fmt:v=>v.toLocaleString("pt-BR")},
+            {label:"Diárias realizadas", v1:m1.realizado, v2:m2.realizado, fmt:v=>fmtN(v)+" d", invert:true},
+            {label:"Diárias previstas", v1:m1.previsto, v2:m2.previsto, fmt:v=>fmtN(v)+" d"},
+            {label:"Ineficiência", v1:m1.inef, v2:m2.inef, fmt:v=>v?fmtN(v)+"%":NA, invert:true},
+            {label:"CGP", v1:m1.cgp, v2:m2.cgp, fmt:v=>fmtV(v)},
+            {label:"C1 — Desperdício", v1:m1.c1, v2:m2.c1, fmt:v=>fmtV(v), invert:true},
+            {label:"C2 — Custo Evitado", v1:m1.c2, v2:m2.c2, fmt:v=>fmtV(v)},
+            {label:"C3 — Bônus", v1:m1.c3, v2:m2.c3, fmt:v=>fmtV(v)},
+            {label:"Total Consolidado", v1:m1.total, v2:m2.total, fmt:v=>fmtV(v)},
+          ];
+          return (
+            <div>
+              <SecTitle>Comparativo Ano-a-Ano</SecTitle>
+              <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+                {[2024,2025,2026].map(y => (
+                  <div key={y} style={{display:"flex",gap:6}}>
+                    <button onClick={()=>setYoyCycle1(String(y))} style={{
+                      padding:"5px 12px",borderRadius:3,fontSize:10,fontWeight:700,cursor:"pointer",
+                      background:yoyCycle1===String(y)?C.ink:"#fff",
+                      color:yoyCycle1===String(y)?"#fff":C.text,
+                      border:`1px solid ${C.rule}`}}>
+                      {y} (A)
+                    </button>
+                    <button onClick={()=>setYoyCycle2(String(y))} style={{
+                      padding:"5px 12px",borderRadius:3,fontSize:10,fontWeight:700,cursor:"pointer",
+                      background:yoyCycle2===String(y)?C.blue:"#fff",
+                      color:yoyCycle2===String(y)?"#fff":C.text,
+                      border:`1px solid ${C.rule}`}}>
+                      {y} (B)
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{background:"#fff",border:`1px solid ${C.rule}`,borderRadius:4,overflow:"hidden"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:10}}>
+                  <thead>
+                    <tr style={{background:C.ink}}>
+                      <th style={{padding:"9px 10px",textAlign:"left",color:"rgba(200,240,220,0.8)",
+                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>M&eacute;trica</th>
+                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
+                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{yoyCycle1} (A)</th>
+                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
+                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{yoyCycle2} (B)</th>
+                      <th style={{padding:"9px 10px",textAlign:"right",color:"rgba(200,240,220,0.8)",
+                        fontSize:8,textTransform:"uppercase",letterSpacing:1}}>Delta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r,i) => (
+                      <tr key={i} style={{background:i%2===0?"#fff":"#f8faf8"}}>
+                        <td style={{padding:"8px 10px",fontWeight:700,color:C.ink,
+                          borderBottom:`1px solid ${C.rule}`}}>{r.label}</td>
+                        <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                          fontSize:10,borderBottom:`1px solid ${C.rule}`}}>{r.fmt(r.v1)}</td>
+                        <td style={{padding:"8px 10px",textAlign:"right",fontFamily:"monospace",
+                          fontSize:10,borderBottom:`1px solid ${C.rule}`}}>{r.fmt(r.v2)}</td>
+                        <DeltaCell v1={r.v1} v2={r.v2} invert={r.invert}/>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{marginTop:12,fontSize:9,color:C.muted}}>
+                Delta positivo em verde = melhoria. Para inefici&ecirc;ncia e desperd&iacute;cio, redu&ccedil;&atilde;o (delta negativo) &eacute; melhoria.
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ══ TAB 7: SIMULADOR WHAT-IF ═════════════════════════════ */}
+        {tab===7 && (
+          <div>
+            <SecTitle>Simulador What-If</SecTitle>
+            <div style={{background:"#fff3e8",border:`1px solid ${C.orange}44`,
+              borderRadius:3,padding:"10px 14px",marginBottom:20,fontSize:10,color:C.orange}}>
+              Ajuste tarifas e estrutura de leitos para simular cen&aacute;rios alternativos.
+              Os dados mensais do per&iacute;odo ativo s&atilde;o mantidos &mdash; apenas os par&acirc;metros mudam.
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+              {/* Coluna: Parametros simulados */}
+              <div>
+                <div style={{fontWeight:700,fontSize:10,textTransform:"uppercase",
+                  letterSpacing:1.5,color:C.muted,marginBottom:10}}>Par&acirc;metros Simulados</div>
+                <TwoCol gap={8}>
+                  <FieldN label="Enf. Local (R$)" value={simParams.enfLocal}
+                    onChange={v=>setSimParams(p=>({...p,enfLocal:v}))} mono/>
+                  <FieldN label="Enf. IC (R$)" value={simParams.enfIC}
+                    onChange={v=>setSimParams(p=>({...p,enfIC:v}))} mono/>
+                  <FieldN label="Apt. Local (R$)" value={simParams.aptLocal}
+                    onChange={v=>setSimParams(p=>({...p,aptLocal:v}))} mono/>
+                  <FieldN label="Apt. IC (R$)" value={simParams.aptIC}
+                    onChange={v=>setSimParams(p=>({...p,aptIC:v}))} mono/>
+                  <FieldN label="UTI Local (R$)" value={simParams.utiLocal}
+                    onChange={v=>setSimParams(p=>({...p,utiLocal:v}))} mono/>
+                  <FieldN label="UTI IC (R$)" value={simParams.utiIC}
+                    onChange={v=>setSimParams(p=>({...p,utiIC:v}))} mono/>
+                </TwoCol>
+                <TwoCol gap={8}>
+                  <FieldN label="Leitos Instalados" value={simParams.leitosInstalados}
+                    onChange={v=>setSimParams(p=>({...p,leitosInstalados:v}))} mono/>
+                  <FieldN label="Leitos HD" value={simParams.leitosHD}
+                    onChange={v=>setSimParams(p=>({...p,leitosHD:v}))} mono/>
+                  <FieldN label="Leitos UTI" value={simParams.leitosUTI}
+                    onChange={v=>setSimParams(p=>({...p,leitosUTI:v}))} mono/>
+                  <FieldN label="Mix Apt (%)" value={simParams.mixApt}
+                    onChange={v=>setSimParams(p=>({...p,mixApt:v}))} mono/>
+                </TwoCol>
+                <button onClick={()=>setSimParams({...params})} style={{
+                  marginTop:8,padding:"6px 14px",borderRadius:3,border:`1px solid ${C.rule}`,
+                  background:"#fff",color:C.text,fontSize:10,fontWeight:700,cursor:"pointer"}}>
+                  Copiar par&acirc;metros atuais
+                </button>
+              </div>
+
+              {/* Coluna: Resultado */}
+              <div>
+                <div style={{fontWeight:700,fontSize:10,textTransform:"uppercase",
+                  letterSpacing:1.5,color:C.muted,marginBottom:10}}>Resultado da Simula&ccedil;&atilde;o</div>
+                <div style={{background:C.ink,borderRadius:4,padding:"16px"}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+                    <div style={{background:"rgba(255,255,255,0.07)",borderRadius:3,padding:"10px",textAlign:"center"}}>
+                      <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>CGP Simulado</div>
+                      <div style={{fontSize:16,fontWeight:700,color:"#fff",fontFamily:"monospace"}}>
+                        {simCgpData ? fmtV(simCgpData.cgp) : NA}
+                      </div>
+                      {cgpData && simCgpData && (
+                        <div style={{fontSize:8,color:simCgpData.cgp>cgpData.cgp?C.orange:C.neon,marginTop:3}}>
+                          {simCgpData.cgp>cgpData.cgp?"+":""}{fmtN(((simCgpData.cgp-cgpData.cgp)/cgpData.cgp)*100)}% vs atual
+                        </div>
+                      )}
+                    </div>
+                    <div style={{background:"rgba(255,255,255,0.07)",borderRadius:3,padding:"10px",textAlign:"center"}}>
+                      <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>CGP Atual</div>
+                      <div style={{fontSize:16,fontWeight:700,color:"rgba(200,240,220,0.5)",fontFamily:"monospace"}}>
+                        {cgpData ? fmtV(cgpData.cgp) : NA}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:12}}>
+                    {[
+                      {label:"C1 Simulado",v:simC1,color:C.orange},
+                      {label:"C2 Simulado",v:simC2,color:C.green},
+                      {label:"C3 (fixo)",v:C3,color:C.blue},
+                    ].map((item,i)=>(
+                      <div key={i} style={{background:"rgba(255,255,255,0.05)",borderRadius:3,
+                        padding:"8px",textAlign:"center",borderTop:`2px solid ${item.color}`}}>
+                        <div style={{fontSize:7,color:"rgba(150,220,185,0.4)",textTransform:"uppercase",
+                          letterSpacing:1,marginBottom:3}}>{item.label}</div>
+                        <div style={{fontSize:12,fontWeight:700,color:item.v?"#fff":"#555",
+                          fontFamily:"monospace"}}>{item.v?fmtV(item.v):NA}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{background:"rgba(0,150,90,0.18)",border:"1px solid rgba(0,150,90,0.3)",
+                    borderRadius:3,padding:"12px",textAlign:"center"}}>
+                    <div style={{fontSize:8,color:"rgba(150,220,185,0.5)",textTransform:"uppercase",
+                      letterSpacing:2,marginBottom:4}}>Total Simulado</div>
+                    <div style={{fontSize:24,fontWeight:700,color:simTOTAL>0?"#fff":"#555"}}>
+                      {simTOTAL>0?fmtV(simTOTAL):NA}
+                    </div>
+                    {TOTAL > 0 && simTOTAL > 0 && (
+                      <div style={{fontSize:9,color:simTOTAL>TOTAL?C.neon:C.orange,marginTop:4}}>
+                        {simTOTAL>TOTAL?"+":""}{fmtV(simTOTAL-TOTAL)} ({simTOTAL>TOTAL?"+":""}{fmtN(((simTOTAL-TOTAL)/TOTAL)*100)}%) vs atual
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* FOOTER */}
@@ -1020,11 +1653,11 @@ function DRGPlugin() {
             style={{height:22,width:"auto",display:"block",opacity:0.85}}/>
           <span style={{fontSize:8,color:`${C.mint}99`,
             textTransform:"uppercase",letterSpacing:1.5}}>
-            Gestão em Saúde · Documento Interno · Uso Restrito
+            Gest&atilde;o em Sa&uacute;de &middot; Documento Interno &middot; Uso Restrito
           </span>
         </div>
         <span style={{fontSize:8,color:`${C.mint}77`}}>
-          Resp. Técnico: Dr. Guilherme Thomé · CRM-MG 64193 · RQE 41538 · guilherme@axcare.com.br
+          Resp. T&eacute;cnico: Dr. Guilherme Thom&eacute; &middot; CRM-MG 64193 &middot; RQE 41538 &middot; guilherme@axcare.com.br
         </span>
       </div>
     </div>
