@@ -603,13 +603,16 @@
             <div class="admin-tab-content" data-tab="public-links">
                 <h3 class="section-header">Páginas Públicas</h3>
                 <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                    Páginas de portais protegidos publicadas em <code>/p/</code> para acesso sem autenticação.
+                    Gerencie páginas públicas do ecossistema. O <code>/p/</code> publica páginas de portais protegidos via Git. Open Pages publica conteúdo independente via upload direto.
                 </p>
+
+                <!-- Bloco 1: /p/ -->
                 <div class="table-card">
                     <div class="tc-header">
-                        <h3>Hub - Páginas Públicas</h3>
+                        <h3>Páginas Públicas /p/ <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">hub.grupocsv.com/p/</span></h3>
                         <span class="count" id="pl-count">Carregando...</span>
                     </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Páginas de portais protegidos publicadas sem autenticação. Criação requer commit no repositório.</p>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
@@ -629,17 +632,20 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Bloco 2: open.grupocsv.com -->
                 <div class="table-card" style="margin-top: 24px;">
                     <div class="tc-header">
-                        <h3>Open Pages (open.grupocsv.com)</h3>
+                        <h3>Open Pages <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">open.grupocsv.com</span></h3>
                         <div style="display:flex;align-items:center;gap:12px;">
-                            <button onclick="window._openNewOP()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <button onclick="window._openNewOP('csv')" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                Nova Open Page
+                                Nova Página
                             </button>
-                            <span class="count" id="op-count">Carregando...</span>
+                            <span class="count" id="op-csv-count">Carregando...</span>
                         </div>
                     </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Upload direto de HTML e assets. Ativação/desativação instantânea.</p>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
@@ -652,7 +658,39 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="op-tbody">
+                            <tbody id="op-csv-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bloco 3: hub.unimedgv.com -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Open Pages <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">hub.unimedgv.com</span></h3>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button onclick="window._openNewOP('unimedgv')" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Nova Página
+                            </button>
+                            <span class="count" id="op-ugv-count">Carregando...</span>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Upload direto de HTML e assets. Ativação/desativação instantânea.</p>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>URL</th>
+                                    <th>Status</th>
+                                    <th>Criado</th>
+                                    <th>Modificado</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="op-ugv-tbody">
                                 <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
                             </tbody>
                         </table>
@@ -1146,11 +1184,11 @@
     </div>
 </div>
 
-<!-- Modal: Nova Open Page -->
+<!-- Modal: Nova Open Page (multi-domínio) -->
 <div class="modal-overlay hidden" id="op-upload-modal">
     <div class="modal-box" style="max-width:520px;">
-        <h3>Publicar Nova Open Page</h3>
-        <p>Envie um HTML (e assets opcionais) para publicar em open.grupocsv.com</p>
+        <h3>Publicar Nova Página</h3>
+        <div id="op-target-badge" style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:12px;background:#e0f2fe;color:#0369a1;">open.grupocsv.com</div>
         <div id="op-upload-error" style="display:none;background:#fef2f2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;"></div>
         <input type="text" id="op-slug" placeholder="Slug (ex: relatorio-q1)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
         <input type="text" id="op-title" placeholder="Título da página" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
@@ -1588,49 +1626,98 @@ function toggleAdminPw() {
         }
     }
 
+    // ===== Open Pages Multi-Domain =====
+    const OP_DOMAINS = {
+        csv: { api: 'https://open.grupocsv.com', label: 'open.grupocsv.com', tbody: 'op-csv-tbody', count: 'op-csv-count' },
+        unimedgv: { api: 'https://hub.unimedgv.com', label: 'hub.unimedgv.com', tbody: 'op-ugv-tbody', count: 'op-ugv-count' }
+    };
+    const OP_AUTH_TOKEN = '68894645';
+
     async function loadOpenPages(hubActiveCount) {
-        var opTbody = document.getElementById('op-tbody');
-        var opCount = document.getElementById('op-count');
-        try {
-            var resp = await fetch('https://open.grupocsv.com/api/public-list');
-            var data = await resp.json();
-            var pages = data.pages || [];
+        var totalOpenActive = 0;
+        for (const [key, domain] of Object.entries(OP_DOMAINS)) {
+            var tbody = document.getElementById(domain.tbody);
+            var countEl = document.getElementById(domain.count);
+            try {
+                var resp = await fetch(domain.api + '/api/pages', {
+                    headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN }
+                });
+                var data = await resp.json();
+                var pages = data.pages || [];
 
-            var totalActive = (hubActiveCount || 0) + pages.length;
-            document.getElementById('s-public').textContent = totalActive;
+                var activeCount = pages.filter(function(p) { return p.status === 'active'; }).length;
+                totalOpenActive += activeCount;
+                countEl.textContent = pages.length + (pages.length === 1 ? ' p\u00e1gina' : ' p\u00e1ginas') + (pages.length !== activeCount ? ' (' + activeCount + ' ativas)' : '');
 
-            opCount.textContent = pages.length + (pages.length === 1 ? ' página' : ' páginas');
+                if (pages.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma p\u00e1gina</td></tr>';
+                    continue;
+                }
 
-            if (pages.length === 0) {
-                opTbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma Open Page ativa</td></tr>';
-                return;
+                tbody.innerHTML = pages.map(function(p) {
+                    var isActive = p.status === 'active';
+                    var badgeClass = isActive ? 'active' : 'revoked';
+                    var badgeText = isActive ? 'Ativo' : 'Inativo';
+                    var toggleTitle = isActive ? 'Desativar' : 'Ativar';
+                    var toggleIcon = isActive
+                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>'
+                        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                    return '<tr' + (!isActive ? ' style="opacity:0.6;"' : '') + '>' +
+                        '<td style="font-weight:600;">' + esc(p.title) + (p.description ? '<br><span class="pl-origin">' + esc(p.description) + '</span>' : '') + '</td>' +
+                        '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
+                        '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+                        '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
+                        '<td style="font-size:12px;">' + (p.updated_at || '-') + '</td>' +
+                        '<td>' +
+                            '<div class="pl-actions">' +
+                                '<button class="pl-btn" title="Copiar link" onclick="window._copyPL(\'' + esc(p.public_url) + '\', this)">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+                                '</button>' +
+                                '<a class="pl-btn" title="Abrir em nova aba" href="' + esc(p.public_url) + '" target="_blank" rel="noopener">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+                                '</a>' +
+                                '<button class="pl-btn ' + (isActive ? 'pl-revoke' : 'pl-restore') + '" title="' + toggleTitle + '" onclick="window._toggleOP(\'' + esc(p.slug) + '\', \'' + key + '\', this)">' +
+                                    toggleIcon +
+                                '</button>' +
+                            '</div>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar</td></tr>';
+                countEl.textContent = 'Erro';
             }
-
-            opTbody.innerHTML = pages.map(function(p) {
-                return '<tr>' +
-                    '<td style="font-weight:600;">' + esc(p.title) + (p.description ? '<br><span class="pl-origin">' + esc(p.description) + '</span>' : '') + '</td>' +
-                    '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
-                    '<td><span class="badge active">Ativo</span></td>' +
-                    '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
-                    '<td style="font-size:12px;">' + (p.updated_at || '-') + '</td>' +
-                    '<td>' +
-                        '<div class="pl-actions">' +
-                            '<button class="pl-btn" title="Copiar link" onclick="window._copyPL(\'' + esc(p.public_url) + '\', this)">' +
-                                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-                            '</button>' +
-                            '<a class="pl-btn" title="Abrir em nova aba" href="' + esc(p.public_url) + '" target="_blank" rel="noopener">' +
-                                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-                            '</a>' +
-                        '</div>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
-        } catch (err) {
-            opTbody.innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar Open Pages</td></tr>';
-            opCount.textContent = 'Erro';
-            document.getElementById('s-public').textContent = hubActiveCount || 0;
         }
+        document.getElementById('s-public').textContent = (hubActiveCount || 0) + totalOpenActive;
     }
+
+    window._toggleOP = async function(slug, domainKey, btn) {
+        var domain = OP_DOMAINS[domainKey];
+        var action = btn.classList.contains('pl-revoke') ? 'desativar' : 'ativar';
+        if (!confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' "' + slug + '" em ' + domain.label + '?')) return;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        try {
+            var resp = await fetch(domain.api + '/api/toggle', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: slug })
+            });
+            var data = await resp.json();
+            if (data.success) {
+                showToast('P\u00e1gina ' + (data.status === 'active' ? 'ativada' : 'desativada'), 'success');
+                setTimeout(function() { loadPublicLinks(); }, 1000);
+            } else {
+                showToast(data.error || 'Erro', 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        } catch (e) {
+            showToast('Erro de rede: ' + e.message, 'error');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    };
 
     window._copyPL = function(url, btn) {
         navigator.clipboard.writeText(url).then(function() {
@@ -2109,13 +2196,17 @@ function toggleAdminPw() {
         document.getElementById('s-services').textContent = onlineCount + '/' + services.length;
     }
 
-    // ===== Open Pages Upload Modal =====
-    const OP_API = 'https://open.grupocsv.com';
-    const OP_TOKEN = '68894645';
+    // ===== Open Pages Upload Modal (Multi-Domain) =====
     let opSelectedFiles = [];
+    let opTargetDomain = 'csv';
 
-    window._openNewOP = function() {
+    window._openNewOP = function(domainKey) {
+        opTargetDomain = domainKey || 'csv';
+        var domain = OP_DOMAINS[opTargetDomain];
         document.getElementById('op-upload-modal').classList.remove('hidden');
+        document.getElementById('op-target-badge').textContent = domain.label;
+        document.getElementById('op-target-badge').style.background = opTargetDomain === 'csv' ? '#e0f2fe' : '#ecfdf5';
+        document.getElementById('op-target-badge').style.color = opTargetDomain === 'csv' ? '#0369a1' : '#065f46';
         document.getElementById('op-slug').value = '';
         document.getElementById('op-title').value = '';
         document.getElementById('op-desc').value = '';
@@ -2200,9 +2291,10 @@ function toggleAdminPw() {
 
             progressBar.style.width = '60%';
 
-            const resp = await fetch(OP_API + '/api/upload', {
+            const targetDomain = OP_DOMAINS[opTargetDomain];
+            const resp = await fetch(targetDomain.api + '/api/upload', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + OP_TOKEN },
+                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN },
                 body: formData
             });
 
@@ -2218,7 +2310,7 @@ function toggleAdminPw() {
             }
 
             progressText.textContent = 'Publicado com sucesso!';
-            showToast('Open Page publicada: ' + data.public_url, 'success');
+            showToast('Publicada em ' + OP_DOMAINS[opTargetDomain].label + ': ' + data.public_url, 'success');
 
             setTimeout(() => {
                 window._closeNewOP();
