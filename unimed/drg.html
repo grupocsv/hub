@@ -23,9 +23,11 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef2f0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eef2f0; padding-top: 0; }
     #drg-root { min-height: calc(100vh - 200px); }
-    @media print { body { background: #fff; } }
+    /* Compensar a barra fixa do hub-auth (64px) quando nao esta dentro do VitePress */
+    @supports (padding-top: env(safe-area-inset-top)) { body { padding-top: 0; } }
+    @media print { body { background: #fff; } #hub-auth-logout { display: none !important; } }
   </style>
   <!-- React 18 via CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -37,33 +39,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+  <header style="background:#1a3c34;position:sticky;top:0;z-index:100">
+    <div class="flex items-center justify-between" style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:36px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_negative.png" alt="AxiaCare" style="height:18px;opacity:0.9">
+        <span style="color:#94d8c8;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Hub Unimed</span>
+      </div>
+    </div>
+  </header>
   <div id="drg-root"></div>
 
-  <!-- AXIACARE FOOTER (padrao oficial hub-csv) -->
-  <div style="margin-top:40px;padding:32px 20px;background:#f8f5f0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:2px solid #196396;border-radius:16px">
-    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="width:140px;margin:0 auto 12px auto;display:block">
-    <div style="font-size:14px;font-weight:600;color:#2d3445;margin-bottom:14px">Gestão e Consultoria em Saúde</div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-      <a href="https://linktr.ee/gui.thome" style="color:#196396;text-decoration:none">Conheça nossas soluções</a>
-      <span style="color:#cbd5e1;font-size:11px">|</span>
-      <a href="https://www.axcare.com.br" target="_blank" style="color:#196396;text-decoration:none">axcare.com.br</a>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-      <a href="https://grupocsv.com" target="_blank" style="color:#196396;text-decoration:none">grupocsv.com</a>
-      <span style="color:#cbd5e1;font-size:11px">|</span>
-      <a href="https://www.medvalor.med.br" target="_blank" style="color:#196396;text-decoration:none">medvalor.med.br</a>
-      <span style="color:#cbd5e1;font-size:11px">|</span>
-      <a href="https://thera.tech" target="_blank" style="color:#196396;text-decoration:none">thera.tech</a>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:14px">
-      <a href="https://guithome.com.br" target="_blank" style="color:#196396;text-decoration:none">guithome.com.br</a>
-      <span style="color:#cbd5e1;font-size:11px">|</span>
-      <a href="https://linkedin.com/in/guithome" target="_blank" style="color:#196396;text-decoration:none">LinkedIn</a>
-      <span style="color:#cbd5e1;font-size:11px">|</span>
-      <a href="https://www.instagram.com/gui.thome/" target="_blank" style="color:#196396;text-decoration:none">Instagram</a>
-    </div>
-    <div style="font-size:11px;color:#94a3b8">Copyright &copy; <script>document.write(new Date().getFullYear())</script> AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
-  </div>
+
 
   <!-- DRG Plugin React Component v2 -->
   <script type="text/babel">
@@ -956,28 +942,67 @@ function DRGPlugin() {
                 </div>
               </TwoCol>
 
-              {/* Atalhos de periodo */}
-              <div style={{marginTop:16,display:"flex",gap:8,flexWrap:"wrap"}}>
-                {[
-                  {label:"Jan–Dez 2024",        s:"2024-01",e:"2024-12"},
-                  {label:"Jan–Dez 2025",        s:"2025-01",e:"2025-12"},
-                  {label:"2024–2025 (24m)",     s:"2024-01",e:"2025-12"},
-                  {label:"Jan–Abr 2026 (1Q)",   s:"2026-01",e:"2026-04"},
-                  {label:"Acumulado 28m (24→Abr26)", s:"2024-01",e:"2026-04"},
-                  {label:"1T 2025",             s:"2025-01",e:"2025-03"},
-                  {label:"2T 2025",             s:"2025-04",e:"2025-06"},
-                  {label:"3T 2025",             s:"2025-07",e:"2025-09"},
-                  {label:"4T 2025",             s:"2025-10",e:"2025-12"},
-                  {label:"Dez 2025",            s:"2025-12",e:"2025-12"},
-                  {label:"Abr 2026",            s:"2026-04",e:"2026-04"},
-                ].map(({label,s,e})=>(
-                  <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
-                    padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
-                    background:startKey===s&&endKey===e?C.ink:"#fff",
-                    color:startKey===s&&endKey===e?"#fff":C.text,
-                    fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
-                  }}>{label}</button>
-                ))}
+              {/* Atalhos de periodo — Ciclos anuais */}
+              <div style={{marginTop:16}}>
+                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6}}>Ciclos Anuais</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  {[
+                    {label:"Jan\u2013Dez 2024",        s:"2024-01",e:"2024-12"},
+                    {label:"Jan\u2013Dez 2025",        s:"2025-01",e:"2025-12"},
+                    {label:"Jan\u2013Abr 2026 (1Q)",   s:"2026-01",e:"2026-04"},
+                  ].map(({label,s,e})=>(
+                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
+                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
+                      background:startKey===s&&endKey===e?C.ink:"#fff",
+                      color:startKey===s&&endKey===e?"#fff":C.text,
+                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
+                    }}>{label}</button>
+                  ))}
+                </div>
+                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Acumulados</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  {[
+                    {label:"2024\u20132025 (24m)",     s:"2024-01",e:"2025-12"},
+                    {label:"Acumulado 28m (24\u2192Abr26)", s:"2024-01",e:"2026-04"},
+                  ].map(({label,s,e})=>(
+                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
+                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
+                      background:startKey===s&&endKey===e?C.ink:"#fff",
+                      color:startKey===s&&endKey===e?"#fff":C.text,
+                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
+                    }}>{label}</button>
+                  ))}
+                </div>
+                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Trimestres 2025</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  {[
+                    {label:"1T 2025",s:"2025-01",e:"2025-03"},
+                    {label:"2T 2025",s:"2025-04",e:"2025-06"},
+                    {label:"3T 2025",s:"2025-07",e:"2025-09"},
+                    {label:"4T 2025",s:"2025-10",e:"2025-12"},
+                  ].map(({label,s,e})=>(
+                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
+                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
+                      background:startKey===s&&endKey===e?C.ink:"#fff",
+                      color:startKey===s&&endKey===e?"#fff":C.text,
+                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
+                    }}>{label}</button>
+                  ))}
+                </div>
+                <div style={{fontSize:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:C.muted,marginBottom:6,marginTop:12}}>Mês Isolado</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  {[
+                    {label:"Dez 2025",s:"2025-12",e:"2025-12"},
+                    {label:"Abr 2026",s:"2026-04",e:"2026-04"},
+                  ].map(({label,s,e})=>(
+                    <button key={label} onClick={()=>{setStartKey(s);setEndKey(e);}} style={{
+                      padding:"5px 12px",border:`1px solid ${C.rule}`,borderRadius:3,
+                      background:startKey===s&&endKey===e?C.ink:"#fff",
+                      color:startKey===s&&endKey===e?"#fff":C.text,
+                      fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s"
+                    }}>{label}</button>
+                  ))}
+                </div>
               </div>
 
               {/* M1: Reset + Supabase buttons */}
@@ -1644,21 +1669,39 @@ function DRGPlugin() {
 
       </div>
 
-      {/* FOOTER */}
-      <div style={{background:C.ink,borderTop:`2px solid ${C.blue}`,
-        padding:"12px 24px",display:"flex",alignItems:"center",
-        justifyContent:"space-between",marginTop:32,flexWrap:"wrap",gap:12}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
-            style={{height:22,width:"auto",display:"block",opacity:0.85}}/>
-          <span style={{fontSize:8,color:`${C.mint}99`,
-            textTransform:"uppercase",letterSpacing:1.5}}>
-            Gest&atilde;o em Sa&uacute;de &middot; Documento Interno &middot; Uso Restrito
+      {/* FOOTER COMPLETO */}
+      <div style={{background:C.ink,borderTop:`3px solid ${C.blue}`,marginTop:0}}>
+        {/* Linha 1: Logo + documento interno + resp tecnico */}
+        <div style={{padding:"14px 24px",display:"flex",alignItems:"center",
+          justifyContent:"space-between",flexWrap:"wrap",gap:12,
+          borderBottom:`1px solid ${C.blue}33`}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
+              style={{height:24,width:"auto",display:"block",opacity:0.9}}/>
+            <span style={{fontSize:9,color:`${C.mint}bb`,
+              textTransform:"uppercase",letterSpacing:1.5,fontWeight:600}}>
+              Gest&atilde;o em Sa&uacute;de
+            </span>
+            <span style={{fontSize:8,color:`${C.mint}66`,letterSpacing:1}}>
+              Documento Interno &middot; Uso Restrito
+            </span>
+          </div>
+          <span style={{fontSize:9,color:`${C.mint}88`}}>
+            Resp. T&eacute;cnico: Dr. Guilherme Thom&eacute; &middot; CRM-MG 64193 &middot; RQE 41538 &middot; guilherme@axcare.com.br
           </span>
         </div>
-        <span style={{fontSize:8,color:`${C.mint}77`}}>
-          Resp. T&eacute;cnico: Dr. Guilherme Thom&eacute; &middot; CRM-MG 64193 &middot; RQE 41538 &middot; guilherme@axcare.com.br
-        </span>
+        {/* Linha 2: Links + Copyright */}
+        <div style={{padding:"12px 24px",display:"flex",alignItems:"center",
+          justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+          <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+            {[{l:"axcare.com.br",u:"https://www.axcare.com.br"},{l:"grupocsv.com",u:"https://grupocsv.com"},{l:"medvalor.med.br",u:"https://www.medvalor.med.br"},{l:"thera.tech",u:"https://thera.tech"}].map(({l,u})=>(
+              <a key={l} href={u} target="_blank" rel="noopener" style={{fontSize:9,color:`${C.teal}cc`,textDecoration:"none",letterSpacing:0.5}}>{l}</a>
+            ))}
+          </div>
+          <span style={{fontSize:9,color:`${C.mint}55`}}>
+            &copy; {new Date().getFullYear()} AxiaCare &middot; Uma empresa do Grupo CSV
+          </span>
+        </div>
       </div>
     </div>
   );
