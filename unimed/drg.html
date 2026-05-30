@@ -829,10 +829,10 @@ function DRGPlugin() {
         borderBottom:`1px solid ${C.blue}55`}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <img src={LOGO_AXIA.horizontalNegativo} alt="AxiaCare"
-            style={{height:30,width:"auto",display:"block"}}/>
-          <div style={{width:1,height:28,background:`${C.teal}55`}}/>
+            style={{height:38,width:"auto",display:"block"}}/>
+          <div style={{width:1,height:32,background:`${C.teal}55`}}/>
           <div>
-            <div style={{color:"#fff",fontWeight:700,fontSize:14,letterSpacing:-0.3}}>
+            <div style={{color:"#fff",fontWeight:700,fontSize:15,letterSpacing:-0.3}}>
               DRG Brasil&reg; Analytics
             </div>
             <div style={{color:C.mint,opacity:0.7,fontSize:9,
@@ -842,24 +842,6 @@ function DRGPlugin() {
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          {inef !== null && (
-            <div style={{background:statusColor+"22",border:`1px solid ${statusColor}55`,
-              borderRadius:3,padding:"3px 10px",fontSize:9,fontWeight:700,
-              color:statusColor===C.green?C.mint:statusColor,letterSpacing:1}}>
-              {fmtN(inef)}% &middot; {statusLabel}
-            </div>
-          )}
-          {/* Data source indicator */}
-          <div style={{background:dataSource==="supabase"?C.green+"22":C.blue+"22",
-            border:`1px solid ${dataSource==="supabase"?C.green:C.blue}44`,
-            borderRadius:3,padding:"3px 8px",fontSize:8,fontWeight:700,
-            color:dataSource==="supabase"?C.mint:C.teal,letterSpacing:1}}>
-            {dataSource==="supabase"?"Supabase":"Local"}
-          </div>
-          <div style={{background:`${C.blue}33`,border:`1px solid ${C.blue}66`,
-            borderRadius:3,padding:"4px 12px",color:C.mint,
-            fontSize:9.5,fontWeight:800,letterSpacing:1.5,
-            textTransform:"uppercase"}}>Gest&atilde;o em Sa&uacute;de</div>
         </div>
       </div>
 
