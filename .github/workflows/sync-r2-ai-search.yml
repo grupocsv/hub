@@ -56,8 +56,19 @@ jobs:
 
       - name: Trigger AI Search re-index
         run: |
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/autorag/hub-csv/reindex" \
+          # Novo endpoint AI Search (pos-migracao jun/2026)
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/ai-search/instances/hub-csv" \
             -H "Authorization: Bearer ${{ secrets.CF_AI_SEARCH_TOKEN }}" \
-            -H "Content-Type: application/json" || true
-          echo "Re-index triggered."
+            -H "Content-Type: application/json" \
+            -d '{"enable": true}')
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          echo "AI Search sync triggered (HTTP $HTTP_CODE)"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Aviso: Resposta inesperada. Tentando endpoint legado..."
+            curl -s -X POST \
+              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/autorag/hub-csv/reindex" \
+              -H "Authorization: Bearer ${{ secrets.CF_AI_SEARCH_TOKEN }}" \
+              -H "Content-Type: application/json" || true
+          fi
+          echo "Re-index concluido."
