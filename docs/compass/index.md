@@ -221,6 +221,16 @@ head:
         <td>Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira</td>
         <td><span class="status-badge">Publicado</span></td>
       </tr>
+      <tr>
+        <td><a href="/compass/edicoes/2026/005/compass">005/2026</a></td>
+        <td>Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar</td>
+        <td><span class="status-badge">Publicado</span></td>
+      </tr>
+      <tr>
+        <td><a href="/compass/edicoes/2026/006/compass">006/2026</a></td>
+        <td>Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões</td>
+        <td><span class="status-badge">Publicado</span></td>
+      </tr>
     </tbody>
   </table>
 </div>

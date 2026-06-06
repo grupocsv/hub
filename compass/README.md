@@ -33,6 +33,8 @@ Exemplo: `001/2026` é a primeira edição do ano de 2026.
 | [002/2026](edicoes/2026/002/compass.md) | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira (2025-2026) | Publicado |
 | [003/2026](edicoes/2026/003/compass.md) | Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil: análise por idade gestacional e via de parto | Publicado |
 | [004/2026](edicoes/2026/004/compass.md) | Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira | Publicado |
+| [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar | Publicado |
+| [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões | Publicado |
 
 ---
 
