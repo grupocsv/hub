@@ -79,6 +79,7 @@ export default defineConfig({
                 { text: '004 \u2014 NATS na Sa\u00fade Suplementar', link: '/compass/edicoes/2026/004/compass' },
                 { text: '005 — Saving Cirúrgico Estrutural', link: '/compass/edicoes/2026/005/compass' },
                 { text: '006 — Oftalmologia na Saúde Suplementar', link: '/compass/edicoes/2026/006/compass' },
+                { text: '007 — Desperdício na Saúde Suplementar', link: '/compass/edicoes/2026/007/compass' },
               ]
             },
           ]

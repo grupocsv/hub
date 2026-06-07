@@ -231,6 +231,11 @@ head:
         <td>Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões</td>
         <td><span class="status-badge">Publicado</span></td>
       </tr>
+      <tr>
+        <td><a href="/compass/edicoes/2026/007/compass">007/2026</a></td>
+        <td>Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira: Uma Análise Estrutural dos Desperdícios, Fraudes e os Caminhos da Coordenação de Cuidados em 2026</td>
+        <td><span class="status-badge">Publicado</span></td>
+      </tr>
     </tbody>
   </table>
 </div>
