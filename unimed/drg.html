@@ -879,9 +879,9 @@ const PARAMS_DEFAULT = { enfLocal:495.51, enfIC:755.73, aptLocal:744.17, aptIC:1
 
 // ─── UTILS ──────────────────────────────────────────────────────
 const fmt  = (v,d=2) => v===null||v===undefined||isNaN(v) ? "—" : "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-const fmtV = (v,d=2) => "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-const fmtN = (v,d=1) => v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-const pct  = v => v.toFixed(2).replace(".",",")+"%";
+const fmtV = (v,d=2) => v == null ? "R$ 0,00" : "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const fmtN = (v,d=1) => v == null ? "—" : v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const pct  = v => v == null ? "—" : v.toFixed(2).replace(".",",")+"%";
 const NA   = "—";
 function monthKey(year, month) { return `${year}-${String(month+1).padStart(2,"0")}`; }
 function keyToLabel(key) { const [y,m] = key.split("-"); return `${MESES_SHORT[parseInt(m)-1]}/${y}`; }
@@ -1272,11 +1272,15 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 - "narrativa_c2": Parágrafo sobre C2 (custo evitado 2025+) — mencione meses consecutivos abaixo do baseline, diárias evitadas por período, evolução da eficiência, patamar atingido
 - "narrativa_c3": Parágrafo sobre C3 (bônus DRG) — mencione meses consecutivos em zona de bonificação, programa MG Hosp/Federação Minas, diferença entre C3 e os demais (entrada de caixa real vs redução de despesa), evolução do patamar mensal`;
     try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 30000);
       const resp = await fetch(AI_PROXY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, data: pdfData }),
+        signal: ctrl.signal,
       });
+      clearTimeout(timer);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const result = await resp.json();
       if (result.ok && result.narratives && !result.narratives.parse_error) {
@@ -1293,6 +1297,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     const T = window.DRG_REPORT_TEMPLATE;
     if (!T) { alert("Template de relatório não carregado. Aguarde."); return; }
     setPdfLoading(true);
+    try {
     const periodLabel = `${keyToLabel(startKey)} a ${keyToLabel(endKey)}`;
     const today = new Date();
     const pubDate = today.toLocaleDateString("pt-BR", {day:"2-digit",month:"2-digit",year:"numeric"});
@@ -1362,6 +1367,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     const url = URL.createObjectURL(blob);
     const w = window.open(url, "_blank");
     if (w) { w.onload = () => { setTimeout(() => w.print(), 800); }; }
+    } catch (err) { console.error("Erro ao gerar PDF:", err); alert("Erro ao gerar relatório. Verifique o console."); }
     setPdfLoading(false);
   };
 
