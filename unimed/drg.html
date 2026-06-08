@@ -798,10 +798,11 @@
 
 // ─── AI PROXY CONFIG ────────────────────────────────────────────
 const AI_PROXY_URL = "https://drg-ai-proxy.guilherme-thom.workers.dev";
+const DATA_PROXY_URL = "https://drg-data-proxy.guilherme-thom.workers.dev";
 
 // ─── SUPABASE CONFIG ────────────────────────────────────────────
 const SUPABASE_URL = "https://ctwkzbrroyaaitruehyt.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0d2t6YnJyb3lhYWl0cnVlaHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNDE4OTIsImV4cCI6MjA1NzkxNzg5Mn0.rDmMBCNGhXqFBMq4oPzVdPOSrkBRNFRBFHpSa2_NKWI";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0d2t6YnJyb3lhYWl0cnVlaHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4Nzk0OTIsImV4cCI6MjA4OTQ1NTQ5Mn0.aGjh-G5dGebUtnfJX2K1YDjflVdWVxt8hwIEDn3kISs";
 let supabaseClient = null;
 try {
   supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -986,8 +987,94 @@ function DRGPlugin() {
   const [supaStatus, setSupaStatus] = useState("idle");
   const [dataSource, setDataSource] = useState("local");
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [cloudStatus, setCloudStatus] = useState("idle"); // idle | saving | saved | error | loading
+  const [cloudLastSaved, setCloudLastSaved] = useState(null);
+  const [editingMonth, setEditingMonth] = useState(null);
+  const saveTimerRef = useRef(null);
+
+  // Get user email from hub-auth.js localStorage
+  const hubUserEmail = useMemo(() => {
+    try { return localStorage.getItem('hub_auth_unimed_email') || 'unknown'; } catch(e) { return 'unknown'; }
+  }, []);
 
   useEffect(() => { lsSave({ params, bank, startKey, endKey }); }, [params, bank, startKey, endKey]);
+
+  // ── Cloud Sync: Load from Worker on mount ──
+  useEffect(() => {
+    const loadFromCloud = async () => {
+      try {
+        setCloudStatus("loading");
+        const res = await fetch(`${DATA_PROXY_URL}/load?config_id=1`, { headers: { 'Origin': window.location.origin } });
+        if (!res.ok) throw new Error('Load failed');
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const newBank = { ...MONTH_BANK_INIT };
+          for (const row of data) {
+            newBank[row.month_key] = {
+              altas: row.altas || 0,
+              realizado: parseFloat(row.realizado) || 0,
+              previsto: parseFloat(row.previsto) || 0,
+              bonus: parseFloat(row.bonus) || 0,
+              localAbs: row.local_abs || 0,
+              icAbs: row.ic_abs || 0,
+              hasData: row.has_data || false
+            };
+          }
+          setBank(newBank);
+          setDataSource("supabase");
+        }
+        setCloudStatus("saved");
+        setTimeout(() => setCloudStatus("idle"), 2000);
+      } catch(e) {
+        console.warn("Cloud load failed, using local data:", e);
+        setCloudStatus("idle");
+      }
+    };
+    loadFromCloud();
+  }, []);
+
+  // ── Cloud Sync: Debounced save (2s after last edit) ──
+  const saveMonthToCloud = useCallback(async (monthKey, monthData, oldValues) => {
+    try {
+      setCloudStatus("saving");
+      const res = await fetch(`${DATA_PROXY_URL}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Email': hubUserEmail },
+        body: JSON.stringify({
+          month_key: monthKey,
+          altas: monthData.altas || 0,
+          realizado: monthData.realizado || 0,
+          previsto: monthData.previsto || 0,
+          bonus: monthData.bonus || 0,
+          config_id: 1,
+          _old_values: oldValues
+        })
+      });
+      if (!res.ok) throw new Error('Save failed');
+      const now = new Date();
+      setCloudLastSaved(now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}));
+      setCloudStatus("saved");
+      setTimeout(() => setCloudStatus("idle"), 3000);
+    } catch(e) {
+      console.error("Cloud save failed:", e);
+      setCloudStatus("error");
+      setTimeout(() => setCloudStatus("idle"), 5000);
+    }
+  }, [hubUserEmail]);
+
+  // Enhanced setMonthField with debounced cloud save
+  const setMonthFieldWithSync = useCallback((key, field, val) => {
+    const oldValues = bank[key] ? { ...bank[key] } : {};
+    setBank(prev => {
+      const updated = { ...prev, [key]: { ...prev[key], [field]: parseFloat(val) || 0, hasData: true } };
+      // Debounced cloud save
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        saveMonthToCloud(key, updated[key], oldValues);
+      }, 2000);
+      return updated;
+    });
+  }, [bank, saveMonthToCloud]);
 
   const resetToDefaults = () => {
     setParams({ ...PARAMS_DEFAULT }); setBank({ ...MONTH_BANK_INIT });
@@ -1364,28 +1451,115 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 
         {/* TAB 2: Dados Mensais */}
         {tab === 2 && (
-          <div className="drg-table-wrap">
-            <div className="drg-table-scroll">
-              <table className="drg-table">
-                <thead><tr>
-                  <th>Mês</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
-                  <th>Bônus</th><th>Local</th><th>IC</th><th>Status</th>
-                </tr></thead>
-                <tbody>
-                  {agg.monthRows.map(r => (
-                    <tr key={r.key}>
-                      <td>{keyToLabel(r.key)}</td>
-                      <td data-label="Altas"><input className="cell-input" type="number" value={bank[r.key]?.altas||0} onChange={e=>setMonthField(r.key,"altas",e.target.value)}/></td>
-                      <td data-label="Realizado"><input className="cell-input" type="number" step="0.1" value={bank[r.key]?.realizado||0} onChange={e=>setMonthField(r.key,"realizado",e.target.value)}/></td>
-                      <td data-label="Previsto"><input className="cell-input" type="number" step="0.1" value={bank[r.key]?.previsto||0} onChange={e=>setMonthField(r.key,"previsto",e.target.value)}/></td>
-                      <td data-label="Bônus"><input className="cell-input" type="number" step="0.01" value={bank[r.key]?.bonus||0} onChange={e=>setMonthField(r.key,"bonus",e.target.value)}/></td>
-                      <td data-label="Local"><input className="cell-input" type="number" value={bank[r.key]?.localAbs||0} onChange={e=>setMonthField(r.key,"localAbs",e.target.value)}/></td>
-                      <td data-label="IC"><input className="cell-input" type="number" value={bank[r.key]?.icAbs||0} onChange={e=>setMonthField(r.key,"icAbs",e.target.value)}/></td>
-                      <td data-label="Status"><NoDataBadge monthData={bank[r.key]}/></td>
-                    </tr>
+          <div>
+            {/* Cloud Status Indicator */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,padding:'10px 16px',background:cloudStatus==='error'?'#fef2f2':cloudStatus==='saving'?'#fffbeb':cloudStatus==='saved'?'#f0fdf4':'var(--u-cloud)',borderRadius:'var(--radius-sm)',border:`1px solid ${cloudStatus==='error'?'#fca5a5':cloudStatus==='saving'?'#fde68a':cloudStatus==='saved'?'#86efac':'var(--u-line)'}`}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{width:8,height:8,borderRadius:'50%',background:cloudStatus==='error'?'#ef4444':cloudStatus==='saving'?'#f59e0b':cloudStatus==='saved'?'#22c55e':'#9ca3af'}}></div>
+                <span style={{fontSize:13,color:'var(--u-coal)'}}>
+                  {cloudStatus==='loading' && 'Carregando dados da nuvem...'}
+                  {cloudStatus==='saving' && 'Salvando...'}
+                  {cloudStatus==='saved' && `Salvo na nuvem${cloudLastSaved ? ` as ${cloudLastSaved}` : ''}`}
+                  {cloudStatus==='error' && 'Erro ao salvar. Dados preservados localmente.'}
+                  {cloudStatus==='idle' && (cloudLastSaved ? `Ultima sincronizacao: ${cloudLastSaved}` : 'Dados sincronizados')}
+                </span>
+              </div>
+              <span style={{fontSize:11,color:'var(--u-stone)'}}>{hubUserEmail !== 'unknown' ? hubUserEmail : ''}</span>
+            </div>
+
+            {/* Month Selector + Form */}
+            <div className="card">
+              <SecTitle>Inserir Dados Mensais</SecTitle>
+              <div style={{marginBottom:16}}>
+                <label className="field__label">Competencia</label>
+                <select
+                  className="field__input"
+                  style={{maxWidth:220,cursor:'pointer'}}
+                  value={editingMonth || ''}
+                  onChange={e => setEditingMonth(e.target.value)}>
+                  <option value="">Selecione o mes...</option>
+                  {yearMonthOptions.filter(k => {
+                    const [y] = k.split('-').map(Number);
+                    return y >= 2024 && y <= 2027;
+                  }).map(k => (
+                    <option key={k} value={k}>
+                      {keyToLabel(k)} {bank[k]?.hasData && bank[k]?.altas > 0 ? '(preenchido)' : ''}
+                    </option>
                   ))}
-                </tbody>
-              </table>
+                </select>
+              </div>
+
+              {editingMonth && (
+                <div style={{background:'var(--u-paper)',border:'1px solid var(--u-line)',borderRadius:'var(--radius-sm)',padding:20}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+                    <h4 style={{margin:0,color:'var(--u-dark)',fontFamily:'var(--font-display)',fontSize:15}}>
+                      {keyToLabel(editingMonth)}
+                    </h4>
+                    {bank[editingMonth]?.hasData && bank[editingMonth]?.altas > 0 && (
+                      <span className="badge badge--success">Preenchido</span>
+                    )}
+                  </div>
+                  <TwoCol>
+                    <div>
+                      <FieldN label="Altas Validas" value={bank[editingMonth]?.altas||0}
+                        onChange={v => setMonthFieldWithSync(editingMonth, 'altas', v)}
+                        note="Fonte: Painel DRG Brasil"/>
+                      <FieldN label="Permanencia Realizada (diarias)" value={bank[editingMonth]?.realizado||0}
+                        onChange={v => setMonthFieldWithSync(editingMonth, 'realizado', v)}
+                        note="Fonte: Painel DRG Brasil"/>
+                    </div>
+                    <div>
+                      <FieldN label="Permanencia Prevista (diarias)" value={bank[editingMonth]?.previsto||0}
+                        onChange={v => setMonthFieldWithSync(editingMonth, 'previsto', v)}
+                        note="Fonte: Painel DRG Brasil"/>
+                      <FieldN label="Bonus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
+                        onChange={v => setMonthFieldWithSync(editingMonth, 'bonus', v)}
+                        note="Fonte: Federacao Minas / MG Hosp"/>
+                    </div>
+                  </TwoCol>
+                  {/* Calculated preview */}
+                  {bank[editingMonth]?.previsto > 0 && (
+                    <div style={{marginTop:16,padding:'12px 16px',background:'var(--u-green-100)',borderRadius:'var(--radius-sm)',fontSize:13}}>
+                      <strong style={{color:'var(--u-green)'}}>Calculados automaticamente:</strong>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginTop:8}}>
+                        <div>Diarias Excedidas: <strong>{fmtN(Math.max(0,(bank[editingMonth]?.realizado||0)-(bank[editingMonth]?.previsto||0)))}</strong></div>
+                        <div>Diarias Evitadas: <strong>{fmtN(Math.max(0,(bank[editingMonth]?.previsto||0)-(bank[editingMonth]?.realizado||0)))}</strong></div>
+                        <div>(In)eficiencia: <strong>{pct(((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100)}</strong></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Summary Table */}
+            <div className="card" style={{marginTop:16}}>
+              <SecTitle>Visao Geral do Periodo</SecTitle>
+              <div className="drg-table-wrap">
+                <div className="drg-table-scroll">
+                  <table className="drg-table">
+                    <thead><tr>
+                      <th>Mes</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
+                      <th>Bonus (R$)</th><th>(In)ef.</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                      {agg.monthRows.map(r => (
+                        <tr key={r.key} onClick={() => setEditingMonth(r.key)} style={{cursor:'pointer',background:editingMonth===r.key?'var(--u-green-100)':'transparent'}}>
+                          <td>{keyToLabel(r.key)}</td>
+                          <td>{r.altas||NA}</td>
+                          <td>{r.realizado ? fmtN(r.realizado) : NA}</td>
+                          <td>{r.previsto ? fmtN(r.previsto) : NA}</td>
+                          <td>{r.bonus ? fmtV(r.bonus) : NA}</td>
+                          <td>{r.previsto > 0 ? pct((r.realizado/r.previsto)*100) : NA}</td>
+                          <td><NoDataBadge monthData={bank[r.key]}/>
+                            {bank[r.key]?.hasData && bank[r.key]?.altas > 0 && <span className="badge badge--success">OK</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
