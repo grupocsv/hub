@@ -926,16 +926,28 @@
                         <div class="sc-value" id="asset-logos">-</div>
                     </div>
                     <div class="summary-card">
+                        <div class="sc-label">Assinaturas</div>
+                        <div class="sc-value" id="asset-assinaturas">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Avatares</div>
+                        <div class="sc-value" id="asset-avatares">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Icones</div>
+                        <div class="sc-value" id="asset-icones">-</div>
+                    </div>
+                    <div class="summary-card">
                         <div class="sc-label">Criativos</div>
                         <div class="sc-value" id="asset-criativos">-</div>
                     </div>
                     <div class="summary-card">
-                        <div class="sc-label">Wallpapers</div>
-                        <div class="sc-value" id="asset-wallpapers">-</div>
-                    </div>
-                    <div class="summary-card">
                         <div class="sc-label">E-mail</div>
                         <div class="sc-value" id="asset-email">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Wallpapers</div>
+                        <div class="sc-value" id="asset-wallpapers">-</div>
                     </div>
                 </div>
                 <div class="table-card">
@@ -949,14 +961,18 @@
                                 <tr>
                                     <th>Marca</th>
                                     <th>Logos</th>
+                                    <th>Assinaturas</th>
+                                    <th>Avatares</th>
+                                    <th>Icones</th>
                                     <th>Criativos</th>
                                     <th>E-mail</th>
                                     <th>Wallpapers</th>
+                                    <th>Institucional</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody id="asset-brands-tbody">
-                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                                <tr><td colspan="10" class="empty-state">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -2051,46 +2067,58 @@ function toggleAdminPw() {
 
             document.getElementById('asset-total').textContent = assets.length;
 
-            // Count by category
+            // Count by category (normalizado)
             const cats = {};
             const brands = {};
+            const catTemplate = { logo: 0, assinatura: 0, avatar: 0, icone: 0, criativo: 0, email: 0, wallpaper: 0, institucional: 0, total: 0 };
             assets.forEach(a => {
                 const cat = (a.category || 'outro').toLowerCase();
                 cats[cat] = (cats[cat] || 0) + 1;
                 const brand = a.brand || 'sem-marca';
-                if (!brands[brand]) brands[brand] = { logo: 0, criativo: 0, email: 0, wallpaper: 0, total: 0 };
+                if (!brands[brand]) brands[brand] = { ...catTemplate };
                 brands[brand].total++;
-                if (cat.includes('logo')) brands[brand].logo++;
-                else if (cat.includes('criativo') || cat.includes('creative')) brands[brand].criativo++;
-                else if (cat.includes('email') || cat.includes('e-mail')) brands[brand].email++;
-                else if (cat.includes('wallpaper') || cat.includes('wall')) brands[brand].wallpaper++;
+                if (cat === 'logo') brands[brand].logo++;
+                else if (cat === 'assinatura') brands[brand].assinatura++;
+                else if (cat === 'avatar') brands[brand].avatar++;
+                else if (cat === 'icone') brands[brand].icone++;
+                else if (cat === 'criativo') brands[brand].criativo++;
+                else if (cat === 'email') brands[brand].email++;
+                else if (cat === 'wallpaper') brands[brand].wallpaper++;
+                else if (cat === 'institucional') brands[brand].institucional++;
             });
 
-            document.getElementById('asset-logos').textContent = cats['logo'] || cats['logos'] || 0;
-            document.getElementById('asset-criativos').textContent = cats['criativo'] || cats['criativos'] || cats['creative'] || 0;
-            document.getElementById('asset-wallpapers').textContent = cats['wallpaper'] || cats['wallpapers'] || 0;
-            document.getElementById('asset-email').textContent = cats['email'] || cats['e-mail'] || 0;
+            document.getElementById('asset-logos').textContent = cats['logo'] || 0;
+            document.getElementById('asset-assinaturas').textContent = cats['assinatura'] || 0;
+            document.getElementById('asset-avatares').textContent = cats['avatar'] || 0;
+            document.getElementById('asset-icones').textContent = cats['icone'] || 0;
+            document.getElementById('asset-criativos').textContent = cats['criativo'] || 0;
+            document.getElementById('asset-email').textContent = cats['email'] || 0;
+            document.getElementById('asset-wallpapers').textContent = cats['wallpaper'] || 0;
 
             const brandKeys = Object.keys(brands).sort();
             document.getElementById('asset-brands-count').textContent = brandKeys.length + ' marca(s)';
             const tbody = document.getElementById('asset-brands-tbody');
             if (brandKeys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum asset encontrado</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Nenhum asset encontrado</td></tr>';
             } else {
                 tbody.innerHTML = brandKeys.map(b => {
                     const d = brands[b];
                     return `<tr>
                         <td style="font-weight:600;">${esc(b)}</td>
                         <td>${d.logo}</td>
+                        <td>${d.assinatura}</td>
+                        <td>${d.avatar}</td>
+                        <td>${d.icone}</td>
                         <td>${d.criativo}</td>
                         <td>${d.email}</td>
                         <td>${d.wallpaper}</td>
+                        <td>${d.institucional}</td>
                         <td style="font-weight:600;">${d.total}</td>
                     </tr>`;
                 }).join('');
             }
         } catch (err) {
-            document.getElementById('asset-brands-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar manifest.json</td></tr>';
+            document.getElementById('asset-brands-tbody').innerHTML = '<tr><td colspan="10" class="empty-state">Erro ao carregar manifest.json</td></tr>';
             document.getElementById('asset-brands-count').textContent = 'Erro';
         }
     }
