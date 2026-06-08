@@ -1275,10 +1275,10 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 
     // Fallback narratives
     const N = {
-      contexto_escopo: aiNarr?.contexto_escopo || `A análise avalia o impacto financeiro decorrente da melhoria sustentada na eficiência operacional do uso do leito ao longo de ${nMonths} meses, entre ${keyToLabel(startKey)} e ${keyToLabel(endKey)}, medida pela metodologia DRG (Diagnosis Related Groups) adaptada para o contexto brasileiro (DRG Brasil\u00ae). O escopo abrange exclusivamente as diárias de internação Unimed no Hospital Unihealth GV, que representam aproximadamente 88% da ocupação do hospital. No período analisado, foram registradas ${(c2024.altas+c2025.altas+c2026.altas).toLocaleString("pt-BR")} altas válidas distribuídas entre os ciclos ${cyclesDesc}.`,
+      contexto_escopo: aiNarr?.contexto_escopo || `A análise avalia o impacto financeiro decorrente da melhoria sustentada na eficiência operacional do uso do leito ao longo de ${nMonths} meses, entre ${keyToLabel(startKey)} e ${keyToLabel(endKey)}, medida pela metodologia DRG (Diagnosis Related Groups) adaptada para o contexto brasileiro (DRG Brasil®). O escopo abrange exclusivamente as diárias de internação Unimed no Hospital Unihealth GV, que representam aproximadamente 88% da ocupação do hospital. No período analisado, foram registradas ${(c2024.altas+c2025.altas+c2026.altas).toLocaleString("pt-BR")} altas válidas distribuídas entre os ciclos ${cyclesDesc}.`,
       narrativa_c1: aiNarr?.narrativa_c1 || `Com ${c2024.altas.toLocaleString("pt-BR")} altas válidas, o hospital realizou ${fmtN(c2024.real)} diárias contra uma permanência prevista pelo DRG de ${fmtN(c2024.prev)} diárias. O excesso de ${fmtN(diarExc2024)} diárias representa internações que duraram além do que o perfil de risco de cada paciente justificava — custo real incorrido sem remuneração adicional pelo convênio.`,
-      narrativa_c2: aiNarr?.narrativa_c2 || `De janeiro de 2025 a ${months2026.length > 0 ? "abril de 2026" : "dezembro de 2025"} — ${nMonthsC3} meses consecutivos —, o hospital operou abaixo do baseline DRG. Em 2025 (${c2025.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2025.real)} diárias contra ${fmtN(c2025.prev)} previstas (\u2212${fmtN(diarEvit2025)} diárias).${months2026.length > 0 ? ` No 1\u00ba quadrimestre de 2026 (${c2026.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2026.real)} diárias contra ${fmtN(c2026.prev)} previstas (\u2212${fmtN(diarEvit2026)} diárias) — patamar de eficiência ainda mais consistente, com (IN) Eficiência de ${c2026.inef?fmtN(c2026.inef):"82,8"}% no quadrimestre.` : ""}`,
-      narrativa_c3: aiNarr?.narrativa_c3 || `A eficiência sustentada posicionou o hospital em zonas de bonificação do Programa MG Hosp da Federação Minas durante ${nMonthsC3} meses consecutivos (todos os ${months2025.length} meses de 2025${months2026.length > 0 ? ` e os ${months2026.length} meses do 1\u00ba quadrimestre de 2026` : ""}). Diferentemente dos componentes anteriores, este é entrada de caixa real — receita adicional paga pela Federação como reconhecimento direto da performance DRG.${months2026.length > 0 ? " Os valores do 1\u00ba quadrimestre de 2026 já refletem o programa em regime, com patamar mensal substancialmente superior ao de 2025." : ""}`,
+      narrativa_c2: aiNarr?.narrativa_c2 || `De janeiro de 2025 a ${months2026.length > 0 ? "abril de 2026" : "dezembro de 2025"} — ${nMonthsC3} meses consecutivos —, o hospital operou abaixo do baseline DRG. Em 2025 (${c2025.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2025.real)} diárias contra ${fmtN(c2025.prev)} previstas (−${fmtN(diarEvit2025)} diárias).${months2026.length > 0 ? ` No 1º quadrimestre de 2026 (${c2026.altas.toLocaleString("pt-BR")} altas válidas), a permanência realizada foi de ${fmtN(c2026.real)} diárias contra ${fmtN(c2026.prev)} previstas (−${fmtN(diarEvit2026)} diárias) — patamar de eficiência ainda mais consistente, com (IN) Eficiência de ${c2026.inef?fmtN(c2026.inef):"82,8"}% no quadrimestre.` : ""}`,
+      narrativa_c3: aiNarr?.narrativa_c3 || `A eficiência sustentada posicionou o hospital em zonas de bonificação do Programa MG Hosp da Federação Minas durante ${nMonthsC3} meses consecutivos (todos os ${months2025.length} meses de 2025${months2026.length > 0 ? ` e os ${months2026.length} meses do 1º quadrimestre de 2026` : ""}). Diferentemente dos componentes anteriores, este é entrada de caixa real — receita adicional paga pela Federação como reconhecimento direto da performance DRG.${months2026.length > 0 ? " Os valores do 1º quadrimestre de 2026 já refletem o programa em regime, com patamar mensal substancialmente superior ao de 2025." : ""}`,
     };
 
     const IMG = T.images;
@@ -1458,10 +1458,10 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                 <div style={{width:8,height:8,borderRadius:'50%',background:cloudStatus==='error'?'#ef4444':cloudStatus==='saving'?'#f59e0b':cloudStatus==='saved'?'#22c55e':'#9ca3af',boxShadow:cloudStatus==='saving'?'0 0 6px #f59e0b':cloudStatus==='saved'?'0 0 6px #22c55e':'none'}}></div>
                 <span style={{fontSize:13,fontWeight:500,color:'#374151'}}>
                   {cloudStatus==='loading' && 'Carregando dados da nuvem...'}
-                  {cloudStatus==='saving' && 'Salvando altera\u00e7\u00f5es...'}
-                  {cloudStatus==='saved' && `Salvo com sucesso${cloudLastSaved ? ` \u00e0s ${cloudLastSaved}` : ''}`}
+                  {cloudStatus==='saving' && 'Salvando alterações...'}
+                  {cloudStatus==='saved' && `Salvo com sucesso${cloudLastSaved ? ` às ${cloudLastSaved}` : ''}`}
                   {cloudStatus==='error' && 'Erro ao salvar. Dados preservados localmente.'}
-                  {cloudStatus==='idle' && (cloudLastSaved ? `Sincronizado \u00e0s ${cloudLastSaved}` : 'Dados sincronizados')}
+                  {cloudStatus==='idle' && (cloudLastSaved ? `Sincronizado às ${cloudLastSaved}` : 'Dados sincronizados')}
                 </span>
               </div>
               <span style={{fontSize:12,color:'#6b7280',fontWeight:400}}>{hubUserEmail !== 'unknown' ? hubUserEmail : ''}</span>
@@ -1471,19 +1471,19 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
             <div className="card">
               <SecTitle>Inserir Dados Mensais</SecTitle>
               <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:20}}>
-                <label style={{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Compet\u00eancia</label>
+                <label style={{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Competência</label>
                 <select
                   className="field__input"
                   style={{maxWidth:260,cursor:'pointer',padding:'10px 14px',fontSize:14,borderRadius:8,border:'1.5px solid var(--u-line)',background:'white',transition:'border-color 0.2s'}}
                   value={editingMonth || ''}
                   onChange={e => setEditingMonth(e.target.value)}>
-                  <option value="">Selecione o m\u00eas...</option>
+                  <option value="">Selecione o mês...</option>
                   {yearMonthOptions.filter(k => {
                     const [y] = k.split('-').map(Number);
                     return y >= 2024 && y <= 2027;
                   }).map(k => (
                     <option key={k} value={k}>
-                      {keyToLabel(k)} {bank[k]?.hasData && bank[k]?.altas > 0 ? '\u2713' : ''}
+                      {keyToLabel(k)} {bank[k]?.hasData && bank[k]?.altas > 0 ? '✓' : ''}
                     </option>
                   ))}
                 </select>
@@ -1502,24 +1502,24 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'20px 32px'}}>
                     <div>
-                      <FieldN label="Altas V\u00e1lidas" value={bank[editingMonth]?.altas||0}
+                      <FieldN label="Altas Válidas" value={bank[editingMonth]?.altas||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'altas', v)}
                         note="Fonte: Painel DRG Brasil"/>
                     </div>
                     <div>
-                      <FieldN label="Perman\u00eancia Prevista (di\u00e1rias)" value={bank[editingMonth]?.previsto||0}
+                      <FieldN label="Permanência Prevista (diárias)" value={bank[editingMonth]?.previsto||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'previsto', v)}
                         note="Fonte: Painel DRG Brasil"/>
                     </div>
                     <div>
-                      <FieldN label="Perman\u00eancia Realizada (di\u00e1rias)" value={bank[editingMonth]?.realizado||0}
+                      <FieldN label="Permanência Realizada (diárias)" value={bank[editingMonth]?.realizado||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'realizado', v)}
                         note="Fonte: Painel DRG Brasil"/>
                     </div>
                     <div>
-                      <FieldN label="B\u00f4nus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
+                      <FieldN label="Bônus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'bonus', v)}
-                        note="Fonte: Federa\u00e7\u00e3o Minas / MG Hosp"/>
+                        note="Fonte: Federação Minas / MG Hosp"/>
                     </div>
                   </div>
                   {/* Calculated metrics */}
@@ -1529,15 +1529,15 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
                         <div style={{textAlign:'center',padding:'8px 0'}}>
                           <div style={{fontSize:18,fontWeight:700,color:'var(--u-dark)'}}>{fmtN(Math.max(0,(bank[editingMonth]?.realizado||0)-(bank[editingMonth]?.previsto||0)))}</div>
-                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Di\u00e1rias excedidas</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Diárias excedidas</div>
                         </div>
                         <div style={{textAlign:'center',padding:'8px 0'}}>
                           <div style={{fontSize:18,fontWeight:700,color:'var(--u-green)'}}>{fmtN(Math.max(0,(bank[editingMonth]?.previsto||0)-(bank[editingMonth]?.realizado||0)))}</div>
-                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Di\u00e1rias evitadas</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Diárias evitadas</div>
                         </div>
                         <div style={{textAlign:'center',padding:'8px 0'}}>
                           <div style={{fontSize:18,fontWeight:700,color:((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100 > 100 ? '#ef4444' : 'var(--u-green)'}}>{pct(((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100)}</div>
-                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>(In)efici\u00eancia</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>(In)eficiência</div>
                         </div>
                       </div>
                     </div>
@@ -1548,13 +1548,13 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 
             {/* Summary Table */}
             <div className="card" style={{marginTop:20}}>
-              <SecTitle>Vis\u00e3o Geral do Per\u00edodo</SecTitle>
+              <SecTitle>Visão Geral do Período</SecTitle>
               <div className="drg-table-wrap">
                 <div className="drg-table-scroll">
                   <table className="drg-table">
                     <thead><tr>
-                      <th>M\u00eas</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
-                      <th>B\u00f4nus (R$)</th><th>(In)ef.</th><th>Status</th>
+                      <th>Mês</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
+                      <th>Bônus (R$)</th><th>(In)ef.</th><th>Status</th>
                     </tr></thead>
                     <tbody>
                       {agg.monthRows.map(r => (
