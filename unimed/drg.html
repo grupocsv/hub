@@ -1154,7 +1154,7 @@ function DRGPlugin() {
     if (!supabaseClient) { setSupaStatus("error"); return; }
     setSupaStatus("loading");
     try {
-      const { data: cfgData, error: cfgErr } = await supabaseClient.from("drg_configs").upsert({ config_name: "default", params, description: "Configuracao padrao DRG Analytics", is_active: true, updated_at: new Date().toISOString() }, { onConflict: "config_name" }).select().single();
+      const { data: cfgData, error: cfgErr } = await supabaseClient.from("drg_configs").upsert({ config_name: "default", params, description: "Configuração padrão DRG Analytics", is_active: true, updated_at: new Date().toISOString() }, { onConflict: "config_name" }).select().single();
       if (cfgErr) throw cfgErr;
       const configId = cfgData.id;
       const rows = Object.entries(bank).map(([mk, d]) => ({ config_id: configId, month_key: mk, altas: d.altas||0, realizado: d.realizado||0, previsto: d.previsto||0, bonus: d.bonus||0, local_abs: d.localAbs||0, ic_abs: d.icAbs||0, has_data: d.hasData||false, source: "manual", updated_at: new Date().toISOString() }));
@@ -1452,79 +1452,93 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
         {/* TAB 2: Dados Mensais */}
         {tab === 2 && (
           <div>
-            {/* Cloud Status Indicator */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,padding:'10px 16px',background:cloudStatus==='error'?'#fef2f2':cloudStatus==='saving'?'#fffbeb':cloudStatus==='saved'?'#f0fdf4':'var(--u-cloud)',borderRadius:'var(--radius-sm)',border:`1px solid ${cloudStatus==='error'?'#fca5a5':cloudStatus==='saving'?'#fde68a':cloudStatus==='saved'?'#86efac':'var(--u-line)'}`}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <div style={{width:8,height:8,borderRadius:'50%',background:cloudStatus==='error'?'#ef4444':cloudStatus==='saving'?'#f59e0b':cloudStatus==='saved'?'#22c55e':'#9ca3af'}}></div>
-                <span style={{fontSize:13,color:'var(--u-coal)'}}>
+            {/* Cloud Status Bar */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,padding:'12px 20px',background:cloudStatus==='error'?'#fef2f2':cloudStatus==='saving'?'#fffbeb':cloudStatus==='saved'?'#f0fdf4':'#f8fafb',borderRadius:10,border:`1px solid ${cloudStatus==='error'?'#fca5a5':cloudStatus==='saving'?'#fde68a':cloudStatus==='saved'?'#86efac':'#e5e7eb'}`}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{width:8,height:8,borderRadius:'50%',background:cloudStatus==='error'?'#ef4444':cloudStatus==='saving'?'#f59e0b':cloudStatus==='saved'?'#22c55e':'#9ca3af',boxShadow:cloudStatus==='saving'?'0 0 6px #f59e0b':cloudStatus==='saved'?'0 0 6px #22c55e':'none'}}></div>
+                <span style={{fontSize:13,fontWeight:500,color:'#374151'}}>
                   {cloudStatus==='loading' && 'Carregando dados da nuvem...'}
-                  {cloudStatus==='saving' && 'Salvando...'}
-                  {cloudStatus==='saved' && `Salvo na nuvem${cloudLastSaved ? ` as ${cloudLastSaved}` : ''}`}
+                  {cloudStatus==='saving' && 'Salvando altera\u00e7\u00f5es...'}
+                  {cloudStatus==='saved' && `Salvo com sucesso${cloudLastSaved ? ` \u00e0s ${cloudLastSaved}` : ''}`}
                   {cloudStatus==='error' && 'Erro ao salvar. Dados preservados localmente.'}
-                  {cloudStatus==='idle' && (cloudLastSaved ? `Ultima sincronizacao: ${cloudLastSaved}` : 'Dados sincronizados')}
+                  {cloudStatus==='idle' && (cloudLastSaved ? `Sincronizado \u00e0s ${cloudLastSaved}` : 'Dados sincronizados')}
                 </span>
               </div>
-              <span style={{fontSize:11,color:'var(--u-stone)'}}>{hubUserEmail !== 'unknown' ? hubUserEmail : ''}</span>
+              <span style={{fontSize:12,color:'#6b7280',fontWeight:400}}>{hubUserEmail !== 'unknown' ? hubUserEmail : ''}</span>
             </div>
 
-            {/* Month Selector + Form */}
+            {/* Month Selector */}
             <div className="card">
               <SecTitle>Inserir Dados Mensais</SecTitle>
-              <div style={{marginBottom:16}}>
-                <label className="field__label">Competencia</label>
+              <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:20}}>
+                <label style={{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Compet\u00eancia</label>
                 <select
                   className="field__input"
-                  style={{maxWidth:220,cursor:'pointer'}}
+                  style={{maxWidth:260,cursor:'pointer',padding:'10px 14px',fontSize:14,borderRadius:8,border:'1.5px solid var(--u-line)',background:'white',transition:'border-color 0.2s'}}
                   value={editingMonth || ''}
                   onChange={e => setEditingMonth(e.target.value)}>
-                  <option value="">Selecione o mes...</option>
+                  <option value="">Selecione o m\u00eas...</option>
                   {yearMonthOptions.filter(k => {
                     const [y] = k.split('-').map(Number);
                     return y >= 2024 && y <= 2027;
                   }).map(k => (
                     <option key={k} value={k}>
-                      {keyToLabel(k)} {bank[k]?.hasData && bank[k]?.altas > 0 ? '(preenchido)' : ''}
+                      {keyToLabel(k)} {bank[k]?.hasData && bank[k]?.altas > 0 ? '\u2713' : ''}
                     </option>
                   ))}
                 </select>
               </div>
 
+              {/* Form Card */}
               {editingMonth && (
-                <div style={{background:'var(--u-paper)',border:'1px solid var(--u-line)',borderRadius:'var(--radius-sm)',padding:20}}>
-                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-                    <h4 style={{margin:0,color:'var(--u-dark)',fontFamily:'var(--font-display)',fontSize:15}}>
+                <div style={{background:'white',border:'1.5px solid var(--u-line)',borderRadius:12,padding:'24px 28px',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,paddingBottom:14,borderBottom:'1px solid #f0f0f0'}}>
+                    <h4 style={{margin:0,color:'var(--u-dark)',fontFamily:'var(--font-display)',fontSize:16,fontWeight:700}}>
                       {keyToLabel(editingMonth)}
                     </h4>
                     {bank[editingMonth]?.hasData && bank[editingMonth]?.altas > 0 && (
-                      <span className="badge badge--success">Preenchido</span>
+                      <span className="badge badge--success" style={{fontSize:11,padding:'3px 10px'}}>Preenchido</span>
                     )}
                   </div>
-                  <TwoCol>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'20px 32px'}}>
                     <div>
-                      <FieldN label="Altas Validas" value={bank[editingMonth]?.altas||0}
+                      <FieldN label="Altas V\u00e1lidas" value={bank[editingMonth]?.altas||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'altas', v)}
                         note="Fonte: Painel DRG Brasil"/>
-                      <FieldN label="Permanencia Realizada (diarias)" value={bank[editingMonth]?.realizado||0}
+                    </div>
+                    <div>
+                      <FieldN label="Perman\u00eancia Prevista (di\u00e1rias)" value={bank[editingMonth]?.previsto||0}
+                        onChange={v => setMonthFieldWithSync(editingMonth, 'previsto', v)}
+                        note="Fonte: Painel DRG Brasil"/>
+                    </div>
+                    <div>
+                      <FieldN label="Perman\u00eancia Realizada (di\u00e1rias)" value={bank[editingMonth]?.realizado||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'realizado', v)}
                         note="Fonte: Painel DRG Brasil"/>
                     </div>
                     <div>
-                      <FieldN label="Permanencia Prevista (diarias)" value={bank[editingMonth]?.previsto||0}
-                        onChange={v => setMonthFieldWithSync(editingMonth, 'previsto', v)}
-                        note="Fonte: Painel DRG Brasil"/>
-                      <FieldN label="Bonus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
+                      <FieldN label="B\u00f4nus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'bonus', v)}
-                        note="Fonte: Federacao Minas / MG Hosp"/>
+                        note="Fonte: Federa\u00e7\u00e3o Minas / MG Hosp"/>
                     </div>
-                  </TwoCol>
-                  {/* Calculated preview */}
+                  </div>
+                  {/* Calculated metrics */}
                   {bank[editingMonth]?.previsto > 0 && (
-                    <div style={{marginTop:16,padding:'12px 16px',background:'var(--u-green-100)',borderRadius:'var(--radius-sm)',fontSize:13}}>
-                      <strong style={{color:'var(--u-green)'}}>Calculados automaticamente:</strong>
-                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginTop:8}}>
-                        <div>Diarias Excedidas: <strong>{fmtN(Math.max(0,(bank[editingMonth]?.realizado||0)-(bank[editingMonth]?.previsto||0)))}</strong></div>
-                        <div>Diarias Evitadas: <strong>{fmtN(Math.max(0,(bank[editingMonth]?.previsto||0)-(bank[editingMonth]?.realizado||0)))}</strong></div>
-                        <div>(In)eficiencia: <strong>{pct(((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100)}</strong></div>
+                    <div style={{marginTop:20,padding:'14px 18px',background:'linear-gradient(135deg,#f0fdf4,#ecfdf5)',borderRadius:10,border:'1px solid #bbf7d0'}}>
+                      <div style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)',marginBottom:10}}>Campos calculados</div>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
+                        <div style={{textAlign:'center',padding:'8px 0'}}>
+                          <div style={{fontSize:18,fontWeight:700,color:'var(--u-dark)'}}>{fmtN(Math.max(0,(bank[editingMonth]?.realizado||0)-(bank[editingMonth]?.previsto||0)))}</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Di\u00e1rias excedidas</div>
+                        </div>
+                        <div style={{textAlign:'center',padding:'8px 0'}}>
+                          <div style={{fontSize:18,fontWeight:700,color:'var(--u-green)'}}>{fmtN(Math.max(0,(bank[editingMonth]?.previsto||0)-(bank[editingMonth]?.realizado||0)))}</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>Di\u00e1rias evitadas</div>
+                        </div>
+                        <div style={{textAlign:'center',padding:'8px 0'}}>
+                          <div style={{fontSize:18,fontWeight:700,color:((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100 > 100 ? '#ef4444' : 'var(--u-green)'}}>{pct(((bank[editingMonth]?.realizado||0)/(bank[editingMonth]?.previsto||1))*100)}</div>
+                          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>(In)efici\u00eancia</div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1533,19 +1547,19 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
             </div>
 
             {/* Summary Table */}
-            <div className="card" style={{marginTop:16}}>
-              <SecTitle>Visao Geral do Periodo</SecTitle>
+            <div className="card" style={{marginTop:20}}>
+              <SecTitle>Vis\u00e3o Geral do Per\u00edodo</SecTitle>
               <div className="drg-table-wrap">
                 <div className="drg-table-scroll">
                   <table className="drg-table">
                     <thead><tr>
-                      <th>Mes</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
-                      <th>Bonus (R$)</th><th>(In)ef.</th><th>Status</th>
+                      <th>M\u00eas</th><th>Altas</th><th>Realizado</th><th>Previsto</th>
+                      <th>B\u00f4nus (R$)</th><th>(In)ef.</th><th>Status</th>
                     </tr></thead>
                     <tbody>
                       {agg.monthRows.map(r => (
-                        <tr key={r.key} onClick={() => setEditingMonth(r.key)} style={{cursor:'pointer',background:editingMonth===r.key?'var(--u-green-100)':'transparent'}}>
-                          <td>{keyToLabel(r.key)}</td>
+                        <tr key={r.key} onClick={() => setEditingMonth(r.key)} style={{cursor:'pointer',background:editingMonth===r.key?'#f0fdf4':'transparent',transition:'background 0.15s'}}>
+                          <td style={{fontWeight:500}}>{keyToLabel(r.key)}</td>
                           <td>{r.altas||NA}</td>
                           <td>{r.realizado ? fmtN(r.realizado) : NA}</td>
                           <td>{r.previsto ? fmtN(r.previsto) : NA}</td>
