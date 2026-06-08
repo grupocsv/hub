@@ -1531,7 +1531,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                       const hasCore = (md.altas > 0 || md.realizado > 0 || md.previsto > 0);
                       const hasBonus = (md.bonus > 0);
                       if (hasCore && hasBonus) return <span className="badge badge--success" style={{fontSize:11,padding:'3px 10px'}}>Completo</span>;
-                      if (hasCore && !hasBonus) return <span className="badge badge--partial" style={{fontSize:11,padding:'3px 10px'}}>Parcial (sem b\u00f4nus)</span>;
+                      if (hasCore && !hasBonus) return <span className="badge badge--partial" style={{fontSize:11,padding:'3px 10px'}}>Parcial (sem bônus)</span>;
                       return null;
                     })()}
                   </div>
@@ -1683,7 +1683,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                   </select>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:10,marginLeft:'auto'}}>
-                  <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relat\u00f3rio PDF"}</button>
+                  <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relatório PDF"}</button>
                   <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
                     {copied==="total" ? "Copiado!" : "Copiar Total"}
                   </button>
