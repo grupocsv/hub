@@ -875,7 +875,7 @@ function buildMonthBank() {
 }
 const MONTH_BANK_INIT = buildMonthBank();
 const PARAMS_DEFAULT = { enfLocal:495.51, enfIC:755.73, aptLocal:744.17, aptIC:1134.97,
-  utiLocal:1522.57, utiIC:2322.15, leitosInstalados:97, leitosHD:3, leitosUTI:16, mixApt:40 };
+  utiLocal:1522.57, utiIC:2322.15, leitosInstalados:97, leitosHD:3, leitosUTI:16, mixApt:40, defaultLocalPct:80 };
 
 // ─── UTILS ──────────────────────────────────────────────────────
 const fmt  = (v,d=2) => v===null||v===undefined||isNaN(v) ? "—" : "R$ "+v.toFixed(d).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
@@ -897,8 +897,9 @@ function periodKeys(startKey, endKey) {
 function calcCGP(params, totalLocal, totalIC) {
   const { enfLocal,enfIC,aptLocal,aptIC,utiLocal,utiIC, leitosInstalados,leitosHD,leitosUTI,mixApt } = params;
   const tot = totalLocal + totalIC;
-  if (tot === 0) return null;
-  const pl = totalLocal / tot, pi = 1 - pl;
+  // Se não há dados mensais de local/IC, usa proporção padrão (80% local / 20% IC)
+  const pl = tot > 0 ? totalLocal / tot : (params.defaultLocalPct || 80) / 100;
+  const pi = 1 - pl;
   const op = leitosInstalados - leitosHD;
   if (op === 0) return null;
   const wUTI = leitosUTI / op, wConv = 1 - wUTI;
