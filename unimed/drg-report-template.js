@@ -167,15 +167,15 @@ div.calc{border-left:4px solid var(--green);background:#f5faf7;border-radius:0 6
 .cta-btn .b2{font-family:var(--display);font-size:8.5pt;color:rgba(255,255,255,0.8);margin-top:2px;}
 `,
   images: [
-    "https://assets.grupocsv.com/logos/unihealth/horizontal-full-color-hd-1024.png",
-    "https://assets.grupocsv.com/logos/evs/selo-color-hd-1024.png",
-    "https://assets.grupocsv.com/logos/unimed-gv/horizontal-full-color-hd-1024.png",
-    "https://assets.grupocsv.com/logos/axiacare/horizontal-full-color-web-480.png",
-    "https://assets.grupocsv.com/logos/axiacare/horizontal-full-color-web-480.png",
-    "https://assets.grupocsv.com/logos/axiacare/horizontal-full-color-web-480.png",
-    "https://assets.grupocsv.com/logos/axiacare/horizontal-full-color-web-480.png",
+    "https://assets.grupocsv.com/logos/unihealth/horizontal-box.png",
+    "https://assets.grupocsv.com/logos/evs/selo-hd-contorno.png",
+    "https://assets.grupocsv.com/logos/unimed-gv/sem-box.png",
+    "https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.png",
+    "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
+    "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
+    "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
     "https://assets.grupocsv.com/email-assets/avatar-guilherme-thome-csv.png",
     "https://assets.grupocsv.com/institucional/guilherme-thome/assinatura-azul.webp",
-    "https://assets.grupocsv.com/logos/axiacare/horizontal-full-color-web-480.png"
+    "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png"
   ]
 };

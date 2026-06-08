@@ -558,6 +558,7 @@
       gap: 4px;
     }
     .badge--warning { background: #fef3cd; color: #856404; }
+    .badge--partial { background: #fff3e0; color: #e65100; }
     .badge--success { background: var(--u-green-100); color: var(--u-green); }
     .badge--danger { background: rgba(196,77,45,0.08); color: #c44d2d; }
     .badge--info { background: rgba(0,78,76,0.06); color: var(--u-dark); }
@@ -963,15 +964,22 @@ const FieldN = ({label,value,onChange,note,mono,readOnly}) => (
 
 const NoDataBadge = ({monthData}) => {
   if (!monthData) return null;
-  const allZero = monthData.altas === 0 && monthData.realizado === 0 && monthData.previsto === 0 && monthData.bonus === 0;
-  if (!allZero) return null;
-  const isMarkedHasData = monthData.hasData === true;
-  return (
-    <span className={`badge ${isMarkedHasData ? "badge--success" : "badge--warning"}`}
-      title={isMarkedHasData ? "Valores reais zerados (confirmado)" : "Sem dados inseridos para este mês"}>
-      {isMarkedHasData ? "Zero real" : "Sem dados"}
-    </span>
-  );
+  const hasCore = (monthData.altas > 0 || monthData.realizado > 0 || monthData.previsto > 0);
+  const hasBonus = (monthData.bonus > 0);
+  const allZero = !hasCore && !hasBonus;
+  if (allZero) {
+    const isMarkedHasData = monthData.hasData === true;
+    return (
+      <span className={`badge ${isMarkedHasData ? "badge--success" : "badge--warning"}`}
+        title={isMarkedHasData ? "Valores reais zerados (confirmado)" : "Sem dados inseridos para este mês"}>
+        {isMarkedHasData ? "Zero real" : "Sem dados"}
+      </span>
+    );
+  }
+  if (hasCore && !hasBonus) {
+    return <span className="badge badge--partial" title="Dados de eficiência preenchidos, bônus pendente">Parcial</span>;
+  }
+  return null;
 };
 
 
@@ -987,6 +995,25 @@ function DRGPlugin() {
   const [supaStatus, setSupaStatus] = useState("idle");
   const [dataSource, setDataSource] = useState("local");
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [selectedConsultant, setSelectedConsultant] = useState('guilherme');
+  const CONSULTANTS = useMemo(() => ({
+    guilherme: {
+      nome: 'Dr. Guilherme Thomé',
+      registro: 'CRM-MG 64193',
+      rqe: 'RQE 41538',
+      email: 'guilherme@axcare.com.br',
+      avatar: 'https://assets.grupocsv.com/email-assets/avatar-guilherme-thome-csv.png',
+      assinatura: 'https://assets.grupocsv.com/institucional/guilherme-thome/assinatura-azul.webp',
+    },
+    naline: {
+      nome: 'Enf. Naline Rocha',
+      registro: 'COREN-MG 282880',
+      rqe: null,
+      email: 'naline@axcare.com.br',
+      avatar: 'https://assets.grupocsv.com/institucional/naline-rocha/avatar-unimed.webp',
+      assinatura: 'https://assets.grupocsv.com/institucional/naline-rocha/assinatura-azul.png',
+    },
+  }), []);
   const [cloudStatus, setCloudStatus] = useState("idle"); // idle | saving | saved | error | loading
   const [cloudLastSaved, setCloudLastSaved] = useState(null);
   const [editingMonth, setEditingMonth] = useState(null);
@@ -1282,12 +1309,14 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     };
 
     const IMG = T.images;
+    const consul = CONSULTANTS[selectedConsultant];
+    const consulFoot = `Resp. Técnico: ${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}${consul.rqe ? '&nbsp;&middot;&nbsp;'+consul.rqe : ''}`;
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${T.css}</style></head><body>
-<div class="page cover"><div class="cover-top"><img class="lg-uni" src="${IMG[0]}" alt="Unihealth"><img class="lg-evs" src="${IMG[1]}" alt="EVS"><img class="lg-umed" src="${IMG[2]}" alt="Unimed GV"></div><div class="cover-body"><div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div><div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div><div class="cov-divider"></div><div class="cov-cols"><div class="cov-col"><div class="cov-bar" style="background:var(--orange)"></div><div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div><div class="cov-col-v">${fmtV(C1_val)}</div><div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--green)"></div><div class="cov-col-eyebrow">C2 — Custo Evitado</div><div class="cov-col-v">${fmtV(C2_total)}</div><div class="cov-col-s">${fmtN(diarEvit2025+diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--blue)"></div><div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div><div class="cov-col-v">${fmtV(C3_total)}</div><div class="cov-col-s">${nMonthsC3} meses consecutivos</div></div></div><div class="cov-total"><div class="cov-total-left"><div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div><div class="cov-total-v">${fmtV(TOTAL_PDF)}</div></div><div class="cov-total-right"><div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div><div class="cov-pp-s">em ${nMonths} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div></div></div></div><div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div><div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;Resp. Técnico: Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193&nbsp;&middot;&nbsp;RQE 41538</div></div>
-<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="sec-title">1. Contexto e Escopo</div><p class="para">${N.contexto_escopo}</p><table><thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead><tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr><tr><td>Leitos operacionais *</td><td class="num">94</td></tr><tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr><tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr><tr><td>Mix Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr></tbody></table><div class="footnote">* Excluídos 03 leitos de hospital dia.</div><div class="sec-title mt">2. Componentes do Impacto Financeiro</div><div class="card card-orange"><div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c1}</p><div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada</div></div></div></div></div><div class="card card-green"><div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c2}</p><div class="pills"><div class="pill"><div class="pill-v">${c2026.inef?fmtN(c2026.inef):"82,8"}%</div><div class="pill-l">(In)Eficiência 1Q 2026</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025+diarEvit2026)}</div><div class="pill-l">Diárias evitadas</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
-<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="card card-blue"><div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c3}</p></div></div><table class="bonus"><thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead><tbody>${fullBonusBody}</tbody></table><div class="consol"><div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div><div class="consol-row"><div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div></div><div class="total-block"><div class="total-block-l">Total Consolidado</div><div class="total-block-v">${fmtV(TOTAL_PDF)}</div><div class="total-block-s">Ganho de ${fmtN(deltaPP)} p.p. em ${nMonths} meses</div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
-<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div><div class="pbody"><div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div><p class="para">O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário.</p><div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div><table><thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead><tbody><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Local</td><td class="num">R$ 495,51</td></tr><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num">R$ 755,73</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Local</td><td class="num">R$ 744,17</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num">R$ 1.134,97</td></tr><tr><td>UTI</td><td>—</td><td>Local</td><td class="num">R$ 1.522,57</td></tr><tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num">R$ 2.322,15</td></tr></tbody></table><div class="eyebrow-blk">Matrizes de Cálculo</div><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2024</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2024?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2024?.cgp||0)}</td></tr></tbody></table><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2025 / 1Q 2026</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2025?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2025?.cgp||0)}</td></tr></tbody></table></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
-<div class="page"><div class="pbody cont" style="padding-top:14mm;"><div class="cta"><div class="cta-head"><h3>Esta análise foi útil para você?</h3><p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p></div><div class="cta-body"><div class="cta-top"><img class="cta-avatar" src="${IMG[7]}" alt="Dr. Guilherme Thomé"><div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise!<br>Abraços,</div></div><div class="cta-bottom"><div class="cta-sig"><img src="${IMG[8]}" alt="Assinatura"></div><div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">guilherme@axcare.com.br</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare®&nbsp;&middot;&nbsp;Dr. Guilherme Thomé&nbsp;&middot;&nbsp;CRM-MG 64193</div></div></div>
+<div class="page cover"><div class="cover-top"><img class="lg-uni" src="${IMG[0]}" alt="Unihealth"><img class="lg-evs" src="${IMG[1]}" alt="EVS"><img class="lg-umed" src="${IMG[2]}" alt="Unimed GV"></div><div class="cover-body"><div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div><div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div><div class="cov-divider"></div><div class="cov-cols"><div class="cov-col"><div class="cov-bar" style="background:var(--orange)"></div><div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div><div class="cov-col-v">${fmtV(C1_val)}</div><div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--green)"></div><div class="cov-col-eyebrow">C2 — Custo Evitado</div><div class="cov-col-v">${fmtV(C2_total)}</div><div class="cov-col-s">${fmtN(diarEvit2025+diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--blue)"></div><div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div><div class="cov-col-v">${fmtV(C3_total)}</div><div class="cov-col-s">${nMonthsC3} meses consecutivos</div></div></div><div class="cov-total"><div class="cov-total-left"><div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div><div class="cov-total-v">${fmtV(TOTAL_PDF)}</div></div><div class="cov-total-right"><div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div><div class="cov-pp-s">em ${nMonths} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div></div></div></div><div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div><div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;${consulFoot}</div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="sec-title">1. Contexto e Escopo</div><p class="para">${N.contexto_escopo}</p><table><thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead><tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr><tr><td>Leitos operacionais *</td><td class="num">94</td></tr><tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr><tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr><tr><td>Mix Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr></tbody></table><div class="footnote">* Excluídos 03 leitos de hospital dia.</div><div class="sec-title mt">2. Componentes do Impacto Financeiro</div><div class="card card-orange"><div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c1}</p><div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada</div></div></div></div></div><div class="card card-green"><div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c2}</p><div class="pills"><div class="pill"><div class="pill-v">${c2026.inef?fmtN(c2026.inef):"82,8"}%</div><div class="pill-l">(In)Eficiência 1Q 2026</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025+diarEvit2026)}</div><div class="pill-l">Diárias evitadas</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="card card-blue"><div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c3}</p></div></div><table class="bonus"><thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead><tbody>${fullBonusBody}</tbody></table><div class="consol"><div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div><div class="consol-row"><div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div></div><div class="total-block"><div class="total-block-l">Total Consolidado</div><div class="total-block-v">${fmtV(TOTAL_PDF)}</div><div class="total-block-s">Ganho de ${fmtN(deltaPP)} p.p. em ${nMonths} meses</div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div><div class="pbody"><div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div><p class="para">O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário.</p><div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div><table><thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead><tbody><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Local</td><td class="num">R$ 495,51</td></tr><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num">R$ 755,73</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Local</td><td class="num">R$ 744,17</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num">R$ 1.134,97</td></tr><tr><td>UTI</td><td>—</td><td>Local</td><td class="num">R$ 1.522,57</td></tr><tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num">R$ 2.322,15</td></tr></tbody></table><div class="eyebrow-blk">Matrizes de Cálculo</div><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2024</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2024?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2024?.cgp||0)}</td></tr></tbody></table><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2025 / 1Q 2026</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2025?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2025?.cgp||0)}</td></tr></tbody></table></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
+<div class="page"><div class="pbody cont" style="padding-top:14mm;"><div class="cta"><div class="cta-head"><h3>Esta análise foi útil para você?</h3><p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p></div><div class="cta-body"><div class="cta-top"><img class="cta-avatar" src="${consul.avatar}" alt="${consul.nome}"><div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise!<br>Abraços,</div></div><div class="cta-bottom"><div class="cta-sig"><img src="${consul.assinatura}" alt="Assinatura"></div><div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">${consul.email}</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
 </body></html>`;
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -1496,9 +1525,15 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                     <h4 style={{margin:0,color:'var(--u-dark)',fontFamily:'var(--font-display)',fontSize:16,fontWeight:700}}>
                       {keyToLabel(editingMonth)}
                     </h4>
-                    {bank[editingMonth]?.hasData && bank[editingMonth]?.altas > 0 && (
-                      <span className="badge badge--success" style={{fontSize:11,padding:'3px 10px'}}>Preenchido</span>
-                    )}
+                    {(() => {
+                      const md = bank[editingMonth];
+                      if (!md) return null;
+                      const hasCore = (md.altas > 0 || md.realizado > 0 || md.previsto > 0);
+                      const hasBonus = (md.bonus > 0);
+                      if (hasCore && hasBonus) return <span className="badge badge--success" style={{fontSize:11,padding:'3px 10px'}}>Completo</span>;
+                      if (hasCore && !hasBonus) return <span className="badge badge--partial" style={{fontSize:11,padding:'3px 10px'}}>Parcial (sem b\u00f4nus)</span>;
+                      return null;
+                    })()}
                   </div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'20px 32px'}}>
                     <div>
@@ -1519,7 +1554,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                     <div>
                       <FieldN label="Bônus MG Hosp (R$)" value={bank[editingMonth]?.bonus||0}
                         onChange={v => setMonthFieldWithSync(editingMonth, 'bonus', v)}
-                        note="Fonte: Federação Minas / MG Hosp"/>
+                        note="Opcional • Fonte: Federação Minas / MG Hosp"/>
                     </div>
                   </div>
                   {/* Calculated metrics */}
@@ -1565,8 +1600,17 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                           <td>{r.previsto ? fmtN(r.previsto) : NA}</td>
                           <td>{r.bonus ? fmtV(r.bonus) : NA}</td>
                           <td>{r.previsto > 0 ? pct((r.realizado/r.previsto)*100) : NA}</td>
-                          <td><NoDataBadge monthData={bank[r.key]}/>
-                            {bank[r.key]?.hasData && bank[r.key]?.altas > 0 && <span className="badge badge--success">OK</span>}
+                          <td>
+                            {(() => {
+                              const md = bank[r.key];
+                              if (!md) return <span className="badge badge--warning">Sem dados</span>;
+                              const hasCore = (md.altas > 0 || md.realizado > 0 || md.previsto > 0);
+                              const hasBonus = (md.bonus > 0);
+                              if (hasCore && hasBonus) return <span className="badge badge--success">OK</span>;
+                              if (hasCore && !hasBonus) return <span className="badge badge--partial">Parcial</span>;
+                              if (!hasCore && !hasBonus && md.hasData) return <span className="badge badge--success">Zero real</span>;
+                              return <span className="badge badge--warning">Sem dados</span>;
+                            })()}
                           </td>
                         </tr>
                       ))}
@@ -1625,11 +1669,26 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                 <Pill label="(In)Eficiência" value={inef ? pct(inef) : NA} color={statusColor}/>
               </div>
             </div>
-            <div className="btn-group" style={{display:"flex",gap:10,marginTop:16}}>
-              <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relatório PDF"}</button>
-              <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
-                {copied==="total" ? "Copiado!" : "Copiar Total"}
-              </button>
+            <div style={{marginTop:20,padding:'16px 20px',background:'#f8fafb',borderRadius:10,border:'1px solid var(--u-line)'}}>  
+              <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+                <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                  <label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Consultor Responsável</label>
+                  <select
+                    className="field__input"
+                    style={{padding:'8px 14px',fontSize:13,borderRadius:6,border:'1.5px solid var(--u-line)',background:'white',cursor:'pointer',minWidth:240}}
+                    value={selectedConsultant}
+                    onChange={e => setSelectedConsultant(e.target.value)}>
+                    <option value="guilherme">Guilherme Thomé — CRM-MG 64193</option>
+                    <option value="naline">Naline Rocha — COREN-MG 282880</option>
+                  </select>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginLeft:'auto'}}>
+                  <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relat\u00f3rio PDF"}</button>
+                  <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
+                    {copied==="total" ? "Copiado!" : "Copiar Total"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
