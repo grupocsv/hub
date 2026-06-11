@@ -576,7 +576,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 32px;">
-                    <h3 class="section-header">Usuários Aprovados</h3>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);"><h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:0;">Usuários Aprovados</h3><button onclick="window._openCreateUserModal()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Usuário</button></div>
                     <div class="table-card">
                         <div style="overflow-x: auto;">
                             <table>
@@ -1200,6 +1200,29 @@
         <input type="password" id="cpw-confirm" placeholder="Confirme a nova senha">
         <div class="modal-actions">
             <button class="btn-primary" id="cpw-submit">Alterar Senha</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Criar Novo Usuário -->
+<div class="modal-overlay hidden" id="create-user-modal">
+    <div class="modal-box" style="max-width:480px;">
+        <h3>Criar Novo Usuário</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">O usuário receberá um e-mail com link para definir a senha.</p>
+        <div id="create-user-error" style="display:none;background:#fef2f2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;"></div>
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Nome completo</label>
+        <input type="text" id="cu-name" placeholder="Ex: João Silva" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;margin-bottom:14px;background:#f8f9fa;outline:none;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">E-mail</label>
+        <input type="email" id="cu-email" placeholder="usuario@empresa.com" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;margin-bottom:14px;background:#f8f9fa;outline:none;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Portais de acesso</label>
+        <div id="cu-tenants" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="unimed" style="width:16px;height:16px;accent-color:var(--primary);"> Unimed GV</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="unihealth" style="width:16px;height:16px;accent-color:var(--primary);"> Unihealth GV</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="icds" style="width:16px;height:16px;accent-color:var(--primary);"> ICDS</label>
+        </div>
+        <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="window._closeCreateUserModal()" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:white;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);">Cancelar</button>
+            <button id="cu-submit-btn" onclick="window._submitCreateUser()" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Criar Usuário</button>
         </div>
     </div>
 </div>
@@ -2393,6 +2416,52 @@ function toggleAdminPw() {
         }
     };
 
+    // ===== Create User Modal =====
+    window._openCreateUserModal = function() {
+        document.getElementById('cu-name').value = '';
+        document.getElementById('cu-email').value = '';
+        document.querySelectorAll('#cu-tenants input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('create-user-error').style.display = 'none';
+        document.getElementById('cu-submit-btn').disabled = false;
+        document.getElementById('create-user-modal').classList.remove('hidden');
+    };
+    window._closeCreateUserModal = function() {
+        document.getElementById('create-user-modal').classList.add('hidden');
+    };
+    window._submitCreateUser = async function() {
+        const name = document.getElementById('cu-name').value.trim();
+        const email = document.getElementById('cu-email').value.trim();
+        const errEl = document.getElementById('create-user-error');
+        const btn = document.getElementById('cu-submit-btn');
+        errEl.style.display = 'none';
+
+        if (!name) { errEl.textContent = 'Nome é obrigatório'; errEl.style.display = 'block'; return; }
+        if (!email) { errEl.textContent = 'E-mail é obrigatório'; errEl.style.display = 'block'; return; }
+
+        const tenantCheckboxes = document.querySelectorAll('#cu-tenants input[type="checkbox"]:checked');
+        const tenant_ids = Array.from(tenantCheckboxes).map(cb => cb.value);
+        if (tenant_ids.length === 0) { errEl.textContent = 'Selecione ao menos um portal'; errEl.style.display = 'block'; return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Criando...';
+
+        const data = await apiCall('/admin/create-user', {
+            method: 'POST',
+            body: JSON.stringify({ email, name, tenant_ids }),
+        });
+
+        btn.disabled = false;
+        btn.textContent = 'Criar Usuário';
+
+        if (data && data.success) {
+            showToast('Usuário criado com sucesso. E-mail enviado.', 'success');
+            window._closeCreateUserModal();
+            loadAll();
+        } else {
+            errEl.textContent = data?.error || 'Erro ao criar usuário';
+            errEl.style.display = 'block';
+        }
+    };
     // ===== Start =====
     init();
 })();
