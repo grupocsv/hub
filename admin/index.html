@@ -484,6 +484,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                     Asset Bucket
                 </button>
+                <button class="sidebar-item" data-tab="cooperados-ugv">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Cooperados UGV
+                </button>
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Comunicação</div>
@@ -1182,6 +1186,79 @@
                             <a href="https://core.gabialvim.com.br/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health Check</a>
                         </div>
                     </div>
+                    <div class="pw-card" id="svc-cooperados">
+                        <div class="pw-portal">cooperados.unimedgv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Registry de cooperados da Unimed GV — busca por nome, especialidade e CRM.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-cooperados-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-cooperados-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://cooperados.unimedgv.com/api/stats" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Stats</a>
+                            <a href="https://cooperados.unimedgv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">Portal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Cooperados UGV -->
+            <div class="admin-tab-content" data-tab="cooperados-ugv">
+                <h3 class="section-header">Cooperados UGV (cooperados.unimedgv.com)</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Registry de cooperados da Unimed Governador Valadares. Gerencie solicitações de API Key e monitore a base.
+                </p>
+                <div class="summary-grid" id="coop-summary">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Cooperados</div>
+                        <div class="sc-value" id="coop-total">-</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Especialidades</div>
+                        <div class="sc-value" id="coop-especialidades">-</div>
+                    </div>
+                    <div class="summary-card warn">
+                        <div class="sc-label">Keys Pendentes</div>
+                        <div class="sc-value" id="coop-pending">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Keys Ativas</div>
+                        <div class="sc-value" id="coop-active">-</div>
+                    </div>
+                </div>
+
+                <!-- Pending Requests -->
+                <div style="margin-top: 24px;">
+                    <h3 class="section-header">Solicitações Pendentes de API Key</h3>
+                    <div id="coop-pending-list">
+                        <div class="empty-state">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Active Keys -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>API Keys Ativas</h3>
+                        <span class="count" id="coop-keys-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>Chave (parcial)</th>
+                                    <th>Criada em</th>
+                                    <th>Último Uso</th>
+                                    <th>Usos</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coop-keys-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -1351,6 +1428,7 @@ function toggleAdminPw() {
             if (tabName === 'admins') loadAdmins();
             if (tabName === 'asset-bucket') loadAssetBucket();
             if (tabName === 'waba') loadWaba();
+            if (tabName === 'cooperados-ugv') loadCooperadosUGV();
             // Close mobile sidebar
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('open');
@@ -1389,7 +1467,7 @@ function toggleAdminPw() {
     }
 
     async function loadAll() {
-        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket()]);
+        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket(), loadCooperadosUGV()]);
     }
 
     // ===== Auth form =====
@@ -2259,7 +2337,8 @@ function toggleAdminPw() {
             { id: 'api', url: 'https://api.grupocsv.com/health' },
             { id: 'open', url: 'https://open.grupocsv.com' },
             { id: 'data', url: 'https://csv-data.guilherme-thom.workers.dev/stats' },
-            { id: 'core', url: 'https://core.gabialvim.com.br/health' }
+            { id: 'core', url: 'https://core.gabialvim.com.br/health' },
+            { id: 'cooperados', url: 'https://cooperados.unimedgv.com/api/stats' }
         ];
         let onlineCount = 0;
         for (const svc of services) {
@@ -2287,6 +2366,125 @@ function toggleAdminPw() {
         }
         document.getElementById('s-services').textContent = onlineCount + '/' + services.length;
     }
+
+    // ===== Cooperados UGV =====
+    const COOP_API = 'https://cooperados.unimedgv.com';
+
+    async function loadCooperadosUGV() {
+        const token = getToken();
+        if (!token) return;
+        try {
+            // Fetch stats from public endpoint
+            const statsResp = await fetch(COOP_API + '/api/stats');
+            const stats = await statsResp.json();
+            document.getElementById('coop-total').textContent = stats.total_cooperados || '-';
+            document.getElementById('coop-especialidades').textContent = stats.total_especialidades || '-';
+
+            // Fetch pending keys (admin endpoint)
+            const pendingResp = await fetch(COOP_API + '/admin/pending-keys', {
+                headers: { 'X-Auth-Token': token }
+            });
+            const pendingData = await pendingResp.json();
+            const pending = pendingData.pending || [];
+            document.getElementById('coop-pending').textContent = pending.length;
+
+            const pendingList = document.getElementById('coop-pending-list');
+            if (pending.length === 0) {
+                pendingList.innerHTML = '<div class="empty-state">Nenhuma solicita\u00e7\u00e3o pendente</div>';
+            } else {
+                pendingList.innerHTML = pending.map(req => `
+                    <div class="request-card">
+                        <div class="rc-info">
+                            <div class="rc-name">${req.email}</div>
+                            <div class="rc-meta">Solicitado em: <strong>${formatDate(req.requested_at)}</strong></div>
+                        </div>
+                        <div class="rc-actions">
+                            <button class="rc-btn approve" onclick="window._coopApprove('${req.email}')">Aprovar</button>
+                            <button class="rc-btn reject" onclick="window._coopReject('${req.email}')">Rejeitar</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Fetch active keys (admin endpoint)
+            const keysResp = await fetch(COOP_API + '/admin/active-keys', {
+                headers: { 'X-Auth-Token': token }
+            });
+            const keysData = await keysResp.json();
+            const keys = keysData.keys || [];
+            document.getElementById('coop-active').textContent = keys.length;
+            document.getElementById('coop-keys-count').textContent = keys.length + ' chave(s)';
+
+            const tbody = document.getElementById('coop-keys-tbody');
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma chave ativa</td></tr>';
+            } else {
+                tbody.innerHTML = keys.map(k => `
+                    <tr>
+                        <td>${k.email}</td>
+                        <td style="font-family:monospace;font-size:12px;">${k.key_masked}</td>
+                        <td>${formatDate(k.created_at)}</td>
+                        <td>${k.last_used ? formatDate(k.last_used) : 'Nunca'}</td>
+                        <td>${k.usage_count || 0}</td>
+                        <td><button class="action-btn revoke" onclick="window._coopRevoke('${k.email}')">Revogar</button></td>
+                    </tr>
+                `).join('');
+            }
+        } catch (e) {
+            console.error('Erro ao carregar Cooperados UGV:', e);
+        }
+    }
+
+    window._coopApprove = async function(email) {
+        if (!confirm('Aprovar API Key para ' + email + '?')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao aprovar.', 'error');
+        }
+    };
+
+    window._coopReject = async function(email) {
+        if (!confirm('Rejeitar solicita\u00e7\u00e3o de ' + email + '?')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/reject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao rejeitar.', 'error');
+        }
+    };
+
+    window._coopRevoke = async function(email) {
+        if (!confirm('Revogar API Key de ' + email + '? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita.')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/revoke-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao revogar.', 'error');
+        }
+    };
 
     // ===== Open Pages Upload Modal (Multi-Domain) =====
     let opSelectedFiles = [];
