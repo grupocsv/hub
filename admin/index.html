@@ -1820,8 +1820,9 @@ function toggleAdminPw() {
                     var toggleIcon = isActive
                         ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>'
                         : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                    var authBadge = p.auth_gate ? '<span title="Protegida por senha (csv-open-auth)" style="display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 8px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:600;vertical-align:middle;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Gate</span>' : '';
                     return '<tr' + (!isActive ? ' style="opacity:0.6;"' : '') + '>' +
-                        '<td style="font-weight:600;">' + esc(p.title) + (p.description ? '<br><span class="pl-origin">' + esc(p.description) + '</span>' : '') + '</td>' +
+                        '<td style="font-weight:600;">' + esc(p.title) + authBadge + (p.description ? '<br><span class="pl-origin">' + esc(p.description) + '</span>' : '') + '</td>' +
                         '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
                         '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
                         '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
@@ -1837,6 +1838,9 @@ function toggleAdminPw() {
                                 '<button class="pl-btn ' + (isActive ? 'pl-revoke' : 'pl-restore') + '" title="' + toggleTitle + '" onclick="window._toggleOP(\'' + esc(p.slug) + '\', \'' + key + '\', this)">' +
                                     toggleIcon +
                                 '</button>' +
+                                (key === 'csv' ? '<button class="pl-btn' + (p.auth_gate ? ' pl-gate-active' : '') + '" title="' + (p.auth_gate ? 'Remover gate de senha' : 'Ativar gate de senha') + '" onclick="window._toggleAuthGate(\'' + esc(p.slug) + '\', ' + (p.auth_gate ? 'false' : 'true') + ', this)" style="' + (p.auth_gate ? 'border-color:#92400e;color:#92400e;background:#fef3c7;' : '') + '">' +
+                                    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>' +
+                                '</button>' : '') +
                             '</div>' +
                         '</td>' +
                     '</tr>';
@@ -1864,6 +1868,33 @@ function toggleAdminPw() {
             var data = await resp.json();
             if (data.success) {
                 showToast('P\u00e1gina ' + (data.status === 'active' ? 'ativada' : 'desativada'), 'success');
+                setTimeout(function() { loadPublicLinks(); }, 1000);
+            } else {
+                showToast(data.error || 'Erro', 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        } catch (e) {
+            showToast('Erro de rede: ' + e.message, 'error');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    };
+
+    window._toggleAuthGate = async function(slug, enable, btn) {
+        var action = enable ? 'Ativar' : 'Remover';
+        if (!confirm(action + ' gate de senha para "' + slug + '"?')) return;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        try {
+            var resp = await fetch('https://open.grupocsv.com/api/set-auth-gate', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: slug, auth_gate: enable })
+            });
+            var data = await resp.json();
+            if (data.success) {
+                showToast('Gate ' + (enable ? 'ativado' : 'removido') + ' para ' + slug, 'success');
                 setTimeout(function() { loadPublicLinks(); }, 1000);
             } else {
                 showToast(data.error || 'Erro', 'error');
