@@ -2384,6 +2384,14 @@ function toggleAdminPw() {
             const pendingResp = await fetch(COOP_API + '/admin/pending-keys', {
                 headers: { 'X-Auth-Token': token }
             });
+            if (!pendingResp.ok) {
+                document.getElementById('coop-pending').textContent = '0';
+                document.getElementById('coop-pending-list').innerHTML = '<div class="empty-state">Nenhuma solicita\u00e7\u00e3o pendente</div>';
+                document.getElementById('coop-active').textContent = '0';
+                document.getElementById('coop-keys-count').textContent = '0 chave(s)';
+                document.getElementById('coop-keys-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma chave ativa</td></tr>';
+                return;
+            }
             const pendingData = await pendingResp.json();
             const pending = pendingData.pending || [];
             document.getElementById('coop-pending').textContent = pending.length;
