@@ -2376,7 +2376,8 @@ function toggleAdminPw() {
         try {
             // Fetch stats from public endpoint
             const statsResp = await fetch(COOP_API + '/api/stats');
-            const stats = await statsResp.json();
+            const statsRaw = await statsResp.json();
+            const stats = Array.isArray(statsRaw) ? statsRaw[0] : statsRaw;
             document.getElementById('coop-total').textContent = stats.total_cooperados || '-';
             document.getElementById('coop-especialidades').textContent = stats.total_especialidades || '-';
 
