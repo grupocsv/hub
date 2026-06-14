@@ -1198,6 +1198,20 @@
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <a href="https://cooperados.unimedgv.com/api/stats" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Stats</a>
                             <a href="https://cooperados.unimedgv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">Portal</a>
+                    <div class="pw-card" id="svc-panta">
+                        <div class="pw-portal">panta.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Panta™ — Omnisearch federado. Busca unificada sobre documentos, pessoas, memorias e assets.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-panta-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-panta-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://panta.grupocsv.com/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health</a>
+                            <a href="https://panta.grupocsv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">API</a>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -2385,7 +2399,8 @@ function toggleAdminPw() {
             { id: 'open', url: 'https://open.grupocsv.com' },
             { id: 'data', url: 'https://csv-data.guilherme-thom.workers.dev/stats' },
             { id: 'core', url: 'https://core.gabialvim.com.br/health' },
-            { id: 'cooperados', url: 'https://cooperados.unimedgv.com/api/stats' }
+            { id: 'cooperados', url: 'https://cooperados.unimedgv.com/api/stats' },
+            { id: 'panta', url: 'https://panta.grupocsv.com/health' }
         ];
         let onlineCount = 0;
         for (const svc of services) {

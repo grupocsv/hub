@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panta™ | Grupo CSV</title>
+  <meta name="description" content="Panta™ — Omnisearch federado do ecossistema Grupo CSV. Busca unificada sobre documentos, pessoas, memórias e assets.">
+  <link rel="icon" href="/panta/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/panta/android-chrome-192x192.png">
+  <meta property="og:title" content="Panta™ | Grupo CSV">
+  <meta property="og:description" content="Panta™ — Omnisearch federado. Busca unificada sobre documentos, pessoas, memórias e assets.">
+  <meta property="og:image" content="/panta/logo.png">
+  <meta property="og:url" content="https://hub.grupocsv.com/panta/">
+  <meta property="og:type" content="website">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f2b46 0%, #1e3a5f 40%, #06b6d4 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 60px 40px;
+      max-width: 700px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 4px 20px rgba(6,182,212,0.3));
+    }
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .greek {
+      font-size: 1rem;
+      opacity: 0.6;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+    .tagline {
+      font-size: 1.3rem;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      font-weight: 500;
+    }
+    .description {
+      font-size: 1rem;
+      line-height: 1.7;
+      opacity: 0.85;
+      margin-bottom: 36px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+    .feature {
+      background: rgba(255,255,255,0.08);
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .feature strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #67e8f9;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34,197,94,0.15);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 24px;
+      background: white;
+      color: #1e3a5f;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .btn.secondary {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn.secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .features { grid-template-columns: 1fr; }
+      h1 { font-size: 2rem; }
+      .container { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/panta/logo.png" alt="Panta" class="logo">
+    <h1>Panta™</h1>
+    <p class="greek">Πάντα — "tudo" em grego</p>
+    <p class="tagline">Omnisearch Federado do Ecossistema CSV</p>
+    <p class="description">
+      Motor de busca unificado que consulta documentos, pessoas, memórias, assets e
+      conhecimento acumulado em uma única requisição. Conecta todo o ecossistema
+      Grupo CSV em um ponto de acesso inteligente.
+    </p>
+    <div class="features">
+      <div class="feature">
+        <strong>Documentos</strong>
+        PDF, DOCX, imagens — ingestão com OCR e busca full-text
+      </div>
+      <div class="feature">
+        <strong>Grafo de Pessoas</strong>
+        Nomes, funções, empresas e relações cruzáveis
+      </div>
+      <div class="feature">
+        <strong>Memória</strong>
+        Hindsight + csvbrain — busca semântica e temporal
+      </div>
+      <div class="feature">
+        <strong>Assets</strong>
+        Logos, criativos e wallpapers via csv-assets
+      </div>
+    </div>
+    <div class="status">
+      <span class="status-dot"></span>
+      Operacional — panta.grupocsv.com
+    </div>
+    <div class="btn-group">
+      <a href="https://panta.grupocsv.com/health" class="btn" target="_blank">Health Check</a>
+      <a href="/" class="btn secondary">← Hub CSV</a>
+    </div>
+  </div>
+  <div class="footer">
+    <p>Grupo CSV | <a href="/compliance/">Compliance</a> | <a href="/_infra/ferramentas/panta">Documentação</a></p>
+  </div>
+</body>
+</html>

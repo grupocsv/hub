@@ -51,6 +51,7 @@ export default defineConfig({
           { text: 'Deck\u2122', link: 'https://deck.grupocsv.com' },
           { text: 'Relay\u2122', link: 'https://relay.axcare.com.br' },
           { text: 'RTAV\u2122', link: 'https://rtav.axcare.app' },
+          { text: 'Panta\u2122', link: 'https://panta.grupocsv.com' },
         ]
       },
       {
@@ -136,6 +137,7 @@ export default defineConfig({
             { text: 'Deck\u2122', link: '/_infra/ferramentas/deck' },
             { text: 'Relay\u2122', link: '/_infra/ferramentas/relay' },
             { text: 'RTAV\u2122', link: '/_infra/ferramentas/rtav' },
+            { text: 'Panta\u2122', link: '/_infra/ferramentas/panta' },
           ]
         },
         {

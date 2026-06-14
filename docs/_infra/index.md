@@ -204,6 +204,7 @@ Copiar página
 <tr><td><strong>Deck™</strong></td><td>Painel de contexto ativo</td><td><a href="https://deck.grupocsv.com">deck.grupocsv.com</a></td><td>Cloudflare Pages</td></tr>
 <tr><td><strong>Relay™</strong></td><td>Mensagens institucionais padronizadas</td><td><a href="https://relay.axcare.com.br">relay.axcare.com.br</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>RTAV™</strong></td><td>Referencial Técnico de Avaliação por Valor</td><td><a href="https://rtav.axcare.app">rtav.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
+<tr><td><strong>Panta™</strong></td><td>Omnisearch federado (busca unificada)</td><td><a href="https://panta.grupocsv.com">panta.grupocsv.com</a></td><td>VPS-CSV (FastAPI + Cloudflare Tunnel)</td></tr>
 </tbody>
 </table>
 <div class="resource-grid tri">
@@ -212,6 +213,7 @@ Copiar página
 <a class="resource-btn green" href="/_infra/ferramentas/deck">Deck™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/relay">Relay™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/rtav">RTAV™</a>
+<a class="resource-btn" href="/_infra/ferramentas/panta">Panta™</a>
 </div>
 </div>
 
