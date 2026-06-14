@@ -4,199 +4,350 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panta™ | Grupo CSV</title>
-  <meta name="description" content="Panta™ — Omnisearch federado do ecossistema Grupo CSV. Busca unificada sobre documentos, pessoas, memórias e assets.">
-  <link rel="icon" href="/panta/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="/panta/android-chrome-192x192.png">
-  <meta property="og:title" content="Panta™ | Grupo CSV">
-  <meta property="og:description" content="Panta™ — Omnisearch federado. Busca unificada sobre documentos, pessoas, memórias e assets.">
-  <meta property="og:image" content="/panta/logo.png">
-  <meta property="og:url" content="https://hub.grupocsv.com/panta/">
+  <link rel="icon" href="/assets/favicon/favicon.ico">
+  <meta property="og:title" content="Panta™ — Omnisearch Federado">
+  <meta property="og:description" content="Motor de busca unificado do ecossistema Grupo CSV. Documentos, pessoas, memórias, assets — uma requisição.">
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://hub.grupocsv.com/panta/">
+  <meta property="og:site_name" content="Hub Grupo CSV">
+  <meta property="og:image" content="https://hub.grupocsv.com/og/og_hub.png">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f2b46 0%, #1e3a5f 40%, #06b6d4 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
-      padding: 20px;
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #08080c;
+      --bg-secondary: #0e0e14;
+      --bg-card: #13131a;
+      --border: rgba(139, 92, 246, 0.12);
+      --border-hover: rgba(139, 92, 246, 0.3);
+      --text-primary: #f0f0f5;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent: #8b5cf6;
+      --accent-light: #a78bfa;
+      --accent-glow: rgba(139, 92, 246, 0.15);
+      --gradient-start: #7c3aed;
+      --gradient-end: #4f46e5;
     }
-    .container {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 60px 40px;
-      max-width: 700px;
-      border: 1px solid rgba(255,255,255,0.15);
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient glow */
+    .ambient {
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Layout */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 24px 60px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 72px;
     }
     .logo {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 24px;
-      filter: drop-shadow(0 4px 20px rgba(6,182,212,0.3));
+      width: 96px;
+      height: 96px;
+      margin-bottom: 32px;
+      filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.25));
     }
-    h1 {
-      font-size: 2.8rem;
+    .title {
+      font-size: 3.2rem;
       font-weight: 700;
+      letter-spacing: -0.03em;
       margin-bottom: 8px;
-      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .greek {
-      font-size: 1rem;
-      opacity: 0.6;
-      margin-bottom: 24px;
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
       font-style: italic;
+      margin-bottom: 20px;
+      letter-spacing: 0.02em;
     }
     .tagline {
-      font-size: 1.3rem;
-      opacity: 0.9;
-      margin-bottom: 30px;
-      font-weight: 500;
-    }
-    .description {
-      font-size: 1rem;
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
       line-height: 1.7;
-      opacity: 0.85;
-      margin-bottom: 36px;
     }
-    .features {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 36px;
-      text-align: left;
-    }
-    .feature {
-      background: rgba(255,255,255,0.08);
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .feature strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #67e8f9;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .status {
-      display: inline-flex;
+
+    /* Status */
+    .status-bar {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(34,197,94,0.15);
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 24px;
-      border: 1px solid rgba(34,197,94,0.3);
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
     }
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #22c55e;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+      animation: pulse 2.5s ease-in-out infinite;
     }
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.4; }
     }
-    .btn-group {
+    .status-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    /* Grid de fontes */
+    .section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+    .source-card {
+      background: var(--bg-card);
+      padding: 24px 20px;
+      transition: background 0.2s;
+    }
+    .source-card:hover {
+      background: #18182a;
+    }
+    .source-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .source-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Specs */
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+    .spec {
+      background: var(--bg-card);
+      padding: 20px;
+    }
+    .spec-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .spec-value {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Actions */
+    .actions {
       display: flex;
       gap: 12px;
       justify-content: center;
-      flex-wrap: wrap;
+      margin-bottom: 60px;
     }
     .btn {
-      display: inline-block;
-      padding: 14px 24px;
-      background: white;
-      color: #1e3a5f;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    .btn.secondary {
-      background: rgba(255,255,255,0.12);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .btn.secondary:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    .footer {
-      margin-top: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      border-radius: 8px;
       font-size: 0.85rem;
-      opacity: 0.6;
-    }
-    .footer a {
-      color: white;
+      font-weight: 600;
       text-decoration: none;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
     }
-    .footer a:hover {
-      text-decoration: underline;
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
     }
-    @media (max-width: 600px) {
-      .features { grid-template-columns: 1fr; }
-      h1 { font-size: 2rem; }
-      .container { padding: 40px 24px; }
+    .btn-primary:hover {
+      box-shadow: 0 6px 30px rgba(139, 92, 246, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .footer-text a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-text a:hover {
+      color: var(--accent-light);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .sources-grid { grid-template-columns: 1fr; }
+      .specs { grid-template-columns: 1fr; }
+      .title { font-size: 2.4rem; }
+      .page { padding: 48px 16px 40px; }
+      .actions { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="/panta/logo.png" alt="Panta" class="logo">
-    <h1>Panta™</h1>
-    <p class="greek">Πάντα — "tudo" em grego</p>
-    <p class="tagline">Omnisearch Federado do Ecossistema CSV</p>
-    <p class="description">
-      Motor de busca unificado que consulta documentos, pessoas, memórias, assets e
-      conhecimento acumulado em uma única requisição. Conecta todo o ecossistema
-      Grupo CSV em um ponto de acesso inteligente.
-    </p>
-    <div class="features">
-      <div class="feature">
-        <strong>Documentos</strong>
-        PDF, DOCX, imagens — ingestão com OCR e busca full-text
+  <div class="ambient"></div>
+  <div class="page">
+    <header class="header">
+      <img src="https://assets.grupocsv.com/logos/panta/logo-512-transparent.png" alt="Panta" class="logo">
+      <h1 class="title">Panta™</h1>
+      <p class="subtitle">do grego Panta — "tudo"</p>
+      <p class="tagline">
+        Motor de busca federado do ecossistema Grupo CSV. Uma requisição, seis fontes, resultados ranqueados por relevância.
+      </p>
+      <div class="status-bar">
+        <span class="status-dot"></span>
+        <span class="status-text">Operacional</span>
       </div>
-      <div class="feature">
-        <strong>Grafo de Pessoas</strong>
-        Nomes, funções, empresas e relações cruzáveis
+    </header>
+
+    <p class="section-label">Fontes de busca</p>
+    <div class="sources-grid">
+      <div class="source-card">
+        <div class="source-name">Documentos</div>
+        <div class="source-desc">PDF, DOCX, imagens com OCR e busca full-text local</div>
       </div>
-      <div class="feature">
-        <strong>Memória</strong>
-        Hindsight + csvbrain — busca semântica e temporal
+      <div class="source-card">
+        <div class="source-name">Grafo</div>
+        <div class="source-desc">Pessoas, empresas, projetos e relações tipadas</div>
       </div>
-      <div class="feature">
-        <strong>Assets</strong>
-        Logos, criativos e wallpapers via csv-assets
+      <div class="source-card">
+        <div class="source-name">Memória</div>
+        <div class="source-desc">Hindsight + csvbrain — busca semântica e temporal</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Assets</div>
+        <div class="source-desc">Logos, criativos e wallpapers via csv-assets</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Semântica</div>
+        <div class="source-desc">Embeddings 768d via Gemini (pgvector)</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">MCP</div>
+        <div class="source-desc">Integração nativa com Manus, Claude e agentes</div>
       </div>
     </div>
-    <div class="status">
-      <span class="status-dot"></span>
-      Operacional — panta.grupocsv.com
+
+    <p class="section-label">Infraestrutura</p>
+    <div class="specs">
+      <div class="spec">
+        <div class="spec-label">Stack</div>
+        <div class="spec-value">Python 3.12 + FastAPI + SQLite FTS5</div>
+      </div>
+      <div class="spec">
+        <div class="spec-label">Hospedagem</div>
+        <div class="spec-value">VPS-CSV (GCP) + Cloudflare Tunnel</div>
+      </div>
+      <div class="spec">
+        <div class="spec-label">Autenticação</div>
+        <div class="spec-value">Header X-Panta-Token</div>
+      </div>
+      <div class="spec">
+        <div class="spec-label">Embeddings</div>
+        <div class="spec-value">Gemini Embedding 001 (768d)</div>
+      </div>
+      <div class="spec">
+        <div class="spec-label">Banco vetorial</div>
+        <div class="spec-value">Supabase pgvector</div>
+      </div>
+      <div class="spec">
+        <div class="spec-label">Proprietário</div>
+        <div class="spec-value">Grupo CSV</div>
+      </div>
     </div>
-    <div class="btn-group">
-      <a href="https://panta.grupocsv.com/health" class="btn" target="_blank">Health Check</a>
-      <a href="/" class="btn secondary">← Hub CSV</a>
+
+    <div class="actions">
+      <a href="https://panta.grupocsv.com/health" class="btn btn-primary" target="_blank">Health Check</a>
+      <a href="/_infra/ferramentas/panta" class="btn btn-ghost">Documentação</a>
+      <a href="/" class="btn btn-ghost">Hub CSV</a>
     </div>
-  </div>
-  <div class="footer">
-    <p>Grupo CSV | <a href="/compliance/">Compliance</a> | <a href="/_infra/ferramentas/panta">Documentação</a></p>
+
+    <footer class="footer">
+      <p class="footer-text">
+        Grupo CSV — Cuidados em Saúde com Valor
+        &nbsp;|&nbsp;
+        <a href="/compliance/">Compliance</a>
+        &nbsp;|&nbsp;
+        <a href="/_infra/">Infraestrutura</a>
+      </p>
+    </footer>
   </div>
 </body>
 </html>
