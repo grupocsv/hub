@@ -488,6 +488,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     Cooperados UGV
                 </button>
+                <button class="sidebar-item" data-tab="panta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Panta
+                </button>
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Comunicação</div>
@@ -1292,6 +1296,109 @@
                     </div>
                 </div>
             </div>
+            <!-- TAB: Panta (CSV Omnisearch) -->
+            <div class="admin-tab-content" data-tab="panta">
+                <h3 class="section-header">Panta &mdash; CSV Omnisearch</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Motor de busca federado do ecossistema Grupo CSV. 7 fontes, busca sem&acirc;ntica vetorial, grafo de pessoas e documentos indexados.
+                </p>
+                <!-- Status badge -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+                    <span id="panta-status-dot" style="width:10px;height:10px;border-radius:50%;background:#d1d5db;"></span>
+                    <span id="panta-status-text" style="font-size:13px;color:var(--text-secondary);">Verificando...</span>
+                    <span style="margin-left:auto;font-size:12px;color:var(--text-secondary);" id="panta-version"></span>
+                </div>
+                <!-- Summary cards -->
+                <div class="summary-grid" id="panta-summary" style="margin-bottom:24px;">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Documentos</div>
+                        <div class="sc-value" id="panta-docs">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Indexados</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Chunks</div>
+                        <div class="sc-value" id="panta-chunks">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Fragmentos FTS5</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Entidades</div>
+                        <div class="sc-value" id="panta-entities">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Grafo Supabase</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Rela&ccedil;&otilde;es</div>
+                        <div class="sc-value" id="panta-relations">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">V&iacute;nculos</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Embeddings</div>
+                        <div class="sc-value" id="panta-embeddings">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Vetores 768d</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Fontes</div>
+                        <div class="sc-value" id="panta-sources">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Busca federada</div>
+                    </div>
+                </div>
+                <!-- Entidades por tipo -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Entidades por Tipo</h3>
+                        <span class="count" id="panta-types-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>Tipo</th><th>Quantidade</th><th>%</th></tr></thead>
+                            <tbody id="panta-types-tbody"><tr><td colspan="3" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Documentos recentes -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Documentos Indexados</h3>
+                        <span class="count" id="panta-docs-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>Arquivo</th><th>Formato</th><th>T&iacute;tulo</th><th>Caracteres</th><th>P&aacute;ginas</th><th>Data</th></tr></thead>
+                            <tbody id="panta-docs-tbody"><tr><td colspan="7" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Entidades recentes -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Entidades Recentes (Grafo)</h3>
+                        <span class="count" id="panta-ent-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Criado em</th></tr></thead>
+                            <tbody id="panta-ent-tbody"><tr><td colspan="4" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Formatos -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Distribui&ccedil;&atilde;o por Formato</h3>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>Formato</th><th>Quantidade</th></tr></thead>
+                            <tbody id="panta-formats-tbody"><tr><td colspan="2" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Links -->
+                <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;">
+                    <a href="https://panta.grupocsv.com/health" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Health Check &rarr;</a>
+                    <a href="https://hub.grupocsv.com/panta/" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Landing Page &rarr;</a>
+                    <a href="https://hub.grupocsv.com/_infra/ferramentas/panta" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Documenta&ccedil;&atilde;o &rarr;</a>
+                </div>
+            </div>
         </div><!-- /main-content -->
     </div><!-- /app-layout -->
 </div>
@@ -1459,6 +1566,7 @@ function toggleAdminPw() {
             if (tabName === 'asset-bucket') loadAssetBucket();
             if (tabName === 'waba') loadWaba();
             if (tabName === 'cooperados-ugv') loadCooperadosUGV();
+            if (tabName === 'panta') loadPanta();
             // Close mobile sidebar
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('open');
@@ -1497,7 +1605,7 @@ function toggleAdminPw() {
     }
 
     async function loadAll() {
-        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket(), loadCooperadosUGV()]);
+        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket(), loadCooperadosUGV(), loadPanta()]);
     }
 
     // ===== Auth form =====
@@ -2820,6 +2928,100 @@ function toggleAdminPw() {
             errEl.style.display = 'block';
         }
     };
+    // ===== Panta (CSV Omnisearch) =====
+    const PANTA_API = 'https://panta.grupocsv.com';
+    const PANTA_TOKEN = 'panta_csv_2026_secure';
+
+    async function loadPanta() {
+        try {
+            const resp = await fetch(PANTA_API + '/admin/stats', {
+                headers: { 'X-Panta-Token': PANTA_TOKEN }
+            });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const data = await resp.json();
+
+            // Status
+            const dot = document.getElementById('panta-status-dot');
+            const txt = document.getElementById('panta-status-text');
+            dot.style.background = '#22c55e';
+            txt.textContent = 'Online';
+            txt.style.color = '#22c55e';
+            document.getElementById('panta-version').textContent = 'v' + (data.version || '1.0.0');
+
+            // Summary cards
+            const docs = data.documents || {};
+            const graph = data.graph || {};
+            document.getElementById('panta-docs').textContent = docs.total || 0;
+            document.getElementById('panta-chunks').textContent = docs.chunks || 0;
+            document.getElementById('panta-entities').textContent = graph.entities || 0;
+            document.getElementById('panta-relations').textContent = graph.relations || 0;
+            document.getElementById('panta-embeddings').textContent = graph.embeddings || 0;
+            document.getElementById('panta-sources').textContent = (data.sources || []).length;
+
+            // Entidades por tipo
+            const typeCounts = graph.type_counts || {};
+            const typeKeys = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
+            const totalEnts = Object.values(typeCounts).reduce((s, v) => s + v, 0) || 1;
+            document.getElementById('panta-types-count').textContent = typeKeys.length + ' tipo(s)';
+            const typesTbody = document.getElementById('panta-types-tbody');
+            if (typeKeys.length === 0) {
+                typesTbody.innerHTML = '<tr><td colspan="3" class="empty-state">Nenhuma entidade</td></tr>';
+            } else {
+                typesTbody.innerHTML = typeKeys.map(t => {
+                    const pct = ((typeCounts[t] / totalEnts) * 100).toFixed(1);
+                    return '<tr><td style="font-weight:600;text-transform:capitalize;">' + esc(t) + '</td><td>' + typeCounts[t] + '</td><td>' + pct + '%</td></tr>';
+                }).join('');
+            }
+
+            // Documentos recentes
+            const recentDocs = docs.recent || [];
+            document.getElementById('panta-docs-count').textContent = docs.total + ' documento(s)';
+            const docsTbody = document.getElementById('panta-docs-tbody');
+            if (recentDocs.length === 0) {
+                docsTbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum documento indexado</td></tr>';
+            } else {
+                docsTbody.innerHTML = recentDocs.map(d => {
+                    const date = d.created_at ? d.created_at.split(' ')[0] : '-';
+                    const chars = d.char_count ? d.char_count.toLocaleString('pt-BR') : '-';
+                    return '<tr><td>' + d.id + '</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(d.filename) + '">' + esc(d.filename) + '</td><td><span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">' + esc(d.format.toUpperCase()) + '</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(d.title || '-') + '</td><td>' + chars + '</td><td>' + (d.page_count || '-') + '</td><td style="font-size:12px;color:var(--text-secondary);">' + date + '</td></tr>';
+                }).join('');
+            }
+
+            // Entidades recentes
+            const entList = graph.entities_list || [];
+            document.getElementById('panta-ent-count').textContent = graph.entities + ' entidade(s)';
+            const entTbody = document.getElementById('panta-ent-tbody');
+            if (entList.length === 0) {
+                entTbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma entidade</td></tr>';
+            } else {
+                entTbody.innerHTML = entList.slice(0, 20).map(e => {
+                    const date = e.created_at ? e.created_at.split('T')[0] : '-';
+                    return '<tr><td>' + e.id + '</td><td style="font-weight:600;">' + esc(e.name) + '</td><td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;text-transform:capitalize;">' + esc(e.entity_type) + '</span></td><td style="font-size:12px;color:var(--text-secondary);">' + date + '</td></tr>';
+                }).join('');
+            }
+
+            // Formatos
+            const formats = docs.formats || {};
+            const fmtKeys = Object.keys(formats).sort((a, b) => formats[b] - formats[a]);
+            const fmtTbody = document.getElementById('panta-formats-tbody');
+            if (fmtKeys.length === 0) {
+                fmtTbody.innerHTML = '<tr><td colspan="2" class="empty-state">Nenhum formato</td></tr>';
+            } else {
+                fmtTbody.innerHTML = fmtKeys.map(f => {
+                    return '<tr><td style="font-weight:600;text-transform:uppercase;">' + esc(f) + '</td><td>' + formats[f] + '</td></tr>';
+                }).join('');
+            }
+
+        } catch (err) {
+            console.error('Erro ao carregar Panta:', err);
+            const dot = document.getElementById('panta-status-dot');
+            const txt = document.getElementById('panta-status-text');
+            dot.style.background = '#dc2626';
+            txt.textContent = 'Offline';
+            txt.style.color = '#dc2626';
+        }
+    }
+
     // ===== Start =====
     init();
 })();
