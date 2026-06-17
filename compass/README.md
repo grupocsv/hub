@@ -35,6 +35,7 @@ Exemplo: `001/2026` é a primeira edição do ano de 2026.
 | [004/2026](edicoes/2026/004/compass.md) | Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira | Publicado |
 | [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar | Publicado |
 | [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões | Publicado |
+| [007/2026](edicoes/2026/007/compass.md) | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira: Análise Estrutural dos Desperdícios, Fraudes e os Caminhos da Coordenação de Cuidados em 2026 | Publicado |
 
 ---
 

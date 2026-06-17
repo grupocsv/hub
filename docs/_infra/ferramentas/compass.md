@@ -143,6 +143,10 @@ compass/
       001/assets/              PDF e recursos da edição
       002/compass.md           Edição 002 — Prostatectomia Robótica
       003/compass.md           Edição 003 — Fototerapia Neonatal
+      004/compass.md           Edição 004 — NATS na Saúde Suplementar
+      005/compass.md           Edição 005 — Precificação da Jornada Cirúrgica
+      006/compass.md           Edição 006 — Transição Demográfica e Oftalmologia
+      007/compass.md           Edição 007 — Crise de Sustentabilidade e Eficiência
   policies/                    Políticas editoriais
   skills/                      Guias operacionais
   templates/                   Templates de edição
@@ -155,6 +159,10 @@ compass/
 | 001/2026 | Metas quantitativas de produção em contratos ACO com orçamento global | 2026 |
 | 002/2026 | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira | 2025–2026 |
 | 003/2026 | Fototerapia Neonatal | 2026 |
+| 004/2026 | Implantação Estratégica e Operacional de NATS na Saúde Suplementar Brasileira | 2026 |
+| 005/2026 | Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos | 2026 |
+| 006/2026 | Transição Demográfica e Oftalmologia na Saúde Suplementar | 2026 |
+| 007/2026 | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | 2026 |
 
 ## Pipeline de Publicação
 
