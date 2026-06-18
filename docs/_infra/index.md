@@ -182,7 +182,7 @@ title: Infraestrutura — Fonte Única da Verdade
       Cobre produtos, backend serverless, bancos de dados, storage, domínios, DNS, agentes de IA,
       automações, APIs externas, comunicação e assets. Projetada para consumo por humanos e agentes.
 </p>
-<p class="version" id="page-version">Atualizada em 27 de abril de 2026</p>
+<p class="version" id="page-version">Atualizada em 18 de junho de 2026</p>
 </div>
 
 <div class="copy-bar">
@@ -205,15 +205,17 @@ Copiar página
 <tr><td><strong>Relay™</strong></td><td>Mensagens institucionais padronizadas</td><td><a href="https://relay.axcare.com.br">relay.axcare.com.br</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>RTAV™</strong></td><td>Referencial Técnico de Avaliação por Valor</td><td><a href="https://rtav.axcare.app">rtav.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>Panta™</strong></td><td>Omnisearch federado (busca unificada)</td><td><a href="https://panta.grupocsv.com">panta.grupocsv.com</a></td><td>VPS-CSV (FastAPI + Cloudflare Tunnel)</td></tr>
+<tr><td><strong>Discovery™</strong></td><td>Diagnóstico estratégico para OPSS</td><td><a href="https://discovery.axcare.app">discovery.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 </tbody>
 </table>
 <div class="resource-grid tri">
 <a class="resource-btn" href="/_infra/ferramentas/compass">Compass™</a>
 <a class="resource-btn" href="/_infra/ferramentas/signal">Signal™</a>
-<a class="resource-btn green" href="/_infra/ferramentas/deck">Deck™</a>
+<a class="resource-btn" href="/_infra/ferramentas/deck">Deck™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/relay">Relay™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/rtav">RTAV™</a>
 <a class="resource-btn" href="/_infra/ferramentas/panta">Panta™</a>
+<a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
 </div>
 
@@ -261,6 +263,11 @@ Copiar página
 <tr><td><code>agent-context-bridge</code></td><td>agent-context-bridge.guilherme-thom.workers.dev</td><td>Secrets: SUPABASE_URL, SUPABASE_KEY</td><td>MCP de contexto entre agentes (ACB)</td></tr>
 <tr><td><code>manus-webhook</code></td><td>manus-webhook.guilherme-thom.workers.dev</td><td>Secrets</td><td>Receptor de webhooks do Manus</td></tr>
 <tr><td><code>resend-webhook</code></td><td>resend-webhook.guilherme-thom.workers.dev</td><td>Secrets</td><td>Webhook Resend para Supabase</td></tr>
+<tr><td><code>extensio-mcp-anthropic</code></td><td>extensio-mcp-anthropic.guilherme-thom.workers.dev</td><td>KV: extensio-mcp-anthropic-oauth, Secrets</td><td>MCP Server Extensio (protocolo Anthropic)</td></tr>
+<tr><td><code>navia-email-ingest</code></td><td>navia-email-ingest.guilherme-thom.workers.dev</td><td>Secrets</td><td>Ingestão de e-mails do Navia</td></tr>
+<tr><td><code>deck-mcp</code></td><td>deck-mcp.guilherme-thom.workers.dev</td><td>D1, Secrets</td><td>MCP Server do Deck</td></tr>
+<tr><td><code>whisper-proxy</code></td><td>whisper-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy para transcrição de áudio (Whisper)</td></tr>
+<tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages</td></tr>
 </tbody>
 </table>
 
@@ -273,6 +280,19 @@ Copiar página
 <tr><td><code>criale-core</code></td><td>criale-core.guilherme-thom.workers.dev</td><td>MCP Server do Criale Core</td></tr>
 <tr><td><code>crt</code></td><td>crt.guilherme-thom.workers.dev</td><td>CRT</td></tr>
 <tr><td><code>digital-deck-api</code></td><td>digital-deck-api.guilherme-thom.workers.dev</td><td>API de leads, gates e campanhas</td></tr>
+</tbody>
+</table>
+<h3 class="subsection-title">Workers de Saúde e Dados</h3>
+<table class="infra-table">
+<thead><tr><th>Worker</th><th>Rota / Domínio</th><th>Bindings</th><th>Função</th></tr></thead>
+<tbody>
+<tr><td><code>unimed-cooperados-page</code></td><td>unimed-cooperados-page.guilherme-thom.workers.dev</td><td>D1, KV: cooperados-api-keys</td><td>Página de cooperados Unimed GV</td></tr>
+<tr><td><code>rd-icds</code></td><td>rd-icds.guilherme-thom.workers.dev</td><td>Secrets</td><td>Relatório de Desempenho ICDS</td></tr>
+<tr><td><code>drg-data-proxy</code></td><td>drg-data-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de dados DRG</td></tr>
+<tr><td><code>drg-ai-proxy</code></td><td>drg-ai-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy IA para análise DRG</td></tr>
+<tr><td><code>hub-unimedgv</code></td><td>hub-unimedgv.guilherme-thom.workers.dev</td><td>KV: hub-unimedgv-kv</td><td>Portal Unimed GV dedicado</td></tr>
+<tr><td><code>spectra-api</code></td><td>spectra-api.guilherme-thom.workers.dev</td><td>KV: spectra-config, spectra-sessions</td><td>API do Spectra</td></tr>
+<tr><td><code>slides-worker</code></td><td>slides-worker.guilherme-thom.workers.dev</td><td>Secrets</td><td>Geração de slides (Slides CSV)</td></tr>
 </tbody>
 </table>
 
@@ -388,6 +408,11 @@ Copiar página
 <tr><td>api.thera.tech</td><td>Worker thera-contact</td><td>API Thera</td></tr>
 <tr><td>thera.tech</td><td>cname.manus.space</td><td>Site Thera</td></tr>
 <tr><td>spectra.thera.tech</td><td>cname.manus.space</td><td>Spectra AI</td></tr>
+<tr><td>discovery.axcare.app</td><td>cname.manus.space</td><td>Discovery™</td></tr>
+<tr><td>hooks.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Webhook Receiver v2</td></tr>
+<tr><td>panta.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Panta™</td></tr>
+<tr><td>claw.grupocsv.com</td><td>Cloudflare Tunnel (VPS Hostinger)</td><td>OpenClaw bilateral</td></tr>
+<tr><td>unimedgv.com</td><td>Cloudflare</td><td>Domínio Unimed GV</td></tr>
 </tbody>
 </table>
 </div>
@@ -402,6 +427,7 @@ Copiar página
 <tr><td><strong>Manus</strong></td><td>Agente principal: tarefas complexas, desenvolvimento, deploy, pesquisa</td><td>Sandbox isolado (Manus Cloud)</td><td>API Manus, Webhook, MCP</td></tr>
 <tr><td><strong>OpenClaw</strong></td><td>Agente autônomo 24/7: WhatsApp (Extensio), heartbeat, cron jobs</td><td>VPS Hostinger (extensio-vps)</td><td>WhatsApp (WABA), API Manus</td></tr>
 <tr><td><strong>Claude</strong></td><td>Agente de desenvolvimento: coding sessions locais</td><td>Claude Code (local)</td><td>Terminal, GitHub</td></tr>
+<tr><td><strong>Hermes</strong></td><td>Agente auxiliar: execução de tarefas delegadas</td><td>VPS Hostinger (Docker, Claude Haiku 4.5)</td><td>MCPs (Extensio, ACB, Deck), 15 tools nativas</td></tr>
 </tbody>
 </table>
 
@@ -491,6 +517,17 @@ Copiar página
 <tr><td><code>grupocsv/hub</code></td><td>Frontend: VitePress + HTML + portais + compliance + admin + deck</td><td>GitHub Pages (Actions)</td></tr>
 <tr><td><code>grupocsv/backend</code></td><td>Workers: csv-auth, csv-gateway, csv-data, csv-email, csv-propostas, tea-dataset-api</td><td>Wrangler (manual)</td></tr>
 <tr><td><code>grupocsv/csv-open-pages</code></td><td>Worker + admin do Open Pages</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>grupocsv/discovery</code></td><td>Discovery™ (diagnóstico estratégico OPSS)</td><td>Manus (auto-deploy)</td></tr>
+<tr><td><code>grupocsv/deck</code></td><td>Deck™ (Cloudflare Pages)</td><td>Cloudflare Pages (auto)</td></tr>
+<tr><td><code>grupocsv/deck-csv</code></td><td>Deck MCP Server</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>grupocsv/extensio</code></td><td>Extensio MCP Server</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>grupocsv/ecc</code></td><td>Extensio Command Center</td><td>Manus (auto-deploy)</td></tr>
+<tr><td><code>grupocsv/spectra-core</code></td><td>Spectra Core</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>grupocsv/relay</code></td><td>Relay™</td><td>Manus (auto-deploy)</td></tr>
+<tr><td><code>guicthome/slides-worker</code></td><td>Slides Worker</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>thera-tech/navia</code></td><td>Navia (Gestão de Linhas de Cuidado)</td><td>Manus (auto-deploy)</td></tr>
+<tr><td><code>thera-tech/spectra</code></td><td>Spectra AI</td><td>Manus (auto-deploy)</td></tr>
+<tr><td><code>thera-tech/agent-context-bridge</code></td><td>Agent Context Bridge (ACB)</td><td>Wrangler (manual)</td></tr>
 </tbody>
 </table>
 
@@ -566,7 +603,7 @@ onMounted(() => {
   btn.addEventListener('click', () => {
   const md = `# Infraestrutura do Ecossistema Grupo CSV — SSOT
 
-Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. Atualizada em 27 de abril de 2026.
+Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. Atualizada em 18 de junho de 2026.
 
 ---
 
@@ -654,6 +691,12 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 |---|---|---|
 | csv-config | dc02d334d6e04075a7adf7e801e86d7e | Senhas de portais, webhooks, configuracoes |
 | csv-open-pages | 7a21d052398e4724aabb3d3c62372d12 | Metadados de paginas publicas (Open Pages) |
+| spectra-config | 0efd99edc8b1423fb1362799afaf6c7d | Configurações do Spectra |
+| spectra-sessions | 7babc11357234bb18c89510be68373c8 | Sessões do Spectra |
+| csv-open-auth | 2818feaed1f94c24b51328d8a4171669 | Tokens de autenticação Open Pages |
+| extensio-mcp-anthropic-oauth | 8c10d07b261942ecbbced1853a9834d7 | OAuth tokens Extensio MCP (Anthropic) |
+| hub-unimedgv-kv | d5f5d3f2a5644b3e96a3f81e50aaaf35 | Dados do portal Unimed GV |
+| cooperados-api-keys | dd3b5c7794764d68bd0c49bb8578f171 | Chaves de API do sistema de cooperados |
 
 ### R2 Buckets
 
@@ -663,6 +706,8 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 | hub-csv-knowledge | - | Base vetorial para AI Search (191 objetos) |
 | csv-open-pages | - | Open Pages + Assets estaticos |
 | decks | decks.grupocsv.com | Apresentacoes PPTX geradas |
+| csv-assets | assets.grupocsv.com | Assets visuais (logos, imagens, criativos) |
+| vps-csv-backups | - | Backups criptografados da VPS-CSV (Restic) |
 
 ---
 
@@ -670,7 +715,7 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 
 ### Zonas Cloudflare
 
-grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec9fa79be5fc0bb4b7be), axcare.com.br (2a2af254f84a3dbf588e4c7f3a0a3c8e), axcare.app (57f5f50766ac9713f8682d16d53331fb), axcare.ai (246edfbaeffc09b741a1bb2e830d52a9), thera.tech (3fdeeb868c665ec33947eb6b51be75b8), thera.med.br (c0c702aabca32d3c57e1718eade9f2f0), theramed.ai (013c68695048d30445273ade3e5f4ac4), medvalor.med.br (25823a280daf10098aadfc42904e4f85)
+grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec9fa79be5fc0bb4b7be), axcare.com.br (2a2af254f84a3dbf588e4c7f3a0a3c8e), axcare.app (57f5f50766ac9713f8682d16d53331fb), axcare.ai (246edfbaeffc09b741a1bb2e830d52a9), thera.tech (3fdeeb868c665ec33947eb6b51be75b8), thera.med.br (c0c702aabca32d3c57e1718eade9f2f0), theramed.ai (013c68695048d30445273ade3e5f4ac4), medvalor.med.br (25823a280daf10098aadfc42904e4f85), unimedgv.com
 
 ### Subdominios Principais
 
@@ -705,6 +750,10 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 Ponte de contexto (ACB): Worker agent-context-bridge com ferramentas MCP (log_activity, log_file, log_decision, get_recent_activities, get_project_context, search_activities).
 
 Extensio MCP Server: Worker extensio-mcp com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI e Gemini. Pipeline diario via extensio-daily-pipeline.
+<h3 class="subsection-title">Memória de Longo Prazo (Hindsight Cloud)</h3>
+<p class="section-desc">Vectorize.io Memory Bank (<code>hindsight_extensio</code>). 27 ferramentas MCP: retain, recall, reflect, mental models, directives, entities, documentos. Endpoint: <code>https://api.hindsight.vectorize.io/mcp/hindsight_extensio/</code>.</p>
+<h3 class="subsection-title">VPS-CSV (Infraestrutura de Orquestração)</h3>
+<p class="section-desc">GCP cloud-pc (35.231.90.205). Serviços: Webhook Receiver v2 (hooks.grupocsv.com), Telegram Bridge v3.0, Cloudflare Tunnel. 10 cron jobs monitorados via Healthchecks.io. 36 repositórios GitHub. Claude Code instalado. Backup criptografado (Restic → R2).</p>
 
 ---
 
@@ -746,6 +795,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 - csv-email (csv-email.guilherme-thom.workers.dev): E-mail generico + submissions
 - csv-mail (mail-api.grupocsv.com): E-mail agentico com templates (Signal, relatorios, notificacoes)
 - Dominio de envio: mail.grupocsv.com (Resend). Autenticacao csv-mail: Bearer token.
+- Domínios adicionais de envio (Resend): icds.grupocsv.com, thera.tech, veritas.thera.tech, spectra.thera.tech
 
 ---
 
