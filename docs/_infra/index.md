@@ -118,7 +118,6 @@ title: Infraestrutura — Fonte Única da Verdade
 .resource-btn.axia { background: linear-gradient(180deg, #1d6fa0, #196396); }
 .resource-btn.medvalor { background: linear-gradient(180deg, #ea580c, #c2410c); }
 .resource-btn.thera { background: linear-gradient(180deg, #8B7CB5, #6B5B95); }
-.resource-btn.green { background: linear-gradient(180deg, #059669, #047857); }
 .resource-btn.dark-btn { background: linear-gradient(180deg, #334155, #1e293b); }
 
 .empresa-block { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,.08); }
