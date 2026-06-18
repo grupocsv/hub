@@ -471,6 +471,12 @@ Copiar página
 <tr><td><strong>GitHub API</strong></td><td>Changelog (csv-cron), deploy, sync R2</td><td>GitHub Actions + API REST</td></tr>
 <tr><td><strong>Notion API</strong></td><td>Extensio, Daily Pipeline, Dicionário Oficial</td><td>Via NOTION_TOKEN</td></tr>
 <tr><td><strong>Manus API</strong></td><td>Criação de tarefas, polling, webhooks</td><td>OpenClaw → Manus via extensio__manus_create_task</td></tr>
+<tr><td><strong>Anthropic (Claude)</strong></td><td>Hermes Agent, Claude Code, extensio-mcp-anthropic</td><td>API direta + MCP</td></tr>
+<tr><td><strong>Vectorize.io (Hindsight)</strong></td><td>Memória persistente de longo prazo</td><td>Memory Bank: hindsight_extensio</td></tr>
+<tr><td><strong>Healthchecks.io</strong></td><td>Monitoramento de cron jobs VPS-CSV</td><td>9 checks ativos</td></tr>
+<tr><td><strong>ElevenLabs</strong></td><td>TTS e geração de áudio</td><td>API direta</td></tr>
+<tr><td><strong>OpenRouter</strong></td><td>Roteamento de modelos (OpenClaw)</td><td>API direta</td></tr>
+<tr><td><strong>Cloudflare AI</strong></td><td>AutoRAG, AI Gateway, embeddings</td><td>Workers AI + AI Gateway csv_ai_gateway</td></tr>
 </tbody>
 </table>
 </div>
