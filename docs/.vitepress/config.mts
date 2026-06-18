@@ -52,6 +52,7 @@ export default defineConfig({
           { text: 'Relay\u2122', link: 'https://relay.axcare.com.br' },
           { text: 'RTAV\u2122', link: 'https://rtav.axcare.app' },
           { text: 'Panta\u2122', link: '/panta/' },
+          { text: 'Discovery™', link: 'https://discovery.axcare.app' },
         ]
       },
       {
@@ -138,6 +139,7 @@ export default defineConfig({
             { text: 'Relay\u2122', link: '/_infra/ferramentas/relay' },
             { text: 'RTAV\u2122', link: '/_infra/ferramentas/rtav' },
             { text: 'Panta\u2122', link: '/_infra/ferramentas/panta' },
+            { text: 'Discovery™', link: '/_infra/ferramentas/discovery' },
           ]
         },
         {
