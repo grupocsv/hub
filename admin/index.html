@@ -1340,6 +1340,7 @@
                                 <option value="">Todos</option>
                                 <option value="ativo">Ativos</option>
                                 <option value="inativo">Inativos</option>
+                                <option value="jubilado">Jubilados</option>
                             </select>
                             <button onclick="window._coopIndSearch()" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Buscar</button>
                         </div>
@@ -2888,12 +2889,14 @@ function toggleAdminPw() {
             emptyEl.style.display = 'none';
             resultsEl.style.display = 'block';
             tbody.innerHTML = cooperados.map(c => {
-                const statusBadge = c.status === 'ativo'
-                    ? '<span style="background:#ecfdf5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Ativo</span>'
-                    : '<span style="background:#fef2f2;color:#991b1b;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Inativo</span>';
-                const actionBtn = c.status === 'ativo'
-                    ? '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'inactivate\')" style="padding:5px 12px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Inativar</button>'
-                    : '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'reactivate\')" style="padding:5px 12px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Reativar</button>';
+                const statusBadges = { ativo: '<span style="background:#ecfdf5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Ativo</span>', inativo: '<span style="background:#fef2f2;color:#991b1b;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Inativo</span>', jubilado: '<span style="background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Jubilado</span>' };
+                const statusBadge = statusBadges[c.status] || statusBadges.ativo;
+                let actionBtn = '';
+                if (c.status === 'ativo') {
+                    actionBtn = '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'inactivate\')" style="padding:5px 12px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Inativar</button> <button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'jubilar\')" style="padding:5px 12px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Jubilar</button>';
+                } else {
+                    actionBtn = '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'reactivate\')" style="padding:5px 12px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Reativar</button>';
+                }
                 return '<tr style="border-bottom:1px solid var(--border);">' +
                     '<td style="padding:10px 12px;">' + c.nome_completo + '</td>' +
                     '<td style="padding:10px 12px;font-family:monospace;font-size:12px;">' + c.codigo_unimed + '</td>' +
@@ -2909,10 +2912,12 @@ function toggleAdminPw() {
     };
 
     window._coopToggleStatus = async function(codigoUnimed, action) {
-        const label = action === 'inactivate' ? 'Inativar' : 'Reativar';
+        const labels = { inactivate: 'Inativar', reactivate: 'Reativar', jubilar: 'Jubilar' };
+        const label = labels[action] || action;
         if (!confirm(label + ' cooperado ' + codigoUnimed + '?')) return;
         const token = getToken();
-        const endpoint = action === 'inactivate' ? '/admin/inactivate-cooperado' : '/admin/reactivate-cooperado';
+        const endpoints = { inactivate: '/admin/inactivate-cooperado', reactivate: '/admin/reactivate-cooperado', jubilar: '/admin/jubilar-cooperado' };
+        const endpoint = endpoints[action] || '/admin/inactivate-cooperado';
         try {
             const resp = await fetch(COOP_API + endpoint, {
                 method: 'POST',
