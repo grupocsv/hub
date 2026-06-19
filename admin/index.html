@@ -1324,6 +1324,71 @@
                         <button id="coop-upload-btn" style="display:none;margin-top:12px;padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window._coopUpload()">Enviar e Atualizar Base</button>
                     </div>
                 </div>
+
+                <!-- Gestão Individual de Cooperados -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Gest&atilde;o Individual de Cooperados</h3>
+                    </div>
+                    <p style="font-size:13px;color:var(--text-secondary);margin:12px 0 16px;padding:0 16px;">Inclua, inative ou reative cooperados individualmente sem precisar fazer upload de planilha.</p>
+
+                    <!-- Search existing cooperados -->
+                    <div style="padding:0 16px 16px;">
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+                            <input type="text" id="coop-ind-search" placeholder="Buscar por nome ou c&oacute;digo..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            <select id="coop-ind-status-filter" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;background:white;">
+                                <option value="">Todos</option>
+                                <option value="ativo">Ativos</option>
+                                <option value="inativo">Inativos</option>
+                            </select>
+                            <button onclick="window._coopIndSearch()" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Buscar</button>
+                        </div>
+                        <div id="coop-ind-results" style="display:none;max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                                <thead>
+                                    <tr style="background:var(--bg-secondary);position:sticky;top:0;">
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">Nome</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">C&oacute;digo</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">CRM</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">Status</th>
+                                        <th style="padding:10px 12px;text-align:center;font-weight:600;">A&ccedil;&atilde;o</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="coop-ind-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div id="coop-ind-empty" style="display:none;text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">Nenhum cooperado encontrado.</div>
+                    </div>
+
+                    <!-- Add new cooperado form -->
+                    <div style="padding:0 16px 20px;border-top:1px solid var(--border);margin-top:8px;padding-top:20px;">
+                        <h4 style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Incluir Novo Cooperado</h4>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Nome Completo *</label>
+                                <input type="text" id="coop-add-nome" placeholder="Ex: JOAO DA SILVA" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">C&oacute;digo Unimed *</label>
+                                <input type="text" id="coop-add-codigo" placeholder="Ex: 236110102060" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">CRM/MG *</label>
+                                <input type="text" id="coop-add-crm" placeholder="Ex: 102060" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Especialidade</label>
+                                <select id="coop-add-esp" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;background:white;box-sizing:border-box;">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:16px;display:flex;gap:10px;align-items:center;">
+                            <button onclick="window._coopAddCooperado()" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Incluir Cooperado</button>
+                            <span id="coop-add-status" style="font-size:12px;color:var(--text-secondary);"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- TAB: Panta (CSV Omnisearch) -->
             <div class="admin-tab-content" data-tab="panta">
@@ -2584,6 +2649,7 @@ function toggleAdminPw() {
         const token = getToken();
         if (!token) return;
         try {
+            loadCoopEspecialidades();
             // Fetch stats from public endpoint
             const statsResp = await fetch(COOP_API + '/api/stats');
             const statsRaw = await statsResp.json();
@@ -2794,6 +2860,143 @@ function toggleAdminPw() {
         uploadBtn.disabled = false;
         uploadBtn.textContent = 'Enviar e Atualizar Base';
     };
+
+    // ===== Cooperados Individual Management =====
+    window._coopIndSearch = async function() {
+        const q = document.getElementById('coop-ind-search').value.trim();
+        const status = document.getElementById('coop-ind-status-filter').value;
+        const token = getToken();
+        const resultsEl = document.getElementById('coop-ind-results');
+        const emptyEl = document.getElementById('coop-ind-empty');
+        const tbody = document.getElementById('coop-ind-tbody');
+
+        let url = COOP_API + '/admin/cooperados?limit=50';
+        if (q) url += '&q=' + encodeURIComponent(q);
+        if (status) url += '&status=' + encodeURIComponent(status);
+
+        try {
+            const resp = await fetch(url, { headers: { 'X-Auth-Token': token } });
+            const data = await resp.json();
+            const cooperados = data.cooperados || [];
+
+            if (cooperados.length === 0) {
+                resultsEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+                return;
+            }
+
+            emptyEl.style.display = 'none';
+            resultsEl.style.display = 'block';
+            tbody.innerHTML = cooperados.map(c => {
+                const statusBadge = c.status === 'ativo'
+                    ? '<span style="background:#ecfdf5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Ativo</span>'
+                    : '<span style="background:#fef2f2;color:#991b1b;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Inativo</span>';
+                const actionBtn = c.status === 'ativo'
+                    ? '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'inactivate\')" style="padding:5px 12px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Inativar</button>'
+                    : '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'reactivate\')" style="padding:5px 12px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Reativar</button>';
+                return '<tr style="border-bottom:1px solid var(--border);">' +
+                    '<td style="padding:10px 12px;">' + c.nome_completo + '</td>' +
+                    '<td style="padding:10px 12px;font-family:monospace;font-size:12px;">' + c.codigo_unimed + '</td>' +
+                    '<td style="padding:10px 12px;">' + (c.crm || '-') + '</td>' +
+                    '<td style="padding:10px 12px;">' + statusBadge + '</td>' +
+                    '<td style="padding:10px 12px;text-align:center;">' + actionBtn + '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (e) {
+            console.error('Erro na busca de cooperados:', e);
+            showToast('Erro ao buscar cooperados.', 'error');
+        }
+    };
+
+    window._coopToggleStatus = async function(codigoUnimed, action) {
+        const label = action === 'inactivate' ? 'Inativar' : 'Reativar';
+        if (!confirm(label + ' cooperado ' + codigoUnimed + '?')) return;
+        const token = getToken();
+        const endpoint = action === 'inactivate' ? '/admin/inactivate-cooperado' : '/admin/reactivate-cooperado';
+        try {
+            const resp = await fetch(COOP_API + endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                body: JSON.stringify({ codigo_unimed: codigoUnimed })
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast(result.message, 'success');
+                window._coopIndSearch();
+            } else {
+                showToast(result.error || 'Erro.', 'error');
+            }
+        } catch (e) {
+            showToast('Erro de conexão.', 'error');
+        }
+    };
+
+    window._coopAddCooperado = async function() {
+        const nome = document.getElementById('coop-add-nome').value.trim();
+        const codigo = document.getElementById('coop-add-codigo').value.trim();
+        const crm = document.getElementById('coop-add-crm').value.trim();
+        const espSelect = document.getElementById('coop-add-esp');
+        const espId = espSelect.value;
+        const statusEl = document.getElementById('coop-add-status');
+
+        if (!nome || !codigo || !crm) {
+            showToast('Preencha Nome, Código Unimed e CRM.', 'error');
+            return;
+        }
+
+        statusEl.textContent = 'Enviando...';
+        const token = getToken();
+        const payload = {
+            nome_completo: nome.toUpperCase(),
+            codigo_unimed: codigo,
+            crm: crm
+        };
+        if (espId) payload.especialidade_id = parseInt(espId);
+
+        try {
+            const resp = await fetch(COOP_API + '/admin/add-cooperado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                body: JSON.stringify(payload)
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast(result.message, 'success');
+                statusEl.textContent = '';
+                document.getElementById('coop-add-nome').value = '';
+                document.getElementById('coop-add-codigo').value = '';
+                document.getElementById('coop-add-crm').value = '';
+                espSelect.selectedIndex = 0;
+                loadCooperadosUGV();
+            } else {
+                statusEl.textContent = '';
+                showToast(result.error || 'Erro ao incluir.', 'error');
+            }
+        } catch (e) {
+            statusEl.textContent = '';
+            showToast('Erro de conexão.', 'error');
+        }
+    };
+
+    // Load especialidades for the dropdown
+    async function loadCoopEspecialidades() {
+        const token = getToken();
+        try {
+            const resp = await fetch(COOP_API + '/admin/especialidades', {
+                headers: { 'X-Auth-Token': token }
+            });
+            const data = await resp.json();
+            const select = document.getElementById('coop-add-esp');
+            if (data.especialidades && select) {
+                const options = data.especialidades.map(e =>
+                    '<option value="' + e.id + '">' + e.descricao + ' (' + e.codigo_especialidade + ')</option>'
+                ).join('');
+                select.innerHTML = '<option value="">Selecione...</option>' + options;
+            }
+        } catch (e) {
+            console.error('Erro ao carregar especialidades:', e);
+        }
+    }
     // ===== Open Pages Upload Modal (Multi-Domain) =====
     let opSelectedFiles = [];
     let opTargetDomain = 'csv';
