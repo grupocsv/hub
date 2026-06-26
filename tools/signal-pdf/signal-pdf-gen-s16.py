@@ -21,67 +21,65 @@ CARD_BG    = (249, 250, 252)
 WHITE      = (255, 255, 255)
 
 TAG_COLORS = {
-    "GOVERNANÇA CLÍNICA":        CSV_GREEN,
-    "OPERAÇÕES":                 CSV_BLUE,
-    "PROJETOS E INICIATIVAS":    CSV_GREEN,
-    "PARCERIAS ESTRATÉGICAS":    CSV_BLUE,
-    "GOVERNANÇA INSTITUCIONAL":  CSV_BLUE,
-    "TECNOLOGIA E DADOS":        CSV_GREEN,
+    "GOVERNANÇA CLÍNICA":      CSV_GREEN,
+    "OPERAÇÕES":               CSV_BLUE,
+    "PROJETOS E INICIATIVAS":  CSV_GREEN,
+    "PARCERIAS ESTRATÉGICAS":  CSV_BLUE,
+    "TECNOLOGIA E SEGURANÇA":  CSV_BLUE,
+    "QUALIDADE ASSISTENCIAL":  CSV_GREEN,
 }
 
-SEMANA = "16"
-PERIODO = "20 a 26 de abril de 2026"
-DATA_GERACAO = "27/04/2026"
+SEMANA = "15"
+PERIODO = "30 de março a 05 de abril de 2026"
+DATA_GERACAO = "06/04/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
 
 METRICAS = [
-    ("4", "Pautas EVS"),
-    ("14", "Threads Gmail"),
-    ("1", "Novo projeto"),
-    ("3", "Novos termos"),
-    ("3", "Registros atualizados"),
+    ("10+", "Páginas Notion"),
+    ("100+", "Threads Gmail"),
+    ("200+", "Msgs analisadas"),
+    ("3", "Novos registros"),
+    ("7", "Registros atualizados"),
 ]
 
 FATOS = [
     {
         "tag": "GOVERNANÇA CLÍNICA",
-        "titulo": "Ambientação da Nova Farmacêutica Auditora",
-        "resumo": "Concluída contratação e ambientação institucional de Olga Kenã Nunes Coelho na Auditoria em Saúde, com interface formal EVS. Frentes: Ymunity (pré-auditoria de imunobiológicos), terapias de alto custo e oncológicos.",
+        "titulo": "Novo Modelo Remuneratório na Atenção Domiciliar",
+        "resumo": "EVS e GCE iniciaram estruturação técnica para transição do fee-for-service para modelo salarial por faixas de vidas (20/30/40 pacientes). Racional VBHC. Apresentação à Direx prevista para 13/04/2026.",
     },
     {
         "tag": "OPERAÇÕES",
-        "titulo": "BPM Linha de Cuidado Oncologia",
-        "resumo": "EVS formalizou solicitação à TI para BPM de notificação automatizada de atendimentos hospitalares (internação e PS) de pacientes oncológicos. Piloto Hospital Unihealth. CPF como chave adicional.",
+        "titulo": "Central de Coordenação do Cuidado",
+        "resumo": "EVS e LCI propuseram criação da Central de Coordenação do Cuidado para organizar navegação de pacientes, mitigar sobrecarga administrativa e resolver duplicidade de registros MDM/MV.",
     },
     {
         "tag": "PROJETOS E INICIATIVAS",
-        "titulo": "Análise do Bloco Cirúrgico Concluída",
-        "resumo": "Finalizada análise do perfil do bloco cirúrgico (01/2025 a 03/2026). Principal achado: variabilidade da jornada cirúrgica como fator de impacto na eficiência, não o volume. Página interativa publicada.",
+        "titulo": "Avanço no Projeto Caminhos Brilhantes (TEA)",
+        "resumo": "Consolidado levantamento da base assistencial de 300 beneficiários (neurodesenvolvimento, CTE Casa Unimed, 03/2023 a 02/2026). Nota metodológica encaminhada ao IBRAVS e CTNI.",
     },
     {
         "tag": "PARCERIAS ESTRATÉGICAS",
-        "titulo": "Troca Terapêutica com Geração de Valor (Ymunity)",
-        "resumo": "Articulação EVS/Ymunity efetivou substituição de Risanquizumabe por Guselcumabe (anti-IL-23) em Retocolite Ulcerativa multirrefratária. Economia projetada: R$ 245 mil a R$ 477 mil/ano (34-66%).",
+        "titulo": "Proposta de Navegação Oncológica",
+        "resumo": "Unimed GV recebeu proposta da Atrys Health para assessoria e plataforma de Navegação Oncológica. Superintendência Médica manifestou interesse. Aguarda nova proposta ajustada.",
     },
     {
-        "tag": "GOVERNANÇA INSTITUCIONAL",
-        "titulo": "Descritivo de Função — Gestor de Provimento de Saúde",
-        "resumo": "Formalizado DOC-OPE-8 para o cargo de Gestor de Provimento de Saúde, gestão que coordena Auditoria, EVS e CCC. Subordinação compartilhada Superintendência Médica e Executiva.",
+        "tag": "TECNOLOGIA E SEGURANÇA",
+        "titulo": "Padronização do Uso de IA",
+        "resumo": "Gestão de TI emitiu comunicação institucional com diretrizes para uso responsável de IA na cooperativa, alinhada ao Programa Nacional de Cibersegurança Cooperativista.",
     },
     {
-        "tag": "TECNOLOGIA E DADOS",
-        "titulo": "Unimetrics 2.0 — Alinhamento com SESCOOP",
-        "resumo": "Reunião de alinhamento (23/04) com Nathália/SESCOOP, Marcos, Cleverson e Matheus. Acordado envio de 24 meses de dados. Evolução para versão 2.0 confirmada.",
+        "tag": "QUALIDADE ASSISTENCIAL",
+        "titulo": "Monitoramento de Desempenho Hospitalar",
+        "resumo": "Report DRG Hospitalar (fev/2026): mortalidade ajustada por risco acima de 100% (desempenho favorável). Consistência dos processos assistenciais do Hospital Unihealth confirmada.",
     },
 ]
 
 OBSERVACOES = [
-    "BPM Linha de Cuidado do Idoso: notificações automáticas ativas (4 alertas na semana).",
-    "Prevenção a Fraude: Superintendência Médica encaminhou documentação comprobatória à Direx e Jurídico.",
-    "Cronograma Quálix: GSI/FEMG iniciou desenvolvimento do cronograma de auditoria com equipe UGV.",
-    "Planejamento Estratégico SWOT 2027: próxima reunião de desdobramento prevista.",
-    "OKRs Hospital: convocação para reunião de desdobramento do Planejamento Estratégico UGV.",
+    "Distrato Santalmas: aprovado distrato dos contratos de locação e consignação (plataformas FT10) com antigo fornecedor do Hospital Unihealth.",
+    "Experiência do Paciente: instrumento EVA-D iniciou coletas na Atenção Domiciliar com taxa de resposta inicial de ~36%.",
+    "Linha de Cuidado Domiciliar: GCE aguarda escopo e orçamento formal da proposta da Federação (FEMG) para linha de cuidado com plataforma tecnológica.",
 ]
 
 
@@ -283,6 +281,6 @@ def build_signal_pdf(output_path):
 
 
 if __name__ == "__main__":
-    out = "/home/ubuntu/hub/docs/signal/edicoes/2026/S16/assets/Signal_S16_2026.pdf"
+    out = "/home/ubuntu/hub/signal/edicoes/2026/S16/assets/Signal_S16_2026.pdf"
     os.makedirs(os.path.dirname(out), exist_ok=True)
     build_signal_pdf(out)

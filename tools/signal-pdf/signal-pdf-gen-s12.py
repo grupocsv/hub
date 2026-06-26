@@ -22,59 +22,73 @@ CARD_BG    = (249, 250, 252)
 WHITE      = (255, 255, 255)
 
 TAG_COLORS = {
-    "GESTÃO DE PROJETOS":  CSV_BLUE,
-    "FINANCEIRO":          CSV_GREEN,
-    "OPERAÇÕES EVS":       CSV_BLUE,
-    "MODELOS ASSISTENCIAIS": CSV_GREEN,
-    "GESTÃO DE TERAPIAS":  CSV_BLUE,
+    "GOVERNANÇA":       CSV_BLUE,
+    "OPERAÇÕES":        CSV_GREEN,
+    "SISTEMAS":         CSV_BLUE,
+    "ASSISTENCIAL":     CSV_GREEN,
+    "IMUNOBIOLÓGICOS":  CSV_BLUE,
+    "INOVAÇÃO":         CSV_GREEN,
+    "LINHAS DE CUIDADO":CSV_BLUE,
 }
 
-SEMANA = "12"
-PERIODO = "23 a 27 de março de 2026"
-DATA_GERACAO = "30/03/2026"
+SEMANA = "11"
+PERIODO = "9 a 15 de março de 2026"
+DATA_GERACAO = "16/03/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
 
 METRICAS = [
-    ("8", "Páginas Notion"),
-    ("30", "Threads Gmail"),
-    ("120+", "Msgs analisadas"),
-    ("2", "Termos incorporados"),
-    ("3", "Registros atualizados"),
+    ("6", "Páginas Notion"),
+    ("14", "Threads Gmail"),
+    ("80+", "Msgs analisadas"),
+    ("26", "Termos incorporados"),
+    ("2", "Registros atualizados"),
 ]
 
 FATOS = [
     {
-        "tag": "GESTÃO DE PROJETOS",
-        "titulo": "Encerramento Projeto Axys Teller",
-        "resumo": "Projeto de jornada cirúrgica com a Teller Saúde encerrado por descumprimento do SLA de 60 dias. Nenhum dos 3 entregáveis obrigatórios cumprido no prazo. Estudo de caso de insucesso será realizado para aprendizados institucionais.",
+        "tag": "GOVERNANÇA",
+        "titulo": "Contrato IBRAVS Assinado",
+        "resumo": "Contrato VBHC Compass assinado em 13/03, vigência retroativa a 01/02/2026. Encerra ciclo de negociação. Viabiliza LC TEA com modelo VBHC.",
     },
     {
-        "tag": "FINANCEIRO",
-        "titulo": "Orçamento Médico Hospitalar 2026",
-        "resumo": "Direx formalizou o orçamento médico da Unihealth GV para 2026. Modelo sem variáveis vinculadas à produção (fluxo apartado). Reforçada comunicação de que PJ não integra base de cálculo para divisão de sobras.",
+        "tag": "OPERAÇÕES",
+        "titulo": "Pipeline Melhoria Auditoria",
+        "resumo": "6 projetos simultâneos, 1 entrega/semana a partir da 7.ª semana. Partida: Intercâmbio (AJIUS + Ranking Unimeds). Consultoria executiva Sup. Médica.",
     },
     {
-        "tag": "OPERAÇÕES EVS",
-        "titulo": "Macroprocesso Técnico-Científico",
-        "resumo": "EVS concluiu documentação do macroprocesso de desenvolvimento técnico-científico: ciclo completo, POP de produção científica, SLA, formulário estruturado e checklist de validação. Modelo replicável.",
+        "tag": "SISTEMAS",
+        "titulo": "Parametrização SGU",
+        "resumo": "Reunião TI + Auditoria (12/03): 4 frentes de parametrização do novo sistema. Autorização prévia e CID x procedimento já em andamento.",
     },
     {
-        "tag": "MODELOS ASSISTENCIAIS",
-        "titulo": "Ambulatório Cardiologia no CAI",
-        "resumo": "Projeto de ambulatório de egressos de Hemodinâmica e pré-op de Cardiologia no CAI avançou. Dr. Waisman Toledo Bastos confirmado. Tratativas com Dr. Márcio Avelar em andamento.",
+        "tag": "ASSISTENCIAL",
+        "titulo": "POP Hemostasia (LigaSure)",
+        "resumo": "Novo POP: de 5 passos para 2 blocos e 4 entregas. Hospital assume devolutiva ao médico; Auditoria mantém negativa e formalização.",
     },
     {
-        "tag": "GESTÃO DE TERAPIAS",
-        "titulo": "Alinhamento Operacional Ymunity",
-        "resumo": "Reunião entre Autorização, Auditoria, EVS e Ymunity para revisão de fluxos de intercâmbio e gestão de pendências. Foco em estoque domiciliar de medicamentos e pacientes oncológicos.",
+        "tag": "IMUNOBIOLÓGICOS",
+        "titulo": "Hyrimoz → Yuflyma",
+        "resumo": "Desabastecimento Hyrimoz (Sandoz) desde março/2026. EVS articulou substituição por Yuflyma. Impacto na gestão via Ymunity.",
+    },
+    {
+        "tag": "INOVAÇÃO",
+        "titulo": "Relay™ Lançado",
+        "resumo": "Templates de mensagens padronizadas para WhatsApp corporativo em nome da Sup. Médica. Comunicação a toda equipe EVS, CC e Auditoria.",
+    },
+    {
+        "tag": "LINHAS DE CUIDADO",
+        "titulo": "Ymunity: Intercâmbio",
+        "resumo": "A partir de 14/03, Ymunity acompanha pacientes de intercâmbio. Amplia escopo de monitoramento para beneficiários de outras Unimeds.",
     },
 ]
 
 OBSERVACOES = [
-    "Pesquisa de Satisfação Interna: reformulação das perguntas do EVS para dimensões mais amplas (acessibilidade, clareza, colaboração, impacto).",
-    "LCI: fluxo BPM ativo no Hospital Unihealth GV, registrando atendimentos regulares no Interact Suite SA.",
-    "Contratos: Direx iniciou avaliação do contrato Unimetrics, com pauta para alinhamento com a Federação.",
+    "Jornada Governança Clínica FEMG: termos de adesão assinados (Valéria e Dr. Daniel).",
+    "Projeto de Gestão 2024–2028: comunicado reforçando ações de médio prazo 2026.",
+    "Pesquisa de Clima 2026 em andamento (FIA/FEEX).",
+    "Planilhas Cancelamentos CAI: validação pautada para S12.",
+    "Ambulatório Triagem TEA no CAI: proposta em discussão.",
 ]
 
 
@@ -296,6 +310,6 @@ def build_signal_pdf(output_path):
 
 
 if __name__ == "__main__":
-    out = "/home/ubuntu/hub/docs/signal/edicoes/2026/S12/assets/Signal_S12_2026.pdf"
+    out = "/home/ubuntu/hub/signal/edicoes/2026/S12/assets/Signal_S12_2026.pdf"
     os.makedirs(os.path.dirname(out), exist_ok=True)
     build_signal_pdf(out)

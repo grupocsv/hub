@@ -6,7 +6,7 @@ head:
       content: "Signal™ S14/2026 | Resumo Semanal Estratégico"
   - - meta
     - property: og:description
-      content: "Edição S14 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 06 a 12 de abril de 2026."
+      content: "Edição S14 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 30 de março a 05 de abril de 2026."
   - - meta
     - property: og:image
       content: "https://hub.grupocsv.com/og/og_signal.png"
@@ -15,30 +15,33 @@ head:
       content: "https://hub.grupocsv.com/signal/edicoes/2026/S14/signal"
 ---
 # Signal™ S14/2026
-**Período:** 06 a 12 de abril de 2026
+**Período:** 30 de março a 05 de abril de 2026
 **Executivo:** Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV
 ---
 ## Fatos Estratégicos da Semana
-### PPE-15 Março/2026: Excelência Sustentada
-- **Tag:** `QUALIDADE ASSISTENCIAL`
-- **Resumo:** Score global PPE-15 de 96,4% (faixa de excelência) com N=117 coletas válidas. Ampliação expressiva da cobertura no trimestre. Análise longitudinal confirma fortalezas estruturais e evolução das dimensões relacionais.
-### DRG: Mortalidade Ajustada e Report Q1/2026
+### Novo Modelo Remuneratório na Atenção Domiciliar
 - **Tag:** `GOVERNANÇA CLÍNICA`
-- **Resumo:** Mortalidade ajustada por risco de 166,03% em março (17 óbitos vs 28,2 previstos). Casemix estável em 1,0109. Report trimestral Q1: 1.900 altas, 1.001 diárias evitadas, eficiência global de 84,1%.
-### Quálix: Contrato Assinado e Início em Maio
+- **Resumo:** EVS e GCE iniciaram estruturação técnica para transição do fee-for-service para modelo salarial por faixas de vidas (20/30/40 pacientes). Racional VBHC. Apresentação à Direx prevista para 13/04/2026.
+### Central de Coordenação do Cuidado
 - **Tag:** `OPERAÇÕES`
-- **Resumo:** Contrato Quálix entre Unimed GV e Federação Minas aprovado e assinado pela Diretoria. Objeto: avaliação da rede prestadora (serviços próprios e credenciados). Vigência a partir de 06/04/2026. Minuta contratual da parceria CTNI assinada. Início das atividades previsto para maio/2026.
-### Calculadora de Valor: Reconfiguração Metodológica
-- **Tag:** `GOVERNANÇA CLÍNICA`
-- **Resumo:** Estratégia de reconfiguração dos indicadores formalizada junto à IAG. Regras de imputação por média global para ausência de PPE-15 e produção DRG. Aplicação retroativa para fechamento íntegro do ciclo 2025.
-### Kickoff Linha de Cuidado Oncológico de Mama
+- **Resumo:** EVS e LCI propuseram criação da Central de Coordenação do Cuidado para organizar navegação de pacientes, mitigar sobrecarga administrativa e resolver duplicidade de registros MDM/MV.
+### Avanço no Projeto Caminhos Brilhantes (TEA)
+- **Tag:** `PROJETOS E INICIATIVAS`
+- **Resumo:** Consolidado levantamento da base assistencial de 300 beneficiários (neurodesenvolvimento, CTE Casa Unimed, 03/2023 a 02/2026). Nota metodológica encaminhada ao IBRAVS e CTNI.
+### Proposta de Navegação Oncológica
 - **Tag:** `PARCERIAS ESTRATÉGICAS`
-- **Resumo:** Kickoff HI! + EVS realizado em 07/04. POC de 4 meses, 177 pacientes C50, estudo retrospectivo Fase 1. Cadência quinzenal às terças 14h. Equipe EVS mobilizada.
+- **Resumo:** Unimed GV recebeu proposta da Atrys Health para assessoria e plataforma de Navegação Oncológica. Superintendência Médica manifestou interesse. Aguarda nova proposta ajustada.
+### Padronização do Uso de IA
+- **Tag:** `TECNOLOGIA E SEGURANÇA`
+- **Resumo:** Gestão de TI emitiu comunicação institucional com diretrizes para uso responsável de IA na cooperativa, alinhada ao Programa Nacional de Cibersegurança Cooperativista.
+### Monitoramento de Desempenho Hospitalar
+- **Tag:** `QUALIDADE ASSISTENCIAL`
+- **Resumo:** Report DRG Hospitalar (fev/2026): mortalidade ajustada por risco acima de 100% (desempenho favorável). Consistência dos processos assistenciais do Hospital Unihealth confirmada.
 ---
 ## Demais Movimentações
-- Hackathon Unimed GV: Comitê de Inovação lançou o 1o Hackathon, evento previsto para agosto/2026. Fase de submissão de problemas aberta.
-- Acelera Unimed (3a edição): Programa da Unimed do Brasil com webinar de lançamento em 02/04. Inscrições abertas.
-- CEQ-2BR: Novo instrumento PREM (Questionário sobre a Experiência de Parto) registrado como DOC-EVS-84.
+- Distrato Santalmas: aprovado distrato dos contratos de locação e consignação (plataformas FT10) com antigo fornecedor do Hospital Unihealth.
+- Experiência do Paciente: instrumento EVA-D iniciou coletas na Atenção Domiciliar com taxa de resposta inicial de ~36%.
+- Linha de Cuidado Domiciliar: GCE aguarda escopo e orçamento formal da proposta da Federação (FEMG) para linha de cuidado com plataforma tecnológica.
 ---
 ## Documentos e Recursos
 - [PDF da Edição (Signal_S14_2026.pdf)](assets/Signal_S14_2026.pdf)

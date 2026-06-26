@@ -20,70 +20,71 @@ WHITE      = (255, 255, 255)
 TAG_COLORS = {
     "GOVERNANÇA":                CSV_BLUE,
     "VBHC":                      CSV_GREEN,
-    "LINHAS DE CUIDADO":         CSV_GREEN,
+    "ACREDITAÇÃO":               CSV_BLUE,
     "OPERACIONAL":               CSV_GREEN,
     "ESTRATÉGIA":                CSV_BLUE,
     "ASSISTENCIAL":              CSV_GREEN,
-    "RELAÇÕES INSTITUCIONAIS":   CSV_BLUE,
-    "JORNADA CIRÚRGICA":         CSV_BLUE,
-    "PARCERIAS":                 CSV_GREEN,
 }
-SEMANA = "20"
-PERIODO = "18 a 22 de maio de 2026"
-DATA_GERACAO = "25/05/2026"
+SEMANA = "19"
+PERIODO = "11 a 17 de maio de 2026"
+DATA_GERACAO = "18/05/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
 METRICAS = [
-    ("6", "Páginas Notion"),
-    ("50", "Threads Gmail"),
-    ("2", "Novos projetos"),
-    ("3", "Novas siglas"),
+    ("16", "Páginas Notion"),
+    ("11", "Threads Gmail"),
+    ("3", "Novos projetos"),
+    ("6", "Novas siglas"),
     ("7", "Registros atualizados"),
 ]
 FATOS = [
     {
+        "tag": "VBHC",
+        "titulo": "Linha de Cuidado TEA — 1o Encontro Operacional IBRAVS e Aprovação Ambulatório",
+        "resumo": "EVS e IBRAVS realizaram encontro inaugural (08/05) para estruturação da Linha de Cuidado do Neurodesenvolvimento. Definidas governança quinzenal, verticalização da neuropediatria via ICDES e ampliação da rede de 3 para 6 prestadores. Direx aprovou Ambulatório de Avaliação Diagnóstica TEA em 12/05.",
+    },
+    {
+        "tag": "ASSISTENCIAL",
+        "titulo": "Oncologia HI! — Piloto Retrospectivo Avança para Coleta junto a Pacientes",
+        "resumo": "Na 2a reunião de alinhamento (S20), EVS e HI! validaram documento metodológico do piloto em Câncer Ginecológico e de Mama. População ampliada para 168 pacientes. Coleta via questionário prevista para 20/05. Judicialização em avaliação como variável.",
+    },
+    {
+        "tag": "OPERACIONAL",
+        "titulo": "Ymunity — Renovação Contratual Aprovada com Resultados Expressivos",
+        "resumo": "Direx aprovou renovação (ciclo 2026-2027, R$ 21.934/mês). Resultados: -21,6% no custo/paciente/mês (queda de R$ 2.151), 82,1% melhora/estabilização, 87,5% CSAT, zero reações graves. Biossimilares: 37,5% para 45,5%.",
+    },
+    {
         "tag": "GOVERNANÇA",
-        "titulo": "Governança Geriátrica — Contingência e Reestruturação CCC (Viva Pleno)",
-        "resumo": "Plano de contingência para 10 semanas críticas (jul-set/2026) diante das licenças-maternidade de Dra. Juliana e Dra. Camila. Nova contratação: Dra. Carolina Almeida (cuidados paliativos). Reestruturação CCC com unificação de listas e centralização do filtro de elegibilidade.",
+        "titulo": "Governança Geriátrica — Plano de Contingência e Reestruturação da CCC",
+        "resumo": "Reunião institucional (08/05) consolidou contingência para 10 semanas críticas (jul-set/2026) por licenças-maternidade. Unificação das carteiras de idosos na CCC com IVCF-20. Nova estrutura Provimento de Saúde formalizada (Daniel, horizonte 12-18 meses).",
     },
     {
-        "tag": "LINHAS DE CUIDADO",
-        "titulo": "LC Neurodesenvolvimento TEA — Cadência Operacional IBRAVS",
-        "resumo": "Cadência quinzenal EVS + IBRAVS estabelecida. Verticalização neuropediatria via ICDES (Dra. Mariana Sotte e Dra. Rinara). Ampliação de 3 para 6 prestadores de terapias especiais. Framework 4 camadas de incentivo (SESC Nacional). Evolução para modelo híbrido de remuneração prevista início 2027.",
+        "tag": "OPERACIONAL",
+        "titulo": "Axys Teller — Canais Institucionais e Integração BPM Definidos",
+        "resumo": "EVS e Axys Teller consolidaram integração BPM-Cardio (4h), Unimed Atende como canal oficial ao paciente e encaminhamentos institucionais (Laboratório, Cardiologia CAI, Anestesiologia). Repositório centralizado em estruturação.",
     },
     {
-        "tag": "LINHAS DE CUIDADO",
-        "titulo": "Navegação Oncológica Ativada + Campanha Aprovada",
-        "resumo": "Início da navegação de pacientes oncológicos via celular (Enf. Valéria / CCC). Diretoria aprovou campanha de divulgação institucional. Articulação com Comunicação (Renam) em andamento.",
+        "tag": "ESTRATÉGIA",
+        "titulo": "Caminhos Brilhantes — Comunicação Estratégica ao Ecossistema",
+        "resumo": "Guilherme Thomé enviou comunicação institucional (16-17/05) à Diretoria, EVS e NeuroSteps com visão sistêmica do programa. Open Page publicada (open.grupocsv.com/caminhos-brilhantes) com apresentação executiva e relatório técnico.",
     },
     {
-        "tag": "RELAÇÕES INSTITUCIONAIS",
-        "titulo": "Sandoz Access Summit (SAS) — Representação Institucional",
-        "resumo": "Representação institucional de Guilherme Thomé na 3a edição do SAS em Cambé/PR. Sinergia com frentes de imunobiológicos, OPME e acordos baseados em valor.",
-    },
-    {
-        "tag": "JORNADA CIRÚRGICA",
-        "titulo": "Projeto Axys-Teller em Implantação",
-        "resumo": "Cadastros realizados na plataforma Axys. Naline conduzindo materiais de divulgação para cooperados. Operacionalização em curso.",
-    },
-    {
-        "tag": "PARCERIAS",
-        "titulo": "NeuroSteps — Termo de Cessão em Validação Jurídica",
-        "resumo": "Minuta do termo de cessão enviada pela NeuroSteps e validada por Guilherme. Formalização jurídica em andamento para consolidação da parceria Caminhos Brilhantes.",
+        "tag": "ASSISTENCIAL",
+        "titulo": "SCG-100 — Resultados Preliminares na Coordenação de Acesso Geriátrica",
+        "resumo": "Desde 13/04, SCG-100 aplicado no fluxo RCC. Resultados: 71,4% de adesão (25/35), 72% média complexidade. Canal digital (WhatsApp) consolidado. Instrumento classificado como CFSS (case-finding), não HRA.",
     },
 ]
 OBSERVACOES = [
-    "Conexa Saúde: proposta de PA Virtual como porta de entrada digital em avaliação.",
-    "Painel de Tempo de Espera: implementado pela TI do Hospital (Fábio Silva).",
-    "RPI-E: formulário ativo, 2 novas respostas recebidas na semana.",
-    "Impulsiona Saúde (AbbVie): presença confirmada no Circuito MG (23/05).",
-    "Reunião LCI presencial na Casa Unimed (22/05).",
+    "Perfil de Auditoria Ortopedia (CI SM 004-26) assinado digitalmente via D4Sign.",
+    "Direx aprovou remuneração para cooperados que conduzam palestras no Espaço Viver Bem.",
+    "Integração Navia (AxiaCare) x Auditare concluída; EVS inicia uso de tags assistenciais na Linha Oncológica.",
+    "Olga Kenã inicia atividades conjuntas com EVS a partir de 18/05 (governança técnica Ymunity).",
+    "SA BPM — Linha de Cuidado do Idoso em operação no Hospital Unihealth.",
 ]
-
 class SignalPDF(FPDF):
     def __init__(self):
-        super().__init__("P", "mm", "A4")
-        self.set_auto_page_break(auto=False)
+        super().__init__()
+        self.set_auto_page_break(auto=False, margin=10)
         self.add_font("Inter", "", os.path.join(FONT_DIR, "Inter-Regular.ttf"))
         self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"))
         self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"))
@@ -92,20 +93,24 @@ class SignalPDF(FPDF):
         w = self.w
         self.set_fill_color(*CSV_BLUE)
         self.rect(0, 0, w, 34, "F")
-        self.image(LOGO_PATH, 12, 6, 38)
+        if os.path.exists(LOGO_PATH):
+            self.image(LOGO_PATH, x=12, y=5, h=7)
         self.set_font("Inter", "B", 14)
         self.set_text_color(*WHITE)
-        self.set_xy(12, 18)
-        self.cell(0, 6, f"Signal\u2122  S{SEMANA}")
+        self.set_xy(12, 14)
+        self.cell(0, 6, f"Signal\u2122 S{SEMANA}/2026")
         self.set_font("InterLight", "", 7)
-        self.set_xy(12, 25)
+        self.set_xy(12, 21)
         self.cell(0, 4, f"Resumo Semanal Estrat\u00e9gico  |  {PERIODO}")
-        self.set_font("InterLight", "", 6)
-        self.set_text_color(200, 215, 230)
-        self.set_xy(w - 80, 7)
-        self.cell(68, 4, EXECUTIVO, align="R")
-        self.set_xy(w - 80, 11)
-        self.cell(68, 4, CARGO, align="R")
+        self.set_font("InterLight", "", 5.5)
+        self.set_xy(12, 26)
+        self.cell(0, 4, f"{EXECUTIVO}  \u2014  {CARGO}")
+        self.set_fill_color(*CSV_GREEN)
+        self.rect(0, 34, w, 1.2, "F")
+        self.set_font("InterLight", "", 5)
+        self.set_text_color(*MID_TEXT)
+        self.set_xy(w - 50, 5)
+        self.cell(38, 4, f"Gerado em {DATA_GERACAO}", align="R")
         self.set_y(36)
     def footer(self):
         w = self.w
@@ -118,7 +123,7 @@ class SignalPDF(FPDF):
         self.cell(0, 3,
                   f"Grupo CSV  |  Signal\u2122  |  Gerado em {DATA_GERACAO}  |  Documento de uso interno",
                   align="L")
-        self.cell(0, 3, f"P\u00e1gina {self.page_no()}", align="R")
+        self.cell(0, 3, f"Página {self.page_no()}", align="R")
     def section_title(self, text, y_offset=0):
         y = self.get_y() + y_offset
         self.set_fill_color(*CSV_GREEN)

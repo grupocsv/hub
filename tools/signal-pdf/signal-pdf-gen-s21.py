@@ -27,57 +27,63 @@ TAG_COLORS = {
     "RELAÇÕES INSTITUCIONAIS":   CSV_BLUE,
     "JORNADA CIRÚRGICA":         CSV_BLUE,
     "PARCERIAS":                 CSV_GREEN,
-    "TECNOLOGIA":                CSV_BLUE,
-    "GOVERNANÇA ASSISTENCIAL":   CSV_BLUE,
 }
-SEMANA = "21"
-PERIODO = "25 a 29 de maio de 2026"
-DATA_GERACAO = "29/05/2026"
+SEMANA = "20"
+PERIODO = "18 a 22 de maio de 2026"
+DATA_GERACAO = "25/05/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
 METRICAS = [
-    ("4", "Páginas Notion"),
-    ("8", "E-mails Gmail"),
-    ("5", "Fatos estratégicos"),
-    ("0", "Novos termos"),
-    ("0", "Atualizações Dicionário"),
+    ("6", "Páginas Notion"),
+    ("50", "Threads Gmail"),
+    ("2", "Novos projetos"),
+    ("3", "Novas siglas"),
+    ("7", "Registros atualizados"),
 ]
 FATOS = [
     {
-        "tag": "TECNOLOGIA",
-        "titulo": "Módulo GRP Contratado (2iM)",
-        "resumo": "Proposta formalizada e aceita pela Diretoria. Opção 2: implantação de R$ 29.900 diluída em 12 prestações de R$ 2.491,67. Manutenção de R$ 5.980/mês a partir do 2º mês. Autorização do Dr. Marcus Miguel em 25/05. Próximo passo: contratualização via jurídico.",
+        "tag": "GOVERNANÇA",
+        "titulo": "Governança Geriátrica — Contingência e Reestruturação CCC (Viva Pleno)",
+        "resumo": "Plano de contingência para 10 semanas críticas (jul-set/2026) diante das licenças-maternidade de Dra. Juliana e Dra. Camila. Nova contratação: Dra. Carolina Almeida (cuidados paliativos). Reestruturação CCC com unificação de listas e centralização do filtro de elegibilidade.",
+    },
+    {
+        "tag": "LINHAS DE CUIDADO",
+        "titulo": "LC Neurodesenvolvimento TEA — Cadência Operacional IBRAVS",
+        "resumo": "Cadência quinzenal EVS + IBRAVS estabelecida. Verticalização neuropediatria via ICDES (Dra. Mariana Sotte e Dra. Rinara). Ampliação de 3 para 6 prestadores de terapias especiais. Framework 4 camadas de incentivo (SESC Nacional). Evolução para modelo híbrido de remuneração prevista início 2027.",
+    },
+    {
+        "tag": "LINHAS DE CUIDADO",
+        "titulo": "Navegação Oncológica Ativada + Campanha Aprovada",
+        "resumo": "Início da navegação de pacientes oncológicos via celular (Enf. Valéria / CCC). Diretoria aprovou campanha de divulgação institucional. Articulação com Comunicação (Renam) em andamento.",
+    },
+    {
+        "tag": "RELAÇÕES INSTITUCIONAIS",
+        "titulo": "Sandoz Access Summit (SAS) — Representação Institucional",
+        "resumo": "Representação institucional de Guilherme Thomé na 3a edição do SAS em Cambé/PR. Sinergia com frentes de imunobiológicos, OPME e acordos baseados em valor.",
     },
     {
         "tag": "JORNADA CIRÚRGICA",
-        "titulo": "Orquestrador Axys Teller — Demonstração Completa (27/05)",
-        "resumo": "Treinamento ao vivo do sistema de gestão pré-operatória com simulação da jornada completa (cadastro, medicações, exames, documentos faseados, pré-anestésica rotativa, WhatsApp). Participaram Rodrigo Rana, Felipe Moreno (Teller) e equipe EVS. Pendente: validação institucional assinatura eletrônica vs. presencial.",
+        "titulo": "Projeto Axys-Teller em Implantação",
+        "resumo": "Cadastros realizados na plataforma Axys. Naline conduzindo materiais de divulgação para cooperados. Operacionalização em curso.",
     },
     {
-        "tag": "LINHAS DE CUIDADO",
-        "titulo": "LC Oncológica — Alinhamento HI! Healthcare Intelligence (26/05)",
-        "resumo": "Piloto retrospectivo câncer ginecológico com base de 160 pacientes no SharePoint. Campanha de sensibilização estruturada com Comunicação Unimed GV. Extração de dados de consumo assistencial com prazo até 02/06 (Matheus).",
-    },
-    {
-        "tag": "GOVERNANÇA ASSISTENCIAL",
-        "titulo": "Levantamento Estratégico EVS para CAD e ENTEC",
-        "resumo": "Consolidação de dados 2025 + 1º quadrimestre 2026 dos projetos: Caminhos Brilhantes/TEA, Paciente Hospitalizado (DRG), LCFF, Ymunity e CAI. Entregas previstas para início de junho: apresentação ao Conselho de Administração e apresentação do Dr. Guilherme no ENTEC.",
-    },
-    {
-        "tag": "LINHAS DE CUIDADO",
-        "titulo": "Projeto Piloto LC Atenção Domiciliar Formalizado",
-        "resumo": "Convite oficial da Unihealth GV para projeto piloto de Linha de Cuidado de Atenção Domiciliar, com formalização contratual entre Teller e Unihealth.",
+        "tag": "PARCERIAS",
+        "titulo": "NeuroSteps — Termo de Cessão em Validação Jurídica",
+        "resumo": "Minuta do termo de cessão enviada pela NeuroSteps e validada por Guilherme. Formalização jurídica em andamento para consolidação da parceria Caminhos Brilhantes.",
     },
 ]
 OBSERVACOES = [
-    "BPM Teller operacional: notificações diárias de solicitações cirúrgicas ativas.",
-    "BPM LC do Idoso (Hospital UniHealth): fluxo automatizado gerando alertas de atendimento.",
-    "Boletim Intercâmbio Especial (29/05): edição especial distribuída.",
+    "Conexa Saúde: proposta de PA Virtual como porta de entrada digital em avaliação.",
+    "Painel de Tempo de Espera: implementado pela TI do Hospital (Fábio Silva).",
+    "RPI-E: formulário ativo, 2 novas respostas recebidas na semana.",
+    "Impulsiona Saúde (AbbVie): presença confirmada no Circuito MG (23/05).",
+    "Reunião LCI presencial na Casa Unimed (22/05).",
 ]
+
 class SignalPDF(FPDF):
     def __init__(self):
-        super().__init__()
-        self.set_auto_page_break(auto=False, margin=10)
+        super().__init__("P", "mm", "A4")
+        self.set_auto_page_break(auto=False)
         self.add_font("Inter", "", os.path.join(FONT_DIR, "Inter-Regular.ttf"))
         self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"))
         self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"))
@@ -86,24 +92,20 @@ class SignalPDF(FPDF):
         w = self.w
         self.set_fill_color(*CSV_BLUE)
         self.rect(0, 0, w, 34, "F")
-        if os.path.exists(LOGO_PATH):
-            self.image(LOGO_PATH, x=12, y=5, h=7)
+        self.image(LOGO_PATH, 12, 6, 38)
         self.set_font("Inter", "B", 14)
         self.set_text_color(*WHITE)
-        self.set_xy(12, 14)
-        self.cell(0, 6, f"Signal\u2122 S{SEMANA}/2026")
+        self.set_xy(12, 18)
+        self.cell(0, 6, f"Signal\u2122  S{SEMANA}")
         self.set_font("InterLight", "", 7)
-        self.set_xy(12, 21)
+        self.set_xy(12, 25)
         self.cell(0, 4, f"Resumo Semanal Estrat\u00e9gico  |  {PERIODO}")
-        self.set_font("InterLight", "", 5.5)
-        self.set_xy(12, 26)
-        self.cell(0, 4, f"{EXECUTIVO}  \u2014  {CARGO}")
-        self.set_fill_color(*CSV_GREEN)
-        self.rect(0, 34, w, 1.2, "F")
-        self.set_font("InterLight", "", 5)
-        self.set_text_color(*MID_TEXT)
-        self.set_xy(w - 50, 5)
-        self.cell(38, 4, f"Gerado em {DATA_GERACAO}", align="R")
+        self.set_font("InterLight", "", 6)
+        self.set_text_color(200, 215, 230)
+        self.set_xy(w - 80, 7)
+        self.cell(68, 4, EXECUTIVO, align="R")
+        self.set_xy(w - 80, 11)
+        self.cell(68, 4, CARGO, align="R")
         self.set_y(36)
     def footer(self):
         w = self.w

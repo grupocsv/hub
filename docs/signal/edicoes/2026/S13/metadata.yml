@@ -1,23 +1,27 @@
-edition: S13
-year: 2026
-period_start: "2026-03-30"
-period_end: "2026-04-05"
-generated_at: "2026-04-06T06:20:00Z"
-executive: "Guilherme Thomé, MD, MBA"
-role: "Superintendente Médico | Fundador Grupo CSV"
-facts_count: 6
-observations_count: 3
-sources:
-  notion_pages: 10
-  gmail_threads: 100
-  messages_analyzed: 200
-dictionary_version: "3.0"
-new_terms: 3
-updated_terms: 7
-tags:
-  - "GOVERNANÇA CLÍNICA"
-  - "OPERAÇÕES"
-  - "PROJETOS E INICIATIVAS"
-  - "PARCERIAS ESTRATÉGICAS"
-  - "TECNOLOGIA E SEGURANÇA"
-  - "QUALIDADE ASSISTENCIAL"
+id: "S13_2026"
+semana: 12
+ano: 2026
+periodo: "23/03/2026 - 27/03/2026"
+executivo: "Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV"
+data_geracao: "2026-03-30"
+fontes_varredura:
+  - Notion
+  - Gmail
+metricas:
+  paginas_notion: 8
+  threads_gmail: 30
+  mensagens_analisadas: 120
+  novos_termos_sugeridos: 6
+  atualizacoes_sugeridas: 3
+fatos_estrategicos:
+  - tag: "GESTÃO DE PROJETOS"
+    titulo: "Encerramento Formal do Projeto Axys Teller"
+  - tag: "FINANCEIRO"
+    titulo: "Consolidação do Orçamento Médico Hospitalar 2026"
+  - tag: "OPERAÇÕES EVS"
+    titulo: "Estruturação do Macroprocesso de Desenvolvimento Técnico-Científico"
+  - tag: "MODELOS ASSISTENCIAIS"
+    titulo: "Avanço no Ambulatório de Cardiologia no CAI"
+  - tag: "GESTÃO DE TERAPIAS"
+    titulo: "Alinhamento Operacional com a Plataforma Ymunity"
+demais_movimentacoes_count: 3

@@ -6,9 +6,11 @@ REGRA INVIOLÁVEL: exatamente 1 página A4.
 """
 import os
 from fpdf import FPDF
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_DIR = os.path.join(SCRIPT_DIR, "_fonts")
-LOGO_PATH = os.path.join(SCRIPT_DIR, "grupo_csv_logo_negative.png")
+LOGO_PATH = os.path.join(SCRIPT_DIR, "grupo_csv_logo.png")
+
 CSV_BLUE   = (25, 99, 150)
 CSV_GREEN  = (45, 191, 127)
 CSV_DARK   = (27, 30, 36)
@@ -17,6 +19,7 @@ MID_TEXT   = (100, 110, 120)
 LIGHT_LINE = (210, 218, 226)
 CARD_BG    = (249, 250, 252)
 WHITE      = (255, 255, 255)
+
 TAG_COLORS = {
     "GOVERNANÇA":                CSV_BLUE,
     "VBHC":                      CSV_GREEN,
@@ -25,62 +28,67 @@ TAG_COLORS = {
     "ESTRATÉGIA":                CSV_BLUE,
     "ASSISTENCIAL":              CSV_GREEN,
 }
-SEMANA = "19"
-PERIODO = "11 a 17 de maio de 2026"
-DATA_GERACAO = "18/05/2026"
+
+SEMANA = "18"
+PERIODO = "04 a 10 de maio de 2026"
+DATA_GERACAO = "11/05/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
+
 METRICAS = [
-    ("16", "Páginas Notion"),
-    ("11", "Threads Gmail"),
-    ("3", "Novos projetos"),
-    ("6", "Novas siglas"),
-    ("7", "Registros atualizados"),
+    ("5", "Pautas EVS"),
+    ("30", "Threads Gmail"),
+    ("1", "Novo projeto"),
+    ("6", "Novos termos"),
+    ("5", "Registros atualizados"),
 ]
+
 FATOS = [
     {
-        "tag": "VBHC",
-        "titulo": "Linha de Cuidado TEA — 1o Encontro Operacional IBRAVS e Aprovação Ambulatório",
-        "resumo": "EVS e IBRAVS realizaram encontro inaugural (08/05) para estruturação da Linha de Cuidado do Neurodesenvolvimento. Definidas governança quinzenal, verticalização da neuropediatria via ICDES e ampliação da rede de 3 para 6 prestadores. Direx aprovou Ambulatório de Avaliação Diagnóstica TEA em 12/05.",
-    },
-    {
-        "tag": "ASSISTENCIAL",
-        "titulo": "Oncologia HI! — Piloto Retrospectivo Avança para Coleta junto a Pacientes",
-        "resumo": "Na 2a reunião de alinhamento (S19), EVS e HI! validaram documento metodológico do piloto em Câncer Ginecológico e de Mama. População ampliada para 168 pacientes. Coleta via questionário prevista para 20/05. Judicialização em avaliação como variável.",
-    },
-    {
-        "tag": "OPERACIONAL",
-        "titulo": "Ymunity — Renovação Contratual Aprovada com Resultados Expressivos",
-        "resumo": "Direx aprovou renovação (ciclo 2026-2027, R$ 21.934/mês). Resultados: -21,6% no custo/paciente/mês (queda de R$ 2.151), 82,1% melhora/estabilização, 87,5% CSAT, zero reações graves. Biossimilares: 37,5% para 45,5%.",
-    },
-    {
         "tag": "GOVERNANÇA",
-        "titulo": "Governança Geriátrica — Plano de Contingência e Reestruturação da CCC",
-        "resumo": "Reunião institucional (08/05) consolidou contingência para 10 semanas críticas (jul-set/2026) por licenças-maternidade. Unificação das carteiras de idosos na CCC com IVCF-20. Nova estrutura Provimento de Saúde formalizada (Daniel, horizonte 12-18 meses).",
+        "titulo": "Jornada Cirúrgica — Alinhamento Operacional Axys Teller",
+        "resumo": "Consolidada a arquitetura do projeto Axys Teller: Unimed Atende como canal oficial, NEOH como fonte de datas cirúrgicas, repositório centralizado na plataforma Teller e governança de contatos institucionais.",
+    },
+    {
+        "tag": "VBHC",
+        "titulo": "Calculadora de Valor — Envio de Indicadores Q1/2026 à IAG",
+        "resumo": "EVS finalizou e enviou indicadores externos do primeiro quadrimestre de 2026 (Medicina Interna, Hospital Unihealth) à consultoria IAG. Avaliação de custo-benefício da parceria (R$ 8.000/mês vs. internalização).",
+    },
+    {
+        "tag": "ACREDITAÇÃO",
+        "titulo": "Programa Quálix — Kick-off Auditoria de Terapias Especializadas",
+        "resumo": "Realizado kick-off formal em 05/05/2026 (parceria FEMG/GSI). Escopo: auditoria de terapias especializadas e neurodesenvolvimento infantil. Fechamento agendado para 17/06/2026.",
     },
     {
         "tag": "OPERACIONAL",
-        "titulo": "Axys Teller — Canais Institucionais e Integração BPM Definidos",
-        "resumo": "EVS e Axys Teller consolidaram integração BPM-Cardio (4h), Unimed Atende como canal oficial ao paciente e encaminhamentos institucionais (Laboratório, Cardiologia CAI, Anestesiologia). Repositório centralizado em estruturação.",
+        "titulo": "Gestão de Provimento de Saúde — Início Formal em Autorização",
+        "resumo": "Dr. Daniel Glória iniciou trabalho formal nos setores de Autorização e Relacionamento com o Cliente. Agenda semanal recorrente instituída (sextas, 15h-16h30).",
     },
     {
         "tag": "ESTRATÉGIA",
-        "titulo": "Caminhos Brilhantes — Comunicação Estratégica ao Ecossistema",
-        "resumo": "Guilherme Thomé enviou comunicação institucional (16-17/05) à Diretoria, EVS e NeuroSteps com visão sistêmica do programa. Open Page publicada (open.grupocsv.com/caminhos-brilhantes) com apresentação executiva e relatório técnico.",
+        "titulo": "Política Comercial AbbVie — Posicionamento Institucional",
+        "resumo": "Guilherme Thomé formalizou posicionamento institucional frente às novas condições comerciais do portfólio AbbVie. Participação confirmada no evento Impulsiona Saúde (23/05/2026).",
     },
     {
         "tag": "ASSISTENCIAL",
-        "titulo": "SCG-100 — Resultados Preliminares na Coordenação de Acesso Geriátrica",
-        "resumo": "Desde 13/04, SCG-100 aplicado no fluxo RCC. Resultados: 71,4% de adesão (25/35), 72% média complexidade. Canal digital (WhatsApp) consolidado. Instrumento classificado como CFSS (case-finding), não HRA.",
+        "titulo": "Ymunity — Mapeamento de Pacientes em Trânsito",
+        "resumo": "Concluído mapeamento de pacientes em trânsito em uso de imunobiológicos (nov/2025 a abr/2026). Regularizados status pendentes. Relatório de fechamento previsto para Diretoria na S19.",
+    },
+    {
+        "tag": "ASSISTENCIAL",
+        "titulo": "Oncologia — Qualificação Cadastral na Plataforma Navia",
+        "resumo": "Atualizados dados dos pacientes oncológicos na plataforma Navia. Aplicação de tags assistenciais estratégicas para fortalecer governança e rastreabilidade clínica.",
     },
 ]
+
 OBSERVACOES = [
-    "Perfil de Auditoria Ortopedia (CI SM 004-26) assinado digitalmente via D4Sign.",
-    "Direx aprovou remuneração para cooperados que conduzam palestras no Espaço Viver Bem.",
-    "Integração Navia (AxiaCare) x Auditare concluída; EVS inicia uso de tags assistenciais na Linha Oncológica.",
-    "Olga Kenã inicia atividades conjuntas com EVS a partir de 18/05 (governança técnica Ymunity).",
-    "SA BPM — Linha de Cuidado do Idoso em operação no Hospital Unihealth.",
+    "BPM Linha de Cuidado do Idoso: notificações automatizadas de atendimentos hospitalares ativas (Hospital Unihealth).",
+    "Dra. Kelly de Freitas e Silva: ambientação institucional como Médica de Referência EVS em Diabetes Mellitus concluída.",
+    "Unimetrics 2.0: TI (Cleverson) responsável pelo envio de 24 meses de dados; modo de envio mantido.",
+    "UniNEWS 4ª Edição: informativo interno publicado (abril/2026).",
 ]
+
+
 class SignalPDF(FPDF):
     def __init__(self):
         super().__init__()
@@ -89,29 +97,60 @@ class SignalPDF(FPDF):
         self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"))
         self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"))
         self.add_font("InterMedium", "", os.path.join(FONT_DIR, "Inter-Medium.ttf"))
+
     def header(self):
         w = self.w
+        # Top accent bar
         self.set_fill_color(*CSV_BLUE)
-        self.rect(0, 0, w, 34, "F")
-        if os.path.exists(LOGO_PATH):
-            self.image(LOGO_PATH, x=12, y=5, h=7)
-        self.set_font("Inter", "B", 14)
-        self.set_text_color(*WHITE)
-        self.set_xy(12, 14)
-        self.cell(0, 6, f"Signal\u2122 S{SEMANA}/2026")
-        self.set_font("InterLight", "", 7)
-        self.set_xy(12, 21)
-        self.cell(0, 4, f"Resumo Semanal Estrat\u00e9gico  |  {PERIODO}")
-        self.set_font("InterLight", "", 5.5)
-        self.set_xy(12, 26)
-        self.cell(0, 4, f"{EXECUTIVO}  \u2014  {CARGO}")
+        self.rect(0, 0, w, 2.5, "F")
         self.set_fill_color(*CSV_GREEN)
-        self.rect(0, 34, w, 1.2, "F")
-        self.set_font("InterLight", "", 5)
+        self.rect(w * 0.7, 0, w * 0.3, 2.5, "F")
+        # Logo
+        self.image(LOGO_PATH, 12, 6, 38)
+        # Signal™ title
+        self.set_font("Inter", "B", 24)
+        self.set_text_color(*CSV_BLUE)
+        title_text = "Signal"
+        title_w = self.get_string_width(title_text)
+        signal_x = w - 12 - title_w - 10
+        self.set_xy(signal_x, 7)
+        self.cell(title_w, 10, title_text, align="L")
+        self.set_font("InterLight", "", 8)
+        self.set_xy(signal_x + title_w + 1, 6)
+        self.cell(8, 5, "\u2122", align="L")
+        # Subtitle
+        self.set_font("InterLight", "", 7)
         self.set_text_color(*MID_TEXT)
-        self.set_xy(w - 50, 5)
-        self.cell(38, 4, f"Gerado em {DATA_GERACAO}", align="R")
+        self.set_xy(w - 12 - 75, 17)
+        self.cell(75, 4, "Resumo Semanal Estratégico", align="R")
+        # Separator
+        self.set_draw_color(*LIGHT_LINE)
+        self.set_line_width(0.25)
+        self.line(12, 25, w - 12, 25)
+        # Info row
+        badge_w = 18
+        badge_h = 5.5
+        info_y = 27.5
+        self.set_fill_color(*CSV_BLUE)
+        self.rect(12, info_y, badge_w, badge_h, "F")
+        self.set_font("Inter", "B", 7)
+        self.set_text_color(*WHITE)
+        self.set_xy(12, info_y)
+        self.cell(badge_w, badge_h, f"S{SEMANA}", align="C")
+        self.set_font("Inter", "", 7)
+        self.set_text_color(*DARK_TEXT)
+        self.set_xy(12 + badge_w + 3, info_y)
+        self.cell(70, badge_h, PERIODO, align="L")
+        self.set_font("InterMedium", "", 6.5)
+        self.set_text_color(*CSV_BLUE)
+        self.set_xy(w - 12 - 75, info_y)
+        self.cell(75, 3, EXECUTIVO, align="R")
+        self.set_font("InterLight", "", 5.5)
+        self.set_text_color(*MID_TEXT)
+        self.set_xy(w - 12 - 75, info_y + 3)
+        self.cell(75, 3, CARGO, align="R")
         self.set_y(36)
+
     def footer(self):
         w = self.w
         self.set_draw_color(*LIGHT_LINE)
@@ -124,6 +163,7 @@ class SignalPDF(FPDF):
                   f"Grupo CSV  |  Signal\u2122  |  Gerado em {DATA_GERACAO}  |  Documento de uso interno",
                   align="L")
         self.cell(0, 3, f"Página {self.page_no()}", align="R")
+
     def section_title(self, text, y_offset=0):
         y = self.get_y() + y_offset
         self.set_fill_color(*CSV_GREEN)
@@ -133,6 +173,7 @@ class SignalPDF(FPDF):
         self.set_xy(16, y)
         self.cell(0, 5, text)
         self.ln(6.5)
+
     def draw_metrics_bar(self):
         avail_w = self.w - 24
         col_w = avail_w / len(METRICAS)
@@ -157,6 +198,7 @@ class SignalPDF(FPDF):
                 self.set_line_width(0.1)
                 self.line(cx + col_w, y + 2, cx + col_w, y + 11)
         self.set_y(y + 15)
+
     def draw_fact_card(self, fato, x, y, card_w, card_h):
         self.set_fill_color(*WHITE)
         self.rect(x, y, card_w, card_h, "F")
@@ -188,6 +230,7 @@ class SignalPDF(FPDF):
         self.set_text_color(*DARK_TEXT)
         self.set_xy(inner_x, body_y)
         self.multi_cell(inner_w, 2.5, fato["resumo"])
+
     def draw_facts_grid(self):
         avail_w = self.w - 24
         gap = 3
@@ -202,6 +245,7 @@ class SignalPDF(FPDF):
                     self.draw_fact_card(FATOS[i + j], cx, y, card_w, card_h)
             y += card_h + 2
             self.set_y(y)
+
     def draw_observations(self):
         y = self.get_y()
         avail_w = self.w - 24
@@ -220,6 +264,8 @@ class SignalPDF(FPDF):
             self.set_xy(18.5, iy)
             self.cell(avail_w - 10, item_h, obs)
         self.set_y(y + box_h + 2)
+
+
 def build_signal_pdf(output_path):
     pdf = SignalPDF()
     pdf.add_page()
@@ -238,6 +284,8 @@ def build_signal_pdf(output_path):
         if 'Pages' in line:
             print(line.strip())
             break
+
+
 if __name__ == "__main__":
     out = os.path.join(SCRIPT_DIR, "Signal_S19_2026.pdf")
     build_signal_pdf(out)

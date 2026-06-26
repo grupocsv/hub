@@ -1,48 +1,52 @@
 ---
-title: Signal™ S15/2026 - Resumo Semanal Estratégico
+title: Signal™ S13/2026 - Resumo Semanal Estratégico
 head:
   - - meta
     - property: og:title
-      content: "Signal™ S15/2026 | Resumo Semanal Estratégico"
+      content: "Signal™ S13/2026 | Resumo Semanal Estratégico"
   - - meta
     - property: og:description
-      content: "Edição S15 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 30 de março a 05 de abril de 2026."
+      content: "Edição S13 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 23 a 29 de março de 2026."
   - - meta
     - property: og:image
       content: "https://hub.grupocsv.com/og/og_signal.png"
   - - meta
     - property: og:url
-      content: "https://hub.grupocsv.com/signal/edicoes/2026/S15/signal"
+      content: "https://hub.grupocsv.com/signal/edicoes/2026/S13/signal"
 ---
-# Signal™ S15/2026
-**Período:** 30 de março a 05 de abril de 2026
+# Signal™ S13/2026
+**Período:** 23 a 29 de março de 2026
 **Executivo:** Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV
 ---
 ## Fatos Estratégicos da Semana
-### Novo Modelo Remuneratório na Atenção Domiciliar
-- **Tag:** `GOVERNANÇA CLÍNICA`
-- **Resumo:** EVS e GCE iniciaram estruturação técnica para transição do fee-for-service para modelo salarial por faixas de vidas (20/30/40 pacientes). Racional VBHC. Apresentação à Direx prevista para 13/04/2026.
-### Central de Coordenação do Cuidado
-- **Tag:** `OPERAÇÕES`
-- **Resumo:** EVS e LCI propuseram criação da Central de Coordenação do Cuidado para organizar navegação de pacientes, mitigar sobrecarga administrativa e resolver duplicidade de registros MDM/MV.
-### Avanço no Projeto Caminhos Brilhantes (TEA)
-- **Tag:** `PROJETOS E INICIATIVAS`
-- **Resumo:** Consolidado levantamento da base assistencial de 300 beneficiários (neurodesenvolvimento, CTE Casa Unimed, 03/2023 a 02/2026). Nota metodológica encaminhada ao IBRAVS e CTNI.
-### Proposta de Navegação Oncológica
-- **Tag:** `PARCERIAS ESTRATÉGICAS`
-- **Resumo:** Unimed GV recebeu proposta da Atrys Health para assessoria e plataforma de Navegação Oncológica. Superintendência Médica manifestou interesse. Aguarda nova proposta ajustada.
-### Padronização do Uso de IA
-- **Tag:** `TECNOLOGIA E SEGURANÇA`
-- **Resumo:** Gestão de TI emitiu comunicação institucional com diretrizes para uso responsável de IA na cooperativa, alinhada ao Programa Nacional de Cibersegurança Cooperativista.
-### Monitoramento de Desempenho Hospitalar
-- **Tag:** `QUALIDADE ASSISTENCIAL`
-- **Resumo:** Report DRG Hospitalar (fev/2026): mortalidade ajustada por risco acima de 100% (desempenho favorável). Consistência dos processos assistenciais do Hospital Unihealth confirmada.
+
+### Encerramento Formal do Projeto Axys Teller
+- **Tag:** `GESTÃO DE PROJETOS`
+- **Resumo:** O projeto de jornada cirúrgica com a Teller Saúde foi formalmente encerrado por descumprimento do SLA de 60 dias. Nenhum dos três entregáveis obrigatórios (onboarding de médicos, protocolos pré-operatórios e projeto de segurança do paciente) foi cumprido no prazo. Um estudo de caso de insucesso será realizado para extrair aprendizados institucionais.
+
+### Consolidação do Orçamento Médico Hospitalar 2026
+- **Tag:** `FINANCEIRO`
+- **Resumo:** A Diretoria Executiva formalizou o orçamento médico da Unidade Hospitalar (Unihealth GV) para o exercício de 2026. O modelo aprovado não contempla valores variáveis vinculados à produção, que seguem fluxo apartado. Foi reforçada a comunicação ao corpo clínico de que pagamentos a pessoas jurídicas não integram a base de cálculo para divisão de sobras da cooperativa.
+
+### Estruturação do Macroprocesso de Desenvolvimento Técnico-Científico
+- **Tag:** `OPERAÇÕES EVS`
+- **Resumo:** O Escritório de Valor em Saúde (EVS) concluiu a documentação do seu macroprocesso de desenvolvimento técnico-científico. A estrutura inclui ciclo completo, Procedimento Operacional Padrão (POP) de produção científica, SLA, formulário estruturado e checklist de validação. O modelo foi desenhado para ser replicável em outros processos internos do EVS.
+
+### Avanço no Ambulatório de Cardiologia no CAI
+- **Tag:** `MODELOS ASSISTENCIAIS`
+- **Resumo:** O projeto de ambulatório de egressos de Hemodinâmica e pré-operatório de Cardiologia no Centro de Atendimento Integrado (CAI) avançou com a confirmação de disponibilidade do Dr. Waisman Toledo Bastos. Paralelamente, a Diretoria Técnica do Hospital Unihealth GV iniciou tratativas com o Dr. Márcio Avelar para ampliar a cobertura do serviço.
+
+### Alinhamento Operacional com a Plataforma Ymunity
+- **Tag:** `GESTÃO DE TERAPIAS`
+- **Resumo:** Foi realizada reunião estratégica entre as equipes de Autorização, Auditoria, EVS e Ymunity para revisão dos fluxos de pacientes de intercâmbio e gestão de pendências. A pauta incluiu a abordagem de pacientes sem contato, gestão de estoque domiciliar de medicamentos e o acompanhamento de pacientes oncológicos, visando reduzir desperdícios e otimizar a jornada.
+
 ---
 ## Demais Movimentações
-- Distrato Santalmas: aprovado distrato dos contratos de locação e consignação (plataformas FT10) com antigo fornecedor do Hospital Unihealth.
-- Experiência do Paciente: instrumento EVA-D iniciou coletas na Atenção Domiciliar com taxa de resposta inicial de ~36%.
-- Linha de Cuidado Domiciliar: GCE aguarda escopo e orçamento formal da proposta da Federação (FEMG) para linha de cuidado com plataforma tecnológica.
+- **Pesquisa de Satisfação Interna:** Proposta de reformulação das perguntas da pesquisa de cliente interno do EVS, substituindo questões técnicas por dimensões mais amplas (acessibilidade, clareza, tempo de resposta, colaboração e impacto).
+- **Linha de Cuidado do Idoso (LCI):** Fluxo BPM da LCI no Hospital Unihealth GV encontra-se ativo e registrando atendimentos regulares no sistema Interact Suite SA.
+- **Contratos em Discussão:** A Diretoria Executiva iniciou a avaliação do contrato com a plataforma Unimetrics, com pauta agendada para alinhamento com a Federação.
+
 ---
 ## Documentos e Recursos
-- [PDF da Edição (Signal_S15_2026.pdf)](assets/Signal_S15_2026.pdf)
+- [PDF da Edição (Signal_S13_2026.pdf)](assets/Signal_S13_2026.pdf)
 - [Metadados da Edição (metadata.yml)](metadata.yml)

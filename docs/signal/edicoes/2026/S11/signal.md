@@ -6,7 +6,7 @@ head:
       content: "Signal™ S11/2026 | Resumo Semanal Estratégico"
   - - meta
     - property: og:description
-      content: "Edição S11 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 16 a 22 de março de 2026."
+      content: "Edição S11 do resumo semanal de inteligência estratégica do Grupo CSV, cobrindo o período de 9 a 15 de março de 2026."
   - - meta
     - property: og:image
       content: "https://hub.grupocsv.com/og/og_signal.png"
@@ -15,43 +15,46 @@ head:
       content: "https://hub.grupocsv.com/signal/edicoes/2026/S11/signal"
 ---
 # Signal™ S11/2026
-**Período:** 16 a 22 de março de 2026
+**Período:** 9 a 15 de março de 2026
 **Executivo:** Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV
 ---
 ## Fatos Estratégicos da Semana
 
-### Modelo Orçamentário Unihealth
-- **Tag:** `FINANCEIRO`
-- **Resumo:** Aprovado pela Diretoria o novo modelo orçamentário para o Hospital Unihealth, com orçamento global fixo de aproximadamente R$ 2,2 milhões mensais. A Unimed passará a pagar os honorários médicos variáveis via nota fiscal separada, facilitando a implantação de novos modelos de remuneração baseados em valor.
-
-### E-mails Institucionais para Lideranças Médicas
-- **Tag:** `OPERAÇÕES`
-- **Resumo:** Concluída a implantação de e-mails institucionais nominais (@unihealthgv.org.br) para as lideranças médicas do Hospital Unihealth. A medida, orientada pela Diretoria Executiva e Jurídico, formaliza a comunicação oficial e fortalece a governança corporativa da unidade hospitalar.
-
-### Calculadora de Valor: Novas Regras e Retroatividade
-- **Tag:** `DADOS`
-- **Resumo:** Em alinhamento entre EVS e IAG Saúde, foram revisadas as regras de atribuição de pontuação dos indicadores PPE-15 e DRG na Calculadora de Valor, utilizando a média da equipe em cenários de ausência de coleta. Proposta a aplicação retroativa das novas regras para o período de setembro a dezembro de 2025. Automatização e educação médica em andamento.
-
-### Ymunity: Carteira Financeira
+### Contrato IBRAVS Assinado e Formalizado
 - **Tag:** `GOVERNANÇA`
-- **Resumo:** A plataforma Ymunity lançou o novo módulo de Carteira Financeira para análise de custos de pacientes. Em paralelo, avançam as negociações para renovação contratual com a definição de quatro entregáveis principais e previsão de reajuste de valor a partir de maio de 2026.
+- **Resumo:** O contrato VBHC Compass com o IBRAVS foi assinado e formalizado em 13/03, com vigência retroativa a 01/02/2026. Encerra-se o ciclo de negociação iniciado na Semana 10, quando a Direx aprovou a contratação sem exigência de nota fiscal. O instrumento viabiliza a implantação da linha de cuidado em TEA com modelo VBHC.
 
-### Modelo de Valor para Cirurgias Ortopédicas
-- **Tag:** `LINHAS DE CUIDADO`
-- **Resumo:** Iniciada a estruturação de um modelo de remuneração baseada em valor para cirurgias de ombro e hálux valgo. O projeto foca na análise do custo total do episódio assistencial, alinhando incentivos à qualidade clínica e eficiência operacional.
-
-### Migração de Identidade Visual Institucional
+### Pipeline de Projetos de Melhoria da Auditoria
 - **Tag:** `OPERAÇÕES`
-- **Resumo:** A pedido da Diretoria Executiva e Diretoria Técnica, iniciou-se a varredura e alteração de 100% dos documentos institucionais do hospital, substituindo a antiga logomarca da Unimed pela nova identidade visual da Unihealth.
+- **Resumo:** A Auditoria estruturou um pipeline de seis projetos simultâneos de melhoria, com cadência de uma entrega por semana a partir da sétima semana de execução. O segmento de partida é Intercâmbio, com foco em AJIUS (Ajuste de Intercâmbio entre Unimeds) e análise do Ranking das Unimeds. A iniciativa reflete a consultoria executiva da Superintendência Médica junto à Auditoria.
+
+### Parametrização do SGU com Auditoria Médica
+- **Tag:** `SISTEMAS`
+- **Resumo:** Realizada reunião formal (12/03) entre TI, Auditoria e gestão para definição das regras sistêmicas do novo Sistema de Gestão Unimed (SGU). Quatro frentes foram estabelecidas: lista de procedimentos com autorização prévia, tabela de compatibilidade CID x procedimento, lista de especialidades x procedimentos e parametrização de gabaritos de cirurgias múltiplas. As duas primeiras frentes já estão em andamento.
+
+### POP Atualizado — Dispositivos de Hemostasia (LigaSure)
+- **Tag:** `ASSISTENCIAL`
+- **Resumo:** Publicado novo POP simplificando o fluxo de solicitações de dispositivos de hemostasia com negativa em ata. O fluxo anterior, de cinco passos concentrados na Auditoria, foi reduzido a dois blocos e quatro entregas. O Hospital Unihealth assume a devolutiva direta ao médico, enquanto a Auditoria mantém a negativa e a formalização. Resultado esperado: menos intermediação e maior agilidade.
+
+### Desabastecimento Hyrimoz e Substituição por Yuflyma
+- **Tag:** `IMUNOBIOLÓGICOS`
+- **Resumo:** Identificado desabastecimento do Hyrimoz (biossimilar de Adalimumabe, Sandoz) desde março/2026. O EVS articulou a substituição pelo Yuflyma como biossimilar alternativo. O tema foi tratado no alinhamento EVS de 09/03, com impacto direto na gestão de imunobiológicos e no acompanhamento via Ymunity.
+
+### Relay™ — Ferramenta de Produtividade da Superintendência Médica
+- **Tag:** `INOVAÇÃO`
+- **Resumo:** Lançado o Relay™, ferramenta interna de produtividade que disponibiliza templates de mensagens padronizadas para envio pelo WhatsApp corporativo em nome da Superintendência Médica. A comunicação foi enviada a toda a equipe do EVS, Coordenação do Cuidado e Auditoria em 12/03, com canal aberto para sugestão de novos templates.
+
+### Ymunity Passa a Acompanhar Pacientes de Intercâmbio
+- **Tag:** `LINHAS DE CUIDADO`
+- **Resumo:** A partir de 14/03, a Ymunity passou a acompanhar pacientes de intercâmbio, ampliando o escopo de monitoramento de imunobiológicos para além dos beneficiários locais. O novo fluxo operacional representa expansão da cobertura da plataforma e fortalece a governança clínica sobre terapias de alto custo em pacientes de outras Unimeds.
 
 ---
 ## Demais Movimentações
-- **ConTec 2026:** Participação aprovada para 29 e 30 de abril (Naline Abdala Rocha em Valor em Saúde e Guilherme Thomé em Auditoria).
-- **Ambulatório TEA:** Pré-aprovada a proposta do ambulatório de triagem em neuropediatria no CAI com a Dra. Mariana Sotte.
-- **Fototerapia Domiciliar:** Projeto não avançará; foco será redirecionado para tratar a causa-raiz (cesarianas precoces).
-- **IDSS/IDGA:** Projeto pausado temporariamente, com previsão de retomada na Semana 13.
-- **LC Idoso:** Realizada reunião de alinhamento com a FEMG em 19/03, com participação de Guilherme Thomé e Valéria Rosa dos Santos.
-- **Residentes Univale:** Início das atividades autorizado pelo Dr. Fernando Paragó, com limite de dois alunos simultâneos por setor.
+- **Jornada Governança Clínica FEMG:** Termos de adesão de Valéria Rosa dos Santos e Dr. Daniel Glória assinados via D4Sign e encaminhados pelo Escritório de Valor.
+- **Projeto de Gestão 2024–2028:** Comunicado de Marcos Moreira reforçando a fase de execução das ações de médio prazo 2026 e cobrando atualização das lideranças.
+- **Pesquisa de Clima 2026:** Em andamento via plataforma FIA/FEEX, com reforço de adesão pela Coordenação de Gestão de Pessoas.
+- **Planilhas Cancelamentos CAI:** Pauta de validação das planilhas de controle de cancelamentos, faltas e desmarcações de Pediatria e Geriatria marcada para Semana 11 (retorno de Naline Abdala Rocha e Ariane Oliveira Assis).
+- **Ambulatório Triagem TEA no CAI:** Proposta com Mariana Sotte (neuropediatra) e Dra. Rinara em discussão; decisão condicionada ao retorno de Naline Abdala Rocha.
 
 ---
 ## Documentos e Recursos

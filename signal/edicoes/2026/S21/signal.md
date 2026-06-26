@@ -1,34 +1,61 @@
-# Signal™ S21 — 25 a 29 de maio de 2026
+# Signal S21/2026
 
-## Fatos Estratégicos
+**Periodo:** 18 a 22 de maio de 2026
+**Executivo:** Guilherme Thome, MD, MBA — Superintendente Medico | Fundador Grupo CSV
+**Gerado em:** 25/05/2026
 
-### 1. Módulo GRP Contratado (2iM)
-Proposta formalizada e aceita pela Diretoria. Opção 2: implantação de R$ 29.900 diluída em 12 prestações de R$ 2.491,67. Manutenção de R$ 5.980/mês a partir do 2º mês. Autorização do Dr. Marcus Miguel em 25/05. Próximo passo: contratualização via jurídico.
+---
 
-### 2. Orquestrador Axys Teller — Demonstração Completa (27/05)
-Treinamento ao vivo do sistema de gestão pré-operatória com simulação da jornada completa (cadastro, medicações, exames, documentos faseados, pré-anestésica rotativa, WhatsApp). Participaram Rodrigo Rana, Felipe Moreno (Teller) e equipe EVS. Pendente: validação institucional assinatura eletrônica vs. presencial.
+## Metricas da Varredura
 
-### 3. LC Oncológica — Alinhamento HI! Healthcare Intelligence (26/05)
-Piloto retrospectivo câncer ginecológico com base de 160 pacientes no SharePoint. Campanha de sensibilização estruturada com Comunicação Unimed GV. Extração de dados de consumo assistencial com prazo até 02/06 (Matheus).
-
-### 4. Levantamento Estratégico EVS para CAD e ENTEC
-Consolidação de dados 2025 + 1º quadrimestre 2026 dos projetos: Caminhos Brilhantes/TEA, Paciente Hospitalizado (DRG), LCFF, Ymunity e CAI. Entregas previstas para início de junho: apresentação ao Conselho de Administração e apresentação do Dr. Guilherme no ENTEC.
-
-### 5. Projeto Piloto LC Atenção Domiciliar Formalizado
-Convite oficial da Unihealth GV para projeto piloto de Linha de Cuidado de Atenção Domiciliar, com formalização contratual entre Teller e Unihealth.
-
-## Demais Movimentações
-
-- BPM Teller operacional: notificações diárias de solicitações cirúrgicas ativas.
-- BPM LC do Idoso (Hospital UniHealth): fluxo automatizado gerando alertas de atendimento.
-- Boletim Intercâmbio Especial (29/05): edição especial distribuída.
-
-## Métricas da Varredura
-
-| Métrica | Valor |
+| Metrica | Valor |
 |---------|-------|
-| Páginas Notion | 4 |
-| E-mails Gmail | 8 |
-| Fatos estratégicos | 5 |
-| Novos termos | 0 |
-| Atualizações Dicionário | 0 |
+| Paginas Notion | 6 |
+| Threads Gmail | 50 |
+| Novos projetos | 2 |
+| Novas siglas | 3 |
+| Registros atualizados | 7 |
+
+---
+
+## Fatos Estrategicos
+
+### 1. Governanca Geriatrica — Contingencia e Reestruturacao CCC (Viva Pleno)
+**Tag:** Governanca Assistencial
+
+Plano de contingencia para 10 semanas criticas (jul-set/2026) diante das licencas-maternidade de Dra. Juliana e Dra. Camila. Nova contratacao: Dra. Carolina Almeida (cuidados paliativos). Reestruturacao CCC com unificacao de listas e centralizacao do filtro de elegibilidade.
+
+### 2. LC Neurodesenvolvimento TEA — Cadencia Operacional IBRAVS
+**Tag:** Linhas de Cuidado
+
+Cadencia quinzenal EVS + IBRAVS estabelecida. Verticalizacao neuropediatria via ICDES (Dra. Mariana Sotte e Dra. Rinara). Ampliacao de 3 para 6 prestadores de terapias especiais. Framework 4 camadas de incentivo (SESC Nacional). Evolucao para modelo hibrido de remuneracao prevista inicio 2027.
+
+### 3. Navegacao Oncologica Ativada + Campanha Aprovada
+**Tag:** Linhas de Cuidado
+
+Inicio da navegacao de pacientes oncologicos via celular (Enf. Valeria / CCC). Diretoria aprovou campanha de divulgacao institucional. Articulacao com Comunicacao (Renam) em andamento.
+
+### 4. Sandoz Access Summit (SAS) — Representacao Institucional
+**Tag:** Relacoes Institucionais
+
+Representacao institucional de Guilherme Thome na 3a edicao do SAS em Cambe/PR. Sinergia com frentes de imunobiologicos, OPME e acordos baseados em valor.
+
+### 5. Projeto Axys-Teller em Implantacao
+**Tag:** Jornada Cirurgica
+
+Cadastros realizados na plataforma Axys. Naline conduzindo materiais de divulgacao para cooperados. Operacionalizacao em curso.
+
+### 6. NeuroSteps — Termo de Cessao em Validacao Juridica
+**Tag:** Parcerias e Contratos
+
+Minuta do termo de cessao enviada pela NeuroSteps e validada por Guilherme. Formalizacao juridica em andamento para consolidacao da parceria Caminhos Brilhantes.
+
+---
+
+## Demais Movimentacoes
+
+- Conexa Saude: proposta de PA Virtual como porta de entrada digital em avaliacao.
+- Painel de Tempo de Espera: implementado pela TI do Hospital (Fabio Silva).
+- RPI-E: formulario ativo, 2 novas respostas recebidas na semana.
+- Impulsiona Saude (AbbVie): presenca confirmada no Circuito MG (23/05).
+- Reuniao LCI presencial na Casa Unimed (22/05).

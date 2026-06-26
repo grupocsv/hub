@@ -1,31 +1,23 @@
 id: "S09_2026"
-semana: 9
+semana: 8
 ano: 2026
-periodo: "02/03/2026 - 06/03/2026"
+periodo: "23/02/2026 - 27/02/2026"
 executivo: "Guilherme Thomé, MD, MBA"
-data_geracao: "2026-03-09"
+data_geracao: "2026-03-02"
 fontes_varredura:
   - Notion
   - Gmail
-metricas:
-  paginas_notion: 12
-  threads_gmail: 50
-  mensagens_analisadas: 120
-  novos_termos_sugeridos: 18
-  atualizacoes_sugeridas: 3
 fatos_estrategicos:
   - tag: "ESTRATÉGIA"
-    titulo: "Variabilidade Assistencial por Especialidades Apresentada à Direx"
-  - tag: "GOVERNANÇA"
-    titulo: "Contrato IBRAVS Aprovado pela Direx"
-  - tag: "LINHAS DE CUIDADO"
-    titulo: "Plano Integrado de Reestruturação da Psiquiatria"
+    titulo: "Software Spectra para Análise de Variabilidade Clínica"
+  - tag: "PROJETOS"
+    titulo: "Piloto do Projeto Axys-Teller com 8 Cirurgiões"
   - tag: "ASSISTENCIAL"
-    titulo: "Ambulatório de Cardiologia no CAI"
-  - tag: "OPERAÇÕES"
-    titulo: "Gerente Médico - Provimento de Saúde Unimed GV"
-  - tag: "IMUNOBIOLÓGICOS"
-    titulo: "Ymunity: Renovação Contratual e RPI-E Ativo"
+    titulo: "Protocolo Glicêmico Hospitalar"
   - tag: "DADOS"
-    titulo: "Visualizador Clínico Oncológico e Parceria Auditare"
-demais_movimentacoes_count: 5
+    titulo: "Repositório Oncológico Centralizado e Visualizador Clínico"
+  - tag: "OPERAÇÕES"
+    titulo: "Refinamento da Calculadora de Valor e Coleta do PPE-15"
+  - tag: "GOVERNANÇA"
+    titulo: "Contrato Hi! Healthcare Intelligence Avança para Assinatura"
+demais_movimentacoes_count: 4

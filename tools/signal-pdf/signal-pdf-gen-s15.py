@@ -29,57 +29,52 @@ TAG_COLORS = {
     "QUALIDADE ASSISTENCIAL":  CSV_GREEN,
 }
 
-SEMANA = "15"
-PERIODO = "30 de março a 05 de abril de 2026"
-DATA_GERACAO = "06/04/2026"
+SEMANA = "14"
+PERIODO = "06 a 12 de abril de 2026"
+DATA_GERACAO = "13/04/2026"
 EXECUTIVO = "Guilherme Thomé, MD, MBA"
 CARGO = "Superintendente Médico | Fundador Grupo CSV"
 
 METRICAS = [
-    ("10+", "Páginas Notion"),
-    ("100+", "Threads Gmail"),
-    ("200+", "Msgs analisadas"),
-    ("3", "Novos registros"),
-    ("7", "Registros atualizados"),
+    ("8+", "Páginas Notion"),
+    ("30+", "Threads Gmail"),
+    ("150+", "Msgs analisadas"),
+    ("5", "Novos registros"),
+    ("3", "Registros atualizados"),
 ]
 
 FATOS = [
     {
+        "tag": "QUALIDADE ASSISTENCIAL",
+        "titulo": "PPE-15 Março/2026: Excelência Sustentada",
+        "resumo": "Score global PPE-15 de 96,4% (faixa de excelência) com N=117 coletas válidas. Ampliação expressiva da cobertura no trimestre. Análise longitudinal confirma fortalezas estruturais e evolução das dimensões relacionais.",
+    },
+    {
         "tag": "GOVERNANÇA CLÍNICA",
-        "titulo": "Novo Modelo Remuneratório na Atenção Domiciliar",
-        "resumo": "EVS e GCE iniciaram estruturação técnica para transição do fee-for-service para modelo salarial por faixas de vidas (20/30/40 pacientes). Racional VBHC. Apresentação à Direx prevista para 13/04/2026.",
+        "titulo": "DRG: Mortalidade Ajustada e Report Q1/2026",
+        "resumo": "Mortalidade ajustada por risco de 166,03% em março (17 óbitos vs 28,2 previstos). Casemix estável em 1,0109. Report trimestral Q1: 1.900 altas, 1.001 diárias evitadas, eficiência global de 84,1%.",
     },
     {
         "tag": "OPERAÇÕES",
-        "titulo": "Central de Coordenação do Cuidado",
-        "resumo": "EVS e LCI propuseram criação da Central de Coordenação do Cuidado para organizar navegação de pacientes, mitigar sobrecarga administrativa e resolver duplicidade de registros MDM/MV.",
+        "titulo": "Quálix: Contrato Assinado e Início em Maio",
+        "resumo": "Contrato Quálix entre Unimed GV e Federação Minas aprovado e assinado pela Diretoria. Objeto: avaliação da rede prestadora (serviços próprios e credenciados). Vigência a partir de 06/04/2026. Minuta contratual da parceria CTNI assinada. Início das atividades previsto para maio/2026.",
     },
     {
-        "tag": "PROJETOS E INICIATIVAS",
-        "titulo": "Avanço no Projeto Caminhos Brilhantes (TEA)",
-        "resumo": "Consolidado levantamento da base assistencial de 300 beneficiários (neurodesenvolvimento, CTE Casa Unimed, 03/2023 a 02/2026). Nota metodológica encaminhada ao IBRAVS e CTNI.",
+        "tag": "GOVERNANÇA CLÍNICA",
+        "titulo": "Calculadora de Valor: Reconfiguração Metodológica",
+        "resumo": "Estratégia de reconfiguração dos indicadores formalizada junto à IAG. Regras de imputação por média global para ausência de PPE-15 e produção DRG. Aplicação retroativa para fechamento íntegro do ciclo 2025.",
     },
     {
         "tag": "PARCERIAS ESTRATÉGICAS",
-        "titulo": "Proposta de Navegação Oncológica",
-        "resumo": "Unimed GV recebeu proposta da Atrys Health para assessoria e plataforma de Navegação Oncológica. Superintendência Médica manifestou interesse. Aguarda nova proposta ajustada.",
-    },
-    {
-        "tag": "TECNOLOGIA E SEGURANÇA",
-        "titulo": "Padronização do Uso de IA",
-        "resumo": "Gestão de TI emitiu comunicação institucional com diretrizes para uso responsável de IA na cooperativa, alinhada ao Programa Nacional de Cibersegurança Cooperativista.",
-    },
-    {
-        "tag": "QUALIDADE ASSISTENCIAL",
-        "titulo": "Monitoramento de Desempenho Hospitalar",
-        "resumo": "Report DRG Hospitalar (fev/2026): mortalidade ajustada por risco acima de 100% (desempenho favorável). Consistência dos processos assistenciais do Hospital Unihealth confirmada.",
+        "titulo": "Kickoff Linha de Cuidado Oncológico de Mama",
+        "resumo": "Kickoff HI! + EVS realizado em 07/04. POC de 4 meses, 177 pacientes C50, estudo retrospectivo Fase 1. Cadência quinzenal às terças 14h. Equipe EVS mobilizada.",
     },
 ]
 
 OBSERVACOES = [
-    "Distrato Santalmas: aprovado distrato dos contratos de locação e consignação (plataformas FT10) com antigo fornecedor do Hospital Unihealth.",
-    "Experiência do Paciente: instrumento EVA-D iniciou coletas na Atenção Domiciliar com taxa de resposta inicial de ~36%.",
-    "Linha de Cuidado Domiciliar: GCE aguarda escopo e orçamento formal da proposta da Federação (FEMG) para linha de cuidado com plataforma tecnológica.",
+    "Hackathon Unimed GV: Comitê de Inovação lançou o 1o Hackathon, evento previsto para agosto/2026. Fase de submissão de problemas aberta.",
+    "Acelera Unimed (3a edição): Programa da Unimed do Brasil com webinar de lançamento em 02/04. Inscrições abertas.",
+    "CEQ-2BR: Novo instrumento PREM (Questionário sobre a Experiência de Parto) registrado como DOC-EVS-84.",
 ]
 
 
@@ -87,10 +82,10 @@ class SignalPDF(FPDF):
     def __init__(self):
         super().__init__()
         self.set_auto_page_break(auto=False, margin=10)
-        self.add_font("Inter", "", os.path.join(FONT_DIR, "Inter-Regular.ttf"))
-        self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"))
-        self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"))
-        self.add_font("InterMedium", "", os.path.join(FONT_DIR, "Inter-Medium.ttf"))
+        self.add_font("Inter", "", os.path.join(FONT_DIR, "Inter-Regular.ttf"), uni=True)
+        self.add_font("Inter", "B", os.path.join(FONT_DIR, "Inter-Bold.ttf"), uni=True)
+        self.add_font("InterLight", "", os.path.join(FONT_DIR, "Inter-Light.ttf"), uni=True)
+        self.add_font("InterMedium", "", os.path.join(FONT_DIR, "Inter-Medium.ttf"), uni=True)
 
     def header(self):
         w = self.w

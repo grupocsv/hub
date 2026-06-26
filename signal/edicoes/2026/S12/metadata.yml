@@ -1,27 +1,29 @@
 id: "S12_2026"
-semana: 12
+semana: 11
 ano: 2026
-periodo: "23/03/2026 - 27/03/2026"
+periodo: "16/03/2026 - 20/03/2026"
 executivo: "Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV"
-data_geracao: "2026-03-30"
+data_geracao: "2026-03-23"
 fontes_varredura:
   - Notion
   - Gmail
 metricas:
-  paginas_notion: 8
-  threads_gmail: 30
-  mensagens_analisadas: 120
-  novos_termos_sugeridos: 6
-  atualizacoes_sugeridas: 3
+  paginas_notion: 6
+  threads_gmail: 8
+  mensagens_analisadas: 90
+  novos_termos_sugeridos: 12
+  atualizacoes_sugeridas: 10
 fatos_estrategicos:
-  - tag: "GESTÃO DE PROJETOS"
-    titulo: "Encerramento Formal do Projeto Axys Teller"
   - tag: "FINANCEIRO"
-    titulo: "Consolidação do Orçamento Médico Hospitalar 2026"
-  - tag: "OPERAÇÕES EVS"
-    titulo: "Estruturação do Macroprocesso de Desenvolvimento Técnico-Científico"
-  - tag: "MODELOS ASSISTENCIAIS"
-    titulo: "Avanço no Ambulatório de Cardiologia no CAI"
-  - tag: "GESTÃO DE TERAPIAS"
-    titulo: "Alinhamento Operacional com a Plataforma Ymunity"
-demais_movimentacoes_count: 3
+    titulo: "Modelo Orçamentário Unihealth"
+  - tag: "OPERAÇÕES"
+    titulo: "E-mails Institucionais para Lideranças Médicas"
+  - tag: "DADOS"
+    titulo: "Calculadora de Valor: Novas Regras e Retroatividade"
+  - tag: "GOVERNANÇA"
+    titulo: "Ymunity: Carteira Financeira"
+  - tag: "LINHAS DE CUIDADO"
+    titulo: "Modelo de Valor para Cirurgias Ortopédicas"
+  - tag: "OPERAÇÕES"
+    titulo: "Migração de Identidade Visual Institucional"
+demais_movimentacoes_count: 6

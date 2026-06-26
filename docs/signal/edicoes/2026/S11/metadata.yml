@@ -1,29 +1,26 @@
-id: "S11_2026"
-semana: 11
-ano: 2026
-periodo: "16/03/2026 - 20/03/2026"
-executivo: "Guilherme Thomé, MD, MBA — Superintendente Médico | Fundador Grupo CSV"
-data_geracao: "2026-03-23"
-fontes_varredura:
-  - Notion
-  - Gmail
-metricas:
-  paginas_notion: 6
-  threads_gmail: 8
-  mensagens_analisadas: 90
-  novos_termos_sugeridos: 12
-  atualizacoes_sugeridas: 10
-fatos_estrategicos:
-  - tag: "FINANCEIRO"
-    titulo: "Modelo Orçamentário Unihealth"
-  - tag: "OPERAÇÕES"
-    titulo: "E-mails Institucionais para Lideranças Médicas"
-  - tag: "DADOS"
-    titulo: "Calculadora de Valor: Novas Regras e Retroatividade"
-  - tag: "GOVERNANÇA"
-    titulo: "Ymunity: Carteira Financeira"
-  - tag: "LINHAS DE CUIDADO"
-    titulo: "Modelo de Valor para Cirurgias Ortopédicas"
-  - tag: "OPERAÇÕES"
-    titulo: "Migração de Identidade Visual Institucional"
-demais_movimentacoes_count: 6
+edition: S11/2026
+period:
+  start: 2026-03-09
+  end: 2026-03-13
+generated: 2026-03-16
+executive: Guilherme Thomé, MD, MBA
+role: Superintendente Médico | Fundador Grupo CSV
+facts_count: 7
+observations_count: 5
+sources:
+  notion_pages: 6
+  gmail_threads: 14
+  messages_analyzed: 80+
+dictionary:
+  new_terms: 26
+  updated_records: 2
+  version: "2.5"
+tags:
+  - GOVERNANÇA
+  - OPERAÇÕES
+  - SISTEMAS
+  - ASSISTENCIAL
+  - IMUNOBIOLÓGICOS
+  - INOVAÇÃO
+  - LINHAS DE CUIDADO
+status: published

@@ -1,0 +1,22 @@
+edicao: S23
+ano: 2026
+periodo: "02 a 06 de junho de 2026"
+semana_iso: 23
+semana_signal: 22
+data_geracao: "2026-06-05"
+executivo: "Guilherme Thomé, MD, MBA"
+fontes:
+  notion_paginas: 7
+  gmail_threads: 13
+fatos_estrategicos: 5
+novos_termos_dicionario: 6
+atualizacoes_dicionario: 6
+versao_dicionario_pre: "4.0"
+versao_dicionario_pos: "4.1"
+tags:
+  - Governança Assistencial
+  - Linhas de Cuidado
+  - Jornada Cirúrgica
+  - Tecnologia
+  - VBHC
+status: publicado

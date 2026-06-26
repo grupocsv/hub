@@ -1,0 +1,23 @@
+edition: S15
+year: 2026
+period_start: "2026-03-30"
+period_end: "2026-04-05"
+generated_at: "2026-04-06T06:20:00Z"
+executive: "Guilherme Thomé, MD, MBA"
+role: "Superintendente Médico | Fundador Grupo CSV"
+facts_count: 6
+observations_count: 3
+sources:
+  notion_pages: 10
+  gmail_threads: 100
+  messages_analyzed: 200
+dictionary_version: "3.0"
+new_terms: 3
+updated_terms: 7
+tags:
+  - "GOVERNANÇA CLÍNICA"
+  - "OPERAÇÕES"
+  - "PROJETOS E INICIATIVAS"
+  - "PARCERIAS ESTRATÉGICAS"
+  - "TECNOLOGIA E SEGURANÇA"
+  - "QUALIDADE ASSISTENCIAL"
