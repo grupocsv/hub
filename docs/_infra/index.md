@@ -267,6 +267,7 @@ Copiar página
 <tr><td><code>deck-mcp</code></td><td>deck-mcp.guilherme-thom.workers.dev</td><td>D1, Secrets</td><td>MCP Server do Deck</td></tr>
 <tr><td><code>whisper-proxy</code></td><td>whisper-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy para transcrição de áudio (Whisper)</td></tr>
 <tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages</td></tr>
+<tr><td><code>axiacare-methods-mcp</code></td><td>axiacare-methods-mcp.guilherme-thom.workers.dev</td><td>D1: axiacare-methods, R2: axiacare-methods, Secrets</td><td>Methods Registry AxiaCare (API de metodos canonicos)</td></tr>
 </tbody>
 </table>
 
