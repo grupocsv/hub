@@ -11,6 +11,7 @@
             box-sizing: border-box;
         }
 
+
         :root {
             --icds-blue: #1B3A5C;
             --icds-blue-light: #2a6496;
@@ -20,6 +21,7 @@
             --bg-gradient-end: #e8f0f8;
         }
 
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
@@ -28,10 +30,12 @@
             padding: 20px;
         }
 
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
+
 
         .header {
             text-align: center;
@@ -43,14 +47,17 @@
             border: 1px solid rgba(27, 58, 92, 0.12);
         }
 
+
         .logo-link {
             display: inline-block;
             transition: transform 0.3s ease;
         }
 
+
         .logo-link:hover {
             transform: scale(1.05);
         }
+
 
         .logo {
             width: 280px;
@@ -58,6 +65,7 @@
             margin-bottom: 20px;
             border-radius: 12px;
         }
+
 
         h1 {
             color: var(--icds-blue);
@@ -67,11 +75,13 @@
             letter-spacing: -0.3px;
         }
 
+
         .subtitle {
             color: var(--text-secondary);
             font-size: 16px;
             font-weight: 400;
         }
+
 
         .tools-grid {
             display: grid;
@@ -79,6 +89,7 @@
             gap: 24px;
             margin-bottom: 50px;
         }
+
 
         .tool-card {
             background: linear-gradient(135deg, rgba(27, 58, 92, 0.03) 0%, rgba(27, 58, 92, 0.05) 100%);
@@ -93,6 +104,7 @@
             flex-direction: column;
         }
 
+
         .tool-card::before {
             content: '';
             position: absolute;
@@ -106,9 +118,11 @@
             transition: transform 0.3s ease;
         }
 
+
         .tool-card:hover::before {
             transform: scaleX(1);
         }
+
 
         .tool-card:hover {
             transform: translateY(-4px);
@@ -117,26 +131,31 @@
             border-color: rgba(27, 58, 92, 0.2);
         }
 
+
         .tool-card.featured {
             background: linear-gradient(135deg, var(--icds-blue) 0%, #143050 100%);
             color: white;
             border-color: var(--icds-blue);
         }
 
+
         .tool-card.featured .tool-title {
             color: white;
         }
+
 
         .tool-card.featured .tool-link {
             background: var(--icds-blue-light);
             border: 2px solid var(--icds-blue-light);
         }
 
+
         .tool-card.featured .tool-link:hover {
             background: #3a7bc8;
             border-color: #3a7bc8;
             transform: translateY(-2px);
         }
+
 
         .tool-card.featured::after {
             content: 'NOVO';
@@ -153,114 +172,49 @@
             box-shadow: 0 2px 8px rgba(42, 100, 150, 0.4);
         }
 
+
         .tool-title {
-            color: var(--icds-blue);
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 20px;
-            line-height: 1.3;
-            flex-grow: 1;
+            color: var(--icds-blue);
+            margin-bottom: 8px;
         }
+
 
         .tool-link {
             display: inline-block;
-            width: 100%;
-            padding: 14px 24px;
+            margin-top: auto;
+            padding: 10px 20px;
             background: var(--icds-blue);
             color: white;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--icds-blue);
             font-weight: 600;
             font-size: 14px;
+            transition: all 0.2s ease;
             text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid var(--icds-blue);
+            cursor: pointer;
         }
+
 
         .tool-link:hover {
             background: var(--icds-blue-light);
             border-color: var(--icds-blue-light);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(42, 100, 150, 0.3);
         }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 28px;
-            }
-
-            .subtitle {
-                font-size: 14px;
-            }
-
-            .tools-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .logo {
-                width: 220px;
-            }
-
-            .header {
-                padding: 30px 20px;
-            }
-
-            .tool-card {
-                padding: 24px;
-            }
-
-            .tool-card:active {
-                transform: scale(0.98);
-            }
-
-            .tool-link:active {
-                transform: scale(0.95);
-            }
-        }
-
-        @media (hover: none) and (pointer: coarse) {
-            .tool-card::before {
-                transform: scaleX(1);
-            }
-            
-            .tool-card {
-                background: linear-gradient(135deg, rgba(27, 58, 92, 0.05) 0%, rgba(27, 58, 92, 0.07) 100%);
-            }
-        }
-
-/* Hub CSV Back Button */
-.hub-back-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#fff;color:#196396;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;line-height:1;border-bottom:1px solid rgba(0,0,0,0.06)}
-.hub-back-btn:hover{color:#0d4a73;text-decoration:none}
-@media print{.hub-back-btn{display:none!important}}
-</style>
-  <link rel="icon" href="/favicons/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-
-    <!-- OpenGraph -->
-    <meta property="og:title" content="ICDS - Hub de Ferramentas">
-    <meta property="og:description" content="Ferramentas e dashboards desenvolvidos pela AxiaCare para o ICDS.">
-    <meta property="og:image" content="https://hub.grupocsv.com/og/og_hub.png">
-    <meta property="og:url" content="https://hub.grupocsv.com/icds/">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="ICDS | Hub Grupo CSV">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ICDS - Hub de Ferramentas">
-    <meta name="twitter:description" content="Ferramentas e dashboards desenvolvidos pela AxiaCare para o ICDS.">
-    <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_hub.png">
+    </style>
 </head>
 <body>
-<a href="/" class="hub-back-btn" title="Voltar ao Hub CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Hub CSV</a>
-
     <div class="container">
         <div class="header">
-            <a href="https://icds.org.br" target="_blank" class="logo-link">
+            <a href="https://icds.org.br/" class="logo-link">
                 <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" alt="ICDS" class="logo">
             </a>
             <h1>Hub ICDS</h1>
             <p class="subtitle">Entidade Filantrópica e Gestora Assistencial</p>
         </div>
+
 
         <div class="tools-grid">
             <div class="tool-card">
@@ -269,10 +223,16 @@
                 <a href="/icds/slides.html" class="tool-link">Solicitar</a>
             </div>
             <div class="tool-card">
+                <div class="tool-title">Requisição de Dados (RD)</div>
+                <div style="font-size:13px;opacity:0.85;margin:8px 0 12px;line-height:1.5">Monta e envia a Lista de Requisição de Dados aos clientes.</div>
+                <a href="https://rd-icds.axcare.app" class="tool-link" target="_blank">Acessar</a>
+            </div>
+            <div class="tool-card">
                 <div class="tool-title">TEA: Data Set Indicadores</div>
                 <a href="#" class="tool-link" onclick="event.preventDefault();openTeaEmbed()">Acessar</a>
             </div>
         </div>
+
 
         <!-- TEA Data Set Embed -->
         <div id="teaEmbedOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#fff">
@@ -283,6 +243,7 @@
             <iframe id="teaEmbedFrame" src="" style="width:100%;height:calc(100vh - 40px);border:none"></iframe>
         </div>
     </div>
+
 
     <!-- AXIACARE FOOTER -->
     <div style="margin-top:40px;padding:32px 20px;background:#f8f5f0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:2px solid #196396;border-radius:16px">
