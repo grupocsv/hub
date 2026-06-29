@@ -1,5 +1,11 @@
 [
   {
+    "title": "Requisição de Dados (RD)",
+    "href": "https://rd-icds.axcare.app",
+    "created": "2026-06-29T14:15:00-03:00",
+    "lastModified": "2026-06-29T14:15:00-03:00"
+  },
+  {
     "title": "TEA: Data Set Indicadores",
     "href": "/p/tea-dataset/",
     "created": "2026-02-15T00:00:00+00:00",

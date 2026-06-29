@@ -1,22 +1,13 @@
 {
   "portal": "icds",
-  "generatedAt": "2026-06-29T14:15:00.000000+00:00",
-  "totalTools": 3,
+  "generatedAt": "2026-05-30T14:25:08.296026+00:00",
+  "totalTools": 2,
   "tools": [
     {
       "file": "slides.html",
       "title": "Gerador de Apresentações",
-      "description": "Apresentações institucionais com branding ICDS. Entrega por e-mail.",
       "created": "2026-04-21T20:30:47-04:00",
       "lastModified": "2026-05-11T21:45:23-04:00"
-    },
-    {
-      "file": "https://rd-icds.axcare.app",
-      "title": "Requisição de Dados (RD)",
-      "description": "Monta e envia a Lista de Requisição de Dados aos clientes.",
-      "created": "2026-06-29T14:15:00-03:00",
-      "lastModified": "2026-06-29T14:15:00-03:00",
-      "external": true
     },
     {
       "file": "/p/tea-dataset/",
