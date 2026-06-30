@@ -1181,8 +1181,8 @@ function calcCGP(params, totalLocal, totalIC) {
 
 // ─── TABS ────────────────────────────────────────────────────────
 const TABS = [
-  { name:"Painel", sub:"Visão geral e exportação" },
-  { name:"Dados", sub:"Inserir e revisar meses" },
+  { name:"Dados", sub:"Período e inserção mensal" },
+  { name:"Painel", sub:"KPIs, gráficos e exportação" },
   { name:"Comparativo", sub:"Ciclos lado a lado" },
   { name:"Simulador", sub:"Cenários what-if" },
   { name:"Configuração", sub:"Tarifas e parâmetros" }
@@ -1682,25 +1682,26 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
       {/* STEPPER */}
       {(() => {
         const hasData = agg.totalAltas > 0 || agg.totalReal > 0;
-        const hasReview = hasData && tab === 0;
         const steps = [
-          { label: "Inserir Dados", done: hasData },
-          { label: "Revisar Painel", done: hasData && tab === 0 },
+          { label: "Definir Período", done: hasData },
+          { label: "Analisar Painel", done: hasData && tab === 1 },
           { label: "Exportar Relatório", done: false }
         ];
-        const activeIdx = !hasData ? 0 : tab !== 0 ? 0 : 1;
+        const activeIdx = !hasData ? 0 : tab === 0 ? 0 : tab === 1 ? 1 : 2;
         return (
           <div className="drg-stepper">
             {steps.map((s, i) => (
               <React.Fragment key={i}>
-                <div className={`drg-stepper__step ${s.done?"drg-stepper__step--done":i===activeIdx?"drg-stepper__step--active":""}`}>
-                  <div className="drg-stepper__num">{s.done ? "✓" : i+1}</div>
+                <div className={`drg-stepper__step ${s.done?"drg-stepper__step--done":i===activeIdx?"drg-stepper__step--active":""}`}
+                  onClick={() => i===0?setTab(0):i===1?setTab(1):null} style={{cursor:i<2?'pointer':'default'}}>
+                  <div className="drg-stepper__num">{s.done ? "\u2713" : i+1}</div>
                   <span className="drg-stepper__label">{s.label}</span>
                 </div>
                 {i < steps.length - 1 && <div className="drg-stepper__line"></div>}
               </React.Fragment>
             ))}
-            <button className="btn btn--ghost btn--sm" style={{marginLeft:'auto',fontSize:11}} onClick={() => setGlossaryOpen(true)}>Glossário</button>
+            <button className="btn btn--primary btn--sm" style={{marginLeft:'auto',fontSize:12}} onClick={exportPDF} disabled={pdfLoading || !hasData}>{pdfLoading ? "Gerando..." : "Exportar PDF"}</button>
+            <button className="btn btn--ghost btn--sm" style={{fontSize:11}} onClick={() => setGlossaryOpen(true)}>Glossário</button>
           </div>
         );
       })()}
@@ -1722,84 +1723,8 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 
       {/* CONTENT */}
       <div className="drg-content">
-
-        {/* TAB 0: Painel (Dashboard Executivo) */}
+        {/* TAB 0: Dados (Período + Inserção Mensal) */}
         {tab === 0 && (
-          <div>
-            {/* Onboarding Card */}
-            {showOnboarding && (
-              <div className="drg-onboarding">
-                <button className="drg-onboarding__dismiss" onClick={() => { setShowOnboarding(false); try { localStorage.setItem('drg_onboarding_dismissed','1'); } catch(e){} }}>&times;</button>
-                <div className="drg-onboarding__title">Bem-vindo ao DRG Analytics</div>
-                <div className="drg-onboarding__text">
-                  Esta ferramenta mede o impacto financeiro da eficiência no uso do leito hospitalar, comparando a permanência real dos pacientes com o previsto pela metodologia DRG Brasil®. O resultado é traduzido em três componentes monetários: desperdício eliminado, custo evitado e bônus recebido.
-                </div>
-                <div className="drg-onboarding__steps">
-                  <div className="drg-onboarding__step" onClick={() => setTab(1)}>
-                    <div className="drg-onboarding__step-num">1</div>
-                    <div className="drg-onboarding__step-text">Inserir dados mensais (altas, diárias, bônus)</div>
-                  </div>
-                  <div className="drg-onboarding__step" onClick={() => setTab(0)}>
-                    <div className="drg-onboarding__step-num">2</div>
-                    <div className="drg-onboarding__step-text">Revisar o painel e os gráficos</div>
-                  </div>
-                  <div className="drg-onboarding__step">
-                    <div className="drg-onboarding__step-num">3</div>
-                    <div className="drg-onboarding__step-text">Exportar o relatório em PDF</div>
-                  </div>
-                </div>
-                <button className="btn btn--ghost btn--sm" onClick={() => setGlossaryOpen(true)}>O que significam esses termos?</button>
-              </div>
-            )}
-            <div className="kpi-grid">
-              <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Quanto o hospital gastou além do necessário em 2024 por manter pacientes internados mais tempo que o previsto pelo DRG."/>
-              <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Economia gerada por operar abaixo do baseline DRG — diárias que seriam gastas mas não foram."/>
-              <Pill label="C3 — Bônus MG Hosp" value={C3 ? fmtV(C3) : NA} color={C.blue} sub={C3 ? `${nMonths} meses acumulados` : null} tip="Receita adicional paga pela Federação Minas como reconhecimento da performance DRG do hospital."/>
-              <Pill label="Total Consolidado" value={fmtV(TOTAL)} color={C.ink} tip="Soma dos três componentes: desperdício eliminado + custo evitado + bônus recebido."/>
-            </div>
-            <div className="card">
-              <SecTitle>Resumo do Período</SecTitle>
-              <div className="kpi-grid">
-                <Pill label="Altas Válidas" value={agg.totalAltas.toLocaleString("pt-BR")} color={C.ink} tip="Número total de pacientes que receberam alta no período selecionado."/>
-                <Pill label="Diárias Realizadas" value={fmtN(agg.totalReal)} color={C.ink} tip="Total de dias que os pacientes ficaram efetivamente internados."/>
-                <Pill label="Diárias Previstas" value={fmtN(agg.totalPrev)} color={C.ink} tip="Total de dias que o DRG previa como adequado para o perfil de risco dos pacientes."/>
-                <Pill label="(In)Eficiência" value={inef ? pct(inef) : NA} color={statusColor} tip="Realizado ÷ Previsto × 100. Abaixo de 100% = eficiente. Acima = ineficiente."/>
-              </div>
-            </div>
-            <div className="chart-wrap">
-              <SecTitle>Ineficiência Mensal (%)</SecTitle>
-              <ChartCanvas id="chart-inef" config={trendInefConfig} height={280}/>
-            </div>
-            <div className="chart-wrap">
-              <SecTitle>Impacto Financeiro Mensal (R$)</SecTitle>
-              <ChartCanvas id="chart-fin" config={trendFinConfig} height={280}/>
-            </div>
-            <div style={{marginTop:20,padding:'16px 20px',background:'#f8fafb',borderRadius:10,border:'1px solid var(--u-line)'}}>
-              <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-                <div style={{display:'flex',flexDirection:'column',gap:4}}>
-                  <label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Consultor Responsável</label>
-                  <select
-                    className="field__input"
-                    style={{padding:'8px 14px',fontSize:13,borderRadius:6,border:'1.5px solid var(--u-line)',background:'white',cursor:'pointer',minWidth:240}}
-                    value={selectedConsultant}
-                    onChange={e => setSelectedConsultant(e.target.value)}>
-                    <option value="guilherme">Guilherme Thomé — CRM-MG 64193</option>
-                    <option value="naline">Naline Rocha — COREN-MG 282880</option>
-                  </select>
-                </div>
-                <div style={{display:'flex',alignItems:'center',gap:10,marginLeft:'auto'}}>
-                  <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relatório PDF"}</button>
-                  <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
-                    {copied==="total" ? "Copiado!" : "Copiar Total"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 1: Dados (Período + Inserção Mensal) */}
-        {tab === 1 && (
           <div>
             <div className="card">
               <SecTitle>Selecionar Período</SecTitle>
@@ -1819,37 +1744,17 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
               </TwoCol>
             </div>
 
-            <div className="card">
-              <SecTitle>Atalhos de Período</SecTitle>
-              <div className="chip-group">
-                <div className="chip-group__label">Ciclos Anuais</div>
-                <div className="chip-group__row">
-                  <button className={`chip ${startKey==="2024-01"&&endKey==="2024-12"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2024-12")}}>Jan–Dez 2024</button>
-                  <button className={`chip ${startKey==="2025-01"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-01");setEndKey("2025-12")}}>Jan–Dez 2025</button>
-                  <button className={`chip ${startKey==="2026-01"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2026-01");setEndKey("2026-04")}}>Jan–Abr 2026 (1Q)</button>
-                </div>
+            <div className="card" style={{padding:'16px 20px'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',cursor:'pointer'}} onClick={() => {const el=document.getElementById('drg-shortcuts');el.style.display=el.style.display==='none'?'block':'none'}}>
+                <span style={{fontSize:13,fontWeight:600,color:'var(--u-green)',textTransform:'uppercase',letterSpacing:'0.5px'}}>Atalhos rápidos</span>
+                <span style={{fontSize:11,color:'#9ca3af'}}>clique para expandir</span>
               </div>
-              <div className="chip-group">
-                <div className="chip-group__label">Acumulados</div>
+              <div id="drg-shortcuts" style={{display:'none',marginTop:12}}>
                 <div className="chip-group__row">
-                  <button className={`chip ${startKey==="2024-01"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2025-12")}}>2024–2025 (24m)</button>
-                  <button className={`chip ${startKey==="2024-01"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2026-04")}}>Acumulado 28m (24→Abr26)</button>
-                </div>
-              </div>
-              <div className="chip-group">
-                <div className="chip-group__label">Trimestres 2025</div>
-                <div className="chip-group__row">
-                  <button className={`chip ${startKey==="2025-01"&&endKey==="2025-03"?"chip--active":""}`} onClick={()=>{setStartKey("2025-01");setEndKey("2025-03")}}>1T 2025</button>
-                  <button className={`chip ${startKey==="2025-04"&&endKey==="2025-06"?"chip--active":""}`} onClick={()=>{setStartKey("2025-04");setEndKey("2025-06")}}>2T 2025</button>
-                  <button className={`chip ${startKey==="2025-07"&&endKey==="2025-09"?"chip--active":""}`} onClick={()=>{setStartKey("2025-07");setEndKey("2025-09")}}>3T 2025</button>
-                  <button className={`chip ${startKey==="2025-10"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-10");setEndKey("2025-12")}}>4T 2025</button>
-                </div>
-              </div>
-              <div className="chip-group">
-                <div className="chip-group__label">Mês Isolado</div>
-                <div className="chip-group__row">
-                  <button className={`chip ${startKey==="2025-12"&&endKey==="2025-12"?"chip--active":""}`} onClick={()=>{setStartKey("2025-12");setEndKey("2025-12")}}>Dez 2025</button>
-                  <button className={`chip ${startKey==="2026-04"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2026-04");setEndKey("2026-04")}}>Abr 2026</button>
+                  <button className={`chip ${startKey===endKey&&startKey===(() => {const ks=Object.keys(bank).filter(k=>bank[k]?.hasData&&bank[k]?.altas>0).sort();return ks[ks.length-1]||""})()?"chip--active":""}`} onClick={()=>{const ks=Object.keys(bank).filter(k=>bank[k]?.hasData&&bank[k]?.altas>0).sort();if(ks.length){setStartKey(ks[ks.length-1]);setEndKey(ks[ks.length-1])}}}>Último mês com dados</button>
+                  <button className={`chip ${startKey==="2026-01"&&endKey==="2026-03"?"chip--active":""}`} onClick={()=>{const now=new Date();const q=Math.floor((now.getMonth())/3);const y=q===0?now.getFullYear()-1:now.getFullYear();const qStart=q===0?4:q;const sm=String((qStart-1)*3+1).padStart(2,'0');const em=String(qStart*3).padStart(2,'0');setStartKey(`${y}-${sm}`);setEndKey(`${y}-${em}`)}}>Último trimestre completo</button>
+                  <button className={`chip ${startKey===`${new Date().getFullYear()}-01`&&endKey===`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`?"chip--active":""}`} onClick={()=>{const y=new Date().getFullYear();const m=String(new Date().getMonth()+1).padStart(2,'0');setStartKey(`${y}-01`);setEndKey(`${y}-${m}`)}}>Ano corrente</button>
+                  <button className={`chip ${startKey==="2024-01"&&endKey==="2026-04"?"chip--active":""}`} onClick={()=>{setStartKey("2024-01");setEndKey("2026-04")}}>Acumulado total</button>
                 </div>
               </div>
             </div>
@@ -1994,6 +1899,83 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
             </div>
           </div>
         )}
+
+
+        {/* TAB 1: Painel (Dashboard Executivo) */}
+        {tab === 1 && (
+          <div>
+            {/* Onboarding Card */}
+            {showOnboarding && (
+              <div className="drg-onboarding">
+                <button className="drg-onboarding__dismiss" onClick={() => { setShowOnboarding(false); try { localStorage.setItem('drg_onboarding_dismissed','1'); } catch(e){} }}>&times;</button>
+                <div className="drg-onboarding__title">Bem-vindo ao DRG Analytics</div>
+                <div className="drg-onboarding__text">
+                  Esta ferramenta mede o impacto financeiro da eficiência no uso do leito hospitalar, comparando a permanência real dos pacientes com o previsto pela metodologia DRG Brasil®. O resultado é traduzido em três componentes monetários: desperdício eliminado, custo evitado e bônus recebido.
+                </div>
+                <div className="drg-onboarding__steps">
+                  <div className="drg-onboarding__step" onClick={() => setTab(0)}>
+                    <div className="drg-onboarding__step-num">1</div>
+                    <div className="drg-onboarding__step-text">Definir o período e inserir dados mensais</div>
+                  </div>
+                  <div className="drg-onboarding__step" onClick={() => setTab(1)}>
+                    <div className="drg-onboarding__step-num">2</div>
+                    <div className="drg-onboarding__step-text">Analisar KPIs e gráficos no Painel</div>
+                  </div>
+                  <div className="drg-onboarding__step">
+                    <div className="drg-onboarding__step-num">3</div>
+                    <div className="drg-onboarding__step-text">Exportar o relatório em PDF</div>
+                  </div>
+                </div>
+                <button className="btn btn--ghost btn--sm" onClick={() => setGlossaryOpen(true)}>O que significam esses termos?</button>
+              </div>
+            )}
+            <div className="kpi-grid">
+              <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Quanto o hospital gastou além do necessário em 2024 por manter pacientes internados mais tempo que o previsto pelo DRG."/>
+              <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Economia gerada por operar abaixo do baseline DRG — diárias que seriam gastas mas não foram."/>
+              <Pill label="C3 — Bônus MG Hosp" value={C3 ? fmtV(C3) : NA} color={C.blue} sub={C3 ? `${nMonths} meses acumulados` : null} tip="Receita adicional paga pela Federação Minas como reconhecimento da performance DRG do hospital."/>
+              <Pill label="Total Consolidado" value={fmtV(TOTAL)} color={C.ink} tip="Soma dos três componentes: desperdício eliminado + custo evitado + bônus recebido."/>
+            </div>
+            <div className="card">
+              <SecTitle>Resumo do Período</SecTitle>
+              <div className="kpi-grid">
+                <Pill label="Altas Válidas" value={agg.totalAltas.toLocaleString("pt-BR")} color={C.ink} tip="Número total de pacientes que receberam alta no período selecionado."/>
+                <Pill label="Diárias Realizadas" value={fmtN(agg.totalReal)} color={C.ink} tip="Total de dias que os pacientes ficaram efetivamente internados."/>
+                <Pill label="Diárias Previstas" value={fmtN(agg.totalPrev)} color={C.ink} tip="Total de dias que o DRG previa como adequado para o perfil de risco dos pacientes."/>
+                <Pill label="(In)Eficiência" value={inef ? pct(inef) : NA} color={statusColor} tip="Realizado ÷ Previsto × 100. Abaixo de 100% = eficiente. Acima = ineficiente."/>
+              </div>
+            </div>
+            <div className="chart-wrap">
+              <SecTitle>Ineficiência Mensal (%)</SecTitle>
+              <ChartCanvas id="chart-inef" config={trendInefConfig} height={280}/>
+            </div>
+            <div className="chart-wrap">
+              <SecTitle>Impacto Financeiro Mensal (R$)</SecTitle>
+              <ChartCanvas id="chart-fin" config={trendFinConfig} height={280}/>
+            </div>
+            <div style={{marginTop:20,padding:'16px 20px',background:'#f8fafb',borderRadius:10,border:'1px solid var(--u-line)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+                <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                  <label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',color:'var(--u-green)'}}>Consultor Responsável</label>
+                  <select
+                    className="field__input"
+                    style={{padding:'8px 14px',fontSize:13,borderRadius:6,border:'1.5px solid var(--u-line)',background:'white',cursor:'pointer',minWidth:240}}
+                    value={selectedConsultant}
+                    onChange={e => setSelectedConsultant(e.target.value)}>
+                    <option value="guilherme">Guilherme Thomé — CRM-MG 64193</option>
+                    <option value="naline">Naline Rocha — COREN-MG 282880</option>
+                  </select>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginLeft:'auto'}}>
+                  <button className="btn btn--primary" onClick={exportPDF} disabled={pdfLoading}>{pdfLoading ? "Gerando narrativas..." : "Exportar Relatório PDF"}</button>
+                  <button className="btn btn--secondary" onClick={() => copy(fmtV(TOTAL), "total")}>
+                    {copied==="total" ? "Copiado!" : "Copiar Total"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* TAB 2: Comparativo */}
         {tab === 2 && (() => {
