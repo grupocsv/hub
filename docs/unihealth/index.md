@@ -214,7 +214,7 @@ onMounted(() => {
         return `
         <div class="uh-card">
           <div class="uh-title">${tool.title}</div>
-          <a data-direct href="${href}" class="uh-link">Acessar</a>
+          <a target="_self" href="${href}" class="uh-link">Acessar</a>
         </div>
       `}).join('')
     })

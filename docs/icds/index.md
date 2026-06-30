@@ -215,7 +215,7 @@ onMounted(() => {
         return `
         <div class="icds-card">
           <div class="icds-title">${tool.title}</div>
-          <a data-direct href="${href}" class="icds-link">Acessar</a>
+          <a target="_self" href="${href}" class="icds-link">Acessar</a>
         </div>
       `}).join('')
     })

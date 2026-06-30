@@ -855,7 +855,7 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 <tbody>
 <tr>
 <td><strong>SPA Navigation</strong></td>
-<td>O VitePress intercepta cliques internos. Páginas HTML standalone precisam do atributo <code>data-direct</code> nos links para forçar navegação completa.</td>
+<td>O VitePress intercepta cliques internos. Páginas HTML standalone precisam do atributo <code>target="_self"</code> nos links para bypass do router SPA.</td>
 </tr>
 <tr>
 <td><strong>Convenção de Tenant</strong></td>

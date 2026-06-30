@@ -209,7 +209,7 @@ onMounted(() => {
         return `
         <div class="tool-card${i === 0 ? ' featured' : ''}">
           <div class="tool-title">${tool.title}</div>
-          <a data-direct href="${href}" class="tool-link">Acessar</a>
+          <a target="_self" href="${href}" class="tool-link">Acessar</a>
         </div>
       `}).join('')
     })

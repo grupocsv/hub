@@ -527,7 +527,7 @@ head:
             <a href="https://deck.grupocsv.com" class="hero-btn secondary">Deck™</a>
             <a href="https://relay.axcare.com.br" class="hero-btn secondary">Relay™</a>
             <a href="https://rtav.axcare.app" class="hero-btn secondary">RTAV™</a>
-            <a href="/panta/" class="hero-btn secondary" data-direct>Panta™</a>
+            <a href="/panta/" class="hero-btn secondary" target="_self">Panta™</a>
           </div>
         </div>
         <div class="hero-group-divider"></div>
@@ -536,7 +536,7 @@ head:
           <div class="hero-group-btns">
             <a href="/compliance/" class="hero-btn secondary">Compliance</a>
             <a href="/_infra/" class="hero-btn secondary">Infraestrutura</a>
-            <a href="/admin/" class="hero-btn admin" data-direct><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admin</a>
+            <a href="/admin/" class="hero-btn admin" target="_self"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admin</a>
           </div>
         </div>
       </div>

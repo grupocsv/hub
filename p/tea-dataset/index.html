@@ -4246,7 +4246,7 @@ async function initReadOnlyMode(hash) {
   try {
     const resp = await fetch(EMAIL_API + '/view/' + hash);
     if (!resp.ok) {
-      document.body.innerHTML = '<div style="text-align:center;padding:80px 20px;font-family:Inter,sans-serif"><h2 style="color:#1B3A5C">Formulário não encontrado</h2><p style="color:#64748b;margin-top:12px">O link de visualização pode estar incorreto ou expirado.</p><a href="/p/tea-dataset/" style="display:inline-block;margin-top:20px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Voltar ao início</a></div>';
+      document.body.innerHTML = '<div style="text-align:center;padding:80px 20px;font-family:Inter,sans-serif"><h2 style="color:#1B3A5C">Formulário não encontrado</h2><p style="color:#64748b;margin-top:12px">O link de visualização pode estar incorreto ou expirado.</p><a href="/p/tea-dataset/" target="_self" style="display:inline-block;margin-top:20px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Voltar ao início</a></div>';
       return;
     }
     const data = await resp.json();
@@ -4305,7 +4305,7 @@ async function initReadOnlyMode(hash) {
 
     updateProgress();
   } catch (err) {
-    document.body.innerHTML = '<div style="text-align:center;padding:80px 20px;font-family:Inter,sans-serif"><h2 style="color:#dc2626">Erro ao carregar</h2><p style="color:#64748b;margin-top:12px">' + err.message + '</p><a href="/p/tea-dataset/" style="display:inline-block;margin-top:20px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Voltar ao início</a></div>';
+    document.body.innerHTML = '<div style="text-align:center;padding:80px 20px;font-family:Inter,sans-serif"><h2 style="color:#dc2626">Erro ao carregar</h2><p style="color:#64748b;margin-top:12px">' + err.message + '</p><a href="/p/tea-dataset/" target="_self" style="display:inline-block;margin-top:20px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Voltar ao início</a></div>';
   }
 }
 
@@ -4321,7 +4321,7 @@ async function initDashboard() {
   const tkn = sessionStorage.getItem('tea_auth_token');
 
   if (!tkn) {
-    content.innerHTML = '<div class="dashboard-empty"><p>Acesso restrito. Faça login primeiro e depois acesse o dashboard.</p><a href="/p/tea-dataset/" style="display:inline-block;margin-top:16px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Fazer login</a></div>';
+    content.innerHTML = '<div class="dashboard-empty"><p>Acesso restrito. Faça login primeiro e depois acesse o dashboard.</p><a href="/p/tea-dataset/" target="_self" style="display:inline-block;margin-top:16px;padding:10px 24px;background:#1B3A5C;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Fazer login</a></div>';
     return;
   }
 

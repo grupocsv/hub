@@ -235,7 +235,7 @@ head:
   </div>
 
   <div style="text-align:center; margin-bottom:24px;">
-    <a href="/" class="back-link" data-direct>← Voltar ao Hub</a>
+    <a href="/" class="back-link" target="_self">← Voltar ao Hub</a>
   </div>
 
   <div class="page-footer">

@@ -190,19 +190,19 @@ head:
         <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Ativo</span>
         <h4 style="margin:0; font-size:0.95rem; color:#196396; border:none; line-height:1.4;">Propostas Comerciais</h4>
         <p style="margin:0; font-size:0.84rem; color:#5b6470; line-height:1.5; flex-grow:1;">Gerador de propostas comerciais padronizadas para consultoria e projetos.</p>
-        <a href="/axia/propostas.html" data-direct style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
+        <a href="/axia/propostas.html" target="_self" style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
       </div>
       <div style="background:rgba(255,255,255,0.95); border:1px solid rgba(25,99,150,.10); border-radius:14px; padding:22px 20px; display:flex; flex-direction:column; gap:14px;">
         <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Ativo</span>
         <h4 style="margin:0; font-size:0.95rem; color:#196396; border:none; line-height:1.4;">Solicitação de Reembolso</h4>
         <p style="margin:0; font-size:0.84rem; color:#5b6470; line-height:1.5; flex-grow:1;">Gerador de solicitações de reembolso padronizadas com geração de PDF.</p>
-        <a href="/axia/reembolso.html" data-direct style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
+        <a href="/axia/reembolso.html" target="_self" style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
       </div>
       <div style="background:rgba(255,255,255,0.95); border:1px solid rgba(25,99,150,.10); border-radius:14px; padding:22px 20px; display:flex; flex-direction:column; gap:14px;">
         <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Ativo</span>
         <h4 style="margin:0; font-size:0.95rem; color:#196396; border:none; line-height:1.4;">Solicitação de Emissão de NF</h4>
         <p style="margin:0; font-size:0.84rem; color:#5b6470; line-height:1.5; flex-grow:1;">Solicitação de emissão de nota fiscal com gestão de status e aprovações.</p>
-        <a href="/axia/nota-fiscal.html" data-direct style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
+        <a href="/axia/nota-fiscal.html" target="_self" style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
       </div>
       <div style="background:rgba(255,255,255,0.95); border:1px solid rgba(25,99,150,.10); border-radius:14px; padding:22px 20px; display:flex; flex-direction:column; gap:14px;">
         <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Ativo</span>
@@ -260,7 +260,7 @@ head:
       <div class="info-item">
         <div>
           <div class="label">Compliance</div>
-          <div class="value"><a href="/compliance/">Central de Compliance</a></div>
+          <div class="value"><a href="/compliance/" target="_self">Central de Compliance</a></div>
         </div>
       </div>
       <div class="info-item">
@@ -273,7 +273,7 @@ head:
   </div>
 
   <div style="text-align:center; margin-bottom:24px;">
-    <a href="/" class="back-link" data-direct>← Voltar ao Hub</a>
+    <a href="/" class="back-link" target="_self">← Voltar ao Hub</a>
   </div>
 
   <div class="page-footer">

@@ -156,10 +156,10 @@ head:
     <h2 class="section-title">Políticas do Grupo CSV</h2>
     <p class="section-desc">Documentos transversais aplicáveis a todas as empresas do ecossistema.</p>
     <div class="btn-grid">
-      <a class="policy-btn" data-direct href="/compliance/privacidade.html">Política de Privacidade (LGPD)</a>
-      <a class="policy-btn" data-direct href="/compliance/termos.html">Termos de Uso</a>
-      <a class="policy-btn" data-direct href="/compliance/cookies.html">Política de Cookies</a>
-      <a class="policy-btn" data-direct href="/compliance/autorizacao-parceria.html">Autorização de Parceria – Uso de Marca</a>
+      <a class="policy-btn" target="_self" href="/compliance/privacidade.html">Política de Privacidade (LGPD)</a>
+      <a class="policy-btn" target="_self" href="/compliance/termos.html">Termos de Uso</a>
+      <a class="policy-btn" target="_self" href="/compliance/cookies.html">Política de Cookies</a>
+      <a class="policy-btn" target="_self" href="/compliance/autorizacao-parceria.html">Autorização de Parceria – Uso de Marca</a>
     </div>
   </div>
 
@@ -167,11 +167,11 @@ head:
     <h2 class="section-title">Integridade e Conduta</h2>
     <p class="section-desc">Diretrizes éticas e de governança corporativa do Grupo CSV.</p>
     <div class="btn-grid">
-      <a class="policy-btn secondary" data-direct href="/compliance/codigo-de-conduta.html">Código de Ética e Conduta</a>
-      <a class="policy-btn secondary" data-direct href="/compliance/brindes.html">Política de Brindes, Presentes e Hospitalidade</a>
-      <a class="policy-btn secondary" data-direct href="/compliance/anticorrupcao.html">Política Anticorrupção e Antissuborno</a>
-      <a class="policy-btn secondary" data-direct href="/compliance/terceiros.html">Relacionamento com Terceiros e Due Diligence</a>
-      <a class="policy-btn secondary" data-direct href="/compliance/integridade.html">Cláusulas-Padrão de Integridade</a>
+      <a class="policy-btn secondary" target="_self" href="/compliance/codigo-de-conduta.html">Código de Ética e Conduta</a>
+      <a class="policy-btn secondary" target="_self" href="/compliance/brindes.html">Política de Brindes, Presentes e Hospitalidade</a>
+      <a class="policy-btn secondary" target="_self" href="/compliance/anticorrupcao.html">Política Anticorrupção e Antissuborno</a>
+      <a class="policy-btn secondary" target="_self" href="/compliance/terceiros.html">Relacionamento com Terceiros e Due Diligence</a>
+      <a class="policy-btn secondary" target="_self" href="/compliance/integridade.html">Cláusulas-Padrão de Integridade</a>
     </div>
   </div>
 
@@ -184,10 +184,10 @@ head:
 <h4>AxiaCare® — Axia Gestão em Saúde Ltda &bull; CNPJ 58.323.596/0001-40</h4>
 </div>
 <div class="btn-grid">
-<a class="policy-btn axia" data-direct href="/compliance/axiacare/privacidade.html">Privacidade – AxiaCare</a>
-<a class="policy-btn axia" data-direct href="/compliance/axiacare/termos.html">Termos de Uso – AxiaCare</a>
-<a class="policy-btn axia" data-direct href="/compliance/axiacare/nda.html">Acordo de Confidencialidade (NDA) – AxiaCare</a>
-<a class="policy-btn axia" data-direct href="/compliance/axiacare/cnds.html">Certidões Negativas de Débito (CNDs) – AxiaCare</a>
+<a class="policy-btn axia" target="_self" href="/compliance/axiacare/privacidade.html">Privacidade – AxiaCare</a>
+<a class="policy-btn axia" target="_self" href="/compliance/axiacare/termos.html">Termos de Uso – AxiaCare</a>
+<a class="policy-btn axia" target="_self" href="/compliance/axiacare/nda.html">Acordo de Confidencialidade (NDA) – AxiaCare</a>
+<a class="policy-btn axia" target="_self" href="/compliance/axiacare/cnds.html">Certidões Negativas de Débito (CNDs) – AxiaCare</a>
 </div>
 </div>
 
@@ -196,8 +196,8 @@ head:
 <h4>MedValor® — Medvalor Conteúdo em Saúde Ltda &bull; CNPJ 58.323.964/0001-50</h4>
 </div>
 <div class="btn-grid">
-<a class="policy-btn medvalor" data-direct href="/compliance/medvalor/privacidade.html">Privacidade – MedValor</a>
-<a class="policy-btn medvalor" data-direct href="/compliance/medvalor/termos.html">Termos de Uso – MedValor</a>
+<a class="policy-btn medvalor" target="_self" href="/compliance/medvalor/privacidade.html">Privacidade – MedValor</a>
+<a class="policy-btn medvalor" target="_self" href="/compliance/medvalor/termos.html">Termos de Uso – MedValor</a>
 </div>
 </div>
 
@@ -206,8 +206,8 @@ head:
 <h4>TheraTech® — Thera Tecnologia em Saúde Ltda &bull; CNPJ 63.100.433/0001-39</h4>
 </div>
 <div class="btn-grid">
-<a class="policy-btn thera" data-direct href="/compliance/thera/privacidade.html">Privacidade – TheraTech</a>
-<a class="policy-btn thera" data-direct href="/compliance/thera/termos.html">Termos de Uso – TheraTech</a>
+<a class="policy-btn thera" target="_self" href="/compliance/thera/privacidade.html">Privacidade – TheraTech</a>
+<a class="policy-btn thera" target="_self" href="/compliance/thera/termos.html">Termos de Uso – TheraTech</a>
 </div>
 </div>
   </div>
