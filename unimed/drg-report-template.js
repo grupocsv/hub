@@ -174,7 +174,7 @@ div.calc{border-left:4px solid var(--green);background:#f5faf7;border-radius:0 6
     "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
     "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
     "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png",
-    "https://assets.grupocsv.com/email-assets/avatar-guilherme-thome-csv.png",
+    "https://assets.grupocsv.com/institucional/guilherme-thome/avatar-unimed.png",
     "https://assets.grupocsv.com/institucional/guilherme-thome/assinatura-azul.webp",
     "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.png"
   ]
