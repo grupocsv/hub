@@ -105,8 +105,34 @@
       border-bottom: 1px solid var(--u-line);
       padding: 0 28px;
       display: flex;
+      align-items: stretch;
       gap: 0;
       overflow-x: auto;
+    }
+    .drg-tabs__group {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .drg-tabs__group--entry {
+      padding-right: 16px;
+      margin-right: 16px;
+      border-right: 1px solid var(--u-line);
+    }
+    .drg-tabs__group--settings {
+      margin-left: auto;
+      padding-left: 16px;
+      border-left: 1px solid var(--u-line);
+    }
+    .drg-tabs__group-label {
+      display: none;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--u-ash);
+      font-weight: 600;
+      padding: 4px 20px 0;
+      font-family: var(--font-display);
     }
     .drg-tabs__btn {
       font-family: var(--font-display);
@@ -126,6 +152,14 @@
     .drg-tabs__btn--active {
       color: var(--u-green);
       border-bottom-color: var(--u-green);
+    }
+    .drg-tabs__btn--settings {
+      color: var(--u-ash);
+      font-size: 11px;
+    }
+    .drg-tabs__btn--settings.drg-tabs__btn--active {
+      color: var(--u-stone);
+      border-bottom-color: var(--u-stone);
     }
 
     /* ═══ PERIOD BANNER ═══ */
@@ -1670,13 +1704,32 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     <React.Fragment>
       {/* TABS */}
       <nav className="drg-tabs" role="tablist">
-        {TABS.map((t,i) => (
-          <button key={i} className={`drg-tabs__btn ${tab===i?"drg-tabs__btn--active":""}`}
-            role="tab" aria-selected={tab===i} onClick={() => setTab(i)}>
-            {t.name}
-            <span className="drg-tabs__sub">{t.sub}</span>
+        {/* Grupo 1: Entrada de dados (isolado à esquerda) */}
+        <div className="drg-tabs__group drg-tabs__group--entry">
+          <button className={`drg-tabs__btn ${tab===0?"drg-tabs__btn--active":""}`}
+            role="tab" aria-selected={tab===0} onClick={() => setTab(0)}>
+            {TABS[0].name}
+            <span className="drg-tabs__sub">{TABS[0].sub}</span>
           </button>
-        ))}
+        </div>
+        {/* Grupo 2: Análise (Painel, Comparativo, Simulador) */}
+        <div className="drg-tabs__group drg-tabs__group--analysis">
+          {[1,2,3].map(i => (
+            <button key={i} className={`drg-tabs__btn ${tab===i?"drg-tabs__btn--active":""}`}
+              role="tab" aria-selected={tab===i} onClick={() => setTab(i)}>
+              {TABS[i].name}
+              <span className="drg-tabs__sub">{TABS[i].sub}</span>
+            </button>
+          ))}
+        </div>
+        {/* Grupo 3: Configuração (isolado à direita como settings) */}
+        <div className="drg-tabs__group drg-tabs__group--settings">
+          <button className={`drg-tabs__btn drg-tabs__btn--settings ${tab===4?"drg-tabs__btn--active":""}`}
+            role="tab" aria-selected={tab===4} onClick={() => setTab(4)}>
+            {"\u2699"} {TABS[4].name}
+            <span className="drg-tabs__sub">{TABS[4].sub}</span>
+          </button>
+        </div>
       </nav>
 
       {/* STEPPER */}
@@ -1726,6 +1779,31 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
         {/* TAB 0: Dados (Período + Inserção Mensal) */}
         {tab === 0 && (
           <div>
+            {/* Onboarding Card */}
+            {showOnboarding && (
+              <div className="drg-onboarding">
+                <button className="drg-onboarding__dismiss" onClick={() => { setShowOnboarding(false); try { localStorage.setItem('drg_onboarding_dismissed','1'); } catch(e){} }}>&times;</button>
+                <div className="drg-onboarding__title">Bem-vindo ao DRG Analytics</div>
+                <div className="drg-onboarding__text">
+                  Esta ferramenta mede o impacto financeiro da eficiência no uso do leito hospitalar, comparando a permanência real dos pacientes com o previsto pela metodologia DRG Brasil®. O resultado é traduzido em três componentes monetários: desperdício eliminado, custo evitado e bônus recebido.
+                </div>
+                <div className="drg-onboarding__steps">
+                  <div className="drg-onboarding__step" onClick={() => setTab(0)}>
+                    <div className="drg-onboarding__step-num">1</div>
+                    <div className="drg-onboarding__step-text">Definir o período e inserir dados mensais</div>
+                  </div>
+                  <div className="drg-onboarding__step" onClick={() => setTab(1)}>
+                    <div className="drg-onboarding__step-num">2</div>
+                    <div className="drg-onboarding__step-text">Analisar KPIs e gráficos no Painel</div>
+                  </div>
+                  <div className="drg-onboarding__step">
+                    <div className="drg-onboarding__step-num">3</div>
+                    <div className="drg-onboarding__step-text">Exportar o relatório em PDF</div>
+                  </div>
+                </div>
+                <button className="btn btn--ghost btn--sm" onClick={() => setGlossaryOpen(true)}>O que significam esses termos?</button>
+              </div>
+            )}
             <div className="card">
               <SecTitle>Selecionar Período</SecTitle>
               <TwoCol>
@@ -1904,31 +1982,6 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
         {/* TAB 1: Painel (Dashboard Executivo) */}
         {tab === 1 && (
           <div>
-            {/* Onboarding Card */}
-            {showOnboarding && (
-              <div className="drg-onboarding">
-                <button className="drg-onboarding__dismiss" onClick={() => { setShowOnboarding(false); try { localStorage.setItem('drg_onboarding_dismissed','1'); } catch(e){} }}>&times;</button>
-                <div className="drg-onboarding__title">Bem-vindo ao DRG Analytics</div>
-                <div className="drg-onboarding__text">
-                  Esta ferramenta mede o impacto financeiro da eficiência no uso do leito hospitalar, comparando a permanência real dos pacientes com o previsto pela metodologia DRG Brasil®. O resultado é traduzido em três componentes monetários: desperdício eliminado, custo evitado e bônus recebido.
-                </div>
-                <div className="drg-onboarding__steps">
-                  <div className="drg-onboarding__step" onClick={() => setTab(0)}>
-                    <div className="drg-onboarding__step-num">1</div>
-                    <div className="drg-onboarding__step-text">Definir o período e inserir dados mensais</div>
-                  </div>
-                  <div className="drg-onboarding__step" onClick={() => setTab(1)}>
-                    <div className="drg-onboarding__step-num">2</div>
-                    <div className="drg-onboarding__step-text">Analisar KPIs e gráficos no Painel</div>
-                  </div>
-                  <div className="drg-onboarding__step">
-                    <div className="drg-onboarding__step-num">3</div>
-                    <div className="drg-onboarding__step-text">Exportar o relatório em PDF</div>
-                  </div>
-                </div>
-                <button className="btn btn--ghost btn--sm" onClick={() => setGlossaryOpen(true)}>O que significam esses termos?</button>
-              </div>
-            )}
             <div className="kpi-grid">
               <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Quanto o hospital gastou além do necessário em 2024 por manter pacientes internados mais tempo que o previsto pelo DRG."/>
               <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Economia gerada por operar abaixo do baseline DRG — diárias que seriam gastas mas não foram."/>
