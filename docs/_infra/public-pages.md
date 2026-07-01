@@ -47,12 +47,20 @@ O Hub Grupo CSV possui uma infraestrutura independente para publicação rápida
 
 **Objetivo:** Permitir o compartilhamento de relatórios, dashboards, propostas e datasets com parceiros externos (hospitais, operadoras, clientes) de forma rápida, segura e com controle de acesso (toggle ativo/inativo instantâneo).
 
-**Arquitetura:**
+**Arquitetura (open.grupocsv.com):**
 - **Hospedagem:** Cloudflare R2 (Bucket `csv-open-pages`)
 - **Estado (Toggle):** Cloudflare KV (Namespace `csv-open-pages`)
 - **Roteamento e API:** Cloudflare Worker (`csv-open-pages`)
+- **Auth Gate:** Cloudflare Worker (`csv-open-auth`) + KV (`csv-open-auth`)
 - **Domínio:** `open.grupocsv.com`
 - **Repositório:** `grupocsv/csv-open-pages` (privado, contém o código do Worker e do painel admin)
+
+**Arquitetura (hub.unimedgv.com):**
+- **Hospedagem:** Cloudflare R2 (Bucket `hub-unimedgv`)
+- **Estado:** Cloudflare KV (Namespace `hub-unimedgv-kv`)
+- **Roteamento:** Cloudflare Worker (`hub-unimedgv`)
+- **Domínio:** `hub.unimedgv.com`
+- **Repositório:** `grupocsv/hub-unimedgv` (privado)
 
 ---
 
@@ -108,6 +116,14 @@ Recomenda-se a inclusão de meta tags para melhorar a apresentação ao comparti
 
 Páginas públicas **NÃO** devem incluir scripts de autenticação interna do Hub (como `/scripts/hub-auth.js`). Elas são, por definição, abertas a qualquer pessoa com o link, desde que o status no painel esteja como "Ativo".
 
+### Auth Gate (Portão de Autenticação)
+
+As Open Pages suportam uma camada de proteção dinâmica chamada **Auth Gate**:
+- Se o metadado no KV indicar `"auth_gate": true`, o Worker injeta dinamicamente um modal de login no HTML servido.
+- A validação das credenciais é delegada para o Worker `csv-open-auth`.
+- Isso permite que uma página hospedada no R2 seja pública por padrão, mas receba uma camada de proteção instantânea sem precisar recompilar o HTML.
+- A ativação/desativação do Auth Gate é feita via API: `POST /api/set-auth-gate` com `{ "slug": "...", "auth_gate": true/false }`.
+
 ---
 
 ## Histórico
@@ -117,6 +133,8 @@ Páginas públicas **NÃO** devem incluir scripts de autenticação interna do H
 | 2026-02-15 | Primeira página pública legada: `/p/tea-dataset/` no GitHub Pages |
 | 2026-03-06 | Infraestrutura legada formalizada: `registry.json`, admin tab |
 | 2026-03-18 | **Migração para Open Pages:** Nova arquitetura independente com Cloudflare Worker, R2 e KV no domínio `open.grupocsv.com`. Painel admin próprio e toggle instantâneo. |
+| 2026-05-30 | **Hub Unimed GV:** Infraestrutura paralela exclusiva para a Unimed GV em `hub.unimedgv.com` (Worker + KV + R2 próprios). |
+| 2026-06-11 | **Auth Gate:** Worker `csv-open-auth` implementado para proteger Open Pages com login dinâmico sem recompilar HTML. |
 
 ---
 
@@ -124,10 +142,16 @@ Páginas públicas **NÃO** devem incluir scripts de autenticação interna do H
 
 | Item | Tipo | Descrição |
 |---|---|---|
-| `grupocsv/csv-open-pages` | Repositório | Código-fonte do Worker e do painel admin |
-| `csv-open-pages` | CF Worker | Roteamento, API e bloqueio na borda |
+| `grupocsv/csv-open-pages` | Repositório | Código-fonte do Worker e do painel admin (open.grupocsv.com) |
+| `grupocsv/hub-unimedgv` | Repositório | Código-fonte do Worker e infraestrutura (hub.unimedgv.com) |
+| `csv-open-pages` | CF Worker | Roteamento, API, Auth Gate e bloqueio na borda |
+| `csv-open-auth` | CF Worker | Validação de credenciais do Auth Gate |
+| `hub-unimedgv` | CF Worker | Roteamento e injeção de `<head>` para Unimed GV |
 | `csv-open-pages` | CF R2 | Bucket de armazenamento dos arquivos HTML/assets |
-| `csv-open-pages` | CF KV | Armazenamento do estado (ativo/inativo) e metadados |
+| `hub-unimedgv` | CF R2 | Bucket de armazenamento dos arquivos HTML da Unimed GV |
+| `csv-open-pages` | CF KV | Armazenamento do estado (ativo/inativo, auth_gate) e metadados |
+| `csv-open-auth` | CF KV | Senhas e sessões do Auth Gate |
+| `hub-unimedgv-kv` | CF KV | Estado e metadados das páginas da Unimed GV |
 | `/docs/_infra/public-pages.md` | Docs | Este documento |
 
 <script setup>

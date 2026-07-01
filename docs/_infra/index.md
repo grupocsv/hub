@@ -181,7 +181,7 @@ title: Infraestrutura — Fonte Única da Verdade
       Cobre produtos, backend serverless, bancos de dados, storage, domínios, DNS, agentes de IA,
       automações, APIs externas, comunicação e assets. Projetada para consumo por humanos e agentes.
 </p>
-<p class="version" id="page-version">Atualizada em 18 de junho de 2026</p>
+<p class="version" id="page-version">Atualizada em 01 de julho de 2026</p>
 </div>
 
 <div class="copy-bar">
@@ -228,7 +228,7 @@ Copiar página
 <thead><tr><th>Worker</th><th>Rota / Domínio</th><th>Bindings</th><th>Função</th></tr></thead>
 <tbody>
 <tr><td><code>csv-gateway</code></td><td>api.grupocsv.com/*</td><td>D1: csv-hub, Secrets</td><td>API gateway central</td></tr>
-<tr><td><code>csv-auth</code></td><td>csv-auth.guilherme-thom.workers.dev</td><td>D1: csv-hub, KV: csv-config, Secret</td><td>Autenticação e sessões (v3.2.0)</td></tr>
+<tr><td><code>csv-auth</code></td><td>csv-auth.guilherme-thom.workers.dev</td><td>D1: csv-hub, KV: csv-config, Secret</td><td>Autenticação e sessões (v4.1.0)</td></tr>
 <tr><td><code>csv-ai</code></td><td>csv-ai.guilherme-thom.workers.dev</td><td>D1: csv-hub, Secret</td><td>Assistente IA contextual</td></tr>
 <tr><td><code>csv-data</code></td><td>csv-data.guilherme-thom.workers.dev</td><td>D1: csv-hub, KV: csv-config</td><td>Dados e configurações</td></tr>
 <tr><td><code>csv-cron</code></td><td>csv-cron.guilherme-thom.workers.dev</td><td>D1: csv-hub, KV: csv-config, Secret</td><td>Tarefas agendadas (v2.1)</td></tr>
@@ -237,7 +237,9 @@ Copiar página
 <tr><td><code>csv-webhook</code></td><td>csv-webhook.guilherme-thom.workers.dev</td><td>Secret</td><td>Webhooks</td></tr>
 <tr><td><code>csv-propostas</code></td><td>csv-propostas.guilherme-thom.workers.dev</td><td>R2: csv-propostas, Secret</td><td>Propostas comerciais</td></tr>
 <tr><td><code>csv-assets</code></td><td>assets.grupocsv.com/*</td><td>R2: csv-open-pages</td><td>Serviço de assets estáticos</td></tr>
-<tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle</td></tr>
+<tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle e auth gate</td></tr>
+<tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages (Auth Gate)</td></tr>
+<tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com/*</td><td>KV: hub-unimedgv-kv, R2: hub-unimedgv</td><td>Páginas públicas exclusivas Unimed GV</td></tr>
 </tbody>
 </table>
 
@@ -249,6 +251,7 @@ Copiar página
 <tr><td><code>decks-worker</code></td><td>decks.grupocsv.com/*</td><td>R2: decks</td><td>Geração e armazenamento de PPTX</td></tr>
 <tr><td><code>tea-dataset-api</code></td><td>tea-dataset-api.guilherme-thom.workers.dev</td><td>D1: csv-hub, Secrets</td><td>Backend TEA (Data Set)</td></tr>
 <tr><td><code>thera-contact</code></td><td>api.thera.tech/*</td><td>Secrets</td><td>Formulário de contato Thera</td></tr>
+<tr><td><code>slides-worker</code></td><td>slides-worker.guilherme-thom.workers.dev</td><td>Secrets</td><td>Geração de slides (Slides CSV)</td></tr>
 </tbody>
 </table>
 
@@ -266,7 +269,6 @@ Copiar página
 <tr><td><code>navia-email-ingest</code></td><td>navia-email-ingest.guilherme-thom.workers.dev</td><td>Secrets</td><td>Ingestão de e-mails do Navia</td></tr>
 <tr><td><code>deck-mcp</code></td><td>deck-mcp.guilherme-thom.workers.dev</td><td>D1, Secrets</td><td>MCP Server do Deck</td></tr>
 <tr><td><code>whisper-proxy</code></td><td>whisper-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy para transcrição de áudio (Whisper)</td></tr>
-<tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages</td></tr>
 <tr><td><code>axiacare-methods-mcp</code></td><td>axiacare-methods-mcp.guilherme-thom.workers.dev</td><td>D1: axiacare-methods, R2: axiacare-methods, Secrets</td><td>Methods Registry AxiaCare (API de metodos canonicos)</td></tr>
 </tbody>
 </table>
@@ -288,11 +290,9 @@ Copiar página
 <tbody>
 <tr><td><code>unimed-cooperados-page</code></td><td>unimed-cooperados-page.guilherme-thom.workers.dev</td><td>D1, KV: cooperados-api-keys</td><td>Página de cooperados Unimed GV</td></tr>
 <tr><td><code>rd-icds</code></td><td>rd-icds.guilherme-thom.workers.dev</td><td>Secrets</td><td>Relatório de Desempenho ICDS</td></tr>
-<tr><td><code>drg-data-proxy</code></td><td>drg-data-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de dados DRG</td></tr>
-<tr><td><code>drg-ai-proxy</code></td><td>drg-ai-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy IA para análise DRG</td></tr>
-<tr><td><code>hub-unimedgv</code></td><td>hub-unimedgv.guilherme-thom.workers.dev</td><td>KV: hub-unimedgv-kv</td><td>Portal Unimed GV dedicado</td></tr>
-<tr><td><code>spectra-api</code></td><td>spectra-api.guilherme-thom.workers.dev</td><td>KV: spectra-config, spectra-sessions</td><td>API do Spectra</td></tr>
-<tr><td><code>slides-worker</code></td><td>slides-worker.guilherme-thom.workers.dev</td><td>Secrets</td><td>Geração de slides (Slides CSV)</td></tr>
+<tr><td><code>drg-data-proxy</code></td><td>drg-data-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de dados DRG Brasil</td></tr>
+<tr><td><code>drg-ai-proxy</code></td><td>drg-ai-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de IA para DRG</td></tr>
+<tr><td><code>spectra-api</code></td><td>spectra-api.guilherme-thom.workers.dev</td><td>D1: spectra-db, KV: spectra-sessions, KV: spectra-config, R2: spectra-assets, R2: spectra-knowledge</td><td>API Principal Spectra</td></tr>
 </tbody>
 </table>
 
@@ -356,14 +356,22 @@ Copiar página
 </tbody>
 </table>
 
-<h3 class="subsection-title">R2 Buckets</h3>
+<h3 class="subsection-title">R2 Buckets (12)</h3>
 <table class="infra-table">
 <thead><tr><th>Bucket</th><th>Domínio Público</th><th>Uso</th></tr></thead>
 <tbody>
+<tr><td><code>csv-open-pages</code></td><td>assets.grupocsv.com, open.grupocsv.com</td><td>Open Pages + Assets visuais</td></tr>
+<tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com</td><td>Open Pages exclusivas Unimed GV</td></tr>
 <tr><td><code>csv-propostas</code></td><td>propostas.axcare.com.br</td><td>Propostas comerciais (PDF)</td></tr>
-<tr><td><code>hub-csv-knowledge</code></td><td>-</td><td>Base vetorial para AI Search (191 objetos)</td></tr>
-<tr><td><code>csv-open-pages</code></td><td>-</td><td>Open Pages + Assets estáticos</td></tr>
 <tr><td><code>decks</code></td><td>decks.grupocsv.com</td><td>Apresentações PPTX geradas</td></tr>
+<tr><td><code>slides</code></td><td>-</td><td>Slides gerados via Markdown</td></tr>
+<tr><td><code>hub-csv-knowledge</code></td><td>-</td><td>Base vetorial para AI Search (191 objetos)</td></tr>
+<tr><td><code>spectra-assets</code></td><td>-</td><td>Assets visuais do Spectra AI</td></tr>
+<tr><td><code>spectra-knowledge</code></td><td>-</td><td>Base de conhecimento do Spectra AI</td></tr>
+<tr><td><code>vps-csv-backups</code></td><td>-</td><td>Backups criptografados da VPS-CSV (Restic)</td></tr>
+<tr><td><code>gabi-assets</code></td><td>-</td><td>Assets de projetos associados</td></tr>
+<tr><td><code>rd-icds-uploads</code></td><td>-</td><td>Uploads do Relatório de Desempenho ICDS</td></tr>
+<tr><td><code>axiacare-methods</code></td><td>-</td><td>Arquivos do Methods Registry AxiaCare</td></tr>
 </tbody>
 </table>
 </div>
@@ -412,6 +420,7 @@ Copiar página
 <tr><td>hooks.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Webhook Receiver v2</td></tr>
 <tr><td>panta.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Panta™</td></tr>
 <tr><td>claw.grupocsv.com</td><td>Cloudflare Tunnel (VPS Hostinger)</td><td>OpenClaw bilateral</td></tr>
+<tr><td>n8n.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>n8n (automação de workflows)</td></tr>
 <tr><td>unimedgv.com</td><td>Cloudflare</td><td>Domínio Unimed GV</td></tr>
 </tbody>
 </table>
@@ -544,16 +553,25 @@ Copiar página
 <!-- 12. ASSETS -->
 <div class="frame">
 <h2 class="section-title">12. Assets Visuais</h2>
-<p class="section-desc">Repositório centralizado de assets em <code>assets.grupocsv.com</code> (Cloudflare R2 + Worker csv-assets).</p>
+<p class="section-desc">Repositório centralizado de assets em <code>assets.grupocsv.com</code> (Cloudflare R2 + Worker csv-assets). Total: <strong>284 assets</strong>, 22 marcas, 8 categorias. API de busca: <code>/api/search</code>, <code>/api/brands/:brand</code>, <code>/api/meta</code>.</p>
 <table class="infra-table">
-<thead><tr><th>Entidade</th><th>Cor Principal</th><th>Formatos</th></tr></thead>
+<thead><tr><th>Marca</th><th>Qtd</th><th>Cor Principal</th></tr></thead>
 <tbody>
-<tr><td>Grupo CSV</td><td>#196396 (azul) + #2DBF7F (verde)</td><td>PNG, SVG, JPG, PDF, AI</td></tr>
-<tr><td>AxiaCare</td><td>#196396 (azul)</td><td>PNG, SVG, JPG, PDF, AI</td></tr>
-<tr><td>MedValor</td><td>Azul + Laranja</td><td>PNG, SVG, JPG, PDF, AI</td></tr>
-<tr><td>TheraTech</td><td>#6B5B95 (roxo)</td><td>PNG, SVG, JPG, PDF, AI</td></tr>
-<tr><td>Unimed GV</td><td>#00995d (verde)</td><td>PNG, SVG</td></tr>
-<tr><td>Unihealth</td><td>#013d19 (verde escuro)</td><td>PNG, SVG</td></tr>
+<tr><td>thera</td><td>64</td><td>#6B5B95 (roxo)</td></tr>
+<tr><td>medvalor</td><td>49</td><td>Azul + Laranja</td></tr>
+<tr><td>guilherme-thome</td><td>38</td><td>#196396 (azul)</td></tr>
+<tr><td>axiacare</td><td>34</td><td>#196396 (azul)</td></tr>
+<tr><td>grupo-csv</td><td>25</td><td>#196396 (azul) + #2DBF7F (verde)</td></tr>
+<tr><td>unimed-gv</td><td>19</td><td>#00995d (verde)</td></tr>
+<tr><td>evs</td><td>16</td><td>#00995d (verde)</td></tr>
+<tr><td>icds</td><td>6</td><td>#013d19 (verde escuro)</td></tr>
+<tr><td>naline-rocha</td><td>5</td><td>—</td></tr>
+<tr><td>unimed-leste-nordeste</td><td>5</td><td>#00995d (verde)</td></tr>
+<tr><td>panta</td><td>4</td><td>#196396 (azul)</td></tr>
+<tr><td>criale</td><td>4</td><td>#F472B6 (rosa)</td></tr>
+<tr><td>unimed-federacao-minas</td><td>4</td><td>#00995d (verde)</td></tr>
+<tr><td>unihealth</td><td>3</td><td>#013d19 (verde escuro)</td></tr>
+<tr><td>Outras (8 marcas)</td><td>8</td><td>—</td></tr>
 </tbody>
 </table>
 <div class="resource-grid">
@@ -609,7 +627,7 @@ onMounted(() => {
   btn.addEventListener('click', () => {
   const md = `# Infraestrutura do Ecossistema Grupo CSV — SSOT
 
-Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. Atualizada em 18 de junho de 2026.
+Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. Atualizada em 01 de julho de 2026.
 
 ---
 
@@ -632,7 +650,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | Worker | Rota / Dominio | Bindings | Funcao |
 |---|---|---|---|
 | csv-gateway | api.grupocsv.com/* | D1: csv-hub, Secrets | API gateway central |
-| csv-auth | csv-auth.guilherme-thom.workers.dev | D1: csv-hub, KV: csv-config, Secret | Autenticacao e sessoes (v3.2.0) |
+| csv-auth | csv-auth.guilherme-thom.workers.dev | D1: csv-hub, KV: csv-config, Secret | Autenticacao e sessoes (v4.1.0) |
 | csv-ai | csv-ai.guilherme-thom.workers.dev | D1: csv-hub, Secret | Assistente IA contextual |
 | csv-data | csv-data.guilherme-thom.workers.dev | D1: csv-hub, KV: csv-config | Dados e configuracoes |
 | csv-cron | csv-cron.guilherme-thom.workers.dev | D1: csv-hub, KV: csv-config, Secret | Tarefas agendadas (v2.1) |
@@ -742,6 +760,12 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | api.thera.tech | Worker thera-contact | API Thera |
 | thera.tech | cname.manus.space | Site Thera |
 | spectra.thera.tech | cname.manus.space | Spectra AI |
+| discovery.axcare.app | cname.manus.space | Discovery |
+| hooks.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | Webhook Receiver v2 |
+| panta.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | Panta |
+| claw.grupocsv.com | Cloudflare Tunnel (VPS Hostinger) | OpenClaw bilateral |
+| n8n.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | n8n (automacao de workflows) |
+| hub.unimedgv.com | Worker hub-unimedgv | Open Pages Unimed GV |
 
 ---
 
@@ -752,6 +776,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | Manus | Agente principal: tarefas complexas, desenvolvimento, deploy, pesquisa | Sandbox isolado (Manus Cloud) | API Manus, Webhook, MCP |
 | OpenClaw | Agente autonomo 24/7: WhatsApp (Extensio), heartbeat, cron jobs | VPS Hostinger (extensio-vps) | WhatsApp (WABA), API Manus |
 | Claude | Agente de desenvolvimento: coding sessions locais | Claude Code (local) | Terminal, GitHub |
+| Hermes | Agente auxiliar: execucao de tarefas delegadas | VPS Hostinger (Docker, Claude Haiku 4.5) | MCPs (Extensio, ACB, Deck), 15 tools nativas |
 
 Ponte de contexto (ACB): Worker agent-context-bridge com ferramentas MCP (log_activity, log_file, log_decision, get_recent_activities, get_project_context, search_activities).
 
@@ -781,7 +806,7 @@ Cloudflare AutoRAG indexa automaticamente todo o conteudo do Hub.
 
 | Servico | Uso | Detalhes |
 |---|---|---|
-| Resend | E-mail transacional | Dominios: mail.grupocsv.com, thera.tech, veritas.thera.tech, spectra.thera.tech |
+| Resend | E-mail transacional | Dominios: mail.grupocsv.com, icds.grupocsv.com, thera.tech, veritas.thera.tech, spectra.thera.tech |
 | OpenAI | GPT-4o (deck-vision, varredura ortografica, csv-ai) | Via Cloudflare AI Gateway |
 | Google Gemini | Extensio MCP, Daily Pipeline | API direta |
 | Stripe | Pagamentos Criale | Checkout: pay.grupocsv.com, Webhook: Supabase |

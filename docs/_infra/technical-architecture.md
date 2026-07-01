@@ -714,19 +714,57 @@ Banco de dados SQL relacional (SQLite na edge). Principal fonte de verdade para 
 <div class="db-table-desc">Log de e-mails enviados via Resend. Campos: from_addr, to_addrs, subject, resend_id, status, error, worker_origin.</div>
 </div>
 </div>
-<h3 class="subsection-title">5.2. Cloudflare KV (<code>csv-config</code>)</h3>
+<h3 class="subsection-title">5.2. Outros Bancos D1</h3>
+<table class="tech-table">
+<thead><tr><th>Banco</th><th>UUID</th><th>Função</th></tr></thead>
+<tbody>
+<tr><td><code>whatsapp-brain</code></td><td>db907899-3b4d-43b3-b2d4-f429bad2a88a</td><td>Contatos e histórico de mensagens WhatsApp (WABA)</td></tr>
+<tr><td><code>ccrt</code></td><td>8adfc2da-379f-4983-a19c-4d089b5e0fdc</td><td>Projeto CCRT</td></tr>
+<tr><td><code>digital-deck-db</code></td><td>b98fedb2-4ad6-44dd-b813-36c556867477</td><td>Leads, gates e campanhas do Digital Deck</td></tr>
+<tr><td><code>spectra-db</code></td><td>a1f87c99-d990-4a06-897e-4c033bcd684c</td><td>Banco de dados do Spectra AI</td></tr>
+<tr><td><code>rd-icds</code></td><td>d4c3391a-2b4d-4bc0-8979-f572727ccaf7</td><td>Relatório de Desempenho ICDS</td></tr>
+<tr><td><code>axiacare-methods</code></td><td>abdf6e4e-6d63-44a9-ae22-b69400c79af8</td><td>Methods Registry AxiaCare</td></tr>
+</tbody>
+</table>
+<h3 class="subsection-title">5.3. Cloudflare KV (9 namespaces)</h3>
 <p class="section-desc">
-Armazenamento de chave-valor de baixa latência. Binding disponível nos workers <code>csv-data</code>
-e <code>csv-cron</code> para configurações dinâmicas. As senhas dos portais de empresas foram migradas
-para a tabela <code>portal_passwords</code> no D1, mas o KV permanece como recurso para futuras
-configurações que exijam leitura de altíssima velocidade.
+Armazenamento de chave-valor de baixa latência distribuído globalmente.
 </p>
-<h3 class="subsection-title">5.3. Cloudflare R2 (<code>csv-propostas</code>)</h3>
+<table class="tech-table">
+<thead><tr><th>Namespace</th><th>Função</th></tr></thead>
+<tbody>
+<tr><td><code>csv-config</code></td><td>Configurações globais, senhas de portais e lista de admins</td></tr>
+<tr><td><code>csv-open-pages</code></td><td>Status (ativo/inativo, auth_gate) e metadados das Open Pages</td></tr>
+<tr><td><code>csv-open-auth</code></td><td>Senhas e sessões do Auth Gate</td></tr>
+<tr><td><code>hub-unimedgv-kv</code></td><td>Status e metadados das Open Pages da Unimed GV</td></tr>
+<tr><td><code>spectra-config</code></td><td>Configurações do Spectra AI</td></tr>
+<tr><td><code>spectra-sessions</code></td><td>Sessões ativas do Spectra AI</td></tr>
+<tr><td><code>gabi_config</code></td><td>Configurações de projetos associados</td></tr>
+<tr><td><code>extensio-mcp-anthropic-oauth</code></td><td>Tokens OAuth para MCP Extensio (Anthropic)</td></tr>
+<tr><td><code>cooperados-api-keys</code></td><td>Chaves de API para a página de cooperados</td></tr>
+</tbody>
+</table>
+<h3 class="subsection-title">5.4. Cloudflare R2 (12 buckets)</h3>
 <p class="section-desc">
-Armazenamento de objetos compatível com S3. Usado para guardar propostas comerciais geradas pelo
-worker <code>csv-propostas</code>. Os arquivos ficam acessíveis publicamente via
-<code>propostas.axcare.com.br</code>.
+Armazenamento de objetos compatível com S3, distribuído globalmente.
 </p>
+<table class="tech-table">
+<thead><tr><th>Bucket</th><th>Função</th></tr></thead>
+<tbody>
+<tr><td><code>csv-open-pages</code></td><td>Arquivos HTML e assets das Open Pages + assets visuais (assets.grupocsv.com)</td></tr>
+<tr><td><code>hub-unimedgv</code></td><td>Arquivos HTML das Open Pages da Unimed GV</td></tr>
+<tr><td><code>csv-propostas</code></td><td>PDFs de propostas comerciais (propostas.axcare.com.br)</td></tr>
+<tr><td><code>decks</code></td><td>Apresentações PPTX geradas pelo Deck</td></tr>
+<tr><td><code>slides</code></td><td>Slides gerados via Markdown</td></tr>
+<tr><td><code>hub-csv-knowledge</code></td><td>Arquivos para indexação do AI Search (AutoRAG)</td></tr>
+<tr><td><code>spectra-assets</code></td><td>Assets visuais do Spectra AI</td></tr>
+<tr><td><code>spectra-knowledge</code></td><td>Base de conhecimento do Spectra AI</td></tr>
+<tr><td><code>vps-csv-backups</code></td><td>Backups criptografados da VPS-CSV (Restic)</td></tr>
+<tr><td><code>gabi-assets</code></td><td>Assets de projetos associados</td></tr>
+<tr><td><code>rd-icds-uploads</code></td><td>Uploads do Relatório de Desempenho ICDS</td></tr>
+<tr><td><code>axiacare-methods</code></td><td>Arquivos do Methods Registry AxiaCare</td></tr>
+</tbody>
+</table>
 </div>
 <div class="frame">
 <h2 class="section-title">6. Painel Administrativo</h2>
