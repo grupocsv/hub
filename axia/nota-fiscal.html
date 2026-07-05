@@ -677,16 +677,69 @@ document.getElementById('btn-emitir').addEventListener('click', async () => {
     observacoes: document.getElementById('observacoes').value.trim(),
     retencao_tipo: document.getElementById('retencao-tipo').value
   };
-  showOverlay('Emitindo NFS-e via Portal Nacional...');
+  showOverlay('Registrando solicitacao...');
   try {
+    // 1) Registrar no backend (D1)
     const res = await fetch(API_BASE + '/api/nf/solicitacoes', {
-      method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload)
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({
+        tomador_cnpj: payload.tomador_cnpj,
+        tomador_razao_social: payload.tomador_razao,
+        tomador_endereco: payload.tomador_endereco,
+        descricao_servico: payload.descricao,
+        valor: payload.valor,
+        competencia: payload.competencia,
+        dados_bancarios: payload.dados_bancarios,
+        observacoes: payload.observacoes
+      })
     });
     if (!res.ok) throw new Error('Erro ao registrar solicitacao');
-    const data = await res.json();
+    const regData = await res.json();
+    // 2) Emitir NFS-e via VPS (hooks.grupocsv.com/compute)
+    showOverlay('Emitindo NFS-e via Portal Nacional...');
+    const emitPayload = {
+      tomador_cnpj: payload.tomador_cnpj,
+      tomador_razao: payload.tomador_razao,
+      tomador_endereco: payload.tomador_endereco,
+      descricao: payload.descricao,
+      valor: payload.valor,
+      competencia: payload.competencia,
+      dados_bancarios: payload.dados_bancarios,
+      observacoes: payload.observacoes,
+      retencao_tipo: payload.retencao_tipo || '3'
+    };
+    const emitRes = await fetch(EMITTER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': 'compute_vps_csv_2026' },
+      body: JSON.stringify({
+        command: `cd ~/workspace/nfse-emitter && NFSE_AMBIENTE=producao node emitter.mjs emit '${JSON.stringify(emitPayload).replace(/'/g, "'")}'`,
+        timeout: 60
+      })
+    });
+    const emitData = await emitRes.json();
     hideOverlay();
-    showConfirmation(payload, data);
-    showToast('Solicitacao registrada com sucesso');
+    if (emitData.exit_code === 0 && emitData.stdout) {
+      try {
+        const nfResult = JSON.parse(emitData.stdout.trim().split('\n').pop());
+        showConfirmation(payload, { ...regData, nfse: nfResult });
+        showToast('NFS-e emitida com sucesso! Chave: ' + (nfResult.chaveAcesso || ''), false);
+        // Atualizar status no backend
+        if (regData.id) {
+          fetch(API_BASE + '/api/nf/solicitacoes/' + regData.id, {
+            method: 'PUT', headers: apiHeaders(),
+            body: JSON.stringify({ status: 'Emitida', chave_acesso: nfResult.chaveAcesso || '' })
+          }).catch(() => {});
+        }
+      } catch (parseErr) {
+        showConfirmation(payload, regData);
+        showToast('Solicitacao registrada. Emissao automatica em processamento.', false);
+      }
+    } else {
+      // Emissao falhou - registrar mas avisar
+      showConfirmation(payload, regData);
+      const errMsg = emitData.stderr ? emitData.stderr.split('\n').pop() : 'Timeout ou erro de conexao';
+      showToast('Solicitacao registrada. Emissao automatica falhou: ' + errMsg, true);
+    }
   } catch (err) {
     hideOverlay();
     showToast('Erro: ' + err.message, true);
@@ -698,13 +751,26 @@ function showConfirmation(payload, data) {
   const conf = document.getElementById('confirmation');
   conf.classList.remove('hidden');
   const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('conf-sub').textContent = 'A nota sera emitida automaticamente em instantes.';
-  document.getElementById('conf-summary').innerHTML =
-    '<dt>Tomador</dt><dd>' + payload.tomador_razao + '</dd>' +
-    '<dt>CNPJ</dt><dd>' + maskCNPJ(payload.tomador_cnpj) + '</dd>' +
-    '<dt>Valor</dt><dd>' + fmt(payload.valor) + '</dd>' +
-    '<dt>Competencia</dt><dd>' + payload.competencia + '</dd>' +
-    '<dt>Descricao</dt><dd>' + payload.descricao + '</dd>';
+  const nfse = data.nfse;
+  if (nfse && nfse.chaveAcesso) {
+    document.getElementById('conf-sub').textContent = 'NFS-e emitida com sucesso pelo Portal Nacional.';
+    document.getElementById('conf-summary').innerHTML =
+      '<dt>Chave de Acesso</dt><dd style="font-family:monospace;font-size:12px;word-break:break-all">' + nfse.chaveAcesso + '</dd>' +
+      '<dt>Numero DPS</dt><dd>' + (nfse.idDps || '-') + '</dd>' +
+      '<dt>Tomador</dt><dd>' + payload.tomador_razao + '</dd>' +
+      '<dt>Valor Bruto</dt><dd>' + fmt(payload.valor) + '</dd>' +
+      (nfse.retencoes ? '<dt>Retencoes</dt><dd>' + fmt(nfse.retencoes.totalRetencoes) + '</dd>' : '') +
+      (nfse.retencoes ? '<dt>Valor Liquido</dt><dd style="font-weight:700;color:#0f4c81">' + fmt(nfse.retencoes.valorLiquido) + '</dd>' : '') +
+      '<dt>Competencia</dt><dd>' + payload.competencia + '</dd>';
+  } else {
+    document.getElementById('conf-sub').textContent = 'Solicitacao registrada. A emissao sera processada em breve.';
+    document.getElementById('conf-summary').innerHTML =
+      '<dt>Tomador</dt><dd>' + payload.tomador_razao + '</dd>' +
+      '<dt>CNPJ</dt><dd>' + maskCNPJ(payload.tomador_cnpj) + '</dd>' +
+      '<dt>Valor</dt><dd>' + fmt(payload.valor) + '</dd>' +
+      '<dt>Competencia</dt><dd>' + payload.competencia + '</dd>' +
+      '<dt>Descricao</dt><dd>' + payload.descricao + '</dd>';
+  }
 }
 
 function resetForm() {
