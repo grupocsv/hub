@@ -1,29 +1,11 @@
 {
   "portal": "unihealth",
-  "generatedAt": "2026-05-30T14:25:08.286052+00:00",
-  "totalTools": 7,
+  "generatedAt": "2026-07-05T18:00:00.000000+00:00",
+  "totalTools": 4,
   "tools": [
     {
       "file": "calc-plantao.html",
       "title": "Calculadora Variabilidade Plantões",
-      "created": "2026-01-24T03:24:45+00:00",
-      "lastModified": "2026-03-07T08:44:14-05:00"
-    },
-    {
-      "file": "fios.html",
-      "title": "Análise de Pareto | Reajuste da Linha de Suturas",
-      "created": "2026-01-24T03:24:45+00:00",
-      "lastModified": "2026-03-07T08:44:14-05:00"
-    },
-    {
-      "file": "isc-cesarianas.html",
-      "title": "Infográfico - ISC Cesarianas",
-      "created": "2026-01-24T03:24:45+00:00",
-      "lastModified": "2026-03-07T08:44:14-05:00"
-    },
-    {
-      "file": "julho25.html",
-      "title": "Relatório Repasse Médico — Julho/2025",
       "created": "2026-01-24T03:24:45+00:00",
       "lastModified": "2026-03-07T08:44:14-05:00"
     },
@@ -35,7 +17,7 @@
     },
     {
       "file": "repasse.html",
-      "title": "@Guilherme Thomé",
+      "title": "Repasse Médico",
       "created": "2026-01-24T03:24:45+00:00",
       "lastModified": "2026-03-07T08:44:14-05:00"
     },
