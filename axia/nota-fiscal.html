@@ -1018,7 +1018,7 @@ function usarModelo(id) {
   document.getElementById('descricao-servico').value = m.descricao_servico || '';
   if (m.valor_padrao) {
     const v = parseFloat(m.valor_padrao).toFixed(2);
-    document.getElementById('valor-servico').value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(d{3})+(?!\d))/g, '.');
+    document.getElementById('valor-servico').value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
   if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
   if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
