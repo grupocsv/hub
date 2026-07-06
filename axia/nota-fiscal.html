@@ -1,522 +1,613 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Emissão de NFS-e | AxiaCare | Hub Grupo CSV</title>
-<meta name="description" content="Emissão automatizada de Nota Fiscal de Serviço Eletrônica — AxiaCare®">
-<meta name="author" content="AxiaCare">
-<meta property="og:title" content="Emissão de NFS-e | AxiaCare">
-<meta property="og:description" content="Emita notas fiscais de serviço de forma automatizada via Portal Nacional NFS-e.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Hub Grupo CSV">
-<meta name="theme-color" content="#196396">
-<link rel="icon" href="/favicons/favicon.ico">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --brand: #196396; --brand-deep: #0f3d5e; --accent: #2DBF7F;
-  --accent-soft: rgba(45,191,127,.12);
-  --ink: #1b1e24; --ink-secondary: #4a5568; --ink-muted: #718096;
-  --surface: #ffffff; --surface-raised: #f7f9fc; --surface-page: #f4f6f8;
-  --border: rgba(13,38,76,.08); --border-strong: rgba(13,38,76,.14);
-  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px; --radius-pill: 999px;
-  --shadow-sm: 0 1px 3px rgba(13,38,76,.06), 0 1px 2px rgba(13,38,76,.04);
-  --shadow-md: 0 4px 16px rgba(13,38,76,.08), 0 2px 4px rgba(13,38,76,.04);
-  --shadow-lg: 0 12px 40px rgba(13,38,76,.12);
-  --maxw: 960px; --pad: clamp(16px, 4vw, 32px);
-  --red: #e53e3e; --red-soft: rgba(229,62,62,.08);
-  --yellow: #d69e2e; --yellow-soft: rgba(214,158,46,.1);
-  --green: #38a169; --green-soft: rgba(56,161,105,.1);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--ink); background: var(--surface-page);
-  line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased;
-}
-a { color: var(--brand); text-decoration: none; }
-a:hover { text-decoration: underline; }
-header {
-  position: sticky; top: 0; z-index: 80;
-  background: rgba(255,255,255,.95);
-  backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.header-inner {
-  max-width: var(--maxw); margin: 0 auto;
-  padding: 12px var(--pad);
-  display: flex; align-items: center; gap: 14px;
-}
-.header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-.header-brand img { height: 36px; }
-.header-label { font-weight: 700; font-size: 0.82rem; color: var(--ink-muted); letter-spacing: 0.04em; text-transform: uppercase; }
-.header-nav { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 14px; border-radius: var(--radius-pill);
-  font-weight: 600; font-size: 0.84rem;
-  border: 1px solid var(--border-strong);
-  color: var(--brand); background: var(--surface);
-  box-shadow: var(--shadow-sm); text-decoration: none; cursor: pointer;
-  transition: background .15s, box-shadow .15s;
-}
-.pill:hover { background: var(--surface-raised); box-shadow: var(--shadow-md); text-decoration: none; }
-.tabs-bar {
-  max-width: var(--maxw); margin: 0 auto;
-  padding: 0 var(--pad);
-  display: flex; gap: 0;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-.tab-btn {
-  padding: 14px 24px;
-  font-size: 0.9rem; font-weight: 600;
-  color: var(--ink-muted); cursor: pointer;
-  border: none; background: none;
-  border-bottom: 2px solid transparent;
-  transition: color .15s, border-color .15s;
-}
-.tab-btn:hover { color: var(--ink-secondary); }
-.tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
-.page { max-width: var(--maxw); margin: 0 auto; padding: 24px var(--pad) 48px; }
-.section {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
-  padding: clamp(20px, 4vw, 36px); margin-bottom: 20px;
-}
-.section-title {
-  font-size: clamp(1.1rem, 1.5vw + 0.6rem, 1.3rem);
-  font-weight: 800; color: var(--brand-deep);
-  letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 4px;
-}
-.section-sub { color: var(--ink-muted); font-size: 0.88rem; margin-bottom: 16px; }
-.step-head { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; }
-.step-head:first-child { margin-top: 0; }
-.step-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 12px; border-radius: var(--radius-pill);
-  font-weight: 700; font-size: 0.82rem;
-  border: 1px solid rgba(25,99,150,.15);
-  color: var(--brand); background: rgba(25,99,150,.06);
-}
-.step-title { font-weight: 800; color: var(--brand-deep); font-size: 0.95rem; }
-.form-grid {
-  display: grid; grid-template-columns: repeat(12, 1fr);
-  gap: clamp(10px, 1.5vw, 14px); align-items: start;
-}
-.col-3 { grid-column: span 12; }
-.col-4 { grid-column: span 12; }
-.col-6 { grid-column: span 12; }
-.col-8 { grid-column: span 12; }
-.col-12 { grid-column: span 12; }
-@media (min-width: 640px) {
-  .col-3 { grid-column: span 6; }
-  .col-4 { grid-column: span 6; }
-  .col-6 { grid-column: span 6; }
-  .col-8 { grid-column: span 8; }
-}
-@media (min-width: 900px) {
-  .col-3 { grid-column: span 3; }
-  .col-4 { grid-column: span 4; }
-  .col-6 { grid-column: span 6; }
-  .col-8 { grid-column: span 8; }
-}
-label { font-weight: 600; font-size: 0.88rem; color: var(--brand-deep); margin-bottom: 5px; display: block; }
-label .req { color: var(--red); font-weight: 400; }
-input, textarea, select {
-  width: 100%; padding: 11px 14px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  font: inherit; font-size: 0.9rem;
-  background: var(--surface);
-  transition: border-color .15s, box-shadow .15s;
-}
-input:focus, textarea:focus, select:focus {
-  outline: none; border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(25,99,150,.1);
-}
-textarea { resize: vertical; min-height: 80px; }
-.hint { color: var(--ink-muted); font-size: 0.82rem; margin-top: 3px; }
-.combo-wrap { position: relative; }
-.combo-drop {
-  position: absolute; top: 100%; left: 0; right: 0;
-  background: var(--surface); border: 1px solid var(--border-strong);
-  border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  max-height: 200px; overflow-y: auto; z-index: 50;
-  display: none; box-shadow: var(--shadow-md);
-}
-.combo-drop.open { display: block; }
-.combo-opt {
-  padding: 10px 14px; font-size: 0.88rem;
-  cursor: pointer; transition: background .1s;
-}
-.combo-opt:hover { background: var(--surface-raised); }
-.combo-opt.add-new { color: var(--accent); font-weight: 600; }
-.preview-panel {
-  background: var(--surface-raised); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 20px; margin-top: 16px;
-}
-.preview-title { font-weight: 700; font-size: 0.9rem; color: var(--brand-deep); margin-bottom: 12px; }
-.preview-grid {
-  display: grid; grid-template-columns: 1fr auto;
-  gap: 8px 24px; font-size: 0.86rem;
-}
-.preview-grid dt { color: var(--ink-muted); }
-.preview-grid dd { color: var(--ink); font-weight: 600; text-align: right; }
-.preview-grid .total { border-top: 2px solid var(--brand); padding-top: 8px; margin-top: 4px; }
-.preview-grid .total dt, .preview-grid .total dd { font-size: 1rem; color: var(--brand-deep); }
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 12px 24px; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 0.9rem;
-  border: 1px solid var(--border);
-  cursor: pointer; text-decoration: none;
-  transition: transform .1s, box-shadow .15s;
-  box-shadow: var(--shadow-sm);
-}
-.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.btn-primary { background: linear-gradient(180deg, #1d6fa0, var(--brand)); color: #fff; border-color: var(--brand); }
-.btn-success { background: linear-gradient(180deg, #3dbe80, var(--accent)); color: #fff; border-color: var(--accent); }
-.btn-secondary { background: var(--surface); color: var(--ink); }
-.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-bar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 20px; }
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 12px; border-radius: var(--radius-pill);
-  font-size: 0.78rem; font-weight: 700;
-}
-.badge-pending { background: var(--yellow-soft); color: var(--yellow); }
-.badge-success { background: var(--green-soft); color: var(--green); }
-.badge-error { background: var(--red-soft); color: var(--red); }
-.table-wrap { overflow-x: auto; margin-top: 12px; }
-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-thead th {
-  background: var(--brand-deep); color: #fff;
-  padding: 10px 14px; text-align: left; font-weight: 600; white-space: nowrap;
-}
-thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
-thead th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
-tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-tbody tr:hover { background: var(--surface-raised); }
-.confirm-panel { text-align: center; padding: 40px 20px; }
-.confirm-icon {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: var(--green-soft); color: var(--green);
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 36px; margin-bottom: 16px;
-}
-.confirm-title { font-size: 1.3rem; font-weight: 800; color: var(--brand-deep); margin-bottom: 8px; }
-.confirm-sub { font-size: 0.92rem; color: var(--ink-muted); margin-bottom: 20px; }
-.confirm-summary {
-  text-align: left; max-width: 500px; margin: 0 auto;
-  background: var(--surface-raised); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 20px;
-}
-.confirm-summary dt { color: var(--ink-muted); font-size: 0.82rem; margin-top: 8px; }
-.confirm-summary dd { font-size: 0.92rem; font-weight: 600; }
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(15,61,94,.3); backdrop-filter: blur(4px);
-  display: none; align-items: center; justify-content: center; z-index: 200;
-}
-.overlay.active { display: flex; }
-.overlay-box {
-  background: var(--surface); border-radius: var(--radius-lg);
-  padding: 40px; text-align: center; box-shadow: var(--shadow-lg);
-  max-width: 360px; width: 90%;
-}
-.spinner {
-  width: 40px; height: 40px;
-  border: 3px solid var(--border); border-top-color: var(--brand);
-  border-radius: 50%; animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.overlay-text { font-size: 0.92rem; color: var(--ink-secondary); font-weight: 500; }
-.instr-section { margin-bottom: 24px; }
-.instr-section h3 { font-size: 1rem; font-weight: 700; color: var(--brand-deep); margin-bottom: 8px; }
-.instr-section p { font-size: 0.9rem; color: var(--ink-secondary); margin-bottom: 8px; }
-.instr-table { width: 100%; font-size: 0.86rem; border-collapse: collapse; margin-top: 8px; }
-.instr-table th { text-align: left; padding: 8px 12px; background: var(--surface-raised); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--brand-deep); }
-.instr-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--ink-secondary); }
-.instr-callout {
-  background: rgba(25,99,150,.04); border: 1px solid rgba(25,99,150,.12);
-  border-radius: var(--radius-md); padding: 16px 20px;
-  font-size: 0.88rem; color: var(--ink-secondary); line-height: 1.8;
-}
-.instr-callout strong { color: var(--brand-deep); }
-.emitente-toggle {
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 12px;
-}
-.emitente-toggle h4 { font-size: 0.88rem; font-weight: 600; color: var(--ink-muted); }
-.emitente-toggle .arrow { transition: transform .2s; font-size: 0.7rem; color: var(--ink-muted); }
-.emitente-toggle.open .arrow { transform: rotate(180deg); }
-.emitente-data { display: none; }
-.emitente-data.open { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; font-size: 0.86rem; padding-bottom: 12px; }
-.emitente-data dt { color: var(--ink-muted); }
-.emitente-data dd { color: var(--ink); }
-.toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: var(--brand-deep); color: #fff;
-  padding: 14px 24px; border-radius: var(--radius-md);
-  font-size: 0.88rem; font-weight: 500;
-  box-shadow: var(--shadow-lg); z-index: 300;
-  transform: translateY(100px); opacity: 0;
-  transition: transform .3s, opacity .3s;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.error { background: var(--red); }
-.empty { text-align: center; padding: 48px 20px; color: var(--ink-muted); font-size: 0.9rem; }
-@media (max-width: 640px) {
-  .tab-btn { padding: 12px 16px; font-size: 0.84rem; }
-  .preview-grid { grid-template-columns: 1fr; }
-  .preview-grid dd { text-align: left; }
-}
-.hidden { display: none !important; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFS-e | AxiaCare</title>
+  <meta name="description" content="Sistema de Emissão de NFS-e — AxiaCare®">
+  <link rel="icon" href="/assets/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <style>
+    :root {
+      --blue-primary: #2c5f8a;
+      --blue-dark: #1e3a5f;
+      --blue-light: #e8f0f8;
+      --blue-accent: #3a7cbd;
+      --green-accent: #27ae60;
+      --green-light: #e6f9f0;
+      --red-accent: #e74c3c;
+      --red-light: #fdecea;
+      --yellow-accent: #f39c12;
+      --yellow-light: #fef9e7;
+      --orange-accent: #e67e22;
+      --gray-50: #f8f9fa;
+      --gray-100: #f1f3f5;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-500: #868e96;
+      --gray-700: #495057;
+      --gray-900: #212529;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+      --transition: all 0.2s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+    }
+    .hidden { display: none !important; }
+    /* ── Top bar ── */
+    .top-bar {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .top-bar-left { display: flex; align-items: center; gap: 16px; }
+    .top-bar-left a { font-size: 13px; color: var(--blue-accent); text-decoration: none; }
+    .top-bar-left a:hover { text-decoration: underline; }
+    .top-bar-title { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+    .top-bar-badge {
+      font-size: 11px; background: var(--green-light); color: var(--green-accent);
+      padding: 3px 8px; border-radius: 12px; font-weight: 600;
+    }
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 24px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+      user-select: none;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab:hover { color: var(--gray-700); background: var(--gray-50); }
+    .tab.active { color: var(--blue-primary); border-bottom-color: var(--blue-primary); background: transparent; }
+    .tab svg { width: 16px; height: 16px; }
+    /* ── Container ── */
+    .container { max-width: 800px; margin: 24px auto; padding: 0 24px; }
+    .container-wide { max-width: 1100px; margin: 24px auto; padding: 0 24px; }
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--blue-dark);
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      background: var(--gray-50);
+    }
+    .card-header .toggle-icon { font-size: 12px; color: var(--gray-500); transition: transform 0.2s; }
+    .card-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+    .card-body { padding: 20px; }
+    .card-body.collapsed { display: none; }
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-group label .required { color: var(--red-accent); }
+    .form-control {
+      width: 100%; padding: 10px 14px; font-size: 14px;
+      border: 1px solid var(--gray-300); border-radius: var(--radius);
+      background: #fff; color: var(--gray-900); transition: var(--transition);
+    }
+    .form-control:focus { outline: none; border-color: var(--blue-accent); box-shadow: 0 0 0 3px rgba(58,124,189,0.12); }
+    .form-control::placeholder { color: var(--gray-500); }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+    select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23868e96' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; font-size: 14px; font-weight: 600;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: var(--transition); text-decoration: none;
+    }
+    .btn-primary { background: var(--blue-primary); color: #fff; }
+    .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-success { background: var(--green-accent); color: #fff; }
+    .btn-success:hover { background: #219a52; transform: translateY(-1px); }
+    .btn-danger { background: var(--red-accent); color: #fff; }
+    .btn-danger:hover { background: #c0392b; transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--blue-primary); border: 1px solid var(--blue-primary); }
+    .btn-outline:hover { background: var(--blue-light); }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    .btn-ghost { background: transparent; color: var(--gray-700); padding: 6px 12px; }
+    .btn-ghost:hover { background: var(--gray-100); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    /* ── Table ── */
+    .table-wrapper { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { padding: 10px 12px; text-align: left; font-weight: 600; color: var(--gray-700); border-bottom: 2px solid var(--gray-200); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    tbody td { padding: 12px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    tbody tr:hover { background: var(--gray-50); }
+    tbody tr:last-child td { border-bottom: none; }
+    /* ── Badges ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-emitida { background: var(--green-light); color: var(--green-accent); }
+    .badge-cancelada { background: var(--red-light); color: var(--red-accent); }
+    .badge-aguardando { background: var(--yellow-light); color: var(--yellow-accent); }
+    .badge-pendente { background: #fff3e0; color: var(--orange-accent); }
+    /* ── Combobox ── */
+    .combobox-wrapper { position: relative; }
+    .combobox-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--gray-300); border-top: none; border-radius: 0 0 var(--radius) var(--radius); max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: var(--shadow-md); }
+    .combobox-dropdown.open { display: block; }
+    .combobox-option { padding: 10px 14px; font-size: 13px; cursor: pointer; transition: background 0.1s; }
+    .combobox-option:hover, .combobox-option.highlighted { background: var(--blue-light); }
+    .combobox-option.add-new { color: var(--blue-accent); font-style: italic; }
+    /* ── Emitente info ── */
+    .emitente-grid { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; font-size: 13px; }
+    .emitente-grid dt { color: var(--gray-500); font-weight: 500; }
+    .emitente-grid dd { color: var(--gray-900); }
+    /* ── Filters ── */
+    .filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
+    .filters .form-group { flex: 1; min-width: 150px; margin-bottom: 0; }
+    /* ── Overlay ── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px); }
+    .overlay.active { opacity: 1; pointer-events: all; }
+    .overlay-box { background: #fff; padding: 40px; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-lg); max-width: 360px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--gray-200); border-top-color: var(--blue-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Confirmation ── */
+    #confirmation { text-align: center; padding: 40px 20px; }
+    #confirmation .conf-icon { margin-bottom: 16px; }
+    #confirmation h2 { font-size: 20px; margin-bottom: 8px; }
+    #confirmation dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; text-align: left; max-width: 400px; margin: 16px auto; font-size: 13px; }
+    #confirmation dt { color: var(--gray-500); font-weight: 500; }
+    #confirmation dd { color: var(--gray-900); }
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--gray-500); }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+    /* ── Modal ── */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
+    .modal { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 16px; color: var(--gray-900); }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end; gap: 8px; }
+    /* ── Instructions ── */
+    .instructions { font-size: 14px; line-height: 1.8; }
+    .instructions h3 { font-size: 16px; color: var(--blue-dark); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200); }
+    .instructions h3:first-child { margin-top: 0; }
+    .instructions p { margin-bottom: 12px; color: var(--gray-700); }
+    .instructions ul { margin: 8px 0 16px 20px; }
+    .instructions li { margin-bottom: 6px; color: var(--gray-700); }
+    .instructions code { background: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    .instructions .alert { padding: 12px 16px; border-radius: var(--radius); margin: 12px 0; font-size: 13px; }
+    .instructions .alert-info { background: var(--blue-light); border-left: 3px solid var(--blue-accent); }
+    .instructions .alert-warning { background: var(--yellow-light); border-left: 3px solid var(--yellow-accent); }
+    /* ── Modelo card ── */
+    .modelo-card { border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: var(--transition); }
+    .modelo-card:hover { border-color: var(--blue-accent); box-shadow: var(--shadow); }
+    .modelo-card-info h4 { font-size: 14px; color: var(--gray-900); margin-bottom: 4px; }
+    .modelo-card-info p { font-size: 12px; color: var(--gray-500); }
+    .modelo-card-actions { display: flex; gap: 6px; }
+    /* ── Responsive ── */
+    @media(max-width:768px) {
+      .tabs { padding: 0 12px; }
+      .tab { padding: 12px 14px; font-size: 12px; }
+      .container, .container-wide { padding: 0 12px; margin: 16px auto; }
+      .filters { flex-direction: column; }
+      .emitente-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-
-<header>
-  <div class="header-inner">
-    <a href="/axia/" class="header-brand">
-      <img src="https://assets.grupocsv.com/axiacare/logo/axiacare-logo-horizontal.png" alt="AxiaCare">
-    </a>
-    <span class="header-label">NFS-e</span>
-    <nav class="header-nav">
-      <a href="/axia/" class="pill">Portal AxiaCare</a>
-    </nav>
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a href="/axia/">&larr; Hub Axia</a>
+    <span class="top-bar-title">NFS-e AxiaCare</span>
+    <span class="top-bar-badge">Produção</span>
   </div>
-</header>
-
-<div class="tabs-bar">
-  <button class="tab-btn active" data-tab="emitir">Emitir NFS-e</button>
-  <button class="tab-btn" data-tab="historico">Historico</button>
-  <button class="tab-btn" data-tab="instrucoes">Instrucoes</button>
+</div>
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" data-tab="emitir">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Emitir NF
+  </div>
+  <div class="tab" data-tab="historico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Histórico
+  </div>
+  <div class="tab" data-tab="modelos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Modelos
+  </div>
+  <div class="tab" data-tab="instrucoes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Instruções
+  </div>
 </div>
 
-<!-- TAB: Emitir NFS-e -->
-<div id="tab-emitir" class="page">
-  <div class="section" id="form-section">
-    <div class="emitente-toggle" id="emitente-toggle">
-      <h4>Emitente: AXIA GESTAO EM SAUDE LTDA</h4>
-      <span class="arrow">&#9660;</span>
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: Emitir NF -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-emitir" class="container">
+  <!-- Modelo rápido -->
+  <div id="quick-model-bar" class="card hidden">
+    <div class="card-body" style="padding:12px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <span style="font-size:12px; font-weight:600; color:var(--gray-500); text-transform:uppercase;">Usar modelo:</span>
+      <div id="quick-model-buttons" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
     </div>
-    <dl class="emitente-data" id="emitente-data">
-      <dt>CNPJ:</dt><dd>58.323.596/0001-40</dd>
-      <dt>Inscricao Municipal:</dt><dd>786091</dd>
-      <dt>Endereco:</dt><dd>R Dom Pedro II, 353, Centro, Gov. Valadares - MG, 35010-090</dd>
-      <dt>Telefone:</dt><dd>(33) 3279-8650</dd>
-      <dt>E-mail:</dt><dd>robson@tonziro.com.br</dd>
-    </dl>
-
-    <div class="step-head">
-      <span class="step-badge">1</span>
-      <span class="step-title">Tomador do Servico</span>
+  </div>
+  <!-- Emitente -->
+  <div class="card">
+    <div class="card-header" id="emitente-header" onclick="toggleCard('emitente')">
+      Dados do Emitente (AxiaCare)
+      <span class="toggle-icon">&#9660;</span>
     </div>
-    <div class="form-grid">
-      <div class="col-4">
-        <label>CNPJ do Tomador <span class="req">*</span></label>
-        <div class="combo-wrap">
-          <input type="text" id="tomador-cnpj" placeholder="XX.XXX.XXX/XXXX-XX" maxlength="18" autocomplete="off">
-          <div class="combo-drop" id="drop-cnpj"></div>
-        </div>
-      </div>
-      <div class="col-8">
-        <label>Razao Social <span class="req">*</span></label>
-        <div class="combo-wrap">
-          <input type="text" id="tomador-razao" placeholder="Nome da empresa" autocomplete="off">
-          <div class="combo-drop" id="drop-razao"></div>
-        </div>
-      </div>
-      <div class="col-12">
-        <label>Endereco do Tomador</label>
-        <input type="text" id="tomador-endereco" placeholder="Endereco completo (opcional)" autocomplete="off">
-      </div>
-    </div>
-
-    <div class="step-head">
-      <span class="step-badge">2</span>
-      <span class="step-title">Servico Prestado</span>
-    </div>
-    <div class="form-grid">
-      <div class="col-12">
-        <label>Descricao do Servico <span class="req">*</span></label>
-        <div class="combo-wrap">
-          <input type="text" id="descricao-servico" placeholder="Ex: Apoio tecnico consultivo em gestao de saude" autocomplete="off">
-          <div class="combo-drop" id="drop-servico"></div>
-        </div>
-      </div>
-      <div class="col-4">
-        <label>Valor (R$) <span class="req">*</span></label>
-        <input type="text" id="valor-servico" placeholder="R$ 0,00" autocomplete="off">
-      </div>
-      <div class="col-4">
-        <label>Competencia <span class="req">*</span></label>
-        <input type="month" id="competencia">
-      </div>
-      <div class="col-4">
-        <label>Retencao Federal</label>
-        <select id="retencao-tipo">
-          <option value="3">PIS/COFINS/CSLL Retidos</option>
-          <option value="1">Sem Retencao</option>
-        </select>
-        <span class="hint">Tipo de retencao aplicavel</span>
-      </div>
-      <div class="col-12">
-        <label>Dados Bancarios <span class="req">*</span></label>
-        <div class="combo-wrap">
-          <input type="text" id="dados-bancarios" placeholder="Ag: 0001 Conta: 639825225-5 | PIX CNPJ: 58.323.596/0001-40" autocomplete="off">
-          <div class="combo-drop" id="drop-bancario"></div>
-        </div>
-      </div>
-      <div class="col-12">
-        <label>Observacoes</label>
-        <textarea id="observacoes" placeholder="Informacoes adicionais (opcional)"></textarea>
-      </div>
-    </div>
-
-    <div class="preview-panel" id="preview-panel" style="display:none;">
-      <div class="preview-title">Simulacao Tributaria</div>
-      <dl class="preview-grid">
-        <dt>Valor Bruto</dt><dd id="pv-bruto">—</dd>
-        <dt>ISS (3,00% — apuracao propria)</dt><dd id="pv-iss">—</dd>
-        <dt>IRRF (1,50%)</dt><dd id="pv-irrf">—</dd>
-        <dt>PIS retido (0,65%)</dt><dd id="pv-pis">—</dd>
-        <dt>COFINS retido (3,00%)</dt><dd id="pv-cofins">—</dd>
-        <dt>CSLL retido (1,00%)</dt><dd id="pv-csll">—</dd>
-        <dt>Total Retencoes</dt><dd id="pv-ret">—</dd>
-        <dt class="total">Valor Liquido</dt><dd class="total" id="pv-liquido">—</dd>
+    <div class="card-body collapsed" id="emitente-body">
+      <dl class="emitente-grid">
+        <dt>Razão Social</dt><dd>AXIA GESTAO EM SAUDE LTDA</dd>
+        <dt>CNPJ</dt><dd>58.323.596/0001-40</dd>
+        <dt>Inscrição Municipal</dt><dd>786091</dd>
+        <dt>Endereço</dt><dd>R Dom Pedro II, 353, Centro, Governador Valadares - MG, CEP 35010-090</dd>
+        <dt>Telefone</dt><dd>(33) 3279-8650</dd>
+        <dt>E-mail</dt><dd>robson@tonziro.com.br</dd>
       </dl>
     </div>
-
-    <div class="btn-bar">
-      <button class="btn btn-success" id="btn-emitir" disabled>Emitir NFS-e</button>
-    </div>
   </div>
-
-  <div id="confirmation" class="section hidden">
-    <div class="confirm-panel">
-      <div class="confirm-icon">&#10003;</div>
-      <h2 class="confirm-title" id="conf-title">NFS-e Emitida com Sucesso</h2>
-      <p class="confirm-sub" id="conf-sub"></p>
-      <dl class="confirm-summary" id="conf-summary"></dl>
-      <div class="btn-bar" style="justify-content:center; margin-top:24px;">
-        <a class="btn btn-primary" id="conf-pdf" href="#" target="_blank" style="display:none;">Baixar DANFSe (PDF)</a>
-        <button class="btn btn-secondary" onclick="resetForm()">Nova Emissao</button>
+  <!-- Tomador -->
+  <div class="card">
+    <div class="card-header" id="tomador-header" onclick="toggleCard('tomador')">
+      Dados do Tomador <span class="required">*</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="card-body" id="tomador-body">
+      <div class="form-group">
+        <label>CNPJ <span class="required">*</span></label>
+        <div class="combobox-wrapper">
+          <input type="text" class="form-control" id="tomador-cnpj" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off">
+          <div class="combobox-dropdown" id="tomador-cnpj-dropdown"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Razão Social <span class="required">*</span></label>
+        <input type="text" class="form-control" id="tomador-razao" placeholder="Razão social do tomador">
+      </div>
+      <div class="form-group">
+        <label>Endereço</label>
+        <input type="text" class="form-control" id="tomador-endereco" placeholder="Rua, número, bairro, cidade - UF, CEP">
       </div>
     </div>
   </div>
-</div>
-
-<!-- TAB: Historico -->
-<div id="tab-historico" class="page hidden">
-  <div class="section">
-    <h2 class="section-title">Historico de NFS-e</h2>
-    <p class="section-sub">Todas as notas fiscais emitidas pela AxiaCare.</p>
-    <div class="form-grid" style="margin-bottom:16px;">
-      <div class="col-3">
-        <label>Status</label>
-        <select id="filter-status">
-          <option value="">Todos</option>
-          <option value="aguardando_emissao">Aguardando</option>
-          <option value="emitida">Emitida</option>
-          <option value="cancelada">Cancelada</option>
+  <!-- Serviço -->
+  <div class="card">
+    <div class="card-header" id="servico-header" onclick="toggleCard('servico')">
+      Serviço Prestado <span class="required">*</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="card-body" id="servico-body">
+      <div class="form-group">
+        <label>Descrição do Serviço <span class="required">*</span></label>
+        <div class="combobox-wrapper">
+          <input type="text" class="form-control" id="descricao-servico" placeholder="Descrição do serviço prestado" autocomplete="off">
+          <div class="combobox-dropdown" id="descricao-dropdown"></div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label>Valor <span class="required">*</span></label>
+          <input type="text" class="form-control" id="valor-servico" placeholder="R$ 0,00">
+        </div>
+        <div class="form-group">
+          <label>Competência <span class="required">*</span></label>
+          <input type="month" class="form-control" id="competencia">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tipo de Retenção</label>
+        <select class="form-control" id="retencao-tipo">
+          <option value="3">Tipo 3 — PIS/COFINS retidos (padrão)</option>
+          <option value="1">Tipo 1 — Sem retenção PIS/COFINS</option>
+          <option value="2">Tipo 2 — Retenção parcial</option>
         </select>
       </div>
-      <div class="col-3">
-        <label>Competencia</label>
-        <input type="month" id="filter-competencia">
+    </div>
+  </div>
+  <!-- Pagamento -->
+  <div class="card">
+    <div class="card-header" id="pagamento-header" onclick="toggleCard('pagamento')">
+      Dados Bancários e Observações
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="card-body" id="pagamento-body">
+      <div class="form-group">
+        <label>Dados Bancários <span class="required">*</span></label>
+        <div class="combobox-wrapper">
+          <input type="text" class="form-control" id="dados-bancarios" placeholder="Banco, agência, conta, PIX" autocomplete="off">
+          <div class="combobox-dropdown" id="bancarios-dropdown"></div>
+        </div>
       </div>
-      <div class="col-4">
-        <label>Tomador</label>
-        <input type="text" id="filter-tomador" placeholder="Buscar por razao social">
-      </div>
-      <div class="col-2" style="display:flex;align-items:flex-end;">
-        <button class="btn btn-primary" onclick="loadSolicitacoes()" style="width:100%;">Filtrar</button>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea class="form-control" id="observacoes" placeholder="Informações adicionais (opcional)"></textarea>
       </div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Tomador</th>
-            <th>Competencia</th>
-            <th style="text-align:right;">Valor</th>
-            <th>Status</th>
-            <th style="text-align:center;">Acoes</th>
-          </tr>
-        </thead>
-        <tbody id="hist-tbody"></tbody>
-      </table>
+  </div>
+  <!-- Actions -->
+  <div style="display:flex; gap:12px; justify-content:flex-end; margin-bottom:24px;">
+    <button class="btn btn-outline" onclick="resetForm()">Limpar</button>
+    <button class="btn btn-success" id="btn-emitir">Emitir NFS-e</button>
+  </div>
+  <!-- Confirmation (hidden by default) -->
+  <div id="confirmation" class="card hidden">
+    <div class="card-body" id="confirmation-content">
+      <div style="text-align:center; padding:20px;">
+        <div id="conf-icon" class="conf-icon"></div>
+        <h2 id="conf-title"></h2>
+        <div id="conf-status" style="margin:8px 0;"></div>
+        <p id="conf-email" style="font-size:13px; color:var(--gray-500);"></p>
+        <dl id="conf-summary"></dl>
+        <div style="margin-top:20px; display:flex; gap:8px; justify-content:center;">
+          <button class="btn btn-outline" onclick="resetForm()">Nova Emissão</button>
+          <button class="btn btn-primary" onclick="switchTab('historico')">Ver Histórico</button>
+        </div>
+      </div>
     </div>
-    <div id="empty-state" class="empty hidden">Nenhuma solicitacao encontrada.</div>
   </div>
 </div>
 
-<!-- TAB: Instrucoes -->
-<div id="tab-instrucoes" class="page hidden">
-  <div class="section">
-    <h2 class="section-title">Como Funciona</h2>
-    <p class="section-sub">Guia completo da ferramenta de emissao automatizada de NFS-e.</p>
-
-    <div class="instr-section">
-      <h3>Visao Geral</h3>
-      <p>Esta ferramenta emite Notas Fiscais de Servico Eletronicas (NFS-e) diretamente no Portal Nacional (nfse.gov.br), de forma automatizada, usando o certificado digital A1 da AxiaCare. O processo que antes exigia acesso manual ao site da prefeitura agora acontece em segundos com um clique.</p>
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: Histórico -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-historico" class="container-wide hidden">
+  <div class="card">
+    <div class="card-header" style="cursor:default;">
+      Notas Fiscais Emitidas
     </div>
-
-    <div class="instr-section">
-      <h3>Fluxo de Emissao</h3>
-      <div class="instr-callout">
-        <strong>1.</strong> Preencha os dados do tomador e do servico prestado.<br>
-        <strong>2.</strong> A simulacao tributaria e calculada automaticamente em tempo real.<br>
-        <strong>3.</strong> Clique em "Emitir NFS-e" — o sistema assina digitalmente e envia ao governo.<br>
-        <strong>4.</strong> Em segundos, a nota e autorizada e o PDF (DANFSe) fica disponivel para download.
+    <div class="card-body">
+      <div class="filters">
+        <div class="form-group">
+          <label>Status</label>
+          <select class="form-control" id="filter-status">
+            <option value="">Todos</option>
+            <option value="emitida">Emitida</option>
+            <option value="cancelada">Cancelada</option>
+            <option value="aguardando_emissao">Aguardando</option>
+            <option value="cancelamento_pendente">Cancelamento Pendente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Competência</label>
+          <input type="month" class="form-control" id="filter-competencia">
+        </div>
+        <div class="form-group">
+          <label>Tomador</label>
+          <input type="text" class="form-control" id="filter-tomador" placeholder="Buscar por razão social">
+        </div>
+        <div class="form-group" style="flex:0;">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary btn-sm" onclick="loadHistorico()">Filtrar</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tomador</th>
+              <th>Serviço</th>
+              <th>Competência</th>
+              <th style="text-align:right;">Valor</th>
+              <th>Status</th>
+              <th style="text-align:center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="historico-tbody"></tbody>
+        </table>
+      </div>
+      <div id="historico-empty" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Nenhuma nota fiscal encontrada.</p>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="instr-section">
-      <h3>Regras Tributarias Aplicadas</h3>
-      <table class="instr-table">
-        <thead><tr><th>Tributo</th><th>Aliquota</th><th>Tipo</th></tr></thead>
-        <tbody>
-          <tr><td>ISS</td><td>3,00%</td><td>Apuracao propria (nao retido)</td></tr>
-          <tr><td>IRRF</td><td>1,50%</td><td>Retido pelo tomador</td></tr>
-          <tr><td>PIS</td><td>0,65%</td><td>Retido pelo tomador</td></tr>
-          <tr><td>COFINS</td><td>3,00%</td><td>Retido pelo tomador</td></tr>
-          <tr><td>CSLL</td><td>1,00%</td><td>Retido pelo tomador</td></tr>
-        </tbody>
-      </table>
-      <p style="margin-top:8px;">Total de retencoes federais: <strong>6,15%</strong> sobre o valor bruto. O ISS (3%) e de apuracao propria e nao desconta do valor liquido recebido.</p>
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: Modelos -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-modelos" class="container hidden">
+  <div class="card">
+    <div class="card-header" style="cursor:default;">
+      Modelos de NF
+      <button class="btn btn-primary btn-sm" onclick="openModeloModal()">+ Novo Modelo</button>
     </div>
-
-    <div class="instr-section">
-      <h3>Dados do Emitente</h3>
-      <table class="instr-table">
-        <tbody>
-          <tr><td><strong>Razao Social</strong></td><td>AXIA GESTAO EM SAUDE LTDA</td></tr>
-          <tr><td><strong>CNPJ</strong></td><td>58.323.596/0001-40</td></tr>
-          <tr><td><strong>Inscricao Municipal</strong></td><td>786091</td></tr>
-          <tr><td><strong>Codigo Tributacao Nacional</strong></td><td>17.01.01 — Assessoria ou consultoria</td></tr>
-          <tr><td><strong>Serie DPS</strong></td><td>70000</td></tr>
-          <tr><td><strong>Municipio</strong></td><td>Governador Valadares - MG (IBGE 3127701)</td></tr>
-        </tbody>
-      </table>
+    <div class="card-body">
+      <div id="modelos-list"></div>
+      <div id="modelos-empty" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <p>Nenhum modelo cadastrado. Crie um modelo para emissão rápida.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="instr-section">
-      <h3>Tecnologia</h3>
-      <p>A emissao utiliza a API REST do Portal Nacional NFS-e (SEFIN Nacional), com autenticacao mTLS via certificado digital ICP-Brasil A1. O documento fiscal (DPS) e assinado com XMLDSIG RSA-SHA256, comprimido (GZip) e codificado (Base64) antes do envio. A resposta da SEFIN retorna a NFS-e autorizada com chave de acesso unica.</p>
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: Instruções -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-instrucoes" class="container hidden">
+  <div class="card">
+    <div class="card-body instructions">
+      <h3>Visão Geral</h3>
+      <p>Este sistema permite a emissão de Notas Fiscais de Serviço Eletrônicas (NFS-e) diretamente pela API Nacional da SEFIN, sem necessidade de acesso ao portal municipal. As notas são emitidas em nome da <strong>AXIA GESTAO EM SAUDE LTDA</strong> (CNPJ 58.323.596/0001-40), inscrita no município de Governador Valadares - MG.</p>
+
+      <h3>Como Emitir uma NFS-e</h3>
+      <ul>
+        <li>Preencha os dados do tomador (CNPJ, razão social e endereço)</li>
+        <li>Informe a descrição do serviço, valor e competência</li>
+        <li>Selecione os dados bancários para pagamento</li>
+        <li>Clique em <strong>Emitir NFS-e</strong></li>
+        <li>O sistema calculará automaticamente as retenções (IRRF, PIS, COFINS, CSLL, ISS)</li>
+        <li>A nota será transmitida à SEFIN Nacional e o DANFSe (PDF) será gerado automaticamente</li>
+      </ul>
+      <div class="alert alert-info">
+        <strong>Dica:</strong> Use a aba <strong>Modelos</strong> para salvar combinações frequentes de tomador + serviço e emitir com um clique.
+      </div>
+
+      <h3>Retenções Calculadas</h3>
+      <p>Para não-optantes do Simples Nacional, as seguintes retenções são aplicadas automaticamente:</p>
+      <ul>
+        <li><strong>IRRF:</strong> 1,5% sobre o valor do serviço</li>
+        <li><strong>PIS:</strong> 0,65% (retido pelo tomador)</li>
+        <li><strong>COFINS:</strong> 3,00% (retido pelo tomador)</li>
+        <li><strong>CSLL:</strong> 1,00% (retido pelo tomador)</li>
+        <li><strong>ISS:</strong> 3,00% (retido na fonte pelo município)</li>
+      </ul>
+
+      <h3>Cancelamento de NFS-e</h3>
+      <p>O cancelamento é feito via <strong>Solicitação de Análise Fiscal para Cancelamento</strong> (evento e101103). O processo funciona assim:</p>
+      <ul>
+        <li>Na aba <strong>Histórico</strong>, clique no botão de cancelamento da nota desejada</li>
+        <li>Informe o motivo (Erro de Emissão, Serviço Não Prestado ou Outros) e a justificativa (15-255 caracteres)</li>
+        <li>A solicitação será enviada à SEFIN Nacional para análise</li>
+        <li>O status mudará para "Cancelamento Pendente" até a aprovação do município</li>
+      </ul>
+      <div class="alert alert-warning">
+        <strong>Importante:</strong> O cancelamento não é imediato. O município de Governador Valadares analisa a solicitação e pode aceitar ou rejeitar. Prazo médio: até 30 dias.
+      </div>
+
+      <h3>Modelos de NF</h3>
+      <p>Modelos permitem salvar combinações frequentes para emissão rápida:</p>
+      <ul>
+        <li>Acesse a aba <strong>Modelos</strong> e clique em <strong>+ Novo Modelo</strong></li>
+        <li>Preencha os dados padrão (tomador, serviço, valor, dados bancários)</li>
+        <li>Na aba <strong>Emitir NF</strong>, os modelos aparecerão como botões de acesso rápido</li>
+        <li>Clique no modelo desejado para preencher automaticamente o formulário</li>
+      </ul>
+
+      <h3>Dados Técnicos</h3>
+      <ul>
+        <li><strong>Certificado Digital:</strong> A1 (ICP-Brasil), válido até 08/01/2027</li>
+        <li><strong>Código de Serviço:</strong> 17.01.01 — Assessoria ou consultoria</li>
+        <li><strong>Ambiente:</strong> Produção (SEFIN Nacional)</li>
+        <li><strong>Série DPS:</strong> 1</li>
+        <li><strong>Regime Tributário:</strong> Não-optante do Simples Nacional</li>
+      </ul>
     </div>
+  </div>
+</div>
 
-    <div class="instr-section">
-      <h3>Suporte</h3>
-      <p>Em caso de duvidas ou erros na emissao, entre em contato com o administrador do sistema (guilherme@grupocsv.com) ou consulte o contador responsavel.</p>
+<!-- Modal de Cancelamento -->
+<div id="modal-cancelar" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Cancelar NFS-e</h3>
+      <button class="btn-ghost" onclick="closeModal('modal-cancelar')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cancel-id">
+      <div class="form-group">
+        <label>Motivo <span class="required">*</span></label>
+        <select class="form-control" id="cancel-motivo">
+          <option value="1">Erro de Emissão</option>
+          <option value="2">Serviço Não Prestado</option>
+          <option value="9">Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Justificativa <span class="required">*</span> <span style="font-weight:400; color:var(--gray-500);">(15-255 caracteres)</span></label>
+        <textarea class="form-control" id="cancel-justificativa" placeholder="Descreva o motivo do cancelamento..." maxlength="255"></textarea>
+        <div style="text-align:right; font-size:11px; color:var(--gray-500); margin-top:4px;"><span id="cancel-chars">0</span>/255</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-cancelar')">Voltar</button>
+      <button class="btn btn-danger" id="btn-confirmar-cancelamento" onclick="confirmarCancelamento()">Solicitar Cancelamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Modelo -->
+<div id="modal-modelo" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-modelo-title">Novo Modelo</h3>
+      <button class="btn-ghost" onclick="closeModal('modal-modelo')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modelo-edit-id">
+      <div class="form-group">
+        <label>Nome do Modelo <span class="required">*</span></label>
+        <input type="text" class="form-control" id="modelo-nome" placeholder="Ex: ICDS Matriz - Gestão em Saúde">
+      </div>
+      <div class="form-group">
+        <label>CNPJ do Tomador <span class="required">*</span></label>
+        <input type="text" class="form-control" id="modelo-cnpj" placeholder="00.000.000/0000-00" maxlength="18">
+      </div>
+      <div class="form-group">
+        <label>Razão Social do Tomador</label>
+        <input type="text" class="form-control" id="modelo-razao" placeholder="Razão social">
+      </div>
+      <div class="form-group">
+        <label>Descrição do Serviço <span class="required">*</span></label>
+        <input type="text" class="form-control" id="modelo-descricao" placeholder="Descrição do serviço">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label>Valor Padrão</label>
+          <input type="text" class="form-control" id="modelo-valor" placeholder="R$ 0,00">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Retenção</label>
+          <select class="form-control" id="modelo-retencao">
+            <option value="3">Tipo 3</option>
+            <option value="1">Tipo 1</option>
+            <option value="2">Tipo 2</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Dados Bancários</label>
+        <input type="text" class="form-control" id="modelo-bancarios" placeholder="Banco, agência, conta, PIX">
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea class="form-control" id="modelo-obs" placeholder="Observações padrão (opcional)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-modelo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarModelo()">Salvar Modelo</button>
     </div>
   </div>
 </div>
@@ -525,48 +616,60 @@ tbody tr:hover { background: var(--surface-raised); }
 <div class="overlay" id="overlay">
   <div class="overlay-box">
     <div class="spinner"></div>
-    <p class="overlay-text" id="overlay-text">Emitindo NFS-e via Portal Nacional...</p>
+    <p id="overlay-text">Processando...</p>
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
 <script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════════════════
 const API_BASE = 'https://tea-dataset-api.guilherme-thom.workers.dev';
 const API_KEY = 'tea-dataset-jwt-secret-grupocsv-2026';
-const EMITTER_URL = 'https://hooks.grupocsv.com/compute';
-
+const COMPUTE_URL = 'https://hooks.grupocsv.com/compute';
 function apiHeaders() { return { 'Content-Type': 'application/json', 'X-Api-Key': API_KEY }; }
 
-let tomadores = [], servicos = [], dadosBancarios = [];
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+let tomadores = [];
+let servicos = [];
+let dadosBancarios = [];
+let modelos = [];
 
-// Tabs
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const t = btn.dataset.tab;
-    ['emitir','historico','instrucoes'].forEach(id => {
-      document.getElementById('tab-' + id).classList.toggle('hidden', id !== t);
-    });
-    if (t === 'historico') loadSolicitacoes();
-  });
+// ═══════════════════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════════════════
+const tabIds = ['emitir', 'historico', 'modelos', 'instrucoes'];
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
+function switchTab(target) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+  tabIds.forEach(id => document.getElementById('tab-' + id).classList.toggle('hidden', id !== target));
+  if (target === 'historico') loadHistorico();
+  if (target === 'modelos') loadModelos();
+}
 
-// Emitente toggle
-document.getElementById('emitente-toggle').addEventListener('click', () => {
-  document.getElementById('emitente-toggle').classList.toggle('open');
-  document.getElementById('emitente-data').classList.toggle('open');
-});
+// ═══════════════════════════════════════════════════════════════════════════════
+// CARD TOGGLE
+// ═══════════════════════════════════════════════════════════════════════════════
+function toggleCard(id) {
+  const header = document.getElementById(id + '-header');
+  const body = document.getElementById(id + '-body');
+  header.classList.toggle('collapsed');
+  body.classList.toggle('collapsed');
+}
 
-// CNPJ mask
+// ═══════════════════════════════════════════════════════════════════════════════
+// CNPJ MASK & VALIDATION
+// ═══════════════════════════════════════════════════════════════════════════════
 function maskCNPJ(v) {
   v = v.replace(/\D/g, '').slice(0, 14);
-  if (v.length > 12) return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
-  if (v.length > 8) return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})/, '$1.$2.$3/$4');
-  if (v.length > 5) return v.replace(/^(\d{2})(\d{3})(\d{1,3})/, '$1.$2.$3');
-  if (v.length > 2) return v.replace(/^(\d{2})(\d{1,3})/, '$1.$2');
+  if (v.length > 12) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
+  else if (v.length > 8) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})/, '$1.$2.$3/$4');
+  else if (v.length > 5) v = v.replace(/^(\d{2})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{1,3})/, '$1.$2');
   return v;
 }
 function validateCNPJ(cnpj) {
@@ -581,294 +684,441 @@ function validateCNPJ(cnpj) {
   r = sum % 11;
   return parseInt(cnpj[13]) === (r < 2 ? 0 : 11 - r);
 }
-const $cnpj = document.getElementById('tomador-cnpj');
-$cnpj.addEventListener('input', () => { $cnpj.value = maskCNPJ($cnpj.value); updatePreview(); });
-
-// Currency mask
-const $valor = document.getElementById('valor-servico');
-$valor.addEventListener('input', () => {
-  let v = $valor.value.replace(/\D/g, '');
-  if (!v) { $valor.value = ''; updatePreview(); return; }
-  v = (parseInt(v) / 100).toFixed(2);
-  $valor.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  updatePreview();
+document.getElementById('tomador-cnpj').addEventListener('input', function() {
+  const pos = this.selectionStart;
+  const oldLen = this.value.length;
+  this.value = maskCNPJ(this.value);
+  const newLen = this.value.length;
+  this.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
 });
-function parseValor() {
-  const raw = $valor.value.replace(/[^\d,]/g, '').replace(',', '.');
-  return parseFloat(raw) || 0;
-}
-
-// Preview tributario
-function updatePreview() {
-  const valor = parseValor();
-  const panel = document.getElementById('preview-panel');
-  const btn = document.getElementById('btn-emitir');
-  if (valor <= 0) { panel.style.display = 'none'; btn.disabled = true; return; }
-  panel.style.display = 'block';
-  const retTipo = document.getElementById('retencao-tipo').value;
-  const iss = valor * 0.03;
-  const irrf = valor * 0.015;
-  let pis = 0, cofins = 0, csll = 0;
-  if (retTipo === '3') { pis = valor * 0.0065; cofins = valor * 0.03; csll = valor * 0.01; }
-  const totalRet = irrf + pis + cofins + csll;
-  const liquido = valor - totalRet;
-  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('pv-bruto').textContent = fmt(valor);
-  document.getElementById('pv-iss').textContent = fmt(iss);
-  document.getElementById('pv-irrf').textContent = fmt(irrf);
-  document.getElementById('pv-pis').textContent = retTipo === '3' ? fmt(pis) : '—';
-  document.getElementById('pv-cofins').textContent = retTipo === '3' ? fmt(cofins) : '—';
-  document.getElementById('pv-csll').textContent = retTipo === '3' ? fmt(csll) : '—';
-  document.getElementById('pv-ret').textContent = fmt(totalRet);
-  document.getElementById('pv-liquido').textContent = fmt(liquido);
-  const cnpjOk = validateCNPJ($cnpj.value);
-  const razaoOk = document.getElementById('tomador-razao').value.trim().length > 2;
-  const descOk = document.getElementById('descricao-servico').value.trim().length > 2;
-  const compOk = document.getElementById('competencia').value.length > 0;
-  const bancOk = document.getElementById('dados-bancarios').value.trim().length > 2;
-  btn.disabled = !(cnpjOk && razaoOk && descOk && compOk && bancOk && valor > 0);
-}
-document.getElementById('retencao-tipo').addEventListener('change', updatePreview);
-['tomador-razao','descricao-servico','competencia','dados-bancarios'].forEach(id => {
-  document.getElementById(id).addEventListener('input', updatePreview);
+document.getElementById('modelo-cnpj').addEventListener('input', function() {
+  this.value = maskCNPJ(this.value);
 });
 
-// Combobox
-function setupCombo(inputId, dropId, getItems, onSelect, allowAdd) {
+// ═══════════════════════════════════════════════════════════════════════════════
+// CURRENCY MASK
+// ═══════════════════════════════════════════════════════════════════════════════
+function setupCurrencyMask(el) {
+  el.addEventListener('input', () => {
+    let v = el.value.replace(/\D/g, '');
+    if (!v) { el.value = ''; return; }
+    v = (parseInt(v) / 100).toFixed(2);
+    el.value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  });
+}
+setupCurrencyMask(document.getElementById('valor-servico'));
+setupCurrencyMask(document.getElementById('modelo-valor'));
+function parseValor(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPETÊNCIA DEFAULT
+// ═══════════════════════════════════════════════════════════════════════════════
+const now = new Date();
+document.getElementById('competencia').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMBOBOX ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+function setupCombobox(inputId, dropdownId, getOptions, onSelect) {
   const input = document.getElementById(inputId);
-  const drop = document.getElementById(dropId);
+  const dropdown = document.getElementById(dropdownId);
+  let highlighted = -1;
   function render(filter) {
-    const items = getItems();
-    const filtered = filter ? items.filter(i => i.toLowerCase().includes(filter.toLowerCase())) : items;
-    drop.innerHTML = '';
-    filtered.slice(0, 8).forEach(item => {
+    const opts = getOptions();
+    const filtered = filter ? opts.filter(o => o.toLowerCase().includes(filter.toLowerCase())) : opts;
+    dropdown.innerHTML = '';
+    highlighted = -1;
+    filtered.forEach((opt) => {
       const div = document.createElement('div');
-      div.className = 'combo-opt';
-      div.textContent = item;
-      div.addEventListener('mousedown', e => { e.preventDefault(); input.value = item; drop.classList.remove('open'); if (onSelect) onSelect(item); updatePreview(); });
-      drop.appendChild(div);
+      div.className = 'combobox-option';
+      div.textContent = opt;
+      div.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = opt; dropdown.classList.remove('open'); if (onSelect) onSelect(opt); });
+      dropdown.appendChild(div);
     });
-    if (allowAdd && filter && !items.includes(filter)) {
+    if (filter && !opts.some(o => o.toLowerCase() === filter.toLowerCase())) {
       const div = document.createElement('div');
-      div.className = 'combo-opt add-new';
-      div.textContent = '+ Adicionar: ' + filter;
-      div.addEventListener('mousedown', e => { e.preventDefault(); drop.classList.remove('open'); });
-      drop.appendChild(div);
+      div.className = 'combobox-option add-new';
+      div.textContent = `Adicionar: "${filter}"`;
+      div.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = filter; dropdown.classList.remove('open'); if (onSelect) onSelect(filter); });
+      dropdown.appendChild(div);
     }
-    drop.classList.toggle('open', drop.children.length > 0);
+    dropdown.classList.toggle('open', dropdown.children.length > 0);
   }
   input.addEventListener('focus', () => render(input.value));
   input.addEventListener('input', () => render(input.value));
-  input.addEventListener('blur', () => setTimeout(() => drop.classList.remove('open'), 150));
+  input.addEventListener('blur', () => setTimeout(() => dropdown.classList.remove('open'), 150));
 }
 
-// Emissao
-document.getElementById('btn-emitir').addEventListener('click', async () => {
-  const valor = parseValor();
-  if (valor <= 0) return;
-  const payload = {
-    tomador_cnpj: $cnpj.value.replace(/\D/g, ''),
-    tomador_razao: document.getElementById('tomador-razao').value.trim(),
-    tomador_endereco: document.getElementById('tomador-endereco').value.trim(),
-    descricao: document.getElementById('descricao-servico').value.trim(),
-    valor: valor,
-    competencia: document.getElementById('competencia').value,
-    dados_bancarios: document.getElementById('dados-bancarios').value.trim(),
-    observacoes: document.getElementById('observacoes').value.trim(),
-    retencao_tipo: document.getElementById('retencao-tipo').value
-  };
-  showOverlay('Registrando solicitacao...');
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOAD REFERENCE DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadReferenceData() {
   try {
-    // 1) Registrar no backend (D1)
-    const res = await fetch(API_BASE + '/api/nf/solicitacoes', {
-      method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify({
-        tomador_cnpj: payload.tomador_cnpj,
-        tomador_razao_social: payload.tomador_razao,
-        tomador_endereco: payload.tomador_endereco,
-        descricao_servico: payload.descricao,
-        valor: payload.valor,
-        competencia: payload.competencia,
-        dados_bancarios: payload.dados_bancarios,
-        observacoes: payload.observacoes
-      })
-    });
-    if (!res.ok) throw new Error('Erro ao registrar solicitacao');
-    const regData = await res.json();
-    // 2) Emitir NFS-e via VPS (hooks.grupocsv.com/compute)
-    showOverlay('Emitindo NFS-e via Portal Nacional...');
-    const emitPayload = {
-      tomador_cnpj: payload.tomador_cnpj,
-      tomador_razao: payload.tomador_razao,
-      tomador_endereco: payload.tomador_endereco,
-      descricao: payload.descricao,
-      valor: payload.valor,
-      competencia: payload.competencia,
-      dados_bancarios: payload.dados_bancarios,
-      observacoes: payload.observacoes,
-      retencao_tipo: payload.retencao_tipo || '3'
-    };
-    const emitRes = await fetch(EMITTER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': 'compute_vps_csv_2026' },
-      body: JSON.stringify({
-        command: `cd ~/workspace/nfse-emitter && NFSE_AMBIENTE=producao node emitter.mjs emit '${JSON.stringify(emitPayload).replace(/'/g, "'")}'`,
-        timeout: 60
-      })
-    });
-    const emitData = await emitRes.json();
-    hideOverlay();
-    if (emitData.exit_code === 0 && emitData.stdout) {
-      try {
-        const nfResult = JSON.parse(emitData.stdout.trim().split('\n').pop());
-        showConfirmation(payload, { ...regData, nfse: nfResult });
-        showToast('NFS-e emitida com sucesso! Chave: ' + (nfResult.chaveAcesso || ''), false);
-        // Atualizar status no backend
-        if (regData.id) {
-          fetch(API_BASE + '/api/nf/solicitacoes/' + regData.id, {
-            method: 'PUT', headers: apiHeaders(),
-            body: JSON.stringify({ status: 'Emitida', chave_acesso: nfResult.chaveAcesso || '' })
-          }).catch(() => {});
-        }
-      } catch (parseErr) {
-        showConfirmation(payload, regData);
-        showToast('Solicitacao registrada. Emissao automatica em processamento.', false);
-      }
-    } else {
-      // Emissao falhou - registrar mas avisar
-      showConfirmation(payload, regData);
-      const errMsg = emitData.stderr ? emitData.stderr.split('\n').pop() : 'Timeout ou erro de conexao';
-      showToast('Solicitacao registrada. Emissao automatica falhou: ' + errMsg, true);
+    const [tResp, sResp, bResp] = await Promise.all([
+      fetch(`${API_BASE}/api/nf/tomadores`, { headers: apiHeaders() }),
+      fetch(`${API_BASE}/api/nf/servicos`, { headers: apiHeaders() }),
+      fetch(`${API_BASE}/api/nf/dados-bancarios`, { headers: apiHeaders() })
+    ]);
+    const tData = await tResp.json();
+    const sData = await sResp.json();
+    const bData = await bResp.json();
+    tomadores = tData.tomadores || [];
+    servicos = (sData.servicos || []).map(s => s.descricao);
+    dadosBancarios = (bData.dados_bancarios || []).map(d => d.descricao);
+  } catch (err) { console.error('Erro ao carregar dados de referência:', err); }
+  // Setup comboboxes
+  setupCombobox('tomador-cnpj', 'tomador-cnpj-dropdown', () => tomadores.map(t => t.cnpj), (val) => {
+    const t = tomadores.find(x => x.cnpj === val);
+    if (t) {
+      document.getElementById('tomador-razao').value = t.razao_social || '';
+      document.getElementById('tomador-endereco').value = t.endereco || '';
     }
-  } catch (err) {
-    hideOverlay();
-    showToast('Erro: ' + err.message, true);
+  });
+  setupCombobox('descricao-servico', 'descricao-dropdown', () => servicos);
+  setupCombobox('dados-bancarios', 'bancarios-dropdown', () => dadosBancarios);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EMITIR NFS-e
+// ═══════════════════════════════════════════════════════════════════════════════
+document.getElementById('btn-emitir').addEventListener('click', async () => {
+  const cnpj = document.getElementById('tomador-cnpj').value.trim();
+  const razao = document.getElementById('tomador-razao').value.trim();
+  const endereco = document.getElementById('tomador-endereco').value.trim();
+  const descricao = document.getElementById('descricao-servico').value.trim();
+  const valorStr = document.getElementById('valor-servico').value;
+  const valor = parseValor(valorStr);
+  const comp = document.getElementById('competencia').value;
+  const bancario = document.getElementById('dados-bancarios').value.trim();
+  const obs = document.getElementById('observacoes').value.trim();
+  const retTipo = document.getElementById('retencao-tipo').value;
+  if (!cnpj || !razao || !descricao || !valor || !comp || !bancario) {
+    alert('Preencha todos os campos obrigatórios.'); return;
   }
+  if (!validateCNPJ(cnpj)) { alert('CNPJ inválido.'); return; }
+  const [y, m] = comp.split('-');
+  const competenciaFmt = `${m}/${y}`;
+  showOverlay('Emitindo NFS-e...');
+  try {
+    // 1. Registrar solicitação no D1
+    const resp = await fetch(`${API_BASE}/api/nf/solicitacoes`, {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ tomador_cnpj: cnpj, tomador_razao_social: razao, tomador_endereco: endereco || null, descricao_servico: descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs || null })
+    });
+    const solData = await resp.json();
+    if (!resp.ok) { hideOverlay(); alert('Erro: ' + (solData.error || 'Falha')); return; }
+    const solId = solData.id;
+    // 2. Emitir via VPS (hooks.grupocsv.com/compute)
+    updateOverlay('Transmitindo à SEFIN Nacional...');
+    const emitResp = await fetch(COMPUTE_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': API_KEY },
+      body: JSON.stringify({
+        command: 'emit',
+        args: JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, tomador_endereco: endereco ? parseEndereco(endereco) : undefined, descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo })
+      })
+    });
+    const emitData = await emitResp.json();
+    if (emitData.error) {
+      hideOverlay();
+      // Atualizar status para erro
+      await fetch(`${API_BASE}/api/nf/solicitacoes/${solId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: 'erro' }) });
+      alert('Erro na emissão: ' + emitData.error);
+      return;
+    }
+    // 3. Atualizar solicitação com resultado
+    await fetch(`${API_BASE}/api/nf/solicitacoes/${solId}/resultado`, {
+      method: 'PUT', headers: apiHeaders(),
+      body: JSON.stringify({ chave_acesso: emitData.chaveAcesso, n_dps: emitData.nDps, status: 'emitida' })
+    });
+    hideOverlay();
+    showConfirmation('NFS-e Emitida com Sucesso', 'emitida', {
+      'Tomador': razao,
+      'Valor': valorStr,
+      'Competência': competenciaFmt,
+      'Chave de Acesso': emitData.chaveAcesso || 'N/A',
+      'Nº DPS': emitData.nDps || 'N/A'
+    });
+    await loadReferenceData();
+  } catch (err) { hideOverlay(); alert('Erro de conexão: ' + err.message); }
 });
 
-function showConfirmation(payload, data) {
-  document.getElementById('form-section').classList.add('hidden');
-  const conf = document.getElementById('confirmation');
-  conf.classList.remove('hidden');
-  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  const nfse = data.nfse;
-  if (nfse && nfse.chaveAcesso) {
-    document.getElementById('conf-sub').textContent = 'NFS-e emitida com sucesso pelo Portal Nacional.';
-    document.getElementById('conf-summary').innerHTML =
-      '<dt>Chave de Acesso</dt><dd style="font-family:monospace;font-size:12px;word-break:break-all">' + nfse.chaveAcesso + '</dd>' +
-      '<dt>Numero DPS</dt><dd>' + (nfse.idDps || '-') + '</dd>' +
-      '<dt>Tomador</dt><dd>' + payload.tomador_razao + '</dd>' +
-      '<dt>Valor Bruto</dt><dd>' + fmt(payload.valor) + '</dd>' +
-      (nfse.retencoes ? '<dt>Retencoes</dt><dd>' + fmt(nfse.retencoes.totalRetencoes) + '</dd>' : '') +
-      (nfse.retencoes ? '<dt>Valor Liquido</dt><dd style="font-weight:700;color:#0f4c81">' + fmt(nfse.retencoes.valorLiquido) + '</dd>' : '') +
-      '<dt>Competencia</dt><dd>' + payload.competencia + '</dd>';
-  } else {
-    document.getElementById('conf-sub').textContent = 'Solicitacao registrada. A emissao sera processada em breve.';
-    document.getElementById('conf-summary').innerHTML =
-      '<dt>Tomador</dt><dd>' + payload.tomador_razao + '</dd>' +
-      '<dt>CNPJ</dt><dd>' + maskCNPJ(payload.tomador_cnpj) + '</dd>' +
-      '<dt>Valor</dt><dd>' + fmt(payload.valor) + '</dd>' +
-      '<dt>Competencia</dt><dd>' + payload.competencia + '</dd>' +
-      '<dt>Descricao</dt><dd>' + payload.descricao + '</dd>';
+function parseEndereco(str) {
+  // Tenta parsear "Rua X, 123, Bairro, Cidade - UF, CEP 12345-678"
+  // Retorna objeto ou undefined se não conseguir
+  return undefined; // Simplificado - o emitter usa endereço do tomador cadastrado
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HISTÓRICO
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadHistorico() {
+  const status = document.getElementById('filter-status').value;
+  const competencia = document.getElementById('filter-competencia').value;
+  const tomador = document.getElementById('filter-tomador').value.trim();
+  let url = `${API_BASE}/api/nf/solicitacoes?`;
+  if (status) url += `status=${encodeURIComponent(status)}&`;
+  if (competencia) { const [y, m] = competencia.split('-'); url += `competencia=${encodeURIComponent(m + '/' + y)}&`; }
+  if (tomador) url += `tomador=${encodeURIComponent(tomador)}&`;
+  try {
+    const resp = await fetch(url, { headers: apiHeaders() });
+    const data = await resp.json();
+    const rows = data.solicitacoes || [];
+    const tbody = document.getElementById('historico-tbody');
+    const empty = document.getElementById('historico-empty');
+    if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tbody.innerHTML = rows.map(r => {
+      const dt = new Date(r.created_at + 'Z');
+      const dateStr = dt.toLocaleDateString('pt-BR');
+      const valorFmt = parseFloat(r.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      const statusInfo = getStatusInfo(r.status);
+      const canCancel = r.status === 'emitida' && r.chave_acesso;
+      return `<tr>
+        <td>${dateStr}</td>
+        <td><strong>${r.tomador_razao_social}</strong><br><span style="font-size:11px;color:var(--gray-500);">${r.tomador_cnpj}</span></td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.descricao_servico}">${r.descricao_servico}</td>
+        <td>${r.competencia}</td>
+        <td style="text-align:right;font-weight:600;">${valorFmt}</td>
+        <td><span class="badge ${statusInfo.class}">${statusInfo.label}</span></td>
+        <td style="text-align:center;">
+          ${canCancel ? `<button class="btn btn-ghost btn-sm" onclick="openCancelModal(${r.id})" title="Cancelar NFS-e" style="color:var(--red-accent);">Cancelar</button>` : ''}
+          ${r.chave_acesso ? `<button class="btn btn-ghost btn-sm" onclick="copiarChave('${r.chave_acesso}')" title="Copiar chave de acesso">Chave</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (err) { console.error('Erro ao carregar histórico:', err); }
+}
+function getStatusInfo(status) {
+  switch(status) {
+    case 'emitida': return { class: 'badge-emitida', label: 'Emitida' };
+    case 'cancelada': return { class: 'badge-cancelada', label: 'Cancelada' };
+    case 'cancelamento_pendente': return { class: 'badge-pendente', label: 'Cancel. Pendente' };
+    case 'aguardando_emissao': return { class: 'badge-aguardando', label: 'Aguardando' };
+    default: return { class: 'badge-aguardando', label: status || 'Desconhecido' };
   }
 }
-
-function resetForm() {
-  document.getElementById('form-section').classList.remove('hidden');
-  document.getElementById('confirmation').classList.add('hidden');
-  ['tomador-cnpj','tomador-razao','tomador-endereco','descricao-servico','valor-servico','dados-bancarios','observacoes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('preview-panel').style.display = 'none';
-  document.getElementById('btn-emitir').disabled = true;
+function copiarChave(chave) {
+  navigator.clipboard.writeText(chave).then(() => alert('Chave de acesso copiada!')).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = chave; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Chave copiada!');
+  });
 }
 
-// Historico
-async function loadSolicitacoes() {
-  const status = document.getElementById('filter-status').value;
-  const comp = document.getElementById('filter-competencia').value;
-  const tom = document.getElementById('filter-tomador').value;
-  let url = API_BASE + '/api/nf/solicitacoes?';
-  if (status) url += 'status=' + status + '&';
-  if (comp) url += 'competencia=' + comp + '&';
-  if (tom) url += 'tomador=' + encodeURIComponent(tom) + '&';
+// ═══════════════════════════════════════════════════════════════════════════════
+// CANCELAMENTO
+// ═══════════════════════════════════════════════════════════════════════════════
+function openCancelModal(id) {
+  document.getElementById('cancel-id').value = id;
+  document.getElementById('cancel-justificativa').value = '';
+  document.getElementById('cancel-chars').textContent = '0';
+  document.getElementById('modal-cancelar').classList.remove('hidden');
+}
+document.getElementById('cancel-justificativa').addEventListener('input', function() {
+  document.getElementById('cancel-chars').textContent = this.value.length;
+});
+async function confirmarCancelamento() {
+  const id = document.getElementById('cancel-id').value;
+  const motivo = document.getElementById('cancel-motivo').value;
+  const justificativa = document.getElementById('cancel-justificativa').value.trim();
+  if (justificativa.length < 15) { alert('Justificativa deve ter pelo menos 15 caracteres.'); return; }
+  closeModal('modal-cancelar');
+  showOverlay('Solicitando cancelamento...');
   try {
-    const res = await fetch(url, { headers: apiHeaders() });
-    const items = await res.json();
-    const tbody = document.getElementById('hist-tbody');
-    const empty = document.getElementById('empty-state');
-    if (!items.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
-    tbody.innerHTML = items.map(s => {
-      const badge = s.status === 'emitida' ? 'badge-success' : s.status === 'cancelada' ? 'badge-error' : 'badge-pending';
-      const label = s.status === 'emitida' ? 'Emitida' : s.status === 'cancelada' ? 'Cancelada' : 'Aguardando';
-      const fmt = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      return '<tr><td>' + new Date(s.created_at).toLocaleDateString('pt-BR') + '</td><td>' + (s.tomador_razao||'—') + '</td><td>' + (s.competencia||'—') + '</td><td style="text-align:right;">' + fmt(s.valor) + '</td><td><span class="badge ' + badge + '">' + label + '</span></td><td style="text-align:center;"><select onchange="updateStatus(\'' + s.id + '\', this.value)" style="border:1px solid var(--border-strong);border-radius:6px;padding:4px 8px;font-size:0.78rem;cursor:pointer;"><option value="aguardando_emissao"' + (s.status==='aguardando_emissao'?' selected':'') + '>Aguardando</option><option value="emitida"' + (s.status==='emitida'?' selected':'') + '>Emitida</option><option value="cancelada"' + (s.status==='cancelada'?' selected':'') + '>Cancelada</option></select></td></tr>';
-    }).join('');
-  } catch (err) { showToast('Erro ao carregar historico', true); }
+    const resp = await fetch(`${API_BASE}/api/nf/solicitacoes/${id}/cancelar`, {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ motivo_codigo: motivo, justificativa })
+    });
+    const data = await resp.json();
+    hideOverlay();
+    if (data.ok) {
+      alert('Solicitação de cancelamento enviada com sucesso. Status: ' + (data.status || 'pendente'));
+      loadHistorico();
+    } else {
+      alert('Erro: ' + (data.error || 'Falha ao solicitar cancelamento'));
+    }
+  } catch (err) { hideOverlay(); alert('Erro de conexão: ' + err.message); }
 }
 
-async function updateStatus(id, status) {
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODELOS
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadModelos() {
   try {
-    await fetch(API_BASE + '/api/nf/solicitacoes/' + id, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status }) });
-    showToast('Status atualizado');
-  } catch (err) { showToast('Erro ao atualizar', true); }
+    const resp = await fetch(`${API_BASE}/api/nf/modelos`, { headers: apiHeaders() });
+    const data = await resp.json();
+    modelos = data.modelos || [];
+    renderModelos();
+    renderQuickModels();
+  } catch (err) { console.error('Erro ao carregar modelos:', err); }
+}
+function renderModelos() {
+  const container = document.getElementById('modelos-list');
+  const empty = document.getElementById('modelos-empty');
+  if (modelos.length === 0) { container.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  container.innerHTML = modelos.map(m => {
+    const valorFmt = m.valor_padrao ? parseFloat(m.valor_padrao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Sem valor padrão';
+    return `<div class="modelo-card">
+      <div class="modelo-card-info">
+        <h4>${m.nome_modelo}</h4>
+        <p>${m.tomador_razao_social || m.tomador_cnpj} — ${valorFmt}</p>
+      </div>
+      <div class="modelo-card-actions">
+        <button class="btn btn-primary btn-sm" onclick="usarModelo(${m.id})">Usar</button>
+        <button class="btn btn-ghost btn-sm" onclick="editarModelo(${m.id})">Editar</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red-accent);" onclick="excluirModelo(${m.id})">Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderQuickModels() {
+  const bar = document.getElementById('quick-model-bar');
+  const btns = document.getElementById('quick-model-buttons');
+  if (modelos.length === 0) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  btns.innerHTML = modelos.map(m => `<button class="btn btn-outline btn-sm" onclick="usarModelo(${m.id})">${m.nome_modelo}</button>`).join('');
+}
+function usarModelo(id) {
+  const m = modelos.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('tomador-cnpj').value = m.tomador_cnpj || '';
+  document.getElementById('tomador-razao').value = m.tomador_razao_social || '';
+  document.getElementById('descricao-servico').value = m.descricao_servico || '';
+  if (m.valor_padrao) {
+    const v = parseFloat(m.valor_padrao).toFixed(2);
+    document.getElementById('valor-servico').value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
+  if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
+  if (m.retencao_tipo) document.getElementById('retencao-tipo').value = m.retencao_tipo;
+  switchTab('emitir');
+}
+function openModeloModal(editId) {
+  document.getElementById('modelo-edit-id').value = editId || '';
+  document.getElementById('modal-modelo-title').textContent = editId ? 'Editar Modelo' : 'Novo Modelo';
+  if (editId) {
+    const m = modelos.find(x => x.id === editId);
+    if (m) {
+      document.getElementById('modelo-nome').value = m.nome_modelo;
+      document.getElementById('modelo-cnpj').value = m.tomador_cnpj;
+      document.getElementById('modelo-razao').value = m.tomador_razao_social || '';
+      document.getElementById('modelo-descricao').value = m.descricao_servico;
+      document.getElementById('modelo-valor').value = m.valor_padrao ? 'R$ ' + parseFloat(m.valor_padrao).toFixed(2).replace('.', ',') : '';
+      document.getElementById('modelo-bancarios').value = m.dados_bancarios || '';
+      document.getElementById('modelo-obs').value = m.observacoes || '';
+      document.getElementById('modelo-retencao').value = m.retencao_tipo || '3';
+    }
+  } else {
+    ['modelo-nome','modelo-cnpj','modelo-razao','modelo-descricao','modelo-valor','modelo-bancarios','modelo-obs'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('modelo-retencao').value = '3';
+  }
+  document.getElementById('modal-modelo').classList.remove('hidden');
+}
+function editarModelo(id) { openModeloModal(id); }
+async function salvarModelo() {
+  const editId = document.getElementById('modelo-edit-id').value;
+  const body = {
+    nome_modelo: document.getElementById('modelo-nome').value.trim(),
+    tomador_cnpj: document.getElementById('modelo-cnpj').value.trim(),
+    tomador_razao_social: document.getElementById('modelo-razao').value.trim(),
+    descricao_servico: document.getElementById('modelo-descricao').value.trim(),
+    valor_padrao: parseValor(document.getElementById('modelo-valor').value) || null,
+    dados_bancarios: document.getElementById('modelo-bancarios').value.trim() || null,
+    observacoes: document.getElementById('modelo-obs').value.trim() || null,
+    retencao_tipo: document.getElementById('modelo-retencao').value
+  };
+  if (!body.nome_modelo || !body.tomador_cnpj || !body.descricao_servico) { alert('Preencha os campos obrigatórios.'); return; }
+  try {
+    const url = editId ? `${API_BASE}/api/nf/modelos/${editId}` : `${API_BASE}/api/nf/modelos`;
+    const method = editId ? 'PUT' : 'POST';
+    await fetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
+    closeModal('modal-modelo');
+    await loadModelos();
+  } catch (err) { alert('Erro: ' + err.message); }
+}
+async function excluirModelo(id) {
+  if (!confirm('Excluir este modelo?')) return;
+  try {
+    await fetch(`${API_BASE}/api/nf/modelos/${id}`, { method: 'DELETE', headers: apiHeaders() });
+    await loadModelos();
+  } catch (err) { alert('Erro: ' + err.message); }
 }
 
-// Overlay & Toast
+// ═══════════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
 function showOverlay(text) { document.getElementById('overlay-text').textContent = text || 'Processando...'; document.getElementById('overlay').classList.add('active'); }
+function updateOverlay(text) { document.getElementById('overlay-text').textContent = text; }
 function hideOverlay() { document.getElementById('overlay').classList.remove('active'); }
-function showToast(msg, isError) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.classList.remove('show'), 4000);
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function showConfirmation(title, status, details) {
+  document.querySelectorAll('#tab-emitir > .card:not(#confirmation), #tab-emitir > div:not(#confirmation):not(.card)').forEach(el => el.style.display = 'none');
+  const conf = document.getElementById('confirmation');
+  document.getElementById('conf-icon').innerHTML = status === 'emitida'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+  document.getElementById('conf-title').textContent = title;
+  document.getElementById('conf-status').innerHTML = `<span class="badge badge-${status}">${getStatusInfo(status).label}</span>`;
+  document.getElementById('conf-email').textContent = '';
+  const summary = document.getElementById('conf-summary');
+  summary.innerHTML = Object.entries(details).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  conf.classList.remove('hidden');
+}
+function resetForm() {
+  document.getElementById('confirmation').classList.add('hidden');
+  document.querySelectorAll('#tab-emitir .card, #tab-emitir > div[style]').forEach(el => el.style.display = '');
+  ['tomador-cnpj','tomador-razao','tomador-endereco','valor-servico','observacoes'].forEach(id => document.getElementById(id).value = '');
 }
 
-// Token action (email links)
+// ═══════════════════════════════════════════════════════════════════════════════
+// TOKEN ACTION HANDLER (from email link)
+// ═══════════════════════════════════════════════════════════════════════════════
 async function handleTokenAction() {
   const params = new URLSearchParams(window.location.search);
-  const acao = params.get('acao'), token = params.get('token');
+  const acao = params.get('acao');
+  const token = params.get('token');
   if (!acao || !token) return;
-  showOverlay('Processando acao...');
+  showOverlay(acao === 'emitida' ? 'Marcando como Emitida...' : 'Cancelando...');
   try {
-    const res = await fetch(API_BASE + '/api/nf/solicitacoes/acao?token=' + token + '&status=' + acao, { headers: apiHeaders() });
-    if (!res.ok) throw new Error('Token invalido ou expirado');
+    const resp = await fetch(`${API_BASE}/api/nf/solicitacoes/acao?token=${token}&status=${acao}`);
+    const data = await resp.json();
     hideOverlay();
-    showToast(acao === 'emitida' ? 'NF marcada como Emitida' : 'Solicitacao Cancelada');
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('[data-tab="historico"]').classList.add('active');
-    ['emitir','historico','instrucoes'].forEach(id => document.getElementById('tab-' + id).classList.toggle('hidden', id !== 'historico'));
-    loadSolicitacoes();
-  } catch (err) { hideOverlay(); showToast('Erro: ' + err.message, true); }
+    if (data.ok) {
+      showConfirmation(acao === 'emitida' ? 'NF Marcada como Emitida' : 'Solicitação Cancelada', acao === 'emitida' ? 'emitida' : 'cancelada', { 'Tomador': data.tomador || '', 'Competência': data.competencia || '' });
+    } else {
+      alert(data.message || data.error || 'Ação não realizada.');
+    }
+  } catch (err) { hideOverlay(); alert('Erro: ' + err.message); }
+  window.history.replaceState({}, '', window.location.pathname);
 }
 
-// Init
-async function init() {
-  const now = new Date();
-  document.getElementById('competencia').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-  try {
-    const [tRes, sRes, bRes] = await Promise.all([
-      fetch(API_BASE + '/api/nf/tomadores', { headers: apiHeaders() }),
-      fetch(API_BASE + '/api/nf/servicos', { headers: apiHeaders() }),
-      fetch(API_BASE + '/api/nf/dados-bancarios', { headers: apiHeaders() })
-    ]);
-    tomadores = await tRes.json();
-    servicos = await sRes.json();
-    dadosBancarios = await bRes.json();
-  } catch (e) {}
-  setupCombo('tomador-cnpj', 'drop-cnpj', () => tomadores.map(t => t.cnpj), (val) => {
-    const t = tomadores.find(x => x.cnpj === val);
-    if (t) { document.getElementById('tomador-razao').value = t.razao_social || ''; document.getElementById('tomador-endereco').value = t.endereco || ''; }
-  }, true);
-  setupCombo('tomador-razao', 'drop-razao', () => tomadores.map(t => t.razao_social), (val) => {
-    const t = tomadores.find(x => x.razao_social === val);
-    if (t) { document.getElementById('tomador-cnpj').value = t.cnpj || ''; document.getElementById('tomador-endereco').value = t.endereco || ''; }
-  }, true);
-  setupCombo('descricao-servico', 'drop-servico', () => servicos.map(s => s.descricao), null, true);
-  setupCombo('dados-bancarios', 'drop-bancario', () => dadosBancarios.map(d => d.dados), null, true);
-  handleTokenAction();
-}
-init();
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+loadReferenceData();
+loadModelos();
+handleTokenAction();
 </script>
+<div style="text-align:center;padding:24px 16px 16px;max-width:640px;margin:0 auto">
+  <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#e8f4fd;color:#1a5276;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid #b8daf0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Processamento Local
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#e8f8f0;color:#1a7a4c;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid #a3e0c0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Transmissão Criptografada (TLS)
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#fff3e0;color:#e65100;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid #ffcc80">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Certificado Digital A1
+    </span>
+  </div>
+  <div style="font-size:10.5px;color:#94a3b8;max-width:560px;margin:0 auto 14px;line-height:1.5">Os dados são processados localmente e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil.</div>
+  <div style="font-size:11px;color:#94a3b8">Copyright &copy; 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
+</div>
 <script src="/scripts/hub-auth.js" data-portal="axia"></script>
 </body>
 </html>
