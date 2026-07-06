@@ -42,6 +42,17 @@
       line-height: 1.6;
     }
     .hidden { display: none !important; }
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--gray-900); color: #fff; padding: 12px 24px;
+      border-radius: var(--radius); font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow-lg); opacity: 0; transition: all 0.3s ease;
+      z-index: 9999; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-error { background: var(--red-accent); }
+    .toast-warning { background: var(--orange-accent); }
     /* ── Top bar ── */
     .top-bar {
       background: #fff;
@@ -58,7 +69,13 @@
     .top-bar-left { display: flex; align-items: center; gap: 16px; }
     .top-bar-left a { font-size: 13px; color: var(--blue-accent); text-decoration: none; }
     .top-bar-left a:hover { text-decoration: underline; }
-    .top-bar-title { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+    .top-bar-title { font-size: 15px; font-weight: 600; color: var(--gray-700); white-space: nowrap; }
+    @media (max-width: 480px) {
+      .top-bar { padding: 10px 12px; }
+      .top-bar-left { gap: 8px; }
+      .top-bar-title { font-size: 13px; }
+      .top-bar-badge { font-size: 10px; padding: 2px 6px; }
+    }
     .top-bar-badge {
       font-size: 11px; background: var(--green-light); color: var(--green-accent);
       padding: 3px 8px; border-radius: 12px; font-weight: 600;
@@ -638,6 +655,18 @@ let dadosBancarios = [];
 let modelos = [];
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════════════════
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'warning' ? ' toast-warning' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════════════════════════════
 const tabIds = ['emitir', 'historico', 'modelos', 'instrucoes'];
@@ -901,8 +930,8 @@ function getStatusInfo(status) {
   }
 }
 function copiarChave(chave) {
-  navigator.clipboard.writeText(chave).then(() => alert('Chave de acesso copiada!')).catch(() => {
-    const ta = document.createElement('textarea'); ta.value = chave; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Chave copiada!');
+  navigator.clipboard.writeText(chave).then(() => showToast('Chave de acesso copiada!')).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = chave; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Chave copiada!');
   });
 }
 
@@ -983,17 +1012,19 @@ function renderQuickModels() {
 function usarModelo(id) {
   const m = modelos.find(x => x.id === id);
   if (!m) return;
-  document.getElementById('tomador-cnpj').value = m.tomador_cnpj || '';
+  document.getElementById('tomador-cnpj').value = m.tomador_cnpj ? maskCNPJ(m.tomador_cnpj) : '';
   document.getElementById('tomador-razao').value = m.tomador_razao_social || '';
+  document.getElementById('tomador-endereco').value = m.tomador_endereco || '';
   document.getElementById('descricao-servico').value = m.descricao_servico || '';
   if (m.valor_padrao) {
     const v = parseFloat(m.valor_padrao).toFixed(2);
-    document.getElementById('valor-servico').value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById('valor-servico').value = 'R$ ' + v.replace('.', ',').replace(/\B(?=(d{3})+(?!\d))/g, '.');
   }
   if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
   if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
   if (m.retencao_tipo) document.getElementById('retencao-tipo').value = m.retencao_tipo;
   switchTab('emitir');
+  showToast(`Modelo "${m.nome_modelo}" aplicado`);
 }
 function openModeloModal(editId) {
   document.getElementById('modelo-edit-id').value = editId || '';
