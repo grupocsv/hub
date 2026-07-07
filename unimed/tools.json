@@ -31,10 +31,10 @@
     },
     {
       "file": "tea.html",
-      "title": "Painel Estratégico - ABA Psicologia",
+      "title": "Painel Estratégico - Psicologia ABA",
       "created": "2026-01-24T03:24:45+00:00",
-      "lastModified": "2026-03-07T08:44:14-05:00",
-      "note": "Claude Code: melhorar visual e funcional"
+      "lastModified": "2026-07-06T00:00:00+00:00",
+      "note": "Reconstruída em jul/2026: Plotly 3,4 MB → Chart.js CDN, design system Unimed, tabela e insights"
     },
     {
       "file": "vivapleno.html",
