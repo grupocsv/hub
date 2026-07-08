@@ -92,12 +92,12 @@
 
 
         .tool-card {
-            background: linear-gradient(135deg, rgba(27, 58, 92, 0.03) 0%, rgba(27, 58, 92, 0.05) 100%);
+            background: #ffffff;
             border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(27, 58, 92, 0.1);
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0, 78, 76, 0.04), 0 6px 24px rgba(0, 78, 76, 0.06);
+            transition: transform 220ms cubic-bezier(.2, .8, .2, 1), box-shadow 220ms cubic-bezier(.2, .8, .2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.06);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -113,70 +113,20 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--icds-blue) 0%, var(--icds-blue-light) 100%);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-
-        .tool-card:hover::before {
-            transform: scaleX(1);
         }
 
 
         .tool-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(27, 58, 92, 0.15);
-            background: linear-gradient(135deg, rgba(27, 58, 92, 0.06) 0%, rgba(27, 58, 92, 0.08) 100%);
-            border-color: rgba(27, 58, 92, 0.2);
-        }
-
-
-        .tool-card.featured {
-            background: linear-gradient(135deg, var(--icds-blue) 0%, #143050 100%);
-            color: white;
-            border-color: var(--icds-blue);
-        }
-
-
-        .tool-card.featured .tool-title {
-            color: white;
-        }
-
-
-        .tool-card.featured .tool-link {
-            background: var(--icds-blue-light);
-            border: 2px solid var(--icds-blue-light);
-        }
-
-
-        .tool-card.featured .tool-link:hover {
-            background: #3a7bc8;
-            border-color: #3a7bc8;
-            transform: translateY(-2px);
-        }
-
-
-        .tool-card.featured::after {
-            content: 'NOVO';
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: var(--icds-blue-light);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(42, 100, 150, 0.4);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
         }
 
 
         .tool-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--icds-blue);
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #1a2b3c;
             margin-bottom: 8px;
         }
 
@@ -184,24 +134,23 @@
         .tool-link {
             display: inline-block;
             margin-top: auto;
-            padding: 10px 20px;
+            padding: 11px 20px;
             background: var(--icds-blue);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            border: 2px solid var(--icds-blue);
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s ease;
+            font-size: 0.88rem;
+            transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
             text-align: center;
             cursor: pointer;
         }
 
 
         .tool-link:hover {
-            background: var(--icds-blue-light);
-            border-color: var(--icds-blue-light);
-            transform: translateY(-2px);
+            filter: brightness(1.12);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(27, 58, 92, 0.3);
         }
     </style>
 </head>
