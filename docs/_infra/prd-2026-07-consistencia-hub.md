@@ -5,7 +5,7 @@
 | **Data** | 07/07/2026 |
 | **Autor** | Guilherme Thomé (ditado) · consolidação por Claude Code |
 | **Escopo** | hub.grupocsv.com (repo `grupocsv/hub`) + workers relacionados |
-| **Status** | Parcialmente executado — ver coluna "Status" de cada item |
+| **Status** | Executado em 07–08/07/2026 (exceto rotação do token, procedimento entregue; e captura do "415" em produção, que depende de ocorrência) |
 | **Método** | Diagnóstico por 6 agentes paralelos com evidência arquivo:linha; implementação revisada em 3 rodadas independentes |
 
 ## 1. Contexto e objetivo
@@ -64,14 +64,14 @@ O Hub CSV é o centro documental da verdade sobre a infraestrutura do Grupo CSV 
 
 **Executado nesta rodada:** cards mortos removidos e card de repasse adicionado em `unihealth/index.html`; cards estáticos restilizados (ver §5).
 
-**Proposto (aguarda aprovação — mexe em CI/pipeline):**
-| Ação | Risco | Efeito |
-|---|---|---|
-| Guard-rail no `deploy.yml`: falhar o build se algum href de card estático ou `origin_page` do registry apontar para arquivo inexistente | baixo | impede recorrência estrutural |
-| Rodar os geradores no `sync-r2-ai-search.yml` antes do rclone | baixo | AI Search deixa de indexar artefatos stale |
-| Substituir `PRODUCT_TAXONOMY` por `<meta name="hub-category">` nas páginas | médio | manifest para de exigir edição manual |
-| `tools-overrides.json` por portal para preservar `note`/`featured` na regeneração | médio | anotações manuais não se perdem |
-| Dinamizar (fetch de tools.json) ou remover os `index.html` estáticos | médio | elimina a última lista duplicada |
+**Executado em 08/07/2026 (aprovação do Guilherme — "Execute o PRD"):**
+| Ação | Status |
+|---|---|
+| Guard-rail no CI: `scripts/check-portal-links.py` falha o build se algum href local (relativo OU absoluto) dos `index.html` estáticos **e dos índices VitePress servidos em produção** (`docs/{portal}/index.md`), ou `origin_page` do registry, apontar para arquivo inexistente (step "Check portal links" no `deploy.yml`, fail-fast antes do build) | ✅ executado — na primeira execução já flagrou o `origin_page` morto do registry (icds/tea.html), corrigido junto |
+| Geradores (`generate-portal-tools.py` + `generate-manifest.py`) rodando no `sync-r2-ai-search.yml` antes do rclone, com `fetch-depth: 0` | ✅ executado — AI Search deixa de indexar artefatos stale |
+| `generate-manifest.py` lê `<meta name="hub-category">`/`<meta name="hub-entity">` como fonte primária, com `PRODUCT_TAXONOMY` como fallback transitório; 10 entradas mortas removidas do dicionário; `icds/slides.html` incluída | ✅ executado — migração das páginas para meta tags pode ser gradual |
+| `{portal}/tools-overrides.json` aplicado pelo gerador (merge raso pós-extração); `unimed/tools-overrides.json` criado preservando as 4 notas manuais que a regeneração apagaria | ✅ executado |
+| Dinamizar (fetch de tools.json) ou remover os `index.html` estáticos | ⏸️ decisão registrada: **mantidos como fallback estático** — em produção o VitePress os sobrescreve, e o guard-rail acima passa a impedir estruturalmente o link morto, que era o risco real; dinamizá-los adicionaria dependência de JS sem ganho |
 
 ## 5. Frente 4 — Padrão visual dos cards internos ✅ EXECUTADO
 
@@ -90,10 +90,10 @@ O Hub CSV é o centro documental da verdade sobre a infraestrutura do Grupo CSV 
 
 **Executado:** `llms.txt` corrigido (apontava o fluxo legado como norma); `skills/public-pages.md` atualizado (aviso de legado + 3 vias Open Pages + passo do extras.json + contrato do slot hub-auth); seção de sincronização de menus adicionada a `docs/_infra/public-pages.md`.
 
-**Pendências que exigem decisão do Guilherme (não executadas):**
-1. **⚠️ SEGURANÇA (alto):** `admin/index.html` contém token Bearer hardcoded (`OP_AUTH_TOKEN`) das APIs de Open Pages, e o admin é publicado no site — o token fica exposto a qualquer um que leia o fonte. Requer mudança nos workers (repos privados `csv-open-pages`/`hub-unimedgv`) + rotação do token.
-2. `tea-dataset` está duplicado (ativo no `/p/` legado E no Open Pages) — decidir URL canônica e transformar a outra em redirect; o link legado pode estar compartilhado externamente.
-3. Portais axia/medvalor/thera fora do `generate-portal-tools.py` — incluir ou documentar exclusão.
+**Atualização de 08/07/2026 (execução aprovada):**
+1. **⚠️ SEGURANÇA — parcialmente executado:** o token Bearer hardcoded (`OP_AUTH_TOKEN`) foi **removido** do `admin/index.html` (e da cópia `docs/public/admin/`): o admin agora pede o token uma única vez e o guarda em `localStorage` (`op_admin_token`; troca via `opSetToken()` no console). Auditoria dos workers revelou que a **rotação não exige tocar em código**: ambos validam contra o KV (`config:admin_token`) e expõem `POST /api/change-password` autenticado. A tool MCP `open_page_publish` grava direto no R2/KV — não é afetada pela rotação. **A rotação em si ficou bloqueada pelo modo automático da sessão** — procedimento pronto (2 comandos) entregue ao Guilherme, com lembrete de registrar o novo token no Vault do Notion.
+2. `tea-dataset` — ✅ executado: URL canônica definida como `open.grupocsv.com/tea-dataset/` (versão mais recente; conteúdo útil e endpoints de envio idênticos, verificados em produção — a Open Pages tem apenas o botão "voltar ao hub" a mais). `/p/tea-dataset/` virou redirect (meta refresh + JS + canonical), preservando links já compartilhados; `p/registry.json` atualizado (campo `redirect_to`; `origin_page` obsoleto removido) e `icds/extras.json` aponta para a canônica.
+3. Portais axia/medvalor/thera — ✅ documentado em `docs/_infra/public-pages.md` (§ Sincronização de Menus): índices curados manualmente, sem menu dinâmico; incluí-los no gerador criaria artefatos que nada lê.
 
 ## 7. Frente 6 — Dados da tea.html: o que existe e o que dá para recortar
 

@@ -13,11 +13,13 @@
             --green: #2DBF7F;
             --red: #dc2626;
             --orange: #f59e0b;
+            --blue: #3b82f6;
             --bg: #f3f4f6;
             --card: #ffffff;
             --text: #1f2937;
             --text-secondary: #6b7280;
             --border: #e5e7eb;
+            --sidebar-width: 260px;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -72,17 +74,17 @@
         .auth-box .auth-submit:hover { opacity: 0.9; transform: translateY(-1px); }
         .auth-error { color: var(--red); font-size: 13px; text-align: center; margin-bottom: 12px; display: none; }
 
-        /* Dashboard */
+        /* Dashboard layout */
         #dashboard { display: none; }
-        #dashboard.visible { display: block; }
+        #dashboard.visible { display: flex; flex-direction: column; min-height: 100vh; }
 
         .topbar {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            padding: 16px 24px;
+            padding: 14px 24px;
             display: flex; align-items: center; justify-content: space-between;
-            color: white;
+            color: white; z-index: 100; position: sticky; top: 0;
         }
-        .topbar h1 { font-size: 18px; font-weight: 700; }
+        .topbar h1 { font-size: 17px; font-weight: 700; }
         .topbar-actions { display: flex; gap: 12px; align-items: center; }
         .topbar-user { font-size: 13px; opacity: 0.8; }
         .topbar-btn {
@@ -94,34 +96,72 @@
         .topbar-btn.hub { background: rgba(45,191,127,0.2); color: #2DBF7F; }
         .topbar-btn.hub:hover { background: rgba(45,191,127,0.3); }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        /* Layout: sidebar + main */
+        .app-layout {
+            display: flex; flex: 1;
+        }
 
-        /* Summary bar */
-        .summary-bar {
-            display: flex; gap: 24px; margin-bottom: 24px; padding: 16px 20px;
-            background: var(--card); border-radius: 14px; border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width); min-width: var(--sidebar-width);
+            background: var(--card); border-right: 1px solid var(--border);
+            padding: 16px 0; overflow-y: auto; position: sticky; top: 48px;
+            height: calc(100vh - 48px);
         }
-        .summary-item { display: flex; align-items: baseline; gap: 8px; }
-        .summary-item .s-value { font-size: 22px; font-weight: 800; color: var(--primary-dark); }
-        .summary-item .s-label { font-size: 13px; color: var(--text-secondary); }
-
-        /* Tabs */
-        .admin-tabs {
-            display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid var(--border);
+        .sidebar-section {
+            padding: 0 12px; margin-bottom: 8px;
         }
-        .admin-tab {
-            padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent;
-            color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s;
-            font-size: 14px; position: relative;
+        .sidebar-section-label {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-secondary);
+            padding: 8px 12px 4px; margin-bottom: 2px;
         }
-        .admin-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .admin-tab .tab-badge {
+        .sidebar-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 500; color: var(--text-secondary);
+            transition: all 0.15s; border: none; background: none;
+            width: 100%; text-align: left;
+        }
+        .sidebar-item:hover { background: #f3f4f6; color: var(--text); }
+        .sidebar-item.active { background: #e8f4fd; color: var(--primary); font-weight: 600; }
+        .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .sidebar-item .item-badge {
             background: var(--red); color: white; border-radius: 50%;
-            width: 20px; height: 20px; display: inline-flex; align-items: center;
-            justify-content: center; font-size: 11px; margin-left: 6px; font-weight: 700;
+            width: 18px; height: 18px; display: inline-flex; align-items: center;
+            justify-content: center; font-size: 10px; font-weight: 700; margin-left: auto;
         }
-        .admin-tab .tab-badge:empty { display: none; }
+        .sidebar-item .item-badge:empty { display: none; }
+
+        /* Main content */
+        .main-content {
+            flex: 1; padding: 24px; overflow-y: auto; min-width: 0;
+        }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--card); border-radius: 12px; padding: 18px 20px;
+            border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .summary-card .sc-label {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 6px;
+        }
+        .summary-card .sc-value {
+            font-size: 26px; font-weight: 800; color: var(--primary-dark);
+        }
+        .summary-card .sc-sub {
+            font-size: 11px; color: var(--text-secondary); margin-top: 4px;
+        }
+        .summary-card.accent .sc-value { color: var(--green); }
+        .summary-card.warn .sc-value { color: var(--orange); }
+        .summary-card.info .sc-value { color: var(--blue); }
+
+        /* Tab content */
         .admin-tab-content { display: none; }
         .admin-tab-content.active { display: block; }
 
@@ -158,6 +198,9 @@
         .badge.active { background: #dcfce7; color: #166534; }
         .badge.pending { background: #fef3c7; color: #92400e; }
         .badge.revoked { background: #fef2f2; color: #991b1b; }
+        .badge.inactive { background: #f3f4f6; color: #6b7280; }
+        .badge.sent { background: #dcfce7; color: #166534; }
+        .badge.failed { background: #fef2f2; color: #991b1b; }
 
         /* Request card */
         .request-card {
@@ -183,7 +226,7 @@
 
         /* Password card */
         .pw-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
         }
         .pw-card {
@@ -227,8 +270,11 @@
         }
         .action-btn.revoke { background: #fee2e2; color: var(--red); }
         .action-btn.revoke:hover { background: #fecaca; }
+        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-action.btn-danger { background: #fee2e2; color: var(--red); }
+        .btn-action.btn-danger:hover { background: #fecaca; }
 
-        /* Public links action buttons */
+        /* Public links */
         .pl-actions { display: flex; gap: 6px; }
         .pl-btn {
             display: inline-flex; align-items: center; justify-content: center;
@@ -243,7 +289,6 @@
         .pl-btn.pl-revoke:hover { background: #fef2f2; }
         .pl-btn.pl-restore { border-color: #2563eb; color: #2563eb; }
         .pl-btn.pl-restore:hover { background: #eff6ff; }
-        .badge.inactive { background: #f3f4f6; color: #6b7280; }
         .pl-origin { font-size: 12px; color: var(--text-secondary); }
         .pl-url { font-size: 12px; color: var(--primary); word-break: break-all; }
 
@@ -296,15 +341,46 @@
         .toast.success { background: var(--green); }
         .toast.error { background: var(--red); }
 
-        /* Responsive */
+        /* Mobile hamburger */
+        .sidebar-toggle {
+            display: none; background: none; border: none; color: white;
+            cursor: pointer; padding: 4px;
+        }
+        .sidebar-toggle svg { width: 22px; height: 22px; }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            .container { padding: 16px; }
-            .summary-bar { flex-direction: column; gap: 12px; }
+            .sidebar {
+                position: fixed; left: -260px; top: 48px; z-index: 90;
+                width: 260px; min-width: 260px;
+                height: calc(100vh - 48px);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+                transition: left 0.25s ease;
+            }
+            .sidebar.open { left: 0; }
+            .sidebar-overlay {
+                display: none; position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.3); z-index: 89;
+            }
+            .sidebar-overlay.open { display: block; }
+            .sidebar-toggle { display: block; }
+            .main-content { padding: 16px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .summary-card { padding: 14px 16px; }
+            .summary-card .sc-value { font-size: 22px; }
             .pw-grid { grid-template-columns: 1fr; }
             .request-card { flex-direction: column; align-items: stretch; }
-            .table-card { overflow-x: auto; }
+            .table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
             table { min-width: 500px; }
-            .topbar { flex-direction: column; gap: 12px; text-align: center; }
+            .topbar { padding: 10px 16px; }
+            .topbar h1 { font-size: 15px; }
+            .topbar-actions { gap: 8px; }
+            .topbar-btn { padding: 5px 10px; font-size: 12px; }
+            .section-header { font-size: 14px; }
+            td { padding: 10px 12px; font-size: 13px; }
+            th { padding: 8px 12px; font-size: 10px; }
+            .modal-box { padding: 24px; margin: 12px; }
+            .auth-box { padding: 32px 24px 28px; margin: 16px; }
         }
     </style>
 </head>
@@ -342,7 +418,13 @@
 <!-- Dashboard -->
 <div id="dashboard">
     <div class="topbar">
-        <h1>Hub CSV - Admin</h1>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <img src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-negativo-transparente.png" alt="Grupo CSV" style="height:28px;object-fit:contain;">
+            <h1>Hub CSV &mdash; Admin</h1>
+        </div>
         <div class="topbar-actions">
             <span class="topbar-user" id="topbar-user"></span>
             <a href="/" target="_self" class="topbar-btn hub">Hub</a>
@@ -350,210 +432,1083 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- Summary -->
-        <div class="summary-bar">
-            <div class="summary-item">
-                <span class="s-value" id="s-users">-</span>
-                <span class="s-label">usuários ativos</span>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Geral</div>
+                <button class="sidebar-item active" data-tab="overview">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Visão Geral
+                </button>
+                <button class="sidebar-item" data-tab="passwords">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Senhas
+                </button>
+                <button class="sidebar-item" data-tab="users">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Usuários
+                    <span class="item-badge" id="pending-badge"></span>
+                </button>
+                <button class="sidebar-item" data-tab="public-links">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    Links Públicos
+                </button>
+                <button class="sidebar-item" data-tab="access-logs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Log de Acessos
+                </button>
             </div>
-            <div class="summary-item">
-                <span class="s-value" id="s-pending">-</span>
-                <span class="s-label">solicitações pendentes</span>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Deck</div>
+                <button class="sidebar-item" data-tab="deck-users">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Usuários
+                </button>
+                <button class="sidebar-item" data-tab="deck-feedback">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Feedback
+                </button>
+                <button class="sidebar-item" data-tab="deck-memories">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Memórias
+                </button>
+                <button class="sidebar-item" data-tab="deck-api">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    API
+                </button>
             </div>
-            <div class="summary-item">
-                <span class="s-value" id="s-public">-</span>
-                <span class="s-label">links públicos</span>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Infraestrutura</div>
+                <button class="sidebar-item" data-tab="asset-bucket">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    Asset Bucket
+                </button>
+                <button class="sidebar-item" data-tab="cooperados-ugv">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Cooperados UGV
+                </button>
+                <button class="sidebar-item" data-tab="panta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Panta™
+                </button>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Comunicação</div>
+                <button class="sidebar-item" data-tab="waba">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    WABA-CSV
+                </button>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Conte&uacute;do</div>
+                <button class="sidebar-item" data-tab="blog-admin">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Blog grupocsv.com
+                </button>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Sistema</div>
+                <button class="sidebar-item" data-tab="admins">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Administradores
+                </button>
+                <button class="sidebar-item" data-tab="services">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    Serviços
+                </button>
             </div>
         </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-        <!-- Tabs -->
-        <div class="admin-tabs">
-            <button class="admin-tab active" data-tab="passwords">Senhas dos Portais CSV</button>
-            <button class="admin-tab" data-tab="users">Usuários Externos <span class="tab-badge" id="pending-badge"></span></button>
-            <button class="admin-tab" data-tab="public-links">Links Públicos</button>
-            <button class="admin-tab" data-tab="access-logs">Log de Acessos Externos</button>
-            <button class="admin-tab" data-tab="deck-users">Deck™</button>
-            <button class="admin-tab" data-tab="admins">Administradores</button>
-        </div>
+        <!-- Main Content -->
+        <div class="main-content">
 
-        <!-- TAB: Users -->
-        <div class="admin-tab-content" data-tab="users">
-            <!-- Pending Requests -->
-            <div id="requests-section">
-                <h3 class="section-header">Solicitações Pendentes</h3>
-                <div id="requests-list">
-                    <div class="empty-state">Carregando...</div>
+            <!-- TAB: Overview (new) -->
+            <div class="admin-tab-content active" data-tab="overview">
+                <h3 class="section-header">Visão Geral</h3>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="sc-label">Usuários Ativos</div>
+                        <div class="sc-value" id="s-users">-</div>
+                        <div class="sc-sub">Portais externos</div>
+                    </div>
+                    <div class="summary-card warn">
+                        <div class="sc-label">Solicitações</div>
+                        <div class="sc-value" id="s-pending">-</div>
+                        <div class="sc-sub">Pendentes de aprovação</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Links Públicos</div>
+                        <div class="sc-value" id="s-public">-</div>
+                        <div class="sc-sub">Hub + Open Pages</div>
+                    </div>
+                    <div class="summary-card accent">
+                        <div class="sc-label">Mensagens WABA</div>
+                        <div class="sc-value" id="s-waba-total">-</div>
+                        <div class="sc-sub">Total enviadas</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Contatos WABA</div>
+                        <div class="sc-value" id="s-waba-contacts">-</div>
+                        <div class="sc-sub">Lista telefônica</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Serviços</div>
+                        <div class="sc-value" id="s-services">-</div>
+                        <div class="sc-sub">Workers online</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Users Table -->
-            <div style="margin-top: 32px;">
-                <h3 class="section-header">Usuários Aprovados</h3>
+            <!-- TAB: Passwords -->
+            <div class="admin-tab-content" data-tab="passwords">
+                <h3 class="section-header">Senhas dos Portais CSV</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Altere a senha de acesso de cada portal. A nova senha entra em vigor imediatamente.
+                </p>
+                <div class="pw-grid" id="pw-grid">
+                    <div class="empty-state">Carregando...</div>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <h3 class="section-header">Outros Acessos</h3>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                        Senhas de acesso para Data Sets e ferramentas compartilhadas com parceiros externos.
+                    </p>
+                    <div class="pw-grid" id="pw-grid-datasets">
+                        <div class="empty-state">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Users -->
+            <div class="admin-tab-content" data-tab="users">
+                <div id="requests-section">
+                    <h3 class="section-header">Solicitações Pendentes</h3>
+                    <div id="requests-list">
+                        <div class="empty-state">Carregando...</div>
+                    </div>
+                </div>
+                <div style="margin-top: 32px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);"><h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:0;">Usuários Aprovados</h3><button onclick="window._openCreateUserModal()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Usuário</button></div>
+                    <div class="table-card">
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>E-mail</th>
+                                        <th>Nome</th>
+                                        <th>Status</th>
+                                        <th>Portais</th>
+                                        <th>Criado em</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-tbody">
+                                    <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Public Links -->
+            <div class="admin-tab-content" data-tab="public-links">
+                <h3 class="section-header">Páginas Públicas</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Gerencie páginas públicas do ecossistema. O <code>/p/</code> publica páginas de portais protegidos via Git. Open Pages publica conteúdo independente via upload direto.
+                </p>
+
+                <!-- Bloco 1: /p/ -->
                 <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Páginas Públicas /p/ <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">hub.grupocsv.com/p/</span></h3>
+                        <span class="count" id="pl-count">Carregando...</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Páginas de portais protegidos publicadas sem autenticação. Criação requer commit no repositório.</p>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>E-mail</th>
-                                    <th>Nome</th>
+                                    <th>Título</th>
+                                    <th>Portal</th>
+                                    <th>URL</th>
                                     <th>Status</th>
-                                    <th>Portais</th>
-                                    <th>Criado em</th>
+                                    <th>Criado</th>
+                                    <th>Modificado</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="users-tbody">
+                            <tbody id="pl-tbody">
+                                <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bloco 2: open.grupocsv.com -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Open Pages <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">open.grupocsv.com</span></h3>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <a href="https://open.grupocsv.com/_admin/" target="_blank" style="padding:8px 16px;background:#0f2b46;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                Admin
+                            </a>
+                            <button onclick="window._openNewOP('csv')" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Nova Página
+                            </button>
+                            <span class="count" id="op-csv-count">Carregando...</span>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Upload direto de HTML e assets. Ativação/desativação instantânea.</p>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>URL</th>
+                                    <th>Status</th>
+                                    <th>Criado</th>
+                                    <th>Modificado</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="op-csv-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bloco 3: hub.unimedgv.com -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Open Pages <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">hub.unimedgv.com</span></h3>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <button onclick="window._openNewOP('unimedgv')" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Nova Página
+                            </button>
+                            <span class="count" id="op-ugv-count">Carregando...</span>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin:-8px 0 12px 0;padding:0 4px;">Conteúdo específico da Unimed Governador Valadares. Ativação/desativação instantânea.</p>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>URL</th>
+                                    <th>Status</th>
+                                    <th>Criado</th>
+                                    <th>Modificado</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="op-ugv-tbody">
                                 <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB: Public Links -->
-        <div class="admin-tab-content" data-tab="public-links">
-            <h3 class="section-header">Páginas Públicas</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                Páginas de portais protegidos publicadas em <code>/p/</code> para acesso sem autenticação.
-            </p>
-            <div class="table-card">
-                <div class="tc-header">
-                    <h3>Registry</h3>
-                    <span class="count" id="pl-count">Carregando...</span>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Portal</th>
-                                <th>URL</th>
-                                <th>Status</th>
-                                <th>Criado em</th>
-                                <th>Modificado em</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pl-tbody">
-                            <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Access Logs -->
-        <div class="admin-tab-content" data-tab="access-logs">
-            <h3 class="section-header">Log de Acessos Externos</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                Registro de acessos de usuários externos aos portais, do mais recente ao mais antigo.
-            </p>
-            <div class="table-card">
-                <div class="tc-header">
-                    <span class="count" id="logs-count">Carregando...</span>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>E-mail</th>
-                                <th>Nome</th>
-                                <th>Portal</th>
-                                <th>Acessado em</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logs-tbody">
-                            <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Deck Users -->
-        <div class="admin-tab-content" data-tab="deck-users">
-            <h3 class="section-header">Deck™ — Usuários</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                Usuários registrados no Deck. Revogar remove o acesso permanentemente.
-            </p>
-            <div class="table-card">
-                <div class="tc-header">
-                    <h3>Usuários Ativos</h3>
-                    <span class="count" id="deck-count">Carregando...</span>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PIN</th>
-                                <th>Nome</th>
-                                <th>Data Criação</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="deck-tbody">
-                            <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Administradores -->
-        <div class="admin-tab-content" data-tab="admins">
-            <h3 class="section-header">Administradores do Painel</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                Lista de administradores com acesso ao painel. O Super Admin é protegido e não pode ser removido.
-            </p>
-            <div class="table-card">
-                <div class="tc-header">
-                    <h3>Administradores</h3>
-                    <span class="count" id="admins-count">Carregando...</span>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>E-mail</th>
-                                <th>Nível</th>
-                                <th>Origem</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admins-tbody">
-                            <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Passwords -->
-        <div class="admin-tab-content active" data-tab="passwords">
-            <h3 class="section-header">Senhas dos Portais CSV</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                Altere a senha de acesso de cada portal. A nova senha entra em vigor imediatamente.
-            </p>
-            <div class="pw-grid" id="pw-grid">
-                <div class="empty-state">Carregando...</div>
-            </div>
-
-            <div style="margin-top: 40px;">
-                <h3 class="section-header">Outros Acessos</h3>
+            <!-- TAB: Access Logs -->
+            <div class="admin-tab-content" data-tab="access-logs">
+                <h3 class="section-header">Log de Acessos Externos</h3>
                 <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                    Senhas de acesso para Data Sets e ferramentas compartilhadas com parceiros externos.
+                    Registro de acessos de usuários externos aos portais, do mais recente ao mais antigo.
                 </p>
-                <div class="pw-grid" id="pw-grid-datasets">
-                    <div class="empty-state">Carregando...</div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <span class="count" id="logs-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>Nome</th>
+                                    <th>Portal</th>
+                                    <th>Acessado em</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                                <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            <!-- TAB: Deck Users -->
+            <div class="admin-tab-content" data-tab="deck-users">
+                <h3 class="section-header">Deck &mdash; Usuários</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Usuários registrados no Deck. Revogar remove o acesso permanentemente.
+                </p>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Usuários Ativos</h3>
+                        <span class="count" id="deck-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>PIN</th>
+                                    <th>Nome</th>
+                                    <th>Data Criação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deck-tbody">
+                                <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Deck Feedback -->
+            <div class="admin-tab-content" data-tab="deck-feedback">
+                <h3 class="section-header">Deck &mdash; Feedback do Paste Vision</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Avaliações dos usuários sobre a precisão da captura automática (Ctrl+V).
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--text);" id="fb-total">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Total de feedbacks</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #22c55e;" id="fb-positive">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Positivos</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #ef4444;" id="fb-negative">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Negativos</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="fb-approval">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Taxa de aprovação</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--blue);" id="fb-platform-acc">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Acerto de plataforma</div>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Histórico de Feedbacks</h3>
+                        <span class="count" id="fb-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Voto</th>
+                                    <th>Usuário</th>
+                                    <th>Tipo</th>
+                                    <th>Plataforma sugerida</th>
+                                    <th>Plataforma final</th>
+                                    <th>Título sugerido</th>
+                                    <th>Título final</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fb-tbody">
+                                <tr><td colspan="8" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Deck Memories -->
+            <div class="admin-tab-content" data-tab="deck-memories">
+                <h3 class="section-header">Deck &mdash; Memórias</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--text);" id="mem-total">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Total</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #22c55e;" id="mem-manual">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Manuais</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #3b82f6;" id="mem-card">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">De cards</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #f59e0b;" id="mem-api">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Via API</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="mem-users">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Usuários</div>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Memórias</h3>
+                        <span class="count" id="mem-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>Título</th><th>Conteúdo</th><th>Tags</th><th>Fonte</th><th>Usuário</th><th>Criada</th><th>Atualizada</th></tr></thead>
+                            <tbody id="mem-tbody">
+                                <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Deck API -->
+            <div class="admin-tab-content" data-tab="deck-api">
+                <h3 class="section-header">Deck &mdash; API</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--text);" id="api-total-keys">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Chaves</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #22c55e;" id="api-active-keys">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Ativas</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="api-total-calls">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Chamadas</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #3b82f6;" id="api-cards-created">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Cards criados</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #f59e0b;" id="api-memories-created">0</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Memórias criadas</div>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Chaves API</h3>
+                        <span class="count" id="api-keys-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>Nome</th><th>Usuário</th><th>Permissões</th><th>Status</th><th>Último uso</th><th>Criada</th></tr></thead>
+                            <tbody id="api-keys-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="table-card" style="margin-top:20px;">
+                    <div class="tc-header">
+                        <h3>Últimas chamadas</h3>
+                        <span class="count" id="api-calls-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>Chave</th><th>Endpoint</th><th>Método</th><th>Status</th><th>Data</th></tr></thead>
+                            <tbody id="api-calls-tbody">
+                                <tr><td colspan="5" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Asset Bucket -->
+            <div class="admin-tab-content" data-tab="asset-bucket">
+                <h3 class="section-header">Asset Bucket (assets.grupocsv.com)</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Repositório centralizado de assets visuais do Grupo CSV. Hospedado em Cloudflare R2.
+                </p>
+                <div class="summary-grid" id="asset-summary" style="margin-bottom:24px;">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Total de Assets</div>
+                        <div class="sc-value" id="asset-total">-</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Logos</div>
+                        <div class="sc-value" id="asset-logos">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Assinaturas</div>
+                        <div class="sc-value" id="asset-assinaturas">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Avatares</div>
+                        <div class="sc-value" id="asset-avatares">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Icones</div>
+                        <div class="sc-value" id="asset-icones">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Criativos</div>
+                        <div class="sc-value" id="asset-criativos">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">E-mail</div>
+                        <div class="sc-value" id="asset-email">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Wallpapers</div>
+                        <div class="sc-value" id="asset-wallpapers">-</div>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Assets por Marca</h3>
+                        <span class="count" id="asset-brands-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Marca</th>
+                                    <th>Logos</th>
+                                    <th>Assinaturas</th>
+                                    <th>Avatares</th>
+                                    <th>Icones</th>
+                                    <th>Criativos</th>
+                                    <th>E-mail</th>
+                                    <th>Wallpapers</th>
+                                    <th>Institucional</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="asset-brands-tbody">
+                                <tr><td colspan="10" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <a href="https://assets.grupocsv.com" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Abrir Asset Bucket &rarr;</a>
+                </div>
+            </div>
+
+            <!-- TAB: WABA-CSV -->
+            <div class="admin-tab-content" data-tab="waba">
+                <h3 class="section-header">WABA-CSV &mdash; WhatsApp Business</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Gerenciamento de contatos e histórico de mensagens enviadas via WhatsApp Business API.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--text);" id="waba-total-contacts">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Contatos</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--green);" id="waba-total-sent">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Enviadas</div>
+                    </div>
+                    <div class="table-card" style="padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--red);" id="waba-total-failed">-</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Falhas</div>
+                    </div>
+                </div>
+
+                <!-- Contacts -->
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Lista Telefônica</h3>
+                        <span class="count" id="waba-contacts-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Tag</th>
+                                    <th>Adicionado em</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waba-contacts-tbody">
+                                <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Logs -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Histórico de Envios</h3>
+                        <span class="count" id="waba-logs-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Destinatário</th>
+                                    <th>Telefone</th>
+                                    <th>Template</th>
+                                    <th>Conteúdo</th>
+                                    <th>Status</th>
+                                    <th>Enviado em</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waba-logs-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Admins -->
+            <div class="admin-tab-content" data-tab="admins">
+                <h3 class="section-header">Administradores do Painel</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Lista de administradores com acesso ao painel. O Super Admin é protegido e não pode ser removido.
+                </p>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Administradores</h3>
+                        <span class="count" id="admins-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>Nível</th>
+                                    <th>Origem</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admins-tbody">
+                                <tr><td colspan="4" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Services -->
+            <div class="admin-tab-content" data-tab="blog-admin">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                    <h3 class="section-header" style="margin-bottom:0;">Blog &mdash; grupocsv.com</h3>
+                    <a href="https://grupocsv.com/blog/admin" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:white;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Abrir em nova aba
+                    </a>
+                </div>
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+                    Painel de administra&ccedil;&atilde;o do blog institucional. Gerencie posts, coment&aacute;rios e conte&uacute;do diretamente abaixo ou abra em nova aba para tela cheia.
+                </p>
+                <div style="position:relative;width:100%;height:calc(100vh - 200px);min-height:500px;border:1px solid var(--border-color);border-radius:12px;overflow:hidden;background:#f8fafc;">
+                    <iframe id="blog-admin-iframe" src="about:blank" style="width:100%;height:100%;border:none;" loading="lazy"></iframe>
+                    <div id="blog-admin-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;">
+                        <div style="text-align:center;">
+                            <div style="width:32px;height:32px;border:3px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+                            <span style="font-size:13px;color:var(--text-secondary);">Carregando painel do blog...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-tab-content" data-tab="services">
+                <h3 class="section-header">Serviços e APIs do Ecossistema</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Status em tempo real dos Workers e APIs do Grupo CSV.
+                </p>
+                <div class="pw-grid" id="services-grid">
+                    <div class="pw-card" id="svc-decks">
+                        <div class="pw-portal">decks.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            API REST para geração de apresentações PPTX com branding institucional.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-decks-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-decks-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://decks.grupocsv.com/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health Check</a>
+                            <a href="https://github.com/grupocsv/decks-worker" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary-dark); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">GitHub</a>
+                            <a href="https://dash.cloudflare.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f59e0b; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Cloudflare</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-mail">
+                        <div class="pw-portal">mail-api.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Worker de envio de e-mails institucionais via Resend (csv-mail).
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-mail-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-mail-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://mail-api.grupocsv.com/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health Check</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-assets">
+                        <div class="pw-portal">assets.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Repositório centralizado de assets visuais do Grupo CSV (R2 + Worker).
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-assets-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-assets-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://assets.grupocsv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Acessar</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-api">
+                        <div class="pw-portal">api.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Gateway central de APIs do Grupo CSV (csv-gateway).
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-api-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-api-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://api.grupocsv.com/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health Check</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-open">
+                        <div class="pw-portal">open.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Open Pages — páginas públicas do ecossistema CSV (R2 + KV + Worker).
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-open-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-open-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://open.grupocsv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Acessar</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-data">
+                        <div class="pw-portal">csv-data Worker</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Worker de dados persistidos (D1 + KV). Serve WABA, stats e configurações.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-data-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-data-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://csv-data.guilherme-thom.workers.dev/stats" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Stats</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-core">
+                        <div class="pw-portal">core.gabialvim.com.br</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Crialê Core — servidor MCP central do projeto Crialê.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-core-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-core-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://core.gabialvim.com.br/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health Check</a>
+                        </div>
+                    </div>
+                    <div class="pw-card" id="svc-cooperados">
+                        <div class="pw-portal">cooperados.unimedgv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Registry de cooperados da Unimed GV — busca por nome, especialidade e CRM.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-cooperados-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-cooperados-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://cooperados.unimedgv.com/api/stats" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Stats</a>
+                            <a href="https://cooperados.unimedgv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">Portal</a>
+                    <div class="pw-card" id="svc-panta">
+                        <div class="pw-portal">panta.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Panta™ — Omnisearch federado. Busca unificada sobre documentos, pessoas, memorias e assets.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-panta-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-panta-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://panta.grupocsv.com/health" target="_blank" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health</a>
+                            <a href="https://panta.grupocsv.com" target="_blank" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">API</a>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Cooperados UGV -->
+            <div class="admin-tab-content" data-tab="cooperados-ugv">
+                <h3 class="section-header">Cooperados UGV (cooperados.unimedgv.com)</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Registry de cooperados da Unimed Governador Valadares. Gerencie solicitações de API Key e monitore a base.
+                </p>
+                <div class="summary-grid" id="coop-summary">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Cooperados</div>
+                        <div class="sc-value" id="coop-total">-</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Especialidades</div>
+                        <div class="sc-value" id="coop-especialidades">-</div>
+                    </div>
+                    <div class="summary-card warn">
+                        <div class="sc-label">Keys Pendentes</div>
+                        <div class="sc-value" id="coop-pending">-</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Keys Ativas</div>
+                        <div class="sc-value" id="coop-active">-</div>
+                    </div>
+                </div>
+
+                <!-- Pending Requests -->
+                <div style="margin-top: 24px;">
+                    <h3 class="section-header">Solicitações Pendentes de API Key</h3>
+                    <div id="coop-pending-list">
+                        <div class="empty-state">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Active Keys -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>API Keys Ativas</h3>
+                        <span class="count" id="coop-keys-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>Chave (parcial)</th>
+                                    <th>Criada em</th>
+                                    <th>Último Uso</th>
+                                    <th>Usos</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coop-keys-tbody">
+                                <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                            </tbody>
+                                                </table>
+                    </div>
+                </div>
+                <!-- Upload XLSX -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Atualizar Base de Cooperados</h3>
+                    </div>
+                    <p style="font-size:13px;color:var(--text-secondary);margin:12px 0 16px;padding:0 16px;">Faça upload de uma planilha Excel (.xlsx) exportada do sistema da cooperativa. O formato esperado é: Código Unimed | Nome | Especialidade | CRM (com cabeçalho na linha 4).</p>
+                    <div style="padding:0 16px 20px;">
+                        <div id="coop-upload-area" style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;" onclick="document.getElementById('coop-file-input').click()">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <p style="font-size:14px;color:var(--text-secondary);margin-bottom:4px;">Clique ou arraste o arquivo .xlsx aqui</p>
+                            <p style="font-size:12px;color:var(--text-secondary);">Máximo 5MB</p>
+                        </div>
+                        <input type="file" id="coop-file-input" accept=".xlsx,.xls" style="display:none;" onchange="window._coopFileSelected(this)">
+                        <div id="coop-upload-status" style="display:none;margin-top:12px;padding:12px 16px;border-radius:10px;font-size:13px;"></div>
+                        <button id="coop-upload-btn" style="display:none;margin-top:12px;padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window._coopUpload()">Enviar e Atualizar Base</button>
+                    </div>
+                </div>
+
+                <!-- Gestão Individual de Cooperados -->
+                <div class="table-card" style="margin-top: 24px;">
+                    <div class="tc-header">
+                        <h3>Gest&atilde;o Individual de Cooperados</h3>
+                    </div>
+                    <p style="font-size:13px;color:var(--text-secondary);margin:12px 0 16px;padding:0 16px;">Inclua, inative ou reative cooperados individualmente sem precisar fazer upload de planilha.</p>
+
+                    <!-- Search existing cooperados -->
+                    <div style="padding:0 16px 16px;">
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+                            <input type="text" id="coop-ind-search" placeholder="Buscar por nome ou c&oacute;digo..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            <select id="coop-ind-status-filter" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;background:white;">
+                                <option value="">Todos</option>
+                                <option value="ativo">Ativos</option>
+                                <option value="inativo">Inativos</option>
+                                <option value="jubilado">Jubilados</option>
+                            </select>
+                            <button onclick="window._coopIndSearch()" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Buscar</button>
+                        </div>
+                        <div id="coop-ind-results" style="display:none;max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;">
+                            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                                <thead>
+                                    <tr style="background:var(--bg-secondary);position:sticky;top:0;">
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">Nome</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">C&oacute;digo</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">CRM</th>
+                                        <th style="padding:10px 12px;text-align:left;font-weight:600;">Status</th>
+                                        <th style="padding:10px 12px;text-align:center;font-weight:600;">A&ccedil;&atilde;o</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="coop-ind-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div id="coop-ind-empty" style="display:none;text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">Nenhum cooperado encontrado.</div>
+                    </div>
+
+                    <!-- Add new cooperado form -->
+                    <div style="padding:0 16px 20px;border-top:1px solid var(--border);margin-top:8px;padding-top:20px;">
+                        <h4 style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Incluir Novo Cooperado</h4>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Nome Completo *</label>
+                                <input type="text" id="coop-add-nome" placeholder="Ex: JOAO DA SILVA" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">C&oacute;digo Unimed *</label>
+                                <input type="text" id="coop-add-codigo" placeholder="Ex: 236110102060" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">CRM/MG *</label>
+                                <input type="text" id="coop-add-crm" placeholder="Ex: 102060" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px;">Especialidade</label>
+                                <select id="coop-add-esp" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;background:white;box-sizing:border-box;">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:16px;display:flex;gap:10px;align-items:center;">
+                            <button onclick="window._coopAddCooperado()" style="padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Incluir Cooperado</button>
+                            <span id="coop-add-status" style="font-size:12px;color:var(--text-secondary);"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB: Panta (CSV Omnisearch) -->
+            <div class="admin-tab-content" data-tab="panta">
+                <h3 class="section-header">Panta &mdash; CSV Omnisearch</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Motor de busca federado do ecossistema Grupo CSV. 7 fontes, busca sem&acirc;ntica vetorial, grafo de pessoas e documentos indexados.
+                </p>
+                <!-- Action buttons -->
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+                    <a href="https://panta.grupocsv.com/health" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:white;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Health Check
+                    </a>
+                    <a href="https://hub.grupocsv.com/panta/" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#f0f9ff;color:#0369a1;border:1.5px solid #bae6fd;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Landing Page
+                    </a>
+                    <a href="https://hub.grupocsv.com/_infra/ferramentas/panta" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Documenta&ccedil;&atilde;o
+                    </a>
+                </div>
+                <!-- Status badge -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+                    <span id="panta-status-dot" style="width:10px;height:10px;border-radius:50%;background:#d1d5db;"></span>
+                    <span id="panta-status-text" style="font-size:13px;color:var(--text-secondary);">Verificando...</span>
+                    <span style="margin-left:auto;font-size:12px;color:var(--text-secondary);" id="panta-version"></span>
+                </div>
+                <!-- Summary cards -->
+                <div class="summary-grid" id="panta-summary" style="margin-bottom:24px;">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Documentos</div>
+                        <div class="sc-value" id="panta-docs">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Indexados</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Chunks</div>
+                        <div class="sc-value" id="panta-chunks">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Fragmentos FTS5</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Entidades</div>
+                        <div class="sc-value" id="panta-entities">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Grafo Supabase</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Rela&ccedil;&otilde;es</div>
+                        <div class="sc-value" id="panta-relations">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">V&iacute;nculos</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Embeddings</div>
+                        <div class="sc-value" id="panta-embeddings">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Vetores 768d</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="sc-label">Fontes</div>
+                        <div class="sc-value" id="panta-sources">-</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Busca federada</div>
+                    </div>
+                </div>
+                <!-- Entidades por tipo -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Entidades por Tipo</h3>
+                        <span class="count" id="panta-types-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>Tipo</th><th>Quantidade</th><th>%</th></tr></thead>
+                            <tbody id="panta-types-tbody"><tr><td colspan="3" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Documentos recentes -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Documentos Indexados</h3>
+                        <span class="count" id="panta-docs-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>Arquivo</th><th>Formato</th><th>T&iacute;tulo</th><th>Caracteres</th><th>P&aacute;ginas</th><th>Data</th></tr></thead>
+                            <tbody id="panta-docs-tbody"><tr><td colspan="7" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Entidades recentes -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Entidades Recentes (Grafo)</h3>
+                        <span class="count" id="panta-ent-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Criado em</th></tr></thead>
+                            <tbody id="panta-ent-tbody"><tr><td colspan="4" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Formatos -->
+                <div class="table-card" style="margin-bottom:20px;">
+                    <div class="tc-header">
+                        <h3>Distribui&ccedil;&atilde;o por Formato</h3>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead><tr><th>Formato</th><th>Quantidade</th></tr></thead>
+                            <tbody id="panta-formats-tbody"><tr><td colspan="2" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- /main-content -->
+    </div><!-- /app-layout -->
 </div>
 
-<!-- Modal: Troca de Senha Obrigatoria -->
+<!-- Modal: Troca de Senha Obrigatória -->
 <div class="modal-overlay hidden" id="change-pw-modal">
     <div class="modal-box">
         <h3>Troque sua senha</h3>
@@ -564,6 +1519,56 @@
         <input type="password" id="cpw-confirm" placeholder="Confirme a nova senha">
         <div class="modal-actions">
             <button class="btn-primary" id="cpw-submit">Alterar Senha</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Criar Novo Usuário -->
+<div class="modal-overlay hidden" id="create-user-modal">
+    <div class="modal-box" style="max-width:480px;">
+        <h3>Criar Novo Usuário</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">O usuário receberá um e-mail com link para definir a senha.</p>
+        <div id="create-user-error" style="display:none;background:#fef2f2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;"></div>
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Nome completo</label>
+        <input type="text" id="cu-name" placeholder="Ex: João Silva" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;margin-bottom:14px;background:#f8f9fa;outline:none;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">E-mail</label>
+        <input type="email" id="cu-email" placeholder="usuario@empresa.com" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;margin-bottom:14px;background:#f8f9fa;outline:none;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Portais de acesso</label>
+        <div id="cu-tenants" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="unimed" style="width:16px;height:16px;accent-color:var(--primary);"> Unimed GV</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="unihealth" style="width:16px;height:16px;accent-color:var(--primary);"> Unihealth GV</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" value="icds" style="width:16px;height:16px;accent-color:var(--primary);"> ICDS</label>
+        </div>
+        <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="window._closeCreateUserModal()" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:white;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);">Cancelar</button>
+            <button id="cu-submit-btn" onclick="window._submitCreateUser()" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Criar Usuário</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nova Open Page (multi-domínio) -->
+<div class="modal-overlay hidden" id="op-upload-modal">
+    <div class="modal-box" style="max-width:520px;">
+        <h3>Publicar Nova Página</h3>
+        <div id="op-target-badge" style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:12px;background:#e0f2fe;color:#0369a1;">open.grupocsv.com</div>
+        <div id="op-upload-error" style="display:none;background:#fef2f2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;"></div>
+        <input type="text" id="op-slug" placeholder="Slug (ex: relatorio-q1)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <input type="text" id="op-title" placeholder="Título da página" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <input type="text" id="op-desc" placeholder="Descrição (opcional)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;">
+        <div id="op-drop-zone" style="border:2px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all 0.2s;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:14px;color:var(--text-secondary);">Arraste arquivos aqui ou clique para selecionar</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">HTML, CSS, JS, imagens</div>
+            <input type="file" id="op-file-input" multiple style="display:none;" accept=".html,.css,.js,.png,.jpg,.jpeg,.gif,.svg,.webp,.ico,.woff,.woff2,.ttf,.json">
+        </div>
+        <div id="op-file-list" style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;"></div>
+        <div id="op-progress" style="display:none;margin-bottom:12px;">
+            <div style="background:var(--bg);border-radius:8px;height:6px;overflow:hidden;"><div id="op-progress-bar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div></div>
+            <div id="op-progress-text" style="font-size:12px;color:var(--text-secondary);margin-top:4px;text-align:center;">Enviando...</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="window._closeNewOP()">Cancelar</button>
+            <button class="btn-primary" id="op-submit-btn" onclick="window._submitOP()">Publicar</button>
         </div>
     </div>
 </div>
@@ -588,6 +1593,7 @@ function toggleAdminPw() {
     'use strict';
 
     const AUTH_API = 'https://csv-auth.guilherme-thom.workers.dev';
+    const DATA_API = 'https://csv-data.guilherme-thom.workers.dev';
     const TOKEN_KEY = 'hub_auth_admin_token';
     const EMAIL_KEY = 'hub_auth_admin_email';
     const EXPIRES_KEY = 'hub_auth_admin_expires';
@@ -599,9 +1605,9 @@ function toggleAdminPw() {
         axia: 'AxiaCare',
         thera: 'Thera',
         medvalor: 'MedValor',
-        'tea-110': 'Data Set TEA \u2014 Unimed Rio Verde',
-        'tea-094': 'Data Set TEA \u2014 Unimed Ourinhos',
-        'tea-236': 'Data Set TEA \u2014 Unimed Gov. Valadares',
+        'tea-110': 'Data Set TEA — Unimed Rio Verde',
+        'tea-094': 'Data Set TEA — Unimed Ourinhos',
+        'tea-236': 'Data Set TEA — Unimed Gov. Valadares',
     };
 
     // ===== Toast =====
@@ -639,24 +1645,54 @@ function toggleAdminPw() {
         return resp.json();
     }
 
+    // ===== Sidebar navigation =====
+    const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
+    const tabContents = document.querySelectorAll('.admin-tab-content[data-tab]');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    sidebarItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            sidebarItems.forEach(i => i.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const target = document.querySelector('.admin-tab-content[data-tab="' + tabName + '"]');
+            if (target) target.classList.add('active');
+            // Load data on demand
+            if (tabName === 'passwords') loadPasswords();
+            if (tabName === 'public-links') loadPublicLinks();
+            if (tabName === 'deck-users') loadDeckUsers();
+            if (tabName === 'deck-feedback') loadDeckFeedback();
+            if (tabName === 'deck-memories') loadDeckMemories();
+            if (tabName === 'deck-api') loadDeckApi();
+            if (tabName === 'admins') loadAdmins();
+            if (tabName === 'asset-bucket') loadAssetBucket();
+            if (tabName === 'waba') loadWaba();
+            if (tabName === 'cooperados-ugv') loadCooperadosUGV();
+            if (tabName === 'panta') loadPanta();
+            if (tabName === 'blog-admin') loadBlogAdmin();
+            // Close mobile sidebar
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('open');
+        });
+    });
+
+    // Mobile sidebar toggle
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+        sidebarOverlay.classList.toggle('open');
+    });
+    sidebarOverlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('open');
+    });
+
     // ===== Init =====
     function init() {
         if (getToken()) showDashboard();
         else showAuth();
-
-        document.querySelectorAll('.admin-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
-                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                document.querySelector('.admin-tab-content[data-tab="' + tabName + '"]').classList.add('active');
-                if (tabName === 'passwords') loadPasswords();
-                if (tabName === 'public-links') loadPublicLinks();
-                if (tabName === 'deck-users') loadDeckUsers();
-                if (tabName === 'admins') loadAdmins();
-            });
-        });
     }
 
     function showAuth() {
@@ -669,14 +1705,13 @@ function toggleAdminPw() {
         document.getElementById('dashboard').classList.add('visible');
         document.getElementById('topbar-user').textContent = localStorage.getItem(EMAIL_KEY) || '';
         loadAll();
-        // Verificar se precisa trocar senha
         if (localStorage.getItem('hub_admin_must_change') === 'true') {
             document.getElementById('change-pw-modal').classList.remove('hidden');
         }
     }
 
     async function loadAll() {
-        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadAdmins()]);
+        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket(), loadCooperadosUGV(), loadPanta()]);
     }
 
     // ===== Auth form =====
@@ -708,7 +1743,7 @@ function toggleAdminPw() {
                 errorEl.style.display = 'block';
             }
         } catch (err) {
-            errorEl.textContent = 'Erro de conexao';
+            errorEl.textContent = 'Erro de conexão';
             errorEl.style.display = 'block';
         }
     });
@@ -781,7 +1816,10 @@ function toggleAdminPw() {
                 <td><span class="badge ${u.status}">${u.status === 'active' ? 'Ativo' : u.status === 'pending' ? 'Pendente' : 'Revogado'}</span></td>
                 <td style="font-size:12px;">${u.tenants ? u.tenants.split(',').map(t => PORTAL_NAMES[t] || t).join(', ') : '-'}</td>
                 <td style="font-size:12px;">${formatDate(u.created_at)}</td>
-                <td>${u.status === 'active' ? '<button class="action-btn revoke" onclick="window._revoke(\'' + u.email + '\')">Revogar</button>' : ''}</td>
+                <td>
+                    ${u.status === 'active' ? '<button class="action-btn" style="background:#196396;color:#fff;margin-right:4px;" onclick="window._resetPw(\'' + u.email + '\')">Redefinir Senha</button>' : ''}
+                    ${u.status === 'active' ? '<button class="action-btn revoke" onclick="window._revoke(\'' + u.email + '\')">Revogar</button>' : ''}
+                </td>
             </tr>
         `).join('');
     }
@@ -809,14 +1847,12 @@ function toggleAdminPw() {
         const data = await apiCall('/admin/passwords');
         if (!data) return;
 
-        // Portais CSV (AxiaCare, Thera, MedValor)
         const grid = document.getElementById('pw-grid');
         const portals = data.portals || [];
         grid.innerHTML = portals.length > 0
             ? renderPwCards(portals)
             : '<div class="empty-state">Nenhum portal encontrado</div>';
 
-        // Outros Acessos (Data Sets)
         const gridDatasets = document.getElementById('pw-grid-datasets');
         const datasets = data.datasets || [];
         gridDatasets.innerHTML = datasets.length > 0
@@ -867,6 +1903,40 @@ function toggleAdminPw() {
         }
     };
 
+    window._resetPw = async function(email) {
+        const choice = prompt('Redefinir senha de ' + email + ':\n\n1 - Enviar link para o usu\u00e1rio definir\n2 - Definir senha manualmente\n\nDigite 1 ou 2:');
+        if (!choice) return;
+
+        if (choice === '1') {
+            const data = await apiCall('/admin/reset-user-password', {
+                method: 'POST',
+                body: JSON.stringify({ email }),
+            });
+            if (data && data.success) {
+                showToast('Link de defini\u00e7\u00e3o de senha enviado por e-mail', 'success');
+            } else {
+                showToast(data?.error || 'Erro ao enviar link', 'error');
+            }
+        } else if (choice === '2') {
+            const newPw = prompt('Digite a nova senha (m\u00edn. 6 caracteres):');
+            if (!newPw || newPw.length < 6) {
+                showToast('Senha deve ter no m\u00ednimo 6 caracteres', 'error');
+                return;
+            }
+            const data = await apiCall('/admin/reset-user-password', {
+                method: 'POST',
+                body: JSON.stringify({ email, new_password: newPw }),
+            });
+            if (data && data.success) {
+                showToast('Senha redefinida e e-mail enviado ao usu\u00e1rio', 'success');
+            } else {
+                showToast(data?.error || 'Erro ao redefinir senha', 'error');
+            }
+        } else {
+            showToast('Op\u00e7\u00e3o inv\u00e1lida', 'error');
+        }
+    };
+
     window.togglePw = function(portalId) {
         const input = document.getElementById('pw-' + portalId);
         input.type = input.type === 'password' ? 'text' : 'password';
@@ -878,7 +1948,7 @@ function toggleAdminPw() {
         const newPw = input.value.trim();
 
         if (!newPw || newPw.length < 6) {
-            statusEl.textContent = 'Senha deve ter no minimo 6 caracteres';
+            statusEl.textContent = 'Senha deve ter no mínimo 6 caracteres';
             statusEl.className = 'pw-status error';
             return;
         }
@@ -907,54 +1977,218 @@ function toggleAdminPw() {
         setTimeout(() => { statusEl.textContent = ''; }, 4000);
     };
 
-    // ===== Load Public Links =====
+    // ===== Load Public Links (Hub + Open Pages) =====
     async function loadPublicLinks() {
         try {
             const resp = await fetch('/p/registry.json');
             const data = await resp.json();
             const pages = data.pages || [];
 
-            document.getElementById('s-public').textContent = pages.filter(function(p) { return p.status === 'active'; }).length;
+            var hubActiveCount = pages.filter(function(p) { return p.status === 'active'; }).length;
             document.getElementById('pl-count').textContent = pages.length + (pages.length === 1 ? ' página' : ' páginas');
 
             const tbody = document.getElementById('pl-tbody');
             if (pages.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma página pública registrada</td></tr>';
-                return;
+            } else {
+                tbody.innerHTML = pages.map(function(p) {
+                    return '<tr>' +
+                        '<td style="font-weight:600;">' + esc(p.title) + '<br><span class="pl-origin">' + esc(p.description) + '</span></td>' +
+                        '<td>' + (PORTAL_NAMES[p.origin_portal] || esc(p.origin_portal)) + '</td>' +
+                        '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
+                        '<td><span class="badge ' + p.status + '">' + (p.status === 'active' ? 'Ativo' : 'Inativo') + '</span></td>' +
+                        '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
+                        '<td style="font-size:12px;">' + (p.updated_at || '-') + '</td>' +
+                        '<td>' +
+                            '<div class="pl-actions">' +
+                                '<button class="pl-btn" title="Copiar link" onclick="window._copyPL(\'' + esc(p.public_url) + '\', this)">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+                                '</button>' +
+                                '<a class="pl-btn" title="Abrir em nova aba" href="' + esc(p.public_url) + '" target="_blank" rel="noopener">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+                                '</a>' +
+                                (p.status === 'active'
+                                    ? '<button class="pl-btn pl-revoke" title="Revogar link" onclick="window._togglePL(\'' + esc(p.slug) + '\', \'revoke\', this)">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>' +
+                                      '</button>'
+                                    : '<button class="pl-btn pl-restore" title="Restaurar link" onclick="window._togglePL(\'' + esc(p.slug) + '\', \'restore\', this)">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>' +
+                                      '</button>') +
+                            '</div>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
             }
 
-            tbody.innerHTML = pages.map(function(p) {
-                return '<tr>' +
-                    '<td style="font-weight:600;">' + esc(p.title) + '<br><span class="pl-origin">' + esc(p.description) + '</span></td>' +
-                    '<td>' + (PORTAL_NAMES[p.origin_portal] || esc(p.origin_portal)) + '</td>' +
-                    '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
-                    '<td><span class="badge ' + p.status + '">' + (p.status === 'active' ? 'Ativo' : 'Inativo') + '</span></td>' +
-                    '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
-                    '<td style="font-size:12px;">' + (p.updated_at || '-') + '</td>' +
-                    '<td>' +
-                        '<div class="pl-actions">' +
-                            '<button class="pl-btn" title="Copiar link" onclick="window._copyPL(\'' + esc(p.public_url) + '\', this)">' +
-                                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-                            '</button>' +
-                            '<a class="pl-btn" title="Abrir em nova aba" href="' + esc(p.public_url) + '" target="_blank" rel="noopener">' +
-                                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-                            '</a>' +
-                            (p.status === 'active'
-                                ? '<button class="pl-btn pl-revoke" title="Revogar link" onclick="window._togglePL(\'' + esc(p.slug) + '\', \'revoke\', this)">' +
-                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>' +
-                                  '</button>'
-                                : '<button class="pl-btn pl-restore" title="Restaurar link" onclick="window._togglePL(\'' + esc(p.slug) + '\', \'restore\', this)">' +
-                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>' +
-                                  '</button>') +
-                        '</div>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
+            loadOpenPages(hubActiveCount);
         } catch (err) {
             document.getElementById('pl-tbody').innerHTML = '<tr><td colspan="7" class="empty-state">Erro ao carregar registry.json</td></tr>';
             document.getElementById('pl-count').textContent = 'Erro';
+            loadOpenPages(0);
         }
     }
+
+    // ===== Open Pages Multi-Domain =====
+    const OP_DOMAINS = {
+        csv: { api: 'https://open.grupocsv.com', label: 'open.grupocsv.com', tbody: 'op-csv-tbody', count: 'op-csv-count' },
+        unimedgv: { api: 'https://hub.unimedgv.com', label: 'hub.unimedgv.com', tbody: 'op-ugv-tbody', count: 'op-ugv-count' }
+    };
+    // Token admin das APIs Open Pages: NUNCA hardcoded (o admin é publicado no
+    // site — um token literal aqui fica exposto a qualquer leitor do fonte).
+    // O token fica em localStorage ('op_admin_token'). opGetToken() NÃO abre
+    // prompt sozinho: quem pede o token é o botão "Informar token" da aba
+    // Links Públicos (ou opSetToken() no console). Após rotação via
+    // /api/change-password, basta informar o novo valor pelo botão — o valor
+    // oficial fica registrado no Vault do Notion.
+    function opGetToken() {
+        return (localStorage.getItem('op_admin_token') || '').trim();
+    }
+    function opSetToken(t) {
+        if (t) { localStorage.setItem('op_admin_token', t.trim()); }
+        else { localStorage.removeItem('op_admin_token'); }
+        return 'op_admin_token atualizado';
+    }
+    window.opSetToken = opSetToken;
+    window._opAskToken = function() {
+        var t = (window.prompt('Token admin do Open Pages (guardado só neste navegador — o valor oficial fica no Vault do Notion):') || '').trim();
+        if (t) { localStorage.setItem('op_admin_token', t); loadPublicLinks(); }
+    };
+    function opTokenMissingRow(msg) {
+        return '<tr><td colspan="6" class="empty-state">' + msg +
+            ' <button class="pl-btn" style="margin-left:8px;" onclick="window._opAskToken()">Informar token</button></td></tr>';
+    }
+
+    async function loadOpenPages(hubActiveCount) {
+        var totalOpenActive = 0;
+        var opToken = opGetToken(); // uma única leitura para os dois domínios; sem prompt automático
+        for (const [key, domain] of Object.entries(OP_DOMAINS)) {
+            var tbody = document.getElementById(domain.tbody);
+            var countEl = document.getElementById(domain.count);
+            if (!opToken) {
+                tbody.innerHTML = opTokenMissingRow('Token do Open Pages não informado.');
+                countEl.textContent = '—';
+                continue;
+            }
+            try {
+                var resp = await fetch(domain.api + '/api/pages', {
+                    headers: { 'Authorization': 'Bearer ' + opToken }
+                });
+                if (resp.status === 401 || resp.status === 403) {
+                    // token inválido (ex.: rotacionado): limpa e oferece reentrada pela UI
+                    localStorage.removeItem('op_admin_token');
+                    tbody.innerHTML = opTokenMissingRow('Token do Open Pages inválido ou expirado.');
+                    countEl.textContent = '—';
+                    continue;
+                }
+                var data = await resp.json();
+                var pages = data.pages || [];
+
+                var activeCount = pages.filter(function(p) { return p.status === 'active'; }).length;
+                totalOpenActive += activeCount;
+                countEl.textContent = pages.length + (pages.length === 1 ? ' p\u00e1gina' : ' p\u00e1ginas') + (pages.length !== activeCount ? ' (' + activeCount + ' ativas)' : '');
+
+                if (pages.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma p\u00e1gina</td></tr>';
+                    continue;
+                }
+
+                tbody.innerHTML = pages.map(function(p) {
+                    var isActive = p.status === 'active';
+                    var badgeClass = isActive ? 'active' : 'revoked';
+                    var badgeText = isActive ? 'Ativo' : 'Inativo';
+                    var toggleTitle = isActive ? 'Desativar' : 'Ativar';
+                    var toggleIcon = isActive
+                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>'
+                        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                    var authBadge = p.auth_gate ? '<span title="Protegida por senha (csv-open-auth)" style="display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 8px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:600;vertical-align:middle;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Gate</span>' : '';
+                    return '<tr' + (!isActive ? ' style="opacity:0.6;"' : '') + '>' +
+                        '<td style="font-weight:600;">' + esc(p.title) + authBadge + (p.description ? '<br><span class="pl-origin">' + esc(p.description) + '</span>' : '') + '</td>' +
+                        '<td><span class="pl-url">' + esc(p.public_url) + '</span></td>' +
+                        '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+                        '<td style="font-size:12px;">' + (p.created_at || '-') + '</td>' +
+                        '<td style="font-size:12px;">' + (p.updated_at || '-') + '</td>' +
+                        '<td>' +
+                            '<div class="pl-actions">' +
+                                '<button class="pl-btn" title="Copiar link" onclick="window._copyPL(\'' + esc(p.public_url) + '\', this)">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+                                '</button>' +
+                                '<a class="pl-btn" title="Abrir em nova aba" href="' + esc(p.public_url) + '" target="_blank" rel="noopener">' +
+                                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+                                '</a>' +
+                                '<button class="pl-btn ' + (isActive ? 'pl-revoke' : 'pl-restore') + '" title="' + toggleTitle + '" onclick="window._toggleOP(\'' + esc(p.slug) + '\', \'' + key + '\', this)">' +
+                                    toggleIcon +
+                                '</button>' +
+                                (key === 'csv' ? '<button class="pl-btn' + (p.auth_gate ? ' pl-gate-active' : '') + '" title="' + (p.auth_gate ? 'Remover gate de senha' : 'Ativar gate de senha') + '" onclick="window._toggleAuthGate(\'' + esc(p.slug) + '\', ' + (p.auth_gate ? 'false' : 'true') + ', this)" style="' + (p.auth_gate ? 'border-color:#92400e;color:#92400e;background:#fef3c7;' : '') + '">' +
+                                    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>' +
+                                '</button>' : '') +
+                            '</div>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar</td></tr>';
+                countEl.textContent = 'Erro';
+            }
+        }
+        document.getElementById('s-public').textContent = (hubActiveCount || 0) + totalOpenActive;
+    }
+
+    window._toggleOP = async function(slug, domainKey, btn) {
+        if (!opGetToken()) { window._opAskToken(); return; }
+        var domain = OP_DOMAINS[domainKey];
+        var action = btn.classList.contains('pl-revoke') ? 'desativar' : 'ativar';
+        if (!confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' "' + slug + '" em ' + domain.label + '?')) return;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        try {
+            var resp = await fetch(domain.api + '/api/toggle', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + opGetToken(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: slug })
+            });
+            var data = await resp.json();
+            if (data.success) {
+                showToast('P\u00e1gina ' + (data.status === 'active' ? 'ativada' : 'desativada'), 'success');
+                setTimeout(function() { loadPublicLinks(); }, 1000);
+            } else {
+                showToast(data.error || 'Erro', 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        } catch (e) {
+            showToast('Erro de rede: ' + e.message, 'error');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    };
+
+    window._toggleAuthGate = async function(slug, enable, btn) {
+        if (!opGetToken()) { window._opAskToken(); return; }
+        var action = enable ? 'Ativar' : 'Remover';
+        if (!confirm(action + ' gate de senha para "' + slug + '"?')) return;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        try {
+            var resp = await fetch('https://open.grupocsv.com/api/set-auth-gate', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + opGetToken(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: slug, auth_gate: enable })
+            });
+            var data = await resp.json();
+            if (data.success) {
+                showToast('Gate ' + (enable ? 'ativado' : 'removido') + ' para ' + slug, 'success');
+                setTimeout(function() { loadPublicLinks(); }, 1000);
+            } else {
+                showToast(data.error || 'Erro', 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        } catch (e) {
+            showToast('Erro de rede: ' + e.message, 'error');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    };
 
     window._copyPL = function(url, btn) {
         navigator.clipboard.writeText(url).then(function() {
@@ -968,7 +2202,7 @@ function toggleAdminPw() {
 
     window._togglePL = async function(slug, action, btn) {
         var label = action === 'revoke' ? 'Revogar' : 'Restaurar';
-        if (!confirm(label + ' o link p\u00fablico "' + slug + '"?')) return;
+        if (!confirm(label + ' o link público "' + slug + '"?')) return;
         btn.disabled = true;
         btn.style.opacity = '0.5';
         try {
@@ -1037,7 +2271,6 @@ function toggleAdminPw() {
     function formatDate(val) {
         if (!val) return '-';
         try {
-            // Handle unix timestamp (seconds)
             if (typeof val === 'number' || /^\d+$/.test(val)) {
                 const ts = typeof val === 'number' ? val : parseInt(val);
                 const d = new Date(ts > 1e12 ? ts : ts * 1000);
@@ -1057,7 +2290,7 @@ function toggleAdminPw() {
         document.getElementById('deck-count').textContent = active.length + ' ativo(s)';
         const tbody = document.getElementById('deck-tbody');
         if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum usu\u00e1rio registrado</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum usuário registrado</td></tr>';
             return;
         }
         tbody.innerHTML = users.map(u => `
@@ -1086,6 +2319,133 @@ function toggleAdminPw() {
         }
     };
 
+    // ===== Deck Feedback =====
+    async function loadDeckFeedback() {
+        const data = await apiCall('/admin/deck-feedback');
+        if (!data) return;
+        const feedback = data.feedback || [];
+        const stats = data.stats || {};
+
+        document.getElementById('fb-total').textContent = stats.total || 0;
+        document.getElementById('fb-positive').textContent = stats.positive || 0;
+        document.getElementById('fb-negative').textContent = stats.negative || 0;
+        document.getElementById('fb-approval').textContent = stats.total > 0 ? stats.approval_rate + '%' : '-';
+        document.getElementById('fb-platform-acc').textContent = stats.platform_total > 0 ? stats.platform_accuracy + '%' : '-';
+        document.getElementById('fb-count').textContent = feedback.length + ' registro(s)';
+
+        const tbody = document.getElementById('fb-tbody');
+        if (feedback.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Nenhum feedback registrado</td></tr>';
+            return;
+        }
+        tbody.innerHTML = feedback.map(f => {
+            const voteIcon = f.vote === 1
+                ? '<span style="color:#22c55e;font-weight:700;font-size:16px;" title="Positivo">&uarr;</span>'
+                : '<span style="color:#ef4444;font-weight:700;font-size:16px;" title="Negativo">&darr;</span>';
+            const platformMatch = f.suggested_platform === f.final_platform;
+            const platformStyle = platformMatch ? '' : 'color:#ef4444;font-weight:600;';
+            return `
+                <tr>
+                    <td style="text-align:center;">${voteIcon}</td>
+                    <td>${f.user_name || f.pin}</td>
+                    <td>${f.original_type || '-'}</td>
+                    <td>${f.suggested_platform || '-'}</td>
+                    <td style="${platformStyle}">${f.final_platform || '-'}</td>
+                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(f.suggested_title || '').replace(/"/g, '&quot;')}">${f.suggested_title || '-'}</td>
+                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(f.final_title || '').replace(/"/g, '&quot;')}">${f.final_title || '-'}</td>
+                    <td>${formatDate(f.created_at)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ===== Deck Memories =====
+    async function loadDeckMemories() {
+        const data = await apiCall('/admin/deck-memories');
+        if (!data) return;
+        const memories = data.memories || [];
+        const stats = data.stats || {};
+
+        document.getElementById('mem-total').textContent = stats.total || 0;
+        document.getElementById('mem-manual').textContent = stats.manual || stats.manual_count || 0;
+        document.getElementById('mem-card').textContent = stats.from_card || stats.card_count || 0;
+        document.getElementById('mem-api').textContent = stats.from_api || stats.api_count || 0;
+        document.getElementById('mem-users').textContent = stats.unique_users || 0;
+        document.getElementById('mem-count').textContent = memories.length + ' memória(s)';
+
+        const tbody = document.getElementById('mem-tbody');
+        if (memories.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma memória registrada</td></tr>';
+            return;
+        }
+        tbody.innerHTML = memories.map(m => {
+            const sourceLabel = m.source === 'manual' ? '<span style="color:#22c55e;">Manual</span>'
+                : m.source === 'card' ? '<span style="color:#3b82f6;">Card</span>'
+                : '<span style="color:#f59e0b;">API</span>';
+            const tagArr = Array.isArray(m.tags) ? m.tags : (m.tags || '').split(',');
+            const tags = tagArr.filter(Boolean).map(t => `<span style="display:inline-block;background:rgba(0,0,0,0.05);border-radius:4px;padding:1px 6px;margin:1px;font-size:11px;">${esc(String(t).trim())}</span>`).join('');
+            return `<tr>
+                <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(m.title)}">${esc(m.title)}</td>
+                <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(m.content)}">${esc(m.content)}</td>
+                <td>${tags || '-'}</td>
+                <td>${sourceLabel}</td>
+                <td>${esc(m.user_name || m.pin)}</td>
+                <td>${formatDate(m.created_at)}</td>
+                <td>${formatDate(m.updated_at)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ===== Deck API =====
+    async function loadDeckApi() {
+        const data = await apiCall('/admin/deck-api-usage');
+        if (!data) return;
+        const keys = data.keys || [];
+        const logs = data.logs || [];
+        const stats = data.stats || {};
+
+        document.getElementById('api-total-keys').textContent = stats.total_keys || 0;
+        document.getElementById('api-active-keys').textContent = stats.active_keys || 0;
+        document.getElementById('api-total-calls').textContent = stats.total_calls || 0;
+        document.getElementById('api-cards-created').textContent = stats.cards_created || 0;
+        document.getElementById('api-memories-created').textContent = stats.memories_created || 0;
+        document.getElementById('api-keys-count').textContent = keys.length + ' chave(s)';
+        document.getElementById('api-calls-count').textContent = logs.length + ' chamada(s)';
+
+        const keysTbody = document.getElementById('api-keys-tbody');
+        if (keys.length === 0) {
+            keysTbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma chave API</td></tr>';
+        } else {
+            keysTbody.innerHTML = keys.map(k => {
+                const status = k.active ? '<span style="color:#22c55e;font-weight:600;">Ativa</span>' : '<span style="color:#ef4444;font-weight:600;">Revogada</span>';
+                return `<tr>
+                    <td>${esc(k.name)}</td>
+                    <td>${esc(k.user_name || k.pin)}</td>
+                    <td>${esc(k.permissions)}</td>
+                    <td>${status}</td>
+                    <td>${k.last_used ? formatDate(k.last_used) : '-'}</td>
+                    <td>${formatDate(k.created_at)}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        const callsTbody = document.getElementById('api-calls-tbody');
+        if (logs.length === 0) {
+            callsTbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhuma chamada registrada</td></tr>';
+        } else {
+            callsTbody.innerHTML = logs.map(l => {
+                const statusColor = l.status >= 200 && l.status < 300 ? '#22c55e' : l.status >= 400 ? '#ef4444' : '#f59e0b';
+                return `<tr>
+                    <td>${esc(l.key_name || l.api_key_id)}</td>
+                    <td style="font-family:monospace;font-size:12px;">${esc(l.endpoint)}</td>
+                    <td>${esc(l.method)}</td>
+                    <td><span style="color:${statusColor};font-weight:600;">${l.status}</span></td>
+                    <td>${formatDate(l.created_at)}</td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
     // ===== Admins =====
     async function loadAdmins() {
         const data = await apiCall('/admin/admins');
@@ -1112,6 +2472,134 @@ function toggleAdminPw() {
         }).join('');
     }
 
+    // ===== Asset Bucket =====
+    async function loadAssetBucket() {
+        try {
+            const resp = await fetch('https://assets.grupocsv.com/manifest.json');
+            const data = await resp.json();
+            const assets = data.assets || [];
+
+            document.getElementById('asset-total').textContent = assets.length;
+
+            // Count by category (normalizado)
+            const cats = {};
+            const brands = {};
+            const catTemplate = { logo: 0, assinatura: 0, avatar: 0, icone: 0, criativo: 0, email: 0, wallpaper: 0, institucional: 0, total: 0 };
+            assets.forEach(a => {
+                const cat = (a.category || 'outro').toLowerCase();
+                cats[cat] = (cats[cat] || 0) + 1;
+                const brand = a.brand || 'sem-marca';
+                if (!brands[brand]) brands[brand] = { ...catTemplate };
+                brands[brand].total++;
+                if (cat === 'logo') brands[brand].logo++;
+                else if (cat === 'assinatura') brands[brand].assinatura++;
+                else if (cat === 'avatar') brands[brand].avatar++;
+                else if (cat === 'icone') brands[brand].icone++;
+                else if (cat === 'criativo') brands[brand].criativo++;
+                else if (cat === 'email') brands[brand].email++;
+                else if (cat === 'wallpaper') brands[brand].wallpaper++;
+                else if (cat === 'institucional') brands[brand].institucional++;
+            });
+
+            document.getElementById('asset-logos').textContent = cats['logo'] || 0;
+            document.getElementById('asset-assinaturas').textContent = cats['assinatura'] || 0;
+            document.getElementById('asset-avatares').textContent = cats['avatar'] || 0;
+            document.getElementById('asset-icones').textContent = cats['icone'] || 0;
+            document.getElementById('asset-criativos').textContent = cats['criativo'] || 0;
+            document.getElementById('asset-email').textContent = cats['email'] || 0;
+            document.getElementById('asset-wallpapers').textContent = cats['wallpaper'] || 0;
+
+            const brandKeys = Object.keys(brands).sort();
+            document.getElementById('asset-brands-count').textContent = brandKeys.length + ' marca(s)';
+            const tbody = document.getElementById('asset-brands-tbody');
+            if (brandKeys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Nenhum asset encontrado</td></tr>';
+            } else {
+                tbody.innerHTML = brandKeys.map(b => {
+                    const d = brands[b];
+                    return `<tr>
+                        <td style="font-weight:600;">${esc(b)}</td>
+                        <td>${d.logo}</td>
+                        <td>${d.assinatura}</td>
+                        <td>${d.avatar}</td>
+                        <td>${d.icone}</td>
+                        <td>${d.criativo}</td>
+                        <td>${d.email}</td>
+                        <td>${d.wallpaper}</td>
+                        <td>${d.institucional}</td>
+                        <td style="font-weight:600;">${d.total}</td>
+                    </tr>`;
+                }).join('');
+            }
+        } catch (err) {
+            document.getElementById('asset-brands-tbody').innerHTML = '<tr><td colspan="10" class="empty-state">Erro ao carregar manifest.json</td></tr>';
+            document.getElementById('asset-brands-count').textContent = 'Erro';
+        }
+    }
+
+    // ===== WABA-CSV =====
+    async function loadWaba() {
+        try {
+            const [statsResp, contactsResp, logsResp] = await Promise.all([
+                fetch(DATA_API + '/waba/stats').then(r => r.json()).catch(() => ({})),
+                fetch(DATA_API + '/waba/contacts').then(r => r.json()).catch(() => ({ results: [] })),
+                fetch(DATA_API + '/waba/logs?limit=100').then(r => r.json()).catch(() => ({ results: [] })),
+            ]);
+
+            // Stats
+            const contacts = contactsResp.results || [];
+            const logs = logsResp.results || [];
+            const sent = logs.filter(l => l.status === 'sent').length;
+            const failed = logs.filter(l => l.status === 'failed').length;
+
+            document.getElementById('waba-total-contacts').textContent = statsResp.contacts || contacts.length;
+            document.getElementById('waba-total-sent').textContent = statsResp.sent || sent;
+            document.getElementById('waba-total-failed').textContent = statsResp.failed || failed;
+
+            // Overview cards
+            document.getElementById('s-waba-total').textContent = statsResp.total_messages || logs.length;
+            document.getElementById('s-waba-contacts').textContent = statsResp.contacts || contacts.length;
+
+            // Contacts table
+            document.getElementById('waba-contacts-count').textContent = contacts.length + ' contato(s)';
+            const cTbody = document.getElementById('waba-contacts-tbody');
+            if (contacts.length === 0) {
+                cTbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum contato cadastrado</td></tr>';
+            } else {
+                cTbody.innerHTML = contacts.map(c => `<tr>
+                    <td style="font-weight:600;">${esc(c.name)}</td>
+                    <td style="font-family:monospace;font-size:13px;">${esc(c.phone)}</td>
+                    <td>${esc(c.tags || '-')}</td>
+                    <td style="font-size:12px;">${formatDate(c.created_at)}</td>
+                </tr>`).join('');
+            }
+
+            // Logs table
+            document.getElementById('waba-logs-count').textContent = logs.length + ' envio(s)';
+            const lTbody = document.getElementById('waba-logs-tbody');
+            if (logs.length === 0) {
+                lTbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum envio registrado</td></tr>';
+            } else {
+                lTbody.innerHTML = logs.map(l => {
+                    const statusBadge = l.status === 'sent'
+                        ? '<span class="badge sent">Enviado</span>'
+                        : '<span class="badge failed">Falha</span>';
+                    return `<tr>
+                        <td style="font-weight:600;">${esc(l.recipient_name || '-')}</td>
+                        <td style="font-family:monospace;font-size:13px;">${esc(l.recipient_phone)}</td>
+                        <td>${esc(l.template_used || '-')}</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(l.content_summary || '')}">${esc(l.content_summary || '-')}</td>
+                        <td>${statusBadge}</td>
+                        <td style="font-size:12px;">${formatDate(l.timestamp || l.created_at)}</td>
+                    </tr>`;
+                }).join('');
+            }
+        } catch (err) {
+            document.getElementById('waba-contacts-tbody').innerHTML = '<tr><td colspan="4" class="empty-state">Erro ao carregar dados WABA</td></tr>';
+            document.getElementById('waba-logs-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar logs WABA</td></tr>';
+        }
+    }
+
     // ===== Change Password Modal =====
     document.getElementById('cpw-submit').addEventListener('click', async function() {
         const oldPw = document.getElementById('cpw-old').value;
@@ -1126,12 +2614,12 @@ function toggleAdminPw() {
             return;
         }
         if (newPw.length < 8) {
-            errorEl.textContent = 'Nova senha deve ter no minimo 8 caracteres.';
+            errorEl.textContent = 'Nova senha deve ter no mínimo 8 caracteres.';
             errorEl.style.display = 'block';
             return;
         }
         if (newPw !== confirmPw) {
-            errorEl.textContent = 'As senhas nao coincidem.';
+            errorEl.textContent = 'As senhas não coincidem.';
             errorEl.style.display = 'block';
             return;
         }
@@ -1145,7 +2633,7 @@ function toggleAdminPw() {
             localStorage.removeItem('hub_admin_must_change');
             localStorage.removeItem('hub_admin_temp_pw');
             document.getElementById('change-pw-modal').classList.add('hidden');
-            showToast('Senha alterada com sucesso. Um e-mail de confirmacao foi enviado.', 'success');
+            showToast('Senha alterada com sucesso. Um e-mail de confirmação foi enviado.', 'success');
             loadAdmins();
         } else {
             errorEl.textContent = (data && data.error) || 'Erro ao alterar senha.';
@@ -1153,9 +2641,691 @@ function toggleAdminPw() {
         }
     });
 
+    // ===== Services Health Check =====
+    async function loadServices() {
+        const services = [
+            { id: 'decks', url: 'https://decks.grupocsv.com/health' },
+            { id: 'mail', url: 'https://mail-api.grupocsv.com/health' },
+            { id: 'assets', url: 'https://assets.grupocsv.com' },
+            { id: 'api', url: 'https://api.grupocsv.com/health' },
+            { id: 'open', url: 'https://open.grupocsv.com' },
+            { id: 'data', url: 'https://csv-data.guilherme-thom.workers.dev/stats' },
+            { id: 'core', url: 'https://core.gabialvim.com.br/health' },
+            { id: 'cooperados', url: 'https://cooperados.unimedgv.com/api/stats' },
+            { id: 'panta', url: 'https://panta.grupocsv.com/health' }
+        ];
+        let onlineCount = 0;
+        for (const svc of services) {
+            const dot = document.getElementById(`svc-${svc.id}-status`);
+            const label = document.getElementById(`svc-${svc.id}-label`);
+            if (!dot || !label) continue;
+            try {
+                const resp = await fetch(svc.url, { method: 'GET', mode: 'no-cors', signal: AbortSignal.timeout(5000) });
+                // mode: no-cors returns opaque response (type 'opaque', status 0) but no network error = online
+                if (resp.ok || resp.type === 'opaque') {
+                    dot.style.background = '#2DBF7F';
+                    label.textContent = 'Online';
+                    label.style.color = '#2DBF7F';
+                    onlineCount++;
+                } else {
+                    dot.style.background = '#f59e0b';
+                    label.textContent = `HTTP ${resp.status}`;
+                    label.style.color = '#f59e0b';
+                }
+            } catch (e) {
+                dot.style.background = '#dc2626';
+                label.textContent = 'Offline';
+                label.style.color = '#dc2626';
+            }
+        }
+        document.getElementById('s-services').textContent = onlineCount + '/' + services.length;
+    }
+
+    // ===== Cooperados UGV =====
+    const COOP_API = 'https://cooperados.unimedgv.com';
+
+    async function loadCooperadosUGV() {
+        const token = getToken();
+        if (!token) return;
+        try {
+            loadCoopEspecialidades();
+            // Fetch stats from public endpoint
+            const statsResp = await fetch(COOP_API + '/api/stats');
+            const statsRaw = await statsResp.json();
+            const stats = Array.isArray(statsRaw) ? statsRaw[0] : statsRaw;
+            document.getElementById('coop-total').textContent = stats.total_cooperados || '-';
+            document.getElementById('coop-especialidades').textContent = stats.total_especialidades || '-';
+
+            // Fetch pending keys (admin endpoint)
+            const pendingResp = await fetch(COOP_API + '/admin/pending-keys', {
+                headers: { 'X-Auth-Token': token }
+            });
+            if (!pendingResp.ok) {
+                document.getElementById('coop-pending').textContent = '0';
+                document.getElementById('coop-pending-list').innerHTML = '<div class="empty-state">Nenhuma solicita\u00e7\u00e3o pendente</div>';
+                document.getElementById('coop-active').textContent = '0';
+                document.getElementById('coop-keys-count').textContent = '0 chave(s)';
+                document.getElementById('coop-keys-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma chave ativa</td></tr>';
+                return;
+            }
+            const pendingData = await pendingResp.json();
+            const pending = pendingData.pending || [];
+            document.getElementById('coop-pending').textContent = pending.length;
+
+            const pendingList = document.getElementById('coop-pending-list');
+            if (pending.length === 0) {
+                pendingList.innerHTML = '<div class="empty-state">Nenhuma solicita\u00e7\u00e3o pendente</div>';
+            } else {
+                pendingList.innerHTML = pending.map(req => `
+                    <div class="request-card">
+                        <div class="rc-info">
+                            <div class="rc-name">${req.email}</div>
+                            <div class="rc-meta">Solicitado em: <strong>${formatDate(req.requested_at)}</strong></div>
+                        </div>
+                        <div class="rc-actions">
+                            <button class="rc-btn approve" onclick="window._coopApprove('${req.email}')">Aprovar</button>
+                            <button class="rc-btn reject" onclick="window._coopReject('${req.email}')">Rejeitar</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Fetch active keys (admin endpoint)
+            const keysResp = await fetch(COOP_API + '/admin/active-keys', {
+                headers: { 'X-Auth-Token': token }
+            });
+            const keysData = await keysResp.json();
+            const keys = keysData.keys || [];
+            document.getElementById('coop-active').textContent = keys.length;
+            document.getElementById('coop-keys-count').textContent = keys.length + ' chave(s)';
+
+            const tbody = document.getElementById('coop-keys-tbody');
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma chave ativa</td></tr>';
+            } else {
+                tbody.innerHTML = keys.map(k => `
+                    <tr>
+                        <td>${k.email}</td>
+                        <td style="font-family:monospace;font-size:12px;">${k.key_masked}</td>
+                        <td>${formatDate(k.created_at)}</td>
+                        <td>${k.last_used ? formatDate(k.last_used) : 'Nunca'}</td>
+                        <td>${k.usage_count || 0}</td>
+                        <td><button class="action-btn revoke" onclick="window._coopRevoke('${k.email}')">Revogar</button></td>
+                    </tr>
+                `).join('');
+            }
+        } catch (e) {
+            console.error('Erro ao carregar Cooperados UGV:', e);
+        }
+    }
+
+    window._coopApprove = async function(email) {
+        if (!confirm('Aprovar API Key para ' + email + '?')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao aprovar.', 'error');
+        }
+    };
+
+    window._coopReject = async function(email) {
+        if (!confirm('Rejeitar solicita\u00e7\u00e3o de ' + email + '?')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/reject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao rejeitar.', 'error');
+        }
+    };
+
+    window._coopRevoke = async function(email) {
+        if (!confirm('Revogar API Key de ' + email + '? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita.')) return;
+        const token = getToken();
+        const resp = await fetch(COOP_API + '/admin/revoke-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify({ email })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadCooperadosUGV();
+        } else {
+            showToast(result.error || 'Erro ao revogar.', 'error');
+        }
+    };
+
+    // ===== Cooperados UGV Upload =====
+    let coopParsedRows = null;
+    window._coopFileSelected = function(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('coop-upload-status');
+        const uploadBtn = document.getElementById('coop-upload-btn');
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#f0f9ff';
+        statusEl.style.color = '#0369a1';
+        statusEl.textContent = 'Processando ' + file.name + '...';
+        uploadBtn.style.display = 'none';
+        coopParsedRows = null;
+        // Load SheetJS dynamically
+        if (!window.XLSX) {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+            s.onload = function() { parseCoopFile(file); };
+            document.head.appendChild(s);
+        } else {
+            parseCoopFile(file);
+        }
+    };
+    function parseCoopFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const wb = XLSX.read(e.target.result, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                // Find header row (row index 3 = line 4)
+                const dataRows = raw.slice(4).filter(r => r[0] && String(r[0]).trim());
+                coopParsedRows = dataRows.map(r => ({
+                    codigo_unimed: String(r[0] || '').trim(),
+                    nome_completo: String(r[1] || '').trim(),
+                    especialidade: String(r[2] || '').trim(),
+                    crm_mg: String(r[3] || '').trim()
+                }));
+                const statusEl = document.getElementById('coop-upload-status');
+                statusEl.style.background = '#ecfdf5';
+                statusEl.style.color = '#065f46';
+                statusEl.textContent = coopParsedRows.length + ' cooperados encontrados no arquivo. Clique para enviar.';
+                document.getElementById('coop-upload-btn').style.display = 'inline-block';
+            } catch (err) {
+                const statusEl = document.getElementById('coop-upload-status');
+                statusEl.style.background = '#fef2f2';
+                statusEl.style.color = '#991b1b';
+                statusEl.textContent = 'Erro ao ler arquivo: ' + err.message;
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    window._coopUpload = async function() {
+        if (!coopParsedRows || coopParsedRows.length === 0) return;
+        const token = getToken();
+        const statusEl = document.getElementById('coop-upload-status');
+        const uploadBtn = document.getElementById('coop-upload-btn');
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Enviando...';
+        statusEl.style.background = '#f0f9ff';
+        statusEl.style.color = '#0369a1';
+        statusEl.textContent = 'Enviando ' + coopParsedRows.length + ' registros para o servidor...';
+        try {
+            const resp = await fetch(COOP_API + '/admin/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                body: JSON.stringify({ rows: coopParsedRows })
+            });
+            const result = await resp.json();
+            if (result.success) {
+                statusEl.style.background = '#ecfdf5';
+                statusEl.style.color = '#065f46';
+                statusEl.textContent = result.message + ' (' + result.stats.cooperados_processados + ' cooperados, ' + result.stats.especialidades + ' especialidades)';
+                showToast('Base atualizada com sucesso!', 'success');
+                loadCooperadosUGV();
+            } else {
+                statusEl.style.background = '#fef2f2';
+                statusEl.style.color = '#991b1b';
+                statusEl.textContent = result.error || 'Erro ao atualizar.';
+                showToast(result.error || 'Erro ao atualizar.', 'error');
+            }
+        } catch (err) {
+            statusEl.style.background = '#fef2f2';
+            statusEl.style.color = '#991b1b';
+            statusEl.textContent = 'Erro de conexão: ' + err.message;
+        }
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Enviar e Atualizar Base';
+    };
+
+    // ===== Cooperados Individual Management =====
+    window._coopIndSearch = async function() {
+        const q = document.getElementById('coop-ind-search').value.trim();
+        const status = document.getElementById('coop-ind-status-filter').value;
+        const token = getToken();
+        const resultsEl = document.getElementById('coop-ind-results');
+        const emptyEl = document.getElementById('coop-ind-empty');
+        const tbody = document.getElementById('coop-ind-tbody');
+
+        let url = COOP_API + '/admin/cooperados?limit=50';
+        if (q) url += '&q=' + encodeURIComponent(q);
+        if (status) url += '&status=' + encodeURIComponent(status);
+
+        try {
+            const resp = await fetch(url, { headers: { 'X-Auth-Token': token } });
+            const data = await resp.json();
+            const cooperados = data.cooperados || [];
+
+            if (cooperados.length === 0) {
+                resultsEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+                return;
+            }
+
+            emptyEl.style.display = 'none';
+            resultsEl.style.display = 'block';
+            tbody.innerHTML = cooperados.map(c => {
+                const statusBadges = { ativo: '<span style="background:#ecfdf5;color:#065f46;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Ativo</span>', inativo: '<span style="background:#fef2f2;color:#991b1b;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Inativo</span>', jubilado: '<span style="background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">Jubilado</span>' };
+                const statusBadge = statusBadges[c.status] || statusBadges.ativo;
+                let actionBtn = '';
+                if (c.status === 'ativo') {
+                    actionBtn = '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'inactivate\')" style="padding:5px 12px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Inativar</button> <button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'jubilar\')" style="padding:5px 12px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Jubilar</button>';
+                } else {
+                    actionBtn = '<button onclick="window._coopToggleStatus(\'' + c.codigo_unimed + '\', \'reactivate\')" style="padding:5px 12px;background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Reativar</button>';
+                }
+                return '<tr style="border-bottom:1px solid var(--border);">' +
+                    '<td style="padding:10px 12px;">' + c.nome_completo + '</td>' +
+                    '<td style="padding:10px 12px;font-family:monospace;font-size:12px;">' + c.codigo_unimed + '</td>' +
+                    '<td style="padding:10px 12px;">' + (c.crm || '-') + '</td>' +
+                    '<td style="padding:10px 12px;">' + statusBadge + '</td>' +
+                    '<td style="padding:10px 12px;text-align:center;">' + actionBtn + '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (e) {
+            console.error('Erro na busca de cooperados:', e);
+            showToast('Erro ao buscar cooperados.', 'error');
+        }
+    };
+
+    window._coopToggleStatus = async function(codigoUnimed, action) {
+        const labels = { inactivate: 'Inativar', reactivate: 'Reativar', jubilar: 'Jubilar' };
+        const label = labels[action] || action;
+        if (!confirm(label + ' cooperado ' + codigoUnimed + '?')) return;
+        const token = getToken();
+        const endpoints = { inactivate: '/admin/inactivate-cooperado', reactivate: '/admin/reactivate-cooperado', jubilar: '/admin/jubilar-cooperado' };
+        const endpoint = endpoints[action] || '/admin/inactivate-cooperado';
+        try {
+            const resp = await fetch(COOP_API + endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                body: JSON.stringify({ codigo_unimed: codigoUnimed })
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast(result.message, 'success');
+                window._coopIndSearch();
+            } else {
+                showToast(result.error || 'Erro.', 'error');
+            }
+        } catch (e) {
+            showToast('Erro de conexão.', 'error');
+        }
+    };
+
+    window._coopAddCooperado = async function() {
+        const nome = document.getElementById('coop-add-nome').value.trim();
+        const codigo = document.getElementById('coop-add-codigo').value.trim();
+        const crm = document.getElementById('coop-add-crm').value.trim();
+        const espSelect = document.getElementById('coop-add-esp');
+        const espId = espSelect.value;
+        const statusEl = document.getElementById('coop-add-status');
+
+        if (!nome || !codigo || !crm) {
+            showToast('Preencha Nome, Código Unimed e CRM.', 'error');
+            return;
+        }
+
+        statusEl.textContent = 'Enviando...';
+        const token = getToken();
+        const payload = {
+            nome_completo: nome.toUpperCase(),
+            codigo_unimed: codigo,
+            crm: crm
+        };
+        if (espId) payload.especialidade_id = parseInt(espId);
+
+        try {
+            const resp = await fetch(COOP_API + '/admin/add-cooperado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                body: JSON.stringify(payload)
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast(result.message, 'success');
+                statusEl.textContent = '';
+                document.getElementById('coop-add-nome').value = '';
+                document.getElementById('coop-add-codigo').value = '';
+                document.getElementById('coop-add-crm').value = '';
+                espSelect.selectedIndex = 0;
+                loadCooperadosUGV();
+            } else {
+                statusEl.textContent = '';
+                showToast(result.error || 'Erro ao incluir.', 'error');
+            }
+        } catch (e) {
+            statusEl.textContent = '';
+            showToast('Erro de conexão.', 'error');
+        }
+    };
+
+    // Load especialidades for the dropdown
+    async function loadCoopEspecialidades() {
+        const token = getToken();
+        try {
+            const resp = await fetch(COOP_API + '/admin/especialidades', {
+                headers: { 'X-Auth-Token': token }
+            });
+            const data = await resp.json();
+            const select = document.getElementById('coop-add-esp');
+            if (data.especialidades && select) {
+                const options = data.especialidades.map(e =>
+                    '<option value="' + e.id + '">' + e.descricao + ' (' + e.codigo_especialidade + ')</option>'
+                ).join('');
+                select.innerHTML = '<option value="">Selecione...</option>' + options;
+            }
+        } catch (e) {
+            console.error('Erro ao carregar especialidades:', e);
+        }
+    }
+    // ===== Open Pages Upload Modal (Multi-Domain) =====
+    let opSelectedFiles = [];
+    let opTargetDomain = 'csv';
+
+    window._openNewOP = function(domainKey) {
+        opTargetDomain = domainKey || 'csv';
+        var domain = OP_DOMAINS[opTargetDomain];
+        document.getElementById('op-upload-modal').classList.remove('hidden');
+        document.getElementById('op-target-badge').textContent = domain.label;
+        document.getElementById('op-target-badge').style.background = opTargetDomain === 'csv' ? '#e0f2fe' : '#ecfdf5';
+        document.getElementById('op-target-badge').style.color = opTargetDomain === 'csv' ? '#0369a1' : '#065f46';
+        document.getElementById('op-slug').value = '';
+        document.getElementById('op-title').value = '';
+        document.getElementById('op-desc').value = '';
+        document.getElementById('op-file-list').textContent = '';
+        document.getElementById('op-upload-error').style.display = 'none';
+        document.getElementById('op-progress').style.display = 'none';
+        document.getElementById('op-submit-btn').disabled = false;
+        opSelectedFiles = [];
+    };
+
+    window._closeNewOP = function() {
+        document.getElementById('op-upload-modal').classList.add('hidden');
+    };
+
+    // Drop zone interactions
+    (function() {
+        const dropZone = document.getElementById('op-drop-zone');
+        const fileInput = document.getElementById('op-file-input');
+        if (!dropZone || !fileInput) return;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = 'rgba(26,86,219,0.04)';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = 'var(--border)';
+            dropZone.style.background = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border)';
+            dropZone.style.background = 'transparent';
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+        function handleFiles(files) {
+            opSelectedFiles = Array.from(files);
+            const listEl = document.getElementById('op-file-list');
+            if (opSelectedFiles.length === 0) {
+                listEl.textContent = '';
+            } else {
+                listEl.innerHTML = '<strong>' + opSelectedFiles.length + ' arquivo(s):</strong> ' +
+                    opSelectedFiles.map(f => f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)').join(', ');
+            }
+        }
+    })();
+
+    window._submitOP = async function() {
+        if (!opGetToken()) { window._opAskToken(); return; }
+        const slug = document.getElementById('op-slug').value.trim();
+        const title = document.getElementById('op-title').value.trim();
+        const desc = document.getElementById('op-desc').value.trim();
+        const errEl = document.getElementById('op-upload-error');
+        const progressEl = document.getElementById('op-progress');
+        const progressBar = document.getElementById('op-progress-bar');
+        const progressText = document.getElementById('op-progress-text');
+        const submitBtn = document.getElementById('op-submit-btn');
+
+        errEl.style.display = 'none';
+
+        if (!slug) { errEl.textContent = 'Slug e obrigatorio'; errEl.style.display = 'block'; return; }
+        if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug) && !/^[a-z0-9]+$/.test(slug)) {
+            errEl.textContent = 'Slug invalido: use apenas letras minusculas, numeros e hifens';
+            errEl.style.display = 'block'; return;
+        }
+        if (!title) { errEl.textContent = 'Titulo e obrigatorio'; errEl.style.display = 'block'; return; }
+        if (opSelectedFiles.length === 0) { errEl.textContent = 'Selecione ao menos um arquivo'; errEl.style.display = 'block'; return; }
+
+        submitBtn.disabled = true;
+        progressEl.style.display = 'block';
+        progressBar.style.width = '30%';
+        progressText.textContent = 'Enviando arquivos...';
+
+        try {
+            const formData = new FormData();
+            formData.append('slug', slug);
+            formData.append('title', title);
+            if (desc) formData.append('description', desc);
+            opSelectedFiles.forEach(f => formData.append('files', f));
+
+            progressBar.style.width = '60%';
+
+            const targetDomain = OP_DOMAINS[opTargetDomain];
+            const resp = await fetch(targetDomain.api + '/api/upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + opGetToken() },
+                body: formData
+            });
+
+            const data = await resp.json();
+            progressBar.style.width = '100%';
+
+            if (!resp.ok || data.error) {
+                errEl.textContent = data.error || 'Erro ao publicar';
+                errEl.style.display = 'block';
+                submitBtn.disabled = false;
+                progressEl.style.display = 'none';
+                return;
+            }
+
+            progressText.textContent = 'Publicado com sucesso!';
+            showToast('Publicada em ' + OP_DOMAINS[opTargetDomain].label + ': ' + data.public_url, 'success');
+
+            setTimeout(() => {
+                window._closeNewOP();
+                loadPublicLinks();
+            }, 1500);
+        } catch (e) {
+            errEl.textContent = 'Erro de rede: ' + e.message;
+            errEl.style.display = 'block';
+            submitBtn.disabled = false;
+            progressEl.style.display = 'none';
+        }
+    };
+
+    // ===== Create User Modal =====
+    window._openCreateUserModal = function() {
+        document.getElementById('cu-name').value = '';
+        document.getElementById('cu-email').value = '';
+        document.querySelectorAll('#cu-tenants input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('create-user-error').style.display = 'none';
+        document.getElementById('cu-submit-btn').disabled = false;
+        document.getElementById('create-user-modal').classList.remove('hidden');
+    };
+    window._closeCreateUserModal = function() {
+        document.getElementById('create-user-modal').classList.add('hidden');
+    };
+    window._submitCreateUser = async function() {
+        const name = document.getElementById('cu-name').value.trim();
+        const email = document.getElementById('cu-email').value.trim();
+        const errEl = document.getElementById('create-user-error');
+        const btn = document.getElementById('cu-submit-btn');
+        errEl.style.display = 'none';
+
+        if (!name) { errEl.textContent = 'Nome é obrigatório'; errEl.style.display = 'block'; return; }
+        if (!email) { errEl.textContent = 'E-mail é obrigatório'; errEl.style.display = 'block'; return; }
+
+        const tenantCheckboxes = document.querySelectorAll('#cu-tenants input[type="checkbox"]:checked');
+        const tenant_ids = Array.from(tenantCheckboxes).map(cb => cb.value);
+        if (tenant_ids.length === 0) { errEl.textContent = 'Selecione ao menos um portal'; errEl.style.display = 'block'; return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Criando...';
+
+        const data = await apiCall('/admin/create-user', {
+            method: 'POST',
+            body: JSON.stringify({ email, name, tenant_ids }),
+        });
+
+        btn.disabled = false;
+        btn.textContent = 'Criar Usuário';
+
+        if (data && data.success) {
+            showToast('Usuário criado com sucesso. E-mail enviado.', 'success');
+            window._closeCreateUserModal();
+            loadAll();
+        } else {
+            errEl.textContent = data?.error || 'Erro ao criar usuário';
+            errEl.style.display = 'block';
+        }
+    };
+    // ===== Panta (CSV Omnisearch) =====
+    const PANTA_API = 'https://panta.grupocsv.com';
+    const PANTA_TOKEN = 'panta_csv_2026_secure';
+
+    async function loadPanta() {
+        try {
+            const resp = await fetch(PANTA_API + '/admin/stats', {
+                headers: { 'X-Panta-Token': PANTA_TOKEN }
+            });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const data = await resp.json();
+
+            // Status
+            const dot = document.getElementById('panta-status-dot');
+            const txt = document.getElementById('panta-status-text');
+            dot.style.background = '#22c55e';
+            txt.textContent = 'Online';
+            txt.style.color = '#22c55e';
+            document.getElementById('panta-version').textContent = 'v' + (data.version || '1.0.0');
+
+            // Summary cards
+            const docs = data.documents || {};
+            const graph = data.graph || {};
+            document.getElementById('panta-docs').textContent = docs.total || 0;
+            document.getElementById('panta-chunks').textContent = docs.chunks || 0;
+            document.getElementById('panta-entities').textContent = graph.entities || 0;
+            document.getElementById('panta-relations').textContent = graph.relations || 0;
+            document.getElementById('panta-embeddings').textContent = graph.embeddings || 0;
+            document.getElementById('panta-sources').textContent = (data.sources || []).length;
+
+            // Entidades por tipo
+            const typeCounts = graph.type_counts || {};
+            const typeKeys = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
+            const totalEnts = Object.values(typeCounts).reduce((s, v) => s + v, 0) || 1;
+            document.getElementById('panta-types-count').textContent = typeKeys.length + ' tipo(s)';
+            const typesTbody = document.getElementById('panta-types-tbody');
+            if (typeKeys.length === 0) {
+                typesTbody.innerHTML = '<tr><td colspan="3" class="empty-state">Nenhuma entidade</td></tr>';
+            } else {
+                typesTbody.innerHTML = typeKeys.map(t => {
+                    const pct = ((typeCounts[t] / totalEnts) * 100).toFixed(1);
+                    return '<tr><td style="font-weight:600;text-transform:capitalize;">' + esc(t) + '</td><td>' + typeCounts[t] + '</td><td>' + pct + '%</td></tr>';
+                }).join('');
+            }
+
+            // Documentos recentes
+            const recentDocs = docs.recent || [];
+            document.getElementById('panta-docs-count').textContent = docs.total + ' documento(s)';
+            const docsTbody = document.getElementById('panta-docs-tbody');
+            if (recentDocs.length === 0) {
+                docsTbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum documento indexado</td></tr>';
+            } else {
+                docsTbody.innerHTML = recentDocs.map(d => {
+                    const date = d.created_at ? d.created_at.split(' ')[0] : '-';
+                    const chars = d.char_count ? d.char_count.toLocaleString('pt-BR') : '-';
+                    return '<tr><td>' + d.id + '</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(d.filename) + '">' + esc(d.filename) + '</td><td><span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">' + esc(d.format.toUpperCase()) + '</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(d.title || '-') + '</td><td>' + chars + '</td><td>' + (d.page_count || '-') + '</td><td style="font-size:12px;color:var(--text-secondary);">' + date + '</td></tr>';
+                }).join('');
+            }
+
+            // Entidades recentes
+            const entList = graph.entities_list || [];
+            document.getElementById('panta-ent-count').textContent = graph.entities + ' entidade(s)';
+            const entTbody = document.getElementById('panta-ent-tbody');
+            if (entList.length === 0) {
+                entTbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma entidade</td></tr>';
+            } else {
+                entTbody.innerHTML = entList.slice(0, 20).map(e => {
+                    const date = e.created_at ? e.created_at.split('T')[0] : '-';
+                    return '<tr><td>' + e.id + '</td><td style="font-weight:600;">' + esc(e.name) + '</td><td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;text-transform:capitalize;">' + esc(e.entity_type) + '</span></td><td style="font-size:12px;color:var(--text-secondary);">' + date + '</td></tr>';
+                }).join('');
+            }
+
+            // Formatos
+            const formats = docs.formats || {};
+            const fmtKeys = Object.keys(formats).sort((a, b) => formats[b] - formats[a]);
+            const fmtTbody = document.getElementById('panta-formats-tbody');
+            if (fmtKeys.length === 0) {
+                fmtTbody.innerHTML = '<tr><td colspan="2" class="empty-state">Nenhum formato</td></tr>';
+            } else {
+                fmtTbody.innerHTML = fmtKeys.map(f => {
+                    return '<tr><td style="font-weight:600;text-transform:uppercase;">' + esc(f) + '</td><td>' + formats[f] + '</td></tr>';
+                }).join('');
+            }
+
+        } catch (err) {
+            console.error('Erro ao carregar Panta:', err);
+            const dot = document.getElementById('panta-status-dot');
+            const txt = document.getElementById('panta-status-text');
+            dot.style.background = '#dc2626';
+            txt.textContent = 'Offline';
+            txt.style.color = '#dc2626';
+        }
+    }
+
     // ===== Start =====
     init();
 })();
+
+        // Blog Admin - lazy load iframe
+        let blogAdminLoaded = false;
+        function loadBlogAdmin() {
+            if (blogAdminLoaded) return;
+            const iframe = document.getElementById('blog-admin-iframe');
+            const loading = document.getElementById('blog-admin-loading');
+            iframe.src = 'https://grupocsv.com/blog/admin';
+            iframe.onload = function() {
+                if (loading) loading.style.display = 'none';
+                blogAdminLoaded = true;
+            };
+        }
+
 </script>
 </body>
 </html>

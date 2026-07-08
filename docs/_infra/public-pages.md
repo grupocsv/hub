@@ -152,6 +152,8 @@ Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente a
 
 **Implicação para páginas públicas:** para que uma Open Page (ou página legada `/p/`) apareça no menu de um portal, adicione a entrada em `{portal}/extras.json` — ela passa a constar do `tools.json` no push seguinte.
 
+**Por que Axia, Medvalor e Thera ficam fora do gerador:** são portais de empresas do grupo com índices curados manualmente (cards de serviço estáticos em `docs/{axia,medvalor,thera}/index.md`), sem menu dinâmico de ferramentas — não consomem `tools.json`. Incluí-los no `PORTALS` do gerador criaria artefatos que nada lê. Se algum deles ganhar menu dinâmico no futuro, basta adicioná-lo ao `PORTALS` em `scripts/generate-portal-tools.py` e trocar o índice para o padrão de `fetch` dos portais de parceiros.
+
 ---
 
 ## Histórico

@@ -1,0 +1,14 @@
+{
+  "cuidadocoordenado.html": {
+    "note": "Migrar para Open Page slug scg100"
+  },
+  "ped-amb.html": {
+    "note": "Migrar para Open Page"
+  },
+  "tea.html": {
+    "note": "Reconstruída em jul/2026: Plotly 3,4 MB → Chart.js CDN, design system Unimed, tabela e insights"
+  },
+  "vivapleno.html": {
+    "note": "Migrar para Open Page"
+  }
+}
