@@ -61,6 +61,17 @@
       --transition-normal: 250ms ease;
     }
 
+    /* Widget de logout (hub-auth) acompanha o tema escuro da página em runtime —
+       replica a variante .ha-dark do hub-auth.js, que só é aplicada no mount */
+    [data-theme="dark"] #hub-auth-logout .ha-user-badge {
+      color: rgba(255, 255, 255, 0.92);
+    }
+    [data-theme="dark"] #hub-auth-logout .ha-logout-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.92);
+    }
+
     [data-theme="dark"] {
       --ax-primary: #3b9dd8;
       --ax-primary-light: #5bb2e8;
@@ -956,6 +967,7 @@
         <a class="brand-link" href="https://icds.org.br/hospital-unimed-governador-valadares/" target="_blank" rel="noopener" aria-label="ICDS Hospital">
           <img class="brand-logo" src="https://i.imgur.com/XouXBck.png" alt="ICDS Hospital">
         </a>
+        <span id="hub-auth-slot"></span>
       </div>
     </div>
   </header>

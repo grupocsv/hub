@@ -1,10 +1,20 @@
 /**
- * Hub CSV - Portal Authentication System v2.4.0
+ * Hub CSV - Portal Authentication System v2.5.0
  * Suporta autenticação individual (parceiros) e fixa (empresas)
  * Design system padronizado: fundo gradiente, card branco, logo, cadeado, botão teal
  *
  * Uso: Adicionar ao final do <body> de cada portal protegido:
  *   <script src="/scripts/hub-auth.js" data-portal="unimed"></script>
+ *
+ * Slot de montagem do widget de logout (v2.5.0):
+ *   A página pode indicar ONDE o badge de usuário + botão "Sair" devem montar,
+ *   evitando o fallback position:fixed (que pode sobrepor botões no canto
+ *   superior direito). Basta incluir no header:
+ *     <span id="hub-auth-slot"></span>
+ *   ou qualquer elemento com [data-hub-auth-slot]. Para headers escuros,
+ *   adicionar data-hub-auth-theme="dark" ao slot (cores claras no widget).
+ *   O slot tem precedência sobre os seletores automáticos; páginas sem slot
+ *   continuam com o comportamento anterior (retrocompatível).
  *
  * Portais de Parceiros (autenticação individual):
  *   - unimed, unihealth, icds
@@ -564,6 +574,15 @@
 #hub-auth-logout.ha-in-header {\
   position: static; height: auto; padding: 0; margin-left: 12px; flex-shrink: 0;\
 }\
+#hub-auth-logout.ha-in-slot {\
+  position: static; height: auto; padding: 0; margin: 0; flex-shrink: 0;\
+}\
+#hub-auth-logout.ha-dark .ha-user-badge {\
+  color: rgba(255,255,255,0.92); opacity: 0.85;\
+}\
+#hub-auth-logout.ha-dark .ha-logout-btn {\
+  background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.92);\
+}\
 .ha-user-badge {\
   display: flex; align-items: center; gap: 6px; color: #374151;\
   font-weight: 500; font-size: 12px; opacity: 0.7;\
@@ -594,6 +613,10 @@
   <span>Sair</span>\
 </a>';
 
+    // Slot explícito da página (v2.5.0) — precedência sobre os seletores automáticos
+    var slot = document.getElementById('hub-auth-slot')
+      || document.querySelector('[data-hub-auth-slot]');
+
     // Tentar inserir inline no header existente (dentro do flex row)
     var headerFlex = document.querySelector('header .flex.items-center.justify-between')
       || document.querySelector('header > div > .flex')
@@ -603,7 +626,11 @@
     var vpExtraContent = document.querySelector('.VPNavBar .content .content-body .extra-content');
     var vpSocialLinks = document.querySelector('.VPNavBar .VPSocialLinks');
 
-    if (headerFlex) {
+    if (slot) {
+      btn.classList.add('ha-in-slot');
+      if (slot.getAttribute('data-hub-auth-theme') === 'dark') btn.classList.add('ha-dark');
+      slot.appendChild(btn);
+    } else if (headerFlex) {
       // Inserir como item flex no final da row do header (ao lado do portal name)
       btn.classList.add('ha-in-header');
       headerFlex.appendChild(btn);
