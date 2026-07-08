@@ -10,6 +10,15 @@ e gera um JSON ordenado do mais recente para o mais antigo.
 
 Páginas podem ser excluídas do menu adicionando uma meta tag:
   <meta name="hub-menu" content="hidden">
+
+Anotações manuais sobrevivem à regeneração via {portal}/tools-overrides.json
+(opcional). Formato: objeto cujas chaves são o campo "file" da entrada gerada
+(nome do .html do portal ou href de entrada vinda de extras.json) e cujos
+valores são campos aplicados por cima da entrada gerada (merge raso — o
+campo do override vence o extraído, inclusive "title"). Exemplo:
+  {
+    "arquivo.html": {"note": "...", "featured": true, "title": "..."}
+  }
 """
 
 import json
@@ -137,6 +146,26 @@ def generate_portal_tools(portal):
                 )
         except Exception as e:
             print(f"  Aviso: erro ao ler {extras_path}: {e}")
+
+    # Aplicar overrides manuais ({portal}/tools-overrides.json).
+    # Somente chaves da whitelist entram no merge: um lastModified de tipo
+    # errado num arquivo editado à mão quebraria a ordenação abaixo — e, como
+    # o step é fail-fast, derrubaria o deploy inteiro.
+    ALLOWED_OVERRIDE_KEYS = {"note", "featured", "title"}
+    overrides_path = os.path.join(portal_dir, "tools-overrides.json")
+    if os.path.isfile(overrides_path):
+        try:
+            with open(overrides_path, "r", encoding="utf-8") as f:
+                overrides = json.load(f)
+            for tool in tools:
+                override = overrides.get(tool["file"])
+                if isinstance(override, dict):
+                    ignored = set(override) - ALLOWED_OVERRIDE_KEYS
+                    if ignored:
+                        print(f"  Aviso: chaves ignoradas no override de {tool['file']}: {sorted(ignored)} (permitidas: {sorted(ALLOWED_OVERRIDE_KEYS)})")
+                    tool.update({k: v for k, v in override.items() if k in ALLOWED_OVERRIDE_KEYS})
+        except Exception as e:
+            print(f"  Aviso: erro ao ler {overrides_path}: {e}")
 
     # Ordenar por lastModified (mais recente primeiro)
     tools.sort(key=lambda t: t["lastModified"], reverse=True)

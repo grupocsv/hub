@@ -2033,17 +2033,53 @@ function toggleAdminPw() {
         csv: { api: 'https://open.grupocsv.com', label: 'open.grupocsv.com', tbody: 'op-csv-tbody', count: 'op-csv-count' },
         unimedgv: { api: 'https://hub.unimedgv.com', label: 'hub.unimedgv.com', tbody: 'op-ugv-tbody', count: 'op-ugv-count' }
     };
-    const OP_AUTH_TOKEN = '68894645';
+    // Token admin das APIs Open Pages: NUNCA hardcoded (o admin é publicado no
+    // site — um token literal aqui fica exposto a qualquer leitor do fonte).
+    // O token fica em localStorage ('op_admin_token'). opGetToken() NÃO abre
+    // prompt sozinho: quem pede o token é o botão "Informar token" da aba
+    // Links Públicos (ou opSetToken() no console). Após rotação via
+    // /api/change-password, basta informar o novo valor pelo botão — o valor
+    // oficial fica registrado no Vault do Notion.
+    function opGetToken() {
+        return (localStorage.getItem('op_admin_token') || '').trim();
+    }
+    function opSetToken(t) {
+        if (t) { localStorage.setItem('op_admin_token', t.trim()); }
+        else { localStorage.removeItem('op_admin_token'); }
+        return 'op_admin_token atualizado';
+    }
+    window.opSetToken = opSetToken;
+    window._opAskToken = function() {
+        var t = (window.prompt('Token admin do Open Pages (guardado só neste navegador — o valor oficial fica no Vault do Notion):') || '').trim();
+        if (t) { localStorage.setItem('op_admin_token', t); loadPublicLinks(); }
+    };
+    function opTokenMissingRow(msg) {
+        return '<tr><td colspan="6" class="empty-state">' + msg +
+            ' <button class="pl-btn" style="margin-left:8px;" onclick="window._opAskToken()">Informar token</button></td></tr>';
+    }
 
     async function loadOpenPages(hubActiveCount) {
         var totalOpenActive = 0;
+        var opToken = opGetToken(); // uma única leitura para os dois domínios; sem prompt automático
         for (const [key, domain] of Object.entries(OP_DOMAINS)) {
             var tbody = document.getElementById(domain.tbody);
             var countEl = document.getElementById(domain.count);
+            if (!opToken) {
+                tbody.innerHTML = opTokenMissingRow('Token do Open Pages não informado.');
+                countEl.textContent = '—';
+                continue;
+            }
             try {
                 var resp = await fetch(domain.api + '/api/pages', {
-                    headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN }
+                    headers: { 'Authorization': 'Bearer ' + opToken }
                 });
+                if (resp.status === 401 || resp.status === 403) {
+                    // token inválido (ex.: rotacionado): limpa e oferece reentrada pela UI
+                    localStorage.removeItem('op_admin_token');
+                    tbody.innerHTML = opTokenMissingRow('Token do Open Pages inválido ou expirado.');
+                    countEl.textContent = '—';
+                    continue;
+                }
                 var data = await resp.json();
                 var pages = data.pages || [];
 
@@ -2098,6 +2134,7 @@ function toggleAdminPw() {
     }
 
     window._toggleOP = async function(slug, domainKey, btn) {
+        if (!opGetToken()) { window._opAskToken(); return; }
         var domain = OP_DOMAINS[domainKey];
         var action = btn.classList.contains('pl-revoke') ? 'desativar' : 'ativar';
         if (!confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' "' + slug + '" em ' + domain.label + '?')) return;
@@ -2106,7 +2143,7 @@ function toggleAdminPw() {
         try {
             var resp = await fetch(domain.api + '/api/toggle', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': 'Bearer ' + opGetToken(), 'Content-Type': 'application/json' },
                 body: JSON.stringify({ slug: slug })
             });
             var data = await resp.json();
@@ -2126,6 +2163,7 @@ function toggleAdminPw() {
     };
 
     window._toggleAuthGate = async function(slug, enable, btn) {
+        if (!opGetToken()) { window._opAskToken(); return; }
         var action = enable ? 'Ativar' : 'Remover';
         if (!confirm(action + ' gate de senha para "' + slug + '"?')) return;
         btn.disabled = true;
@@ -2133,7 +2171,7 @@ function toggleAdminPw() {
         try {
             var resp = await fetch('https://open.grupocsv.com/api/set-auth-gate', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': 'Bearer ' + opGetToken(), 'Content-Type': 'application/json' },
                 body: JSON.stringify({ slug: slug, auth_gate: enable })
             });
             var data = await resp.json();
@@ -3064,6 +3102,7 @@ function toggleAdminPw() {
     })();
 
     window._submitOP = async function() {
+        if (!opGetToken()) { window._opAskToken(); return; }
         const slug = document.getElementById('op-slug').value.trim();
         const title = document.getElementById('op-title').value.trim();
         const desc = document.getElementById('op-desc').value.trim();
@@ -3100,7 +3139,7 @@ function toggleAdminPw() {
             const targetDomain = OP_DOMAINS[opTargetDomain];
             const resp = await fetch(targetDomain.api + '/api/upload', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + OP_AUTH_TOKEN },
+                headers: { 'Authorization': 'Bearer ' + opGetToken() },
                 body: formData
             });
 

@@ -62,12 +62,12 @@ head:
 }
 
 .tool-card {
-  background: linear-gradient(135deg, rgba(0,153,93,0.03), rgba(0,153,93,0.05));
+  background: #ffffff;
   border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  border: 1px solid rgba(0,153,93,0.1);
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0,78,76,0.04), 0 6px 24px rgba(0,78,76,0.06);
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms cubic-bezier(.2,.8,.2,1);
+  border: 1px solid rgba(0,0,0,0.06);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -81,43 +81,40 @@ head:
   top: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(90deg, #00995d, #8baf1f);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s;
 }
-.tool-card:hover::before { transform: scaleX(1); }
-.tool-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,153,93,0.15); border-color: rgba(0,153,93,0.2); }
+.tool-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
 
-.tool-card.featured {
-  background: linear-gradient(135deg, #00995d, #007a4a);
-  color: white;
-  border-color: #00995d;
-}
-.tool-card.featured .tool-title { color: white; }
-.tool-card.featured .tool-link { background: #8baf1f; border-color: #8baf1f; }
-.tool-card.featured .tool-link:hover { background: #a0c944; border-color: #a0c944; }
 .tool-card.featured::after {
-  display: none;
+  content: 'NOVO';
+  position: absolute;
+  top: 14px; right: 14px;
+  background: #8baf1f;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.tool-title { color: #00995d; font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.3; flex-grow: 1; }
-.dark .tool-card:not(.featured) .tool-title { color: #3dcc8e; }
+.tool-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; line-height: 1.35; flex-grow: 1; }
+.dark .tool-card .tool-title { color: var(--vp-c-text-1); }
 
 .tool-link {
   display: block;
   width: 100%;
-  padding: 14px 24px;
+  padding: 11px 0;
   background: #00995d;
   color: white !important;
   text-decoration: none !important;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.88rem;
   text-align: center;
-  transition: all 0.3s;
-  border: 2px solid #00995d;
+  transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-.tool-link:hover { background: #8baf1f; border-color: #8baf1f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,175,31,0.3); }
+.tool-link:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,153,93,0.3); }
 
 .page-foot {
   padding: 32px 20px;

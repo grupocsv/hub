@@ -80,12 +80,12 @@
         }
 
         .tool-card {
-            background: linear-gradient(135deg, rgba(0, 153, 93, 0.03) 0%, rgba(0, 153, 93, 0.05) 100%);
+            background: #ffffff;
             border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 153, 93, 0.1);
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(0, 78, 76, 0.04), 0 6px 24px rgba(0, 78, 76, 0.06);
+            transition: transform 220ms cubic-bezier(.2, .8, .2, 1), box-shadow 220ms cubic-bezier(.2, .8, .2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.06);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -100,87 +100,40 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--unimed-green) 0%, var(--unimed-green-light) 100%);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-        .tool-card:hover::before {
-            transform: scaleX(1);
         }
 
         .tool-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 153, 93, 0.15);
-            background: linear-gradient(135deg, rgba(0, 153, 93, 0.06) 0%, rgba(0, 153, 93, 0.08) 100%);
-            border-color: rgba(0, 153, 93, 0.2);
-        }
-
-        .tool-card.featured {
-            background: linear-gradient(135deg, var(--unimed-green) 0%, #007a4a 100%);
-            color: white;
-            border-color: var(--unimed-green);
-        }
-
-        .tool-card.featured .tool-title {
-            color: white;
-        }
-
-        .tool-card.featured .tool-link {
-            background: var(--unimed-green-light);
-            border: 2px solid var(--unimed-green-light);
-        }
-
-        .tool-card.featured .tool-link:hover {
-            background: #a0c944;
-            border-color: #a0c944;
-            transform: translateY(-2px);
-        }
-
-        .tool-card.featured::after {
-            content: 'NOVO';
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: var(--unimed-green-light);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(139, 175, 31, 0.4);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
         }
 
         .tool-title {
-            color: var(--unimed-green);
-            font-size: 18px;
-            font-weight: 600;
+            color: #1a2b3c;
+            font-size: 1.05rem;
+            font-weight: 700;
             margin-bottom: 20px;
-            line-height: 1.3;
+            line-height: 1.35;
             flex-grow: 1;
         }
 
         .tool-link {
             display: inline-block;
             width: 100%;
-            padding: 14px 24px;
+            padding: 11px 0;
             background: var(--unimed-green);
             color: white;
             text-decoration: none;
             border-radius: 10px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 0.88rem;
             text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid var(--unimed-green);
+            transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
         }
 
         .tool-link:hover {
-            background: var(--unimed-green-light);
-            border-color: var(--unimed-green-light);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 175, 31, 0.3);
+            filter: brightness(1.12);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 153, 93, 0.3);
         }
 
         .footer {
@@ -276,16 +229,6 @@
             }
         }
 
-        @media (hover: none) and (pointer: coarse) {
-            .tool-card::before {
-                transform: scaleX(1);
-            }
-            
-            .tool-card {
-                background: linear-gradient(135deg, rgba(0, 153, 93, 0.05) 0%, rgba(0, 153, 93, 0.07) 100%);
-            }
-        }
-    
 
 
 </style>

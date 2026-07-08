@@ -23,6 +23,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check portal links
+        run: python3 scripts/check-portal-links.py
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

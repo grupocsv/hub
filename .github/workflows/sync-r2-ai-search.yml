@@ -14,6 +14,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate portal tools.json
+        run: python3 scripts/generate-portal-tools.py .
+
+      - name: Regenerate manifest.json
+        run: python3 scripts/generate-manifest.py .
 
       - name: Install rclone
         run: |

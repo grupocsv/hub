@@ -1,8 +1,51 @@
-# Skill: Criar Pagina Publica em /p/
+# Skill: Criar Pagina Publica em /p/ (LEGADO — somente manutenção)
 
-**Objetivo:** Publicar uma copia publica de uma pagina de portal protegido, tornando-a acessivel sem autenticacao em `hub.grupocsv.com/p/{slug}/`.
+> **AVISO — FLUXO LEGADO.** O fluxo `/p/` descrito nesta skill (cópia estática em `/p/{slug}/index.html` + `/p/registry.json`, servida pelo GitHub Pages) foi **descontinuado para novas publicações** (ver `docs/_infra/public-pages.md`, seção "Legado"). Use este documento **apenas para manter páginas que já existem em `/p/`** (correções, desativação, histórico).
+>
+> **Para criar NOVAS páginas públicas, use o Open Pages** (`open.grupocsv.com` — Worker `csv-open-pages` + R2 + KV, com toggle instantâneo ativo/inativo). Três vias de publicação:
+>
+> 1. **Aba "Links Públicos" do `/admin/index.html`:** o botão **"Nova Página"** abre o modal "Publicar Nova Página" (slug, título, descrição, upload de arquivos), que envia os arquivos para a API do Worker (`POST /api/upload`). Há um bloco para `open.grupocsv.com` e outro para `hub.unimedgv.com`.
+> 2. **Painel dedicado:** `https://open.grupocsv.com/_admin/` (upload, listagem, toggle ativo/inativo, cópia rápida do link).
+> 3. **Tools MCP do Extensio:** `open_page_publish` (publica ou atualiza uma página a partir do HTML — parâmetros `slug`, `html_content`, `title`, `description`) e `open_page_list` (lista as páginas com slug, título, URL e status).
+>
+> Referência completa da arquitetura: `docs/_infra/public-pages.md`.
 
-**Quando usar:** Sempre que for necessario compartilhar uma ferramenta, formulario, painel ou relatorio de um portal protegido (Unimed, Unihealth, ICDS, AxiaCare, Thera, MedValor) com pessoas que nao tem login no Hub.
+## Sincronização com o menu do portal (extras.json)
+
+Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente: a cada push, o CI (`.github/workflows/deploy.yml`) roda `scripts/generate-portal-tools.py`, que gera `{portal}/tools.json` a partir dos `<title>` dos arquivos `.html` do portal (exceto `index.html`; páginas com `<meta name="hub-menu" content="hidden">` ficam de fora).
+
+Páginas públicas (Open Pages ou legado `/p/`) não são arquivos `.html` do portal, então entram no menu por **entrada manual em `{portal}/extras.json`**:
+
+```json
+[
+  {
+    "title": "TEA: Data Set Indicadores",
+    "href": "/p/tea-dataset/",
+    "created": "2026-02-15T00:00:00+00:00",
+    "lastModified": "2026-02-15T00:00:00+00:00"
+  }
+]
+```
+
+- Campos: `title` e `href` (essenciais); `created` e `lastModified` (opcionais — `lastModified` tem default `2026-01-01T00:00:00+00:00`; `created` tem default igual ao `lastModified` informado, ou `2026-01-01` se ambos ausentes).
+- No próximo push, a entrada aparece no `{portal}/tools.json` com `"external": true` e é renderizada nos menus — os índices dos portais (`docs/{portal}/index.md`) e a home (`docs/index.md`) fazem fetch de `tools.json` em runtime.
+- Exemplo real: `icds/extras.json` aponta para `/p/tea-dataset/` e para a URL externa `https://rd-icds.axcare.app`.
+
+## Slot do hub-auth em páginas de portal autenticado
+
+Ao criar páginas novas dentro de um portal autenticado (a página de origem de uma futura página pública), inclua no header o slot do widget de logout do `hub-auth.js` (v2.5.0):
+
+```html
+<span id="hub-auth-slot"></span>
+```
+
+(ou qualquer elemento com `[data-hub-auth-slot]`). Para headers escuros, adicione `data-hub-auth-theme="dark"` ao slot. O slot tem precedência sobre os seletores automáticos e evita o fallback `position:fixed`, que pode sobrepor botões no canto superior direito. Páginas sem slot mantêm o comportamento anterior (retrocompatível). Detalhes no cabeçalho de `scripts/hub-auth.js`.
+
+---
+
+**Objetivo:** Publicar uma cópia pública de uma página de portal protegido, tornando-a acessível sem autenticação em `hub.grupocsv.com/p/{slug}/`.
+
+**Quando usar (legado):** Somente para manutenção de páginas que já existem em `/p/`. Para novas páginas públicas, use o Open Pages (ver aviso acima).
 
 ---
 

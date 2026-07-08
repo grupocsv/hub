@@ -88,10 +88,17 @@ O Worker `csv-open-pages` intercepta todas as requisições para `open.grupocsv.
 
 **Vantagem:** O bloqueio é real e ocorre na borda (edge). Uma página desativada não pode ser acessada, mesmo que os arquivos continuem armazenados no R2.
 
-### 3. Legado (Diretório `/p/` no Hub)
+### 3. Publicação Programática (Tools MCP do Extensio)
+
+Além dos painéis, o servidor MCP do **Extensio** expõe duas tools para operar as Open Pages de forma programática (por agentes de IA ou automações):
+
+- **`open_page_publish`** — Publica ou atualiza uma Open Page em `open.grupocsv.com`. Parâmetros: `slug` e `html_content` (obrigatórios), `title` e `description` (metadados). Faz o upload do HTML para o R2, atualiza os metadados no KV e verifica a gravação.
+- **`open_page_list`** — Lista as Open Pages ativas com seus metadados (slug, título, URL, status).
+
+### 4. Legado (Diretório `/p/` no Hub)
 Anteriormente, as páginas públicas eram armazenadas no diretório `/p/` do repositório principal do Hub e servidas via GitHub Pages. Este modelo foi descontinuado em favor da arquitetura independente (Open Pages) para permitir toggles instantâneos sem necessidade de novos deploys.
 
-Páginas legadas (como o `tea-dataset`) foram migradas para o R2. O diretório `/p/` no repositório `grupocsv/hub` pode ser mantido temporariamente para fins de histórico ou redirecionamento (301), mas novas publicações devem ser feitas exclusivamente via painel Open Pages.
+Páginas legadas (como o `tea-dataset`) foram migradas para o R2. O diretório `/p/` no repositório `grupocsv/hub` pode ser mantido temporariamente para fins de histórico ou redirecionamento (301), mas novas publicações devem ser feitas exclusivamente via Open Pages — por qualquer das três vias da seção anterior: aba Links Públicos do `/admin/`, painel `open.grupocsv.com/_admin/` ou tools MCP do Extensio.
 
 ---
 
@@ -123,6 +130,29 @@ As Open Pages suportam uma camada de proteção dinâmica chamada **Auth Gate**:
 - A validação das credenciais é delegada para o Worker `csv-open-auth`.
 - Isso permite que uma página hospedada no R2 seja pública por padrão, mas receba uma camada de proteção instantânea sem precisar recompilar o HTML.
 - A ativação/desativação do Auth Gate é feita via API: `POST /api/set-auth-gate` com `{ "slug": "...", "auth_gate": true/false }`.
+
+---
+
+## Sincronização de Menus dos Portais
+
+Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente a cada push — não há lista manual de ferramentas nos índices.
+
+### Geração (CI)
+
+1. O workflow de deploy (`.github/workflows/deploy.yml`, step "Generate portal tools.json") executa `scripts/generate-portal-tools.py` a cada push na `main`.
+2. Para cada portal, o script escaneia os arquivos `.html` da pasta do portal (excluindo `index.html`), extrai o `<title>` (removendo sufixos como `| Unimed GV` e `| Grupo CSV`) e obtém as datas de criação e última modificação via `git log`.
+3. Páginas com `<meta name="hub-menu" content="hidden">` no `<head>` são **excluídas do menu**.
+4. Entradas manuais vêm de `{portal}/extras.json` — links para Open Pages, páginas legadas `/p/` ou URLs externas. Cada item usa `title` e `href` (opcionalmente `created`/`lastModified`) e entra no resultado com `"external": true`. Exemplo: `icds/extras.json` aponta para `/p/tea-dataset/` e para `https://rd-icds.axcare.app`.
+5. O resultado é gravado em `{portal}/tools.json` (campos `portal`, `generatedAt`, `totalTools`, `tools`), ordenado do mais recente para o mais antigo.
+
+### Consumo (runtime)
+
+- Os índices dos portais (`docs/unimed/index.md`, `docs/unihealth/index.md`, `docs/icds/index.md`) fazem `fetch` de `/{portal}/tools.json` e renderizam os cards dinamicamente.
+- A home (`docs/index.md`) também busca o `tools.json` de cada portal para montar as listas de ferramentas; itens com `external: true` usam o `href` diretamente, os demais recebem o prefixo do portal.
+
+**Implicação para páginas públicas:** para que uma Open Page (ou página legada `/p/`) apareça no menu de um portal, adicione a entrada em `{portal}/extras.json` — ela passa a constar do `tools.json` no push seguinte.
+
+**Por que Axia, Medvalor e Thera ficam fora do gerador:** são portais de empresas do grupo com índices curados manualmente (cards de serviço estáticos em `docs/{axia,medvalor,thera}/index.md`), sem menu dinâmico de ferramentas — não consomem `tools.json`. Incluí-los no `PORTALS` do gerador criaria artefatos que nada lê. Se algum deles ganhar menu dinâmico no futuro, basta adicioná-lo ao `PORTALS` em `scripts/generate-portal-tools.py` e trocar o índice para o padrão de `fetch` dos portais de parceiros.
 
 ---
 

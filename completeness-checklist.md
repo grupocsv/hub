@@ -31,9 +31,9 @@
 
 ## Fase 5: Paginas Publicas
 
-- [ ] **Skill:** Ler `/skills/public-pages.md` (instrucao operacional para criar paginas publicas em /p/).
-- [ ] **Documentacao:** Ler `/docs/_infra/public-pages.md` (referencia da infraestrutura: schema, componentes, padroes HTML).
-- [ ] **Registry:** Consultar `/p/registry.json` para conhecer as paginas publicas existentes.
+- [ ] **Documentacao (LEITURA OBRIGATORIA):** Ler `/docs/_infra/public-pages.md` — referencia do fluxo VIGENTE (Open Pages em `open.grupocsv.com`: aba Links Publicos do admin, painel `_admin/` ou tools MCP `open_page_publish`/`open_page_list`), alem da sincronizacao de menus dos portais (tools.json/extras.json).
+- [ ] **Skill (LEGADO):** `/skills/public-pages.md` documenta o fluxo LEGADO `/p/` — vale SOMENTE para manutencao de paginas que ja existem em `/p/`; nao usar para novas publicacoes.
+- [ ] **Registry (LEGADO):** `/p/registry.json` cataloga apenas as paginas legadas em `/p/`; as paginas Open Pages sao listadas via `open_page_list`/painel admin.
 
 ## Fase 6: Parceiros e Ferramentas (Se Relevante)
 
