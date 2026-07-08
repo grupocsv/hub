@@ -1,17 +1,16 @@
 {
   "version": 1,
-  "updated_at": "2026-07-08",
+  "updated_at": "2026-03-07",
   "pages": [
     {
       "slug": "tea-dataset",
       "title": "Data Set TEA",
-      "description": "Questionário de coleta de dados para Transtorno do Espectro Autista — MIGRADO: /p/tea-dataset/ agora redireciona para a URL canônica no Open Pages",
+      "description": "Questionário de coleta de dados para Transtorno do Espectro Autista",
       "origin_portal": "icds",
       "public_url": "https://hub.grupocsv.com/p/tea-dataset/",
-      "redirect_to": "https://open.grupocsv.com/tea-dataset/",
       "status": "active",
       "created_at": "2026-02-15",
-      "updated_at": "2026-07-08",
+      "updated_at": "2026-02-15",
       "og_image": "https://hub.grupocsv.com/assets/og/og_hub.png"
     }
   ]
