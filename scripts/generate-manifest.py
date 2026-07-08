@@ -75,9 +75,7 @@ TAG_DESCRIPTIONS = {
 # ============================================================
 PRODUCT_TAXONOMY = {
     # WebApps — Soluções de negócio completas com back-end
-    # Desde 08/07/2026 é um stub de redirect para a URL canônica
-    # https://open.grupocsv.com/tea-dataset/ (o produto real vive no Open Pages)
-    "p/tea-dataset/index.html":       {"category": "static",       "entity": "ICDS",       "title": "Data Set TEA (redirect para open.grupocsv.com/tea-dataset/)"},
+    "p/tea-dataset/index.html":       {"category": "webapp",       "entity": "ICDS",       "title": "Data Set TEA"},
     "axia/propostas.html":            {"category": "webapp",       "entity": "AxiaCare",   "title": "Gerador de Propostas"},
 
     # Ferramentas — Tarefas específicas, escopo limitado
