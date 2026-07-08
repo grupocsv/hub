@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NFS-e | AxiaCare</title>
-  <meta name="description" content="Sistema de Emissao de NFS-e — AxiaCare">
+  <meta name="description" content="Sistema de Emissão de NFS-e — AxiaCare">
   <link rel="icon" href="/assets/favicon/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
   <style>
@@ -191,10 +191,10 @@
   </div>
   <div>
     <h1>NFS-e AxiaCare</h1>
-    <div class="subtitle">Sistema de Emissao Automatizada</div>
+    <div class="subtitle">Sistema de Emissão Automatizada</div>
   </div>
   <div class="top-bar-right">
-    <span class="env-badge">Producao</span>
+    <span class="env-badge">Produção</span>
   </div>
 </div>
 <!-- Tabs -->
@@ -205,7 +205,7 @@
   </div>
   <div class="tab" data-tab="historico">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    Historico
+    Histórico
   </div>
   <div class="tab" data-tab="modelos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
@@ -217,7 +217,7 @@
   </div>
   <div class="tab" data-tab="instrucoes">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    Instrucoes
+    Instruções
   </div>
 </div>
 <!-- TAB: EMITIR -->
@@ -235,69 +235,69 @@
         <label>CNPJ do Tomador <span class="required">*</span></label>
         <div class="input-group">
           <input type="text" class="form-control" id="tomador-cnpj" placeholder="00.000.000/0000-00" maxlength="18">
-          <button class="btn-search" id="btn-buscar-cnpj" title="Buscar Razao Social">
+          <button class="btn-search" id="btn-buscar-cnpj" title="Buscar Razão Social">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
         </div>
-        <span class="error-msg" id="cnpj-error">CNPJ invalido</span>
+        <span class="error-msg" id="cnpj-error">CNPJ inválido</span>
       </div>
       <div class="form-group">
-        <label>Razao Social <span class="required">*</span></label>
+        <label>Razão Social <span class="required">*</span></label>
         <div class="combobox">
-          <input type="text" class="form-control" id="tomador-razao" placeholder="Razao social do tomador" autocomplete="off">
+          <input type="text" class="form-control" id="tomador-razao" placeholder="Razão social do tomador" autocomplete="off">
           <div class="combobox-dropdown" id="razao-dropdown"></div>
         </div>
       </div>
       <div class="form-group">
-        <label>Endereco</label>
-        <input type="text" class="form-control" id="tomador-endereco" placeholder="Rua, numero, bairro, cidade - UF">
+        <label>Endereço</label>
+        <input type="text" class="form-control" id="tomador-endereco" placeholder="Rua, número, bairro, cidade - UF">
       </div>
     </div>
   </div>
-  <!-- Servico -->
+  <!-- Serviço -->
   <div class="card">
     <div class="card-header" id="servico-header" onclick="toggleCard('servico')">
-      Servico e Valores
+      Serviço e Valores
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="card-body" id="servico-body">
       <div class="form-group">
-        <label>Descricao do Servico <span class="required">*</span></label>
+        <label>Descrição do Serviço <span class="required">*</span></label>
         <div class="combobox">
-          <input type="text" class="form-control" id="descricao-servico" placeholder="Descricao do servico prestado" autocomplete="off">
+          <input type="text" class="form-control" id="descricao-servico" placeholder="Descrição do serviço prestado" autocomplete="off">
           <div class="combobox-dropdown" id="descricao-dropdown"></div>
         </div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label>Valor do Servico <span class="required">*</span></label>
+          <label>Valor do Serviço <span class="required">*</span></label>
           <input type="text" class="form-control" id="valor-servico" placeholder="R$ 0,00" inputmode="decimal">
         </div>
         <div class="form-group">
-          <label>Competencia <span class="required">*</span></label>
+          <label>Competência <span class="required">*</span></label>
           <input type="month" class="form-control" id="competencia">
         </div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label>Tipo de Retencao</label>
+          <label>Tipo de Retenção</label>
           <select class="form-control" id="retencao-tipo">
             <option value="3">Tipo 3 — PIS/COFINS/CSLL retidos</option>
-            <option value="1">Tipo 1 — Sem retencao</option>
+            <option value="1">Tipo 1 — Sem retenção</option>
             <option value="2">Tipo 2 — ISS retido</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Dados Bancarios <span class="required">*</span></label>
+          <label>Dados Bancários <span class="required">*</span></label>
           <div class="combobox">
-            <input type="text" class="form-control" id="dados-bancarios" placeholder="Banco, agencia, conta, PIX" autocomplete="off">
+            <input type="text" class="form-control" id="dados-bancarios" placeholder="Banco, agência, conta, PIX" autocomplete="off">
             <div class="combobox-dropdown" id="bancarios-dropdown"></div>
           </div>
         </div>
       </div>
       <div class="form-group">
-        <label>Observacoes</label>
-        <textarea class="form-control" id="observacoes" placeholder="Observacoes adicionais (opcional)"></textarea>
+        <label>Observações</label>
+        <textarea class="form-control" id="observacoes" placeholder="Observações adicionais (opcional)"></textarea>
       </div>
     </div>
   </div>
@@ -306,7 +306,7 @@
     <button class="btn btn-outline" onclick="resetForm()">Limpar</button>
     <button class="btn btn-primary btn-lg" id="btn-emitir">Revisar e Emitir</button>
   </div>
-  <!-- Confirmacao pos-emissao -->
+  <!-- Confirmação pós-emissão -->
   <div id="confirmation" class="card hidden" style="margin-top:20px;">
     <div class="card-body" id="confirmation-content">
       <div id="conf-icon" style="margin-bottom:12px;"></div>
@@ -314,13 +314,13 @@
       <div id="conf-status" style="margin-bottom:12px;"></div>
       <dl id="conf-summary"></dl>
       <div style="margin-top:16px; display:flex; gap:8px; justify-content:center;">
-        <button class="btn btn-outline" onclick="resetForm()">Nova Emissao</button>
-        <button class="btn btn-primary" onclick="switchTab('historico')">Ver Historico</button>
+        <button class="btn btn-outline" onclick="resetForm()">Nova Emissão</button>
+        <button class="btn btn-primary" onclick="switchTab('historico')">Ver Histórico</button>
       </div>
     </div>
   </div>
 </div>
-<!-- TAB: HISTORICO -->
+<!-- TAB: HISTÓRICO -->
 <div id="tab-historico" class="container-wide hidden">
   <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end;">
     <div class="form-group" style="margin-bottom:0; flex:1; min-width:120px;">
@@ -334,7 +334,7 @@
       </select>
     </div>
     <div class="form-group" style="margin-bottom:0; flex:1; min-width:120px;">
-      <label>Competencia</label>
+      <label>Competência</label>
       <input type="month" class="form-control" id="filter-competencia" onchange="loadHistorico()">
     </div>
     <div class="form-group" style="margin-bottom:0; flex:2; min-width:160px;">
@@ -354,7 +354,7 @@
             <th>Data</th>
             <th>Tomador</th>
             <th>Valor</th>
-            <th>Competencia</th>
+            <th>Competência</th>
             <th>Status</th>
             <th>Chave</th>
             <th></th>
@@ -380,17 +380,17 @@
   <div class="card">
     <div class="card-header" style="cursor:default;">Solicitar Cancelamento de NFS-e</div>
     <div class="card-body">
-      <p style="font-size:12px; color:var(--gray-500); margin-bottom:16px;">O cancelamento envia um evento e101101 para a SEFIN Nacional. O prazo para cancelamento direto e parametrizado pelo municipio (geralmente 45 dias). Apos o prazo, apenas substituicao e possivel.</p>
+      <p style="font-size:12px; color:var(--gray-500); margin-bottom:16px;">O cancelamento envia um evento e101101 para a SEFIN Nacional. O prazo para cancelamento direto é parametrizado pelo município (geralmente 45 dias). Após o prazo, apenas substituição é possível.</p>
       <div class="form-group">
         <label>Chave de Acesso da NFS-e <span class="required">*</span></label>
-        <input type="text" class="form-control" id="cancel-chave" placeholder="50 digitos (ex: 31277012258323596...)" maxlength="50">
-        <span class="error-msg" id="cancel-chave-error">Chave deve ter exatamente 50 digitos</span>
+        <input type="text" class="form-control" id="cancel-chave" placeholder="50 dígitos (ex: 31277012258323596...)" maxlength="50">
+        <span class="error-msg" id="cancel-chave-error">Chave deve ter exatamente 50 dígitos</span>
       </div>
       <div class="form-group">
         <label>Motivo do Cancelamento <span class="required">*</span></label>
         <select class="form-control" id="cancel-motivo">
-          <option value="1">1 — Erro na emissao (dados incorretos)</option>
-          <option value="2">2 — Servico nao prestado</option>
+          <option value="1">1 — Erro na emissão (dados incorretos)</option>
+          <option value="2">2 — Serviço não prestado</option>
           <option value="9">9 — Outros motivos</option>
         </select>
       </div>
@@ -408,56 +408,56 @@
     <div class="card-body" id="cancel-result-content"></div>
   </div>
 </div>
-<!-- TAB: INSTRUCOES -->
+<!-- TAB: INSTRUÇÕES -->
 <div id="tab-instrucoes" class="container hidden">
   <div class="card">
     <div class="card-body" style="font-size:13px; line-height:1.8;">
       <h2 style="font-size:16px; margin-bottom:12px;">Sobre o Sistema</h2>
-      <p>Sistema de emissao automatizada de NFS-e da AxiaCare, integrado ao Sistema Nacional NFS-e (SEFIN). Emite notas fiscais de servico com assinatura digital (certificado A1 ICP-Brasil), calcula retencoes federais automaticamente e registra todo o historico.</p>
+      <p>Sistema de emissão automatizada de NFS-e da AxiaCare, integrado ao Sistema Nacional NFS-e (SEFIN). Emite notas fiscais de serviço com assinatura digital (certificado A1 ICP-Brasil), calcula retenções federais automaticamente e registra todo o histórico.</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Como Emitir</h3>
       <ol style="padding-left:20px; margin-bottom:16px;">
-        <li>Preencha os dados do tomador (CNPJ e razao social)</li>
-        <li>Informe a descricao do servico e o valor</li>
-        <li>Selecione a competencia (mes/ano de referencia)</li>
-        <li>Informe os dados bancarios para pagamento</li>
+        <li>Preencha os dados do tomador (CNPJ e razão social)</li>
+        <li>Informe a descrição do serviço e o valor</li>
+        <li>Selecione a competência (mês/ano de referência)</li>
+        <li>Informe os dados bancários para pagamento</li>
         <li>Clique em "Revisar e Emitir" para ver o resumo</li>
-        <li>Confirme a emissao no modal de revisao</li>
+        <li>Confirme a emissão no modal de revisão</li>
       </ol>
-      <h3 style="font-size:14px; margin:20px 0 8px;">Retencoes Calculadas</h3>
+      <h3 style="font-size:14px; margin:20px 0 8px;">Retenções Calculadas</h3>
       <table style="font-size:12px; margin-bottom:16px;">
-        <thead><tr><th>Tributo</th><th>Aliquota</th><th>Tipo</th></tr></thead>
+        <thead><tr><th>Tributo</th><th>Alíquota</th><th>Tipo</th></tr></thead>
         <tbody>
           <tr><td>IRRF</td><td>1,50%</td><td>Retido pelo tomador</td></tr>
           <tr><td>PIS</td><td>0,65%</td><td>Retido pelo tomador</td></tr>
           <tr><td>COFINS</td><td>3,00%</td><td>Retido pelo tomador</td></tr>
           <tr><td>CSLL</td><td>1,00%</td><td>Retido pelo tomador</td></tr>
-          <tr><td>ISS</td><td>3,00%</td><td>Devido ao municipio</td></tr>
-          <tr><td><strong>Total retencoes</strong></td><td><strong>6,15%</strong></td><td></td></tr>
+          <tr><td>ISS</td><td>3,00%</td><td>Devido ao município</td></tr>
+          <tr><td><strong>Total retenções</strong></td><td><strong>6,15%</strong></td><td></td></tr>
         </tbody>
       </table>
       <h3 style="font-size:14px; margin:20px 0 8px;">Cancelamento</h3>
-      <p>O cancelamento direto (evento e101101) e aceito dentro do prazo parametrizado pelo municipio. Apos o prazo, apenas substituicao por outra nota e possivel. O sistema envia o pedido assinado digitalmente para a SEFIN Nacional.</p>
+      <p>O cancelamento direto (evento e101101) é aceito dentro do prazo parametrizado pelo município. Após o prazo, apenas substituição por outra nota é possível. O sistema envia o pedido assinado digitalmente para a SEFIN Nacional.</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Modelos</h3>
-      <p>Salve combinacoes frequentes de tomador + servico + valor como modelos para emissao com 1 clique. Os modelos ficam armazenados no sistema e podem ser editados ou excluidos a qualquer momento.</p>
-      <h3 style="font-size:14px; margin:20px 0 8px;">Seguranca</h3>
-      <p>Os dados sao processados localmente na VPS-CSV e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil. Nenhum dado sensivel e armazenado no navegador.</p>
+      <p>Salve combinações frequentes de tomador + serviço + valor como modelos para emissão com 1 clique. Os modelos ficam armazenados no sistema e podem ser editados ou excluídos a qualquer momento.</p>
+      <h3 style="font-size:14px; margin:20px 0 8px;">Segurança</h3>
+      <p>Os dados são processados localmente na VPS-CSV e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil. Nenhum dado sensível é armazenado no navegador.</p>
     </div>
   </div>
 </div>
-<!-- MODAL: Confirmacao pre-emissao -->
+<!-- MODAL: Confirmação pré-emissão -->
 <div id="modal-confirmar" class="modal-backdrop hidden">
   <div class="modal">
     <div class="modal-header">
-      <h3>Confirmar Emissao de NFS-e</h3>
+      <h3>Confirmar Emissão de NFS-e</h3>
       <button class="btn-ghost" onclick="closeModal('modal-confirmar')">&times;</button>
     </div>
     <div class="modal-body" id="modal-confirmar-body">
-      <p style="font-size:12px; color:var(--gray-500); margin-bottom:16px;">Revise os dados abaixo. Apos a confirmacao, a nota sera transmitida a SEFIN Nacional e nao podera ser desfeita automaticamente.</p>
+      <p style="font-size:12px; color:var(--gray-500); margin-bottom:16px;">Revise os dados abaixo. Após a confirmação, a nota será transmitida à SEFIN Nacional e não poderá ser desfeita automaticamente.</p>
       <div class="summary-grid" id="confirm-summary"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-confirmar')">Revisar Dados</button>
-      <button class="btn btn-success btn-lg" id="btn-confirmar-emissao" onclick="confirmarEmissao()">Confirmar Emissao</button>
+      <button class="btn btn-success btn-lg" id="btn-confirmar-emissao" onclick="confirmarEmissao()">Confirmar Emissão</button>
     </div>
   </div>
 </div>
@@ -479,20 +479,20 @@
         <input type="text" class="form-control" id="modelo-cnpj" placeholder="00.000.000/0000-00" maxlength="18">
       </div>
       <div class="form-group">
-        <label>Razao Social do Tomador</label>
-        <input type="text" class="form-control" id="modelo-razao" placeholder="Razao social">
+        <label>Razão Social do Tomador</label>
+        <input type="text" class="form-control" id="modelo-razao" placeholder="Razão social">
       </div>
       <div class="form-group">
-        <label>Descricao do Servico <span class="required">*</span></label>
-        <input type="text" class="form-control" id="modelo-descricao" placeholder="Descricao do servico">
+        <label>Descrição do Serviço <span class="required">*</span></label>
+        <input type="text" class="form-control" id="modelo-descricao" placeholder="Descrição do serviço">
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label>Valor Padrao</label>
+          <label>Valor Padrão</label>
           <input type="text" class="form-control" id="modelo-valor" placeholder="R$ 0,00">
         </div>
         <div class="form-group">
-          <label>Tipo de Retencao</label>
+          <label>Tipo de Retenção</label>
           <select class="form-control" id="modelo-retencao">
             <option value="3">Tipo 3</option>
             <option value="1">Tipo 1</option>
@@ -501,12 +501,12 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Dados Bancarios</label>
-        <input type="text" class="form-control" id="modelo-bancarios" placeholder="Banco, agencia, conta, PIX">
+        <label>Dados Bancários</label>
+        <input type="text" class="form-control" id="modelo-bancarios" placeholder="Banco, agência, conta, PIX">
       </div>
       <div class="form-group">
-        <label>Observacoes</label>
-        <textarea class="form-control" id="modelo-obs" placeholder="Observacoes padrao (opcional)"></textarea>
+        <label>Observações</label>
+        <textarea class="form-control" id="modelo-obs" placeholder="Observações padrão (opcional)"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -605,18 +605,18 @@ document.getElementById('tomador-cnpj').addEventListener('input', function() {
 document.getElementById('btn-buscar-cnpj').addEventListener('click', async function() {
   const cnpj = document.getElementById('tomador-cnpj').value.replace(/\D/g, '');
   if (cnpj.length !== 14) { showToast('Preencha o CNPJ completo', 'warning'); return; }
-  if (!validateCNPJ(document.getElementById('tomador-cnpj').value)) { showToast('CNPJ invalido', 'error'); return; }
+  if (!validateCNPJ(document.getElementById('tomador-cnpj').value)) { showToast('CNPJ inválido', 'error'); return; }
   this.disabled = true;
   try {
     const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-    if (!resp.ok) throw new Error('CNPJ nao encontrado');
+    if (!resp.ok) throw new Error('CNPJ não encontrado');
     const data = await resp.json();
     document.getElementById('tomador-razao').value = data.razao_social || '';
     const end = [data.logradouro, data.numero, data.complemento, data.bairro, `${data.municipio} - ${data.uf}`, data.cep].filter(Boolean).join(', ');
     document.getElementById('tomador-endereco').value = end;
     showToast('Dados preenchidos automaticamente', 'success');
   } catch (err) {
-    showToast('Nao foi possivel buscar: ' + err.message, 'error');
+    showToast('Não foi possível buscar: ' + err.message, 'error');
   }
   this.disabled = false;
 });
@@ -753,9 +753,9 @@ document.getElementById('btn-emitir').addEventListener('click', () => {
 
   // Validacoes
   if (!cnpj || !razao || !descricao || !valor || !comp || !bancario) {
-    showToast('Preencha todos os campos obrigatorios', 'error'); return;
+    showToast('Preencha todos os campos obrigatórios', 'error'); return;
   }
-  if (!validateCNPJ(cnpj)) { showToast('CNPJ invalido — verifique os digitos', 'error'); return; }
+  if (!validateCNPJ(cnpj)) { showToast('CNPJ inválido — verifique os dígitos', 'error'); return; }
   if (valor <= 0) { showToast('Valor deve ser maior que zero', 'error'); return; }
 
   // Calcular retencoes para exibir no resumo
@@ -771,11 +771,11 @@ document.getElementById('btn-emitir').addEventListener('click', () => {
   summary.innerHTML = `
     <div class="summary-item full"><div class="label">Tomador</div><div class="value">${razao}</div></div>
     <div class="summary-item"><div class="label">CNPJ</div><div class="value">${cnpj}</div></div>
-    <div class="summary-item"><div class="label">Competencia</div><div class="value">${competenciaFmt}</div></div>
+    <div class="summary-item"><div class="label">Competência</div><div class="value">${competenciaFmt}</div></div>
     <div class="summary-item"><div class="label">Valor Bruto</div><div class="value">${formatMoney(valor)}</div></div>
-    <div class="summary-item"><div class="label">Retencoes (${retencoes.pct}%)</div><div class="value" style="color:var(--red-accent);">- ${formatMoney(retencoes.total)}</div></div>
-    <div class="summary-item"><div class="label">Valor Liquido</div><div class="value" style="color:var(--green-accent); font-size:16px;">${formatMoney(retencoes.liquido)}</div></div>
-    <div class="summary-item full"><div class="label">Descricao</div><div class="value" style="font-size:12px; font-weight:400;">${descricao}</div></div>
+    <div class="summary-item"><div class="label">Retenções (${retencoes.pct}%)</div><div class="value" style="color:var(--red-accent);">- ${formatMoney(retencoes.total)}</div></div>
+    <div class="summary-item"><div class="label">Valor Líquido</div><div class="value" style="color:var(--green-accent); font-size:16px;">${formatMoney(retencoes.liquido)}</div></div>
+    <div class="summary-item full"><div class="label">Descrição</div><div class="value" style="font-size:12px; font-weight:400;">${descricao}</div></div>
   `;
   openModal('modal-confirmar');
 });
@@ -797,7 +797,7 @@ async function confirmarEmissao() {
   if (!emitPayload) return;
   const { cnpj, razao, endereco, descricao, valor, valorStr, competenciaFmt, bancario, obs, retTipo } = emitPayload;
 
-  showOverlay('Registrando solicitacao...');
+  showOverlay('Registrando solicitação...');
   try {
     // 1. Registrar no D1
     const resp = await fetch(`${API_BASE}/api/nf/solicitacoes`, {
@@ -809,7 +809,7 @@ async function confirmarEmissao() {
     const solId = solData.id;
 
     // 2. Emitir via VPS
-    updateOverlay('Transmitindo a SEFIN Nacional...');
+    updateOverlay('Transmitindo à SEFIN Nacional...');
     const emitResp = await fetch(COMPUTE_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': API_KEY },
       body: JSON.stringify({
@@ -821,10 +821,10 @@ async function confirmarEmissao() {
     if (emitData.error) {
       hideOverlay();
       await fetch(`${API_BASE}/api/nf/solicitacoes/${solId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: 'erro' }) });
-      showToast('Erro na emissao: ' + emitData.error, 'error');
-      // Exibir detalhes do erro se disponivel
+      showToast('Erro na emissão: ' + emitData.error, 'error');
+      // Exibir detalhes do erro se disponível
       if (emitData.alertas) {
-        showToast('Codigo SEFIN: ' + JSON.stringify(emitData.alertas), 'error');
+        showToast('Código SEFIN: ' + JSON.stringify(emitData.alertas), 'error');
       }
       return;
     }
@@ -844,7 +844,7 @@ async function confirmarEmissao() {
     });
     showToast('NFS-e emitida com sucesso', 'success');
     await loadReferenceData();
-  } catch (err) { hideOverlay(); showToast('Erro de conexao: ' + err.message, 'error'); }
+  } catch (err) { hideOverlay(); showToast('Erro de conexão: ' + err.message, 'error'); }
 }
 
 function showConfirmation(title, status, details) {
@@ -867,7 +867,7 @@ function resetForm() {
   emitPayload = null;
 }
 
-// HISTORICO
+// HISTÓRICO
 async function loadHistorico() {
   const status = document.getElementById('filter-status').value;
   const competencia = document.getElementById('filter-competencia').value;
@@ -903,7 +903,7 @@ async function loadHistorico() {
         </td>
       </tr>`;
     }).join('');
-  } catch (e) { showToast('Erro ao carregar historico', 'error'); }
+  } catch (e) { showToast('Erro ao carregar histórico', 'error'); }
 }
 
 function copiarChave(chave) {
@@ -953,7 +953,7 @@ function renderModelos() {
     <div class="card" style="margin-bottom:12px;">
       <div class="card-body" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <div style="flex:1; min-width:0;">
-          <div style="font-size:14px; font-weight:600; margin-bottom:2px;">${m.nome}</div>
+          <div style="font-size:14px; font-weight:600; margin-bottom:2px;">${m.nome_modelo}</div>
           <div style="font-size:11px; color:var(--gray-500);">${maskCNPJ(m.tomador_cnpj || '')} | ${m.descricao_servico || ''} | ${m.valor_padrao ? formatMoney(m.valor_padrao) : 'Sem valor'}</div>
         </div>
         <div style="display:flex; gap:4px;">
@@ -969,7 +969,7 @@ function renderModelos() {
 function renderQuickModels() {
   const container = document.getElementById('quick-models');
   if (modelos.length === 0) { container.innerHTML = ''; return; }
-  container.innerHTML = modelos.map(m => `<button class="quick-model-btn" onclick="usarModelo(${m.id})">${m.nome}</button>`).join('');
+  container.innerHTML = modelos.map(m => `<button class="quick-model-btn" onclick="usarModelo(${m.id})">${m.nome_modelo}</button>`).join('');
 }
 
 function usarModelo(id) {
@@ -982,7 +982,7 @@ function usarModelo(id) {
   if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
   if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
   if (m.retencao_tipo) document.getElementById('retencao-tipo').value = m.retencao_tipo;
-  showToast(`Modelo "${m.nome}" aplicado`, 'success');
+  showToast(`Modelo "${m.nome_modelo}" aplicado`, 'success');
   switchTab('emitir');
 }
 
@@ -997,7 +997,7 @@ function editarModelo(id) {
   if (!m) return;
   document.getElementById('modelo-id').value = m.id;
   document.getElementById('modal-modelo-title').textContent = 'Editar Modelo';
-  document.getElementById('modelo-nome').value = m.nome || '';
+  document.getElementById('modelo-nome').value = m.nome_modelo || '';
   document.getElementById('modelo-cnpj').value = maskCNPJ(m.tomador_cnpj || '');
   document.getElementById('modelo-razao').value = m.tomador_razao_social || '';
   document.getElementById('modelo-descricao').value = m.descricao_servico || '';
@@ -1019,9 +1019,9 @@ async function salvarModelo() {
   const obs = document.getElementById('modelo-obs').value.trim();
   const retencao = document.getElementById('modelo-retencao').value;
 
-  if (!nome || !cnpj || !descricao) { showToast('Preencha nome, CNPJ e descricao', 'error'); return; }
+  if (!nome || !cnpj || !descricao) { showToast('Preencha nome, CNPJ e descrição', 'error'); return; }
 
-  const body = { nome, tomador_cnpj: cnpj, tomador_razao_social: razao, descricao_servico: descricao, valor_padrao: valor || null, dados_bancarios: bancarios || null, observacoes: obs || null, retencao_tipo: retencao };
+  const body = { nome_modelo: nome, tomador_cnpj: cnpj, tomador_razao_social: razao, descricao_servico: descricao, valor_padrao: valor || null, dados_bancarios: bancarios || null, observacoes: obs || null, retencao_tipo: retencao };
 
   try {
     const url = id ? `${API_BASE}/api/nf/modelos/${id}` : `${API_BASE}/api/nf/modelos`;
@@ -1038,7 +1038,7 @@ async function excluirModelo(id) {
   if (!confirm('Excluir este modelo?')) return;
   try {
     await fetch(`${API_BASE}/api/nf/modelos/${id}`, { method: 'DELETE', headers: apiHeaders() });
-    showToast('Modelo excluido', 'success');
+    showToast('Modelo excluído', 'success');
     await loadModelos();
   } catch (e) { showToast('Erro: ' + e.message, 'error'); }
 }
@@ -1059,15 +1059,15 @@ async function solicitarCancelamento() {
   // Validacoes
   if (chave.length !== 50) {
     document.getElementById('cancel-chave-error').classList.add('show');
-    showToast('Chave de acesso deve ter 50 digitos', 'error'); return;
+    showToast('Chave de acesso deve ter 50 dígitos', 'error'); return;
   }
   document.getElementById('cancel-chave-error').classList.remove('show');
   if (justificativa.length < 15) { showToast('Justificativa deve ter pelo menos 15 caracteres', 'error'); return; }
-  if (justificativa.length > 255) { showToast('Justificativa deve ter no maximo 255 caracteres', 'error'); return; }
+  if (justificativa.length > 255) { showToast('Justificativa deve ter no máximo 255 caracteres', 'error'); return; }
 
-  if (!confirm(`Confirma o cancelamento da NFS-e?\nChave: ${chave}\nMotivo: ${motivo}\n\nEsta acao sera enviada a SEFIN Nacional.`)) return;
+  if (!confirm(`Confirma o cancelamento da NFS-e?\nChave: ${chave}\nMotivo: ${motivo}\n\nEsta ação será enviada à SEFIN Nacional.`)) return;
 
-  showOverlay('Enviando solicitacao de cancelamento...');
+  showOverlay('Enviando solicitação de cancelamento...');
   try {
     const resp = await fetch(COMPUTE_URL, {
       method: 'POST',
@@ -1108,7 +1108,7 @@ async function solicitarCancelamento() {
       document.getElementById('cancel-justificativa').value = '';
       updateCharCounter();
     }
-  } catch (err) { hideOverlay(); showToast('Erro de conexao: ' + err.message, 'error'); }
+  } catch (err) { hideOverlay(); showToast('Erro de conexão: ' + err.message, 'error'); }
 }
 
 // TOKEN ACTION HANDLER (from email link)
@@ -1123,8 +1123,8 @@ async function handleTokenAction() {
     const data = await resp.json();
     hideOverlay();
     if (data.ok) {
-      showConfirmation(acao === 'emitida' ? 'NF Marcada como Emitida' : 'Solicitacao Cancelada', acao === 'emitida' ? 'emitida' : 'cancelada', { 'Tomador': data.tomador || '', 'Competencia': data.competencia || '' });
-    } else { showToast(data.message || data.error || 'Acao nao realizada.', 'error'); }
+      showConfirmation(acao === 'emitida' ? 'NF Marcada como Emitida' : 'Solicitação Cancelada', acao === 'emitida' ? 'emitida' : 'cancelada', { 'Tomador': data.tomador || '', 'Competência': data.competencia || '' });
+    } else { showToast(data.message || data.error || 'Ação não realizada.', 'error'); }
   } catch (err) { hideOverlay(); showToast('Erro: ' + err.message, 'error'); }
   window.history.replaceState({}, '', window.location.pathname);
 }
