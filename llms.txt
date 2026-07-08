@@ -25,11 +25,12 @@
 - [/_infra/csv-core/taxonomia-produtos.md](/_infra/csv-core/taxonomia-produtos.md): Classificação oficial dos ativos digitais (WebApp, Ferramenta, Painel BI, Página Estática, Portal).
 - O `manifest.json` contém a seção `productAssets` com o mapeamento completo de cada ativo HTML, incluindo categoria, entidade e hash.
 
-## Infraestrutura de Paginas Publicas
+## Infraestrutura de Páginas Públicas
 
-- [/skills/public-pages.md](/skills/public-pages.md): Skill operacional para criar paginas publicas em /p/. **LEITURA OBRIGATORIA antes de criar qualquer pagina publica.**
-- [/docs/_infra/public-pages.md](/docs/_infra/public-pages.md): Documentacao de referencia da infraestrutura (schema, componentes, padroes HTML).
-- [/p/registry.json](/p/registry.json): Catalogo de todas as paginas publicas. Deve ser atualizado ao criar ou desativar paginas.
+- **Fluxo padrão: Open Pages.** Novas páginas públicas são publicadas em `open.grupocsv.com` (Worker `csv-open-pages` + R2 + KV), e NÃO no diretório /p/. Três vias de publicação: aba "Links Públicos" do `/admin/` (botão "Nova Página"), painel `https://open.grupocsv.com/_admin/`, ou as tools MCP do Extensio `open_page_publish`/`open_page_list`.
+- [/_infra/public-pages.html](/_infra/public-pages.html): Documentação de referência da infraestrutura Open Pages (arquitetura, painel admin, Auth Gate, sincronização de menus dos portais). **LEITURA OBRIGATÓRIA antes de criar qualquer página pública.** (Fonte no repositório: `docs/_infra/public-pages.md`.)
+- `skills/public-pages.md` (caminho no repositório; não é servido no site): skill do fluxo LEGADO /p/ (cópia estática servida pelo GitHub Pages). Vale SOMENTE para manutenção de páginas já existentes em /p/; não usar para novas páginas.
+- [/p/registry.json](/p/registry.json): Catálogo das páginas públicas legadas em /p/. Atualizar apenas em manutenção do legado.
 
 ## Opcional (Contexto Adicional)
 

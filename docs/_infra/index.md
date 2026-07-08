@@ -520,7 +520,7 @@ Copiar página
 <tr><td>PIN local</td><td>Deck™</td><td>PIN 4 dígitos (SHA-256 no localStorage)</td></tr>
 </tbody>
 </table>
-<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.4.0) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (8 abas: usuários, senhas, links, logs, deck, feedback, admins, datasets).</p>
+<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.5.0, com slot de montagem <code>#hub-auth-slot</code> / <code>data-hub-auth-theme="dark"</code> para o widget de logout) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (8 abas: usuários, senhas, links, logs, deck, feedback, admins, datasets).</p>
 </div>
 
 <!-- 11. REPOSITORIOS -->
@@ -838,7 +838,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 | Login individual | Unimed, Unihealth, ICDS | E-mail + senha, com fluxo de solicitacao e aprovacao |
 | PIN local | Deck | PIN 4 digitos (SHA-256 no localStorage) |
 
-Script client-side: hub-auth.js (v2.4.0). Painel Admin: hub.grupocsv.com/admin/ (8 abas).
+Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de logout). Painel Admin: hub.grupocsv.com/admin/ (8 abas).
 
 ---
 
