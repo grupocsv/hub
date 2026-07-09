@@ -1,0 +1,23 @@
+# Hub Grupo CSV — hub.grupocsv.com
+# Portais e ferramentas de acesso restrito NÃO devem ser indexados por
+# buscadores. As páginas institucionais e de compliance permanecem indexáveis.
+
+User-agent: *
+
+# Portais de parceiros (acesso autenticado)
+Disallow: /unimed/
+Disallow: /unihealth/
+Disallow: /icds/
+
+# Ferramentas AxiaCare com autenticação
+Disallow: /axia/nota-fiscal.html
+Disallow: /axia/propostas.html
+Disallow: /axia/reembolso.html
+
+# Painéis e páginas internas
+Disallow: /admin/
+Disallow: /p/tea-dataset/
+
+# Scripts e dados internos
+Disallow: /scripts/
+Disallow: /unimed/data/
