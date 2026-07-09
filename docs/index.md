@@ -585,7 +585,7 @@ head:
     <!-- Unimed -->
     <div class="partner-section collapsed" id="partner-unimed">
       <div class="partner-header">
-        <a href="/unimed/" class="p-logo-link"><img src="https://i.imgur.com/prZGWXK.png" alt="Unimed GV" class="p-logo"></a>
+        <a href="/unimed/" class="p-logo-link"><img src="/img/prZGWXK.png" alt="Unimed GV" class="p-logo"></a>
         <div class="p-info">
           <div class="p-name">Unimed Governador Valadares</div>
           <div class="p-sub">Operadora de Planos de Saúde</div>
@@ -602,7 +602,7 @@ head:
     <!-- Unihealth -->
     <div class="partner-section collapsed" id="partner-unihealth">
       <div class="partner-header">
-        <a href="/unihealth/" class="p-logo-link"><img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth" class="p-logo"></a>
+        <a href="/unihealth/" class="p-logo-link"><img src="/img/ac2rphe.png" alt="Unihealth" class="p-logo"></a>
         <div class="p-info">
           <div class="p-name">Unihealth Governador Valadares</div>
           <div class="p-sub">Hospital de Média/Alta Complexidade</div>

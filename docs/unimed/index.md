@@ -147,7 +147,7 @@ head:
 <div class="unimed-page">
   <div class="page-header">
     <a href="https://www.unimed.coop.br/site/web/governadorvaladares" target="_blank" class="logo-link">
-      <img src="https://i.imgur.com/prZGWXK.png" alt="Unimed Governador Valadares" class="logo">
+      <img src="/img/prZGWXK.png" alt="Unimed Governador Valadares" class="logo">
     </a>
     <h1>Hub Unimed Governador Valadares</h1>
     <p class="subtitle">Operadora de Planos de Saúde</p>

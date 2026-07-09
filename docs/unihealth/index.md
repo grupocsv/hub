@@ -138,7 +138,7 @@ head:
 <div class="uh-page">
   <div class="uh-header">
     <a href="https://icds.org.br/hospital-unimed-governador-valadares/" target="_blank" class="logo-link">
-      <img src="https://i.imgur.com/ac2rphe.png" alt="Unihealth Logo" class="logo">
+      <img src="/img/ac2rphe.png" alt="Unihealth Logo" class="logo">
     </a>
     <h1>Hub Unihealth Governador Valadares</h1>
     <p class="subtitle">Hospital de Média/Alta Complexidade</p>
