@@ -5,3 +5,9 @@ docs/.vitepress/dist/
 *.log
 *.local
 __pycache__/
+
+# dados sensíveis TEA — o bruto JAMAIS entra no repo (PRD painel-tea-v2 §6.1)
+*.xlsx
+unimed/data/raw/
+**/tea-microdados*
+**/*beneficiario*
