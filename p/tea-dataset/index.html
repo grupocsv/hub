@@ -3864,6 +3864,21 @@ function doLogout() {
   if (authToken) {
     fetch(AUTH_API + '/logout', { method: 'POST', headers: { 'X-Auth-Token': authToken } }).catch(function(){});
   }
+  // Limpar o rascunho confidencial do localStorage e o formulário: não deixar
+  // dados de coleta para o próximo usuário do navegador. getDraftKey() usa
+  // currentUnit, então limpar ANTES de zerá-lo.
+  try {
+    localStorage.removeItem(getDraftKey());
+    localStorage.removeItem(DRAFT_KEY);
+  } catch (e) {}
+  const teaFormEl = document.getElementById('teaForm');
+  if (teaFormEl) {
+    teaFormEl.reset();
+    teaFormEl.querySelectorAll('.filled').forEach(el => el.classList.remove('filled'));
+  }
+  document.querySelectorAll('.file-list').forEach(fl => fl.innerHTML = '');
+  uploadedFiles = {};
+  updateProgress();
   authToken = null;
   currentUnit = null;
   selectedUnit = null;
