@@ -330,6 +330,7 @@
         <option value="emitida">Emitida</option>
         <option value="cancelada">Cancelada</option>
         <option value="pendente">Pendente</option>
+        <option value="aguardando_emissao">Aguardando</option>
         <option value="erro">Erro</option>
       </select>
     </div>
@@ -524,10 +525,10 @@
 </div>
 <script>
 // CONFIG
-const API_BASE = 'https://tea-dataset-api.guilherme-thom.workers.dev';
-const API_KEY = 'tea-dataset-jwt-secret-grupocsv-2026';
+const API_BASE = 'https://nfse-api.guilherme-thom.workers.dev';
+const NF_AUTH_KEY = 'nf_axia_2025_secure';
 const COMPUTE_URL = 'https://hooks.grupocsv.com/compute';
-function apiHeaders() { return { 'Content-Type': 'application/json', 'X-Api-Key': API_KEY }; }
+function apiHeaders() { return { 'Content-Type': 'application/json', 'x-nf-auth': NF_AUTH_KEY }; }
 
 // STATE
 let tomadores = [];
@@ -723,6 +724,7 @@ function getStatusInfo(s) {
     emitida: { label: 'Emitida', cls: 'badge-emitida' },
     cancelada: { label: 'Cancelada', cls: 'badge-cancelada' },
     pendente: { label: 'Pendente', cls: 'badge-pendente' },
+    aguardando_emissao: { label: 'Aguardando', cls: 'badge-pendente' },
     erro: { label: 'Erro', cls: 'badge-erro' },
     rascunho: { label: 'Rascunho', cls: 'badge-rascunho' },
   };
@@ -811,7 +813,7 @@ async function confirmarEmissao() {
     // 2. Emitir via VPS
     updateOverlay('Transmitindo à SEFIN Nacional...');
     const emitResp = await fetch(COMPUTE_URL, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': API_KEY },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': NF_AUTH_KEY },
       body: JSON.stringify({
         command: 'emit',
         args: JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo })
@@ -1071,7 +1073,7 @@ async function solicitarCancelamento() {
   try {
     const resp = await fetch(COMPUTE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': API_KEY },
+      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': NF_AUTH_KEY },
       body: JSON.stringify({
         command: 'cancel',
         args: JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa })
