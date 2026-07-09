@@ -1,15 +1,15 @@
 {
   "manifestVersion": "2.0.0",
-  "lastUpdated": "2026-03-07T13:46:24Z",
-  "totalAssets": 31,
-  "totalProducts": 33,
+  "lastUpdated": "2026-07-09T18:31:05Z",
+  "totalAssets": 40,
+  "totalProducts": 25,
   "knowledgeAssets": [
     {
       "id": "llms",
       "priority": 0,
       "title": "Llms",
       "path": "/llms.txt",
-      "sha256": "eb07eab50664aa1f00fdc461e511a3e280638c71bf571ae9ed80068c5a319304",
+      "sha256": "5396937ea2caed2d8c8fbabefb3665a75ba1e5778ab4fbd93b229c4ab687bad7",
       "description": "Ponto de entrada para agentes de IA com instruções iniciais e links para os artefatos de conhecimento.",
       "tags": [
         "entrypoint"
@@ -20,7 +20,7 @@
       "priority": 1,
       "title": "Completeness Checklist",
       "path": "/completeness-checklist.md",
-      "sha256": "c9146ca9c17aca17570589252ab1392ac317bd7d1a884060cac96acb23f5108d",
+      "sha256": "b02ca3c0ed27659e2603e637d18849d24b3a7ea6044a26f8c8ad5a328134d8ae",
       "description": "Artefato de meta-governança para consumo estruturado por agentes de IA.",
       "tags": [
         "meta"
@@ -30,8 +30,8 @@
       "id": "csv-core-definition",
       "priority": 2,
       "title": "Definition",
-      "path": "/docs/_infra/csv-core/definition.md",
-      "sha256": "652021dd6e00632d211307cac2164e14ca3659c2341d9c68039e6754c9d8632c",
+      "path": "/_infra/csv-core/definition.html",
+      "sha256": "d22c91e66bd1086410f2696d8cc6f7fa6cc1a022be0565bc151443a75205ebd9",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -41,8 +41,8 @@
       "id": "csv-core-identity-system",
       "priority": 3,
       "title": "Identity System",
-      "path": "/docs/_infra/csv-core/identity-system.md",
-      "sha256": "df49a27df87c9c944049665d5a010ecda9eb7e8b9558e89a3bceb9b256ca67ad",
+      "path": "/_infra/csv-core/identity-system.html",
+      "sha256": "9631654cdc373a6c459c1dcb03a1456ad800fb988653bd1ba728b03c9cb37dd6",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -52,8 +52,8 @@
       "id": "assets-logo-usage-guide",
       "priority": 4,
       "title": "Logo Usage Guide",
-      "path": "/docs/_infra/assets/logo-usage-guide.md",
-      "sha256": "922dc6e97c2c7d8558dec746098c8a4699bf1511523b16696aff4241871762b1",
+      "path": "/_infra/assets/logo-usage-guide.html",
+      "sha256": "19b7524b84f50210f3a415794f5dee97d7c3cfb7d9f3c30a0f25ea0dc6366ac2",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -63,8 +63,19 @@
       "id": "axiacare-mandate",
       "priority": 5,
       "title": "Mandate",
-      "path": "/docs/_infra/axiacare/mandate.md",
-      "sha256": "29cd8d69c77dd3840abadad5053a80c5d185b6049630873dc23bbb3fb2cad2e8",
+      "path": "/_infra/axiacare/mandate.html",
+      "sha256": "be02706f1e617439659c7c6d18699431c03553579acbf23c2185309e6dfbbfad",
+      "description": "Mandato institucional que define escopo de atuação e relação com o ecossistema.",
+      "tags": [
+        "mandate"
+      ]
+    },
+    {
+      "id": "axiacare-rtav",
+      "priority": 5,
+      "title": "Rtav",
+      "path": "/_infra/axiacare/rtav.html",
+      "sha256": "c2f39d30ffbf377079a1b4e5f79c35efa52be0841919c3d4b88d3f3b05fb9cc6",
       "description": "Mandato institucional que define escopo de atuação e relação com o ecossistema.",
       "tags": [
         "mandate"
@@ -74,8 +85,8 @@
       "id": "medvalor-mandate",
       "priority": 6,
       "title": "Mandate",
-      "path": "/docs/_infra/medvalor/mandate.md",
-      "sha256": "7e9a572bededd70af037b4538b79dda798e273889d28279e8f24b74407dc87ba",
+      "path": "/_infra/medvalor/mandate.html",
+      "sha256": "202252f70db6cbb6ef601ab0736dba8f35c0af58a22425a36b99216a6718fdd0",
       "description": "Mandato institucional que define escopo de atuação e relação com o ecossistema.",
       "tags": [
         "mandate"
@@ -85,8 +96,8 @@
       "id": "thera-mandate",
       "priority": 7,
       "title": "Mandate",
-      "path": "/docs/_infra/thera/mandate.md",
-      "sha256": "30b5fafe8fcb327c392fa6888c64ac705d00a091bb91ffd3a7fd3eb2063314a3",
+      "path": "/_infra/thera/mandate.html",
+      "sha256": "e97b0d2448a0c964eae4df87de53c61f9a47da242b2af23601a1397443fd178b",
       "description": "Mandato institucional que define escopo de atuação e relação com o ecossistema.",
       "tags": [
         "mandate"
@@ -96,8 +107,8 @@
       "id": "csv-core-assets",
       "priority": 8,
       "title": "Assets",
-      "path": "/docs/_infra/csv-core/assets.md",
-      "sha256": "66e68940ed29dae5ccc1255043a5b5be2b81dc80749f78b200c28a059765af9c",
+      "path": "/_infra/csv-core/assets.html",
+      "sha256": "6e8c37ed401c6b79b5165ef12f053933cc1beaeb1c3a4c2de1b70d1c36859a7a",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -107,8 +118,8 @@
       "id": "csv-core-founder",
       "priority": 8,
       "title": "Founder",
-      "path": "/docs/_infra/csv-core/founder.md",
-      "sha256": "196ac0e66528f732cf2427fa3ec2abb3f22406835382cc57c25e22c79a8eb984",
+      "path": "/_infra/csv-core/founder.html",
+      "sha256": "bd90682f57646eba0556bd8c81a6eceec2ee9675ed13c7acfa27f83fcb88f967",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -118,8 +129,8 @@
       "id": "csv-core-playbook-hub",
       "priority": 8,
       "title": "Playbook Hub",
-      "path": "/docs/_infra/csv-core/playbook-hub.md",
-      "sha256": "b00d32eef2c253c8e11f8979c80cda4e07d2543ff6107ca1bdf6ade67447235d",
+      "path": "/_infra/csv-core/playbook-hub.html",
+      "sha256": "729da09d4ae9a3426decf7c46616d3ee1b8eb563deee2141c497229bb4f11990",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -129,8 +140,8 @@
       "id": "assets-axiacare",
       "priority": 9,
       "title": "Axiacare",
-      "path": "/docs/_infra/assets/axiacare.md",
-      "sha256": "21722c503162cc7741e2751dffeb89e1c213ffbb9b5baf843df012dd8b632eff",
+      "path": "/_infra/assets/axiacare.html",
+      "sha256": "d910e0508e7be6f3ef83f1f56cd4c2a77de7cd3a636efa73a63c46036acc6958",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -140,8 +151,8 @@
       "id": "assets-brand-guidelines",
       "priority": 9,
       "title": "Brand Guidelines",
-      "path": "/docs/_infra/assets/brand-guidelines.md",
-      "sha256": "3c02716e3b583ac6f8ec7f96872a4ffdd4602dee81d076e7e107d1388f1dd6a4",
+      "path": "/_infra/assets/brand-guidelines.html",
+      "sha256": "81515cdb46aa4dec74c2569d2aefcc068243b9fc861eb5420fa80e94591bdb04",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -151,8 +162,8 @@
       "id": "assets-creatives",
       "priority": 9,
       "title": "Creatives",
-      "path": "/docs/_infra/assets/creatives.md",
-      "sha256": "4f9a24d20e2c917a07379688e0ed2c324b78a595c86acd4aa88ca137dc6dbc96",
+      "path": "/_infra/assets/creatives.html",
+      "sha256": "bceda48b2cc2bc4710aada9bbef6fd4b41b0e61d186612bef4c4a3ad06df3179",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -162,8 +173,8 @@
       "id": "assets-grupo-csv",
       "priority": 9,
       "title": "Grupo Csv",
-      "path": "/docs/_infra/assets/grupo-csv.md",
-      "sha256": "2314fa2a4a035a669feb66374656467fa0fc103648b17ccbac2c0d67e3fe1e29",
+      "path": "/_infra/assets/grupo-csv.html",
+      "sha256": "7a07eaf4b681c17f8c5c043593e89801373f9b070d8a9f4d2368a5f223121db9",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -173,8 +184,8 @@
       "id": "assets-guilherme-thome",
       "priority": 9,
       "title": "Guilherme Thome",
-      "path": "/docs/_infra/assets/guilherme-thome.md",
-      "sha256": "3bd1265866faadd6e388c22667b34195fa2d10dea0630d5641a02972ebb1d38a",
+      "path": "/_infra/assets/guilherme-thome.html",
+      "sha256": "d37c88100d42f3806a389ec85f57ffdf020b7bff2106662c98f47a7d4e50ee79",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -184,8 +195,8 @@
       "id": "assets-icds",
       "priority": 9,
       "title": "Icds",
-      "path": "/docs/_infra/assets/icds.md",
-      "sha256": "25c58d73e5e2b56d2541bbfc858dfe7ff06fe72782e148b0bae557392016257f",
+      "path": "/_infra/assets/icds.html",
+      "sha256": "6f63353e955bb5f5254ce2d14565d39188cfef7814e1ac98802d3c56dfd53218",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -195,8 +206,8 @@
       "id": "assets-index",
       "priority": 9,
       "title": "Index",
-      "path": "/docs/_infra/assets/index.md",
-      "sha256": "4b5605e48f84c4b8be5189188b96a7769c771f759e54a03df3986d45a84cc11d",
+      "path": "/_infra/assets/index.html",
+      "sha256": "086e2771c76ec45164e55b3408d3ac49c725f9d4d363e1ede7d9f5afcc3955da",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -206,8 +217,8 @@
       "id": "assets-medvalor",
       "priority": 9,
       "title": "Medvalor",
-      "path": "/docs/_infra/assets/medvalor.md",
-      "sha256": "fc72019bffecc9e638286ea745bfc74dd8044f9b9f1d34909a21decdae805950",
+      "path": "/_infra/assets/medvalor.html",
+      "sha256": "e313d7c0992c888cac06e7216fd9c143825bdd9978f3bf92eed8b46f5595c656",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -217,8 +228,8 @@
       "id": "assets-thera",
       "priority": 9,
       "title": "Thera",
-      "path": "/docs/_infra/assets/thera.md",
-      "sha256": "26bd9e560d6b56034df7c1885e897fcc5b6dfbce03eaf7526f390b8d08bf6587",
+      "path": "/_infra/assets/thera.html",
+      "sha256": "5628e7a07e767788fa9e7b41c5f2cba1c90ca980f9cdf088268cc6689c8a8855",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -228,8 +239,8 @@
       "id": "assets-wallpapers",
       "priority": 9,
       "title": "Wallpapers",
-      "path": "/docs/_infra/assets/wallpapers.md",
-      "sha256": "b2714dad4dd42e67d71aba38364169f9c1b95d8252df4f752dbfe830168641e8",
+      "path": "/_infra/assets/wallpapers.html",
+      "sha256": "57afff935a4ac8e4a5dafc23c2542fe996bc86e36fed0b2525848541a8c5e167",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -239,8 +250,8 @@
       "id": "standards-footer",
       "priority": 10,
       "title": "Footer",
-      "path": "/docs/_infra/standards/footer.md",
-      "sha256": "3af6c36589ca8e948dbe06abc65e384606547cc24baa2a0713df7c6128230902",
+      "path": "/_infra/standards/footer.html",
+      "sha256": "b902d13847ec0587083685358207b1b8eb611484b505e090b8acece8d6e4c8dd",
       "description": "Padrão ou diretriz de compliance e governança.",
       "tags": [
         "standards"
@@ -250,7 +261,7 @@
       "id": "README",
       "priority": 11,
       "title": "Readme",
-      "path": "/docs/_infra/README.md",
+      "path": "/_infra/README.html",
       "sha256": "1c33ca101cd0012d635872f0f5dca31aed36b56433839d1e8605f8b955c244e8",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
@@ -261,8 +272,8 @@
       "id": "ai-search",
       "priority": 11,
       "title": "Ai Search",
-      "path": "/docs/_infra/ai-search.md",
-      "sha256": "0c4c5f4aa438e24d77c834be9a26d5784834cd129e784b8e959d8084714f5e16",
+      "path": "/_infra/ai-search.html",
+      "sha256": "ca0fe6c85668e0bb9119bf135e79133b05b22ba1713931ef6796cb18749dc13a",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -272,8 +283,85 @@
       "id": "archive-index",
       "priority": 11,
       "title": "Index",
-      "path": "/docs/_infra/archive/index.md",
-      "sha256": "c724e122f4c4887a8d1a9febc29e1892954a36535edf59d2ce9f6ae19c380823",
+      "path": "/_infra/archive/index.html",
+      "sha256": "dcd9e74f91500c930df9606e750e785d991c822513efc1bbe8fa14a28a8d22f4",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-compass",
+      "priority": 11,
+      "title": "Compass",
+      "path": "/_infra/ferramentas/compass.html",
+      "sha256": "5eadfcfb398cfeac33a786303c982f1d05ee7a45a73cf4e0496eb0d45da6fb37",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-deck",
+      "priority": 11,
+      "title": "Deck",
+      "path": "/_infra/ferramentas/deck.html",
+      "sha256": "f892f318d9888820a910faab66be0fd31a1245cd21545a82feb2c6a402f54579",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-discovery",
+      "priority": 11,
+      "title": "Discovery",
+      "path": "/_infra/ferramentas/discovery.html",
+      "sha256": "aad80a4e5b6ef39787569fc73669c976370efc24f7d765af346127e1e0971972",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-panta",
+      "priority": 11,
+      "title": "Panta",
+      "path": "/_infra/ferramentas/panta.html",
+      "sha256": "a1a1a80f9e42c6eec3933200441b17968cf86754b2dcc0e40e8d0e868c7a0d56",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-relay",
+      "priority": 11,
+      "title": "Relay",
+      "path": "/_infra/ferramentas/relay.html",
+      "sha256": "ec14aad741315a8cea15484ffb9338bb338d311e1bf69df0208d132a82cf9c94",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-rtav",
+      "priority": 11,
+      "title": "Rtav",
+      "path": "/_infra/ferramentas/rtav.html",
+      "sha256": "61d9e2e813fa5f9e7fdc83b186e4be01c6e724b5f987b9bc051211a66d895162",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "ferramentas-signal",
+      "priority": 11,
+      "title": "Signal",
+      "path": "/_infra/ferramentas/signal.html",
+      "sha256": "932f916850e505b9868fcf0571800959f5aceadb9017b5daec73db6b0dd7b142",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -283,8 +371,30 @@
       "id": "index",
       "priority": 11,
       "title": "Index",
-      "path": "/docs/_infra/index.md",
-      "sha256": "435a7e72e831760158e6e3281931108041debe6140d7abf5ed6fe9e7bf3b0437",
+      "path": "/_infra/index.html",
+      "sha256": "9ab50b2e7e3af621f4a51f7fa18260646889493023ca268a4b6b6bb1fb292c13",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "prd-2026-07-consistencia-hub",
+      "priority": 11,
+      "title": "Prd 2026 07 Consistencia Hub",
+      "path": "/_infra/prd-2026-07-consistencia-hub.html",
+      "sha256": "5d92f31e6fa6fddb6e9d1e0622d5bdb71ef55505794ee8281c15aff3fc33a447",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "prd-2026-07-painel-tea-v2",
+      "priority": 11,
+      "title": "Prd 2026 07 Painel Tea V2",
+      "path": "/_infra/prd-2026-07-painel-tea-v2.html",
+      "sha256": "7e33668c23a8a25f5ea551ddd62e451dfa7ea051ef3c89b43ab1bbdd13d3b097",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -294,8 +404,19 @@
       "id": "public-pages",
       "priority": 11,
       "title": "Public Pages",
-      "path": "/docs/_infra/public-pages.md",
-      "sha256": "164afc4d3e111a269f48323a0b74ab2ffad0c229782545a4d490cec062bd88f2",
+      "path": "/_infra/public-pages.html",
+      "sha256": "f003d48f5bee28d74a037469f64c8988c60d3078910093e8ead81c8c829f7fbe",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "technical-architecture",
+      "priority": 11,
+      "title": "Technical Architecture",
+      "path": "/_infra/technical-architecture.html",
+      "sha256": "65a5857322c35d6e5fb4f788b29d2f7a33808aee88dcbffc0850bdcc695f9239",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -305,7 +426,7 @@
       "id": "uploads_usuario-README",
       "priority": 11,
       "title": "Readme",
-      "path": "/docs/_infra/uploads_usuario/README.md",
+      "path": "/_infra/uploads_usuario/README.html",
       "sha256": "98ea33ea8f8a9d815a53c1a3e2ff3f4ee8125fd437b3613d1b9018fe9b0c629d",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
@@ -313,33 +434,11 @@
       ]
     },
     {
-      "id": "skills-buscar-api-keys",
-      "priority": 12,
-      "title": "Buscar Api Keys",
-      "path": "/skills/buscar-api-keys.md",
-      "sha256": "bcf088499a618bda387b380b0b20c09b2f24fa505eeed66a508127aad881ccc1",
-      "description": "Instrucao operacional para agentes de IA.",
-      "tags": [
-        "skill"
-      ]
-    },
-    {
-      "id": "skills-public-pages",
-      "priority": 12,
-      "title": "Public Pages",
-      "path": "/skills/public-pages.md",
-      "sha256": "8bb76ee1d643fdb1d7d6e6db2754164feb4af513fc52c6a6d0e890c13868d53f",
-      "description": "Instrucao operacional para agentes de IA.",
-      "tags": [
-        "skill"
-      ]
-    },
-    {
       "id": "p-registry.json",
       "priority": 14,
       "title": "Registry.Json",
       "path": "/p/registry.json",
-      "sha256": "f642ab1db13775e2531bfb6446cba000114018db6de7613ae5ebc3ea6b6169d6",
+      "sha256": "bbc6d4d24595ad42b05ee6a56151d0ca9db6dde7b6f5e3f9df5f6935107ed3b2",
       "description": "Catalogo estruturado de ativos do ecossistema.",
       "tags": [
         "registry"
@@ -351,7 +450,7 @@
       "id": "admin-index",
       "title": "Painel Administrativo",
       "path": "/admin/index.html",
-      "sha256": "098fc39bef7ce09378b7127cb88555944d4cb3cd68a98e3dffd42196359d0273",
+      "sha256": "a23913534b07e7fd0b2781caab3f65a49e6a3d5e655125cbf5ff321c2d9d4f51",
       "category": "tool",
       "entity": "Grupo CSV",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -360,7 +459,7 @@
       "id": "axia-index",
       "title": "AxiaCare (landing)",
       "path": "/axia/index.html",
-      "sha256": "f051c112bf9ee4997551ec99d23f479ed15a2b734fb718bc03065a45318963f9",
+      "sha256": "2a0ecacfb97cf9c6b0a6853e1cab462236ae803936f475d93afc7b935b7d5ace",
       "category": "static",
       "entity": "AxiaCare",
       "description": "Página estática com conteúdo informativo."
@@ -369,7 +468,7 @@
       "id": "axia-nota-fiscal",
       "title": "Gerador de Nota Fiscal",
       "path": "/axia/nota-fiscal.html",
-      "sha256": "ccfc5338123be4ce927a2f35f307fee05ff4e7c82021ee08a07ed4a6cf6f78df",
+      "sha256": "418a2c193a0ffa2c642e1c9457a9268527fd31c9abc7134c1e7fe5cbc02af372",
       "category": "tool",
       "entity": "AxiaCare",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -378,7 +477,7 @@
       "id": "axia-propostas",
       "title": "Gerador de Propostas",
       "path": "/axia/propostas.html",
-      "sha256": "381152b92026c120068fca8101b99424060ba6cc800708925e1b7b2ca17a6d2c",
+      "sha256": "95cadd593bc2e9cf3c887a12db0ab1ef327b1a682c09e760f15d2c7e2270804c",
       "category": "webapp",
       "entity": "AxiaCare",
       "description": "Aplicação web completa com autenticação, persistência e lógica de negócio."
@@ -387,7 +486,7 @@
       "id": "axia-reembolso",
       "title": "Solicitação de Reembolso",
       "path": "/axia/reembolso.html",
-      "sha256": "174e39261a1a7dd3dc51ce84509762a89f8b51e44d941ca38b7be0048deb7454",
+      "sha256": "ff8cbea870a597634b7ee667bcd873d6f717c285bbca1b502c37e9a71aea39ea",
       "category": "tool",
       "entity": "AxiaCare",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -396,7 +495,7 @@
       "id": "deck-index",
       "title": "Deck Institucional",
       "path": "/deck/index.html",
-      "sha256": "f671fb5699d1f28a06ee8817489825eff4ddbfb64625d6d773280afad036ed92",
+      "sha256": "7544f2f575af26eb799c57e89d237a5e42c0f8e1f998bee6a80b1de3f09cdb81",
       "category": "static",
       "entity": "Grupo CSV",
       "description": "Página estática com conteúdo informativo."
@@ -405,7 +504,7 @@
       "id": "founder-index",
       "title": "Fundador",
       "path": "/founder/index.html",
-      "sha256": "54829c32b9e20b97741f76a6075f64497bc5920f170d7f7b5beb1505b4c7b3ad",
+      "sha256": "c35d46fe8db92b2884f1e2eaecab15a17f41ba239f7df596550a12eaa9e6d170",
       "category": "static",
       "entity": "Grupo CSV",
       "description": "Página estática com conteúdo informativo."
@@ -414,16 +513,25 @@
       "id": "icds-index",
       "title": "ICDS (landing)",
       "path": "/icds/index.html",
-      "sha256": "213084254bad151ad0242bcbd443801c9d2c0071d7cc1cf343f3ecf0fb476dec",
+      "sha256": "23454de2fc58632c22735f5c9fb3848266c5b8bd4f2f0af9e6cf5d28b38ec9db",
       "category": "static",
       "entity": "ICDS",
       "description": "Página estática com conteúdo informativo."
     },
     {
+      "id": "icds-slides",
+      "title": "Gerador de Apresentações",
+      "path": "/icds/slides.html",
+      "sha256": "48ab7cba42acb6ad6d212db5428a87714cc80887776b391f41cbd28d338b9725",
+      "category": "tool",
+      "entity": "ICDS",
+      "description": "Ferramenta focada em tarefa específica com escopo limitado."
+    },
+    {
       "id": "medvalor-index",
       "title": "MedValor (landing)",
       "path": "/medvalor/index.html",
-      "sha256": "a3801d625f16c51fb8105a65c19d5ddde97654af116b586fc84ee78d195f4d4b",
+      "sha256": "2a77c4630e32fa4c9ce5021e4d333d6ee164e414fabdc08a5abab44d8c0f7727",
       "category": "static",
       "entity": "MedValor",
       "description": "Página estática com conteúdo informativo."
@@ -432,7 +540,7 @@
       "id": "p-index",
       "title": "Índice de Produtos",
       "path": "/p/index.html",
-      "sha256": "d09b36328776579c005de97a440c88195710a4575ec0da6df85c06404ec66d42",
+      "sha256": "d36272a75dea1438e6a7fc6bec220c9e8188640014a7a9709b5b09a8689a9d9b",
       "category": "static",
       "entity": "Grupo CSV",
       "description": "Página estática com conteúdo informativo."
@@ -441,7 +549,7 @@
       "id": "p-tea-dataset-index",
       "title": "Data Set TEA",
       "path": "/p/tea-dataset/index.html",
-      "sha256": "078c42235b6d37be495bd98eea50ba63b89c7400284c8d05c98613f4531021bd",
+      "sha256": "8e649ebfca9b028f4e8e4c2d137c819dffe876c67e466eb2b8206a3f883d81a1",
       "category": "webapp",
       "entity": "ICDS",
       "description": "Aplicação web completa com autenticação, persistência e lógica de negócio."
@@ -450,7 +558,7 @@
       "id": "thera-index",
       "title": "Thera (landing)",
       "path": "/thera/index.html",
-      "sha256": "3d549879628719d09570507e3a8f25fd07aa26e9c9953f13f1b124c24c982352",
+      "sha256": "8cfd720e87dcc482fbe987a5def0d4342998ce48069af5b25013955ef6a7d798",
       "category": "static",
       "entity": "Thera",
       "description": "Página estática com conteúdo informativo."
@@ -459,52 +567,25 @@
       "id": "unihealth-calc-plantao",
       "title": "Calculadora de Plantão",
       "path": "/unihealth/calc-plantao.html",
-      "sha256": "1fac29dd160222b78ae34e4d8aff27c89f185a6e3b1404115ba32a4f0b0665b7",
+      "sha256": "21966ea8b3bcd3c8f77e1e76691de87403e658d7efaeddf9ab166a07ae3a4d09",
       "category": "tool",
       "entity": "Unihealth",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
     },
     {
-      "id": "unihealth-fios",
-      "title": "FIOS",
-      "path": "/unihealth/fios.html",
-      "sha256": "7667d23e293ec1bd8340411cee2521b2040f28eb362ed07d6b4c29eea600fe3a",
-      "category": "dashboard",
-      "entity": "Unihealth",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
       "id": "unihealth-index",
       "title": "Unihealth (landing)",
       "path": "/unihealth/index.html",
-      "sha256": "2e630ba6d4496e158f345759c7120c0e5182b60071e7ec4562b51cdf877beac2",
+      "sha256": "8ed564e95180fc489e9deb38ce8775fc56f3b07ebf771226fbbfe30dc17eb0eb",
       "category": "static",
       "entity": "Unihealth",
       "description": "Página estática com conteúdo informativo."
     },
     {
-      "id": "unihealth-isc-cesarianas",
-      "title": "ISC Cesarianas",
-      "path": "/unihealth/isc-cesarianas.html",
-      "sha256": "a9915fc0595eed32eef25bdfcb258fc7888ba97b598f8022ce42df20ced099fd",
-      "category": "dashboard",
-      "entity": "Unihealth",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
-      "id": "unihealth-julho25",
-      "title": "Julho 2025",
-      "path": "/unihealth/julho25.html",
-      "sha256": "3b1e8533759094bc1ab50dbec56231d30e36d9416ef5127b540f65fd3e2dd3c8",
-      "category": "dashboard",
-      "entity": "Unihealth",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
       "id": "unihealth-opme",
       "title": "OPME",
       "path": "/unihealth/opme.html",
-      "sha256": "4f9a8f35853b91a2d96744e80f6ecf9737cd9a1baba0b4e9ab45463ab55cd6f8",
+      "sha256": "23cf879e5cd5abb2024714e58cee6868c3d23d95ec0fa53a7d2c1270db27720f",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -513,7 +594,7 @@
       "id": "unihealth-repasse",
       "title": "Repasse",
       "path": "/unihealth/repasse.html",
-      "sha256": "88d605325529d0581070a12613f7f67f6b10b148b35b25bbd14e54216f8b2f98",
+      "sha256": "be6713c06e32aac9fa551f3f6b7ea77a4e47344ae1ef01f1f8cd5a7c6e5325cb",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -522,7 +603,7 @@
       "id": "unihealth-retornopa",
       "title": "Retorno PA",
       "path": "/unihealth/retornopa.html",
-      "sha256": "1af3e355934093275d93cd5c9a91df3a996c7482f19e10e03d84ee60b7972f9b",
+      "sha256": "7dbcb719df944daa03026e3943065c798b0d045fabd92571245e4189b637d0ed",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -531,25 +612,25 @@
       "id": "unimed-cuidadocoordenado",
       "title": "Cuidado Coordenado",
       "path": "/unimed/cuidadocoordenado.html",
-      "sha256": "20ff2cd17e5bcca3fb2d3048bda414c990adc84e89d99b3a966951f422168526",
+      "sha256": "419640b3b1af4000a639b898522f74c868bb9375a26f360a67c1623da168e9fc",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
     },
     {
-      "id": "unimed-especialidades",
-      "title": "Especialidades",
-      "path": "/unimed/especialidades.html",
-      "sha256": "f9ace1f2640172c0bc9d0197dfd8b106ddc4ea11709a7153449c3f823d553d56",
-      "category": "dashboard",
+      "id": "unimed-drg",
+      "title": "DRG Brasil Analytics",
+      "path": "/unimed/drg.html",
+      "sha256": "9337c7a33fd3df0ed03287504fd8bd9ffcacceda503df38ff6772a1d1c8d2cac",
+      "category": "tool",
       "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
+      "description": "Ferramenta focada em tarefa específica com escopo limitado."
     },
     {
       "id": "unimed-gce",
       "title": "GCE",
       "path": "/unimed/gce.html",
-      "sha256": "724cef13530b8981204c5cb223ab8a7d95cd3c93cbfd0dee34839f13d7792b29",
+      "sha256": "ca9378cab3a96398825f0ee88ba6e2e56d135cac301cc10acc5787d1100af92a",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -558,79 +639,25 @@
       "id": "unimed-index",
       "title": "Unimed GV (landing)",
       "path": "/unimed/index.html",
-      "sha256": "72856bd5f2f4c849c1dae8aff95a383ea0a699262cde3a96f6fe239df5eeeab4",
+      "sha256": "f31b5993451d930c2d42d6292f2b78e9eca22401f1937644e58e1d69be3dad65",
       "category": "static",
       "entity": "Unimed GV",
       "description": "Página estática com conteúdo informativo."
-    },
-    {
-      "id": "unimed-onco-antigo",
-      "title": "Oncologia (versão antiga)",
-      "path": "/unimed/onco-antigo.html",
-      "sha256": "817ca1c9f61016aa1ce6e6ef46473a18190bfe1b65b4fdb5e96dc853a2006b9f",
-      "category": "static",
-      "entity": "Unimed GV",
-      "description": "Página estática com conteúdo informativo."
-    },
-    {
-      "id": "unimed-onco",
-      "title": "Painel de Oncologia",
-      "path": "/unimed/onco.html",
-      "sha256": "47b9145716305464271954eb4fe54cde1ac6a99d6eb3e74a7cd70a7c1c214437",
-      "category": "dashboard",
-      "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
-      "id": "unimed-painel-onco-vo",
-      "title": "Painel Onco (versão original)",
-      "path": "/unimed/painel-onco-vo.html",
-      "sha256": "b7002df6ed09a69e06be1794fc66b77362b1cf515f6c91a4652a12e82295ae6a",
-      "category": "dashboard",
-      "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
     },
     {
       "id": "unimed-ped-amb",
       "title": "Pediatria Ambulatorial",
       "path": "/unimed/ped-amb.html",
-      "sha256": "52304d48bc08bc67149e9e0d1b68b7bdade5bd6f9998a556c1429b6b946fe8f7",
-      "category": "dashboard",
-      "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
-      "id": "unimed-psiquiatria",
-      "title": "Psiquiatria",
-      "path": "/unimed/psiquiatria.html",
-      "sha256": "039f9ce2c9d4c3a2b4d37f97b10aedfdf1f2f50558eaf4d160885b6076f4e3b7",
-      "category": "dashboard",
-      "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
-      "id": "unimed-relatorios-onco",
-      "title": "Relatórios de Oncologia",
-      "path": "/unimed/relatorios-onco.html",
-      "sha256": "323416a94eceb5a5b45b1376704960019d524e2b74be6bdd5bd92e12d72a212a",
+      "sha256": "81674df4a6de28208f4a52da7a06d672e9dc227a90851b4593a008c49b3bddac",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
     },
     {
       "id": "unimed-tea",
-      "title": "TEA",
+      "title": "Painel Estratégico TEA — Terapia ABA · Psicologia",
       "path": "/unimed/tea.html",
-      "sha256": "689780b0fe0c9159e6646b36a80a181fd505a6464f5b10bcf6bb30a8cbe88dbb",
-      "category": "dashboard",
-      "entity": "Unimed GV",
-      "description": "Painel de visualização e análise de dados."
-    },
-    {
-      "id": "unimed-variabilidade-exames",
-      "title": "Variabilidade de Exames",
-      "path": "/unimed/variabilidade-exames.html",
-      "sha256": "72150907820c156083989802fed9caf622ab1107fddf8b2249aa002bd1b89e5c",
+      "sha256": "8b16348099c9d1f0d9ad3835103c3f0249db455588929bdfdba73556850eec8e",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -639,7 +666,7 @@
       "id": "unimed-vivapleno",
       "title": "Viva Pleno",
       "path": "/unimed/vivapleno.html",
-      "sha256": "86a81f5b4dae3d9614e79ca0bdaf981a587f3d2e8fab8777574e5c3569bac0ad",
+      "sha256": "730828c96c85ea62ff272aaa41df8a77754b7eefa8bf6677287278ee3469f257",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."

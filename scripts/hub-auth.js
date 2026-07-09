@@ -83,9 +83,20 @@
   async function verifyToken(token) {
     try {
       var resp = await fetch(AUTH_API + '/verify', { headers: { 'X-Auth-Token': token } });
+      // Servidor rejeitou explicitamente a sessão (revogada/expirada): derrubar,
+      // mesmo que o corpo não traga o flag esperado.
+      if (resp.status === 401 || resp.status === 403) return false;
+      // Erro transitório do servidor (5xx): não derrubar a sessão local já
+      // não-expirada — será reavaliada na próxima visita.
+      if (!resp.ok) return true;
       var data = await resp.json();
       return data.valid === true;
-    } catch (e) { return true; }
+    } catch (e) {
+      // Erro de rede: manter a sessão local (não-expirada) em vez de deslogar
+      // em falha transitória — evita logout em blip de rede e negação de serviço
+      // por bloqueio do /verify. Reavaliado na próxima navegação.
+      return true;
+    }
   }
 
   async function doLogin(email, password) {

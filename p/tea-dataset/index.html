@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -3863,6 +3864,21 @@ function doLogout() {
   if (authToken) {
     fetch(AUTH_API + '/logout', { method: 'POST', headers: { 'X-Auth-Token': authToken } }).catch(function(){});
   }
+  // Limpar o rascunho confidencial do localStorage e o formulário: não deixar
+  // dados de coleta para o próximo usuário do navegador. getDraftKey() usa
+  // currentUnit, então limpar ANTES de zerá-lo.
+  try {
+    localStorage.removeItem(getDraftKey());
+    localStorage.removeItem(DRAFT_KEY);
+  } catch (e) {}
+  const teaFormEl = document.getElementById('teaForm');
+  if (teaFormEl) {
+    teaFormEl.reset();
+    teaFormEl.querySelectorAll('.filled').forEach(el => el.classList.remove('filled'));
+  }
+  document.querySelectorAll('.file-list').forEach(fl => fl.innerHTML = '');
+  uploadedFiles = {};
+  updateProgress();
   authToken = null;
   currentUnit = null;
   selectedUnit = null;

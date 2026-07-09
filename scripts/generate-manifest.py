@@ -232,6 +232,27 @@ def make_title(rel_path):
     return name.replace("-", " ").replace("_", " ").title()
 
 
+def to_served_url(rel_path):
+    """Converte o caminho do repositório para a URL realmente servida no site.
+
+    Antes o manifest publicava o caminho cru do repo (ex.:
+    /docs/_infra/csv-core/definition.md), que dá 404 no site: o VitePress serve
+    o conteúdo de docs/ SEM o prefixo 'docs/' e com .md convertido para .html
+    (cleanUrls desativado). Os arquivos copiados crus na raiz do dist pelo
+    deploy (llms.txt, completeness-checklist.md, p/registry.json) mantêm o
+    caminho direto.
+    """
+    RAW_ROOT_FILES = {"llms.txt", "completeness-checklist.md", "p/registry.json"}
+    if rel_path in RAW_ROOT_FILES:
+        return "/" + rel_path
+    # Conteúdo do VitePress: docs/**.md -> /**.html (sem 'docs/')
+    if rel_path.startswith("docs/") and rel_path.endswith(".md"):
+        served = rel_path[len("docs/"):]
+        served = served[:-3] + ".html"
+        return "/" + served
+    return "/" + rel_path
+
+
 def discover_assets(repo_root):
     """Descobre todos os arquivos .md e .txt relevantes no repositório."""
     assets = []
@@ -252,14 +273,10 @@ def discover_assets(repo_root):
                     if not should_ignore(rel):
                         assets.append(rel)
 
-    # 3. Skills (.md dentro de skills/)
-    skills_dir = os.path.join(repo_root, "skills")
-    if os.path.isdir(skills_dir):
-        for f in sorted(os.listdir(skills_dir)):
-            if f.endswith(".md"):
-                rel = os.path.join("skills", f)
-                if not should_ignore(rel):
-                    assets.append(rel)
+    # 3. Skills: NÃO incluídas no manifest público. A pasta skills/ não é
+    # copiada para o dist (não é servida no site — daria 404) e um dos arquivos
+    # (buscar-api-keys.md) aponta o local do cofre de chaves; publicá-la para
+    # "resolver" o 404 seria expor conteúdo interno. Mantida fora do índice.
 
     # 4. Documentacao avulsa (docs/*.md na raiz de docs/)
     docs_dir = os.path.join(repo_root, "docs")
@@ -293,7 +310,7 @@ def main():
             "id": make_id(rel_path),
             "priority": priority,
             "title": make_title(rel_path),
-            "path": f"/{rel_path}",
+            "path": to_served_url(rel_path),
             "sha256": file_hash,
             "description": TAG_DESCRIPTIONS.get(tag, "Documento do Hub CSV."),
             "tags": [tag],
