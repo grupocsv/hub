@@ -1,7 +1,7 @@
 {
   "manifestVersion": "2.0.0",
-  "lastUpdated": "2026-07-09T18:15:26Z",
-  "totalAssets": 39,
+  "lastUpdated": "2026-07-09T18:31:05Z",
+  "totalAssets": 40,
   "totalProducts": 25,
   "knowledgeAssets": [
     {
@@ -390,6 +390,17 @@
       ]
     },
     {
+      "id": "prd-2026-07-painel-tea-v2",
+      "priority": 11,
+      "title": "Prd 2026 07 Painel Tea V2",
+      "path": "/_infra/prd-2026-07-painel-tea-v2.html",
+      "sha256": "7e33668c23a8a25f5ea551ddd62e451dfa7ea051ef3c89b43ab1bbdd13d3b097",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
       "id": "public-pages",
       "priority": 11,
       "title": "Public Pages",
@@ -475,7 +486,7 @@
       "id": "axia-reembolso",
       "title": "Solicitação de Reembolso",
       "path": "/axia/reembolso.html",
-      "sha256": "97dec933340c6c95638148fd491bdc5b934ca8e0be8241a867673425b8cebbee",
+      "sha256": "ff8cbea870a597634b7ee667bcd873d6f717c285bbca1b502c37e9a71aea39ea",
       "category": "tool",
       "entity": "AxiaCare",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -529,7 +540,7 @@
       "id": "p-index",
       "title": "Índice de Produtos",
       "path": "/p/index.html",
-      "sha256": "d09b36328776579c005de97a440c88195710a4575ec0da6df85c06404ec66d42",
+      "sha256": "d36272a75dea1438e6a7fc6bec220c9e8188640014a7a9709b5b09a8689a9d9b",
       "category": "static",
       "entity": "Grupo CSV",
       "description": "Página estática com conteúdo informativo."
@@ -644,9 +655,9 @@
     },
     {
       "id": "unimed-tea",
-      "title": "TEA",
+      "title": "Painel Estratégico TEA — Terapia ABA · Psicologia",
       "path": "/unimed/tea.html",
-      "sha256": "f96fb4782745564ee584a29f3e19e74821974e05cbe1a9a0b60b9c2d998584e5",
+      "sha256": "8b16348099c9d1f0d9ad3835103c3f0249db455588929bdfdba73556850eec8e",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."

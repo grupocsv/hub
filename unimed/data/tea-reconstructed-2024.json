@@ -1,345 +1,348 @@
 {
-  "status": "VALORES INFERIDOS — sujeitos a confirmação com os dados brutos (não é dado-fonte)",
-  "metodo": "Reconstrução racional dos absolutos a partir dos floats do painel original (unimed/tea.html, ano base 2024): intensidade = fração exata sessões/beneficiários; size exatamente proporcional às sessões dentro de cada categoria; solução inteira mínima.",
-  "gerado_em": "2026-07-07",
-  "referencia": "docs/_infra/prd-2026-07-consistencia-hub.md §7",
-  "ressalva": "INFERÊNCIA, não dado-fonte. Escala por categoria determinada a menos de múltiplo inteiro (m=1 assumido). Validação: 25/31 registros produzem custo total em valor monetário exato. Confirmar com os dados brutos no próximo ciclo.",
-  "categorias": [
+ "status": "VALORES INFERIDOS — sujeitos a confirmação com os dados brutos (não é dado-fonte)",
+ "superseded": true,
+ "superseded_by": "unimed/data/tea-2025-2026.json",
+ "superseded_em": "2026-07-09",
+ "metodo": "Reconstrução racional dos absolutos a partir dos floats do painel original (unimed/tea.html, ano base 2024): intensidade = fração exata sessões/beneficiários; size exatamente proporcional às sessões dentro de cada categoria; solução inteira mínima.",
+ "gerado_em": "2026-07-07",
+ "referencia": "docs/_infra/prd-2026-07-consistencia-hub.md §7",
+ "ressalva": "INFERÊNCIA, não dado-fonte. Escala por categoria determinada a menos de múltiplo inteiro (m=1 assumido). Validação: 25/31 registros produzem custo total em valor monetário exato. Confirmar com os dados brutos no próximo ciclo.",
+ "categorias": [
+  {
+   "nome": "Baixa Eficiência",
+   "clinicas": [
     {
-      "nome": "Baixa Eficiência",
-      "clinicas": [
-        {
-          "nome": "LAGARES E PIMENTA LTDA",
-          "beneficiarios_inferido": 21,
-          "sessoes_inferido": 401,
-          "custo_total_inferido": 80250.0,
-          "custo_total_redondo": true,
-          "intensidade": 19.095238095238095,
-          "custo_sessao": 200.12468827930175,
-          "size": 60.0
-        },
-        {
-          "nome": "PRIMEIRO PASSOS LTDA",
-          "beneficiarios_inferido": 17,
-          "sessoes_inferido": 385,
-          "custo_total_inferido": 77000.0,
-          "custo_total_redondo": true,
-          "intensidade": 22.647058823529413,
-          "custo_sessao": 200.0,
-          "size": 57.605985037406484
-        },
-        {
-          "nome": "MARIANA CARRIJO BISSI",
-          "beneficiarios_inferido": 10,
-          "sessoes_inferido": 220,
-          "custo_total_inferido": 38820.0,
-          "custo_total_redondo": true,
-          "intensidade": 22.0,
-          "custo_sessao": 176.45454545454547,
-          "size": 32.917705735660846
-        },
-        {
-          "nome": "L M CARRO CLINICA MEDICA LTDA",
-          "beneficiarios_inferido": 9,
-          "sessoes_inferido": 173,
-          "custo_total_inferido": 34600.0,
-          "custo_total_redondo": true,
-          "intensidade": 19.22222222222222,
-          "custo_sessao": 200.0,
-          "size": 25.885286783042392
-        },
-        {
-          "nome": "RENATA DEMARCHI CARVALHO - ESPAÇO INTEGRAR",
-          "beneficiarios_inferido": 6,
-          "sessoes_inferido": 146,
-          "custo_total_inferido": 32200.0,
-          "custo_total_redondo": true,
-          "intensidade": 24.333333333333332,
-          "custo_sessao": 220.54794520547946,
-          "size": 21.845386533665838
-        },
-        {
-          "nome": "CLINICA INTEGRADA EM SAUDE LTDA",
-          "beneficiarios_inferido": 9,
-          "sessoes_inferido": 118,
-          "custo_total_inferido": 22440.0,
-          "custo_total_redondo": true,
-          "intensidade": 13.11111111111111,
-          "custo_sessao": 190.16949152542372,
-          "size": 17.65586034912718
-        },
-        {
-          "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-          "beneficiarios_inferido": 21,
-          "sessoes_inferido": 71,
-          "custo_total_inferido": 15620.0,
-          "custo_total_redondo": true,
-          "intensidade": 3.380952380952381,
-          "custo_sessao": 220.0,
-          "size": 10.623441396508728
-        },
-        {
-          "nome": "ANANDA VIEIRA MORAES",
-          "beneficiarios_inferido": 7,
-          "sessoes_inferido": 69,
-          "custo_total_inferido": 12474.56,
-          "custo_total_redondo": false,
-          "intensidade": 9.857142857142858,
-          "custo_sessao": 180.79072463768117,
-          "size": 10.324189526184538
-        },
-        {
-          "nome": "MARYANA ALVES DE SOUZA",
-          "beneficiarios_inferido": 5,
-          "sessoes_inferido": 68,
-          "custo_total_inferido": 11720.0,
-          "custo_total_redondo": true,
-          "intensidade": 13.6,
-          "custo_sessao": 172.35294117647058,
-          "size": 10.174563591022444
-        }
-      ]
+     "nome": "LAGARES E PIMENTA LTDA",
+     "beneficiarios_inferido": 21,
+     "sessoes_inferido": 401,
+     "custo_total_inferido": 80250.0,
+     "custo_total_redondo": true,
+     "intensidade": 19.095238095238095,
+     "custo_sessao": 200.12468827930175,
+     "size": 60.0
     },
     {
-      "nome": "Baixo Alcance",
-      "clinicas": [
-        {
-          "nome": "ANA CAROLINA OLIVEIRA FARIA FALCAO LTDA",
-          "beneficiarios_inferido": 140,
-          "sessoes_inferido": 3230,
-          "custo_total_inferido": 387240.0,
-          "custo_total_redondo": true,
-          "intensidade": 23.071428571428573,
-          "custo_sessao": 119.88854489164086,
-          "size": 60.0
-        },
-        {
-          "nome": "🏠 Casa Unimed",
-          "beneficiarios_inferido": 222,
-          "sessoes_inferido": 2823,
-          "custo_total_inferido": 338760.0,
-          "custo_total_redondo": true,
-          "intensidade": 12.716216216216216,
-          "custo_sessao": 120.0,
-          "size": 52.43962848297214
-        },
-        {
-          "nome": "FLORESCER CLINICA DE PSICOLOGIA",
-          "beneficiarios_inferido": 24,
-          "sessoes_inferido": 572,
-          "custo_total_inferido": 90480.0,
-          "custo_total_redondo": true,
-          "intensidade": 23.833333333333332,
-          "custo_sessao": 158.1818181818182,
-          "size": 10.625386996904025
-        },
-        {
-          "nome": "ANDRE DE O GONCALVES",
-          "beneficiarios_inferido": 16,
-          "sessoes_inferido": 198,
-          "custo_total_inferido": 29700.0,
-          "custo_total_redondo": true,
-          "intensidade": 12.375,
-          "custo_sessao": 150.0,
-          "size": 3.6780185758513935
-        },
-        {
-          "nome": "GLAUCIA ROSA DA SILVA MANTESSO",
-          "beneficiarios_inferido": 26,
-          "sessoes_inferido": 183,
-          "custo_total_inferido": 29440.0,
-          "custo_total_redondo": true,
-          "intensidade": 7.038461538461538,
-          "custo_sessao": 160.87431693989072,
-          "size": 3.39938080495356
-        },
-        {
-          "nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA",
-          "beneficiarios_inferido": 6,
-          "sessoes_inferido": 147,
-          "custo_total_inferido": 19320.0,
-          "custo_total_redondo": true,
-          "intensidade": 24.5,
-          "custo_sessao": 131.42857142857142,
-          "size": 2.7306501547987616
-        },
-        {
-          "nome": "JOICE KELLY MARTINS MACIEL",
-          "beneficiarios_inferido": 4,
-          "sessoes_inferido": 76,
-          "custo_total_inferido": 7509.08,
-          "custo_total_redondo": false,
-          "intensidade": 19.0,
-          "custo_sessao": 98.80368421052631,
-          "size": 1.4117647058823528
-        },
-        {
-          "nome": "PATRICIA CRUZEIRO MARTINS AIOLFI",
-          "beneficiarios_inferido": 4,
-          "sessoes_inferido": 72,
-          "custo_total_inferido": 11520.0,
-          "custo_total_redondo": true,
-          "intensidade": 18.0,
-          "custo_sessao": 160.0,
-          "size": 1.3374613003095976
-        }
-      ]
+     "nome": "PRIMEIRO PASSOS LTDA",
+     "beneficiarios_inferido": 17,
+     "sessoes_inferido": 385,
+     "custo_total_inferido": 77000.0,
+     "custo_total_redondo": true,
+     "intensidade": 22.647058823529413,
+     "custo_sessao": 200.0,
+     "size": 57.605985037406484
     },
     {
-      "nome": "Alto Custo",
-      "clinicas": [
-        {
-          "nome": "ANANDA VIEIRA MORAES",
-          "beneficiarios_inferido": 29,
-          "sessoes_inferido": 1021,
-          "custo_total_inferido": 228960.0,
-          "custo_total_redondo": true,
-          "intensidade": 35.206896551724135,
-          "custo_sessao": 224.2507345739471,
-          "size": 60.0
-        },
-        {
-          "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA",
-          "beneficiarios_inferido": 23,
-          "sessoes_inferido": 862,
-          "custo_total_inferido": 174755.0,
-          "custo_total_redondo": true,
-          "intensidade": 37.47826086956522,
-          "custo_sessao": 202.73201856148492,
-          "size": 50.6562193927522
-        },
-        {
-          "nome": "PEQUENINHOS CLINICA LTDA",
-          "beneficiarios_inferido": 20,
-          "sessoes_inferido": 641,
-          "custo_total_inferido": 128200.0,
-          "custo_total_redondo": true,
-          "intensidade": 32.05,
-          "custo_sessao": 200.0,
-          "size": 37.66895200783545
-        },
-        {
-          "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO",
-          "beneficiarios_inferido": 19,
-          "sessoes_inferido": 573,
-          "custo_total_inferido": 102870.0,
-          "custo_total_redondo": true,
-          "intensidade": 30.157894736842106,
-          "custo_sessao": 179.52879581151834,
-          "size": 33.67286973555338
-        },
-        {
-          "nome": "BASTOS JARDIM LTDA",
-          "beneficiarios_inferido": 16,
-          "sessoes_inferido": 440,
-          "custo_total_inferido": 74970.0,
-          "custo_total_redondo": true,
-          "intensidade": 27.5,
-          "custo_sessao": 170.38636363636363,
-          "size": 25.85700293829579
-        },
-        {
-          "nome": "ESPACO NEUROPSI LTDA",
-          "beneficiarios_inferido": 5,
-          "sessoes_inferido": 274,
-          "custo_total_inferido": 62790.0,
-          "custo_total_redondo": true,
-          "intensidade": 54.8,
-          "custo_sessao": 229.16058394160584,
-          "size": 16.101860920666013
-        },
-        {
-          "nome": "MARYANA ALVES DE SOUZA LTDA",
-          "beneficiarios_inferido": 8,
-          "sessoes_inferido": 217,
-          "custo_total_inferido": 39060.0,
-          "custo_total_redondo": true,
-          "intensidade": 27.125,
-          "custo_sessao": 180.0,
-          "size": 12.752203721841333
-        },
-        {
-          "nome": "DESENVOLVA CLINICA DE DESENVOLVIMENTO INFANTIL",
-          "beneficiarios_inferido": 5,
-          "sessoes_inferido": 141,
-          "custo_total_inferido": 26550.0,
-          "custo_total_redondo": true,
-          "intensidade": 28.2,
-          "custo_sessao": 188.29787234042553,
-          "size": 8.285994123408424
-        },
-        {
-          "nome": "ANDREIA ARAUJO DE SOUZA AVELAR",
-          "beneficiarios_inferido": 3,
-          "sessoes_inferido": 116,
-          "custo_total_inferido": 21362.11,
-          "custo_total_redondo": false,
-          "intensidade": 38.666666666666664,
-          "custo_sessao": 184.15612068965518,
-          "size": 6.816846229187072
-        }
-      ]
+     "nome": "MARIANA CARRIJO BISSI",
+     "beneficiarios_inferido": 10,
+     "sessoes_inferido": 220,
+     "custo_total_inferido": 38820.0,
+     "custo_total_redondo": true,
+     "intensidade": 22.0,
+     "custo_sessao": 176.45454545454547,
+     "size": 32.917705735660846
     },
     {
-      "nome": "Eficiência ou Superutilização",
-      "clinicas": [
-        {
-          "nome": "RG ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
-          "beneficiarios_inferido": 39,
-          "sessoes_inferido": 1138,
-          "custo_total_inferido": 182080.0,
-          "custo_total_redondo": true,
-          "intensidade": 29.17948717948718,
-          "custo_sessao": 160.0,
-          "size": 60.0
-        },
-        {
-          "nome": "RESINTO ESPACO INTEGRADO LTDA",
-          "beneficiarios_inferido": 8,
-          "sessoes_inferido": 357,
-          "custo_total_inferido": 42720.0,
-          "custo_total_redondo": true,
-          "intensidade": 44.625,
-          "custo_sessao": 119.66386554621849,
-          "size": 18.82249560632689
-        },
-        {
-          "nome": "RENATA KELLY VAZ DE OLIVEIRA",
-          "beneficiarios_inferido": 2,
-          "sessoes_inferido": 75,
-          "custo_total_inferido": 9757.24,
-          "custo_total_redondo": false,
-          "intensidade": 37.5,
-          "custo_sessao": 130.09653333333333,
-          "size": 3.954305799648506
-        },
-        {
-          "nome": "AMANDA AFONSO JULIO",
-          "beneficiarios_inferido": 2,
-          "sessoes_inferido": 68,
-          "custo_total_inferido": 7652.18,
-          "custo_total_redondo": false,
-          "intensidade": 34.0,
-          "custo_sessao": 112.53205882352941,
-          "size": 3.585237258347979
-        },
-        {
-          "nome": "GEORGIA CRISTINA VILELA JANNUZZI",
-          "beneficiarios_inferido": 2,
-          "sessoes_inferido": 67,
-          "custo_total_inferido": 4968.88,
-          "custo_total_redondo": false,
-          "intensidade": 33.5,
-          "custo_sessao": 74.1623880597015,
-          "size": 3.532513181019332
-        }
-      ]
+     "nome": "L M CARRO CLINICA MEDICA LTDA",
+     "beneficiarios_inferido": 9,
+     "sessoes_inferido": 173,
+     "custo_total_inferido": 34600.0,
+     "custo_total_redondo": true,
+     "intensidade": 19.22222222222222,
+     "custo_sessao": 200.0,
+     "size": 25.885286783042392
+    },
+    {
+     "nome": "RENATA DEMARCHI CARVALHO - ESPAÇO INTEGRAR",
+     "beneficiarios_inferido": 6,
+     "sessoes_inferido": 146,
+     "custo_total_inferido": 32200.0,
+     "custo_total_redondo": true,
+     "intensidade": 24.333333333333332,
+     "custo_sessao": 220.54794520547946,
+     "size": 21.845386533665838
+    },
+    {
+     "nome": "CLINICA INTEGRADA EM SAUDE LTDA",
+     "beneficiarios_inferido": 9,
+     "sessoes_inferido": 118,
+     "custo_total_inferido": 22440.0,
+     "custo_total_redondo": true,
+     "intensidade": 13.11111111111111,
+     "custo_sessao": 190.16949152542372,
+     "size": 17.65586034912718
+    },
+    {
+     "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+     "beneficiarios_inferido": 21,
+     "sessoes_inferido": 71,
+     "custo_total_inferido": 15620.0,
+     "custo_total_redondo": true,
+     "intensidade": 3.380952380952381,
+     "custo_sessao": 220.0,
+     "size": 10.623441396508728
+    },
+    {
+     "nome": "ANANDA VIEIRA MORAES",
+     "beneficiarios_inferido": 7,
+     "sessoes_inferido": 69,
+     "custo_total_inferido": 12474.56,
+     "custo_total_redondo": false,
+     "intensidade": 9.857142857142858,
+     "custo_sessao": 180.79072463768117,
+     "size": 10.324189526184538
+    },
+    {
+     "nome": "MARYANA ALVES DE SOUZA",
+     "beneficiarios_inferido": 5,
+     "sessoes_inferido": 68,
+     "custo_total_inferido": 11720.0,
+     "custo_total_redondo": true,
+     "intensidade": 13.6,
+     "custo_sessao": 172.35294117647058,
+     "size": 10.174563591022444
     }
-  ],
-  "totais_rede_inferidos": {
-    "sessoes": 14942,
-    "beneficiarios_soma_registros": 728,
-    "custo_total": 2345789.05,
-    "nota": "beneficiarios somados por registro; um mesmo beneficiario atendido em 2+ prestadores conta em duplicidade"
+   ]
+  },
+  {
+   "nome": "Baixo Alcance",
+   "clinicas": [
+    {
+     "nome": "ANA CAROLINA OLIVEIRA FARIA FALCAO LTDA",
+     "beneficiarios_inferido": 140,
+     "sessoes_inferido": 3230,
+     "custo_total_inferido": 387240.0,
+     "custo_total_redondo": true,
+     "intensidade": 23.071428571428573,
+     "custo_sessao": 119.88854489164086,
+     "size": 60.0
+    },
+    {
+     "nome": "🏠 Casa Unimed",
+     "beneficiarios_inferido": 222,
+     "sessoes_inferido": 2823,
+     "custo_total_inferido": 338760.0,
+     "custo_total_redondo": true,
+     "intensidade": 12.716216216216216,
+     "custo_sessao": 120.0,
+     "size": 52.43962848297214
+    },
+    {
+     "nome": "FLORESCER CLINICA DE PSICOLOGIA",
+     "beneficiarios_inferido": 24,
+     "sessoes_inferido": 572,
+     "custo_total_inferido": 90480.0,
+     "custo_total_redondo": true,
+     "intensidade": 23.833333333333332,
+     "custo_sessao": 158.1818181818182,
+     "size": 10.625386996904025
+    },
+    {
+     "nome": "ANDRE DE O GONCALVES",
+     "beneficiarios_inferido": 16,
+     "sessoes_inferido": 198,
+     "custo_total_inferido": 29700.0,
+     "custo_total_redondo": true,
+     "intensidade": 12.375,
+     "custo_sessao": 150.0,
+     "size": 3.6780185758513935
+    },
+    {
+     "nome": "GLAUCIA ROSA DA SILVA MANTESSO",
+     "beneficiarios_inferido": 26,
+     "sessoes_inferido": 183,
+     "custo_total_inferido": 29440.0,
+     "custo_total_redondo": true,
+     "intensidade": 7.038461538461538,
+     "custo_sessao": 160.87431693989072,
+     "size": 3.39938080495356
+    },
+    {
+     "nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA",
+     "beneficiarios_inferido": 6,
+     "sessoes_inferido": 147,
+     "custo_total_inferido": 19320.0,
+     "custo_total_redondo": true,
+     "intensidade": 24.5,
+     "custo_sessao": 131.42857142857142,
+     "size": 2.7306501547987616
+    },
+    {
+     "nome": "JOICE KELLY MARTINS MACIEL",
+     "beneficiarios_inferido": 4,
+     "sessoes_inferido": 76,
+     "custo_total_inferido": 7509.08,
+     "custo_total_redondo": false,
+     "intensidade": 19.0,
+     "custo_sessao": 98.80368421052631,
+     "size": 1.4117647058823528
+    },
+    {
+     "nome": "PATRICIA CRUZEIRO MARTINS AIOLFI",
+     "beneficiarios_inferido": 4,
+     "sessoes_inferido": 72,
+     "custo_total_inferido": 11520.0,
+     "custo_total_redondo": true,
+     "intensidade": 18.0,
+     "custo_sessao": 160.0,
+     "size": 1.3374613003095976
+    }
+   ]
+  },
+  {
+   "nome": "Alto Custo",
+   "clinicas": [
+    {
+     "nome": "ANANDA VIEIRA MORAES",
+     "beneficiarios_inferido": 29,
+     "sessoes_inferido": 1021,
+     "custo_total_inferido": 228960.0,
+     "custo_total_redondo": true,
+     "intensidade": 35.206896551724135,
+     "custo_sessao": 224.2507345739471,
+     "size": 60.0
+    },
+    {
+     "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA",
+     "beneficiarios_inferido": 23,
+     "sessoes_inferido": 862,
+     "custo_total_inferido": 174755.0,
+     "custo_total_redondo": true,
+     "intensidade": 37.47826086956522,
+     "custo_sessao": 202.73201856148492,
+     "size": 50.6562193927522
+    },
+    {
+     "nome": "PEQUENINHOS CLINICA LTDA",
+     "beneficiarios_inferido": 20,
+     "sessoes_inferido": 641,
+     "custo_total_inferido": 128200.0,
+     "custo_total_redondo": true,
+     "intensidade": 32.05,
+     "custo_sessao": 200.0,
+     "size": 37.66895200783545
+    },
+    {
+     "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO",
+     "beneficiarios_inferido": 19,
+     "sessoes_inferido": 573,
+     "custo_total_inferido": 102870.0,
+     "custo_total_redondo": true,
+     "intensidade": 30.157894736842106,
+     "custo_sessao": 179.52879581151834,
+     "size": 33.67286973555338
+    },
+    {
+     "nome": "BASTOS JARDIM LTDA",
+     "beneficiarios_inferido": 16,
+     "sessoes_inferido": 440,
+     "custo_total_inferido": 74970.0,
+     "custo_total_redondo": true,
+     "intensidade": 27.5,
+     "custo_sessao": 170.38636363636363,
+     "size": 25.85700293829579
+    },
+    {
+     "nome": "ESPACO NEUROPSI LTDA",
+     "beneficiarios_inferido": 5,
+     "sessoes_inferido": 274,
+     "custo_total_inferido": 62790.0,
+     "custo_total_redondo": true,
+     "intensidade": 54.8,
+     "custo_sessao": 229.16058394160584,
+     "size": 16.101860920666013
+    },
+    {
+     "nome": "MARYANA ALVES DE SOUZA LTDA",
+     "beneficiarios_inferido": 8,
+     "sessoes_inferido": 217,
+     "custo_total_inferido": 39060.0,
+     "custo_total_redondo": true,
+     "intensidade": 27.125,
+     "custo_sessao": 180.0,
+     "size": 12.752203721841333
+    },
+    {
+     "nome": "DESENVOLVA CLINICA DE DESENVOLVIMENTO INFANTIL",
+     "beneficiarios_inferido": 5,
+     "sessoes_inferido": 141,
+     "custo_total_inferido": 26550.0,
+     "custo_total_redondo": true,
+     "intensidade": 28.2,
+     "custo_sessao": 188.29787234042553,
+     "size": 8.285994123408424
+    },
+    {
+     "nome": "ANDREIA ARAUJO DE SOUZA AVELAR",
+     "beneficiarios_inferido": 3,
+     "sessoes_inferido": 116,
+     "custo_total_inferido": 21362.11,
+     "custo_total_redondo": false,
+     "intensidade": 38.666666666666664,
+     "custo_sessao": 184.15612068965518,
+     "size": 6.816846229187072
+    }
+   ]
+  },
+  {
+   "nome": "Eficiência ou Superutilização",
+   "clinicas": [
+    {
+     "nome": "RG ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
+     "beneficiarios_inferido": 39,
+     "sessoes_inferido": 1138,
+     "custo_total_inferido": 182080.0,
+     "custo_total_redondo": true,
+     "intensidade": 29.17948717948718,
+     "custo_sessao": 160.0,
+     "size": 60.0
+    },
+    {
+     "nome": "RESINTO ESPACO INTEGRADO LTDA",
+     "beneficiarios_inferido": 8,
+     "sessoes_inferido": 357,
+     "custo_total_inferido": 42720.0,
+     "custo_total_redondo": true,
+     "intensidade": 44.625,
+     "custo_sessao": 119.66386554621849,
+     "size": 18.82249560632689
+    },
+    {
+     "nome": "RENATA KELLY VAZ DE OLIVEIRA",
+     "beneficiarios_inferido": 2,
+     "sessoes_inferido": 75,
+     "custo_total_inferido": 9757.24,
+     "custo_total_redondo": false,
+     "intensidade": 37.5,
+     "custo_sessao": 130.09653333333333,
+     "size": 3.954305799648506
+    },
+    {
+     "nome": "AMANDA AFONSO JULIO",
+     "beneficiarios_inferido": 2,
+     "sessoes_inferido": 68,
+     "custo_total_inferido": 7652.18,
+     "custo_total_redondo": false,
+     "intensidade": 34.0,
+     "custo_sessao": 112.53205882352941,
+     "size": 3.585237258347979
+    },
+    {
+     "nome": "GEORGIA CRISTINA VILELA JANNUZZI",
+     "beneficiarios_inferido": 2,
+     "sessoes_inferido": 67,
+     "custo_total_inferido": 4968.88,
+     "custo_total_redondo": false,
+     "intensidade": 33.5,
+     "custo_sessao": 74.1623880597015,
+     "size": 3.532513181019332
+    }
+   ]
   }
+ ],
+ "totais_rede_inferidos": {
+  "sessoes": 14942,
+  "beneficiarios_soma_registros": 728,
+  "custo_total": 2345789.05,
+  "nota": "beneficiarios somados por registro; um mesmo beneficiario atendido em 2+ prestadores conta em duplicidade"
+ }
 }
