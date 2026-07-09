@@ -91,7 +91,7 @@ O Hub CSV é o centro documental da verdade sobre a infraestrutura do Grupo CSV 
 **Executado:** `llms.txt` corrigido (apontava o fluxo legado como norma); `skills/public-pages.md` atualizado (aviso de legado + 3 vias Open Pages + passo do extras.json + contrato do slot hub-auth); seção de sincronização de menus adicionada a `docs/_infra/public-pages.md`.
 
 **Atualização de 08/07/2026 (execução aprovada):**
-1. **⚠️ SEGURANÇA — parcialmente executado:** o token Bearer hardcoded (`OP_AUTH_TOKEN`) foi **removido** do `admin/index.html` (e da cópia `docs/public/admin/`): o admin agora pede o token uma única vez e o guarda em `localStorage` (`op_admin_token`; troca via `opSetToken()` no console). Auditoria dos workers revelou que a **rotação não exige tocar em código**: ambos validam contra o KV (`config:admin_token`) e expõem `POST /api/change-password` autenticado. A tool MCP `open_page_publish` grava direto no R2/KV — não é afetada pela rotação. **A rotação em si ficou bloqueada pelo modo automático da sessão** — procedimento pronto (2 comandos) entregue ao Guilherme, com lembrete de registrar o novo token no Vault do Notion.
+1. **⚠️ SEGURANÇA — ENCERRADO por decisão do Guilherme (08/07/2026):** o token Bearer hardcoded (`OP_AUTH_TOKEN`) foi **removido** do `admin/index.html` (e da cópia `docs/public/admin/`): o admin agora pede o token uma única vez (botão "Informar token") e o guarda em `localStorage` (`op_admin_token`), com tratamento de 401/403. **Ordem do Guilherme: o token NÃO será rotacionado** — risco considerado aceitável por não ter havido uso indevido; nenhum agente deve reabrir esta pendência nem rotacionar por conta própria. O procedimento de rotação (auditado: ambos os workers validam contra o KV `config:admin_token` e expõem `POST /api/change-password`; a tool MCP `open_page_publish` grava direto no R2/KV e não seria afetada) permanece documentado aqui apenas como referência, caso a decisão mude — nesse caso, registrar o novo valor no Vault do Notion.
 2. `tea-dataset` — ↩️ **REVERTIDO em 08/07/2026 por decisão do Guilherme** ("deve ficar exatamente como era antes; não mexer"): `/p/tea-dataset/` voltou a ser a página completa original (5.003 linhas), `icds/extras.json` voltou a apontar para `/p/tea-dataset/`, o `csv-email` segue emitindo a URL `/p/` e a taxonomia do manifest voltou a `webapp`. A duplicidade com `open.grupocsv.com/tea-dataset/` fica aceita conscientemente. Única diferença vs. estado original: o campo `origin_page` do `p/registry.json` (que apontava para `icds/tea.html`, arquivo que nunca existiu) ficou de fora — era metadado quebrado, invisível ao usuário, e reprovaria no guard-rail de links do CI.
 3. Portais axia/medvalor/thera — ✅ documentado em `docs/_infra/public-pages.md` (§ Sincronização de Menus): índices curados manualmente, sem menu dinâmico; incluí-los no gerador criaria artefatos que nada lê.
 
@@ -122,7 +122,18 @@ O Hub CSV é o centro documental da verdade sobre a infraestrutura do Grupo CSV 
 - Overlaps de `propostas.html`/`calc-plantao.html` derivados por análise estática de CSS (faixas de viewport estimadas).
 - Não confirmado por que o `manifest.json` commitado em junho carrega `lastUpdated` de março.
 
-## 9. Critérios de aceite globais
+## 9. Adendo — estado final consolidado (09/07/2026)
+
+Registro das decisões e entregas posteriores à execução do PRD, para que qualquer sessão futura (ou o Manus) retome do ponto exato:
+
+1. **Token Open Pages:** decisão encerrada — **não rotacionar** (ordem do Guilherme; ver §6.1). Token informado por ele no admin via botão "Informar token".
+2. **tea-dataset:** revertido — `/p/tea-dataset/` é a página completa oficial (ver §6.2); a duplicidade com a cópia no Open Pages é aceita. O redeploy do `csv-email` deixou de ser necessário (o worker já emite a URL `/p/` correta).
+3. **Página pública do painel ABA (Opção C):** publicada em `https://open.grupocsv.com/painel-tea/` com **Auth Gate embutido no HTML** (senha compartilhada do csv-open-auth, e-mails `@unimedgv.com.br`/`.coop.br`, notificação de acesso por e-mail, sessão de 4h) — trancada desde o primeiro byte, sem janela de exposição. Marcador `id="gate"` impede injeção dupla pelo worker. Não incluída no menu do portal (a versão autenticada `unimed/tea.html` já está lá).
+4. **Dados TEA:** o Guilherme enviará as planilhas oficiais — os novos recortes sairão dos dados reais (a reconstrução inferida `unimed/data/tea-reconstructed-2024.json` fica como referência de validação cruzada).
+5. **Migração ped-amb/vivapleno/scg100 para Open Pages:** confirmada como já realizada por outro agente (páginas ativas desde 05/07/2026); cópias locais permanecem no portal autenticado.
+6. **Memórias corrigidas:** os registros do Hindsight que afirmavam a canônica do tea-dataset e as pendências de rotação/redeploy foram invalidados com justificativa; o ACB recebeu os registros de supersessão (decisões #179/#180 superadas; atividades #2906/#2908/#2949/#2950).
+
+## 10. Critérios de aceite globais
 
 1. Nenhum elemento clicável coberto pelo widget de logout em nenhuma página autenticada.
 2. Zero "415"/tela branca na navegação do docs após a janela de deploy (ou captura HAR encaminhada se persistir).
