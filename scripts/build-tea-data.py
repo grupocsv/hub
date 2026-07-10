@@ -9,7 +9,8 @@ aplica as regras do LEIA-ME e gera exclusivamente agregados k-anonimizados:
   a) unimed/data/tea-2025-2026.json  (artefato canônico auditável)
   b) o mesmo JSON injetado em unimed/tea.html entre os marcadores
      <!-- TEA-DATA:BEGIN --> / <!-- TEA-DATA:END -->
-  c) --emit-public DIR : deriva a variante pública (Open Pages, gate embutido)
+  c) --emit-public DIR : deriva a variante pública (Open Pages; o gate de senha é
+                         EXCLUSIVO do Worker — auth_gate=true no slug, nunca embutido)
   d) --auditoria       : grava a fila nominal de auditoria AO LADO DO INSUMO
                          (fora do repo) — uso interno da operadora, jamais commitada
 
@@ -683,40 +684,17 @@ def emitir_publica(dir_saida):
     html = html.replace('href="/favicons/', 'href="https://hub.grupocsv.com/favicons/')
     html = html.replace('content="https://hub.grupocsv.com/unimed/tea.html"',
                         'content="https://open.grupocsv.com/painel-tea/"')
-    # gate embutido (id="gate" impede injeção dupla pelo Worker) — antes de </body>
-    gate = GATE_HTML
-    if 'id="gate"' not in html:
-        html = html.replace("</body>", gate + "\n</body>")
+    # GATE: NÃO embutir. O gate é responsabilidade EXCLUSIVA do Worker csv-open-pages
+    # (padrão do ecossistema, decisão do responsável em 10/07/2026): o slug deve ter
+    # auth_gate=true nos metadados ANTES de qualquer upload de conteúdo. Um marcador
+    # id="gate" no HTML suprimiria o gate padrão — por isso é proibido aqui.
+    if 'id="gate"' in html:
+        falha('variante pública contém id="gate" — gates customizados são proibidos (padrão = Worker)')
     os.makedirs(dir_saida, exist_ok=True)
     destino = os.path.join(dir_saida, "painel-tea.html")
     open(destino, "w", encoding="utf-8").write(html)
     print(f"variante pública: {destino} ({len(html.encode('utf-8')) // 1024} KB)")
     return destino
-
-
-GATE_HTML = """<div id="gate" style="position:fixed;inset:0;z-index:99999;background:#003c3a;display:flex;align-items:center;justify-content:center;padding:20px">
-<form id="gate-form" style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:36px 32px;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif;box-shadow:0 24px 64px rgba(0,0,0,.4)">
-<img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV" style="height:44px;margin-bottom:18px">
-<h1 style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel TEA — acesso restrito</h1>
-<p style="font-size:13px;color:#5c7f7d;margin:0 0 20px">Uso exclusivo Unimed Governador Valadares. Informe seu e-mail corporativo e a senha de acesso.</p>
-<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
-<input id="gate-email" type="email" required placeholder="nome@unimedgv.com.br" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:14px">
-<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">Senha</label>
-<input id="gate-pass" type="password" required style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:18px">
-<button type="submit" id="gate-btn" style="width:100%;background:#00995d;color:#fff;border:0;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Entrar</button>
-<p id="gate-msg" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
-</form></div>
-<script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://csv-open-auth.guilherme-thom.workers.dev/auth';
-function ok(){var g=document.getElementById('gate');if(g)g.remove();}
-try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.exp>Date.now()){ok();return;}}catch(e){}
-document.getElementById('gate-form').addEventListener('submit',function(ev){ev.preventDefault();
-var btn=document.getElementById('gate-btn'),msg=document.getElementById('gate-msg');
-btn.disabled=true;btn.textContent='Verificando…';msg.textContent='';
-fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,email:document.getElementById('gate-email').value.trim(),password:document.getElementById('gate-pass').value})})
-.then(function(r){return r.json().catch(function(){return{};}).then(function(j){return{s:r.status,j:j};});})
-.then(function(x){if(x.s===200&&x.j&&x.j.ok){try{localStorage.setItem(KEY,JSON.stringify({exp:Date.now()+4*3600*1000}));}catch(e){}ok();}
-else{msg.textContent=(x.j&&x.j.error)||'Acesso negado. Confira e-mail e senha.';btn.disabled=false;btn.textContent='Entrar';}})
-.catch(function(){msg.textContent='Falha de rede. Tente novamente.';btn.disabled=false;btn.textContent='Entrar';});});})();</script>"""
 
 
 def gravar_auditoria(regs, d, caminho_insumo):
