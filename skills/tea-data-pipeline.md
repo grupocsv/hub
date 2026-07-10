@@ -36,6 +36,17 @@ um repo git). Só agregados k-anonimizados (k=5) são versionáveis. O `.gitigno
 
 - `--auditoria` grava a fila nominal de auditoria **ao lado do insumo** (fora do repo) —
   artefato privado da operadora; nunca commitá-la nem publicá-la.
+- **Envio da fila ao EVS (passo 11 do rito):** canal ÚNICO autorizado = **csv-mail**
+  (skill `csv-mail`; endpoint `https://mail-api.grupocsv.com/send-template`, com os
+  headers obrigatórios `User-Agent: csv-mail-client/1.0` e `Authorization: Bearer
+  <CSV_MAIL_API_KEY>` — a chave fica na skill privada/VPS, **jamais** neste repo público).
+  Anexar o CSV completo (base64), remetente institucional `guilherme@mail.grupocsv.com`
+  (from_name "Painel TEA · EVS"), destinatários da operadora (teste vigente:
+  guilherme.thome@unimedgv.com.br + cc naline.rocha@unimedgv.com.br) e conferir
+  `GET /status/:id` até `delivered`. **PROIBIDO** enviar por Gmail/Zapier/Criale —
+  os e-mails da Unimed são só destinatários, nunca remetentes (regra do responsável,
+  10/07/2026; a rota `mail_send` do Extensio MCP estava com defeito 522 nesta data —
+  use o endpoint direto).
 - `--selftest` roda a fixture sintética `scripts/tests/tea-fixture-sintetica.csv`
   (cobre multi-carteirinha, fusão Casa Unimed, merge de CNPJ, k-anonimato, evento extremo).
   Rode após qualquer mudança no script.
