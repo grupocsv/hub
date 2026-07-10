@@ -211,6 +211,24 @@ def agregar(regs, corte):
         r["_prest"] = prestador_agrupado(r)
         r["_canal"] = canal_do(r)
 
+    # Exclusão de adultos com codificação incerta (regra E5, decisão de 10/07/2026):
+    # paciente 18+ na data de corte é MANTIDO só com engajamento sustentado (>=6 meses
+    # ativos); uso esparso sob procedimento "pediátrico" é removido por dúvida de
+    # codificação. Muda os totais do painel — documentado na view Método.
+    meses_pac0 = defaultdict(set); nasc0 = {}
+    for r in regs:
+        meses_pac0[r["_pac"]].add(r["anomes"])
+        nasc0.setdefault(r["_pac"], r["nasc"][:10])
+    excluir = {p for p, ms in meses_pac0.items()
+               if idade_em(nasc0[p], corte) >= 18 and len(ms) < 6}
+    reg_excl = [r for r in regs if r["_pac"] in excluir]
+    regs = [r for r in regs if r["_pac"] not in excluir]
+    adultos_excluidos = {
+        "n_pacientes": len(excluir), "registros": len(reg_excl),
+        "custo": r2(sum(r["_val"] for r in reg_excl)),
+        "sessoes": int(round(sum(r["_qtd"] for r in reg_excl))),
+        "regra": "18+ com <6 meses ativos"}
+
     meses = sorted({r["anomes"] for r in regs})
     pacientes = sorted({r["_pac"] for r in regs})
     custo_total = sum(r["_val"] for r in regs)
@@ -233,6 +251,7 @@ def agregar(regs, corte):
             "matriculas": len({r["matricula"] for r in regs}),
             "prestadores": len({r["_prest"] for r in regs}),
         },
+        "adultos_excluidos": adultos_excluidos,
     }
 
     # ---- série mensal ----
@@ -734,8 +753,10 @@ def selftest():
     erros = validar(d, regs)
     assert not erros, f"fixture reprovou nas validações: {erros}"
     c = d["meta"]["contagens"]
-    assert c["pacientes"] == 9, f"fixture: esperado 9 pacientes, veio {c['pacientes']}"
-    assert c["matriculas"] == 10, f"fixture: esperado 10 matrículas (multi-carteirinha), veio {c['matriculas']}"
+    # a fixture tem 9 pacientes, 1 deles adulto (26 anos) com 2 meses ativos → excluído (regra E5)
+    assert d["meta"]["adultos_excluidos"]["n_pacientes"] == 1, "exclusão de adulto (E5) não aplicada"
+    assert c["pacientes"] == 8, f"fixture: esperado 8 pacientes após exclusão do adulto, veio {c['pacientes']}"
+    assert c["matriculas"] == 9, f"fixture: esperado 9 matrículas, veio {c['matriculas']}"
     assert c["prestadores"] == 5, f"fixture: esperado 5 prestadores agrupados, veio {c['prestadores']}"
     nomes = {x["nome"] for x in d["ranking_prestadores"]}
     assert CASA_UNIMED in nomes and NOME_MERGE_CNPJ in nomes, "fusões do LEIA-ME não aplicadas"
@@ -744,15 +765,15 @@ def selftest():
     ev = d["qualidade"]["eventos_extremos"]
     assert ev and ev[0]["prestador"] is None, "evento extremo de prestador pequeno saiu nomeado"
     blob = json.dumps(d, ensure_ascii=False).upper()
-    assert "CRIANCA" not in blob and "MENINO" not in blob, "nome de beneficiário vazou no JSON"
-    # teste de mutação: remover 1 paciente → revalida com totais novos
+    assert "CRIANCA SINTETICA" not in blob and "ADULTO SINTETICO" not in blob, "nome de beneficiário vazou no JSON"
+    # teste de mutação: remover 1 paciente → revalida com totais novos (8 - UM - adulto já fora = 7)
     regs2 = [dict(zip(COLS, [c.strip() for c in row])) for row in linhas
              if row[2].strip() != "CRIANCA SINTETICA UM"]
     d2, regs2 = agregar(regs2, date(2026, 6, 30))
     assert not validar(d2, regs2), "mutação: validações estruturais reprovaram"
-    assert d2["meta"]["contagens"]["pacientes"] == 8, "mutação: contagem não caiu para 8"
+    assert d2["meta"]["contagens"]["pacientes"] == 7, "mutação: contagem não caiu para 7"
     print("selftest OK — fixture sintética passou em todas as validações "
-          "(regras do LEIA-ME, k-anonimato, evento extremo, anti-vazamento, mutação)")
+          "(regras do LEIA-ME, exclusão de adultos, k-anonimato, evento extremo, anti-vazamento, mutação)")
 
 
 def main():
