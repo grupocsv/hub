@@ -435,6 +435,14 @@ O painel dirá isso explicitamente na view Método — honestidade metodológica
 
 ## 11. Perguntas em aberto para o Guilherme
 
+> **Respostas do Guilherme (09–10/07/2026) — perguntas encerradas:**
+> **1. Adultos 18+:** perfil detalhado apresentado (11 de 21 são jovens de 18–21 anos em continuidade de cuidado; 10 casos de 22–78 anos com uso pontual, prováveis erros de codificação a validar). Card permanece "em validação com a operadora".
+> **2. Prestadores nomeados na cópia pública:** AUTORIZADO ("Pode nomear").
+> **3. Matriz solicitante × executante:** APROVADA ("Quero") — implementada na view Prestadores (card "Quem prescreve para quem": gráfico + tabela dos 12 maiores solicitantes, cobertura de 51,0% do custo, concentração ≥80% destacada; bloco `solicitante_executante` no pipeline, sem contagens de pacientes).
+> **4. Fila nominal de auditoria:** destinatário é o EVS, por e-mail; teste iniciado com guilherme.thome@unimedgv.com.br e naline.rocha@unimedgv.com.br (emissão de teste enviada pelo csv-mail). Formato/periodicidade a calibrar com o retorno deles.
+> **5. Bucket R2 privado:** AUTORIZADO — `csv-dados-sensiveis` criado em 09/07/2026.
+> **6. Projeção na cópia pública:** sem objeção manifestada; mantida nas duas variantes até ordem em contrário.
+
 1. **Adultos 18+** (21 pacientes, idades até 78, R$ 37.943,73 num código pediátrico): validar com a Unimed GV se é codificação equivocada ou cobertura legítima **antes** de o painel público rotular como inconsistência — até lá o card usa linguagem neutra ("em validação com a operadora"). Como prefere tratar?
 2. **Nomear os prestadores caros na cópia pública com gate** (Pediakids, Ananda Vieira Moraes, Com Affeto, com "economia potencial" em R$): o link circula na diretoria da Unimed e pode chegar à rede. Mantém nominal (recomendação — já é prática do painel atual) ou anonimiza apenas o gráfico de economia na variante pública?
 3. **Matriz solicitante × prestador executante** (quem prescreve para quem): os dados existem e os nomes são de profissionais, mas a análise marcou "validar politicamente antes de publicar". Entra na v2, guarda para v2.x, ou descarta?
