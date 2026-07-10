@@ -510,6 +510,38 @@ def agregar(regs, corte):
                        "sessoes": int(round(sum(spm[(p, m)] for (p, m) in spm if p in ad)))},
     }
 
+    # ---- matriz solicitante × executante (decisão do responsável, 09/07/2026) ----
+    # Nomes de solicitantes são profissionais remunerados (mesma classe dos prestadores).
+    # Nenhuma contagem de pacientes por par — só custo/sessões/registros (sem risco k).
+    com_sol = [r for r in regs if "NÃO INFORMADO" not in r["nome_sol"].upper()
+               and r["nome_sol"].strip() not in ("-", "")]
+    sol = defaultdict(lambda: {"c": 0.0, "s": 0.0, "n": 0, "cbos": Counter(),
+                               "exec": defaultdict(float)})
+    for r in com_sol:
+        e = sol[r["nome_sol"].strip()]
+        e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["n"] += 1
+        e["cbos"][r["cbos"]] += 1
+        e["exec"][r["_prest"]] += r["_val"]
+    top_sol = sorted(sol.items(), key=lambda kv: -kv[1]["c"])[:12]
+    lista_sol = []
+    for nome, e in top_sol:
+        exs = sorted(e["exec"].items(), key=lambda kv: -kv[1])
+        top3 = [{"nome": n2, "custo": r2(v), "pct": r2(v / e["c"] * 100)} for n2, v in exs[:3]]
+        outros = sum(v for _, v in exs[3:])
+        if outros > 0:
+            top3.append({"nome": "Outros", "custo": r2(outros), "pct": r2(outros / e["c"] * 100)})
+        lista_sol.append({
+            "nome": nome, "cbos": e["cbos"].most_common(1)[0][0],
+            "custo": r2(e["c"]), "sessoes": int(round(e["s"])),
+            "n_executantes": len(exs),
+            "principal": exs[0][0], "principal_pct": r2(exs[0][1] / e["c"] * 100)})
+    c_com_sol = sum(r["_val"] for r in com_sol)
+    d["solicitante_executante"] = {
+        "cobertura": {"registros_pct": r2(len(com_sol) / len(regs) * 100),
+                      "custo_pct": r2(c_com_sol / custo_total * 100)},
+        "solicitantes_distintos": len(sol),
+        "solicitantes": lista_sol}
+
     # ---- projeção (3 cenários; premissas explícitas) ----
     d["projecao"] = projetar(sm, meses)
 

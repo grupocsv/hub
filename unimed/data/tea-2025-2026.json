@@ -555,7 +555,7 @@
    "sessoes": 28979
   },
   "data_corte": "2026-06-30",
-  "gerado_em": "2026-07-09",
+  "gerado_em": "2026-07-10",
   "painel": "Painel Estratégico TEA — Terapia ABA · Psicologia (50005103)",
   "periodo": {
    "competencias": 18,
@@ -2883,6 +2883,123 @@
     ]
    }
   }
+ },
+ "solicitante_executante": {
+  "cobertura": {
+   "custo_pct": 50.99,
+   "registros_pct": 82.11
+  },
+  "solicitantes": [
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 1523026.0,
+    "n_executantes": 10,
+    "nome": "UNIMED GOVERNADOR VALADARES",
+    "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)",
+    "principal_pct": 55.03,
+    "sessoes": 9959
+   },
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 272040.0,
+    "n_executantes": 1,
+    "nome": "ALINE TEIXEIRA CAMPOS FONSECA",
+    "principal": "CASA UNIMED",
+    "principal_pct": 100.0,
+    "sessoes": 2267
+   },
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 179040.0,
+    "n_executantes": 1,
+    "nome": "KELLY CRISTINE BATISTA CRUZ",
+    "principal": "CASA UNIMED",
+    "principal_pct": 100.0,
+    "sessoes": 1492
+   },
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 111360.0,
+    "n_executantes": 1,
+    "nome": "MICHELLE APARECIDA ALEIXO SILVEIRA",
+    "principal": "CASA UNIMED",
+    "principal_pct": 100.0,
+    "sessoes": 928
+   },
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 82320.0,
+    "n_executantes": 1,
+    "nome": "NEILSON COSTA RIBEIRO",
+    "principal": "CASA UNIMED",
+    "principal_pct": 100.0,
+    "sessoes": 686
+   },
+   {
+    "cbos": "Médico Hematologista",
+    "custo": 48050.0,
+    "n_executantes": 2,
+    "nome": "RINARA GROSSI ROCHA DE ANDRADE",
+    "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "principal_pct": 51.74,
+    "sessoes": 290
+   },
+   {
+    "cbos": "Médico neurologista",
+    "custo": 44042.0,
+    "n_executantes": 3,
+    "nome": "MARIANNA SOTTE DA SILVA",
+    "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "principal_pct": 70.43,
+    "sessoes": 241
+   },
+   {
+    "cbos": "Psicologo clinico",
+    "custo": 42480.0,
+    "n_executantes": 1,
+    "nome": "MARINA SILVA PAIVA FERREIRA",
+    "principal": "CASA UNIMED",
+    "principal_pct": 100.0,
+    "sessoes": 354
+   },
+   {
+    "cbos": "Médico clínico",
+    "custo": 6060.0,
+    "n_executantes": 2,
+    "nome": "ISAIAS DE ASSIS NEVES",
+    "principal": "JC ORTOPEDIA LTDA",
+    "principal_pct": 59.41,
+    "sessoes": 50
+   },
+   {
+    "cbos": "Médico pediatra",
+    "custo": 4216.0,
+    "n_executantes": 2,
+    "nome": "GABRIELA ALVIM PEREIRA THOME",
+    "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "principal_pct": 52.18,
+    "sessoes": 26
+   },
+   {
+    "cbos": "Médico neurologista",
+    "custo": 4056.0,
+    "n_executantes": 2,
+    "nome": "MATEUS NADER CUNHA",
+    "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)",
+    "principal_pct": 62.03,
+    "sessoes": 27
+   },
+   {
+    "cbos": "Médico pediatra",
+    "custo": 3972.0,
+    "n_executantes": 2,
+    "nome": "RONALD DE MELO COSTA",
+    "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)",
+    "principal_pct": 94.46,
+    "sessoes": 30
+   }
+  ],
+  "solicitantes_distintos": 28
  },
  "tipo_pagamento": [
   {
