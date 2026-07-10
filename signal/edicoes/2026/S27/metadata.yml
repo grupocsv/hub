@@ -1,0 +1,10 @@
+edition: S27
+year: 2026
+period: "29/06 a 03/07/2026"
+generated: "2026-07-10"
+dictionary_version: "v4.5"
+facts_count: 6
+new_terms: 4
+sources:
+  notion_pages: 7
+  gmail_messages: 30
