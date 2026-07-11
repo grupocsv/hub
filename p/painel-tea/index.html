@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel Estratégico TEA — Terapia ABA · Psicologia | Unimed GV</title>
+<meta name="description" content="Painel analítico da terapia ABA (psicologia) da Unimed Governador Valadares: custo, evolução mensal, prestadores, perfil de pacientes e canais de pagamento — jan/2025 a jun/2026.">
+<meta name="hub-category" content="dashboard">
+<meta name="hub-entity" content="Unimed GV">
+
+<link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Painel Estratégico TEA — Terapia ABA · Psicologia | Unimed GV">
+<meta property="og:description" content="Custo, evolução, prestadores, perfil de pacientes e canais de pagamento da terapia ABA (psicologia) — 18 competências oficiais.">
+<meta property="og:url" content="https://hub.grupocsv.com/p/painel-tea/">
+<meta property="og:image" content="https://hub.grupocsv.com/assets/og/og_tea.png">
+<meta name="theme-color" content="#004e4c">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet"></noscript>
+
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+<style>
+
+:root {
+  --u-green: #00995d;
+  --u-green-dark: #006b41;
+  --u-citrus: #8baf1f;
+  --u-dark: #004e4c;
+  --u-dark-2: #003c3a;
+  --u-orange: #f47920;
+  --u-paper: #fafaf7;
+  --card: #ffffff;
+  --line: #dfe3db;
+  --line-soft: #eef0ea;
+  --ink: #103f3d;
+  --ink-2: #3f6260;
+  --ink-3: #5c7f7d;
+  --ink-4: #8aa3a1;
+  --green-100: #eef7f0;
+  --green-200: #d9eee1;
+  --red: #c0392b;
+  --amber: #b7791f;
+  --radius-card: 12px;
+  --radius-box: 28px;
+  --shadow-card: none;
+  --font-sans: 'Source Sans 3','Segoe UI',Arial,Helvetica,sans-serif;
+  --font-serif: 'Source Serif 4','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --sidebar-w: 250px;
+  --topbar-h: 64px;
+  --tabbar-h: 62px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--u-paper);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern","liga","tnum";
+  overscroll-behavior-y: none;
+}
+a { color: var(--u-dark); }
+button { font-family: var(--font-sans); }
+::selection { background: rgba(0,153,93,0.18); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccd6cf; border-radius: 8px; border: 2px solid var(--u-paper); }
+::-webkit-scrollbar-thumb:hover { background: #b3c2b8; }
+
+/* ============================ APP SHELL ============================ */
+.app { display: flex; min-height: 100dvh; }
+
+/* ---------- Sidebar (desktop) ---------- */
+.sidebar {
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  background: var(--u-dark);
+  color: #fff;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px 18px;
+  z-index: 60;
+}
+.sb-brand { padding: 2px 6px 18px; }
+.sb-logo { display: block; }
+.sb-logo img { height: 52px; width: auto; display: block; margin-left: -2px; }
+.sb-app-name { margin-top: 16px; font-size: 17px; font-weight: 650; letter-spacing: 0.1px; color: #fff; line-height: 1.25; }
+.sb-app-sub { font-size: 11.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+.sb-period {
+  margin: 14px 6px 4px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.78);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  display: inline-block;
+}
+.sb-nav { margin-top: 14px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 13px;
+  border-radius: 9999px;
+  color: rgba(255,255,255,0.74);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav-item svg { width: 19px; height: 19px; flex: 0 0 19px; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: var(--u-green); color: #fff; font-weight: 600; }
+.sb-foot { padding: 16px 6px 0; border-top: 1px solid rgba(255,255,255,0.12); }
+.sb-foot .sb-foot-logos { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+.sb-foot .sb-foot-logos img.lg-evs { height: 44px; width: auto; }
+.sb-foot .sb-foot-logos img.lg-unimed { height: 30px; width: auto; }
+.sb-foot .sf-line { font-size: 10.5px; color: rgba(255,255,255,0.55); line-height: 1.45; }
+
+/* ---------- Main column ---------- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250,250,247,0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 30px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: var(--topbar-h);
+}
+.tb-titles { min-width: 0; flex: 1; }
+.tb-title { font-size: 19px; font-weight: 650; color: var(--u-dark); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-sub { font-size: 12px; color: var(--ink-3); font-family: var(--font-serif); font-style: italic; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-chips { display: flex; gap: 8px; align-items: center; flex: 0 0 auto; }
+.chip {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--u-dark);
+  background: var(--green-100);
+  border: 1px solid var(--green-200);
+  border-radius: 9999px;
+  padding: 5px 13px;
+  white-space: nowrap;
+}
+.chip.soft { background: #fff; border-color: var(--line); color: var(--ink-3); font-weight: 500; }
+.tb-brand-m { display: none; }
+.tb-info-btn { display: none; }
+
+/* ---------- Content ---------- */
+.content { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: 26px 30px 46px; }
+.view { display: none; }
+.view.active { display: block; animation: viewIn 0.25s ease; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.v-lead { font-size: 13.5px; color: var(--ink-2); font-family: var(--font-serif); max-width: 860px; margin-bottom: 20px; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.card-hd { border-bottom: 1px solid var(--line-soft); padding-bottom: 12px; margin-bottom: 16px; }
+.card-title { font-size: 14.5px; font-weight: 650; color: var(--u-dark); }
+.card-sub { font-size: 11.5px; color: var(--ink-3); font-family: var(--font-serif); font-style: italic; margin-top: 2px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-2 .card { margin-bottom: 0; }
+.grid-2 { margin-bottom: 16px; }
+
+.sec-label {
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-3);
+  margin: 26px 2px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+/* ---------- KPI grid ---------- */
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-bottom: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.kpi-card {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: 0;
+  padding: 16px 20px 14px;
+}
+.kpi-grid .kpi-card:nth-child(3n) { border-right: none; }
+.kpi-grid .kpi-card:nth-child(n+4) { border-bottom: none; }
+.kpi-card .label { font-size: 10.5px; letter-spacing: 1.1px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); }
+.kpi-card .num { font-size: 27px; font-weight: 650; color: var(--u-dark); line-height: 1.15; margin-top: 5px; font-variant-numeric: tabular-nums; }
+.kpi-card .num .unit { font-size: 15px; font-weight: 600; color: var(--ink-3); margin-left: 1px; }
+.kpi-card .sub { font-size: 11.5px; color: var(--ink-4); font-family: var(--font-serif); font-style: italic; margin-top: 2px; }
+
+/* KPI trio inside cards (cancelamento, ociosidade, interanual) */
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-cell { background: var(--u-paper); border: 1px solid var(--line-soft); border-radius: 10px; padding: 12px 15px; }
+.kpi-cell .label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); }
+.kpi-cell .num, .kpi-cell .big { font-size: 21px; font-weight: 650; color: var(--u-dark); margin-top: 4px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kpi-cell .sub { font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+
+/* ---------- Insight / pullquote ---------- */
+.insight {
+  background: var(--green-100);
+  border: 1px solid var(--green-200);
+  border-left: 3px solid var(--u-green);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  font-family: var(--font-serif);
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--u-dark);
+}
+.insight strong { color: var(--u-green-dark); }
+.insight cite { display: block; font-size: 11.5px; font-style: italic; color: var(--ink-3); margin-top: 10px; font-family: var(--font-serif); }
+
+/* ---------- Status cards (visão geral) ---------- */
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.status-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px 18px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+.status-card:hover { border-color: var(--u-green); transform: translateY(-1px); }
+.status-card .label { font-size: 10.5px; letter-spacing: 1.1px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); display: flex; justify-content: space-between; align-items: center; }
+.status-card .label .go { font-size: 11px; letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--u-green-dark); }
+.status-card .num { font-size: 24px; font-weight: 650; color: var(--u-dark); margin-top: 5px; font-variant-numeric: tabular-nums; }
+.status-card .sub { font-size: 11.5px; color: var(--ink-4); margin-top: 1px; }
+
+/* ---------- Achados ---------- */
+.achados { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.achado {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--u-dark);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.achado.amber { border-top-color: var(--amber); }
+.achado.amber .kicker { color: var(--amber); }
+.achado.green { border-top-color: var(--u-green); }
+.achado.green .kicker { color: var(--u-green-dark); }
+.achado .kicker { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); }
+.achado h4 { font-size: 13.5px; font-weight: 650; color: var(--u-dark); line-height: 1.35; margin: 6px 0 8px; }
+.achado .metric { font-size: 19px; font-weight: 650; color: var(--u-dark); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+.achado p { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+.achado ul { margin: 8px 0 0 16px; font-size: 12px; color: var(--ink-2); }
+.achado li { margin-bottom: 2px; }
+
+/* ---------- Charts ---------- */
+.chart-box { position: relative; height: 300px; }
+.chart-box.tall { height: 380px; }
+.chart-box.med { height: 330px; }
+.chart-box.short { height: 220px; }
+
+/* ---------- Narrative ---------- */
+.narrative { font-size: 13px; color: var(--ink-2); line-height: 1.6; max-width: 860px; margin-top: 14px; }
+.note-card { background: var(--u-paper); border: 1px solid var(--line-soft); border-radius: 14px; padding: 16px 18px; }
+.note-card .nc-label { font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); margin-bottom: 8px; }
+.note-card p { font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
+
+/* ---------- Heatmap ---------- */
+.scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
+.scroll-hint { display: none; font-size: 11px; color: var(--ink-4); margin-bottom: 8px; }
+.heatmap { display: grid; grid-template-columns: 44px repeat(24, minmax(24px, 1fr)); gap: 3px; min-width: 760px; }
+.heatmap .h-head { font-size: 9.5px; color: var(--ink-4); text-align: center; font-weight: 600; padding-bottom: 2px; }
+.heatmap .h-lbl { font-size: 10.5px; color: var(--ink-3); font-weight: 600; display: flex; align-items: center; }
+.heatmap .cell { height: 26px; border-radius: 6px; background: #f0f2ec; cursor: default; }
+.heatmap .cell:not(.z):hover { outline: 2px solid var(--u-dark); outline-offset: -1px; cursor: pointer; }
+.hm-legend { font-size: 11px; color: var(--ink-3); margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+.hm-legend .scale { display: inline-block; width: 130px; height: 10px; border-radius: 5px; background: linear-gradient(to right, #f0f2ec, #00995d, #004e4c); }
+.hm-tooltip {
+  position: fixed;
+  background: rgba(0,60,58,0.97);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 13px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  z-index: 300;
+  white-space: nowrap;
+}
+.hm-tooltip.visible { opacity: 1; }
+
+/* ---------- Tabela prestadores ---------- */
+.t-tools { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.t-tools input {
+  flex: 1;
+  min-width: 220px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.t-tools input:focus { border-color: var(--u-green); }
+.t-tools .info { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.t-wrap { border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+table.rank { width: 100%; border-collapse: collapse; min-width: 640px; }
+table.rank th {
+  font-size: 10.5px;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+table.rank th:hover { color: var(--u-dark); }
+table.rank th.sort-asc::after { content: ' \2191'; color: var(--u-green-dark); }
+table.rank th.sort-desc::after { content: ' \2193'; color: var(--u-green-dark); }
+table.rank td { font-size: 13px; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); color: var(--ink-2); }
+table.rank tbody tr:last-child td { border-bottom: none; }
+table.rank td.num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+table.rank td.prest { font-weight: 600; color: var(--u-dark); }
+table.rank tbody tr.clickable { cursor: pointer; }
+table.rank tbody tr.clickable:hover { background: var(--green-100); }
+table.rank tbody tr.no-detail { cursor: default; }
+.detail-icon { width: 14px; height: 14px; vertical-align: -2px; margin-left: 6px; color: var(--u-green); }
+tr.no-detail .detail-icon { display: none; }
+@keyframes chevPulse { 0%,100% { transform: translateX(0); opacity: 1; } 50% { transform: translateX(4px); opacity: 0.5; } }
+.detail-icon.pulse { animation: chevPulse 0.9s ease 3; }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,40,38,0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4dvh 16px;
+  z-index: 400;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  position: relative;
+  padding: 26px 28px 28px;
+}
+.modal-close {
+  position: sticky;
+  top: 0px;
+  float: right;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--u-dark);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+}
+.modal-close:hover { background: var(--green-100); }
+.modal-hd { padding-right: 48px; margin-bottom: 18px; }
+.modal-hd h3 { font-size: 20px; font-weight: 650; color: var(--u-dark); line-height: 1.25; }
+.modal-esp { font-size: 12.5px; color: var(--ink-3); font-family: var(--font-serif); font-style: italic; margin-top: 3px; }
+.modal-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.modal-kpi { background: var(--u-paper); border: 1px solid var(--line-soft); border-radius: 14px; padding: 10px 14px; }
+.mk-val { display: block; font-size: 18px; font-weight: 650; color: var(--u-dark); font-variant-numeric: tabular-nums; }
+.mk-lbl { display: block; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); margin-top: 2px; }
+.modal-section { margin-bottom: 24px; }
+.modal-section:last-child { margin-bottom: 0; }
+.modal-section h4 { font-size: 13.5px; font-weight: 650; color: var(--u-dark); margin-bottom: 12px; }
+.modal-chart { position: relative; height: 240px; }
+.modal-chart.tall { height: 320px; }
+.censo-tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.censo-tools input {
+  flex: 1;
+  min-width: 180px;
+  font-size: 12.5px;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 8px 14px;
+  outline: none;
+  font-family: var(--font-sans);
+}
+.censo-tools input:focus { border-color: var(--u-green); }
+.censo-tools button {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--u-dark);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.censo-tools button:hover { background: var(--green-100); border-color: var(--green-200); }
+.acc-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--u-paper);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--u-dark);
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.acc-hd:hover { background: var(--green-100); }
+.acc-arrow { font-size: 10px; transition: transform 0.15s ease; }
+.acc-hd.open .acc-arrow { transform: rotate(180deg); }
+.acc-body { display: none; margin: 4px 0 12px; }
+.acc-body.open { display: block; }
+.acc-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.acc-body th { text-align: left; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-3); padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.acc-body td { padding: 6px 10px; border-bottom: 1px solid var(--line-soft); color: var(--ink-2); }
+.censo-pagination { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 10px 0 2px; font-size: 11.5px; color: var(--ink-3); }
+.censo-pagination button {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--u-dark);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.censo-pagination button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---------- Toast ---------- */
+.interactivity-toast {
+  position: fixed;
+  bottom: calc(var(--tabbar-h) + 18px);
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--u-dark);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 11px 20px;
+  border-radius: 9999px;
+  box-shadow: 0 6px 24px rgba(0,40,38,0.3);
+  z-index: 500;
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
+  pointer-events: none;
+  text-align: center;
+  max-width: 90vw;
+  line-height: 1.4;
+}
+.interactivity-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ---------- Método ---------- */
+.metodo-block { max-width: 900px; }
+.metodo-block .card p { font-size: 13px; color: var(--ink-2); line-height: 1.65; font-family: var(--font-serif); margin-bottom: 12px; }
+.metodo-block .card p:last-child { margin-bottom: 0; }
+.metodo-block .card p strong { color: var(--u-dark); font-family: var(--font-sans); font-size: 12.5px; }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.about-item { background: var(--u-paper); border: 1px solid var(--line-soft); border-radius: 14px; padding: 12px 15px; }
+.about-item .ai-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--ink-3); }
+.about-item .ai-val { font-size: 13.5px; font-weight: 600; color: var(--u-dark); margin-top: 3px; line-height: 1.35; }
+
+/* ---------- Footer institucional (leve) ---------- */
+.site-footer { margin-top: 44px; border-top: 1px solid var(--line); padding: 26px 4px 6px; }
+.sf-logos { display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; }
+.sf-logos a { display: flex; align-items: center; text-decoration: none; border: none; border-radius: 8px; }
+.sf-logos a:hover img { opacity: 1; filter: none; }
+.sf-logos img { width: auto; display: block; opacity: 0.92; filter: saturate(0.96); transition: opacity 0.15s ease, filter 0.15s ease; }
+.sf-logos img.lg-unimedgv { height: 28px; }
+.sf-logos img.lg-evs { height: 46px; }
+.sf-logos img.lg-axia { height: 34px; }
+.sf-logos img.lg-gcsv { height: 32px; }
+.sf-sep { width: 1px; height: 26px; background: var(--line); }
+.sf-legal { text-align: center; margin-top: 18px; }
+.sf-legal p { font-size: 10.5px; color: var(--ink-4); line-height: 1.75; }
+.sf-legal a { color: var(--ink-3); text-decoration: none; border-bottom: 1px solid var(--line); }
+.sf-legal a:hover { color: var(--u-dark); border-bottom-color: var(--u-green); }
+
+/* ---------- Tabbar (mobile) ---------- */
+.tabbar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--u-dark);
+  box-shadow: 0 -4px 18px rgba(0,40,38,0.18);
+  z-index: 100;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+}
+.tabbar .tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; max-width: 560px; margin: 0 auto; }
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px 5px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.68);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tab-item svg { width: 21px; height: 21px; }
+.tab-item.active { background: var(--u-green); color: #fff; }
+.tab-item.active svg { color: #fff; }
+
+/* ---------- Error ---------- */
+.err-card { background: #fef2f2; border: 1px solid #f3c9c4; border-radius: var(--radius-card); padding: 22px 24px; color: var(--red); font-size: 14px; margin: 40px auto; max-width: 560px; }
+
+/* ============================ RESPONSIVO ============================ */
+@media (max-width: 1150px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .achados { grid-template-columns: 1fr; }
+}
+@media (max-width: 1023px) {
+  .sidebar { display: none; }
+  .tabbar { display: block; }
+  .content { padding: 18px 16px calc(var(--tabbar-h) + 34px); }
+  .topbar { padding: 10px 16px; min-height: 58px; }
+  .tb-brand-m { display: flex; align-items: center; margin-right: 2px; flex: 0 0 auto; }
+  .tb-brand-m img { height: 24px; width: auto; }
+  .tb-info-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--u-dark);
+    cursor: pointer;
+    flex: 0 0 36px;
+  }
+  .tb-info-btn svg { width: 18px; height: 18px; }
+  .tb-chips .chip.hide-m { display: none; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .modal-overlay { padding: 0; align-items: stretch; }
+  .modal { border-radius: 20px 20px 0 0; max-height: 100dvh; margin-top: 4dvh; }
+}
+@media (max-width: 640px) {
+  .tb-chips { display: none; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid .kpi-card:nth-child(3n) { border-right: 1px solid var(--line-soft); }
+  .kpi-grid .kpi-card:nth-child(2n) { border-right: none; }
+  .kpi-grid .kpi-card:nth-child(n+4) { border-bottom: 1px solid var(--line-soft); }
+  .kpi-grid .kpi-card:nth-child(n+5) { border-bottom: none; }
+  .kpi-card .num { font-size: 22px; }
+  .kpi-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpi-cell { padding: 10px 11px; }
+  .kpi-cell .num, .kpi-cell .big { font-size: 16px; }
+  .status-grid { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+  .chart-box { height: 260px; }
+  .chart-box.tall { height: 340px; }
+  .scroll-hint { display: block; }
+  .tb-title { font-size: 16.5px; }
+  .tb-sub { display: none; }
+  .content { padding: 14px 12px calc(var(--tabbar-h) + 30px); }
+  .card { padding: 16px 16px; border-radius: 18px; }
+  .site-footer { margin-top: 32px; padding-top: 22px; }
+  .sf-logos { gap: 20px; }
+  .sf-logos img.lg-unimedgv { height: 22px; }
+  .sf-logos img.lg-evs { height: 38px; }
+  .sf-logos img.lg-axia { height: 26px; }
+  .sf-logos img.lg-gcsv { height: 24px; }
+  .sf-sep { display: none; }
+  .modal { padding: 20px 16px 22px; }
+  .modal-kpis { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== extensões específicas do Painel TEA ===== */
+.tb-voltar{font-size:12px;font-weight:600;color:var(--ink-3);text-decoration:none;border:1px solid var(--line);border-radius:9999px;padding:6px 12px;white-space:nowrap}
+.tb-voltar:hover{color:var(--u-green-dark);border-color:var(--u-green)}
+.sim-box{display:flex;flex-direction:column;gap:14px}
+.sim-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sim-row input[type=range]{flex:1;min-width:160px;accent-color:var(--u-green)}
+.sim-val{font-size:15px;font-weight:700;color:var(--u-dark);min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+.sim-out{display:flex;gap:26px;flex-wrap:wrap}
+.sim-out .metric .num{font-size:24px}
+.fallback-box{border:1px dashed var(--line);border-radius:12px;padding:18px;font-size:13px;color:var(--ink-3);background:var(--u-paper)}
+.fallback-box a{color:var(--u-green-dark);font-weight:600}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+/* Método e Fontes: respiro entre título do card e conteúdo */
+.metodo-block.card{margin-bottom:16px}
+.metodo-block.card h3{font-family:var(--font-sans);font-size:15.5px;font-weight:650;color:var(--u-dark);margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
+.metodo-block.card ul{margin:0;padding-left:20px;list-style:disc}
+.metodo-block.card li{font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:9px;font-family:var(--font-serif)}
+.metodo-block.card li:last-child{margin-bottom:0}
+.metodo-block.card li strong{font-family:var(--font-sans);font-size:12.5px;color:var(--u-dark)}
+.metodo-block.card code{font-size:12px;background:var(--u-paper);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px}
+/* Tabelas não-ordenáveis não devem sugerir clique */
+#se_tabela th,#ca_tabela th{cursor:default}
+#se_tabela th:hover,#ca_tabela th:hover{color:var(--ink-3)}
+.t-tools{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.t-tools input[type=search]{flex:1;min-width:180px;font-size:16px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;outline:none}
+.t-tools input[type=search]:focus{border-color:var(--u-green)}
+/* Selo e identidade da seção Coorte CTE (universo distinto) */
+.selo{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#fff;background:var(--u-dark);border-radius:9999px;padding:4px 11px;white-space:nowrap}
+.selo.soft{color:var(--u-dark);background:var(--green-200)}
+.cte-banner{display:flex;flex-direction:column;gap:10px;align-items:flex-start;background:linear-gradient(180deg,var(--green-100),var(--card));border:1px solid var(--green-200);border-left:3px solid var(--u-dark);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.cte-card{border-left:3px solid var(--u-dark)}
+.cte-card .card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar" aria-label="Navegação principal">
+  <div class="sb-brand">
+    <span class="sb-logo">
+      <img src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares">
+    </span>
+    <div class="sb-app-name">Painel TEA</div>
+    <div class="sb-app-sub">Terapia ABA · Psicologia · Unimed GV</div>
+    <span class="sb-period" id="sb_periodo">–</span>
+  </div>
+  <nav class="sb-nav">
+    <button class="nav-item" data-view="visao">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Visão Geral
+    </button>
+    <button class="nav-item" data-view="evolucao">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Evolução
+    </button>
+    <button class="nav-item" data-view="prestadores">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Prestadores
+    </button>
+    <button class="nav-item" data-view="pacientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l1.06 1.06L12 20.58l7.36-7.29 1.06-1.06a5.4 5.4 0 0 0 0-7.65z"/></svg>
+      Pacientes
+    </button>
+    <button class="nav-item" data-view="canais">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Canais de Pagamento
+    </button>
+    <button class="nav-item" data-view="cte">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Coorte CTE
+    </button>
+    <button class="nav-item" data-view="metodo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Método e Fontes
+    </button>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-foot-logos">
+      <img class="lg-evs" src="https://assets.grupocsv.com/logos/evs/selo-white-web-360.png" alt="Escritório de Valor em Saúde">
+      <img class="lg-unimed" src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares">
+    </div>
+    <div class="sf-line">Realização: Escritório de Valor em Saúde<br>AxiaCare · Grupo CSV</div>
+  </div>
+</aside>
+
+<div class="main">
+
+  <header class="topbar">
+    <span class="tb-brand-m"><img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV"></span>
+    <div class="tb-titles">
+      <div class="tb-title" id="tb_title">Visão Geral</div>
+      <div class="tb-sub" id="tb_sub">Síntese do período</div>
+    </div>
+    <div class="tb-chips">
+      <span class="chip" id="tb_periodo">–</span>
+      <span class="chip soft hide-m" id="tb_atualizado">–</span>
+      </div>
+    <button class="tb-info-btn" id="tb_info" aria-label="Método e fontes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </button>
+  </header>
+
+  <main class="content" id="content">
+
+  <div class="err-card" id="boot_err" hidden>
+    <strong>Não foi possível montar os gráficos.</strong>
+    <p>A biblioteca de visualização (CDN) não carregou. Todos os números, tabelas e narrativas desta página continuam íntegros abaixo — apenas os gráficos foram substituídos por resumos.</p>
+  </div>
+
+  <!-- ==================== VISÃO GERAL ==================== -->
+  <section class="view" id="view-visao" data-title="Visão Geral" data-sub="Síntese do período">
+    <p class="v-lead">Quanto custa a terapia ABA (psicologia) da carteira, para quantos pacientes, e para onde a curva aponta — em uma tela.</p>
+
+    <div class="kpi-grid" id="vg_kpis" aria-label="Indicadores principais"></div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="card-title">Custo mensal — últimos 12 meses</div>
+          <div class="card-sub">Competência (mês de faturamento), em reais</div>
+        </div>
+      </div>
+      <div class="chart-box short"><canvas id="c_home_serie" role="img" aria-label="Linha do custo mensal dos últimos 12 meses; os mesmos valores estão na tabela da view Evolução"></canvas></div>
+      <p class="narrative" id="vg_serie_txt"></p>
+    </div>
+
+    <div class="status-grid">
+      <button class="status-card clickable" data-goto="prestadores" id="sc_prest"></button>
+      <button class="status-card clickable" data-goto="canais" id="sc_canais"></button>
+    </div>
+
+    <blockquote class="insight" id="vg_insight"></blockquote>
+
+    <div class="achados" id="vg_achados"></div>
+
+    <div class="note-card"><span class="nc-label">Base</span> <span id="vg_nota_base"></span></div>
+
+    <button class="status-card clickable" data-goto="cte" id="vg_cte_aviso" style="width:100%;text-align:left"></button>
+  </section>
+
+  <!-- ==================== EVOLUÇÃO ==================== -->
+  <section class="view" id="view-evolucao" data-title="Evolução" data-sub="Tendência, decomposição e projeção">
+    <p class="v-lead">A série completa por competência: o que cresceu, o que explica o crescimento e quanto provisionar nos próximos 12 meses.</p>
+
+    <div class="kpi-row" id="ev_kpis"></div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Custo por competência</div>
+        <div class="card-sub">18 meses + média móvel de 3 meses</div>
+      </div></div>
+      <div class="chart-box"><canvas id="c_custo_mensal" role="img" aria-label="Linha do custo mensal com média móvel; valores na tabela ao final da seção"></canvas></div>
+      <p class="narrative" id="ev_custo_txt"></p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">O que puxa o crescimento</div>
+          <div class="card-sub">Índice base 100 = primeira competência</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_decomposicao" role="img" aria-label="Três linhas indexadas: pacientes ativos, sessões por paciente e custo por sessão"></canvas></div>
+        <p class="narrative" id="ev_decomp_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Comparativo ano contra ano</div>
+          <div class="card-sub">Custo por mês-calendário, 1º semestre</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_yoy_mensal" role="img" aria-label="Barras agrupadas comparando o custo mensal do primeiro semestre entre os anos"></canvas></div>
+        <p class="narrative" id="ev_yoy_txt"></p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Sazonalidade de férias escolares</div>
+          <div class="card-sub">Sessões por paciente ativo, por mês-calendário</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_sazonalidade" role="img" aria-label="Linhas sobrepostas por ano mostrando o vale de dezembro a fevereiro"></canvas></div>
+        <p class="narrative" id="ev_saz_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Fluxo da carteira</div>
+          <div class="card-sub">Entradas, saídas e pacientes ativos por mês</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_fluxo_pacientes" role="img" aria-label="Barras de entradas e saídas de pacientes com linha de ativos"></canvas></div>
+        <p class="narrative" id="ev_fluxo_txt"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Projeção 12 meses — três cenários</div>
+        <div class="card-sub">Cenários calculados no build; premissas na view Método</div>
+      </div></div>
+      <div class="chart-box"><canvas id="c_projecao" role="img" aria-label="Linha histórica do custo com três cenários projetados de 12 meses"></canvas></div>
+      <p class="narrative" id="ev_proj_txt"></p>
+    </div>
+
+    <div class="note-card"><span class="nc-label">Consolidação</span> <span id="ev_nota_ibnr"></span></div>
+  </section>
+
+  <!-- ==================== PRESTADORES ==================== -->
+  <section class="view" id="view-prestadores" data-title="Prestadores" data-sub="Quem recebe, a que preço, onde negociar">
+    <p class="v-lead">A rede que executa a terapia: concentração, dispersão de preço para o mesmo procedimento e onde a negociação rende mais.</p>
+
+    <div class="kpi-row" id="pr_kpis"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Concentração (Pareto)</div>
+          <div class="card-sub">Custo por prestador e participação acumulada</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_pareto" role="img" aria-label="Pareto do custo por prestador; os valores estão na tabela de ranking"></canvas></div>
+        <p class="narrative" id="pr_pareto_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Dispersão de preço</div>
+          <div class="card-sub">R$/sessão dos prestadores com ≥100 sessões</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_dispersao_preco" role="img" aria-label="Barras horizontais do preço por sessão de cada prestador com linhas de referência"></canvas></div>
+        <p class="narrative" id="pr_disp_txt"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Economia potencial de negociação</div>
+        <div class="card-sub">Sessões × (preço do prestador − referência da carteira)</div>
+      </div></div>
+      <div class="chart-box med"><canvas id="c_economia_potencial" role="img" aria-label="Barras da economia potencial por prestador acima do preço de referência"></canvas></div>
+      <p class="narrative" id="pr_econ_txt"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Matriz estratégica — intensidade × preço</div>
+        <div class="card-sub">Bolha = custo total; cor = canal; cortes nos valores reais da carteira</div>
+      </div></div>
+      <div class="chart-box tall"><canvas id="c_quadrante" role="img" aria-label="Matriz de bolhas de intensidade por preço; os mesmos dados estão na tabela de ranking"></canvas></div>
+      <p class="narrative" id="pr_quad_txt"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Evolução do preço médio — top 5 por custo</div>
+        <div class="card-sub">R$/sessão por competência</div>
+      </div></div>
+      <div class="chart-box med"><canvas id="c_preco_evolucao" role="img" aria-label="Linhas do preço médio mensal dos cinco maiores prestadores"></canvas></div>
+      <p class="narrative" id="pr_preco_txt"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Quem prescreve para quem</div>
+        <div class="card-sub">Solicitantes por custo prescrito e concentração no executante principal</div>
+      </div></div>
+      <div class="chart-box med"><canvas id="c_solicitantes" role="img" aria-label="Barras do custo prescrito pelos principais solicitantes; detalhe na tabela abaixo"></canvas></div>
+      <div class="t-wrap scroll-container">
+        <table class="rank" id="se_tabela" aria-label="Matriz solicitante por executante">
+          <thead><tr><th>Solicitante</th><th>CBOS</th><th>Custo prescrito</th><th>Sessões</th><th>Executantes</th><th>Principal executante</th><th>% no principal</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="scroll-hint">Deslize para ver a tabela completa →</div>
+      <p class="narrative" id="se_txt"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Ranking completo</div>
+        <div class="card-sub">Clique nos cabeçalhos para ordenar; clique num prestador do topo para detalhes</div>
+      </div></div>
+      <div class="t-tools">
+        <input type="search" id="pr_filtro" placeholder="Filtrar prestador…" aria-label="Filtrar prestadores">
+        <span class="chip soft" id="pr_contador">–</span>
+      </div>
+      <div class="t-wrap scroll-container" id="pr_twrap">
+        <table class="rank" id="pr_tabela" aria-label="Ranking de prestadores">
+          <thead><tr>
+            <th data-k="nome" data-t="s">Prestador</th>
+            <th data-k="canal" data-t="s">Canal</th>
+            <th data-k="custo" data-t="n">Custo (R$)</th>
+            <th data-k="participacao_pct" data-t="n">% total</th>
+            <th data-k="sessoes" data-t="n">Sessões</th>
+            <th data-k="custo_sessao" data-t="n">R$/sessão</th>
+            <th data-k="pacientes" data-t="k">Pacientes</th>
+            <th data-k="meses_ativos" data-t="n">Meses</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="scroll-hint">Deslize para ver a tabela completa →</div>
+    </div>
+
+    <div class="achados" id="pr_achados"></div>
+  </section>
+
+  <!-- ==================== PACIENTES ==================== -->
+  <section class="view" id="view-pacientes" data-title="Pacientes" data-sub="Perfil da carteira — somente agregados">
+    <p class="v-lead">Quem é a carteira em terapia: idade, gênero, intensidade de uso, distribuição de custo e permanência. Nenhum dado individual — contagens menores que 5 aparecem como "&lt;5".</p>
+
+    <div class="kpi-row" id="pa_kpis"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Pirâmide etária por gênero</div>
+          <div class="card-sub">Pacientes por faixa etária (anos completos na data de corte)</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_piramide" role="img" aria-label="Pirâmide etária espelhada por gênero"></canvas></div>
+        <p class="narrative" id="pa_pir_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Custo por faixa etária</div>
+          <div class="card-sub">Total pago no período, por faixa</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_custo_faixa" role="img" aria-label="Barras do custo total por faixa etária"></canvas></div>
+        <p class="narrative" id="pa_cf_txt"></p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Intensidade de uso</div>
+          <div class="card-sub">Média de sessões por mês ativo, por paciente</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_intensidade" role="img" aria-label="Distribuição dos pacientes por faixa de sessões mensais"></canvas></div>
+        <p class="narrative" id="pa_int_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Concentração do custo por paciente</div>
+          <div class="card-sub">Percentis do custo acumulado no período</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_concentracao_pacientes" role="img" aria-label="Barras dos percentis de custo por paciente"></canvas></div>
+        <p class="narrative" id="pa_conc_txt"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Permanência em terapia</div>
+        <div class="card-sub">Meses com atendimento dentro da janela de 18 meses</div>
+      </div></div>
+      <div class="chart-box med"><canvas id="c_permanencia" role="img" aria-label="Distribuição da permanência dos pacientes em meses"></canvas></div>
+      <p class="narrative" id="pa_perm_txt"></p>
+    </div>
+
+    <div class="sec-label">Sinais de auditoria</div>
+    <div class="achados" id="pa_auditoria"></div>
+
+    <div class="note-card"><span class="nc-label">LGPD</span> Contagens menores que 5 aparecem como "&lt;5". A identificação caso a caso é artefato privado da operadora, gerado fora deste painel e nunca publicado.</div>
+  </section>
+
+  <!-- ==================== CANAIS ==================== -->
+  <section class="view" id="view-canais" data-title="Canais de Pagamento" data-sub="Mix de contratação e alavanca de preço">
+    <p class="v-lead">O mesmo procedimento é pago por seis canais com preços diferentes. O mix entre eles é a alavanca financeira nº 1 da carteira.</p>
+
+    <div class="kpi-row" id="ca_kpis"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Mix mensal por canal</div>
+          <div class="card-sub">Participação de cada canal no custo, mês a mês</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_mix_mensal" role="img" aria-label="Barras empilhadas de participação percentual dos canais por mês"></canvas></div>
+        <p class="narrative" id="ca_mix_txt"></p>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div>
+          <div class="card-title">Foto do acumulado</div>
+          <div class="card-sub">Custo por canal — 18 meses</div>
+        </div></div>
+        <div class="chart-box med"><canvas id="c_donut_canais" role="img" aria-label="Donut do custo acumulado por canal; os valores estão na tabela abaixo"></canvas></div>
+        <p class="narrative" id="ca_donut_txt"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Preço por canal</div>
+        <div class="card-sub">R$/sessão médio de cada canal</div>
+      </div></div>
+      <div class="chart-box short"><canvas id="c_preco_canal" role="img" aria-label="Barras horizontais do preço médio por canal"></canvas></div>
+      <p class="narrative" id="ca_preco_txt"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Detalhe completo por canal</div>
+        <div class="card-sub">Custo, sessões, preço, pacientes e prestadores</div>
+      </div></div>
+      <div class="t-wrap scroll-container">
+        <table class="rank" id="ca_tabela" aria-label="Detalhe por canal de pagamento">
+          <thead><tr><th>Canal</th><th>Custo (R$)</th><th>%</th><th>Sessões</th><th>R$/sessão</th><th>Pacientes</th><th>Prestadores</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="scroll-hint">Deslize para ver a tabela completa →</div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Simulador de internalização</div>
+        <div class="card-sub">Migração de sessões da negociação direta para a Casa Unimed</div>
+      </div></div>
+      <div class="sim-box">
+        <div class="sim-row">
+          <label for="sim_slider" style="font-size:13px;color:var(--ink-2);font-weight:600">Sessões migradas</label>
+          <input type="range" id="sim_slider" min="0" max="100" step="5" value="30" aria-describedby="sim_desc">
+          <span class="sim-val" id="sim_pct">30%</span>
+        </div>
+        <div class="sim-out">
+          <div class="metric"><span class="num" id="sim_econ_periodo">–</span><span class="unit">economia no período (18m)</span></div>
+          <div class="metric"><span class="num" id="sim_econ_ano">–</span><span class="unit">economia anualizada</span></div>
+        </div>
+        <p class="narrative" id="sim_desc"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div>
+        <div class="card-title">Proxy de pressão regulatória</div>
+        <div class="card-sub">Participação mensal de reembolso + negociação direta no custo</div>
+      </div></div>
+      <div class="chart-box short"><canvas id="c_proxy_regulatorio" role="img" aria-label="Linha da participação mensal dos canais de exceção no custo"></canvas></div>
+      <p class="narrative" id="ca_proxy_txt"></p>
+    </div>
+
+    <div class="note-card"><span class="nc-label">Intercâmbio</span> <span id="ca_nota_inter"></span></div>
+
+    <div class="achados" id="ca_achados"></div>
+  </section>
+
+  <!-- ==================== COORTE CTE ==================== -->
+  <section class="view cte-view" id="view-cte" data-title="Coorte CTE" data-sub="Consumo integral e multidisciplinar — 300 beneficiários">
+    <div class="cte-banner">
+      <span class="selo" id="cte_selo">Coorte CTE · 300</span>
+      <p class="v-lead" style="margin:0">Universo <strong>diferente</strong> do restante do painel: aqui são os <strong id="cte_n">300</strong> beneficiários fixos do Centro de Terapias Especiais da Casa Unimed GV, com seu consumo <strong>integral</strong> (todas as terapias e o cuidado associado), de 2024 a fev/2026. Não somar nem comparar diretamente com a base de 840 da psicologia ABA.</p>
+    </div>
+
+    <div class="kpi-grid" id="cte_kpis"></div>
+
+    <div class="card cte-card">
+      <div class="card-hd"><div>
+        <div class="card-title">O que o painel principal não enxerga</div>
+        <div class="card-sub">Custo integral da coorte por disciplina (2024 – fev/2026)</div>
+      </div><span class="selo soft">Coorte CTE</span></div>
+      <div class="chart-box med"><canvas id="c_cte_disc" role="img" aria-label="Barras do custo por disciplina da coorte CTE"></canvas></div>
+      <p class="narrative" id="cte_disc_txt"></p>
+    </div>
+
+    <div class="card cte-card">
+      <div class="card-hd"><div>
+        <div class="card-title">Custo mensal por disciplina</div>
+        <div class="card-sub">Série empilhada — base 2024 (ano completo) a fev/2026</div>
+      </div><span class="selo soft">Coorte CTE</span></div>
+      <div class="chart-box"><canvas id="c_cte_serie" role="img" aria-label="Área empilhada do custo mensal por disciplina da coorte"></canvas></div>
+      <p class="narrative" id="cte_serie_txt"></p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card cte-card">
+        <div class="card-hd"><div>
+          <div class="card-title">Diagnóstico (CID)</div>
+          <div class="card-sub">Distribuição da coorte por grupo de CID</div>
+        </div><span class="selo soft">Coorte CTE</span></div>
+        <div class="chart-box med"><canvas id="c_cte_cid" role="img" aria-label="Donut da distribuição de CID da coorte"></canvas></div>
+        <p class="narrative" id="cte_cid_txt"></p>
+      </div>
+      <div class="card cte-card">
+        <div class="card-hd"><div>
+          <div class="card-title">Nível de suporte × custo médio</div>
+          <div class="card-sub">Pacientes por nível e custo médio por paciente</div>
+        </div><span class="selo soft">Coorte CTE</span></div>
+        <div class="chart-box med"><canvas id="c_cte_nivel" role="img" aria-label="Barras de pacientes e custo médio por nível de suporte"></canvas></div>
+        <p class="narrative" id="cte_nivel_txt"></p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card cte-card">
+        <div class="card-hd"><div>
+          <div class="card-title">Intensidade multidisciplinar</div>
+          <div class="card-sub">Número de terapias diferentes por paciente</div>
+        </div><span class="selo soft">Coorte CTE</span></div>
+        <div class="chart-box med"><canvas id="c_cte_multi" role="img" aria-label="Distribuição do número de terapias por paciente"></canvas></div>
+        <p class="narrative" id="cte_multi_txt"></p>
+      </div>
+      <div class="card cte-card">
+        <div class="card-hd"><div>
+          <div class="card-title">Concentração de custo</div>
+          <div class="card-sub">Perfil e indicadores de concentração (Gini)</div>
+        </div><span class="selo soft">Coorte CTE</span></div>
+        <div class="kpi-row" id="cte_conc"></div>
+        <p class="narrative" id="cte_conc_txt"></p>
+      </div>
+    </div>
+
+    <div class="note-card"><span class="nc-label">Fonte</span> Censo do Centro de Terapias Especiais (Casa Unimed GV / EVS · estudo IBRAVS). Todos os números desta seção são da coorte fixa de 300 beneficiários e carregam o selo "Coorte CTE" — não são comparáveis à base de 840 da psicologia ABA. Agregados com k-anonimato (k=5); CID e nível de suporte apenas em grupos, sem cruzamento fino.</div>
+  </section>
+
+  <!-- ==================== MÉTODO ==================== -->
+  <section class="view" id="view-metodo" data-title="Método e Fontes" data-sub="Como ler este painel">
+    <p class="v-lead">Tudo o que este painel afirma nasce de um pipeline reproduzível sobre a planilha oficial da operadora — e tudo o que os dados não suportam está declarado aqui.</p>
+
+    <div class="metodo-block card">
+      <h3>Nota metodológica</h3>
+      <ul>
+        <li><strong>Unidade de medida:</strong> "sessão faturada" do procedimento 50005103 (Terapia ABA · Psicologia · Terapias Pediátricas Especiais), guias SPSADT, por competência (mês de faturamento). Uma sessão faturada <em>não</em> equivale necessariamente a uma hora de terapia — um registro pode representar bloco negociado. Fonoaudiologia, terapia ocupacional e fisioterapia não estão nesta base: o custo total de TEA da operadora é maior que o exibido.</li>
+        <li><strong>Paciente:</strong> chave nome + data de nascimento (LEIA-ME oficial) — nunca matrícula (<span id="mt_matriculas">–</span> matrículas para <span id="mt_pacientes">–</span> pacientes; há pacientes com até 3 carteirinhas). Idade em anos completos na data de corte.</li>
+        <li><strong>Agrupamentos obrigatórios (LEIA-ME):</strong> registros do tipo "Atendimento Especializado" formam o prestador único <em>Casa Unimed</em>; "Ana Carolina Oliveira Faria Falcão Ltda" e "Criar e Crescer Teen Ltda" são o mesmo prestador (mudança de CNPJ). O agrupamento é por registro, não por nome.</li>
+        <li><strong>Canais de pagamento:</strong> mapa oficial do LEIA-ME — Atendimento Especializado → Casa Unimed; Atendimentos Fornecedores → Negociação Direta; Clínica Especializada → Rede Credenciada; Outras Espec. (exceto médico) → Negociação Direta (P.F); Reembolso; Unimed Nacional/Regional → Intercâmbio.</li>
+        <li><strong>Competência vs atendimento:</strong> <span id="mt_lag">–</span> A última competência recebe o selo "em consolidação".</li>
+        <li><strong>Privacidade (LGPD):</strong> agregados com k-anonimato (k=5): contagens de pacientes menores que 5 viram "&lt;5"; o cruzamento prestador × faixa etária foi excluído; eventos extremos únicos de prestadores com &lt;5 pacientes não são nomeados. Nome, matrícula, nascimento e guia de beneficiário nunca saem do pipeline.</li>
+        <li><strong>Exclusão de adultos com codificação incerta:</strong> <span id="mt_adultos">–</span> Pacientes de 18+ anos com engajamento sustentado (≥6 meses ativos) são mantidos; os de uso esparso, sob procedimento rotulado "pediátrico", foram removidos dos agregados por dúvida de codificação.</li>
+        <li><strong>Referências de preço:</strong> internas à carteira (Casa Unimed e média geral) — não existe benchmark público confiável de preço por sessão ABA no Brasil.</li>
+        <li><strong>Simulador de internalização:</strong> economia = sessões migradas × (R$/sessão da negociação direta − R$/sessão da Casa Unimed). Não considera capacidade instalada, que precisa ser validada à parte.</li>
+        <li><strong>Projeção:</strong> <span id="mt_proj">–</span></li>
+      </ul>
+    </div>
+
+    <div class="metodo-block card">
+      <h3>Fontes de dados</h3>
+      <ul>
+        <li><strong>Planilha oficial Unimed GV</strong> — micro-dados de faturamento; data de corte <span id="mt_corte">–</span>; SHA-256 do insumo <code id="mt_sha">–</code>.</li>
+        <li><strong>Pipeline</strong> — <code>scripts/build-tea-data.py</code> v<span id="mt_versao">–</span>, com validações bloqueantes de soma, anti-vazamento e k-anonimato; artefato canônico em <code>unimed/data/tea-2025-2026.json</code>.</li>
+        <li><strong>Análise anterior (base 2024)</strong> — reconstrução matemática rotulada "valores inferidos", aposentada e fora de todos os gráficos deste painel; mantida no repositório apenas como rastro histórico.</li>
+      </ul>
+    </div>
+
+    <div class="metodo-block card">
+      <h3>Contexto regulatório</h3>
+      <ul>
+        <li><strong>RN ANS 469/2021 e 539/2022</strong> — sessões ilimitadas para transtornos globais do desenvolvimento com método por prescrição do profissional assistente (CID F84); o controle possível é de integridade, não de volume.</li>
+        <li><strong>STJ (2023)</strong> — consolidou a cobertura de terapias multidisciplinares pelo rol exemplificativo.</li>
+        <li><strong>Judicialização TEA</strong> — estudos citados na análise (Insper/FJLS 2025) apontam alto êxito do beneficiário nas ações, com ABA entre os métodos mais pedidos; o share de reembolso + negociação direta é usado aqui como proxy de pressão.</li>
+        <li><strong>Diretrizes clínicas CASP/BACB (EUA)</strong> — intervenção focada 10–25h/semana; abrangente 26–40h. Benchmark externo, não norma ANS; sessões faturadas não são conversíveis em horas.</li>
+      </ul>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-item"><span class="ai-label">Operadora</span><span class="ai-val">Unimed Governador Valadares</span></div>
+      <div class="about-item"><span class="ai-label">Realização</span><span class="ai-val">EVS · AxiaCare · Grupo CSV</span></div>
+      <div class="about-item"><span class="ai-label">Responsável técnico</span><span class="ai-val">Guilherme Camargo Thomé — CRM-MG 64193</span></div>
+      <div class="about-item"><span class="ai-label">Período da base</span><span class="ai-val" id="mt_periodo">–</span></div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="sf-logos">
+      <img class="lg-unimedgv" src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV">
+      <span class="sf-sep"></span>
+      <img class="lg-evs" src="https://assets.grupocsv.com/logos/evs/icon-1x1-sem-fundo.png" alt="EVS">
+      <img class="lg-axia" src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare">
+      <img class="lg-gcsv" src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV">
+    </div>
+    <div class="sf-legal">Uso interno · dados agregados e anonimizados (k=5) · gerado por pipeline auditável</div>
+  </footer>
+
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Navegação inferior">
+  <div class="tabs">
+    <button class="tab-item" data-view="visao">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Visão
+    </button>
+    <button class="tab-item" data-view="evolucao">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Evolução
+    </button>
+    <button class="tab-item" data-view="prestadores">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Prestadores
+    </button>
+    <button class="tab-item" data-view="pacientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l1.06 1.06L12 20.58l7.36-7.29 1.06-1.06a5.4 5.4 0 0 0 0-7.65z"/></svg>
+      Pacientes
+    </button>
+    <button class="tab-item" data-view="canais">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Canais
+    </button>
+    <button class="tab-item" data-view="cte">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      CTE
+    </button>
+  </div>
+</nav>
+
+<div class="modal-overlay" id="modal_overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal_titulo">
+    <div class="modal-hd">
+      <div>
+        <div class="card-title" id="modal_titulo">–</div>
+        <div class="card-sub" id="modal_sub">–</div>
+      </div>
+      <button class="modal-close" id="modal_fechar" aria-label="Fechar detalhe do prestador">✕</button>
+    </div>
+    <div class="modal-kpis" id="modal_kpis"></div>
+    <div class="modal-section">
+      <div class="card-sub">Custo e sessões por competência</div>
+      <div class="modal-chart"><canvas id="c_modal_serie"></canvas></div>
+    </div>
+    <div class="modal-section">
+      <div class="card-sub">Preço médio por competência</div>
+      <div class="modal-chart"><canvas id="c_modal_preco"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- TEA-DATA:BEGIN -->
+<script type="application/json" id="tea-data">{"comparativos": {"anos_fechados": {"2025": {"custo": 3065237.3, "sessoes": 19130}}, "pico": {"custo": 288892.59, "m": "2025/09"}, "s1_anterior": {"custo": 1405075.27, "sessoes": 8882}, "s1_atual": {"ano": "2026", "custo": 1511267.11, "media_mensal": 251877.85, "run_rate_anual": 3022534.22, "sessoes": 9722}, "vale": {"custo": 187644.83, "m": "2025/01"}, "yoy_s1": {"custo_pct": 7.56, "sessoes_pct": 9.46}}, "concentracao": {"hhi_2025": 864.4, "hhi_periodo": 993.39, "hhi_s1_2026": 1356.61, "top10_pct": 80.7, "top15_pct": 88.92, "top5_pct": 62.4}, "custo_paciente": {"max": 36920.0, "mediana": 4470.0, "p90": 11879.6, "p99": 22179.1, "top10abs_pct_custo": 6.07, "top10pct": {"pacientes": 82, "pct_custo": 28.48}}, "dispersao_preco": {"precos_unitarios_distintos": 103, "prestadores": [{"nome": "ESPACO INTEGRAR LTDA", "preco": 248.66, "sessoes": 119}, {"nome": "ANANDA VIEIRA MORAES", "preco": 230.53, "sessoes": 1213}, {"nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "preco": 219.96, "sessoes": 2870}, {"nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA", "preco": 212.23, "sessoes": 1238}, {"nome": "PRIMEIRO PASSOS LTDA", "preco": 200.96, "sessoes": 519}, {"nome": "LAGARES E PIMENTA LTDA", "preco": 200.0, "sessoes": 446}, {"nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA", "preco": 200.0, "sessoes": 256}, {"nome": "ESPACO NEUROPSI LTDA", "preco": 200.0, "sessoes": 115}, {"nome": "PEQUENINHOS CLINICA LTDA", "preco": 197.73, "sessoes": 1103}, {"nome": "CLINICA NEUROAFETO LTDA", "preco": 192.59, "sessoes": 247}, {"nome": "CLINICA INTEGRADA EM SAUDE LTDA", "preco": 189.39, "sessoes": 460}, {"nome": "MARYANA ALVES DE SOUZA LTDA", "preco": 185.79, "sessoes": 197}, {"nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO", "preco": 180.0, "sessoes": 624}, {"nome": "PATRICIA BARBOSA NASCIMENTO", "preco": 172.26, "sessoes": 233}, {"nome": "BASTOS JARDIM LTDA", "preco": 169.79, "sessoes": 825}, {"nome": "CLINICA PSICONEURO GV LTDA", "preco": 160.34, "sessoes": 380}, {"nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA", "preco": 156.65, "sessoes": 2330}, {"nome": "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA", "preco": 151.0, "sessoes": 406}, {"nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA", "preco": 138.27, "sessoes": 202}, {"nome": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "preco": 130.8, "sessoes": 6821}, {"nome": "UNIMED GERAIS DE MINAS", "preco": 125.95, "sessoes": 133}, {"nome": "JC ORTOPEDIA LTDA", "preco": 120.86, "sessoes": 641}, {"nome": "RESINTO ESPACO INTEGRADO LTDA", "preco": 120.1, "sessoes": 288}, {"nome": "CASA UNIMED", "preco": 120.0, "sessoes": 5731}, {"nome": "UNIMED TEOFILO OTONI", "preco": 120.0, "sessoes": 103}], "referencias": {"casa_unimed": 120.0, "media_carteira": 158.62, "mediana_grupo": 180.0}}, "economia_potencial": {"gap_total": 493562.14, "prestadores": [{"gap_total": 10714.76, "nome": "ESPACO INTEGRAR LTDA", "preco": 248.66, "sessoes": 119}, {"gap_total": 87226.82, "nome": "ANANDA VIEIRA MORAES", "preco": 230.53, "sessoes": 1213}, {"gap_total": 176045.78, "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "preco": 219.96, "sessoes": 2870}, {"gap_total": 66369.17, "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA", "preco": 212.23, "sessoes": 1238}, {"gap_total": 21974.46, "nome": "PRIMEIRO PASSOS LTDA", "preco": 200.96, "sessoes": 519}, {"gap_total": 18455.48, "nome": "LAGARES E PIMENTA LTDA", "preco": 200.0, "sessoes": 446}, {"gap_total": 10593.28, "nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA", "preco": 200.0, "sessoes": 256}, {"gap_total": 4758.7, "nome": "ESPACO NEUROPSI LTDA", "preco": 200.0, "sessoes": 115}, {"gap_total": 43138.32, "nome": "PEQUENINHOS CLINICA LTDA", "preco": 197.73, "sessoes": 1103}, {"gap_total": 8390.59, "nome": "CLINICA NEUROAFETO LTDA", "preco": 192.59, "sessoes": 247}, {"gap_total": 14154.2, "nome": "CLINICA INTEGRADA EM SAUDE LTDA", "preco": 189.39, "sessoes": 460}, {"gap_total": 5352.49, "nome": "MARYANA ALVES DE SOUZA LTDA", "preco": 185.79, "sessoes": 197}, {"gap_total": 13341.12, "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO", "preco": 180.0, "sessoes": 624}, {"gap_total": 3178.12, "nome": "PATRICIA BARBOSA NASCIMENTO", "preco": 172.26, "sessoes": 233}, {"gap_total": 9215.25, "nome": "BASTOS JARDIM LTDA", "preco": 169.79, "sessoes": 825}, {"gap_total": 653.6, "nome": "CLINICA PSICONEURO GV LTDA", "preco": 160.34, "sessoes": 380}], "referencia": 158.62}, "entradas_saidas": [{"entradas": 386, "estoque_inicial": true, "m": "2025/01", "provisorio": false, "saidas": 18}, {"entradas": 68, "estoque_inicial": false, "m": "2025/02", "provisorio": false, "saidas": 16}, {"entradas": 33, "estoque_inicial": false, "m": "2025/03", "provisorio": false, "saidas": 10}, {"entradas": 26, "estoque_inicial": false, "m": "2025/04", "provisorio": false, "saidas": 8}, {"entradas": 29, "estoque_inicial": false, "m": "2025/05", "provisorio": false, "saidas": 15}, {"entradas": 27, "estoque_inicial": false, "m": "2025/06", "provisorio": false, "saidas": 14}, {"entradas": 24, "estoque_inicial": false, "m": "2025/07", "provisorio": false, "saidas": 18}, {"entradas": 16, "estoque_inicial": false, "m": "2025/08", "provisorio": false, "saidas": 22}, {"entradas": 29, "estoque_inicial": false, "m": "2025/09", "provisorio": false, "saidas": 18}, {"entradas": 22, "estoque_inicial": false, "m": "2025/10", "provisorio": false, "saidas": 18}, {"entradas": 15, "estoque_inicial": false, "m": "2025/11", "provisorio": false, "saidas": 14}, {"entradas": 11, "estoque_inicial": false, "m": "2025/12", "provisorio": false, "saidas": 16}, {"entradas": 9, "estoque_inicial": false, "m": "2026/01", "provisorio": false, "saidas": 17}, {"entradas": 34, "estoque_inicial": false, "m": "2026/02", "provisorio": false, "saidas": 28}, {"entradas": 35, "estoque_inicial": false, "m": "2026/03", "provisorio": false, "saidas": 20}, {"entradas": 22, "estoque_inicial": false, "m": "2026/04", "provisorio": false, "saidas": 64}, {"entradas": 18, "estoque_inicial": false, "m": "2026/05", "provisorio": true, "saidas": 37}, {"entradas": 19, "estoque_inicial": false, "m": "2026/06", "provisorio": true, "saidas": 470}], "faixa_etaria": [{"custo": 54850.0, "faixa": "0-2", "pacientes": 20, "pct_custo": 1.2}, {"custo": 1424829.19, "faixa": "3-5", "pacientes": 266, "pct_custo": 31.13}, {"custo": 2159418.18, "faixa": "6-8", "pacientes": 331, "pct_custo": 47.18}, {"custo": 569383.28, "faixa": "9-11", "pacientes": 123, "pct_custo": 12.44}, {"custo": 279435.33, "faixa": "12-14", "pacientes": 58, "pct_custo": 6.11}, {"custo": 67778.43, "faixa": "15-17", "pacientes": 21, "pct_custo": 1.48}, {"custo": 20810.0, "faixa": "18+", "pacientes": "<5", "pct_custo": 0.45}], "faixa_etaria_x_genero": [{"F": 5, "M": 15, "faixa": "0-2"}, {"F": 59, "M": 207, "faixa": "3-5"}, {"F": 87, "M": 244, "faixa": "6-8"}, {"F": 34, "M": 89, "faixa": "9-11"}, {"F": 22, "M": 36, "faixa": "12-14"}, {"F": 7, "M": 14, "faixa": "15-17"}, {"F": "<5", "M": "<5", "faixa": "18+"}], "genero": {"F": 214, "M": 609, "razao": 2.85}, "intensidade": {"buckets": [{"faixa": "<3", "pacientes": 352}, {"faixa": "3-4,9", "pacientes": 365}, {"faixa": "5-8,9", "pacientes": 81}, {"faixa": "9+", "pacientes": 25}], "mediana_media_por_paciente": 3.12, "paciente_mes": {"max": 114.0, "mediana": 3.0, "n": 8095, "p90": 6.0, "p99": 11.0}}, "intercambio": {"cooperativas": ["COOPERATIVA DE TRABALHO MEDICO DE POUSO ALEGRE", "UNIMED GERAIS DE MINAS", "UNIMED NACIONAL - COOPERATIVA CENTRAL", "UNIMED TEOFILO OTONI", "UNIMED VALE DO ACO"], "custo": 45666.0, "pacientes": 13, "pico": {"custo": 5562.0, "m": "2026/06"}, "sessoes": 372}, "meta": {"adultos_excluidos": {"custo": 17133.73, "n_pacientes": 17, "registros": 78, "regra": "18+ com <6 meses ativos", "sessoes": 127}, "contagens": {"custo_por_sessao": 158.62, "custo_total": 4576504.41, "matriculas": 867, "pacientes": 823, "prestadores": 81, "registros": 18929, "sessoes": 28852}, "data_corte": "2026-06-30", "gerado_em": "2026-07-11", "painel": "Painel Estratégico TEA — Terapia ABA · Psicologia (50005103)", "periodo": {"competencias": 18, "fim": "2026/06", "inicio": "2025/01"}, "politica_k": 5, "sha256_insumo": "6e964fcb83d2673125a9cc799d86e6426bd0e0b3e7ecc896e5addb889d495e44", "versao_script": "2.0.0"}, "permanencia": {"dist": [{"faixa": "1-3", "pacientes": 178}, {"faixa": "4-6", "pacientes": 131}, {"faixa": "7-9", "pacientes": 78}, {"faixa": "10-12", "pacientes": 96}, {"faixa": "13-17", "pacientes": 249}, {"faixa": "18", "pacientes": 91}], "media": 9.84, "mediana": 10.0, "presentes_todo_periodo": 91}, "projecao": {"cenarios": {"base": [274517.57, 280481.35, 279104.13, 273317.6, 266057.3, 235265.63, 219898.14, 235419.35, 272292.49, 260234.63, 285725.54, 273295.75], "contido": [274427.74, 280297.85, 278830.32, 272960.21, 265622.57, 234804.48, 219395.44, 234804.48, 271492.68, 259385.57, 284700.43, 272226.44], "expansao": [275685.34, 282866.86, 282663.67, 277963.73, 271708.85, 241260.64, 226433.33, 243412.7, 282690.09, 271272.31, 299051.94, 287196.67]}, "indice_sazonal": {"01": 0.84, "02": 0.9, "03": 1.04, "04": 1.0, "05": 1.09, "06": 1.04, "07": 1.05, "08": 1.08, "09": 1.07, "10": 1.05, "11": 1.02, "12": 0.9}, "meses": ["2026/07", "2026/08", "2026/09", "2026/10", "2026/11", "2026/12", "2027/01", "2027/02", "2027/03", "2027/04", "2027/05", "2027/06"], "premissas": "Cenários calculados no build, não compromissos. Base: tendência linear de pacientes ativos (últimos 12 meses) × sessões/paciente sazonalizada × preço médio dos últimos 6 meses. Contido: pacientes ativos estabilizados no último valor. Expansão: tendência acrescida de 2 pacientes/mês. Competência, não caixa."}, "quadrante_prestadores": {"cortes": {"x": 3.72, "y": 158.62}, "prestadores": [{"canal": "Rede Credenciada", "custo": 892160.0, "nome": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "x": 3.59, "y": 130.8}, {"canal": "Casa Unimed", "custo": 687720.0, "nome": "CASA UNIMED", "x": 3.07, "y": 120.0}, {"canal": "Rede Credenciada", "custo": 631280.0, "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "x": 2.96, "y": 219.96}, {"canal": "Negociação Direta", "custo": 365004.0, "nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA", "x": 3.86, "y": 156.65}, {"canal": "Negociação Direta", "custo": 279638.41, "nome": "ANANDA VIEIRA MORAES", "x": 3.41, "y": 230.53}, {"canal": "Negociação Direta", "custo": 262746.54, "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA", "x": 4.15, "y": 212.23}, {"canal": "Negociação Direta", "custo": 218101.0, "nome": "PEQUENINHOS CLINICA LTDA", "x": 4.86, "y": 197.73}, {"canal": "Negociação Direta", "custo": 140080.0, "nome": "BASTOS JARDIM LTDA", "x": 3.72, "y": 169.79}, {"canal": "Negociação Direta", "custo": 112320.0, "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO", "x": 4.0, "y": 180.0}, {"canal": "Negociação Direta", "custo": 104300.0, "nome": "PRIMEIRO PASSOS LTDA", "x": 3.15, "y": 200.96}, {"canal": "Negociação Direta", "custo": 89200.0, "nome": "LAGARES E PIMENTA LTDA", "x": 2.55, "y": 200.0}, {"canal": "Negociação Direta", "custo": 87119.15, "nome": "CLINICA INTEGRADA EM SAUDE LTDA", "x": 3.51, "y": 189.39}, {"canal": "Rede Credenciada", "custo": 77472.0, "nome": "JC ORTOPEDIA LTDA", "x": 3.27, "y": 120.86}, {"canal": "Negociação Direta", "custo": 61304.0, "nome": "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA", "x": 4.89, "y": 151.0}, {"canal": "Negociação Direta", "custo": 60930.0, "nome": "CLINICA PSICONEURO GV LTDA", "x": 3.22, "y": 160.34}, {"canal": "Negociação Direta", "custo": 51200.0, "nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA", "x": 3.51, "y": 200.0}, {"canal": "Negociação Direta", "custo": 47570.0, "nome": "CLINICA NEUROAFETO LTDA", "x": 4.12, "y": 192.59}, {"canal": "Negociação Direta", "custo": 40136.47, "nome": "PATRICIA BARBOSA NASCIMENTO", "x": 33.29, "y": 172.26}, {"canal": "Negociação Direta", "custo": 36600.0, "nome": "MARYANA ALVES DE SOUZA LTDA", "x": 4.1, "y": 185.79}, {"canal": "Negociação Direta", "custo": 34590.0, "nome": "RESINTO ESPACO INTEGRADO LTDA", "x": 5.54, "y": 120.1}, {"canal": "Negociação Direta", "custo": 29590.0, "nome": "ESPACO INTEGRAR LTDA", "x": 4.58, "y": 248.66}, {"canal": "Negociação Direta", "custo": 27931.43, "nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA", "x": 3.01, "y": 138.27}, {"canal": "Negociação Direta", "custo": 23000.0, "nome": "ESPACO NEUROPSI LTDA", "x": 8.85, "y": 200.0}, {"canal": "Intercâmbio", "custo": 16752.0, "nome": "UNIMED GERAIS DE MINAS", "x": 3.8, "y": 125.95}, {"canal": "Intercâmbio", "custo": 12360.0, "nome": "UNIMED TEOFILO OTONI", "x": 2.71, "y": 120.0}]}, "qualidade": {"cbos": {"medicos_pct": 22.06, "psicologo_pct": 59.82}, "eventos_extremos": [{"canal": "Negociação Direta", "competencia": "2026/05", "nota": "prestador com <5 pacientes — identificação na fila privada de auditoria", "prestador": null, "sessoes": 114, "valor": 20000.0}, {"canal": "Negociação Direta", "competencia": "2026/06", "nota": "prestador com <5 pacientes — identificação na fila privada de auditoria", "prestador": null, "sessoes": 80, "valor": 14400.0}], "lag": {"max_meses": 13, "pct_1_mes": 16.62, "pct_mesma_competencia": 82.21}, "maiores_18": {"custo": 20810.0, "pacientes": "<5", "sessoes": 142}, "multi_prestador": {"paciente_mes": 44, "pacientes": 95, "pct_pacientes": 11.54}, "retroativos_90d": {"custo": 35261.93, "pct_custo": 0.77, "registros": 27}, "sem_solicitante": {"custo": 2242968.41, "pct_custo": 49.01, "pct_registros": 17.9, "registros": 3388}, "valor_zero": 7}, "ranking_prestadores": [{"canal": "Rede Credenciada", "custo": 892160.0, "custo_sessao": 130.8, "meses_ativos": 18, "nome": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "pacientes": 235, "participacao_pct": 19.49, "sessoes": 6821}, {"canal": "Casa Unimed", "custo": 687720.0, "custo_sessao": 120.0, "meses_ativos": 18, "nome": "CASA UNIMED", "pacientes": 209, "participacao_pct": 15.03, "sessoes": 5731}, {"canal": "Rede Credenciada", "custo": 631280.0, "custo_sessao": 219.96, "meses_ativos": 18, "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "pacientes": 113, "participacao_pct": 13.79, "sessoes": 2870}, {"canal": "Negociação Direta", "custo": 365004.0, "custo_sessao": 156.65, "meses_ativos": 18, "nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA", "pacientes": 50, "participacao_pct": 7.98, "sessoes": 2330}, {"canal": "Negociação Direta", "custo": 279638.41, "custo_sessao": 230.53, "meses_ativos": 18, "nome": "ANANDA VIEIRA MORAES", "pacientes": 23, "participacao_pct": 6.11, "sessoes": 1213}, {"canal": "Negociação Direta", "custo": 262746.54, "custo_sessao": 212.23, "meses_ativos": 18, "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA", "pacientes": 23, "participacao_pct": 5.74, "sessoes": 1238}, {"canal": "Negociação Direta", "custo": 218101.0, "custo_sessao": 197.73, "meses_ativos": 17, "nome": "PEQUENINHOS CLINICA LTDA", "pacientes": 20, "participacao_pct": 4.77, "sessoes": 1103}, {"canal": "Negociação Direta", "custo": 140080.0, "custo_sessao": 169.79, "meses_ativos": 18, "nome": "BASTOS JARDIM LTDA", "pacientes": 16, "participacao_pct": 3.06, "sessoes": 825}, {"canal": "Negociação Direta", "custo": 112320.0, "custo_sessao": 180.0, "meses_ativos": 18, "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO", "pacientes": 12, "participacao_pct": 2.45, "sessoes": 624}, {"canal": "Negociação Direta", "custo": 104300.0, "custo_sessao": 200.96, "meses_ativos": 18, "nome": "PRIMEIRO PASSOS LTDA", "pacientes": 15, "participacao_pct": 2.28, "sessoes": 519}, {"canal": "Negociação Direta", "custo": 89200.0, "custo_sessao": 200.0, "meses_ativos": 18, "nome": "LAGARES E PIMENTA LTDA", "pacientes": 14, "participacao_pct": 1.95, "sessoes": 446}, {"canal": "Negociação Direta", "custo": 87119.15, "custo_sessao": 189.39, "meses_ativos": 18, "nome": "CLINICA INTEGRADA EM SAUDE LTDA", "pacientes": 9, "participacao_pct": 1.9, "sessoes": 460}, {"canal": "Rede Credenciada", "custo": 77472.0, "custo_sessao": 120.86, "meses_ativos": 18, "nome": "JC ORTOPEDIA LTDA", "pacientes": 25, "participacao_pct": 1.69, "sessoes": 641}, {"canal": "Negociação Direta", "custo": 61304.0, "custo_sessao": 151.0, "meses_ativos": 17, "nome": "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA", "pacientes": 15, "participacao_pct": 1.34, "sessoes": 406}, {"canal": "Negociação Direta", "custo": 60930.0, "custo_sessao": 160.34, "meses_ativos": 17, "nome": "CLINICA PSICONEURO GV LTDA", "pacientes": 14, "participacao_pct": 1.33, "sessoes": 380}, {"canal": "Negociação Direta", "custo": 51200.0, "custo_sessao": 200.0, "meses_ativos": 18, "nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA", "pacientes": 5, "participacao_pct": 1.12, "sessoes": 256}, {"canal": "Negociação Direta", "custo": 47570.0, "custo_sessao": 192.59, "meses_ativos": 11, "nome": "CLINICA NEUROAFETO LTDA", "pacientes": 6, "participacao_pct": 1.04, "sessoes": 247}, {"canal": "Negociação Direta", "custo": 40136.47, "custo_sessao": 172.26, "meses_ativos": 5, "nome": "PATRICIA BARBOSA NASCIMENTO", "pacientes": "<5", "participacao_pct": 0.88, "sessoes": 233}, {"canal": "Negociação Direta", "custo": 36600.0, "custo_sessao": 185.79, "meses_ativos": 7, "nome": "MARYANA ALVES DE SOUZA LTDA", "pacientes": 7, "participacao_pct": 0.8, "sessoes": 197}, {"canal": "Negociação Direta", "custo": 34590.0, "custo_sessao": 120.1, "meses_ativos": 17, "nome": "RESINTO ESPACO INTEGRADO LTDA", "pacientes": 6, "participacao_pct": 0.76, "sessoes": 288}, {"canal": "Negociação Direta", "custo": 29590.0, "custo_sessao": 248.66, "meses_ativos": 14, "nome": "ESPACO INTEGRAR LTDA", "pacientes": "<5", "participacao_pct": 0.65, "sessoes": 119}, {"canal": "Negociação Direta", "custo": 27931.43, "custo_sessao": 138.27, "meses_ativos": 18, "nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA", "pacientes": 5, "participacao_pct": 0.61, "sessoes": 202}, {"canal": "Negociação Direta", "custo": 23000.0, "custo_sessao": 200.0, "meses_ativos": 13, "nome": "ESPACO NEUROPSI LTDA", "pacientes": "<5", "participacao_pct": 0.5, "sessoes": 115}, {"canal": "Negociação Direta", "custo": 19000.0, "custo_sessao": 200.0, "meses_ativos": 15, "nome": "DESENVOLVA CLINICA DE DESENVOLVIMENTO INFANTIL", "pacientes": "<5", "participacao_pct": 0.42, "sessoes": 95}, {"canal": "Intercâmbio", "custo": 16752.0, "custo_sessao": 125.95, "meses_ativos": 18, "nome": "UNIMED GERAIS DE MINAS", "pacientes": "<5", "participacao_pct": 0.37, "sessoes": 133}, {"canal": "Intercâmbio", "custo": 12360.0, "custo_sessao": 120.0, "meses_ativos": 18, "nome": "UNIMED TEOFILO OTONI", "pacientes": 6, "participacao_pct": 0.27, "sessoes": 103}, {"canal": "Negociação Direta", "custo": 12160.0, "custo_sessao": 160.0, "meses_ativos": 12, "nome": "PATRICIA CRUZEIRO MARTINS AIOLFI", "pacientes": "<5", "participacao_pct": 0.27, "sessoes": 76}, {"canal": "Reembolso", "custo": 11816.86, "custo_sessao": 140.68, "meses_ativos": 5, "nome": "RENATA KELLY VAZ DE OLIVEIRA", "pacientes": "<5", "participacao_pct": 0.26, "sessoes": 84}, {"canal": "Intercâmbio", "custo": 11160.0, "custo_sessao": 120.0, "meses_ativos": 16, "nome": "UNIMED VALE DO ACO", "pacientes": "<5", "participacao_pct": 0.24, "sessoes": 93}, {"canal": "Reembolso", "custo": 9860.42, "custo_sessao": 151.7, "meses_ativos": 6, "nome": "IZIS SILVANO COSTA DA ROCHA", "pacientes": "<5", "participacao_pct": 0.22, "sessoes": 65}, {"canal": "Negociação Direta", "custo": 8820.0, "custo_sessao": 180.0, "meses_ativos": 6, "nome": "CPL SERVICOS DE PSICOLOGIA LTDA", "pacientes": "<5", "participacao_pct": 0.19, "sessoes": 49}, {"canal": "Reembolso", "custo": 6885.98, "custo_sessao": 186.11, "meses_ativos": 3, "nome": "ANDREIA ARAUJO DE SOUZA", "pacientes": "<5", "participacao_pct": 0.15, "sessoes": 37}, {"canal": "Negociação Direta", "custo": 6330.0, "custo_sessao": 147.21, "meses_ativos": 1, "nome": "FLORESCER CLINICA DE PSICOLOGIA", "pacientes": 16, "participacao_pct": 0.14, "sessoes": 43}, {"canal": "Reembolso", "custo": 5580.38, "custo_sessao": 136.11, "meses_ativos": 5, "nome": "CICLOS PSICOLOGIA CLINICA E ORGANIZACIONAL LTDA", "pacientes": "<5", "participacao_pct": 0.12, "sessoes": 41}, {"canal": "Reembolso", "custo": 5244.69, "custo_sessao": 104.89, "meses_ativos": 4, "nome": "AMANDA AFONSO JULIO", "pacientes": "<5", "participacao_pct": 0.11, "sessoes": 50}, {"canal": "Reembolso", "custo": 4851.82, "custo_sessao": 89.85, "meses_ativos": 8, "nome": "TATYANE MIELI PAMPLONA PORTO", "pacientes": "<5", "participacao_pct": 0.11, "sessoes": 54}, {"canal": "Negociação Direta (P.F)", "custo": 4640.0, "custo_sessao": 90.98, "meses_ativos": 9, "nome": "RAYANE AMANCIO OLIVEIRA", "pacientes": "<5", "participacao_pct": 0.1, "sessoes": 51}, {"canal": "Negociação Direta", "custo": 4630.0, "custo_sessao": 154.33, "meses_ativos": 10, "nome": "SCI SOLUÇÕES EM SAUDE LTDA", "pacientes": "<5", "participacao_pct": 0.1, "sessoes": 30}, {"canal": "Reembolso", "custo": 4588.08, "custo_sessao": 152.94, "meses_ativos": 3, "nome": "BRUNA LAGES MURTA", "pacientes": "<5", "participacao_pct": 0.1, "sessoes": 30}, {"canal": "Intercâmbio", "custo": 4512.0, "custo_sessao": 125.33, "meses_ativos": 2, "nome": "UNIMED NACIONAL - COOPERATIVA CENTRAL", "pacientes": "<5", "participacao_pct": 0.1, "sessoes": 36}, {"canal": "Reembolso", "custo": 4375.32, "custo_sessao": 85.79, "meses_ativos": 4, "nome": "GEORGIA CRISTINA VILELA JANNUZZI", "pacientes": "<5", "participacao_pct": 0.1, "sessoes": 51}, {"canal": "Reembolso", "custo": 4105.64, "custo_sessao": 178.51, "meses_ativos": 4, "nome": "LAIS LEITE PSICOLOGIA LTDA", "pacientes": "<5", "participacao_pct": 0.09, "sessoes": 23}, {"canal": "Reembolso", "custo": 3550.46, "custo_sessao": 147.94, "meses_ativos": 3, "nome": "MARLE JOSE FERRARI JUNIOR", "pacientes": "<5", "participacao_pct": 0.08, "sessoes": 24}, {"canal": "Reembolso", "custo": 3255.49, "custo_sessao": 87.99, "meses_ativos": 6, "nome": "JESSICA MAIRA SOUZA ROSA", "pacientes": "<5", "participacao_pct": 0.07, "sessoes": 37}, {"canal": "Reembolso", "custo": 3211.65, "custo_sessao": 152.94, "meses_ativos": 2, "nome": "HORTENSIA GUERRA GUIMARÃES", "pacientes": "<5", "participacao_pct": 0.07, "sessoes": 21}, {"canal": "Reembolso", "custo": 3190.0, "custo_sessao": 212.67, "meses_ativos": 5, "nome": "RENATA MARQUES PROFESSIORI ME", "pacientes": "<5", "participacao_pct": 0.07, "sessoes": 15}, {"canal": "Reembolso", "custo": 2982.91, "custo_sessao": 165.72, "meses_ativos": 4, "nome": "TAIS DIAS NUNES", "pacientes": "<5", "participacao_pct": 0.07, "sessoes": 18}, {"canal": "Negociação Direta", "custo": 2880.0, "custo_sessao": 180.0, "meses_ativos": 5, "nome": "MIRYCELLE LIMA DORNELAS", "pacientes": "<5", "participacao_pct": 0.06, "sessoes": 16}, {"canal": "Reembolso", "custo": 2578.72, "custo_sessao": 171.91, "meses_ativos": 2, "nome": "OTONI PSICOLOGIA LTDA", "pacientes": "<5", "participacao_pct": 0.06, "sessoes": 15}, {"canal": "Negociação Direta", "custo": 2550.0, "custo_sessao": 150.0, "meses_ativos": 7, "nome": "MILENE SABINI GOMES DE BARROS-ME", "pacientes": "<5", "participacao_pct": 0.06, "sessoes": 17}, {"canal": "Reembolso", "custo": 2539.8, "custo_sessao": 126.99, "meses_ativos": 2, "nome": "MOREIRA E OLIVEIRA FISIOTERAPIA", "pacientes": "<5", "participacao_pct": 0.06, "sessoes": 20}, {"canal": "Rede Credenciada", "custo": 2448.0, "custo_sessao": 122.4, "meses_ativos": 7, "nome": "ESPAÇO INCLUIR LTDA", "pacientes": "<5", "participacao_pct": 0.05, "sessoes": 20}, {"canal": "Reembolso", "custo": 2287.72, "custo_sessao": 114.39, "meses_ativos": 1, "nome": "DESENROLA DESENVOLVIMENTO INFANTIL LTDA", "pacientes": "<5", "participacao_pct": 0.05, "sessoes": 20}, {"canal": "Negociação Direta", "custo": 2160.0, "custo_sessao": 240.0, "meses_ativos": 3, "nome": "NICOLE RIBEIRO BARBOSA ARAUJO LTDA", "pacientes": "<5", "participacao_pct": 0.05, "sessoes": 9}, {"canal": "Reembolso", "custo": 2022.85, "custo_sessao": 112.38, "meses_ativos": 3, "nome": "LUMEN LTDA", "pacientes": "<5", "participacao_pct": 0.04, "sessoes": 18}, {"canal": "Reembolso", "custo": 1902.3, "custo_sessao": 172.94, "meses_ativos": 1, "nome": "VERACIS SOCIEDADE LTDA", "pacientes": "<5", "participacao_pct": 0.04, "sessoes": 11}, {"canal": "Reembolso", "custo": 1800.0, "custo_sessao": 225.0, "meses_ativos": 1, "nome": "CRESCER PSICOLOGIA INFANTO JUVENIL", "pacientes": "<5", "participacao_pct": 0.04, "sessoes": 8}, {"canal": "Reembolso", "custo": 1664.91, "custo_sessao": 97.94, "meses_ativos": 3, "nome": "Nucleo de Psicologia E Neuroreabilitacao", "pacientes": "<5", "participacao_pct": 0.04, "sessoes": 17}, {"canal": "Reembolso", "custo": 1368.97, "custo_sessao": 136.9, "meses_ativos": 1, "nome": "VALADARES E PORTES LTDA", "pacientes": "<5", "participacao_pct": 0.03, "sessoes": 10}, {"canal": "Reembolso", "custo": 1348.94, "custo_sessao": 134.89, "meses_ativos": 1, "nome": "NEILSON COSTA RIBEIRO", "pacientes": "<5", "participacao_pct": 0.03, "sessoes": 10}, {"canal": "Negociação Direta", "custo": 1300.0, "custo_sessao": 130.0, "meses_ativos": 3, "nome": "NUCLEO DE ESTIMULAÇÃO DO DESENVOLVIMENTO INFANTIL OFICINA DO BRINCAR", "pacientes": "<5", "participacao_pct": 0.03, "sessoes": 10}, {"canal": "Reembolso", "custo": 1239.68, "custo_sessao": 247.94, "meses_ativos": 1, "nome": "DAIYENE SERVIÇOS DE PSICOLOGIA LTDA", "pacientes": "<5", "participacao_pct": 0.03, "sessoes": 5}, {"canal": "Reembolso", "custo": 1104.9, "custo_sessao": 110.49, "meses_ativos": 1, "nome": "ADRIANA MARQUES DA SILVA", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 10}, {"canal": "Reembolso", "custo": 1103.43, "custo_sessao": 157.63, "meses_ativos": 1, "nome": "ANA PAULA BARCO GUIMARAES", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 7}, {"canal": "Negociação Direta", "custo": 1080.0, "custo_sessao": 180.0, "meses_ativos": 2, "nome": "GEORGIA MENEZES LEITE", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 6}, {"canal": "Reembolso", "custo": 1012.3, "custo_sessao": 101.23, "meses_ativos": 3, "nome": "NUCLEO MAIS SAUDE DE REABILITAÇÃO LTDA", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 10}, {"canal": "Reembolso", "custo": 996.53, "custo_sessao": 110.73, "meses_ativos": 2, "nome": "ELIZANGELA ASSUNCAO SAMAORA", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 9}, {"canal": "Reembolso", "custo": 903.03, "custo_sessao": 90.3, "meses_ativos": 1, "nome": "RAFAELA SOUZA COSTA", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 10}, {"canal": "Intercâmbio", "custo": 882.0, "custo_sessao": 126.0, "meses_ativos": 3, "nome": "COOPERATIVA DE TRABALHO MEDICO DE POUSO ALEGRE", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 7}, {"canal": "Negociação Direta", "custo": 800.0, "custo_sessao": 200.0, "meses_ativos": 1, "nome": "ALINE FERNANDA DA SILVA COSTA LTDA", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 4}, {"canal": "Reembolso", "custo": 749.36, "custo_sessao": 74.94, "meses_ativos": 1, "nome": "MARILIA RIBEIRO DA SILVA REIS", "pacientes": "<5", "participacao_pct": 0.02, "sessoes": 10}, {"canal": "Reembolso", "custo": 672.0, "custo_sessao": 112.0, "meses_ativos": 1, "nome": "ANA PAULA MACHADO DOS SANTOS", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 6}, {"canal": "Reembolso", "custo": 583.92, "custo_sessao": 64.88, "meses_ativos": 1, "nome": "PATRICIA LIMA", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 9}, {"canal": "Reembolso", "custo": 562.5, "custo_sessao": 70.31, "meses_ativos": 1, "nome": "FABIANA PEREIRA LOPES", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 8}, {"canal": "Reembolso", "custo": 385.87, "custo_sessao": 192.94, "meses_ativos": 1, "nome": "MARCIA ALVES DE PINHO", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 2}, {"canal": "Rede Credenciada", "custo": 378.0, "custo_sessao": 126.0, "meses_ativos": 1, "nome": "CASA AURORA TERAPIAS LTDA", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 3}, {"canal": "Reembolso", "custo": 362.62, "custo_sessao": 60.44, "meses_ativos": 1, "nome": "Maiara Tamires Cesar", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 6}, {"canal": "Reembolso", "custo": 343.36, "custo_sessao": 28.61, "meses_ativos": 1, "nome": "LUCIANA DOLABELA", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 12}, {"canal": "Reembolso", "custo": 336.0, "custo_sessao": 168.0, "meses_ativos": 1, "nome": "LOTUS MEDICINA E SAUDE LTDA", "pacientes": "<5", "participacao_pct": 0.01, "sessoes": 2}, {"canal": "Negociação Direta (P.F)", "custo": 180.0, "custo_sessao": 180.0, "meses_ativos": 1, "nome": "MARIANE RODRIGUES NUNES", "pacientes": "<5", "participacao_pct": 0.0, "sessoes": 1}, {"canal": "Rede Credenciada", "custo": 120.0, "custo_sessao": 120.0, "meses_ativos": 1, "nome": "CLINICA DR. FLAVIANO DE PINHO AMARAL EIRELLI", "pacientes": "<5", "participacao_pct": 0.0, "sessoes": 1}], "serie_mensal": [{"custo": 187644.83, "custo_sessao": 158.62, "m": "2025/01", "pacientes": 386, "prestadores_ativos": 47, "registros": 583, "sessoes": 1183, "sessoes_por_paciente": 3.06}, {"custo": 198672.05, "custo_sessao": 154.01, "m": "2025/02", "pacientes": 391, "prestadores_ativos": 32, "registros": 800, "sessoes": 1290, "sessoes_por_paciente": 3.3}, {"custo": 241352.75, "custo_sessao": 160.47, "m": "2025/03", "pacientes": 416, "prestadores_ativos": 31, "registros": 808, "sessoes": 1504, "sessoes_por_paciente": 3.62}, {"custo": 234757.54, "custo_sessao": 157.87, "m": "2025/04", "pacientes": 429, "prestadores_ativos": 34, "registros": 905, "sessoes": 1487, "sessoes_por_paciente": 3.47}, {"custo": 271683.45, "custo_sessao": 158.88, "m": "2025/05", "pacientes": 441, "prestadores_ativos": 35, "registros": 1008, "sessoes": 1710, "sessoes_por_paciente": 3.88}, {"custo": 270964.65, "custo_sessao": 158.64, "m": "2025/06", "pacientes": 460, "prestadores_ativos": 35, "registros": 998, "sessoes": 1708, "sessoes_por_paciente": 3.71}, {"custo": 282685.35, "custo_sessao": 161.17, "m": "2025/07", "pacientes": 469, "prestadores_ativos": 39, "registros": 1097, "sessoes": 1754, "sessoes_por_paciente": 3.74}, {"custo": 288579.55, "custo_sessao": 161.22, "m": "2025/08", "pacientes": 469, "prestadores_ativos": 35, "registros": 1148, "sessoes": 1790, "sessoes_por_paciente": 3.82}, {"custo": 288892.59, "custo_sessao": 162.3, "m": "2025/09", "pacientes": 468, "prestadores_ativos": 37, "registros": 1171, "sessoes": 1780, "sessoes_por_paciente": 3.8}, {"custo": 282479.79, "custo_sessao": 161.69, "m": "2025/10", "pacientes": 469, "prestadores_ativos": 33, "registros": 1134, "sessoes": 1747, "sessoes_por_paciente": 3.72}, {"custo": 275059.7, "custo_sessao": 162.28, "m": "2025/11", "pacientes": 468, "prestadores_ativos": 33, "registros": 1109, "sessoes": 1695, "sessoes_por_paciente": 3.62}, {"custo": 242465.05, "custo_sessao": 163.61, "m": "2025/12", "pacientes": 463, "prestadores_ativos": 33, "registros": 972, "sessoes": 1482, "sessoes_por_paciente": 3.2}, {"custo": 199460.43, "custo_sessao": 165.53, "m": "2026/01", "pacientes": 412, "prestadores_ativos": 32, "registros": 770, "sessoes": 1205, "sessoes_por_paciente": 2.92}, {"custo": 221091.19, "custo_sessao": 159.52, "m": "2026/02", "pacientes": 447, "prestadores_ativos": 27, "registros": 1007, "sessoes": 1386, "sessoes_por_paciente": 3.1}, {"custo": 282903.05, "custo_sessao": 153.75, "m": "2026/03", "pacientes": 487, "prestadores_ativos": 32, "registros": 1427, "sessoes": 1840, "sessoes_por_paciente": 3.78}, {"custo": 280546.34, "custo_sessao": 156.29, "m": "2026/04", "pacientes": 498, "prestadores_ativos": 32, "registros": 1348, "sessoes": 1795, "sessoes_por_paciente": 3.6}, {"custo": 267215.49, "custo_sessao": 152.43, "m": "2026/05", "pacientes": 452, "prestadores_ativos": 28, "registros": 1326, "sessoes": 1753, "sessoes_por_paciente": 3.88}, {"custo": 260050.61, "custo_sessao": 149.2, "m": "2026/06", "pacientes": 470, "prestadores_ativos": 30, "registros": 1318, "sessoes": 1743, "sessoes_por_paciente": 3.71}], "serie_prestador": {"meses": ["2025/01", "2025/02", "2025/03", "2025/04", "2025/05", "2025/06", "2025/07", "2025/08", "2025/09", "2025/10", "2025/11", "2025/12", "2026/01", "2026/02", "2026/03", "2026/04", "2026/05", "2026/06"], "prestadores": {"ANANDA VIEIRA MORAES": {"custo": [17108.83, 13275.0, 20309.58, 16100.0, 16560.0, 15410.0, 16100.0, 9890.0, 16790.0, 16100.0, 19090.0, 13340.0, 10120.0, 10120.0, 17155.0, 17625.0, 17625.0, 16920.0], "preco": [219.34, 225.0, 228.2, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 230.0, 235.0, 235.0, 241.44, 235.0], "sessoes": [78, 59, 89, 70, 72, 67, 70, 43, 73, 70, 83, 58, 44, 44, 73, 75, 73, 72]}, "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA": {"custo": [0.0, 4320.0, 5240.0, 4060.0, 3840.0, 5310.0, 4170.0, 4970.0, 4810.0, 4490.0, 4330.0, 3850.0, 2250.0, 2482.0, 1638.0, 2142.0, 1764.0, 1638.0], "preco": [null, 160.0, 154.12, 156.15, 160.0, 147.5, 154.44, 155.31, 155.16, 154.83, 154.64, 154.0, 173.08, 146.0, 126.0, 126.0, 126.0, 126.0], "sessoes": [0, 27, 34, 26, 24, 36, 27, 32, 31, 29, 28, 25, 13, 17, 13, 17, 14, 13]}, "BASTOS JARDIM LTDA": {"custo": [7480.0, 6460.0, 8500.0, 7650.0, 9010.0, 9520.0, 9860.0, 8840.0, 8500.0, 8160.0, 8670.0, 6460.0, 7990.0, 4590.0, 7310.0, 7820.0, 7140.0, 6120.0], "preco": [170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 166.05, 170.0], "sessoes": [44, 38, 50, 45, 53, 56, 58, 52, 50, 48, 51, 38, 47, 27, 43, 46, 43, 36]}, "CASA UNIMED": {"custo": [18240.0, 37080.0, 38160.0, 39600.0, 41520.0, 37680.0, 47640.0, 43560.0, 41520.0, 41520.0, 36120.0, 28680.0, 22680.0, 32160.0, 50760.0, 41040.0, 47280.0, 42480.0], "preco": [120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0], "sessoes": [152, 309, 318, 330, 346, 314, 397, 363, 346, 346, 301, 239, 189, 268, 423, 342, 394, 354]}, "CLINICA INTEGRADA EM SAUDE LTDA": {"custo": [4080.0, 6159.15, 4880.0, 4080.0, 6780.0, 5620.0, 5000.0, 6020.0, 6180.0, 6200.0, 4820.0, 3820.0, 2600.0, 2520.0, 4320.0, 5220.0, 3960.0, 4860.0], "preco": [194.29, 186.64, 195.2, 194.29, 193.71, 193.79, 192.31, 194.19, 193.13, 193.75, 192.8, 191.0, 185.71, 180.0, 180.0, 180.0, 180.0, 180.0], "sessoes": [21, 33, 25, 21, 35, 29, 26, 31, 32, 32, 25, 20, 14, 14, 24, 29, 22, 27]}, "CLINICA PSICONEURO GV LTDA": {"custo": [3450.0, 4200.0, 4650.0, 4950.0, 4420.0, 6630.0, 4080.0, 5440.0, 4080.0, 3740.0, 2380.0, 3230.0, 2380.0, 2890.0, 3906.0, 252.0, 0.0, 252.0], "preco": [150.0, 150.0, 150.0, 154.69, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 126.0, 126.0, null, 126.0], "sessoes": [23, 28, 31, 32, 26, 39, 24, 32, 24, 22, 14, 19, 14, 17, 31, 2, 0, 2]}, "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA": {"custo": [18495.66, 16911.74, 16375.0, 16830.0, 18425.0, 14280.0, 17179.14, 18130.0, 14060.0, 17080.0, 16670.0, 15150.0, 13210.0, 11770.0, 13270.0, 11570.0, 6900.0, 6440.0], "preco": [203.25, 203.76, 204.69, 213.04, 211.78, 213.13, 209.5, 213.29, 213.03, 213.5, 213.72, 213.38, 213.06, 214.0, 214.03, 222.5, 230.0, 230.0], "sessoes": [91, 83, 80, 79, 87, 67, 82, 85, 66, 80, 78, 71, 62, 55, 62, 52, 30, 28]}, "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)": {"custo": [14880.0, 26520.0, 23640.0, 27600.0, 34080.0, 39960.0, 44580.0, 58100.0, 60620.0, 59360.0, 60900.0, 53860.0, 39580.0, 58800.0, 72834.0, 67032.0, 72450.0, 77364.0], "preco": [120.0, 120.0, 119.39, 120.0, 119.16, 119.28, 136.75, 140.0, 140.0, 140.0, 140.0, 139.17, 138.88, 139.67, 125.58, 126.0, 126.0, 126.0], "sessoes": [124, 221, 198, 230, 286, 335, 326, 415, 433, 424, 435, 387, 285, 421, 580, 532, 575, 614]}, "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA": {"custo": [16960.0, 17920.0, 23200.0, 23200.0, 25760.0, 26080.0, 23040.0, 21440.0, 20800.0, 22560.0, 23520.0, 19360.0, 20640.0, 16800.0, 18720.0, 22576.0, 9450.0, 12978.0], "preco": [160.0, 160.0, 161.11, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 160.0, 147.56, 126.0, 126.0], "sessoes": [106, 112, 144, 145, 161, 163, 144, 134, 130, 141, 147, 121, 129, 105, 117, 153, 75, 103]}, "IZAIRA CRISTIANE CATALUNHA BOTELHO": {"custo": [5400.0, 6660.0, 8820.0, 6480.0, 7740.0, 8460.0, 7920.0, 9360.0, 7020.0, 7740.0, 6120.0, 5040.0, 4320.0, 5040.0, 2340.0, 6660.0, 4320.0, 2880.0], "preco": [180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0, 180.0], "sessoes": [30, 37, 49, 36, 43, 47, 44, 52, 39, 43, 34, 28, 24, 28, 13, 37, 24, 16]}, "JC ORTOPEDIA LTDA": {"custo": [960.0, 2160.0, 3600.0, 4200.0, 6000.0, 3840.0, 4560.0, 5760.0, 6000.0, 3720.0, 5400.0, 3960.0, 2880.0, 4800.0, 4680.0, 5124.0, 5418.0, 4410.0], "preco": [120.0, 113.68, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 120.0, 124.98, 126.0, 126.0], "sessoes": [8, 19, 30, 35, 50, 32, 38, 48, 50, 31, 45, 33, 24, 40, 39, 41, 43, 35]}, "LAGARES E PIMENTA LTDA": {"custo": [5400.0, 2600.0, 7200.0, 5400.0, 9800.0, 6400.0, 5400.0, 4800.0, 5000.0, 6200.0, 3800.0, 6800.0, 4600.0, 2000.0, 2400.0, 5600.0, 3000.0, 2800.0], "preco": [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0], "sessoes": [27, 13, 36, 27, 49, 32, 27, 24, 25, 31, 19, 34, 23, 10, 12, 28, 15, 14]}, "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA": {"custo": [10340.0, 13200.0, 18260.0, 21340.0, 29480.0, 36740.0, 37620.0, 40700.0, 43120.0, 38060.0, 38720.0, 36300.0, 30800.0, 38660.0, 51200.0, 51040.0, 49500.0, 46200.0], "preco": [220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 220.0, 219.66, 219.74, 220.0, 220.0, 220.0], "sessoes": [47, 60, 83, 97, 134, 167, 171, 185, 196, 173, 176, 165, 140, 176, 233, 232, 225, 210]}, "PEQUENINHOS CLINICA LTDA": {"custo": [9000.0, 9600.0, 15620.0, 11800.0, 20680.0, 14200.0, 13230.0, 12400.0, 15690.0, 16800.0, 15251.5, 14125.0, 12000.0, 12192.5, 11200.0, 10712.0, 3600.0, 0.0], "preco": [200.0, 200.0, 200.26, 200.0, 200.78, 200.0, 200.45, 200.0, 201.15, 200.0, 185.99, 198.94, 200.0, 184.73, 200.0, 181.56, 240.0, null], "sessoes": [45, 48, 78, 59, 103, 71, 66, 62, 78, 84, 82, 71, 60, 66, 56, 59, 15, 0]}, "PRIMEIRO PASSOS LTDA": {"custo": [4000.0, 9200.0, 8800.0, 7000.0, 6400.0, 7400.0, 9000.0, 6600.0, 7200.0, 6800.0, 7000.0, 6400.0, 4400.0, 3600.0, 5040.0, 4830.0, 420.0, 210.0], "preco": [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 210.0, 210.0, 210.0, 210.0], "sessoes": [20, 46, 44, 35, 32, 37, 45, 33, 36, 34, 35, 32, 22, 18, 24, 23, 2, 1]}}}, "solicitante_executante": {"cobertura": {"custo_pct": 50.99, "registros_pct": 82.1}, "solicitantes": [{"cbos": "Psicologo clinico", "custo": 1516706.0, "n_executantes": 10, "nome": "UNIMED GOVERNADOR VALADARES", "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "principal_pct": 55.16, "sessoes": 9908}, {"cbos": "Psicologo clinico", "custo": 271920.0, "n_executantes": 1, "nome": "ALINE TEIXEIRA CAMPOS FONSECA", "principal": "CASA UNIMED", "principal_pct": 100.0, "sessoes": 2266}, {"cbos": "Psicologo clinico", "custo": 178800.0, "n_executantes": 1, "nome": "KELLY CRISTINE BATISTA CRUZ", "principal": "CASA UNIMED", "principal_pct": 100.0, "sessoes": 1490}, {"cbos": "Psicologo clinico", "custo": 111360.0, "n_executantes": 1, "nome": "MICHELLE APARECIDA ALEIXO SILVEIRA", "principal": "CASA UNIMED", "principal_pct": 100.0, "sessoes": 928}, {"cbos": "Psicologo clinico", "custo": 82320.0, "n_executantes": 1, "nome": "NEILSON COSTA RIBEIRO", "principal": "CASA UNIMED", "principal_pct": 100.0, "sessoes": 686}, {"cbos": "Médico Hematologista", "custo": 48050.0, "n_executantes": 2, "nome": "RINARA GROSSI ROCHA DE ANDRADE", "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "principal_pct": 51.74, "sessoes": 290}, {"cbos": "Médico neurologista", "custo": 44042.0, "n_executantes": 3, "nome": "MARIANNA SOTTE DA SILVA", "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "principal_pct": 70.43, "sessoes": 241}, {"cbos": "Psicologo clinico", "custo": 42480.0, "n_executantes": 1, "nome": "MARINA SILVA PAIVA FERREIRA", "principal": "CASA UNIMED", "principal_pct": 100.0, "sessoes": 354}, {"cbos": "Médico clínico", "custo": 4800.0, "n_executantes": 2, "nome": "ISAIAS DE ASSIS NEVES", "principal": "JC ORTOPEDIA LTDA", "principal_pct": 75.0, "sessoes": 40}, {"cbos": "Médico pediatra", "custo": 4216.0, "n_executantes": 2, "nome": "GABRIELA ALVIM PEREIRA THOME", "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA", "principal_pct": 52.18, "sessoes": 26}, {"cbos": "Médico neurologista", "custo": 4056.0, "n_executantes": 2, "nome": "MATEUS NADER CUNHA", "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "principal_pct": 62.03, "sessoes": 27}, {"cbos": "Médico pediatra", "custo": 3972.0, "n_executantes": 2, "nome": "RONALD DE MELO COSTA", "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)", "principal_pct": 94.46, "sessoes": 30}], "solicitantes_distintos": 26}, "tipo_pagamento": [{"canal": "Negociação Direta", "custo": 2059835.0, "custo_sessao": 186.66, "pacientes": 222, "pct": 45.01, "prestadores": 30, "sessoes": 11035}, {"canal": "Rede Credenciada", "custo": 1646446.0, "custo_sessao": 153.96, "pacientes": 391, "pct": 35.98, "prestadores": 10, "sessoes": 10694}, {"canal": "Casa Unimed", "custo": 687720.0, "custo_sessao": 120.0, "pacientes": 209, "pct": 15.03, "prestadores": 1, "sessoes": 5731}, {"canal": "Reembolso", "custo": 132017.41, "custo_sessao": 136.38, "pacientes": 45, "pct": 2.88, "prestadores": 43, "sessoes": 968}, {"canal": "Intercâmbio", "custo": 45666.0, "custo_sessao": 122.76, "pacientes": 13, "pct": 1.0, "prestadores": 5, "sessoes": 372}, {"canal": "Negociação Direta (P.F)", "custo": 4820.0, "custo_sessao": 92.69, "pacientes": "<5", "pct": 0.11, "prestadores": 2, "sessoes": 52}], "tipo_pagamento_mensal": {"canais": {"Casa Unimed": [18240.0, 37080.0, 38160.0, 39600.0, 41520.0, 37680.0, 47640.0, 43560.0, 41520.0, 41520.0, 36120.0, 28680.0, 22680.0, 32160.0, 50760.0, 41040.0, 47280.0, 42480.0], "Intercâmbio": [2574.0, 1596.0, 1608.0, 4314.0, 2460.0, 2340.0, 3054.0, 2592.0, 2088.0, 3684.0, 2436.0, 2190.0, 2094.0, 1464.0, 1206.0, 2712.0, 1692.0, 5562.0], "Negociação Direta": [111915.0, 110105.0, 145045.0, 130780.0, 147605.0, 142880.0, 132090.0, 130480.0, 127270.0, 132310.0, 124940.0, 114180.0, 97880.0, 80910.0, 93305.0, 100065.0, 73895.0, 64180.0], "Negociação Direta (P.F)": [0.0, 540.0, 450.0, 450.0, 450.0, 0.0, 450.0, 0.0, 450.0, 450.0, 180.0, 900.0, 0.0, 0.0, 500.0, 0.0, 0.0, 0.0], "Rede Credenciada": [26780.0, 42600.0, 45500.0, 53140.0, 69560.0, 80540.0, 86760.0, 104560.0, 109740.0, 101140.0, 105020.0, 94240.0, 73260.0, 103142.0, 134384.0, 132898.0, 139710.0, 143472.0], "Reembolso": [28135.83, 6751.05, 10589.75, 6473.54, 10088.45, 7524.65, 12691.35, 7387.55, 7824.59, 3375.79, 6363.7, 2275.05, 3546.43, 3415.19, 2748.05, 3831.34, 4638.49, 4356.61]}, "meses": ["2025/01", "2025/02", "2025/03", "2025/04", "2025/05", "2025/06", "2025/07", "2025/08", "2025/09", "2025/10", "2025/11", "2025/12", "2026/01", "2026/02", "2026/03", "2026/04", "2026/05", "2026/06"]}}</script>
+<!-- TEA-DATA:END -->
+<!-- CTE-DATA:BEGIN -->
+<script type="application/json" id="cte-data">{"cid": [{"grupo": "F84.0 (autismo infantil)", "pacientes": 256, "pct": 85.33}, {"grupo": "Outros CID", "pacientes": 30, "pct": 10.0}, {"grupo": "Demais F84.x (TEA)", "pacientes": 14, "pct": 4.67}], "cobertura": {"custo_aba_psico": 1111251.46, "custo_coorte": 5114220.74, "custo_invisivel": 4002969.28, "pacientes_com_aba": 194, "pacientes_coorte": 300, "pacientes_sem_aba": 106, "pct_visivel": 21.73}, "concentracao": {"gini": 0.45, "media": 20850.8, "mediana": 15324.64, "top10_pct": 32.02, "top20_pct": 49.51}, "disciplina_mensal": {"inicio": "2024/01", "meses": ["2024/01", "2024/02", "2024/03", "2024/04", "2024/05", "2024/06", "2024/07", "2024/08", "2024/09", "2024/10", "2024/11", "2024/12", "2025/01", "2025/02", "2025/03", "2025/04", "2025/05", "2025/06", "2025/07", "2025/08", "2025/09", "2025/10", "2025/11", "2025/12", "2026/01", "2026/02"], "series": {"Consultas": [11460.53, 11034.52, 13726.54, 17360.95, 15727.78, 13209.36, 16621.2, 17136.6, 16280.54, 15113.46, 16180.15, 14888.68, 15572.21, 19446.6, 15883.64, 16298.14, 21828.14, 15744.25, 25231.13, 19766.21, 26867.91, 28821.47, 25084.96, 17443.87, 15521.23, 16371.61], "Exames": [10026.93, 4147.91, 4200.32, 11702.62, 11290.97, 5067.22, 7792.38, 7711.39, 7405.24, 9204.43, 5763.3, 6244.8, 9037.19, 11814.55, 9058.52, 16047.87, 11349.11, 10676.81, 9780.4, 9520.46, 14287.83, 15436.63, 11657.34, 8064.58, 7822.34, 11652.79], "Fonoaudiologia": [23936.55, 31706.12, 42354.52, 52603.08, 41414.8, 40127.64, 35828.6, 51448.74, 52418.48, 52525.08, 54371.44, 41146.52, 41462.82, 45980.88, 53093.96, 62796.3, 58176.98, 58038.11, 50538.73, 57541.08, 69228.46, 63709.73, 51265.83, 49261.3, 43945.06, 45437.1], "Medicamentos e materiais": [2362.03, 414.02, 585.07, 1488.09, 5559.82, 189.48, 395.06, 2042.8, 1785.07, 1885.73, 3813.95, 2203.65, 868.29, 7002.19, 1163.86, 4241.33, 590.2, 473.67, 225.31, 718.52, 588.67, 181.34, 692.79, 808.11, 56.73, 3152.33], "Outras terapias": [704.87, 506.09, 1419.43, 1781.52, 3119.61, 2684.79, 2989.92, 2578.18, 3042.51, 2430.85, 4027.36, 3955.55, 1694.99, 2445.44, 4087.08, 4165.32, 4542.5, 5336.94, 6275.84, 5940.0, 5540.0, 5888.24, 6060.0, 6152.52, 4920.0, 4129.14], "Procedimentos médicos": [1567.58, 0.0, 0.0, 845.5, 5316.05, 0.0, 0.0, 1211.65, 1876.12, 890.0, 1985.07, 588.63, 0.0, 6716.18, 2675.0, 4743.6, 809.4, 0.0, 0.0, 4672.04, 595.24, 132.17, 1648.63, 647.72, 132.17, 2592.87], "Psicologia": [24207.46, 46664.72, 52289.8, 63567.12, 56001.72, 47945.56, 50059.28, 70308.4, 74468.48, 60189.2, 58174.8, 51281.44, 32311.76, 59451.36, 67470.32, 70345.6, 70534.88, 60166.96, 67795.2, 79348.76, 85434.64, 75499.56, 68831.58, 54090.2, 40702.24, 55114.24], "Psicomotricidade": [0.0, 0.0, 0.0, 0.0, 1150.0, 920.0, 1620.0, 3140.0, 2740.0, 2340.0, 2140.0, 750.0, 500.0, 300.0, 1100.0, 1310.0, 1320.0, 2650.0, 1960.0, 1480.0, 2100.0, 1050.0, 1760.0, 1900.0, 1320.0, 1320.0], "Psicopedagogia": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1480.0, 3150.0, 3840.0, 6230.0, 6890.0, 6360.0, 6220.0, 6920.0, 3650.0, 9200.0, 9390.0, 5910.0, 8280.0, 7040.0, 7960.0, 6770.0, 5770.0, 7396.0, 4480.0, 6010.0], "Taxas e diárias": [9802.2, 910.06, 1156.86, 5964.89, 12318.11, 1024.58, 1711.21, 6956.31, 6518.21, 6976.2, 7774.79, 1504.62, 863.53, 23579.4, 4761.05, 13658.15, 5315.83, 1706.67, 388.48, 4566.67, 4099.5, 1186.77, 10939.61, 8044.32, 1594.46, 16195.24], "Terapia Ocupacional": [24176.44, 36570.57, 38417.42, 44961.9, 44816.01, 40008.57, 42285.48, 51600.96, 55645.06, 44181.74, 45264.84, 33312.45, 36334.03, 34539.18, 35462.82, 38184.68, 45116.37, 46445.76, 40053.11, 55767.8, 52323.68, 53113.48, 46099.2, 45323.27, 35965.38, 33365.6]}, "total": [108244.59, 131954.01, 154149.96, 200275.67, 196714.87, 151177.2, 160783.13, 217285.03, 226019.71, 201966.69, 206385.7, 162236.34, 144864.82, 218195.78, 198406.25, 240990.99, 228973.41, 207149.17, 210528.2, 246361.54, 269025.93, 251789.39, 229809.94, 199131.89, 156459.61, 195340.92]}, "disciplinas": [{"custo": 1542255.28, "disciplina": "Psicologia", "pacientes": 291, "pct": 30.16, "registros": 13758}, {"custo": 1270357.91, "disciplina": "Fonoaudiologia", "pacientes": 241, "pct": 24.84, "registros": 6923}, {"custo": 1099335.8, "disciplina": "Terapia Ocupacional", "pacientes": 183, "pct": 21.5, "registros": 4817}, {"custo": 458621.68, "disciplina": "Consultas", "pacientes": 298, "pct": 8.97, "registros": 4262}, {"custo": 246763.93, "disciplina": "Exames", "pacientes": 281, "pct": 4.83, "registros": 9558}, {"custo": 159517.72, "disciplina": "Taxas e diárias", "pacientes": 246, "pct": 3.12, "registros": 1723}, {"custo": 122946.0, "disciplina": "Psicopedagogia", "pacientes": 34, "pct": 2.4, "registros": 973}, {"custo": 96418.69, "disciplina": "Outras terapias", "pacientes": 42, "pct": 1.89, "registros": 685}, {"custo": 43488.11, "disciplina": "Medicamentos e materiais", "pacientes": 190, "pct": 0.85, "registros": 5060}, {"custo": 39645.62, "disciplina": "Procedimentos médicos", "pacientes": 53, "pct": 0.78, "registros": 298}, {"custo": 34870.0, "disciplina": "Psicomotricidade", "pacientes": 6, "pct": 0.68, "registros": 94}], "genero": {"F": 84, "M": 216}, "idade_diagnostico": {"media": 4.23, "mediana": 3.0, "n": 223}, "meta": {"camada": "Coorte CTE — Centro de Terapias Especiais · Casa Unimed GV", "custo_total_periodo": 6255240.9, "data_corte": "2026-02-28", "gerado_em": "2026-07-11", "pacientes": 300, "politica_k": 5, "registros": 63845, "selo": "Coorte CTE · 300", "sha256_insumo": "97c3de06381a8cc5cd4becba78a970a46f5cd5899a09520cc55f38f4e836c504", "universo": "coorte fixa de 300 beneficiários (matrícula)", "versao_script": "1.0.0"}, "multidisciplinar": [{"n_terapias": "1", "pacientes": 35}, {"n_terapias": "2", "pacientes": 69}, {"n_terapias": "3", "pacientes": 141}, {"n_terapias": "4", "pacientes": 44}, {"n_terapias": "5+", "pacientes": 10}], "multidisciplinar_resumo": {"pct": 65.0, "tres_ou_mais": 195}, "nivel_suporte": [{"custo_medio": 17166.82, "nivel": "Nível I", "pacientes": 113}, {"custo_medio": 27060.0, "nivel": "Nível II", "pacientes": 76}, {"custo_medio": 31630.69, "nivel": "Nível III", "pacientes": 50}, {"custo_medio": 11103.2, "nivel": "Não classificado", "pacientes": 61}]}</script>
+<!-- CTE-DATA:END -->
+
+<script>
+'use strict';
+/* Painel TEA v2 — aplicação. Dados 100% pré-agregados no build (build-tea-data.py);
+   nenhum micro-dado é processado no navegador. */
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const NF0 = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
+const NF1 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const NF2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtN = v => NF0.format(v);
+const fmt1 = v => NF1.format(v);
+const fmt2 = v => NF2.format(v);
+const brl = v => 'R$ ' + NF2.format(v);
+const brl0 = v => 'R$ ' + NF0.format(v);
+const brlK = v => v >= 1e6 ? 'R$ ' + NF2.format(v / 1e6) + ' mi' : v >= 1e3 ? 'R$ ' + NF0.format(v / 1e3) + ' mil' : brl0(v);
+const kOr = v => v === '<5' ? '<5' : fmtN(v);
+const MESES_PT = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const mShort = ym => MESES_PT[+ym.slice(5, 7)] + '/' + ym.slice(2, 4);
+const mFull = ym => MESES_PT[+ym.slice(5, 7)] + '/' + ym.slice(0, 4);
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+// Nome de prestador/solicitante em painel: SEMPRE maiúsculas e sem acento (padrão Grupo CSV)
+const dNome = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+const trunc = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+
+/* ---------- tokens (idem CSS) ---------- */
+const GREEN = '#00995d', GREEN_DARK = '#006b41', CITRUS = '#8baf1f', DARK = '#004e4c',
+      ORANGE = '#f47920', RED = '#c0392b', AMBER = '#b7791f', INK3 = '#5c7f7d',
+      LINE = '#e5e8e2', GRIDY = '#f0f2ec', TEAL_A = 'rgba(0,78,76,0.45)';
+const COR_CANAL = {
+  'Casa Unimed': GREEN, 'Rede Credenciada': DARK, 'Negociação Direta': ORANGE,
+  'Reembolso': RED, 'Intercâmbio': '#2a78d6', 'Negociação Direta (P.F)': '#8aa3a1'
+};
+
+/* ---------- dados ---------- */
+let DATA = null;
+try { DATA = JSON.parse($('tea-data').textContent); } catch (e) { DATA = null; }
+let CTE = null;
+try { CTE = JSON.parse($('cte-data').textContent); if (CTE && !CTE.meta) CTE = null; } catch (e) { CTE = null; }
+const temDados = DATA && DATA.meta && DATA.serie_mensal;
+const temChart = () => typeof Chart !== 'undefined';
+const graficos = {};
+
+function novoChart(id, cfg) {
+  const cv = $(id);
+  if (!cv) return null;
+  if (!temChart()) {
+    const box = cv.closest('.chart-box, .modal-chart');
+    if (box && !box.querySelector('.fallback-box')) {
+      const fb = el('div', 'fallback-box');
+      fb.textContent = cv.getAttribute('aria-label') || 'Gráfico indisponível — os valores estão nas tabelas e textos desta seção.';
+      box.replaceChildren(fb);
+    }
+    return null;
+  }
+  if (graficos[id]) graficos[id].destroy();
+  graficos[id] = new Chart(cv.getContext('2d'), cfg);
+  return graficos[id];
+}
+
+/* rótulos com halo branco (herdado do painel v1) */
+const halo = {
+  id: 'halo',
+  afterDatasetsDraw(chart, _a, opts) {
+    if (!opts || !opts.labels) return;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = '600 10.5px "Source Sans 3",sans-serif';
+    ctx.textAlign = 'center';
+    opts.labels(chart).forEach(l => {
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+      ctx.strokeText(l.text, l.x, l.y);
+      ctx.fillStyle = l.color || INK3;
+      ctx.fillText(l.text, l.x, l.y);
+    });
+    ctx.restore();
+  }
+};
+
+/* ---------- boot ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  if (!temDados) { $('boot_err').hidden = false; return; }
+  if (temChart()) aplicarDefaults(); else $('boot_err').hidden = false;
+  fillGlobal();
+  if (!CTE) {
+    document.querySelectorAll('[data-view="cte"]').forEach(e => e.remove());
+    const av = $('vg_cte_aviso'); if (av) av.remove();
+    const vc = $('view-cte'); if (vc) vc.remove();
+  }
+  navigate(slugFromHash());
+});
+
+function aplicarDefaults() {
+  Chart.defaults.font.family = "'Source Sans 3','Segoe UI',Arial,sans-serif";
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = INK3;
+  Chart.defaults.borderColor = LINE;
+  Chart.defaults.plugins.legend.position = 'bottom';
+  Chart.defaults.plugins.legend.align = 'start';
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.boxHeight = 10;
+  Chart.defaults.plugins.legend.labels.padding = 10;
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0,60,58,0.96)';
+  Chart.defaults.plugins.tooltip.titleFont = { family: "'Source Sans 3',sans-serif", size: 12, weight: 600 };
+  Chart.defaults.plugins.tooltip.bodyFont = { family: "'Source Sans 3',sans-serif", size: 11.5 };
+  Chart.defaults.plugins.tooltip.padding = 12;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+  Chart.defaults.plugins.tooltip.displayColors = false;
+}
+
+const escalaY = extra => Object.assign({ grid: { color: GRIDY }, border: { display: false },
+  ticks: { callback: v => brlK(v) } }, extra || {});
+const escalaX = extra => Object.assign({ grid: { display: false }, border: { display: false } }, extra || {});
+
+function fillGlobal() {
+  const p = DATA.meta.periodo;
+  const per = mShort(p.inicio) + ' – ' + mShort(p.fim);
+  $('sb_periodo').textContent = per;
+  $('tb_periodo').textContent = per;
+  $('tb_atualizado').textContent = 'corte ' + DATA.meta.data_corte.split('-').reverse().join('/');
+  $('mt_periodo').textContent = mFull(p.inicio) + ' a ' + mFull(p.fim) + ' (' + p.competencias + ' competências)';
+  $('mt_corte').textContent = DATA.meta.data_corte.split('-').reverse().join('/');
+  $('mt_sha').textContent = DATA.meta.sha256_insumo ? DATA.meta.sha256_insumo.slice(0, 16) + '…' : '–';
+  $('mt_versao').textContent = DATA.meta.versao_script;
+  $('mt_pacientes').textContent = fmtN(DATA.meta.contagens.pacientes);
+  $('mt_matriculas').textContent = fmtN(DATA.meta.contagens.matriculas);
+  const lag = DATA.qualidade.lag;
+  $('mt_lag').textContent = fmt1(lag.pct_mesma_competencia) + '% dos registros são faturados na competência do atendimento e ' +
+    fmt1(lag.pct_1_mes) + '% com um mês de defasagem (cauda até ' + lag.max_meses + ' meses em caso isolado).';
+  $('mt_proj').textContent = DATA.projecao.premissas;
+  const ax = DATA.meta.adultos_excluidos;
+  if (ax) $('mt_adultos').textContent = fmtN(ax.n_pacientes) + ' pacientes 18+ (' + brl0(ax.custo) +
+    ' · ' + fmtN(ax.sessoes) + ' sessões) foram excluídos dos agregados por uso esparso e codificação incerta (regra: ' + ax.regra + ').';
+}
+
+/* ---------- router ---------- */
+const VIEW_SLUGS = ['visao', 'evolucao', 'prestadores', 'pacientes', 'canais', 'cte', 'metodo'];
+const renderedViews = {};
+const RENDERERS = { visao: rVisao, evolucao: rEvolucao, prestadores: rPrestadores, pacientes: rPacientes, canais: rCanais, cte: rCTE, metodo: () => {} };
+
+function slugFromHash() {
+  const h = (location.hash || '').replace(/^#\/?/, '');
+  return VIEW_SLUGS.indexOf(h) >= 0 ? h : 'visao';
+}
+function navigate(slug) {
+  if (!temDados) return;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const sec = $('view-' + slug);
+  sec.classList.add('active');
+  document.querySelectorAll('.nav-item[data-view], .tab-item[data-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === slug);
+    if (b.dataset.view === slug) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  $('tb_title').textContent = sec.dataset.title;
+  $('tb_sub').textContent = sec.dataset.sub;
+  if (!renderedViews[slug]) { renderedViews[slug] = true; RENDERERS[slug](); }
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll('.nav-item[data-view], .tab-item[data-view]').forEach(b =>
+  b.addEventListener('click', () => { location.hash = '#/' + b.dataset.view; }));
+document.addEventListener('click', ev => {
+  const g = ev.target.closest('[data-goto]');
+  if (g) location.hash = '#/' + g.dataset.goto;
+});
+$('tb_info').addEventListener('click', () => { location.hash = '#/metodo'; });
+window.addEventListener('hashchange', () => navigate(slugFromHash()));
+
+/* componentes */
+function kpiCard(label, num, sub, corSub) {
+  const c = el('div', 'kpi-card');
+  c.appendChild(el('div', 'label', label));
+  c.appendChild(el('div', 'num', num));
+  const s = el('div', 'sub', sub || '');
+  if (corSub) s.style.color = corSub;
+  c.appendChild(s);
+  return c;
+}
+function kpiCell(label, num, sub, corSub) {
+  const c = el('div', 'kpi-cell');
+  c.appendChild(el('div', 'label', label));
+  c.appendChild(el('div', 'num', num));
+  const s = el('div', 'sub', sub || '');
+  s.style.fontWeight = '600';
+  if (corSub) s.style.color = corSub;
+  c.appendChild(s);
+  return c;
+}
+function achadoCard(tom, kicker, titulo, metric, texto) {
+  const a = el('div', 'achado ' + tom);
+  a.appendChild(el('div', 'kicker', kicker));
+  a.appendChild(el('h4', null, titulo));
+  if (metric) a.appendChild(el('div', 'metric', metric));
+  a.appendChild(el('p', null, texto));
+  return a;
+}
+
+/* ================== VISÃO GERAL ================== */
+function rVisao() {
+  const sm = DATA.serie_mensal, c = DATA.meta.contagens, cp = DATA.comparativos;
+  const ult = sm[sm.length - 1], conc = DATA.concentracao;
+  const nd = DATA.tipo_pagamento.find(t => t.canal === 'Negociação Direta');
+  const casa = DATA.tipo_pagamento.find(t => t.canal === 'Casa Unimed');
+  const picoPac = sm.reduce((a, b) => b.pacientes > a.pacientes ? b : a);
+  const yoy = cp.yoy_s1 || { custo_pct: 0, sessoes_pct: 0 };
+
+  const g = $('vg_kpis');
+  g.replaceChildren(
+    kpiCard('Custo acumulado · 18m', brlK(c.custo_total), fmtN(c.sessoes) + ' sessões faturadas'),
+    kpiCard('Custo do mês', brlK(ult.custo), mFull(ult.m) + ' · em consolidação'),
+    kpiCard('Pacientes ativos', fmtN(ult.pacientes), 'pico ' + fmtN(picoPac.pacientes) + ' em ' + mShort(picoPac.m)),
+    kpiCard('Sessões no mês', fmtN(ult.sessoes), fmt1(ult.sessoes_por_paciente) + ' por paciente'),
+    kpiCard('R$/sessão do mês', fmt2(ult.custo_sessao), 'mínimo da série', GREEN_DARK),
+    kpiCard('Custo YoY · 1º sem', (yoy.custo_pct >= 0 ? '+' : '') + fmt1(yoy.custo_pct) + '%',
+      (yoy.sessoes_pct >= 0 ? '+' : '') + fmt1(yoy.sessoes_pct) + '% em sessões', yoy.custo_pct >= 8 ? RED : AMBER)
+  );
+
+  const u12 = sm.slice(-12);
+  novoChart('c_home_serie', {
+    type: 'line',
+    data: { labels: u12.map(x => mShort(x.m)), datasets: [{
+      data: u12.map(x => x.custo), borderColor: GREEN, borderWidth: 2.2,
+      backgroundColor: 'rgba(0,153,93,0.08)', fill: true, tension: 0.3,
+      pointRadius: 2.5, pointBackgroundColor: GREEN }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: t => ' ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  $('vg_serie_txt').textContent = 'Últimos 12 meses entre ' + brlK(Math.min(...u12.map(x => x.custo))) +
+    ' e ' + brlK(Math.max(...u12.map(x => x.custo))) + ' por competência. O vale de dez–fev é sazonal (férias escolares) — compare sempre com o mesmo mês do ano anterior.';
+
+  const scp = $('sc_prest');
+  scp.replaceChildren(el('div', 'label', 'Concentração de prestadores'), el('div', 'num', fmt1(conc.top5_pct) + '%'),
+    el('div', 'sub', 'do custo nos 5 maiores · ver Prestadores →'));
+  const scc = $('sc_canais');
+  scc.replaceChildren(el('div', 'label', 'Mix de pagamento'), el('div', 'num', fmt1(nd.pct) + '%'),
+    el('div', 'sub', 'em negociação direta a ' + brl(nd.custo_sessao) + '/sessão · ver Canais →'));
+
+  const ins = $('vg_insight');
+  ins.replaceChildren();
+  const insP = el('p');
+  insP.innerHTML = 'O custo cresce por <strong>volume de pacientes</strong> (' +
+    (yoy.sessoes_pct >= 0 ? '+' : '') + fmt1(yoy.sessoes_pct) + '% de sessões YoY), não por preço: o custo por sessão caiu ao mínimo da série (' +
+    brl(ult.custo_sessao) + ') com o ganho de participação da Casa Unimed (' + brl(casa.custo_sessao) + ' fixo) e da rede credenciada.';
+  ins.appendChild(insP);
+  ins.appendChild(Object.assign(el('cite'), { textContent: 'Leitura executiva do período — detalhes na view Evolução' }));
+
+  const m18 = DATA.qualidade.maiores_18, f18 = DATA.faixa_etaria.find(f => f.faixa === '18+');
+  $('vg_achados').replaceChildren(
+    achadoCard('amber', 'Sazonalidade', 'Férias escolares derrubam o volume de dez a fev',
+      mShort(cp.vale.m) + ' · ' + brlK(cp.vale.custo),
+      'O vale recorrente vai de dezembro a fevereiro (pico: ' + mShort(cp.pico.m) + ', ' + brlK(cp.pico.custo) + '). Quedas de janeiro não são alarme — a comparação correta é ano contra ano.'),
+    achadoCard('teal', 'Concentração', 'Cinco prestadores concentram quase dois terços do custo',
+      fmt1(conc.top5_pct) + '% · HHI ' + fmtN(conc.hhi_2025 || conc.hhi_periodo) + ' → ' + fmtN(conc['hhi_s1_2026'] || conc.hhi_periodo),
+      'A concentração cresceu no 1º semestre de 2026 e a rede ativa mensal encolheu. Negociar com poucos move quase tudo — ver a view Prestadores.'),
+    achadoCard('amber', 'Em validação', 'Pacientes adultos num procedimento pediátrico',
+      kOr(m18.pacientes) + ' pacientes 18+ · ' + brlK(m18.custo),
+      'Há pacientes de 18 a 78 anos sob o código "Terapias Pediátricas Especiais" (' + fmtN(m18.sessoes) + ' sessões). Em validação com a operadora: continuidade legítima de cuidado ou codificação a corrigir.')
+  );
+
+  $('vg_nota_base').textContent = 'Sessões faturadas do procedimento 50005103 (psicologia ABA) por competência. Não inclui fonoaudiologia, TO ou fisioterapia. ' +
+    mFull(ult.m) + ' ainda em consolidação (cauda de faturamento).';
+
+  const av = $('vg_cte_aviso');
+  if (av && CTE) {
+    av.replaceChildren(
+      el('div', 'label', 'Escopo — este painel vê só a psicologia ABA'),
+      el('div', 'num', fmt1(CTE.cobertura.pct_visivel) + '%'),
+      el('div', 'sub', 'do custo TEA da coorte CTE (300 pacientes); o restante — fono, TO e mais ' +
+        brlK(CTE.cobertura.custo_invisivel) + ' — está na seção Coorte CTE →'));
+  }
+}
+
+/* ================== EVOLUÇÃO ================== */
+function rEvolucao() {
+  const sm = DATA.serie_mensal, cp = DATA.comparativos;
+  const anoF = cp.anos_fechados && cp.anos_fechados['2025'];
+  const s1 = cp.s1_atual;
+
+  const kr = $('ev_kpis');
+  kr.replaceChildren(
+    kpiCell('2025 fechado', anoF ? brlK(anoF.custo) : '–', anoF ? fmtN(anoF.sessoes) + ' sessões' : ''),
+    kpiCell('1º semestre 2026', s1 ? brlK(s1.custo) : '–', s1 ? fmtN(s1.sessoes) + ' sessões · média ' + brlK(s1.media_mensal) + '/mês' : ''),
+    kpiCell('Run-rate 2026', s1 ? brlK(s1.run_rate_anual) : '–', 'anualização simples do 1º semestre', AMBER)
+  );
+
+  const labels = sm.map(x => mShort(x.m));
+  const custos = sm.map(x => x.custo);
+  const mm3 = custos.map((_, i) => i < 2 ? null :
+    Math.round((custos[i] + custos[i - 1] + custos[i - 2]) / 3));
+  const iPico = custos.indexOf(Math.max(...custos)), iVale = custos.indexOf(Math.min(...custos));
+  novoChart('c_custo_mensal', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Custo', data: custos, borderColor: GREEN, borderWidth: 2.2,
+        backgroundColor: 'rgba(0,153,93,0.08)', fill: true, tension: 0.3,
+        pointRadius: custos.map((_, i) => i === iPico || i === iVale ? 4.5 : 2.5),
+        pointBackgroundColor: custos.map((_, i) => i === iPico ? DARK : i === iVale ? AMBER : GREEN) },
+      { label: 'Média móvel 3m', data: mm3, borderColor: TEAL_A, borderWidth: 1.6,
+        borderDash: [6, 4], pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  $('ev_custo_txt').textContent = 'Pico em ' + mFull(sm[iPico].m) + ' (' + brlK(sm[iPico].custo) + ') e vale em ' +
+    mFull(sm[iVale].m) + ' (' + brlK(sm[iVale].custo) + '). A média móvel suaviza a sazonalidade e mostra o patamar estrutural em torno de ' +
+    brlK(mm3[mm3.length - 1]) + '/mês.';
+
+  const base = sm[0];
+  const idx = c => sm.map(x => Math.round(x[c] / base[c] * 100));
+  novoChart('c_decomposicao', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Pacientes ativos', data: idx('pacientes'), borderColor: GREEN, borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: 'Sessões/paciente', data: idx('sessoes_por_paciente'), borderColor: CITRUS, borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: 'R$/sessão', data: idx('custo_sessao'), borderColor: ORANGE, borderWidth: 2, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + t.parsed.y + ' (base 100)' } } },
+      scales: { y: escalaY({ ticks: { callback: v => v } }), x: escalaX() } }
+  });
+  const dp = idx('pacientes')[sm.length - 1], ds = idx('sessoes_por_paciente')[sm.length - 1], dc = idx('custo_sessao')[sm.length - 1];
+  $('ev_decomp_txt').textContent = 'Da primeira à última competência: pacientes ativos foram a ' + dp +
+    ', sessões por paciente a ' + ds + ' e preço por sessão a ' + dc + ' (base 100). O crescimento é volume de carteira — o preço trabalha a favor.';
+
+  const porCal = ano => { const m = {}; sm.forEach(x => { if (x.m.startsWith(ano)) m[+x.m.slice(5, 7)] = x.custo; }); return m; };
+  const c25 = porCal('2025'), c26 = porCal('2026');
+  const mesesS1 = [1, 2, 3, 4, 5, 6].filter(mm => c25[mm] !== undefined && c26[mm] !== undefined);
+  novoChart('c_yoy_mensal', {
+    type: 'bar',
+    data: { labels: mesesS1.map(mm => MESES_PT[mm]), datasets: [
+      { label: '2025', data: mesesS1.map(mm => c25[mm]), backgroundColor: 'rgba(0,78,76,0.45)', borderRadius: 4 },
+      { label: '2026', data: mesesS1.map(mm => c26[mm]), backgroundColor: DARK, borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  const yoy = cp.yoy_s1;
+  $('ev_yoy_txt').textContent = yoy ? '2026 corre ' + (yoy.custo_pct >= 0 ? '+' : '') + fmt1(yoy.custo_pct) +
+    '% acima de 2025 no semestre comparável — com ' + (yoy.sessoes_pct >= 0 ? '+' : '') + fmt1(yoy.sessoes_pct) +
+    '% de sessões. Volume cresce mais que custo: o mix de canais está barateando a sessão média.' : '';
+
+  const spp = ano => { const m = {}; sm.forEach(x => { if (x.m.startsWith(ano)) m[+x.m.slice(5, 7)] = x.sessoes_por_paciente; }); return m; };
+  const s25 = spp('2025'), s26 = spp('2026');
+  novoChart('c_sazonalidade', {
+    type: 'line',
+    data: { labels: MESES_PT.slice(1), datasets: [
+      { label: '2025', data: MESES_PT.slice(1).map((_, i) => s25[i + 1] ?? null), borderColor: TEAL_A, borderWidth: 2, pointRadius: 2.5, tension: 0.3 },
+      { label: '2026', data: MESES_PT.slice(1).map((_, i) => s26[i + 1] ?? null), borderColor: GREEN, borderWidth: 2.2, pointRadius: 2.5, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + fmt1(t.parsed.y) + ' sessões/paciente' } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmt1(v) } }), x: escalaX() } }
+  });
+  const minS = Math.min(...sm.map(x => x.sessoes_por_paciente)), maxS = Math.max(...sm.map(x => x.sessoes_por_paciente));
+  $('ev_saz_txt').textContent = 'Sessões por paciente oscilam entre ' + fmt1(minS) + ' (janeiro) e ' + fmt1(maxS) +
+    ' ao longo do ano — o padrão de férias escolares se repete nos dois anos e deve ser considerado em qualquer meta mensal.';
+
+  const es = DATA.entradas_saidas;
+  novoChart('c_fluxo_pacientes', {
+    type: 'bar',
+    data: { labels: es.map(x => mShort(x.m)), datasets: [
+      { label: 'Entradas', data: es.map(x => x.estoque_inicial ? null : x.entradas), backgroundColor: GREEN, borderRadius: 3, stack: 'f' },
+      { label: 'Saídas', data: es.map(x => x.provisorio ? null : -x.saidas), backgroundColor: RED, borderRadius: 3, stack: 'f' },
+      { label: 'Pacientes ativos', data: sm.map(x => x.pacientes), type: 'line', borderColor: DARK,
+        borderWidth: 2, pointRadius: 0, tension: 0.3, yAxisID: 'y2' }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + fmtN(Math.abs(t.parsed.y)) } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmtN(Math.abs(v)) } }),
+        y2: { position: 'right', grid: { display: false }, border: { display: false } }, x: escalaX() } }
+  });
+  const entMed = Math.round(es.slice(1).reduce((a, b) => a + b.entradas, 0) / (es.length - 1));
+  $('ev_fluxo_txt').textContent = 'O primeiro mês é estoque inicial (' + fmtN(es[0].entradas) +
+    ' pacientes), não coorte de entrada; depois disso a carteira recebe ~' + fmtN(entMed) +
+    ' pacientes novos/mês. Saídas dos últimos 2 meses ficam ocultas: ainda não há janela de silêncio para confirmar desligamento.';
+
+  const pj = DATA.projecao;
+  novoChart('c_projecao', {
+    type: 'line',
+    data: { labels: labels.concat(pj.meses.map(mShort)), datasets: [
+      { label: 'Histórico', data: custos.concat(pj.meses.map(() => null)), borderColor: GREEN, borderWidth: 2.2,
+        backgroundColor: 'rgba(0,153,93,0.08)', fill: true, pointRadius: 0, tension: 0.3 },
+      { label: 'Expansão', data: sm.map(() => null).concat(pj.cenarios.expansao), borderColor: ORANGE, borderDash: [5, 4], borderWidth: 1.8, pointRadius: 0, tension: 0.3 },
+      { label: 'Base', data: sm.map(() => null).concat(pj.cenarios.base), borderColor: DARK, borderDash: [5, 4], borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: 'Contido', data: sm.map(() => null).concat(pj.cenarios.contido), borderColor: INK3, borderDash: [5, 4], borderWidth: 1.8, pointRadius: 0, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  const somaBase = pj.cenarios.base.reduce((a, b) => a + b, 0);
+  const somaCont = pj.cenarios.contido.reduce((a, b) => a + b, 0);
+  const somaExp = pj.cenarios.expansao.reduce((a, b) => a + b, 0);
+  $('ev_proj_txt').textContent = 'Provisão dos próximos 12 meses: ' + brlK(somaCont) + ' (contido) · ' +
+    brlK(somaBase) + ' (base) · ' + brlK(somaExp) + ' (expansão). São cenários sazonalizados calculados no build — premissas na view Método —, não compromissos.';
+
+  const lag = DATA.qualidade.lag;
+  $('ev_nota_ibnr').textContent = fmt1(lag.pct_mesma_competencia) + '% das linhas caem na competência do atendimento; ' +
+    fmt1(lag.pct_1_mes) + '% chegam com 1 mês de atraso (cauda até ' + lag.max_meses +
+    ' meses em caso isolado). O último mês tende a subir um pouco após o fechamento.';
+}
+
+/* ================== PRESTADORES ================== */
+let rankOrdenado = null, rankDir = -1, rankCol = 'custo';
+function rPrestadores() {
+  const rk = DATA.ranking_prestadores, conc = DATA.concentracao, sm = DATA.serie_mensal;
+
+  $('pr_kpis').replaceChildren(
+    kpiCell('Prestadores no período', fmtN(rk.length), 'após os agrupamentos do LEIA-ME'),
+    kpiCell('Ativos no último mês', fmtN(sm[sm.length - 1].prestadores_ativos),
+      'eram ' + fmtN(sm[0].prestadores_ativos) + ' no primeiro mês', AMBER),
+    kpiCell('Concentração (HHI)', fmtN(conc['hhi_s1_2026'] || conc.hhi_periodo),
+      'era ' + fmtN(conc.hhi_2025 || conc.hhi_periodo) + ' em 2025 — subindo', AMBER)
+  );
+
+  montarTabelaPrestadores();
+  $('pr_filtro').addEventListener('input', montarTabelaPrestadores);
+  document.querySelectorAll('#pr_tabela th').forEach(th => {
+    const b = el('button', null, th.textContent);
+    b.style.cssText = 'all:unset;cursor:pointer;font:inherit;color:inherit;white-space:nowrap';
+    th.replaceChildren(b);
+    const marcar = () => {
+      document.querySelectorAll('#pr_tabela th').forEach(o => { o.setAttribute('aria-sort', 'none'); o.classList.remove('sort-asc', 'sort-desc'); });
+      th.setAttribute('aria-sort', rankDir === 1 ? 'ascending' : 'descending');
+      th.classList.add(rankDir === 1 ? 'sort-asc' : 'sort-desc');
+    };
+    if (th.dataset.k === rankCol) marcar();
+    b.addEventListener('click', () => {
+      if (rankCol === th.dataset.k) rankDir = -rankDir; else { rankCol = th.dataset.k; rankDir = th.dataset.t === 's' ? 1 : -1; }
+      marcar();
+      montarTabelaPrestadores();
+    });
+  });
+
+  const top15 = rk.slice(0, 15), resto = rk.slice(15);
+  const paretoLabels = top15.map(x => trunc(dNome(x.nome), 22)).concat(['DEMAIS (' + resto.length + ')']);
+  const paretoCusto = top15.map(x => x.custo).concat([resto.reduce((a, b) => a + b.custo, 0)]);
+  let acc = 0;
+  const paretoAcc = paretoCusto.map(v => { acc += v; return Math.round(acc / DATA.meta.contagens.custo_total * 1000) / 10; });
+  novoChart('c_pareto', {
+    type: 'bar',
+    data: { labels: paretoLabels, datasets: [
+      { label: 'Custo', data: paretoCusto, backgroundColor: paretoLabels.map((_, i) => i < 15 ? DARK : '#b9c8c6'), borderRadius: 3 },
+      { label: '% acumulado', data: paretoAcc, type: 'line', borderColor: ORANGE, borderWidth: 2, pointRadius: 2, tension: 0.2, yAxisID: 'y2' }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => t.dataset.type === 'line' ? ' acumulado: ' + fmt1(t.parsed.y) + '%' : ' ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY(), y2: { position: 'right', min: 0, max: 100, grid: { display: false }, border: { display: false }, ticks: { callback: v => v + '%' } },
+        x: escalaX({ ticks: { font: { size: 9.5 }, maxRotation: 60, minRotation: 45 } }) } }
+  });
+  $('pr_pareto_txt').textContent = 'Top 5 = ' + fmt1(conc.top5_pct) + '% do custo; top 10 = ' + fmt1(conc.top10_pct) +
+    '%; top 15 = ' + fmt1(conc.top15_pct) + '%. A cauda de ' + resto.length + ' prestadores soma o restante.';
+
+  const dp = DATA.dispersao_preco, refs = dp.referencias;
+  const dpOrd = dp.prestadores.slice().sort((a, b) => b.preco - a.preco);
+  novoChart('c_dispersao_preco', {
+    type: 'bar',
+    data: { labels: dpOrd.map(x => trunc(dNome(x.nome), 26)), datasets: [{
+      data: dpOrd.map(x => x.preco), borderRadius: 3,
+      backgroundColor: dpOrd.map(x => x.preco > refs.media_carteira ? ORANGE : GREEN) }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: t => ' ' + brl(t.parsed.x) + '/sessão · ' + fmtN(dpOrd[t.dataIndex].sessoes) + ' sessões' } },
+        anota: {} },
+      scales: { x: escalaY({ position: 'top', ticks: { callback: v => 'R$ ' + v } }), y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 9.5 } } } } },
+    plugins: [{
+      id: 'anota',
+      afterDatasetsDraw(chart) {
+        const { ctx, chartArea, scales } = chart;
+        [[refs.casa_unimed, 'Casa ' + brl0(refs.casa_unimed), GREEN_DARK],
+         [refs.media_carteira, 'média ' + brl(refs.media_carteira), DARK],
+         [refs.mediana_grupo, 'mediana ' + brl0(refs.mediana_grupo), AMBER]].forEach(([v, lbl, cor]) => {
+          if (v == null) return;
+          const x = scales.x.getPixelForValue(v);
+          ctx.save();
+          ctx.strokeStyle = cor; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.moveTo(x, chartArea.top); ctx.lineTo(x, chartArea.bottom); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.font = '600 10px "Source Sans 3",sans-serif'; ctx.textAlign = 'center';
+          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+          ctx.strokeText(lbl, x, chartArea.top + 10);
+          ctx.fillStyle = cor; ctx.fillText(lbl, x, chartArea.top + 10);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+  $('pr_disp_txt').textContent = 'Mesmo procedimento, preços de ' + brl(dpOrd[dpOrd.length - 1].preco) + ' a ' +
+    brl(dpOrd[0].preco) + ' por sessão (' + fmt2(dpOrd[0].preco / dpOrd[dpOrd.length - 1].preco) +
+    'x) entre os ' + dpOrd.length + ' prestadores com ≥100 sessões. Referências internas: Casa Unimed ' +
+    brl(refs.casa_unimed) + ', média da carteira ' + brl(refs.media_carteira) + '.';
+
+  const ec = DATA.economia_potencial;
+  const ecTop = ec.prestadores.slice().sort((a, b) => b.gap_total - a.gap_total).slice(0, 10);
+  novoChart('c_economia_potencial', {
+    type: 'bar',
+    data: { labels: ecTop.map(x => trunc(dNome(x.nome), 26)),
+      datasets: [{ data: ecTop.map(x => x.gap_total), backgroundColor: ORANGE, borderRadius: 3 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: t => ' gap: ' + brl0(t.parsed.x) + ' (' + fmtN(ecTop[t.dataIndex].sessoes) + ' sessões a ' + brl(ecTop[t.dataIndex].preco) + ')' } } },
+      scales: { x: escalaY({ position: 'top' }), y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 9.5 } } } } }
+  });
+  $('pr_econ_txt').textContent = 'Se as sessões destes prestadores tivessem sido pagas à referência da carteira (' +
+    brl(ec.referencia) + '), o período teria custado ' + brlK(ec.gap_total) +
+    ' a menos. É um teto teórico de negociação — não considera substituibilidade nem capacidade da rede.';
+
+  const qd = DATA.quadrante_prestadores;
+  const custosQ = qd.prestadores.map(p => p.custo);
+  const maxC = Math.max(...custosQ);
+  const raio = c => 6 + 22 * Math.sqrt(c / maxC);
+  const topNomes = qd.prestadores.slice().sort((a, b) => b.custo - a.custo).slice(0, 6).map(p => p.nome);
+  // Escala do eixo X: um outlier (poucos pacientes, muitas sessões/mês) esticava tudo.
+  // Limita a escala ao 2º maior + folga e ancora os fora-da-escala na borda (valor real no tooltip).
+  const xsOrd = qd.prestadores.map(p => p.x).slice().sort((a, b) => a - b);
+  const XMAX = Math.max(6, Math.ceil((xsOrd[xsOrd.length - 2] || 8) + 1));
+  const foraEscala = qd.prestadores.filter(p => p.x > XMAX).length;
+  novoChart('c_quadrante', {
+    type: 'bubble',
+    data: { datasets: qd.prestadores.map(p => ({
+      label: dNome(p.nome), data: [{ x: Math.min(p.x, XMAX), y: p.y, r: raio(p.custo) }],
+      backgroundColor: (COR_CANAL[p.canal] || INK3) + 'B3', borderColor: COR_CANAL[p.canal] || INK3,
+      borderWidth: p.x > XMAX ? 2 : 1, borderDash: p.x > XMAX ? [4, 2] : [] })) },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          title: t => t[0].dataset.label,
+          label: t => [' ' + fmt1(qd.prestadores[t.datasetIndex].x) + ' sessões/paciente-mês' + (qd.prestadores[t.datasetIndex].x > XMAX ? ' (fora da escala)' : ''),
+            ' ' + brl(t.parsed.y) + '/sessão',
+            ' custo total ' + brlK(qd.prestadores[t.datasetIndex].custo) + ' · ' + qd.prestadores[t.datasetIndex].canal] } },
+        quadrantes: {}, halo: { labels: chart => qd.prestadores
+          .map((p, i) => ({ p, i })).filter(o => topNomes.includes(o.p.nome))
+          .map(o => { const m = chart.getDatasetMeta(o.i).data[0];
+            return { text: dNome(o.p.nome.split(' ')[0]), x: m.x, y: m.y - m.options.radius - 5, color: DARK }; }) } },
+      scales: { y: escalaY({ title: { display: true, text: 'R$/sessão', color: INK3, font: { size: 10.5 } }, ticks: { callback: v => 'R$ ' + v } }),
+        x: escalaX({ min: 0, max: XMAX, title: { display: true, text: 'sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY } }) } },
+    plugins: [halo, {
+      id: 'quadrantes',
+      beforeDatasetsDraw(chart) {
+        const { ctx, chartArea: a, scales } = chart;
+        const cx = scales.x.getPixelForValue(qd.cortes.x), cy = scales.y.getPixelForValue(qd.cortes.y);
+        ctx.save();
+        ctx.fillStyle = 'rgba(192,57,43,0.045)'; ctx.fillRect(cx, a.top, a.right - cx, cy - a.top);
+        ctx.fillStyle = 'rgba(0,153,93,0.05)'; ctx.fillRect(a.left, cy, cx - a.left, a.bottom - cy);
+        ctx.strokeStyle = 'rgba(0,78,76,0.35)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(cx, a.top); ctx.lineTo(cx, a.bottom);
+        ctx.moveTo(a.left, cy); ctx.lineTo(a.right, cy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = 'italic 10.5px "Source Serif 4",serif'; ctx.fillStyle = INK3;
+        ctx.textAlign = 'left'; ctx.fillText('auditar intensidade →', cx + 8, a.top + 14);
+        ctx.textAlign = 'right'; ctx.fillText('← negociar preço', cx - 8, a.top + 14);
+        ctx.textAlign = 'left'; ctx.fillText('benchmark ↓', a.left + 6, a.bottom - 8);
+        ctx.restore();
+      }
+    }]
+  });
+  $('pr_quad_txt').textContent = 'Cortes nos valores reais: ' + brl(qd.cortes.y) + '/sessão (média da carteira) e ' +
+    fmt1(qd.cortes.x) + ' sessões/paciente-mês (mediana dos elegíveis). Bolha grande em quadrante alto = prioridade de gestão; a cor indica o canal de pagamento.' +
+    (foraEscala ? ' Eixo limitado a ' + XMAX + ' sessões/paciente-mês para leitura: ' + fmtN(foraEscala) +
+      ' prestador' + (foraEscala > 1 ? 'es' : '') + ' com intensidade acima disso (poucos pacientes) aparece' + (foraEscala > 1 ? 'm' : '') +
+      ' ancorado na borda direita, com o valor real no tooltip.' : '');
+
+  const spSer = DATA.serie_prestador, top5 = rk.slice(0, 5).map(x => x.nome);
+  const cores5 = [GREEN, DARK, ORANGE, CITRUS, '#2a78d6'];
+  novoChart('c_preco_evolucao', {
+    type: 'line',
+    data: { labels: spSer.meses.map(mShort), datasets: top5.map((n, i) => ({
+      label: trunc(dNome(n), 24), data: spSer.prestadores[n].preco,
+      borderColor: cores5[i], borderWidth: 1.8, pointRadius: 0, tension: 0.25, spanGaps: true })) },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + (t.parsed.y == null ? '—' : brl(t.parsed.y)) } } },
+      scales: { y: escalaY({ ticks: { callback: v => 'R$ ' + v } }), x: escalaX() } }
+  });
+  $('pr_preco_txt').textContent = 'Preço médio mensal dos cinco maiores por custo. Linhas planas indicam tabela contratada; degraus indicam reajuste — a Casa Unimed é fixa e serve de âncora.';
+
+  const se = DATA.solicitante_executante;
+  if (se && se.solicitantes.length) {
+    const ss = se.solicitantes;
+    novoChart('c_solicitantes', {
+      type: 'bar',
+      data: { labels: ss.map(x => trunc(dNome(x.nome), 26)),
+        datasets: [{ data: ss.map(x => x.custo), borderRadius: 3,
+          backgroundColor: ss.map(x => x.principal_pct >= 80 ? AMBER : DARK) }] },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: t => [' prescrito: ' + brl0(t.parsed.x),
+            ' ' + fmt1(ss[t.dataIndex].principal_pct) + '% executado por ' + dNome(ss[t.dataIndex].principal)] } } },
+        scales: { x: escalaY({ position: 'top' }), y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 9.5 } } } } }
+    });
+    const tbSe = document.querySelector('#se_tabela tbody');
+    tbSe.replaceChildren();
+    ss.forEach(x => {
+      const tr = document.createElement('tr');
+      if (x.principal_pct >= 80) tr.style.background = 'rgba(183,121,31,0.06)';
+      tr.appendChild(el('td', 'prest', dNome(x.nome)));
+      tr.appendChild(el('td', null, x.cbos));
+      tr.appendChild(el('td', 'num', brl0(x.custo)));
+      tr.appendChild(el('td', 'num', fmtN(x.sessoes)));
+      tr.appendChild(el('td', 'num', fmtN(x.n_executantes)));
+      tr.appendChild(el('td', null, dNome(x.principal)));
+      tr.appendChild(el('td', 'num', fmt1(x.principal_pct) + '%'));
+      tbSe.appendChild(tr);
+    });
+    const conc80 = ss.filter(x => x.principal_pct >= 80).length;
+    $('se_txt').textContent = 'A matriz cobre só o custo com prescritor identificado (' + fmt1(se.cobertura.custo_pct) +
+      '% do total; negociação direta, reembolso e intercâmbio não capturam o solicitante). ' + fmtN(se.solicitantes_distintos) +
+      ' solicitantes distintos; nos ' + ss.length + ' maiores, ' + fmtN(conc80) +
+      ' concentram 80% ou mais das sessões prescritas num único executante (linhas em âmbar) — concentração não é irregularidade, mas orienta a auditoria de vínculos.';
+  }
+
+  const so40 = DATA.tipo_pagamento.find(t => t.canal === 'Reembolso');
+  const menores5 = rk.filter(x => x.pacientes === '<5').length;
+  $('pr_achados').replaceChildren(
+    achadoCard('teal', 'Cauda longa', 'A maior parte da rede é pulverizada',
+      fmtN(menores5) + ' de ' + fmtN(rk.length) + ' prestadores',
+      'atendem menos de 5 pacientes cada (contagens exibidas como "<5"). ' + fmtN(so40.prestadores) +
+      ' prestadores recebem via reembolso — rede de exceção que quase não passa por contrato.')
+  );
+}
+
+function montarTabelaPrestadores() {
+  const rk = DATA.ranking_prestadores;
+  const filtro = norm($('pr_filtro').value || '');
+  const kNum = v => v === '<5' ? 0 : v;
+  const linhas = rk.filter(x => !filtro || norm(x.nome).includes(filtro))
+    .sort((a, b) => {
+      const va = rankCol === 'pacientes' ? kNum(a[rankCol]) : a[rankCol];
+      const vb = rankCol === 'pacientes' ? kNum(b[rankCol]) : b[rankCol];
+      return (typeof va === 'string' ? va.localeCompare(vb, 'pt-BR') : va - vb) * rankDir;
+    });
+  const tb = document.querySelector('#pr_tabela tbody');
+  tb.replaceChildren();
+  const top15 = new Set(rk.slice(0, 15).map(x => x.nome));
+  linhas.forEach(x => {
+    const tr = document.createElement('tr');
+    if (x.nome === 'CASA UNIMED') tr.classList.add('is-own');
+    const tdNome = el('td', 'prest', '');
+    if (top15.has(x.nome)) {
+      const b = el('button', null, dNome(x.nome));
+      b.style.cssText = 'all:unset;cursor:pointer;font:inherit;color:var(--u-green-dark);font-weight:600';
+      b.setAttribute('aria-haspopup', 'dialog');
+      b.addEventListener('click', () => abrirModal(x.nome));
+      tdNome.appendChild(b);
+    } else tdNome.textContent = dNome(x.nome);
+    tr.appendChild(tdNome);
+    tr.appendChild(el('td', null, x.canal));
+    tr.appendChild(el('td', 'num', brl0(x.custo)));
+    tr.appendChild(el('td', 'num', fmt1(x.participacao_pct) + '%'));
+    tr.appendChild(el('td', 'num', fmtN(x.sessoes)));
+    tr.appendChild(el('td', 'num', fmt2(x.custo_sessao)));
+    tr.appendChild(el('td', 'num', kOr(x.pacientes)));
+    tr.appendChild(el('td', 'num', fmtN(x.meses_ativos)));
+    tb.appendChild(tr);
+  });
+  $('pr_contador').textContent = linhas.length + ' de ' + rk.length;
+}
+
+/* modal do prestador */
+let modalAnterior = null;
+function abrirModal(nome) {
+  const rk = DATA.ranking_prestadores.find(x => x.nome === nome);
+  const ser = DATA.serie_prestador.prestadores[nome];
+  if (!rk || !ser) return;
+  modalAnterior = document.activeElement;
+  $('modal_titulo').textContent = dNome(nome);
+  $('modal_sub').textContent = rk.canal + ' · ' + fmt1(rk.participacao_pct) + '% do custo do período';
+  const mk = (v, l) => { const d = el('div', 'modal-kpi'); d.appendChild(el('span', 'mk-val', v)); d.appendChild(el('span', 'mk-lbl', l)); return d; };
+  $('modal_kpis').replaceChildren(
+    mk(brlK(rk.custo), 'Custo'), mk(fmtN(rk.sessoes), 'Sessões'),
+    mk(fmt2(rk.custo_sessao), 'R$/sessão'), mk(kOr(rk.pacientes), 'Pacientes'));
+  const labels = DATA.serie_prestador.meses.map(mShort);
+  novoChart('c_modal_serie', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Custo', data: ser.custo, backgroundColor: DARK, borderRadius: 3 },
+      { label: 'Sessões', data: ser.sessoes, type: 'line', borderColor: CITRUS, borderWidth: 2, pointRadius: 0, tension: 0.3, yAxisID: 'y2' }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + (t.dataset.type === 'line' ? fmtN(t.parsed.y) : brl0(t.parsed.y)) } } },
+      scales: { y: escalaY(), y2: { position: 'right', grid: { display: false }, border: { display: false } }, x: escalaX({ ticks: { font: { size: 9 } } }) } }
+  });
+  novoChart('c_modal_preco', {
+    type: 'line',
+    data: { labels, datasets: [{ data: ser.preco, borderColor: GREEN, borderWidth: 2, pointRadius: 2, tension: 0.25, spanGaps: true }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + (t.parsed.y == null ? '—' : brl(t.parsed.y)) + '/sessão' } } },
+      scales: { y: escalaY({ ticks: { callback: v => 'R$ ' + v } }), x: escalaX({ ticks: { font: { size: 9 } } }) } }
+  });
+  $('modal_overlay').hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('modal_fechar').focus();
+}
+function fecharModal() {
+  ['c_modal_serie', 'c_modal_preco'].forEach(id => { if (graficos[id]) { graficos[id].destroy(); delete graficos[id]; } });
+  $('modal_overlay').hidden = true;
+  document.body.style.overflow = '';
+  if (modalAnterior) modalAnterior.focus();
+}
+$('modal_fechar').addEventListener('click', fecharModal);
+$('modal_overlay').addEventListener('click', ev => { if (ev.target === $('modal_overlay')) fecharModal(); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('modal_overlay').hidden) fecharModal(); });
+
+/* ================== PACIENTES ================== */
+function rPacientes() {
+  const c = DATA.meta.contagens, intd = DATA.intensidade, cpp = DATA.custo_paciente, perm = DATA.permanencia;
+
+  $('pa_kpis').replaceChildren(
+    kpiCell('Pacientes no período', fmtN(c.pacientes), fmtN(c.matriculas) + ' matrículas (multi-carteirinha)'),
+    kpiCell('Intensidade mediana', fmt2(intd.mediana_media_por_paciente), 'sessões por mês ativo, por paciente'),
+    kpiCell('Custo mediano · 18m', brl0(cpp.mediana), 'p90 ' + brl0(cpp.p90) + ' · máx ' + brl0(cpp.max)),
+    kpiCell('Permanência mediana', fmtN(perm.mediana) + ' meses', fmtN(perm.presentes_todo_periodo) + ' pacientes presentes nos 18/18')
+  );
+
+  const fxg = DATA.faixa_etaria_x_genero;
+  const kPlot = v => v === '<5' ? 0 : v;
+  novoChart('c_piramide', {
+    type: 'bar',
+    data: { labels: fxg.map(x => x.faixa + ' anos'), datasets: [
+      { label: 'Masculino', data: fxg.map(x => -kPlot(x.M)), backgroundColor: DARK, borderRadius: 3 },
+      { label: 'Feminino', data: fxg.map(x => kPlot(x.F)), backgroundColor: CITRUS, borderRadius: 3 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      scales: { x: escalaY({ stacked: true, ticks: { callback: v => fmtN(Math.abs(v)) } }), y: { stacked: true, grid: { display: false }, border: { display: false } } },
+      plugins: { tooltip: { callbacks: { label: t => {
+        const raw = t.datasetIndex === 0 ? fxg[t.dataIndex].M : fxg[t.dataIndex].F;
+        return ' ' + t.dataset.label + ': ' + kOr(raw) + ' pacientes'; } } } } }
+  });
+  const g = DATA.genero;
+  $('pa_pir_txt').textContent = fmtN(g.M) + ' meninos para ' + fmtN(g.F) + ' meninas (' + fmt2(g.razao) +
+    ':1), razão consistente com a epidemiologia de TEA. Contagens menores que 5 aparecem como "<5" e são plotadas como zero.';
+
+  const fe = DATA.faixa_etaria;
+  novoChart('c_custo_faixa', {
+    type: 'bar',
+    data: { labels: fe.map(x => x.faixa + ' anos'), datasets: [{ data: fe.map(x => x.custo),
+      backgroundColor: fe.map(x => x.pct_custo >= 40 ? GREEN : 'rgba(0,78,76,0.55)'), borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + brl0(t.parsed.y) + ' (' + fmt1(fe[t.dataIndex].pct_custo) + '% do custo · ' + kOr(fe[t.dataIndex].pacientes) + ' pacientes)' } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  const nucleo = fe.reduce((a, b) => b.custo > a.custo ? b : a);
+  $('pa_cf_txt').textContent = 'A faixa ' + nucleo.faixa + ' anos é o núcleo da carteira: ' + kOr(nucleo.pacientes) +
+    ' pacientes e ' + fmt1(nucleo.pct_custo) + '% do custo (' + brlK(nucleo.custo) + '). Carteira jovem significa anos de utilização à frente — exposição estrutural, não pico passageiro.';
+
+  const ib = intd.buckets;
+  novoChart('c_intensidade', {
+    type: 'bar',
+    data: { labels: ib.map(x => x.faixa + ' sessões/mês'), datasets: [{ data: ib.map(x => kPlot(x.pacientes)), backgroundColor: GREEN, borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + kOr(ib[t.dataIndex].pacientes) + ' pacientes' } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmtN(v) } }), x: escalaX() } }
+  });
+  const pm = intd.paciente_mes;
+  $('pa_int_txt').textContent = 'Quase 9 em cada 10 pacientes fazem em média menos de 5 sessões faturadas por mês. Na distribuição paciente-mês (n=' +
+    fmtN(pm.n) + '): mediana ' + fmt1(pm.mediana) + ', p90 ' + fmtN(pm.p90) + ', p99 ' + fmtN(pm.p99) + ' — e máximo de ' +
+    fmtN(pm.max) + ' sessões num único mês (ver sinais de auditoria). Sessão faturada não equivale a hora de terapia.';
+
+  novoChart('c_concentracao_pacientes', {
+    type: 'bar',
+    data: { labels: ['mediana', 'p90', 'p99', 'máximo'], datasets: [{
+      data: [cpp.mediana, cpp.p90, cpp.p99, cpp.max],
+      backgroundColor: ['rgba(0,78,76,0.45)', 'rgba(0,78,76,0.65)', DARK, RED], borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + brl0(t.parsed.y) + ' por paciente no período' } } },
+      scales: { y: escalaY(), x: escalaX() } }
+  });
+  $('pa_conc_txt').textContent = 'Os ' + kOr(cpp.top10pct.pacientes) + ' pacientes mais caros (10% da carteira) somam ' +
+    fmt1(cpp.top10pct.pct_custo) + '% do custo; os 10 mais caros em absoluto, ' + fmt1(cpp.top10abs_pct_custo) +
+    '%. Concentração relevante, mas sem cauda explosiva — o custo é estrutural, de carteira.';
+
+  const pd = perm.dist;
+  novoChart('c_permanencia', {
+    type: 'bar',
+    data: { labels: pd.map(x => x.faixa + (x.faixa.includes('-') ? ' meses' : ' meses (todos)')), datasets: [{
+      data: pd.map(x => kPlot(x.pacientes)), backgroundColor: pd.map((_, i) => i === pd.length - 1 ? GREEN : 'rgba(0,78,76,0.55)'), borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + kOr(pd[t.dataIndex].pacientes) + ' pacientes' } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmtN(v) } }), x: escalaX({ ticks: { font: { size: 9.5 } } }) } }
+  });
+  $('pa_perm_txt').textContent = 'Permanência média de ' + fmt2(perm.media) + ' meses (mediana ' + fmtN(perm.mediana) +
+    ') dentro da janela de 18. A janela censura as pontas: quem entrou no fim ainda não teve tempo de acumular meses.';
+
+  const q = DATA.qualidade;
+  const ev0 = q.eventos_extremos[0];
+  $('pa_auditoria').replaceChildren(
+    achadoCard('amber', 'Evento extremo', 'Paciente-mês muito acima do padrão',
+      fmtN(intd.paciente_mes.max) + ' sessões · ' + brlK(ev0 ? ev0.valor : 0),
+      'O p99 da distribuição é ' + fmtN(intd.paciente_mes.p99) + ' sessões/mês. ' + q.eventos_extremos.length +
+      ' registros ≥ R$ 10 mil, do mesmo prestador P.F. de negociação direta — não nomeado aqui por ter <5 pacientes (regra k); identificação na fila privada de auditoria.'),
+    achadoCard('teal', 'Multi-prestador', 'Pacientes com mais de um prestador simultâneo',
+      fmtN(q.multi_prestador.paciente_mes) + ' paciente-mês',
+      kOr(q.multi_prestador.pacientes) + ' pacientes (' + fmt1(q.multi_prestador.pct_pacientes) +
+      '%) tiveram mais de um prestador no período. Simultaneidade no mesmo mês pode ser transição legítima — ou duplicidade a auditar.'),
+    achadoCard('amber', 'Qualidade de dado', 'Quase metade do custo sem solicitante identificado',
+      fmt1(q.sem_solicitante.pct_custo) + '% do custo',
+      fmtN(q.sem_solicitante.registros) + ' registros (' + fmt1(q.sem_solicitante.pct_registros) +
+      '%) não trazem o prescritor — todo o canal de negociação direta, reembolso e intercâmbio. Meta sugerida: capturar o solicitante na autorização.'),
+    achadoCard('teal', 'Higiene', 'Registros de valor zero e retroativos',
+      fmtN(q.valor_zero) + ' + ' + fmtN(q.retroativos_90d.registros),
+      fmtN(q.valor_zero) + ' registros com valor R$ 0,00 e ' + fmtN(q.retroativos_90d.registros) +
+      ' retroativos >90 dias (' + brlK(q.retroativos_90d.custo) + '; ' + fmt2(q.retroativos_90d.pct_custo) + '% do custo). Materialidade baixa; vale checagem cadastral.'),
+    achadoCard('amber', 'Em validação', 'Adultos no código pediátrico',
+      kOr(q.maiores_18.pacientes) + ' pacientes 18+',
+      brlK(q.maiores_18.custo) + ' e ' + fmtN(q.maiores_18.sessoes) +
+      ' sessões em pacientes de 18 a 78 anos. Maioria é adulto jovem (continuidade de cuidado); os casos de meia-idade e idosos merecem validação de codificação junto à operadora.')
+  );
+}
+
+/* ================== CANAIS ================== */
+function rCanais() {
+  const tp = DATA.tipo_pagamento, tpm = DATA.tipo_pagamento_mensal;
+  const nd = tp.find(t => t.canal === 'Negociação Direta');
+  const casa = tp.find(t => t.canal === 'Casa Unimed');
+  const rc = tp.find(t => t.canal === 'Rede Credenciada');
+  const re = tp.find(t => t.canal === 'Reembolso');
+
+  $('ca_kpis').replaceChildren(
+    kpiCell('Negociação direta', fmt1(nd.pct) + '%', 'do custo a ' + brl(nd.custo_sessao) + '/sessão — o canal mais caro', RED),
+    kpiCell('Casa Unimed', fmt1(casa.pct) + '%', brl(casa.custo_sessao) + ' fixo — a âncora de preço', GREEN_DARK),
+    kpiCell('Rede credenciada', fmt1(rc.pct) + '%', brl(rc.custo_sessao) + '/sessão · ' + fmtN(rc.prestadores) + ' prestadores')
+  );
+
+  const meses = tpm.meses;
+  const totalMes = meses.map((_, i) => tp.reduce((a, t) => a + (tpm.canais[t.canal][i] || 0), 0));
+  novoChart('c_mix_mensal', {
+    type: 'bar',
+    data: { labels: meses.map(mShort), datasets: tp.map(t => ({
+      label: t.canal, data: meses.map((_, i) => totalMes[i] ? Math.round(tpm.canais[t.canal][i] / totalMes[i] * 1000) / 10 : 0),
+      backgroundColor: COR_CANAL[t.canal] || INK3 })) },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + fmt1(t.parsed.y) + '%' } } },
+      scales: { y: escalaY({ stacked: true, max: 100, ticks: { callback: v => v + '%' } }), x: escalaX({ stacked: true }) } }
+  });
+  $('ca_mix_txt').textContent = 'Cada barra soma 100% do custo do mês. O avanço gradual das fatias Casa Unimed e rede credenciada sobre a negociação direta explica a queda do preço médio em 2026.';
+
+  novoChart('c_donut_canais', {
+    type: 'doughnut',
+    data: { labels: tp.map(t => t.canal + ' (' + fmt1(t.pct) + '%)'),
+      datasets: [{ data: tp.map(t => t.custo), backgroundColor: tp.map(t => COR_CANAL[t.canal] || INK3), borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: { legend: { display: true }, tooltip: { callbacks: { label: t => ' ' + brl0(t.parsed) } } } }
+  });
+  $('ca_donut_txt').textContent = 'Negociação direta e rede credenciada respondem por ' + fmt1(nd.pct + rc.pct) +
+    '% do custo acumulado; reembolso é ' + fmt1(re.pct) + '% — pequeno no dinheiro, grande em número de prestadores.';
+
+  novoChart('c_preco_canal', {
+    type: 'bar',
+    data: { labels: tp.map(t => t.canal), datasets: [{ data: tp.map(t => t.custo_sessao),
+      backgroundColor: tp.map(t => COR_CANAL[t.canal] || INK3), borderRadius: 3 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + brl(t.parsed.x) + '/sessão' } } },
+      scales: { x: escalaY({ position: 'top', ticks: { callback: v => 'R$ ' + v } }), y: { grid: { display: false }, border: { display: false } } } }
+  });
+  $('ca_preco_txt').textContent = 'O mesmo procedimento custa de ' + brl(tp[tp.length - 1].custo_sessao) + ' a ' +
+    brl(Math.max(...tp.map(t => t.custo_sessao))) + ' por sessão dependendo do canal. A diferença entre negociação direta e Casa Unimed é de ' +
+    brl(nd.custo_sessao - casa.custo_sessao) + ' por sessão.';
+
+  const tb = document.querySelector('#ca_tabela tbody');
+  tb.replaceChildren();
+  tp.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.appendChild(el('td', null, t.canal));
+    tr.appendChild(el('td', 'num', brl0(t.custo)));
+    tr.appendChild(el('td', 'num', fmt1(t.pct) + '%'));
+    tr.appendChild(el('td', 'num', fmtN(t.sessoes)));
+    tr.appendChild(el('td', 'num', fmt2(t.custo_sessao)));
+    tr.appendChild(el('td', 'num', kOr(t.pacientes)));
+    tr.appendChild(el('td', 'num', fmtN(t.prestadores)));
+    tb.appendChild(tr);
+  });
+
+  const slider = $('sim_slider');
+  const simular = () => {
+    const pct = +slider.value;
+    const sessoesMig = nd.sessoes * pct / 100;
+    const econ = sessoesMig * (nd.custo_sessao - casa.custo_sessao);
+    $('sim_pct').textContent = pct + '%';
+    $('sim_econ_periodo').textContent = brlK(econ);
+    $('sim_econ_ano').textContent = brlK(econ * 12 / DATA.meta.periodo.competencias);
+    $('sim_desc').textContent = 'Migrando ' + pct + '% das ' + fmtN(nd.sessoes) + ' sessões da negociação direta (' +
+      fmtN(Math.round(sessoesMig)) + ' sessões) para o preço da Casa Unimed (' + brl(casa.custo_sessao) + ' vs ' + brl(nd.custo_sessao) +
+      '). Fórmula na view Método. Ressalva: a Casa atende ' + kOr(casa.pacientes) + ' pacientes hoje — capacidade instalada precisa ser validada.';
+  };
+  slider.addEventListener('input', simular);
+  simular();
+
+  const shareExc = meses.map((_, i) => totalMes[i] ?
+    Math.round((tpm.canais['Negociação Direta'][i] + tpm.canais['Reembolso'][i] + (tpm.canais['Negociação Direta (P.F)'] ? tpm.canais['Negociação Direta (P.F)'][i] : 0)) / totalMes[i] * 1000) / 10 : 0);
+  novoChart('c_proxy_regulatorio', {
+    type: 'line',
+    data: { labels: meses.map(mShort), datasets: [{ data: shareExc, borderColor: ORANGE, borderWidth: 2.2,
+      backgroundColor: 'rgba(244,121,32,0.08)', fill: true, tension: 0.3, pointRadius: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' canais de exceção: ' + fmt1(t.parsed.y) + '% do custo' } } },
+      scales: { y: escalaY({ ticks: { callback: v => v + '%' } }), x: escalaX() } }
+  });
+  $('ca_proxy_txt').textContent = 'Reembolso + negociação direta como fatia do custo mensal: onde a rede contratada não absorve a demanda, o custo escapa por canais de exceção — a antessala da judicialização. Tendência de queda é o sinal saudável.';
+
+  const inter = DATA.intercambio;
+  $('ca_nota_inter').textContent = inter ? brlK(inter.custo) + ' (' + fmt2(inter.custo / DATA.meta.contagens.custo_total * 100) +
+    '% do custo), ' + fmtN(inter.sessoes) + ' sessões de ' + kOr(inter.pacientes) + ' pacientes atendidos em ' +
+    inter.cooperativas.length + ' cooperativas fora da área (pico: ' + mShort(inter.pico.m) + ', ' + brlK(inter.pico.custo) + ').' :
+    'Sem atendimentos de intercâmbio no período.';
+
+  $('ca_achados').replaceChildren(
+    achadoCard('teal', 'Regulação', 'Sessões ilimitadas por norma — o controle é de integridade',
+      'RN 469/2021 · RN 539/2022',
+      'Para CID F84 a ANS veda limite de sessões e garante o método prescrito. Judicialização de TEA tem alto êxito do beneficiário (ABA entre os métodos mais pedidos). A gestão possível: preço por canal, contratualização da rede e auditoria de integridade — exatamente o que este painel mede.')
+  );
+}
+
+/* ================== COORTE CTE ================== */
+const COR_DISC = {
+  'Psicologia': GREEN, 'Fonoaudiologia': DARK, 'Terapia Ocupacional': ORANGE,
+  'Psicopedagogia': CITRUS, 'Psicomotricidade': '#7a5195', 'Nutrição': '#2a78d6',
+  'Outras terapias': '#8aa3a1', 'Consultas': '#b7791f', 'Exames': '#5c7f7d',
+  'Medicamentos e materiais': '#a3b18a', 'Taxas e diárias': '#c9ada7', 'Procedimentos médicos': '#9c6644', 'Outros': '#b9c8c6'
+};
+
+function rCTE() {
+  if (!CTE) return;
+  const cob = CTE.cobertura, m = CTE.meta;
+  $('cte_selo').textContent = m.selo;
+  $('cte_n').textContent = fmtN(m.pacientes);
+
+  $('cte_kpis').replaceChildren(
+    kpiCard('Beneficiários', fmtN(m.pacientes), 'coorte fixa do CTE'),
+    kpiCard('Custo integral', brlK(cob.custo_coorte), '2024 – fev/2026 · todas as terapias'),
+    kpiCard('Visível no painel principal', fmt1(cob.pct_visivel) + '%', 'só psicologia ABA (' + brlK(cob.custo_aba_psico) + ')', AMBER),
+    kpiCard('Fora do radar', brlK(cob.custo_invisivel), fmtN(cob.pacientes_sem_aba) + ' pacientes sem ABA-psico', RED)
+  );
+
+  // disciplinas (barras horizontais)
+  const dsc = CTE.disciplinas;
+  novoChart('c_cte_disc', {
+    type: 'bar',
+    data: { labels: dsc.map(x => x.disciplina), datasets: [{ data: dsc.map(x => x.custo), borderRadius: 3,
+      backgroundColor: dsc.map(x => COR_DISC[x.disciplina] || INK3) }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: t => ' ' + brl0(t.parsed.x) + ' (' + fmt1(dsc[t.dataIndex].pct) + '% · ' + kOr(dsc[t.dataIndex].pacientes) + ' pacientes)' } } },
+      scales: { x: escalaY({ position: 'top' }), y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10.5 } } } } }
+  });
+  const terap = dsc.filter(x => ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional', 'Psicopedagogia', 'Psicomotricidade', 'Nutrição', 'Outras terapias'].includes(x.disciplina));
+  const ctTerap = terap.reduce((a, b) => a + b.custo, 0);
+  $('cte_disc_txt').textContent = 'A psicologia ABA que o painel principal acompanha é só uma fatia: as terapias somam ' +
+    brlK(ctTerap) + ' e fonoaudiologia (' + brlK((dsc.find(x => x.disciplina === 'Fonoaudiologia') || {}).custo || 0) +
+    ') e terapia ocupacional (' + brlK((dsc.find(x => x.disciplina === 'Terapia Ocupacional') || {}).custo || 0) +
+    ') sozinhas superam tudo o que hoje é visível. O restante é consulta, exame e cuidado associado.';
+
+  // série mensal empilhada por disciplina
+  const dm = CTE.disciplina_mensal;
+  const discsSerie = Object.keys(dm.series);
+  novoChart('c_cte_serie', {
+    type: 'line',
+    data: { labels: dm.meses.map(mShort), datasets: discsSerie.map(disc => ({
+      label: disc, data: dm.series[disc], borderColor: COR_DISC[disc] || INK3,
+      backgroundColor: (COR_DISC[disc] || INK3) + '55', borderWidth: 1, pointRadius: 0, fill: true, tension: 0.25, stack: 's' })) },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { boxWidth: 9, font: { size: 9.5 } } },
+        tooltip: { callbacks: { label: t => ' ' + t.dataset.label + ': ' + brl0(t.parsed.y) } } },
+      scales: { y: escalaY({ stacked: true }), x: escalaX() } }
+  });
+  $('cte_serie_txt').textContent = 'Custo mensal empilhado por disciplina, de 2024 (ano-base completo) a fev/2026. O crescimento do consumo integral da coorte fica evidente ano a ano.';
+
+  // CID donut
+  const cid = CTE.cid;
+  novoChart('c_cte_cid', {
+    type: 'doughnut',
+    data: { labels: cid.map(x => x.grupo + ' (' + fmt1(x.pct) + '%)'),
+      datasets: [{ data: cid.map(x => x.pct), backgroundColor: [GREEN, DARK, CITRUS], borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: { legend: { display: true },
+        tooltip: { callbacks: { label: t => ' ' + kOr(cid[t.dataIndex].pacientes) + ' pacientes (' + fmt1(cid[t.dataIndex].pct) + '%)' } } } }
+  });
+  const f840 = cid.find(x => x.grupo.startsWith('F84.0'));
+  $('cte_cid_txt').textContent = (f840 ? fmt1(f840.pct) + '% da coorte tem F84.0 (autismo infantil típico); ' : '') +
+    'o CID confirma o diagnóstico — a gravidade é medida à parte pelo nível de suporte. Idade média ao diagnóstico: ' +
+    (CTE.idade_diagnostico ? fmt1(CTE.idade_diagnostico.media) + ' anos.' : 'não informada.');
+
+  // nível de suporte + custo médio (combo)
+  const niv = CTE.nivel_suporte;
+  novoChart('c_cte_nivel', {
+    type: 'bar',
+    data: { labels: niv.map(x => x.nivel), datasets: [
+      { label: 'Pacientes', data: niv.map(x => x.pacientes === '<5' ? 0 : x.pacientes), backgroundColor: 'rgba(0,78,76,0.5)', borderRadius: 3, yAxisID: 'y' },
+      { label: 'Custo médio/paciente', data: niv.map(x => x.custo_medio), type: 'line', borderColor: ORANGE, borderWidth: 2.2, pointRadius: 3, tension: 0.2, yAxisID: 'y2' }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: t => t.dataset.type === 'line' ? ' custo médio: ' + brl0(t.parsed.y) : ' ' + kOr(niv[t.dataIndex].pacientes) + ' pacientes' } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmtN(v) } }), y2: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { callback: v => brlK(v) } }, x: escalaX() } }
+  });
+  const n1 = niv.find(x => x.nivel === 'Nível I'), n3 = niv.find(x => x.nivel === 'Nível III');
+  $('cte_nivel_txt').textContent = (n1 && n3 ? 'O custo médio por paciente cresce com o nível de suporte: ' +
+    brl0(n1.custo_medio) + ' no Nível I contra ' + brl0(n3.custo_medio) + ' no Nível III (' +
+    fmt1(n3.custo_medio / n1.custo_medio) + '×). ' : '') + 'É a variável que melhor explica o custo — base para estratificação do cuidado.';
+
+  // multidisciplinaridade
+  const md = CTE.multidisciplinar, mr = CTE.multidisciplinar_resumo;
+  novoChart('c_cte_multi', {
+    type: 'bar',
+    data: { labels: md.map(x => x.n_terapias + (x.n_terapias === '1' ? ' terapia' : ' terapias')), datasets: [{
+      data: md.map(x => x.pacientes === '<5' ? 0 : x.pacientes),
+      backgroundColor: md.map(x => (x.n_terapias === '3' || x.n_terapias === '4' || x.n_terapias === '5+') ? GREEN : 'rgba(0,78,76,0.5)'), borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => ' ' + kOr(md[t.dataIndex].pacientes) + ' pacientes' } } },
+      scales: { y: escalaY({ ticks: { callback: v => fmtN(v) } }), x: escalaX() } }
+  });
+  $('cte_multi_txt').textContent = fmt1(mr.pct) + '% da coorte (' + fmtN(mr.tres_ou_mais) +
+    ' pacientes) faz 3 ou mais terapias diferentes — o cuidado do TEA é multidisciplinar por natureza, e um painel de disciplina única captura só parte dele.';
+
+  // concentração
+  const cc = CTE.concentracao;
+  $('cte_conc').replaceChildren(
+    kpiCell('Índice de Gini', fmt2(cc.gini), 'concentração do custo (0 = igual)'),
+    kpiCell('Custo mediano', brl0(cc.mediana), 'por paciente no período'),
+    kpiCell('Top 10% concentram', fmt1(cc.top10_pct) + '%', 'top 20% = ' + fmt1(cc.top20_pct) + '%')
+  );
+  $('cte_conc_txt').textContent = 'Gini de ' + fmt2(cc.gini) + ' (média ' + brl0(cc.media) +
+    ', mediana ' + brl0(cc.mediana) + '): concentração moderada — os 20% mais caros respondem por ' +
+    fmt1(cc.top20_pct) + '% da despesa. Alvo natural de gestão de casos complexos.';
+}
+
+</script>
+
+<div id="gate" style="position:fixed;inset:0;z-index:99999;background:#003c3a;display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif">
+<form id="gate-form" style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:36px 32px;box-shadow:0 24px 64px rgba(0,0,0,.4)">
+<img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV" style="height:44px;margin-bottom:18px">
+<h1 style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel TEA — acesso restrito</h1>
+<p style="font-size:13px;color:#5c7f7d;margin:0 0 20px">Uso exclusivo Unimed Governador Valadares. Informe seu e-mail corporativo e a senha de acesso.</p>
+<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
+<input id="gate-email" type="email" required placeholder="nome@unimedgv.com.br" autocomplete="email" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:14px">
+<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">Senha</label>
+<div style="position:relative;margin-bottom:18px">
+<input id="gate-pass" type="password" required style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 44px 10px 12px;border:1px solid #dfe3db;border-radius:10px">
+<button type="button" id="gate-eye" aria-label="Mostrar senha" aria-pressed="false" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;padding:6px;color:#5c7f7d;line-height:0">
+<svg id="gate-eye-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+<svg id="gate-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+</button>
+</div>
+<button type="submit" id="gate-btn" style="width:100%;background:#00995d;color:#fff;border:0;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Entrar</button>
+<p id="gate-msg" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
+</form></div>
+<script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://csv-open-auth.guilherme-thom.workers.dev/auth';
+function ok(){var g=document.getElementById('gate');if(g)g.remove();document.body.style.overflow='';}
+try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.exp>Date.now()){ok();return;}}catch(e){}
+document.body.style.overflow='hidden';
+var eye=document.getElementById('gate-eye');
+eye.addEventListener('click',function(){var inp=document.getElementById('gate-pass'),m=inp.type==='password';inp.type=m?'text':'password';eye.setAttribute('aria-pressed',String(m));eye.setAttribute('aria-label',m?'Ocultar senha':'Mostrar senha');document.getElementById('gate-eye-on').style.display=m?'none':'';document.getElementById('gate-eye-off').style.display=m?'':'none';inp.focus();});
+document.getElementById('gate-form').addEventListener('submit',function(ev){ev.preventDefault();
+var btn=document.getElementById('gate-btn'),msg=document.getElementById('gate-msg');btn.disabled=true;btn.textContent='Verificando\u2026';msg.textContent='';
+fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,email:document.getElementById('gate-email').value.trim(),senha:document.getElementById('gate-pass').value})})
+.then(function(r){return r.json().catch(function(){return{};});})
+.then(function(j){if(j&&j.ok){try{localStorage.setItem(KEY,JSON.stringify({exp:Date.now()+4*3600*1000}));}catch(e){}ok();}
+else{msg.textContent=(j&&(j.msg||j.error))||'Acesso negado. Confira e-mail e senha.';btn.disabled=false;btn.textContent='Entrar';}})
+.catch(function(){msg.textContent='Falha de rede. Tente novamente.';btn.disabled=false;btn.textContent='Entrar';});});})();</script>
+</body>
+</html>

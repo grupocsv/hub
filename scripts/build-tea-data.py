@@ -692,27 +692,64 @@ def injetar_html(d, caminho=HTML_ALVO):
     return True
 
 
-def emitir_publica(dir_saida):
-    """Deriva a variante pública (Open Pages) a partir da interna. PRD §6.6."""
+P_DIR = os.path.join(REPO_ROOT, "p", "painel-tea")
+
+# Gate embutido para a cópia /p/ (hub.grupocsv.com/p/painel-tea/). No /p/ NÃO há
+# worker para injetar o gate (é estático no GitHub Pages), então o gate embutido é
+# o mecanismo correto — diferente do Open Pages, onde o worker é o dono. Valida
+# server-side no csv-open-auth (campo `senha`, e-mails @unimedgv), sessão de 4h.
+GATE_P_HTML = """<div id="gate" style="position:fixed;inset:0;z-index:99999;background:#003c3a;display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif">
+<form id="gate-form" style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:36px 32px;box-shadow:0 24px 64px rgba(0,0,0,.4)">
+<img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV" style="height:44px;margin-bottom:18px">
+<h1 style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel TEA — acesso restrito</h1>
+<p style="font-size:13px;color:#5c7f7d;margin:0 0 20px">Uso exclusivo Unimed Governador Valadares. Informe seu e-mail corporativo e a senha de acesso.</p>
+<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
+<input id="gate-email" type="email" required placeholder="nome@unimedgv.com.br" autocomplete="email" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:14px">
+<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">Senha</label>
+<div style="position:relative;margin-bottom:18px">
+<input id="gate-pass" type="password" required style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 44px 10px 12px;border:1px solid #dfe3db;border-radius:10px">
+<button type="button" id="gate-eye" aria-label="Mostrar senha" aria-pressed="false" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;padding:6px;color:#5c7f7d;line-height:0">
+<svg id="gate-eye-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+<svg id="gate-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+</button>
+</div>
+<button type="submit" id="gate-btn" style="width:100%;background:#00995d;color:#fff;border:0;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Entrar</button>
+<p id="gate-msg" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
+</form></div>
+<script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://csv-open-auth.guilherme-thom.workers.dev/auth';
+function ok(){var g=document.getElementById('gate');if(g)g.remove();document.body.style.overflow='';}
+try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.exp>Date.now()){ok();return;}}catch(e){}
+document.body.style.overflow='hidden';
+var eye=document.getElementById('gate-eye');
+eye.addEventListener('click',function(){var inp=document.getElementById('gate-pass'),m=inp.type==='password';inp.type=m?'text':'password';eye.setAttribute('aria-pressed',String(m));eye.setAttribute('aria-label',m?'Ocultar senha':'Mostrar senha');document.getElementById('gate-eye-on').style.display=m?'none':'';document.getElementById('gate-eye-off').style.display=m?'':'none';inp.focus();});
+document.getElementById('gate-form').addEventListener('submit',function(ev){ev.preventDefault();
+var btn=document.getElementById('gate-btn'),msg=document.getElementById('gate-msg');btn.disabled=true;btn.textContent='Verificando\\u2026';msg.textContent='';
+fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,email:document.getElementById('gate-email').value.trim(),senha:document.getElementById('gate-pass').value})})
+.then(function(r){return r.json().catch(function(){return{};});})
+.then(function(j){if(j&&j.ok){try{localStorage.setItem(KEY,JSON.stringify({exp:Date.now()+4*3600*1000}));}catch(e){}ok();}
+else{msg.textContent=(j&&(j.msg||j.error))||'Acesso negado. Confira e-mail e senha.';btn.disabled=false;btn.textContent='Entrar';}})
+.catch(function(){msg.textContent='Falha de rede. Tente novamente.';btn.disabled=false;btn.textContent='Entrar';});});})();</script>"""
+
+
+def emitir_p():
+    """Deriva a cópia compartilhável /p/painel-tea/ (hub.grupocsv.com/p/painel-tea/)
+    a partir da interna. Mora no repositório e publica no deploy do git — sem
+    republicação manual. Gate embutido (o /p/ é estático, sem worker). PRD §12."""
     html = open(HTML_ALVO, encoding="utf-8").read()
-    # remove hub-auth (slot + script) e o link de volta ao hub
+    # remove hub-auth (slot + script) e o link de volta ao portal
     html = re.sub(r'<span id="hub-auth-slot"[^>]*></span>\s*', "", html)
     html = re.sub(r'<script[^>]*src="[^"]*hub-auth\.js"[^>]*></script>\s*', "", html)
     html = re.sub(r'<a [^>]*class="[^"]*voltar-hub[^"]*"[^>]*>.*?</a>\s*', "", html, flags=re.S)
-    # absolutiza assets do hub
-    html = html.replace('href="/favicons/', 'href="https://hub.grupocsv.com/favicons/')
+    # mesmo domínio (hub) — assets relativos funcionam; só ajusta a og:url canônica
     html = html.replace('content="https://hub.grupocsv.com/unimed/tea.html"',
-                        'content="https://open.grupocsv.com/painel-tea/"')
-    # GATE: NÃO embutir. O gate é responsabilidade EXCLUSIVA do Worker csv-open-pages
-    # (padrão do ecossistema, decisão do responsável em 10/07/2026): o slug deve ter
-    # auth_gate=true nos metadados ANTES de qualquer upload de conteúdo. Um marcador
-    # id="gate" no HTML suprimiria o gate padrão — por isso é proibido aqui.
-    if 'id="gate"' in html:
-        falha('variante pública contém id="gate" — gates customizados são proibidos (padrão = Worker)')
-    os.makedirs(dir_saida, exist_ok=True)
-    destino = os.path.join(dir_saida, "painel-tea.html")
+                        'content="https://hub.grupocsv.com/p/painel-tea/"')
+    # gate embutido (id="gate") antes de </body>
+    if 'id="gate"' not in html:
+        html = html.replace("</body>", GATE_P_HTML + "\n</body>")
+    os.makedirs(P_DIR, exist_ok=True)
+    destino = os.path.join(P_DIR, "index.html")
     open(destino, "w", encoding="utf-8").write(html)
-    print(f"variante pública: {destino} ({len(html.encode('utf-8')) // 1024} KB)")
+    print(f"cópia /p/: {destino} ({len(html.encode('utf-8')) // 1024} KB)")
     return destino
 
 
@@ -781,7 +818,8 @@ def main():
     ap.add_argument("xlsx", nargs="?", help="planilha oficial (fora do repo)")
     ap.add_argument("--csv", help="insumo em CSV (alternativa ao xlsx)")
     ap.add_argument("--corte", help="data de corte AAAA-MM-DD (default: fim do último mês)")
-    ap.add_argument("--emit-public", metavar="DIR", help="deriva a variante pública no diretório")
+    ap.add_argument("--emit-p", action="store_true",
+                    help="gera a cópia compartilhável p/painel-tea/index.html a partir do unimed/tea.html atual (rode por último, após build-cte-data)")
     ap.add_argument("--auditoria", action="store_true", help="grava a fila nominal ao lado do insumo")
     ap.add_argument("--selftest", action="store_true", help="roda a fixture sintética")
     ap.add_argument("--permitir-insumo-no-repo", action="store_true", help=argparse.SUPPRESS)
@@ -789,6 +827,10 @@ def main():
 
     if args.selftest:
         selftest()
+        return
+
+    if args.emit_p and not (args.xlsx or args.csv):
+        emitir_p()
         return
 
     regs, sha = ler_insumo(args)
@@ -829,8 +871,6 @@ def main():
     print("  Validações     : todas OK (somas, anti-vazamento, k, evento extremo)")
     print("=" * 64)
 
-    if args.emit_public:
-        emitir_publica(args.emit_public)
     if args.auditoria:
         gravar_auditoria(regs, d, args.csv or args.xlsx)
 
