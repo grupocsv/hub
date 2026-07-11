@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-03-07",
+  "updated_at": "2026-07-11",
   "pages": [
     {
       "slug": "tea-dataset",
@@ -12,6 +12,18 @@
       "created_at": "2026-02-15",
       "updated_at": "2026-02-15",
       "og_image": "https://hub.grupocsv.com/assets/og/og_hub.png"
+    },
+    {
+      "slug": "painel-tea",
+      "title": "Painel Estratégico TEA — Terapia ABA · Psicologia | Unimed GV",
+      "description": "Cópia compartilhável do Painel TEA da Unimed GV, com gate de acesso (e-mail corporativo + senha). Gerada do repositório por scripts/build-tea-data.py --emit-p.",
+      "origin_portal": "unimed",
+      "public_url": "https://hub.grupocsv.com/p/painel-tea/",
+      "status": "active",
+      "created_at": "2026-07-11",
+      "updated_at": "2026-07-11",
+      "gated": true,
+      "og_image": "https://hub.grupocsv.com/assets/og/og_tea.png"
     }
   ]
 }

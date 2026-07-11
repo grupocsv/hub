@@ -1,6 +1,6 @@
 # Skill: Atualização de dados do Painel TEA (rito oficial)
 
-**Painel:** `unimed/tea.html` (interno) + `https://open.grupocsv.com/painel-tea/` (público, com gate)
+**Painel:** `unimed/tea.html` (interno, portal/hub-auth) + `https://hub.grupocsv.com/p/painel-tea/` (cópia compartilhável, gate embutido, publica no deploy do git)
 **Pipeline:** `scripts/build-tea-data.py` · **PRD:** `docs/_infra/prd-2026-07-painel-tea-v2.md` (§6)
 
 ## Regra de ouro (LGPD)
@@ -24,14 +24,15 @@ um repo git). Só agregados k-anonimizados (k=5) são versionáveis. O `.gitigno
 5. Abrir `unimed/tea.html` no navegador e conferir as 6 seções.
 6. **Revisão humana do `git diff`** — só agregados; nenhum nome/matrícula de beneficiário.
 7. Commit com paths explícitos (`git add unimed/tea.html unimed/data/tea-2025-2026.json`) e push → deploy do hub.
-8. Republicar a cópia pública com o mesmo slug (preserva a URL). O arquivo NÃO contém gate próprio — o gate é o PADRÃO do Worker (`auth_gate: true` no slug, cadeado do admin); gates embutidos são proibidos e o build aborta se encontrar `id="gate"`:
-   `python3 scripts/build-tea-data.py <xlsx> --corte AAAA-MM-DD --emit-public /tmp/build-tea`
-   e publicar `/tmp/build-tea/painel-tea.html` via tool MCP `open_page_publish` (slug `painel-tea`).
-   O `og:image` aponta para `hub.grupocsv.com/assets/og/og_tea.png` — não precisa subir arquivo irmão.
-9. **Confirmar o gate ativo**: abrir `https://open.grupocsv.com/painel-tea/` em aba anônima —
-   o formulário padrão "Acesso Restrito" (e-mail + senha) tem que aparecer antes de qualquer dado.
-   Se não aparecer: ativar o cadeado da página na aba Links Públicos do admin (ou
-   `auth_gate: true` via API) ANTES de divulgar o link. Pré-condição, não opcional.
+8. Gerar a cópia compartilhável `/p/` (mesmo domínio do hub, publica no deploy do git — SEM republicação manual):
+   `python3 scripts/build-tea-data.py --emit-p` → grava `p/painel-tea/index.html`
+   (hub-auth e link de volta removidos, gate EMBUTIDO com id="gate" — no `/p/` não há
+   worker, então o gate embutido é o mecanismo correto; campo `senha`, POST ao
+   csv-open-auth, e-mails @unimedgv, sessão 4h, botão "olhinho"). `git add p/painel-tea/index.html`.
+9. **Confirmar o gate**: abrir `https://hub.grupocsv.com/p/painel-tea/` em aba anônima —
+   o formulário "Painel TEA — acesso restrito" tem que aparecer antes de qualquer dado.
+   (A antiga cópia em `open.grupocsv.com/painel-tea/` foi APOSENTADA em 11/07/2026: o
+   painel é ferramenta do ambiente Unimed, então mora no domínio do hub via `/p/`.)
 10. A data de corte/versão já ficam no bloco `meta` (visíveis na topbar e na view Método).
 
 ## Extras

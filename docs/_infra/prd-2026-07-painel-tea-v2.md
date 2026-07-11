@@ -465,3 +465,14 @@ Segunda fonte auditada, incorporada como **seção única com selo** (decisão d
 - **Conteúdo (E1/E3/E4):** cobertura (o painel principal vê **21,7%** do custo da coorte; R$ 4,0 mi invisível), custo por disciplina + série empilhada mensal (Psicologia, Fono, TO, Psicopedagogia, Nutrição, consultas, exames…), perfil clínico (CID agrupado, **nível de suporte × custo médio** — R$ 17,2 mil no Nível I → R$ 31,6 mil no Nível III, idade média ao diagnóstico 4,2 anos), intensidade multidisciplinar (**65% fazem 3+ terapias**), concentração (Gini 0,45).
 - **Selo obrigatório** "Coorte CTE · 300" em banner e em cada card; aviso na Visão Geral aponta para a seção. Nunca somar/comparar com os 840 da psicologia ABA.
 - **Escopo da base 840 (decisão):** permanece só ABA-psicologia com aviso de escopo, até a Unimed enviar a base multidisciplinar dos mesmos beneficiários (pedido para o próximo ciclo) — aí o painel inteiro migra para multidisciplinar.
+
+---
+
+## 13. Cópia compartilhável no `/p/` e correção da regra de gate (11/07/2026)
+
+**Decisão do Guilherme:** o painel TEA é ferramenta do **ambiente da Unimed**, então a cópia compartilhável mora no **domínio do hub** via `/p/` (`hub.grupocsv.com/p/painel-tea/`), gerada do repositório (`scripts/build-tea-data.py --emit-p` → `p/painel-tea/index.html`, registrada em `p/registry.json`). Publica **sozinha no deploy do git** — acaba a republicação manual que deixava a Open Page velha. A Open Page `open.grupocsv.com/painel-tea/` foi **aposentada**.
+
+**Correção da regra de gate (a regra de 10/07 estava ampla demais):**
+- A proibição *universal* de "gate embutido" foi generalização indevida do agente — a instrução do responsável foi apenas "padronizar o gate". A causa raiz do bug de "Acesso negado" foram dois defeitos concretos: campo `password` (o `csv-open-auth` lê `senha`) e `auth_gate` ausente no KV — não a existência do gate embutido.
+- **Regra correta e escopada:** nas **Open Pages** (open.grupocsv.com, com Worker) o gate é do **worker** (`auth_gate:true`, injeção server-side) — não embutir. No mecanismo **`/p/`** (hub, estático via GitHub Pages, **sem worker**) o **gate embutido** (`id="gate"`, POST ao `csv-open-auth` com campo `senha`, botão "olhinho") é o mecanismo **correto e único possível**.
+- O pipeline `--emit-p` embute o gate correto; as versões anteriores que abortavam ao encontrar `id="gate"` refletiam a regra ampla demais e foram substituídas.
