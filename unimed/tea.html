@@ -1768,23 +1768,30 @@ function rPrestadores() {
   const maxC = Math.max(...custosQ);
   const raio = c => 6 + 22 * Math.sqrt(c / maxC);
   const topNomes = qd.prestadores.slice().sort((a, b) => b.custo - a.custo).slice(0, 6).map(p => p.nome);
+  // Escala do eixo X: um outlier (poucos pacientes, muitas sessões/mês) esticava tudo.
+  // Limita a escala ao 2º maior + folga e ancora os fora-da-escala na borda (valor real no tooltip).
+  const xsOrd = qd.prestadores.map(p => p.x).slice().sort((a, b) => a - b);
+  const XMAX = Math.max(6, Math.ceil((xsOrd[xsOrd.length - 2] || 8) + 1));
+  const foraEscala = qd.prestadores.filter(p => p.x > XMAX).length;
   novoChart('c_quadrante', {
     type: 'bubble',
     data: { datasets: qd.prestadores.map(p => ({
-      label: dNome(p.nome), data: [{ x: p.x, y: p.y, r: raio(p.custo) }],
-      backgroundColor: (COR_CANAL[p.canal] || INK3) + 'B3', borderColor: COR_CANAL[p.canal] || INK3, borderWidth: 1 })) },
+      label: dNome(p.nome), data: [{ x: Math.min(p.x, XMAX), y: p.y, r: raio(p.custo) }],
+      backgroundColor: (COR_CANAL[p.canal] || INK3) + 'B3', borderColor: COR_CANAL[p.canal] || INK3,
+      borderWidth: p.x > XMAX ? 2 : 1, borderDash: p.x > XMAX ? [4, 2] : [] })) },
     options: { responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false },
         tooltip: { callbacks: {
           title: t => t[0].dataset.label,
-          label: t => [' ' + fmt1(t.parsed.x) + ' sessões/paciente-mês', ' ' + brl(t.parsed.y) + '/sessão',
+          label: t => [' ' + fmt1(qd.prestadores[t.datasetIndex].x) + ' sessões/paciente-mês' + (qd.prestadores[t.datasetIndex].x > XMAX ? ' (fora da escala)' : ''),
+            ' ' + brl(t.parsed.y) + '/sessão',
             ' custo total ' + brlK(qd.prestadores[t.datasetIndex].custo) + ' · ' + qd.prestadores[t.datasetIndex].canal] } },
         quadrantes: {}, halo: { labels: chart => qd.prestadores
           .map((p, i) => ({ p, i })).filter(o => topNomes.includes(o.p.nome))
           .map(o => { const m = chart.getDatasetMeta(o.i).data[0];
             return { text: dNome(o.p.nome.split(' ')[0]), x: m.x, y: m.y - m.options.radius - 5, color: DARK }; }) } },
       scales: { y: escalaY({ title: { display: true, text: 'R$/sessão', color: INK3, font: { size: 10.5 } }, ticks: { callback: v => 'R$ ' + v } }),
-        x: escalaX({ title: { display: true, text: 'sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY } }) } },
+        x: escalaX({ min: 0, max: XMAX, title: { display: true, text: 'sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY } }) } },
     plugins: [halo, {
       id: 'quadrantes',
       beforeDatasetsDraw(chart) {
@@ -1806,7 +1813,10 @@ function rPrestadores() {
     }]
   });
   $('pr_quad_txt').textContent = 'Cortes nos valores reais: ' + brl(qd.cortes.y) + '/sessão (média da carteira) e ' +
-    fmt1(qd.cortes.x) + ' sessões/paciente-mês (mediana dos elegíveis). Bolha grande em quadrante alto = prioridade de gestão; a cor indica o canal de pagamento.';
+    fmt1(qd.cortes.x) + ' sessões/paciente-mês (mediana dos elegíveis). Bolha grande em quadrante alto = prioridade de gestão; a cor indica o canal de pagamento.' +
+    (foraEscala ? ' Eixo limitado a ' + XMAX + ' sessões/paciente-mês para leitura: ' + fmtN(foraEscala) +
+      ' prestador' + (foraEscala > 1 ? 'es' : '') + ' com intensidade acima disso (poucos pacientes) aparece' + (foraEscala > 1 ? 'm' : '') +
+      ' ancorado na borda direita, com o valor real no tooltip.' : '');
 
   const spSer = DATA.serie_prestador, top5 = rk.slice(0, 5).map(x => x.nome);
   const cores5 = [GREEN, DARK, ORANGE, CITRUS, '#2a78d6'];
