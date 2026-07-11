@@ -56,3 +56,13 @@ um repo git). Só agregados k-anonimizados (k=5) são versionáveis. O `.gitigno
   registros "ATENDIMENTO ESPECIALIZADO" → Casa Unimed (por registro); Ana Carolina Falcão +
   Criar e Crescer Teen = mesmo prestador; mapa Tipo Prestador → canal de pagamento.
   **Proibido** calcular indicadores TEA fora deste pipeline.
+
+## Camada Coorte CTE (segundo pipeline)
+
+`scripts/build-cte-data.py <censo-cte.xlsx> --corte AAAA-MM-DD` gera
+`unimed/data/cte-agregados.json` (coorte fixa de 300, consumo multidisciplinar
+integral, série 2024+) e injeta em `unimed/tea.html` entre `<!-- CTE-DATA:BEGIN/END -->`.
+Mesmas regras LGPD (xlsx fora do repo, k=5, anti-vazamento). `--selftest` roda
+`scripts/tests/cte-fixture-sintetica.csv`. O censo bruto (nomes, CID de menores)
+NUNCA entra no repo. Universo distinto do painel principal — todo número carrega
+o selo "Coorte CTE · 300".
