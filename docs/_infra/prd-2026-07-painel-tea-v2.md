@@ -453,3 +453,15 @@ O painel dirá isso explicitamente na view Método — honestidade metodológica
 ---
 
 *Fim do PRD. Todos os valores citados foram extraídos das análises validadas dos micro-dados oficiais (jan/2025–jun/2026); nenhum número foi recalculado fora do pipeline descrito no §6. Nenhum nome, matrícula ou data de nascimento de beneficiário consta neste documento.*
+
+---
+
+## 12. Camada "Coorte CTE" (implantada em 11/07/2026)
+
+Segunda fonte auditada, incorporada como **seção única com selo** (decisão do Guilherme: universo distinto, mesmo painel — a comparação é o valor).
+
+- **Universo:** coorte fixa de **300 beneficiários** do Centro de Terapias Especiais (Casa Unimed GV), consumo **integral e multidisciplinar**, 2024–fev/2026 (E2: série a partir de 2024, ano-base completo). Fonte: censo EVS/IBRAVS.
+- **Pipeline dedicado:** `scripts/build-cte-data.py` (mesma blindagem LGPD: xlsx bruto fora do repo, k=5, anti-vazamento bloqueante, sem cruzamento CID×nível×idade). Saída `unimed/data/cte-agregados.json`, injetada entre `<!-- CTE-DATA:BEGIN/END -->`. Fixture sintética `scripts/tests/cte-fixture-sintetica.csv` + `--selftest`.
+- **Conteúdo (E1/E3/E4):** cobertura (o painel principal vê **21,7%** do custo da coorte; R$ 4,0 mi invisível), custo por disciplina + série empilhada mensal (Psicologia, Fono, TO, Psicopedagogia, Nutrição, consultas, exames…), perfil clínico (CID agrupado, **nível de suporte × custo médio** — R$ 17,2 mil no Nível I → R$ 31,6 mil no Nível III, idade média ao diagnóstico 4,2 anos), intensidade multidisciplinar (**65% fazem 3+ terapias**), concentração (Gini 0,45).
+- **Selo obrigatório** "Coorte CTE · 300" em banner e em cada card; aviso na Visão Geral aponta para a seção. Nunca somar/comparar com os 840 da psicologia ABA.
+- **Escopo da base 840 (decisão):** permanece só ABA-psicologia com aviso de escopo, até a Unimed enviar a base multidisciplinar dos mesmos beneficiários (pedido para o próximo ciclo) — aí o painel inteiro migra para multidisciplinar.
