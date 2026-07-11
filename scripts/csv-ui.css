@@ -1,0 +1,157 @@
+/* ==========================================================================
+   CSV UI — Design System compartilhado do Hub Grupo CSV
+   Fonte única de tokens (cores, tipografia, espaçamento) e componentes.
+   Uso: <link rel="stylesheet" href="/scripts/csv-ui.css">
+   Suporta light/dark automático via prefers-color-scheme.
+   ========================================================================== */
+
+:root{
+  /* superfícies e tinta */
+  --csv-bg:#eef2f7; --csv-surface:#ffffff; --csv-surface-2:#f7f9fc;
+  --csv-ink:#0D264C; --csv-ink-soft:#54637a; --csv-ink-faint:#8595aa;
+  --csv-line:#e3e8f0; --csv-line-strong:#d3dae6;
+  /* marca */
+  --csv-navy:#0D264C; --csv-axia:#196396; --csv-uni:#0f7a3d; --csv-uni-deep:#013e19;
+  --csv-warm:#ec7106; --csv-danger:#d92d3f;
+  /* forma */
+  --csv-radius:16px; --csv-radius-sm:10px;
+  --csv-shadow:0 1px 2px rgba(13,38,76,.04), 0 10px 30px rgba(13,38,76,.07);
+  --csv-shadow-sm:0 1px 2px rgba(13,38,76,.05), 0 4px 14px rgba(13,38,76,.06);
+  --csv-font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --csv-bg:#0a1220; --csv-surface:#131d30; --csv-surface-2:#182339;
+    --csv-ink:#e9eff7; --csv-ink-soft:#a6b6cb; --csv-ink-faint:#6f8199;
+    --csv-line:#243349; --csv-line-strong:#31445f;
+    --csv-axia:#4aa3d9; --csv-uni:#3fbf74; --csv-warm:#f0894a;
+    --csv-shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px rgba(0,0,0,.45);
+    --csv-shadow-sm:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.4);
+  }
+}
+
+/* ---- base ---- */
+*{box-sizing:border-box}
+body.csv{
+  margin:0; background:var(--csv-bg); color:var(--csv-ink);
+  font-family:var(--csv-font); line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body.csv a{color:var(--csv-axia)}
+
+/* ---- topbar ---- */
+.csv-topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:12px clamp(16px,4vw,28px);
+  background:linear-gradient(100deg,var(--csv-navy),var(--csv-axia));
+  color:#fff; box-shadow:0 4px 16px rgba(13,38,76,.18);
+}
+.csv-topbar .csv-back{
+  display:inline-flex; align-items:center; gap:7px; color:#fff; text-decoration:none;
+  font-size:14px; font-weight:600; opacity:.92; padding:6px 12px; border-radius:9px;
+  background:rgba(255,255,255,.12); transition:background .15s;
+}
+.csv-topbar .csv-back:hover{background:rgba(255,255,255,.22)}
+.csv-topbar .csv-tb-label{font-size:13px; font-weight:600; letter-spacing:.03em; opacity:.85}
+.csv-topbar .csv-spacer{flex:1 1 auto}
+#hub-auth-slot{display:inline-flex; align-items:center}
+
+/* ---- layout ---- */
+.csv-wrap{max-width:860px; margin:0 auto; padding:clamp(18px,3.5vw,34px) clamp(14px,4vw,28px) 40px}
+.csv-wrap.narrow{max-width:720px}
+
+/* ---- hero ---- */
+.csv-hero{
+  background:var(--csv-surface); border:1px solid var(--csv-line); border-radius:var(--csv-radius);
+  box-shadow:var(--csv-shadow); overflow:hidden; margin-bottom:22px;
+}
+.csv-hero .hero-brand{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:16px 22px; border-bottom:1px solid var(--csv-line); background:var(--csv-surface-2);
+}
+.csv-hero .hero-brand .lg{display:flex; flex-direction:column; align-items:center; text-decoration:none; gap:4px}
+.csv-hero .hero-brand .lg img{height:46px; width:auto}
+.csv-hero .hero-brand .lg span{font-size:11px; font-weight:600}
+.csv-hero .hero-brand .lg.axia span{color:var(--csv-axia)}
+.csv-hero .hero-brand .lg.uni span{color:var(--csv-uni)}
+.csv-hero .hero-body{padding:22px clamp(18px,3vw,28px)}
+.csv-eyebrow{font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--csv-uni); margin:0 0 8px}
+.csv-hero h1{font-size:clamp(22px,3.4vw,30px); line-height:1.15; letter-spacing:-.01em; margin:0 0 12px; text-wrap:balance}
+.csv-byline{display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--csv-ink-soft); margin:0 0 14px}
+.csv-byline .dot{width:5px;height:5px;border-radius:50%;background:var(--csv-uni)}
+.csv-lede{font-size:15.5px; color:var(--csv-ink-soft); margin:0; max-width:64ch}
+
+/* ---- card ---- */
+.csv-card{
+  background:var(--csv-surface); border:1px solid var(--csv-line); border-radius:var(--csv-radius);
+  box-shadow:var(--csv-shadow); padding:20px clamp(16px,3vw,24px); margin-bottom:18px;
+}
+.csv-card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px}
+.csv-card-head h2{font-size:17px; margin:0; letter-spacing:-.01em; color:var(--csv-ink)}
+
+/* ---- badge ---- */
+.csv-badge{font-size:12.5px; font-weight:700; padding:5px 12px; border-radius:999px; white-space:nowrap; display:inline-flex; align-items:center; gap:6px}
+.csv-badge.neg{color:var(--csv-danger); background:color-mix(in srgb,var(--csv-danger) 12%,transparent)}
+.csv-badge.pos{color:var(--csv-uni); background:color-mix(in srgb,var(--csv-uni) 15%,transparent)}
+.csv-badge.info{color:var(--csv-axia); background:color-mix(in srgb,var(--csv-axia) 13%,transparent)}
+.csv-badge.warm{color:var(--csv-warm); background:color-mix(in srgb,var(--csv-warm) 15%,transparent)}
+
+/* ---- botões ---- */
+.csv-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 22px; border:none; border-radius:var(--csv-radius-sm);
+  background:linear-gradient(120deg,var(--csv-axia),var(--csv-navy)); color:#fff;
+  font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; text-decoration:none;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+}
+.csv-btn:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(25,99,150,.28); filter:brightness(1.04)}
+.csv-btn.warm{background:linear-gradient(120deg,var(--csv-warm),#c85c00)}
+
+/* ---- lista de links (índice de relatórios/documentos) ---- */
+.csv-links{display:flex; flex-direction:column; gap:12px}
+.csv-linkcard{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:16px 20px; border:1px solid var(--csv-line); border-radius:var(--csv-radius-sm);
+  background:var(--csv-surface-2); color:var(--csv-ink); text-decoration:none; font-weight:600;
+  box-shadow:var(--csv-shadow-sm); transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.csv-linkcard:hover{transform:translateY(-2px); border-color:var(--csv-axia); box-shadow:0 10px 26px rgba(13,38,76,.1)}
+.csv-linkcard .arrow{color:var(--csv-axia); flex:0 0 auto}
+
+/* ---- documento/artigo (planos, políticas) ---- */
+.csv-doc{color:var(--csv-ink)}
+.csv-doc h2{font-size:19px; margin:26px 0 8px; padding-bottom:6px; border-bottom:2px solid var(--csv-warm); color:var(--csv-ink)}
+.csv-doc h3{font-size:16px; margin:18px 0 6px; color:var(--csv-uni-deep)}
+@media (prefers-color-scheme:dark){ .csv-doc h3{color:var(--csv-uni)} }
+.csv-doc p{margin:8px 0; color:var(--csv-ink-soft)}
+.csv-doc ul{padding-left:22px; margin:8px 0; color:var(--csv-ink-soft)}
+.csv-doc li{margin:5px 0}
+.csv-doc li::marker{color:var(--csv-warm)}
+.csv-doc .highlight{color:var(--csv-warm); font-weight:700}
+.csv-doc em{color:var(--csv-ink-faint)}
+
+/* ---- feedback ---- */
+.csv-feedback textarea{
+  width:100%; min-height:110px; padding:13px 15px; border:1px solid var(--csv-line-strong);
+  border-radius:12px; background:var(--csv-surface-2); color:var(--csv-ink);
+  font-family:inherit; font-size:14.5px; resize:vertical; outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+.csv-feedback textarea:focus{border-color:var(--csv-axia); box-shadow:0 0 0 3px color-mix(in srgb,var(--csv-axia) 22%,transparent)}
+.csv-feedback textarea::placeholder{color:var(--csv-ink-faint)}
+
+/* ---- rodapé institucional ---- */
+.csv-footer{
+  margin-top:34px; padding:30px 20px; text-align:center; border-radius:var(--csv-radius);
+  background:var(--csv-surface-2); border:1px solid var(--csv-line);
+}
+.csv-footer img{width:132px; margin:0 auto 12px; display:block}
+@media (prefers-color-scheme:dark){ .csv-footer img{filter:brightness(0) invert(1) opacity(.92)} }
+.csv-footer .tag{font-size:14px; font-weight:600; color:var(--csv-ink); margin-bottom:14px}
+.csv-footer .links{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; font-size:13px; margin-bottom:8px}
+.csv-footer a{color:var(--csv-axia); text-decoration:none}
+.csv-footer a:hover{text-decoration:underline}
+.csv-footer .sep{color:var(--csv-line-strong); font-size:11px}
+.csv-footer .copy{font-size:11.5px; color:var(--csv-ink-faint); margin-top:8px}
+
+@media (max-width:560px){ .csv-hero .hero-brand{justify-content:center} }
