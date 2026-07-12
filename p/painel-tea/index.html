@@ -881,10 +881,10 @@ tr.no-detail .detail-icon { display: none; }
 
     <div class="card">
       <div class="card-hd"><div>
-        <div class="card-title">Matriz estratégica — volume × preço</div>
-        <div class="card-sub">Cada bolha é um prestador: eixo X = sessões no período, eixo Y = R$/sessão, tamanho = custo total, cor = canal</div>
+        <div class="card-title">Matriz estratégica — intensidade × preço</div>
+        <div class="card-sub">Cada bolha é um prestador: eixo X = média de sessões por paciente-mês, eixo Y = R$/sessão, tamanho = custo, cor = canal</div>
       </div></div>
-      <div class="chart-box tall"><canvas id="c_quadrante" role="img" aria-label="Matriz de bolhas de volume de sessões por preço unitário; os mesmos dados estão na tabela de ranking"></canvas></div>
+      <div class="chart-box tall"><canvas id="c_quadrante" role="img" aria-label="Matriz de bolhas de intensidade (sessões por paciente) por preço unitário; os mesmos dados estão na tabela de ranking"></canvas></div>
       <div class="chart-legend" id="pr_quad_legend" aria-hidden="true"></div>
       <p class="narrative" id="pr_quad_txt"></p>
     </div>
@@ -1777,59 +1777,63 @@ function rPrestadores() {
     brl(ec.referencia) + '), o período teria custado ' + brlK(ec.gap_total) +
     ' a menos. É um teto teórico de negociação — não considera substituibilidade nem capacidade da rede.';
 
-  // Matriz estratégica: volume de sessões (X) × preço unitário (Y), tamanho = custo, cor = canal.
-  // A intensidade de uso (sessões por paciente) é quase uniforme na rede e não separa os
-  // prestadores; o volume varia ~66x e é o que revela onde está o gasto negociável.
+  // Matriz estratégica: intensidade de cuidado (X = média de sessões por paciente-mês) × preço (Y).
+  // NÃO é um gráfico de outlier ("quanto mais no canto, pior"): o alvo é o MEIO — garantir as
+  // sessões que o paciente precisa a um preço bem negociado. A escala é focada na faixa onde a
+  // rede realmente vive (a maioria entre ~2,5 e ~5,5), sem começar no zero nem deixar 1-2 casos
+  // extremos (pouquíssimos pacientes) esticarem tudo — esses ficam ancorados na borda.
   const qd = DATA.quadrante_prestadores;
-  const qpts = qd.prestadores.map(p => ({ ...p, vol: p.y ? Math.round(p.custo / p.y) : 0 }));
-  const maxC = Math.max(...qpts.map(p => p.custo));
-  const raio = c => 7 + 23 * Math.sqrt(c / maxC);
-  const volsOrd = qpts.map(p => p.vol).slice().sort((a, b) => a - b);
-  const medVol = volsOrd[Math.floor(volsOrd.length / 2)] || 0;
+  const maxC = Math.max(...qd.prestadores.map(p => p.custo));
+  const raio = c => 7 + 22 * Math.sqrt(c / maxC);
+  const xsOrd = qd.prestadores.map(p => p.x).slice().sort((a, b) => a - b);
+  const quant = (arr, q) => { const pos = (arr.length - 1) * q, b = Math.floor(pos), r = pos - b;
+    return arr[b + 1] !== undefined ? arr[b] + r * (arr[b + 1] - arr[b]) : arr[b]; };
+  const p25 = quant(xsOrd, 0.25), p50 = quant(xsOrd, 0.5), p75 = quant(xsOrd, 0.75);
   const corteY = qd.cortes.y;
-  const maxVol = Math.max(...qpts.map(p => p.vol));
-  const XMAX = Math.max(1000, Math.ceil((maxVol * 1.08) / 500) * 500);
-  const topQ = qpts.slice().sort((a, b) => b.custo - a.custo).slice(0, 4).map(p => p.nome);
-  const canaisQ = [...new Set(qpts.map(p => p.canal))];
+  const XMIN = 2, XMAX = 6;
+  const foraEscala = qd.prestadores.filter(p => p.x > XMAX).length;
+  const topQ = qd.prestadores.slice().sort((a, b) => b.custo - a.custo).slice(0, 4).map(p => p.nome);
+  const canaisQ = [...new Set(qd.prestadores.map(p => p.canal))];
   novoChart('c_quadrante', {
     type: 'bubble',
     data: { datasets: [{
-      data: qpts.map(p => ({ x: p.vol, y: p.y, r: raio(p.custo) })),
-      backgroundColor: qpts.map(p => (COR_CANAL[p.canal] || INK3) + 'C0'),
-      borderColor: qpts.map(p => COR_CANAL[p.canal] || INK3), borderWidth: 1.2, hoverBorderWidth: 2 }] },
+      data: qd.prestadores.map(p => ({ x: Math.min(Math.max(p.x, XMIN), XMAX), y: p.y, r: raio(p.custo) })),
+      backgroundColor: qd.prestadores.map(p => (COR_CANAL[p.canal] || INK3) + 'C0'),
+      borderColor: qd.prestadores.map(p => COR_CANAL[p.canal] || INK3),
+      borderWidth: qd.prestadores.map(p => p.x > XMAX ? 2.2 : 1.2), hoverBorderWidth: 2.5 }] },
     options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 20, right: 14 } },
       plugins: { legend: { display: false },
         tooltip: { callbacks: {
-          title: t => dNome(qpts[t[0].dataIndex].nome),
-          label: t => [' ' + fmtN(qpts[t.dataIndex].vol) + ' sessões no período',
-            ' ' + brl(qpts[t.dataIndex].y) + '/sessão',
-            ' custo total ' + brlK(qpts[t.dataIndex].custo) + ' · ' + qpts[t.dataIndex].canal] } },
-        quadrantes: {}, halo: { labels: chart => { const ca = chart.chartArea; return qpts
+          title: t => dNome(qd.prestadores[t[0].dataIndex].nome),
+          label: t => { const p = qd.prestadores[t.dataIndex]; return [
+            ' ' + fmt1(p.x) + ' sessões/paciente-mês' + (p.x > XMAX ? ' (fora da escala)' : ''),
+            ' ' + brl(p.y) + '/sessão',
+            ' custo total ' + brlK(p.custo) + ' · ' + p.canal]; } } },
+        refs: {}, halo: { labels: chart => { const ca = chart.chartArea; return qd.prestadores
           .map((p, i) => ({ p, i })).filter(o => topQ.includes(o.p.nome))
           .map(o => { const m = chart.getDatasetMeta(0).data[o.i];
             const x = Math.min(Math.max(m.x, ca.left + 62), ca.right - 62);
             return { text: trunc(dNome(o.p.nome), 18), x, y: m.y - m.options.radius - 6, color: DARK }; }); } } },
       scales: { y: escalaY({ title: { display: true, text: 'R$/sessão', color: INK3, font: { size: 10.5 } }, ticks: { callback: v => 'R$ ' + v } }),
-        x: escalaX({ min: 0, max: XMAX, title: { display: true, text: 'sessões no período', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY }, ticks: { callback: v => fmtN(v) } }) } },
+        x: escalaX({ min: XMIN, max: XMAX, title: { display: true, text: 'média de sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY }, ticks: { stepSize: 1, callback: v => fmt1(v) } }) } },
     plugins: [halo, {
-      id: 'quadrantes',
+      id: 'refs',
       beforeDatasetsDraw(chart) {
         const { ctx, chartArea: a, scales } = chart;
-        const cx = scales.x.getPixelForValue(medVol), cy = scales.y.getPixelForValue(corteY);
+        const xb1 = scales.x.getPixelForValue(p25), xb2 = scales.x.getPixelForValue(p75);
+        const xmed = scales.x.getPixelForValue(p50), cy = scales.y.getPixelForValue(corteY);
         ctx.save();
-        ctx.fillStyle = 'rgba(192,57,43,0.05)'; ctx.fillRect(cx, a.top, a.right - cx, cy - a.top);
-        ctx.fillStyle = 'rgba(0,153,93,0.055)'; ctx.fillRect(cx, cy, a.right - cx, a.bottom - cy);
-        ctx.strokeStyle = 'rgba(0,78,76,0.35)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(cx, a.top); ctx.lineTo(cx, a.bottom);
-        ctx.moveTo(a.left, cy); ctx.lineTo(a.right, cy); ctx.stroke();
+        // faixa central: onde está a metade do meio da rede (referência de cuidado típico)
+        ctx.fillStyle = 'rgba(0,78,76,0.06)'; ctx.fillRect(xb1, a.top, xb2 - xb1, a.bottom - a.top);
+        ctx.strokeStyle = 'rgba(0,78,76,0.5)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(xmed, a.top); ctx.lineTo(xmed, a.bottom); ctx.stroke();
+        // referência de preço (média da carteira) — neutra
+        ctx.strokeStyle = 'rgba(92,127,125,0.55)';
+        ctx.beginPath(); ctx.moveTo(a.left, cy); ctx.lineTo(a.right, cy); ctx.stroke();
         ctx.setLineDash([]);
         ctx.font = 'italic 10px "Source Serif 4",serif'; ctx.fillStyle = INK3;
-        ctx.textAlign = 'right'; ctx.fillText('preço acima da média ↑', a.right - 6, a.top + 12);
-        ctx.textAlign = 'left'; ctx.fillText('maior volume →', cx + 8, a.bottom - 8);
-        ctx.font = '700 9.5px "Source Sans 3",sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillStyle = 'rgba(192,57,43,0.72)'; ctx.fillText('PRIORIDADE', a.right - 6, cy - 9);
-        ctx.fillStyle = 'rgba(0,107,65,0.78)'; ctx.fillText('ÂNCORA EFICIENTE', a.right - 6, cy + 15);
+        ctx.textAlign = 'center'; ctx.fillText('faixa central da rede', (xb1 + xb2) / 2, a.top + 12);
+        ctx.textAlign = 'left'; ctx.fillText('média de preço', a.left + 6, cy - 5);
         ctx.restore();
       }
     }]
@@ -1838,12 +1842,17 @@ function rPrestadores() {
     const it = el('span', 'lg-item'); const dot = el('span', 'lg-dot'); dot.style.background = COR_CANAL[c] || INK3;
     it.append(dot, document.createTextNode(c)); return it;
   }));
-  $('pr_quad_txt').textContent = 'Volume de sessões no eixo horizontal (varia ~66× entre prestadores), preço por ' +
-    'sessão no vertical; o tamanho da bolha é o custo total e a cor, o canal. Cortes na mediana de volume e na ' +
-    'média de preço da carteira (' + brl(corteY) + '/sessão). O quadrante superior-direito — muito volume e preço ' +
-    'acima da média — é a prioridade de negociação; à direita e embaixo ficam as âncoras eficientes, como a Casa ' +
-    'Unimed. Rótulos nos quatro maiores por custo; os demais estão no ranking. A intensidade de uso (sessões por ' +
-    'paciente) é praticamente uniforme na rede, por isso a leitura estratégica está no volume e no preço.';
+  $('pr_quad_txt').textContent = 'No eixo horizontal, a média de sessões por paciente-mês — a intensidade do ' +
+    'cuidado que cada paciente recebe. A referência é o meio: a faixa central concentra a metade do meio da rede (' +
+    fmt1(p25) + ' a ' + fmt1(p75) + ' sessões/paciente-mês, mediana ' + fmt1(p50) + ') e representa o cuidado ' +
+    'típico — o alvo é garantir as sessões que o paciente precisa. Ficar à esquerda é menos sessões por paciente ' +
+    'que o típico; à direita, mais — não é "melhor" nem "pior", muda o motivo (perfil mais leve ou mais intensivo, ' +
+    'adesão, gravidade). No eixo vertical, o preço por sessão, com a média da carteira (' + brl(corteY) +
+    ') como referência — a meta é essas sessões a um preço bem negociado. Tamanho = custo; cor = canal. Escala ' +
+    'focada em ' + XMIN + '–' + XMAX + ' sessões/paciente-mês (onde está a rede)' +
+    (foraEscala ? '; ' + fmtN(foraEscala) + ' prestador' + (foraEscala > 1 ? 'es' : '') + ' com pouquíssimos ' +
+      'pacientes têm média muito acima e aparece' + (foraEscala > 1 ? 'm' : '') + ' ancorado' + (foraEscala > 1 ? 's' : '') +
+      ' na borda direita (valor real no tooltip)' : '') + '.';
 
   const spSer = DATA.serie_prestador, top5 = rk.slice(0, 5).map(x => x.nome);
   const cores5 = [GREEN, DARK, ORANGE, CITRUS, '#2a78d6'];
