@@ -1,183 +1,125 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Plano de ação para adequação do fluxo de utilização de OPME pelo corpo clínico do Hospital Unihealth Governador Valadares.">
   <meta name="robots" content="noindex, nofollow">
-    <title>Adequações no Fluxo de Utilização OPME - Corpo Clínico</title>
-    <style>
-        body {
-            font-family: Verdana, sans-serif;
-            background-color: #013d19;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #f2f2f2;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-        h1, h2, h3 {
-            color: #013d19;
-        }
-        h1 {
-            font-size: 20px;
-            margin-top: 0;
-        }
-        h2 {
-            font-size: 18px;
-            border-bottom: 2px solid #ec7106;
-            padding-bottom: 5px;
-        }
-        ul {
-            padding-left: 20px;
-        }
-        ul li::marker {
-            color: #ec7106;
-        }
-        .highlight {
-            color: #ec7106;
-            font-weight: bold;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            background-color: #ec7106;
-            color: #ffffff;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-        .btn:hover {
-            background-color: #013d19;
-        }
-        .logo img {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-top: 15px;
-            box-sizing: border-box;
-            font-family: Verdana, sans-serif;
-        }
-    
-
-
-</style>
-    <script>
-        function sendFeedback() {
-            var feedback = document.getElementById("feedbackText").value;
-            var subject = encodeURIComponent("Feedback Plano Ação OPME - Unihealth GV");
-            var body = encodeURIComponent(feedback);
-            window.location.href = "mailto:guilherme.thome@unihealthgv.org.br?subject=" + subject + "&body=" + body;
-        }
-    </script>
+  <title>Adequações no Fluxo de Utilização OPME | Unihealth GV</title>
   <link rel="icon" href="/favicons/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0D264C">
+  <link rel="stylesheet" href="/scripts/csv-ui.css">
 
-    <!-- OpenGraph -->
-    <meta property="og:title" content="Adequações no Fluxo de Utilização OPME - Corpo Clínico">
-    <meta property="og:description" content="Plano de Ação OPME — Unihealth GV">
-    <meta property="og:image" content="https://hub.grupocsv.com/og/og_unihealth.png">
-    <meta property="og:url" content="https://hub.grupocsv.com/unihealth/opme.html">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Unihealth GV | Hub Grupo CSV">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Adequações no Fluxo de Utilização OPME - Corpo Clínico">
-    <meta name="twitter:description" content="Plano de Ação OPME — Unihealth GV">
-    <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unihealth.png">
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Adequações no Fluxo de Utilização OPME - Corpo Clínico">
+  <meta property="og:description" content="Plano de Ação OPME — Unihealth GV">
+  <meta property="og:image" content="https://hub.grupocsv.com/og/og_unihealth.png">
+  <meta property="og:url" content="https://hub.grupocsv.com/unihealth/opme.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Unihealth GV | Hub Grupo CSV">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Adequações no Fluxo de Utilização OPME - Corpo Clínico">
+  <meta name="twitter:description" content="Plano de Ação OPME — Unihealth GV">
+  <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unihealth.png">
+  <script>
+    function sendFeedback() {
+      var feedback = document.getElementById("feedbackText").value;
+      var subject = encodeURIComponent("Feedback Plano Ação OPME - Unihealth GV");
+      var body = encodeURIComponent(feedback);
+      window.location.href = "mailto:guilherme.thome@unihealthgv.org.br?subject=" + subject + "&body=" + body;
+    }
+  </script>
 </head>
-<body>
-<div class="container">
-        <div class="logo">
-        </div>
+<body class="csv">
+  <header class="csv-topbar">
+    <a href="/unihealth/" class="csv-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Unihealth
+    </a>
+    <span class="csv-tb-label">Hub de Ferramentas Profissionais</span>
+    <span class="csv-spacer"></span>
+    <span id="hub-auth-slot" data-hub-auth-theme="dark"></span>
+  </header>
 
-        <h1>Adequações no Fluxo de Utilização OPME - Corpo Clínico</h1>
-        <p><em>Hospital Unihealth – Comitê de Gestão Assistencial e Operacional Integrado</em></p>
-
-        <h2>Contexto e Importância do Médico</h2>
-        <p>Frente ao cenário desafiador das negociações contratuais com fornecedores de OPMEs, sua participação ativa torna-se essencial para garantir resultados positivos. Você, médico, é fundamental para assegurar que nossos pacientes recebam o melhor cuidado, de maneira ética e economicamente sustentável.</p>
-
-        <h2>Objetivo Conjunto</h2>
-        <p>Trabalharmos juntos na garantia da estabilidade clínica e operacional, alinhando governança assistencial e segurança dos nossos pacientes, sustentando a excelência na assistência prestada.</p>
-
-        <h2>Passos Estratégicos e Seu Papel</h2>
-
-        <h3>1. Eixo Operacional</h3>
-        <p>Garantir negociações firmes e transparentes, buscando equilíbrio econômico e qualidade assistencial. Sua colaboração na identificação de pontos críticos é muito valiosa. Sua comunicação direta com a Diretoria é essencial para que possamos resolver rapidamente e de maneira eficaz quaisquer dificuldades no Centro Cirúrgico e demais áreas que utilizam OPME.</p>
-
-        <h3>2. Eixo Assistencial</h3>
-        <p>Este eixo é crucial para envolver diretamente você, profissional médico, em três fases:</p>
-
-        <ul>
-            <li><strong>Fase 1:</strong> Garantia técnica da pertinência das prescrições (sua atuação baseada em evidências é fundamental).</li>
-            <li><strong>Fase 2:</strong> Sua participação nas reuniões presenciais será essencial para construir uma narrativa clara e ética.</li>
-            <li><strong>Fase 3:</strong> Apoio direto da liderança médica no centro cirúrgico para resolver rapidamente eventuais intercorrências.</li>
-        </ul>
-
-        <h2>Sugestões de Implementação Prática</h2>
-
-        <ul>
-            <li class="highlight">Criação da Comissão Médica de OPME para avaliação contínua e participativa das decisões relacionadas às OPMEs.</li>
-            <li class="highlight">Criação de um canal direto de feedback médico via QR Code no centro cirúrgico, proporcionando comunicação rápida e eficaz sobre eventos relacionados às OPMEs.</li>
-        </ul>
-
-        <h2>Indicadores para Avaliarmos Juntos</h2>
-        <ul>
-            <li>Redução significativa de intercorrências relacionadas às OPMEs;</li>
-            <li>Ausência de cancelamentos cirúrgicos associados às negociações contratuais;</li>
-            <li>Acompanhamento ativo e aceitação formal do plano por parte do corpo clínico.</li>
-        </ul>
-
-        <h2>Considerações Finais</h2>
-        <p>Este plano é uma oportunidade para fortalecermos juntos a governança clínica e a sustentabilidade financeira da nossa instituição. A participação ativa e o diálogo aberto são fundamentais. Contamos com você!</p>
-
-        <textarea id="feedbackText" placeholder="Envie sugestões e comentários"></textarea>
-        <button class="btn" onclick="sendFeedback()">Enviar feedback por e-mail</button>
-    </div>
-
-    <!-- AXIACARE FOOTER -->
-    <div style="margin-top:40px;padding:32px 20px;background:#f8f5f0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:2px solid #196396;border-radius:16px">
-      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="width:140px;margin:0 auto 12px auto;display:block">
-      <div style="font-size:14px;font-weight:600;color:#2d3445;margin-bottom:14px">Gestão e Consultoria em Saúde</div>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-        <a href="https://linktr.ee/gui.thome" style="color:#196396;text-decoration:none">Conheça nossas soluções</a>
-        <span style="color:#cbd5e1;font-size:11px">|</span>
-        <a href="https://www.axcare.com.br" target="_blank" style="color:#196396;text-decoration:none">axcare.com.br</a>
+  <main class="csv-wrap narrow">
+    <section class="csv-hero">
+      <div class="hero-body">
+        <p class="csv-eyebrow">Governança Assistencial</p>
+        <h1>Adequações no Fluxo de Utilização de OPME — Corpo Clínico</h1>
+        <p class="csv-byline"><span class="dot"></span> Hospital Unihealth · Comitê de Gestão Assistencial e Operacional Integrado</p>
       </div>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-        <a href="https://grupocsv.com" target="_blank" style="color:#196396;text-decoration:none">grupocsv.com</a>
-        <span style="color:#cbd5e1;font-size:11px">|</span>
-        <a href="https://www.medvalor.med.br" target="_blank" style="color:#196396;text-decoration:none">medvalor.med.br</a>
-        <span style="color:#cbd5e1;font-size:11px">|</span>
-        <a href="https://thera.tech" target="_blank" style="color:#196396;text-decoration:none">thera.tech</a>
+    </section>
+
+    <article class="csv-card csv-doc">
+      <h2>Contexto e Importância do Médico</h2>
+      <p>Frente ao cenário desafiador das negociações contratuais com fornecedores de OPMEs, sua participação ativa torna-se essencial para garantir resultados positivos. Você, médico, é fundamental para assegurar que nossos pacientes recebam o melhor cuidado, de maneira ética e economicamente sustentável.</p>
+
+      <h2>Objetivo Conjunto</h2>
+      <p>Trabalharmos juntos na garantia da estabilidade clínica e operacional, alinhando governança assistencial e segurança dos nossos pacientes, sustentando a excelência na assistência prestada.</p>
+
+      <h2>Passos Estratégicos e Seu Papel</h2>
+      <h3>1. Eixo Operacional</h3>
+      <p>Garantir negociações firmes e transparentes, buscando equilíbrio econômico e qualidade assistencial. Sua colaboração na identificação de pontos críticos é muito valiosa. Sua comunicação direta com a Diretoria é essencial para que possamos resolver rapidamente e de maneira eficaz quaisquer dificuldades no Centro Cirúrgico e demais áreas que utilizam OPME.</p>
+      <h3>2. Eixo Assistencial</h3>
+      <p>Este eixo é crucial para envolver diretamente você, profissional médico, em três fases:</p>
+      <ul>
+        <li><strong>Fase 1:</strong> Garantia técnica da pertinência das prescrições (sua atuação baseada em evidências é fundamental).</li>
+        <li><strong>Fase 2:</strong> Sua participação nas reuniões presenciais será essencial para construir uma narrativa clara e ética.</li>
+        <li><strong>Fase 3:</strong> Apoio direto da liderança médica no centro cirúrgico para resolver rapidamente eventuais intercorrências.</li>
+      </ul>
+
+      <h2>Sugestões de Implementação Prática</h2>
+      <ul>
+        <li class="highlight">Criação da Comissão Médica de OPME para avaliação contínua e participativa das decisões relacionadas às OPMEs.</li>
+        <li class="highlight">Criação de um canal direto de feedback médico via QR Code no centro cirúrgico, proporcionando comunicação rápida e eficaz sobre eventos relacionados às OPMEs.</li>
+      </ul>
+
+      <h2>Indicadores para Avaliarmos Juntos</h2>
+      <ul>
+        <li>Redução significativa de intercorrências relacionadas às OPMEs;</li>
+        <li>Ausência de cancelamentos cirúrgicos associados às negociações contratuais;</li>
+        <li>Acompanhamento ativo e aceitação formal do plano por parte do corpo clínico.</li>
+      </ul>
+
+      <h2>Considerações Finais</h2>
+      <p>Este plano é uma oportunidade para fortalecermos juntos a governança clínica e a sustentabilidade financeira da nossa instituição. A participação ativa e o diálogo aberto são fundamentais. Contamos com você!</p>
+    </article>
+
+    <section class="csv-card csv-feedback">
+      <div class="csv-card-head"><h2>Envie sua contribuição</h2></div>
+      <textarea id="feedbackText" placeholder="Envie sugestões e comentários sobre o plano de ação."></textarea>
+      <div style="margin-top:14px">
+        <button class="csv-btn warm" onclick="sendFeedback()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg>
+          Enviar feedback por e-mail
+        </button>
       </div>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:14px">
-        <a href="https://guithome.com.br" target="_blank" style="color:#196396;text-decoration:none">guithome.com.br</a>
-        <span style="color:#cbd5e1;font-size:11px">|</span>
-        <a href="https://linkedin.com/in/guithome" target="_blank" style="color:#196396;text-decoration:none">LinkedIn</a>
-        <span style="color:#cbd5e1;font-size:11px">|</span>
-        <a href="https://www.instagram.com/gui.thome/" target="_blank" style="color:#196396;text-decoration:none">Instagram</a>
+    </section>
+
+    <footer class="csv-footer">
+      <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare">
+      <div class="tag">Gestão e Consultoria em Saúde</div>
+      <div class="links">
+        <a href="https://linktr.ee/gui.thome" target="_blank" rel="noopener">Conheça nossas soluções</a><span class="sep">|</span>
+        <a href="https://www.axcare.com.br" target="_blank" rel="noopener">axcare.com.br</a>
       </div>
-      <div style="font-size:11px;color:#94a3b8">Copyright © 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
-    </div>
-<script src="/scripts/hub-auth.js" data-portal="unihealth"></script>
+      <div class="links">
+        <a href="https://grupocsv.com" target="_blank" rel="noopener">grupocsv.com</a><span class="sep">|</span>
+        <a href="https://www.medvalor.med.br" target="_blank" rel="noopener">medvalor.med.br</a><span class="sep">|</span>
+        <a href="https://thera.tech" target="_blank" rel="noopener">thera.tech</a>
+      </div>
+      <div class="links">
+        <a href="https://guithome.com.br" target="_blank" rel="noopener">guithome.com.br</a><span class="sep">|</span>
+        <a href="https://linkedin.com/in/guithome" target="_blank" rel="noopener">LinkedIn</a><span class="sep">|</span>
+        <a href="https://www.instagram.com/gui.thome/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+      <div class="copy">Copyright © 2026 AxiaCare · Todos os direitos reservados · Uma empresa do Grupo CSV</div>
+    </footer>
+  </main>
+
+  <script src="/scripts/hub-auth.js" data-portal="unihealth"></script>
 </body>
 </html>
