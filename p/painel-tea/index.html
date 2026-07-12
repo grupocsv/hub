@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Painel Estratégico TEA — Terapia ABA · Psicologia | Unimed GV</title>
+<title>Painel Estratégico TEA — Terapias Especiais | Unimed GV</title>
 <meta name="description" content="Painel analítico da terapia ABA (psicologia) da Unimed Governador Valadares: custo, evolução mensal, prestadores, perfil de pacientes e canais de pagamento — jan/2025 a jun/2026.">
 <meta name="hub-category" content="dashboard">
 <meta name="hub-entity" content="Unimed GV">
@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
 <meta property="og:type" content="article">
-<meta property="og:title" content="Painel Estratégico TEA — Terapia ABA · Psicologia | Unimed GV">
+<meta property="og:title" content="Painel Estratégico TEA — Terapias Especiais | Unimed GV">
 <meta property="og:description" content="Custo, evolução, prestadores, perfil de pacientes e canais de pagamento da terapia ABA (psicologia) — 18 competências oficiais.">
 <meta property="og:url" content="https://hub.grupocsv.com/p/painel-tea/">
 <meta property="og:image" content="https://hub.grupocsv.com/assets/og/og_tea.png">
@@ -661,6 +661,17 @@ tr.no-detail .detail-icon { display: none; }
 .cte-banner{display:flex;flex-direction:column;gap:10px;align-items:flex-start;background:linear-gradient(180deg,var(--green-100),var(--card));border:1px solid var(--green-200);border-left:3px solid var(--u-dark);border-radius:14px;padding:18px 20px;margin-bottom:16px}
 .cte-card{border-left:3px solid var(--u-dark)}
 .cte-card .card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+/* Legenda de canal (matriz estratégica) */
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin:10px 0 2px;padding:0}
+.chart-legend .lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);font-weight:500}
+.chart-legend .lg-dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+/* Paginação do ranking */
+.pager{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+.pager button{all:unset;cursor:pointer;font:inherit;font-size:13px;font-weight:600;color:var(--u-green-dark);border:1px solid var(--line);border-radius:8px;padding:6px 12px;min-width:20px;text-align:center;line-height:1.1}
+.pager button:hover:not(:disabled){border-color:var(--u-green);background:var(--u-paper)}
+.pager button[aria-current=page]{background:var(--u-green);border-color:var(--u-green);color:#fff}
+.pager button:disabled{color:var(--ink-3);cursor:default;opacity:.5}
+.pager .pg-gap{color:var(--ink-3);padding:0 2px}
 </style>
 </head>
 <body>
@@ -672,7 +683,7 @@ tr.no-detail .detail-icon { display: none; }
       <img src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares">
     </span>
     <div class="sb-app-name">Painel TEA</div>
-    <div class="sb-app-sub">Terapia ABA · Psicologia · Unimed GV</div>
+    <div class="sb-app-sub">Terapias Especiais · Unimed GV</div>
     <span class="sb-period" id="sb_periodo">–</span>
   </div>
   <nav class="sb-nav">
@@ -871,9 +882,10 @@ tr.no-detail .detail-icon { display: none; }
     <div class="card">
       <div class="card-hd"><div>
         <div class="card-title">Matriz estratégica — intensidade × preço</div>
-        <div class="card-sub">Bolha = custo total; cor = canal; cortes nos valores reais da carteira</div>
+        <div class="card-sub">Cada bolha é um prestador: eixo X = média de sessões por paciente-mês, eixo Y = R$/sessão, tamanho = custo, cor = canal</div>
       </div></div>
-      <div class="chart-box tall"><canvas id="c_quadrante" role="img" aria-label="Matriz de bolhas de intensidade por preço; os mesmos dados estão na tabela de ranking"></canvas></div>
+      <div class="chart-box tall"><canvas id="c_quadrante" role="img" aria-label="Matriz de bolhas de intensidade (sessões por paciente) por preço unitário; os mesmos dados estão na tabela de ranking"></canvas></div>
+      <div class="chart-legend" id="pr_quad_legend" aria-hidden="true"></div>
       <p class="narrative" id="pr_quad_txt"></p>
     </div>
 
@@ -927,6 +939,7 @@ tr.no-detail .detail-icon { display: none; }
         </table>
       </div>
       <div class="scroll-hint">Deslize para ver a tabela completa →</div>
+      <div class="pager" id="pr_pager"></div>
     </div>
 
     <div class="achados" id="pr_achados"></div>
@@ -1659,7 +1672,8 @@ function rEvolucao() {
 }
 
 /* ================== PRESTADORES ================== */
-let rankOrdenado = null, rankDir = -1, rankCol = 'custo';
+let rankOrdenado = null, rankDir = -1, rankCol = 'custo', rankPage = 1;
+const RANK_POR_PAGINA = 27;
 function rPrestadores() {
   const rk = DATA.ranking_prestadores, conc = DATA.concentracao, sm = DATA.serie_mensal;
 
@@ -1672,7 +1686,7 @@ function rPrestadores() {
   );
 
   montarTabelaPrestadores();
-  $('pr_filtro').addEventListener('input', montarTabelaPrestadores);
+  $('pr_filtro').addEventListener('input', () => { rankPage = 1; montarTabelaPrestadores(); });
   document.querySelectorAll('#pr_tabela th').forEach(th => {
     const b = el('button', null, th.textContent);
     b.style.cssText = 'all:unset;cursor:pointer;font:inherit;color:inherit;white-space:nowrap';
@@ -1685,6 +1699,7 @@ function rPrestadores() {
     if (th.dataset.k === rankCol) marcar();
     b.addEventListener('click', () => {
       if (rankCol === th.dataset.k) rankDir = -rankDir; else { rankCol = th.dataset.k; rankDir = th.dataset.t === 's' ? 1 : -1; }
+      rankPage = 1;
       marcar();
       montarTabelaPrestadores();
     });
@@ -1762,60 +1777,82 @@ function rPrestadores() {
     brl(ec.referencia) + '), o período teria custado ' + brlK(ec.gap_total) +
     ' a menos. É um teto teórico de negociação — não considera substituibilidade nem capacidade da rede.';
 
+  // Matriz estratégica: intensidade de cuidado (X = média de sessões por paciente-mês) × preço (Y).
+  // NÃO é um gráfico de outlier ("quanto mais no canto, pior"): o alvo é o MEIO — garantir as
+  // sessões que o paciente precisa a um preço bem negociado. A escala é focada na faixa onde a
+  // rede realmente vive (a maioria entre ~2,5 e ~5,5), sem começar no zero nem deixar 1-2 casos
+  // extremos (pouquíssimos pacientes) esticarem tudo — esses ficam ancorados na borda.
   const qd = DATA.quadrante_prestadores;
-  const custosQ = qd.prestadores.map(p => p.custo);
-  const maxC = Math.max(...custosQ);
-  const raio = c => 6 + 22 * Math.sqrt(c / maxC);
-  const topNomes = qd.prestadores.slice().sort((a, b) => b.custo - a.custo).slice(0, 6).map(p => p.nome);
-  // Escala do eixo X: um outlier (poucos pacientes, muitas sessões/mês) esticava tudo.
-  // Limita a escala ao 2º maior + folga e ancora os fora-da-escala na borda (valor real no tooltip).
+  const maxC = Math.max(...qd.prestadores.map(p => p.custo));
+  const raio = c => 7 + 22 * Math.sqrt(c / maxC);
   const xsOrd = qd.prestadores.map(p => p.x).slice().sort((a, b) => a - b);
-  const XMAX = Math.max(6, Math.ceil((xsOrd[xsOrd.length - 2] || 8) + 1));
+  const quant = (arr, q) => { const pos = (arr.length - 1) * q, b = Math.floor(pos), r = pos - b;
+    return arr[b + 1] !== undefined ? arr[b] + r * (arr[b + 1] - arr[b]) : arr[b]; };
+  const p25 = quant(xsOrd, 0.25), p50 = quant(xsOrd, 0.5), p75 = quant(xsOrd, 0.75);
+  const corteY = qd.cortes.y;
+  const XMIN = 2, XMAX = 6;
   const foraEscala = qd.prestadores.filter(p => p.x > XMAX).length;
+  const topQ = qd.prestadores.slice().sort((a, b) => b.custo - a.custo).slice(0, 4).map(p => p.nome);
+  const canaisQ = [...new Set(qd.prestadores.map(p => p.canal))];
   novoChart('c_quadrante', {
     type: 'bubble',
-    data: { datasets: qd.prestadores.map(p => ({
-      label: dNome(p.nome), data: [{ x: Math.min(p.x, XMAX), y: p.y, r: raio(p.custo) }],
-      backgroundColor: (COR_CANAL[p.canal] || INK3) + 'B3', borderColor: COR_CANAL[p.canal] || INK3,
-      borderWidth: p.x > XMAX ? 2 : 1, borderDash: p.x > XMAX ? [4, 2] : [] })) },
-    options: { responsive: true, maintainAspectRatio: false,
+    data: { datasets: [{
+      data: qd.prestadores.map(p => ({ x: Math.min(Math.max(p.x, XMIN), XMAX), y: p.y, r: raio(p.custo) })),
+      backgroundColor: qd.prestadores.map(p => (COR_CANAL[p.canal] || INK3) + 'C0'),
+      borderColor: qd.prestadores.map(p => COR_CANAL[p.canal] || INK3),
+      borderWidth: qd.prestadores.map(p => p.x > XMAX ? 2.2 : 1.2), hoverBorderWidth: 2.5 }] },
+    options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 20, right: 14 } },
       plugins: { legend: { display: false },
         tooltip: { callbacks: {
-          title: t => t[0].dataset.label,
-          label: t => [' ' + fmt1(qd.prestadores[t.datasetIndex].x) + ' sessões/paciente-mês' + (qd.prestadores[t.datasetIndex].x > XMAX ? ' (fora da escala)' : ''),
-            ' ' + brl(t.parsed.y) + '/sessão',
-            ' custo total ' + brlK(qd.prestadores[t.datasetIndex].custo) + ' · ' + qd.prestadores[t.datasetIndex].canal] } },
-        quadrantes: {}, halo: { labels: chart => qd.prestadores
-          .map((p, i) => ({ p, i })).filter(o => topNomes.includes(o.p.nome))
-          .map(o => { const m = chart.getDatasetMeta(o.i).data[0];
-            return { text: dNome(o.p.nome.split(' ')[0]), x: m.x, y: m.y - m.options.radius - 5, color: DARK }; }) } },
+          title: t => dNome(qd.prestadores[t[0].dataIndex].nome),
+          label: t => { const p = qd.prestadores[t.dataIndex]; return [
+            ' ' + fmt1(p.x) + ' sessões/paciente-mês' + (p.x > XMAX ? ' (fora da escala)' : ''),
+            ' ' + brl(p.y) + '/sessão',
+            ' custo total ' + brlK(p.custo) + ' · ' + p.canal]; } } },
+        refs: {}, halo: { labels: chart => { const ca = chart.chartArea; return qd.prestadores
+          .map((p, i) => ({ p, i })).filter(o => topQ.includes(o.p.nome))
+          .map(o => { const m = chart.getDatasetMeta(0).data[o.i];
+            const x = Math.min(Math.max(m.x, ca.left + 62), ca.right - 62);
+            return { text: trunc(dNome(o.p.nome), 18), x, y: m.y - m.options.radius - 6, color: DARK }; }); } } },
       scales: { y: escalaY({ title: { display: true, text: 'R$/sessão', color: INK3, font: { size: 10.5 } }, ticks: { callback: v => 'R$ ' + v } }),
-        x: escalaX({ min: 0, max: XMAX, title: { display: true, text: 'sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY } }) } },
+        x: escalaX({ min: XMIN, max: XMAX, title: { display: true, text: 'média de sessões por paciente-mês', color: INK3, font: { size: 10.5 } }, grid: { color: GRIDY }, ticks: { stepSize: 1, callback: v => fmt1(v) } }) } },
     plugins: [halo, {
-      id: 'quadrantes',
+      id: 'refs',
       beforeDatasetsDraw(chart) {
         const { ctx, chartArea: a, scales } = chart;
-        const cx = scales.x.getPixelForValue(qd.cortes.x), cy = scales.y.getPixelForValue(qd.cortes.y);
+        const xb1 = scales.x.getPixelForValue(p25), xb2 = scales.x.getPixelForValue(p75);
+        const xmed = scales.x.getPixelForValue(p50), cy = scales.y.getPixelForValue(corteY);
         ctx.save();
-        ctx.fillStyle = 'rgba(192,57,43,0.045)'; ctx.fillRect(cx, a.top, a.right - cx, cy - a.top);
-        ctx.fillStyle = 'rgba(0,153,93,0.05)'; ctx.fillRect(a.left, cy, cx - a.left, a.bottom - cy);
-        ctx.strokeStyle = 'rgba(0,78,76,0.35)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(cx, a.top); ctx.lineTo(cx, a.bottom);
-        ctx.moveTo(a.left, cy); ctx.lineTo(a.right, cy); ctx.stroke();
+        // faixa central: onde está a metade do meio da rede (referência de cuidado típico)
+        ctx.fillStyle = 'rgba(0,78,76,0.06)'; ctx.fillRect(xb1, a.top, xb2 - xb1, a.bottom - a.top);
+        ctx.strokeStyle = 'rgba(0,78,76,0.5)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(xmed, a.top); ctx.lineTo(xmed, a.bottom); ctx.stroke();
+        // referência de preço (média da carteira) — neutra
+        ctx.strokeStyle = 'rgba(92,127,125,0.55)';
+        ctx.beginPath(); ctx.moveTo(a.left, cy); ctx.lineTo(a.right, cy); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.font = 'italic 10.5px "Source Serif 4",serif'; ctx.fillStyle = INK3;
-        ctx.textAlign = 'left'; ctx.fillText('auditar intensidade →', cx + 8, a.top + 14);
-        ctx.textAlign = 'right'; ctx.fillText('← negociar preço', cx - 8, a.top + 14);
-        ctx.textAlign = 'left'; ctx.fillText('benchmark ↓', a.left + 6, a.bottom - 8);
+        ctx.font = 'italic 10px "Source Serif 4",serif'; ctx.fillStyle = INK3;
+        ctx.textAlign = 'center'; ctx.fillText('faixa central da rede', (xb1 + xb2) / 2, a.top + 12);
+        ctx.textAlign = 'left'; ctx.fillText('média de preço', a.left + 6, cy - 5);
         ctx.restore();
       }
     }]
   });
-  $('pr_quad_txt').textContent = 'Cortes nos valores reais: ' + brl(qd.cortes.y) + '/sessão (média da carteira) e ' +
-    fmt1(qd.cortes.x) + ' sessões/paciente-mês (mediana dos elegíveis). Bolha grande em quadrante alto = prioridade de gestão; a cor indica o canal de pagamento.' +
-    (foraEscala ? ' Eixo limitado a ' + XMAX + ' sessões/paciente-mês para leitura: ' + fmtN(foraEscala) +
-      ' prestador' + (foraEscala > 1 ? 'es' : '') + ' com intensidade acima disso (poucos pacientes) aparece' + (foraEscala > 1 ? 'm' : '') +
-      ' ancorado na borda direita, com o valor real no tooltip.' : '');
+  $('pr_quad_legend').replaceChildren(...canaisQ.map(c => {
+    const it = el('span', 'lg-item'); const dot = el('span', 'lg-dot'); dot.style.background = COR_CANAL[c] || INK3;
+    it.append(dot, document.createTextNode(c)); return it;
+  }));
+  $('pr_quad_txt').textContent = 'No eixo horizontal, a média de sessões por paciente-mês — a intensidade do ' +
+    'cuidado que cada paciente recebe. A referência é o meio: a faixa central concentra a metade do meio da rede (' +
+    fmt1(p25) + ' a ' + fmt1(p75) + ' sessões/paciente-mês, mediana ' + fmt1(p50) + ') e representa o cuidado ' +
+    'típico — o alvo é garantir as sessões que o paciente precisa. Ficar à esquerda é menos sessões por paciente ' +
+    'que o típico; à direita, mais — não é "melhor" nem "pior", muda o motivo (perfil mais leve ou mais intensivo, ' +
+    'adesão, gravidade). No eixo vertical, o preço por sessão, com a média da carteira (' + brl(corteY) +
+    ') como referência — a meta é essas sessões a um preço bem negociado. Tamanho = custo; cor = canal. Escala ' +
+    'focada em ' + XMIN + '–' + XMAX + ' sessões/paciente-mês (onde está a rede)' +
+    (foraEscala ? '; ' + fmtN(foraEscala) + ' prestador' + (foraEscala > 1 ? 'es' : '') + ' com pouquíssimos ' +
+      'pacientes têm média muito acima e aparece' + (foraEscala > 1 ? 'm' : '') + ' ancorado' + (foraEscala > 1 ? 's' : '') +
+      ' na borda direita (valor real no tooltip)' : '') + '.';
 
   const spSer = DATA.serie_prestador, top5 = rk.slice(0, 5).map(x => x.nome);
   const cores5 = [GREEN, DARK, ORANGE, CITRUS, '#2a78d6'];
@@ -1833,16 +1870,34 @@ function rPrestadores() {
   const se = DATA.solicitante_executante;
   if (se && se.solicitantes.length) {
     const ss = se.solicitantes;
+    // Barra empilhada: a parte do custo prescrito que vai ao executante principal (escura,
+    // âmbar quando ≥80%) vs. o que se distribui pelos demais. O tamanho da barra é o total
+    // prescrito; o quanto dela é âmbar mostra, de relance, a concentração no vínculo.
     novoChart('c_solicitantes', {
       type: 'bar',
-      data: { labels: ss.map(x => trunc(dNome(x.nome), 26)),
-        datasets: [{ data: ss.map(x => x.custo), borderRadius: 3,
-          backgroundColor: ss.map(x => x.principal_pct >= 80 ? AMBER : DARK) }] },
+      data: { labels: ss.map(x => trunc(dNome(x.nome), 24)),
+        datasets: [
+          { label: 'Executante principal', stack: 's',
+            data: ss.map(x => Math.round(x.custo * x.principal_pct / 100)),
+            backgroundColor: ss.map(x => x.principal_pct >= 80 ? AMBER : DARK), borderRadius: 2 },
+          { label: 'Demais executantes', stack: 's',
+            data: ss.map(x => Math.round(x.custo * (100 - x.principal_pct) / 100)),
+            backgroundColor: '#c4d3d0', borderRadius: 2 }
+        ] },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: t => [' prescrito: ' + brl0(t.parsed.x),
-            ' ' + fmt1(ss[t.dataIndex].principal_pct) + '% executado por ' + dNome(ss[t.dataIndex].principal)] } } },
-        scales: { x: escalaY({ position: 'top' }), y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 9.5 } } } } }
+        plugins: { legend: { display: true, position: 'bottom', onClick: () => {},
+          labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8, font: { size: 10.5 }, padding: 14,
+            generateLabels: () => [
+              { text: 'Executante principal', fillStyle: DARK, strokeStyle: DARK, lineWidth: 0 },
+              { text: 'Concentração ≥ 80%', fillStyle: AMBER, strokeStyle: AMBER, lineWidth: 0 },
+              { text: 'Demais executantes', fillStyle: '#c4d3d0', strokeStyle: '#c4d3d0', lineWidth: 0 } ] } },
+          tooltip: { callbacks: {
+            title: t => dNome(ss[t[0].dataIndex].nome),
+            label: t => t.datasetIndex === 0
+              ? [' ao principal: ' + brl0(t.parsed.x) + ' (' + fmt1(ss[t.dataIndex].principal_pct) + '%)',
+                 ' ' + dNome(ss[t.dataIndex].principal)]
+              : [' aos outros ' + (ss[t.dataIndex].n_executantes - 1) + ' executantes: ' + brl0(t.parsed.x)] } } },
+        scales: { x: escalaY({ position: 'top', stacked: true }), y: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { size: 9.5 } } } } }
     });
     const tbSe = document.querySelector('#se_tabela tbody');
     tbSe.replaceChildren();
@@ -1862,7 +1917,7 @@ function rPrestadores() {
     $('se_txt').textContent = 'A matriz cobre só o custo com prescritor identificado (' + fmt1(se.cobertura.custo_pct) +
       '% do total; negociação direta, reembolso e intercâmbio não capturam o solicitante). ' + fmtN(se.solicitantes_distintos) +
       ' solicitantes distintos; nos ' + ss.length + ' maiores, ' + fmtN(conc80) +
-      ' concentram 80% ou mais das sessões prescritas num único executante (linhas em âmbar) — concentração não é irregularidade, mas orienta a auditoria de vínculos.';
+      ' concentram 80% ou mais das sessões prescritas num único executante (destacados em âmbar) — concentração não é irregularidade, mas orienta a auditoria de vínculos.';
   }
 
   const so40 = DATA.tipo_pagamento.find(t => t.canal === 'Reembolso');
@@ -1885,10 +1940,15 @@ function montarTabelaPrestadores() {
       const vb = rankCol === 'pacientes' ? kNum(b[rankCol]) : b[rankCol];
       return (typeof va === 'string' ? va.localeCompare(vb, 'pt-BR') : va - vb) * rankDir;
     });
+  const total = linhas.length;
+  const totalPag = Math.max(1, Math.ceil(total / RANK_POR_PAGINA));
+  rankPage = Math.min(Math.max(1, rankPage), totalPag);
+  const ini = (rankPage - 1) * RANK_POR_PAGINA;
+  const pagina = linhas.slice(ini, ini + RANK_POR_PAGINA);
   const tb = document.querySelector('#pr_tabela tbody');
   tb.replaceChildren();
   const top15 = new Set(rk.slice(0, 15).map(x => x.nome));
-  linhas.forEach(x => {
+  pagina.forEach(x => {
     const tr = document.createElement('tr');
     if (x.nome === 'CASA UNIMED') tr.classList.add('is-own');
     const tdNome = el('td', 'prest', '');
@@ -1909,7 +1969,34 @@ function montarTabelaPrestadores() {
     tr.appendChild(el('td', 'num', fmtN(x.meses_ativos)));
     tb.appendChild(tr);
   });
-  $('pr_contador').textContent = linhas.length + ' de ' + rk.length;
+  $('pr_contador').textContent = total === 0 ? 'nenhum prestador'
+    : (ini + 1) + '–' + (ini + pagina.length) + ' de ' + total + (filtro ? ' (filtrados de ' + rk.length + ')' : '');
+  montarPagerPrestadores(totalPag);
+}
+
+function montarPagerPrestadores(total) {
+  const pg = $('pr_pager');
+  pg.replaceChildren();
+  if (total <= 1) { pg.hidden = true; return; }
+  pg.hidden = false;
+  const irPara = n => { rankPage = n; montarTabelaPrestadores(); $('pr_twrap').scrollTop = 0; };
+  const btn = (txt, page, opts = {}) => {
+    const b = el('button', null, txt);
+    if (opts.current) b.setAttribute('aria-current', 'page');
+    if (opts.disabled) b.disabled = true;
+    if (opts.label) b.setAttribute('aria-label', opts.label);
+    if (!opts.disabled && !opts.current) b.addEventListener('click', () => irPara(page));
+    return b;
+  };
+  pg.appendChild(btn('‹', rankPage - 1, { disabled: rankPage === 1, label: 'Página anterior' }));
+  const nums = [...new Set([1, total, rankPage, rankPage - 1, rankPage + 1].filter(n => n >= 1 && n <= total))].sort((a, b) => a - b);
+  let prev = 0;
+  nums.forEach(n => {
+    if (n - prev > 1) pg.appendChild(el('span', 'pg-gap', '…'));
+    pg.appendChild(btn(String(n), n, { current: n === rankPage, label: 'Página ' + n }));
+    prev = n;
+  });
+  pg.appendChild(btn('›', rankPage + 1, { disabled: rankPage === total, label: 'Próxima página' }));
 }
 
 /* modal do prestador */
