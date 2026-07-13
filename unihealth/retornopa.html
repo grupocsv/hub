@@ -11,6 +11,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
   <meta name="theme-color" content="#0D264C">
+  <link rel="stylesheet" href="/scripts/csv-ui.css">
 
   <!-- OpenGraph -->
   <meta property="og:title" content="Análise Correlação Cirurgias e Atendimentos PS">
@@ -26,131 +27,27 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
-    :root{
-      --bg:#eef2f7; --surface:#ffffff; --surface-2:#f7f9fc;
-      --ink:#0D264C; --ink-soft:#54637a; --ink-faint:#8595aa;
-      --line:#e3e8f0; --line-strong:#d3dae6;
-      --navy:#0D264C; --axia:#196396; --uni:#0f7a3d; --uni-deep:#013e19; --danger:#d92d3f;
-      --radius:16px;
-      --shadow:0 1px 2px rgba(13,38,76,.04), 0 10px 30px rgba(13,38,76,.07);
-    }
-    @media (prefers-color-scheme:dark){
-      :root{
-        --bg:#0a1220; --surface:#131d30; --surface-2:#182339;
-        --ink:#e9eff7; --ink-soft:#a6b6cb; --ink-faint:#6f8199;
-        --line:#243349; --line-strong:#31445f;
-        --axia:#4aa3d9; --uni:#3fbf74;
-        --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px rgba(0,0,0,.45);
-      }
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; background:var(--bg); color:var(--ink);
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      line-height:1.6; -webkit-font-smoothing:antialiased;
-    }
-    /* ---- Topbar ---- */
-    .topbar{
-      position:sticky; top:0; z-index:20;
-      display:flex; align-items:center; gap:16px; flex-wrap:wrap;
-      padding:12px clamp(16px,4vw,28px);
-      background:linear-gradient(100deg,var(--navy),var(--axia));
-      color:#fff; box-shadow:0 4px 16px rgba(13,38,76,.18);
-    }
-    .topbar a.back{
-      display:inline-flex; align-items:center; gap:7px; color:#fff; text-decoration:none;
-      font-size:14px; font-weight:600; opacity:.92; padding:6px 12px; border-radius:9px;
-      background:rgba(255,255,255,.12); transition:background .15s;
-    }
-    .topbar a.back:hover{background:rgba(255,255,255,.22)}
-    .topbar .tb-label{font-size:13px; font-weight:600; letter-spacing:.03em; opacity:.85}
-    .topbar .spacer{flex:1 1 auto}
-    #hub-auth-slot{display:inline-flex; align-items:center}
-
-    .wrap{max-width:860px; margin:0 auto; padding:clamp(18px,3.5vw,34px) clamp(14px,4vw,28px) 40px}
-
-    /* ---- Hero ---- */
-    .hero{
-      background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-      box-shadow:var(--shadow); overflow:hidden; margin-bottom:22px;
-    }
-    .hero-brand{
-      display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
-      padding:16px 22px; border-bottom:1px solid var(--line); background:var(--surface-2);
-    }
-    .hero-brand .lg{display:flex; flex-direction:column; align-items:center; text-decoration:none; gap:4px}
-    .hero-brand .lg img{height:46px; width:auto}
-    .hero-brand .lg span{font-size:11px; font-weight:600}
-    .hero-brand .lg.axia span{color:var(--axia)}
-    .hero-brand .lg.uni span{color:var(--uni)}
-    .hero-body{padding:22px clamp(18px,3vw,28px)}
-    .eyebrow{
-      font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-      color:var(--uni); margin:0 0 8px;
-    }
-    h1{font-size:clamp(22px,3.4vw,30px); line-height:1.15; letter-spacing:-.01em; margin:0 0 12px; text-wrap:balance}
-    .byline{display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin:0 0 14px}
-    .byline .dot{width:5px;height:5px;border-radius:50%;background:var(--uni)}
-    .lede{font-size:15.5px; color:var(--ink-soft); margin:0; max-width:64ch}
-
-    /* ---- Chart cards ---- */
-    .card{
-      background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:20px clamp(16px,3vw,24px); margin-bottom:18px;
-    }
-    .card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px}
-    .card-head h2{font-size:17px; margin:0; letter-spacing:-.01em}
-    .badge{
-      font-size:12.5px; font-weight:700; padding:5px 12px; border-radius:999px; white-space:nowrap;
-      display:inline-flex; align-items:center; gap:6px;
-    }
-    .badge.neg{color:var(--danger); background:color-mix(in srgb,var(--danger) 12%,transparent)}
-    .badge.pos{color:var(--uni); background:color-mix(in srgb,var(--uni) 15%,transparent)}
+    /* específico desta página (gráficos) — o resto vem de /scripts/csv-ui.css */
     .chart-box{position:relative; height:300px; margin:14px 0 12px}
-    .insight{font-size:14.5px; color:var(--ink-soft); margin:0}
-    .insight strong.neg{color:var(--danger)}
-    .insight strong.pos{color:var(--uni)}
-
-    /* ---- Feedback ---- */
-    .feedback h3{font-size:15px; margin:0 0 12px; color:var(--uni); display:flex; align-items:center; gap:8px}
-    .feedback textarea{
-      width:100%; min-height:110px; padding:13px 15px; border:1px solid var(--line-strong);
-      border-radius:12px; background:var(--surface-2); color:var(--ink);
-      font-family:inherit; font-size:14.5px; resize:vertical; outline:none; transition:border-color .15s,box-shadow .15s;
-    }
-    .feedback textarea:focus{border-color:var(--axia); box-shadow:0 0 0 3px color-mix(in srgb,var(--axia) 22%,transparent)}
-    .feedback textarea::placeholder{color:var(--ink-faint)}
-
-    /* ---- Footer ---- */
-    .site-footer{
-      margin-top:34px; padding:30px 20px; text-align:center; border-radius:var(--radius);
-      background:var(--surface-2); border:1px solid var(--line);
-    }
-    .site-footer img{width:132px; margin:0 auto 12px; display:block; filter:none}
-    @media (prefers-color-scheme:dark){ .site-footer img{filter:brightness(0) invert(1) opacity(.92)} }
-    .site-footer .tag{font-size:14px; font-weight:600; color:var(--ink); margin-bottom:14px}
-    .site-footer .links{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; font-size:13px; margin-bottom:8px}
-    .site-footer a{color:var(--axia); text-decoration:none}
-    .site-footer a:hover{text-decoration:underline}
-    .site-footer .sep{color:var(--line-strong); font-size:11px}
-    .site-footer .copy{font-size:11.5px; color:var(--ink-faint); margin-top:8px}
-
-    @media (max-width:560px){ .chart-box{height:260px} .hero-brand{justify-content:center} }
+    .insight{font-size:14.5px; color:var(--csv-ink-soft); margin:0}
+    .insight strong.neg{color:var(--csv-danger)}
+    .insight strong.pos{color:var(--csv-uni)}
+    @media (max-width:560px){ .chart-box{height:260px} }
   </style>
 </head>
-<body>
-  <header class="topbar">
-    <a href="/unihealth/" class="back">
+<body class="csv">
+  <header class="csv-topbar">
+    <a href="/unihealth/" class="csv-back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Unihealth
     </a>
-    <span class="tb-label">Hub de Ferramentas Profissionais</span>
-    <span class="spacer"></span>
+    <span class="csv-tb-label">Hub de Ferramentas Profissionais</span>
+    <span class="csv-spacer"></span>
     <span id="hub-auth-slot" data-hub-auth-theme="dark"></span>
   </header>
 
-  <main class="wrap">
-    <section class="hero">
+  <main class="csv-wrap">
+    <section class="csv-hero">
       <div class="hero-brand">
         <a href="https://axcare.com.br" target="_blank" rel="noopener" class="lg axia">
           <img src="/img/yAUQciP.png" alt="AxiaCare — Gestão e Consultoria em Saúde">
@@ -162,40 +59,32 @@
         </a>
       </div>
       <div class="hero-body">
-        <p class="eyebrow">Análise de Utilização do PA</p>
+        <p class="csv-eyebrow">Análise de Utilização do PA</p>
         <h1>Correlação entre Cirurgias Eletivas e Atendimentos no Pronto-Socorro</h1>
-        <p class="byline"><span class="dot"></span> Elaboração: Dr. Guilherme Camargo Thomé</p>
-        <p class="lede">A técnica considera retornos ao pronto-socorro entre 7 e 15 dias após cirurgias eletivas. Os volumes de cirurgias eletivas foram comparados com os atendimentos no mês subsequente para identificar correlações.</p>
+        <p class="csv-byline"><span class="dot"></span> Elaboração: Dr. Guilherme Camargo Thomé</p>
+        <p class="csv-lede">A técnica considera retornos ao pronto-socorro entre 7 e 15 dias após cirurgias eletivas. Os volumes de cirurgias eletivas foram comparados com os atendimentos no mês subsequente para identificar correlações.</p>
       </div>
     </section>
 
-    <section class="card">
-      <div class="card-head">
+    <section class="csv-card">
+      <div class="csv-card-head">
         <h2>Cirurgia Geral</h2>
-        <span class="badge neg">Correlação −0,03 · inexistente</span>
+        <span class="csv-badge neg">Correlação −0,03 · inexistente</span>
       </div>
       <div class="chart-box"><canvas id="graficoCG"></canvas></div>
       <p class="insight">A especialidade de <strong class="neg">Cirurgia Geral</strong> apresentou correlação inexistente (−0,03), não apoiando a hipótese inicial.</p>
     </section>
 
-    <section class="card">
-      <div class="card-head">
+    <section class="csv-card">
+      <div class="csv-card-head">
         <h2>Ortopedia</h2>
-        <span class="badge pos">Correlação +0,37 · positiva</span>
+        <span class="csv-badge pos">Correlação +0,37 · positiva</span>
       </div>
       <div class="chart-box"><canvas id="graficoOrtopedia"></canvas></div>
       <p class="insight">A especialidade de <strong class="pos">Ortopedia</strong> apresentou correlação positiva (0,37). A evidência apoia a hipótese inicial, indicando tendência em que aumentos nas cirurgias eletivas são seguidos por aumento subsequente nos atendimentos ao pronto-socorro.</p>
     </section>
 
-    <section class="card feedback">
-      <h3>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Feedback e Dúvidas
-      </h3>
-      <textarea placeholder="Escreva aqui seu feedback ou dúvidas sobre este relatório."></textarea>
-    </section>
-
-    <footer class="site-footer">
+    <footer class="csv-footer">
       <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare">
       <div class="tag">Gestão e Consultoria em Saúde</div>
       <div class="links">
@@ -218,7 +107,6 @@
 
   <script>
     const meses = ['fev/24','mar/24','abr/24','mai/24','jun/24','jul/24','ago/24','set/24','out/24','nov/24','dez/24','jan/25','fev/25','mar/25'];
-    // Cores adaptadas ao tema (claro/escuro)
     const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const tick = dark ? '#a6b6cb' : '#54637a';
     const grid = dark ? 'rgba(255,255,255,.08)' : 'rgba(13,38,76,.08)';
