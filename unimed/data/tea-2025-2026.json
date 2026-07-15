@@ -2,51 +2,51 @@
  "comparativos": {
   "anos_fechados": {
    "2025": {
-    "custo": 3065237.3,
-    "sessoes": 19130
+    "custo": 3157537.3,
+    "sessoes": 20053
    }
   },
   "pico": {
-   "custo": 288892.59,
+   "custo": 301192.59,
    "m": "2025/09"
   },
   "s1_anterior": {
-   "custo": 1405075.27,
-   "sessoes": 8882
+   "custo": 1423275.27,
+   "sessoes": 9064
   },
   "s1_atual": {
    "ano": "2026",
-   "custo": 1511267.11,
-   "media_mensal": 251877.85,
-   "run_rate_anual": 3022534.22,
-   "sessoes": 9722
+   "custo": 1592067.11,
+   "media_mensal": 265344.52,
+   "run_rate_anual": 3184134.22,
+   "sessoes": 10530
   },
   "vale": {
-   "custo": 187644.83,
+   "custo": 187944.83,
    "m": "2025/01"
   },
   "yoy_s1": {
-   "custo_pct": 7.56,
-   "sessoes_pct": 9.46
+   "custo_pct": 11.86,
+   "sessoes_pct": 16.17
   }
  },
  "concentracao": {
-  "hhi_2025": 864.4,
-  "hhi_periodo": 993.39,
-  "hhi_s1_2026": 1356.61,
-  "top10_pct": 80.7,
-  "top15_pct": 88.92,
-  "top5_pct": 62.4
+  "hhi_2025": 890.52,
+  "hhi_periodo": 1032.47,
+  "hhi_s1_2026": 1418.64,
+  "top10_pct": 81.41,
+  "top15_pct": 89.32,
+  "top5_pct": 63.77
  },
  "custo_paciente": {
-  "max": 36920.0,
-  "mediana": 4470.0,
-  "p90": 11879.6,
-  "p99": 22179.1,
-  "top10abs_pct_custo": 6.07,
+  "max": 40060.0,
+  "mediana": 4640.0,
+  "p90": 12202.0,
+  "p99": 24851.0,
+  "top10abs_pct_custo": 6.31,
   "top10pct": {
    "pacientes": 82,
-   "pct_custo": 28.48
+   "pct_custo": 29.2
   }
  },
  "dispersao_preco": {
@@ -61,11 +61,6 @@
     "nome": "ANANDA VIEIRA MORAES",
     "preco": 230.53,
     "sessoes": 1213
-   },
-   {
-    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "preco": 219.96,
-    "sessoes": 2870
    },
    {
     "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA",
@@ -116,6 +111,11 @@
     "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO",
     "preco": 180.0,
     "sessoes": 624
+   },
+   {
+    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "preco": 174.83,
+    "sessoes": 4601
    },
    {
     "nome": "PATRICIA BARBOSA NASCIMENTO",
@@ -180,111 +180,117 @@
   ],
   "referencias": {
    "casa_unimed": 120.0,
-   "media_carteira": 158.62,
-   "mediana_grupo": 180.0
+   "media_carteira": 155.3,
+   "mediana_grupo": 174.83
   }
  },
  "economia_potencial": {
-  "gap_total": 493562.14,
+  "gap_total": 436964.98,
   "prestadores": [
    {
-    "gap_total": 10714.76,
+    "gap_total": 11109.59,
     "nome": "ESPACO INTEGRAR LTDA",
     "preco": 248.66,
     "sessoes": 119
    },
    {
-    "gap_total": 87226.82,
+    "gap_total": 91251.43,
     "nome": "ANANDA VIEIRA MORAES",
     "preco": 230.53,
     "sessoes": 1213
    },
    {
-    "gap_total": 176045.78,
-    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "preco": 219.96,
-    "sessoes": 2870
-   },
-   {
-    "gap_total": 66369.17,
+    "gap_total": 70476.73,
     "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA",
     "preco": 212.23,
     "sessoes": 1238
    },
    {
-    "gap_total": 21974.46,
+    "gap_total": 23696.45,
     "nome": "PRIMEIRO PASSOS LTDA",
     "preco": 200.96,
     "sessoes": 519
    },
    {
-    "gap_total": 18455.48,
+    "gap_total": 19935.26,
     "nome": "LAGARES E PIMENTA LTDA",
     "preco": 200.0,
     "sessoes": 446
    },
    {
-    "gap_total": 10593.28,
+    "gap_total": 11442.66,
     "nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA",
     "preco": 200.0,
     "sessoes": 256
    },
    {
-    "gap_total": 4758.7,
+    "gap_total": 5140.26,
     "nome": "ESPACO NEUROPSI LTDA",
     "preco": 200.0,
     "sessoes": 115
    },
    {
-    "gap_total": 43138.32,
+    "gap_total": 46797.96,
     "nome": "PEQUENINHOS CLINICA LTDA",
     "preco": 197.73,
     "sessoes": 1103
    },
    {
-    "gap_total": 8390.59,
+    "gap_total": 9210.11,
     "nome": "CLINICA NEUROAFETO LTDA",
     "preco": 192.59,
     "sessoes": 247
    },
    {
-    "gap_total": 14154.2,
+    "gap_total": 15680.43,
     "nome": "CLINICA INTEGRADA EM SAUDE LTDA",
     "preco": 189.39,
     "sessoes": 460
    },
    {
-    "gap_total": 5352.49,
+    "gap_total": 6006.11,
     "nome": "MARYANA ALVES DE SOUZA LTDA",
     "preco": 185.79,
     "sessoes": 197
    },
    {
-    "gap_total": 13341.12,
+    "gap_total": 15411.48,
     "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO",
     "preco": 180.0,
     "sessoes": 624
    },
    {
-    "gap_total": 3178.12,
+    "gap_total": 89847.82,
+    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "preco": 174.83,
+    "sessoes": 4601
+   },
+   {
+    "gap_total": 3951.19,
     "nome": "PATRICIA BARBOSA NASCIMENTO",
     "preco": 172.26,
     "sessoes": 233
    },
    {
-    "gap_total": 9215.25,
+    "gap_total": 11952.51,
     "nome": "BASTOS JARDIM LTDA",
     "preco": 169.79,
     "sessoes": 825
    },
    {
-    "gap_total": 653.6,
+    "gap_total": 1914.4,
     "nome": "CLINICA PSICONEURO GV LTDA",
     "preco": 160.34,
     "sessoes": 380
+   },
+   {
+    "gap_total": 3140.59,
+    "nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
+    "preco": 156.65,
+    "sessoes": 2330
    }
   ],
-  "referencia": 158.62
+  "referencia": 155.3
  },
  "entradas_saidas": [
   {
@@ -309,14 +315,14 @@
    "saidas": 10
   },
   {
-   "entradas": 26,
+   "entradas": 28,
    "estoque_inicial": false,
    "m": "2025/04",
    "provisorio": false,
    "saidas": 8
   },
   {
-   "entradas": 29,
+   "entradas": 27,
    "estoque_inicial": false,
    "m": "2025/05",
    "provisorio": false,
@@ -337,11 +343,11 @@
    "saidas": 18
   },
   {
-   "entradas": 16,
+   "entradas": 17,
    "estoque_inicial": false,
    "m": "2025/08",
    "provisorio": false,
-   "saidas": 22
+   "saidas": 21
   },
   {
    "entradas": 29,
@@ -358,32 +364,32 @@
    "saidas": 18
   },
   {
-   "entradas": 15,
+   "entradas": 16,
    "estoque_inicial": false,
    "m": "2025/11",
    "provisorio": false,
-   "saidas": 14
+   "saidas": 12
   },
   {
    "entradas": 11,
    "estoque_inicial": false,
    "m": "2025/12",
    "provisorio": false,
-   "saidas": 16
+   "saidas": 15
   },
   {
    "entradas": 9,
    "estoque_inicial": false,
    "m": "2026/01",
    "provisorio": false,
-   "saidas": 17
+   "saidas": 18
   },
   {
    "entradas": 34,
    "estoque_inicial": false,
    "m": "2026/02",
    "provisorio": false,
-   "saidas": 28
+   "saidas": 27
   },
   {
    "entradas": 35,
@@ -404,58 +410,58 @@
    "estoque_inicial": false,
    "m": "2026/05",
    "provisorio": true,
-   "saidas": 37
+   "saidas": 34
   },
   {
    "entradas": 19,
    "estoque_inicial": false,
    "m": "2026/06",
    "provisorio": true,
-   "saidas": 470
+   "saidas": 479
   }
  ],
  "faixa_etaria": [
   {
-   "custo": 54850.0,
+   "custo": 57450.0,
    "faixa": "0-2",
    "pacientes": 20,
-   "pct_custo": 1.2
+   "pct_custo": 1.21
   },
   {
-   "custo": 1424829.19,
+   "custo": 1507929.19,
    "faixa": "3-5",
-   "pacientes": 266,
-   "pct_custo": 31.13
+   "pacientes": 267,
+   "pct_custo": 31.75
   },
   {
-   "custo": 2159418.18,
+   "custo": 2243518.18,
    "faixa": "6-8",
    "pacientes": 331,
-   "pct_custo": 47.18
+   "pct_custo": 47.24
   },
   {
    "custo": 569383.28,
    "faixa": "9-11",
    "pacientes": 123,
-   "pct_custo": 12.44
+   "pct_custo": 11.99
   },
   {
-   "custo": 279435.33,
+   "custo": 281035.33,
    "faixa": "12-14",
-   "pacientes": 58,
-   "pct_custo": 6.11
+   "pacientes": 59,
+   "pct_custo": 5.92
   },
   {
-   "custo": 67778.43,
+   "custo": 69478.43,
    "faixa": "15-17",
    "pacientes": 21,
-   "pct_custo": 1.48
+   "pct_custo": 1.46
   },
   {
    "custo": 20810.0,
    "faixa": "18+",
    "pacientes": "<5",
-   "pct_custo": 0.45
+   "pct_custo": 0.44
   }
  ],
  "faixa_etaria_x_genero": [
@@ -466,7 +472,7 @@
   },
   {
    "F": 59,
-   "M": 207,
+   "M": 208,
    "faixa": "3-5"
   },
   {
@@ -481,7 +487,7 @@
   },
   {
    "F": 22,
-   "M": 36,
+   "M": 37,
    "faixa": "12-14"
   },
   {
@@ -497,35 +503,35 @@
  ],
  "genero": {
   "F": 214,
-  "M": 609,
-  "razao": 2.85
+  "M": 611,
+  "razao": 2.86
  },
  "intensidade": {
   "buckets": [
    {
     "faixa": "<3",
-    "pacientes": 352
+    "pacientes": 337
    },
    {
     "faixa": "3-4,9",
-    "pacientes": 365
+    "pacientes": 364
    },
    {
     "faixa": "5-8,9",
-    "pacientes": 81
+    "pacientes": 96
    },
    {
     "faixa": "9+",
-    "pacientes": 25
+    "pacientes": 28
    }
   ],
-  "mediana_media_por_paciente": 3.12,
+  "mediana_media_por_paciente": 3.2,
   "paciente_mes": {
    "max": 114.0,
    "mediana": 3.0,
-   "n": 8095,
+   "n": 8186,
    "p90": 6.0,
-   "p99": 11.0
+   "p99": 13.0
   }
  },
  "intercambio": {
@@ -553,16 +559,16 @@
    "sessoes": 127
   },
   "contagens": {
-   "custo_por_sessao": 158.62,
-   "custo_total": 4576504.41,
-   "matriculas": 867,
-   "pacientes": 823,
+   "custo_por_sessao": 155.3,
+   "custo_total": 4749604.41,
+   "matriculas": 869,
+   "pacientes": 825,
    "prestadores": 81,
-   "registros": 18929,
-   "sessoes": 28852
+   "registros": 20456,
+   "sessoes": 30583
   },
   "data_corte": "2026-06-30",
-  "gerado_em": "2026-07-11",
+  "gerado_em": "2026-07-15",
   "painel": "Painel Estratégico TEA — Terapia ABA · Psicologia (50005103)",
   "periodo": {
    "competencias": 18,
@@ -570,22 +576,22 @@
    "inicio": "2025/01"
   },
   "politica_k": 5,
-  "sha256_insumo": "6e964fcb83d2673125a9cc799d86e6426bd0e0b3e7ecc896e5addb889d495e44",
+  "sha256_insumo": "2a54423f889f90a613f312a35e37af989b59aad88f5f4f343eb7a41522fdec7c",
   "versao_script": "2.0.0"
  },
  "permanencia": {
   "dist": [
    {
     "faixa": "1-3",
-    "pacientes": 178
+    "pacientes": 177
    },
    {
     "faixa": "4-6",
-    "pacientes": 131
+    "pacientes": 129
    },
    {
     "faixa": "7-9",
-    "pacientes": 78
+    "pacientes": 76
    },
    {
     "faixa": "10-12",
@@ -593,75 +599,75 @@
    },
    {
     "faixa": "13-17",
-    "pacientes": 249
+    "pacientes": 254
    },
    {
     "faixa": "18",
-    "pacientes": 91
+    "pacientes": 93
    }
   ],
-  "media": 9.84,
+  "media": 9.92,
   "mediana": 10.0,
-  "presentes_todo_periodo": 91
+  "presentes_todo_periodo": 93
  },
  "projecao": {
   "cenarios": {
    "base": [
-    274517.57,
-    280481.35,
-    279104.13,
-    273317.6,
-    266057.3,
-    235265.63,
-    219898.14,
-    235419.35,
-    272292.49,
-    260234.63,
-    285725.54,
-    273295.75
+    290558.98,
+    296104.73,
+    292900.82,
+    290417.4,
+    280598.81,
+    247269.69,
+    226698.74,
+    241758.23,
+    281184.54,
+    272009.71,
+    301247.59,
+    289481.49
    ],
    "contido": [
-    274427.74,
-    280297.85,
-    278830.32,
-    272960.21,
-    265622.57,
-    234804.48,
-    219395.44,
-    234804.48,
-    271492.68,
-    259385.57,
-    284700.43,
-    272226.44
+    290118.49,
+    295208.29,
+    291572.72,
+    288664.26,
+    278484.67,
+    245037.42,
+    224314.67,
+    238856.95,
+    277394.0,
+    267941.52,
+    296298.96,
+    284301.58
    ],
    "expansao": [
-    275685.34,
-    282866.86,
-    282663.67,
-    277963.73,
-    271708.85,
-    241260.64,
-    226433.33,
-    243412.7,
-    282690.09,
-    271272.31,
-    299051.94,
-    287196.67
+    291770.33,
+    298569.93,
+    296553.09,
+    295238.51,
+    286412.68,
+    253408.41,
+    233254.91,
+    249736.76,
+    291608.53,
+    283197.25,
+    314856.31,
+    303726.25
    ]
   },
   "indice_sazonal": {
-   "01": 0.84,
-   "02": 0.9,
-   "03": 1.04,
-   "04": 1.0,
-   "05": 1.09,
-   "06": 1.04,
-   "07": 1.05,
-   "08": 1.08,
-   "09": 1.07,
-   "10": 1.05,
-   "11": 1.02,
-   "12": 0.9
+   "01": 0.83,
+   "02": 0.88,
+   "03": 1.03,
+   "04": 0.99,
+   "05": 1.1,
+   "06": 1.05,
+   "07": 1.07,
+   "08": 1.09,
+   "09": 1.08,
+   "10": 1.07,
+   "11": 1.03,
+   "12": 0.91
   },
   "meses": [
    "2026/07",
@@ -681,8 +687,8 @@
  },
  "quadrante_prestadores": {
   "cortes": {
-   "x": 3.72,
-   "y": 158.62
+   "x": 3.8,
+   "y": 155.3
   },
   "prestadores": [
    {
@@ -693,6 +699,13 @@
     "y": 130.8
    },
    {
+    "canal": "Rede Credenciada",
+    "custo": 804380.0,
+    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+    "x": 4.32,
+    "y": 174.83
+   },
+   {
     "canal": "Casa Unimed",
     "custo": 687720.0,
     "nome": "CASA UNIMED",
@@ -701,13 +714,6 @@
    },
    {
     "canal": "Rede Credenciada",
-    "custo": 631280.0,
-    "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "x": 2.96,
-    "y": 219.96
-   },
-   {
-    "canal": "Negociação Direta",
     "custo": 365004.0,
     "nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
     "x": 3.86,
@@ -777,14 +783,14 @@
     "y": 120.86
    },
    {
-    "canal": "Negociação Direta",
+    "canal": "Rede Credenciada",
     "custo": 61304.0,
     "nome": "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA",
     "x": 4.89,
     "y": 151.0
    },
    {
-    "canal": "Negociação Direta",
+    "canal": "Rede Credenciada",
     "custo": 60930.0,
     "nome": "CLINICA PSICONEURO GV LTDA",
     "x": 3.22,
@@ -819,7 +825,7 @@
     "y": 185.79
    },
    {
-    "canal": "Negociação Direta",
+    "canal": "Rede Credenciada",
     "custo": 34590.0,
     "nome": "RESINTO ESPACO INTEGRADO LTDA",
     "x": 5.54,
@@ -864,8 +870,8 @@
  },
  "qualidade": {
   "cbos": {
-   "medicos_pct": 22.06,
-   "psicologo_pct": 59.82
+   "medicos_pct": 22.04,
+   "psicologo_pct": 61.19
   },
   "eventos_extremos": [
    {
@@ -887,8 +893,8 @@
   ],
   "lag": {
    "max_meses": 13,
-   "pct_1_mes": 16.62,
-   "pct_mesma_competencia": 82.21
+   "pct_1_mes": 15.38,
+   "pct_mesma_competencia": 83.54
   },
   "maiores_18": {
    "custo": 20810.0,
@@ -896,325 +902,387 @@
    "sessoes": 142
   },
   "multi_prestador": {
-   "paciente_mes": 44,
-   "pacientes": 95,
-   "pct_pacientes": 11.54
+   "paciente_mes": 49,
+   "pacientes": 97,
+   "pct_pacientes": 11.76
   },
   "retroativos_90d": {
    "custo": 35261.93,
-   "pct_custo": 0.77,
+   "pct_custo": 0.74,
    "registros": 27
   },
   "sem_solicitante": {
    "custo": 2242968.41,
-   "pct_custo": 49.01,
-   "pct_registros": 17.9,
+   "pct_custo": 47.22,
+   "pct_registros": 16.56,
    "registros": 3388
   },
   "valor_zero": 7
  },
  "ranking_prestadores": [
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
    "custo": 892160.0,
    "custo_sessao": 130.8,
    "meses_ativos": 18,
    "nome": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)",
    "pacientes": 235,
-   "participacao_pct": 19.49,
+   "participacao_pct": 18.78,
    "sessoes": 6821
   },
   {
+   "at_pct": 37.62,
+   "at_sessoes": 1731,
+   "canal": "Rede Credenciada",
+   "custo": 804380.0,
+   "custo_sessao": 174.83,
+   "meses_ativos": 18,
+   "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
+   "pacientes": 117,
+   "participacao_pct": 16.94,
+   "sessoes": 4601
+  },
+  {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Casa Unimed",
    "custo": 687720.0,
    "custo_sessao": 120.0,
    "meses_ativos": 18,
    "nome": "CASA UNIMED",
    "pacientes": 209,
-   "participacao_pct": 15.03,
+   "participacao_pct": 14.48,
    "sessoes": 5731
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
-   "custo": 631280.0,
-   "custo_sessao": 219.96,
-   "meses_ativos": 18,
-   "nome": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-   "pacientes": 113,
-   "participacao_pct": 13.79,
-   "sessoes": 2870
-  },
-  {
-   "canal": "Negociação Direta",
    "custo": 365004.0,
    "custo_sessao": 156.65,
    "meses_ativos": 18,
    "nome": "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
    "pacientes": 50,
-   "participacao_pct": 7.98,
+   "participacao_pct": 7.68,
    "sessoes": 2330
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 279638.41,
    "custo_sessao": 230.53,
    "meses_ativos": 18,
    "nome": "ANANDA VIEIRA MORAES",
    "pacientes": 23,
-   "participacao_pct": 6.11,
+   "participacao_pct": 5.89,
    "sessoes": 1213
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 262746.54,
    "custo_sessao": 212.23,
    "meses_ativos": 18,
    "nome": "COM AFFETO CLINICA DE PSICOLOGIA E DESENVOLVIMENTO GERENCIAL LTDA",
    "pacientes": 23,
-   "participacao_pct": 5.74,
+   "participacao_pct": 5.53,
    "sessoes": 1238
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 218101.0,
    "custo_sessao": 197.73,
    "meses_ativos": 17,
    "nome": "PEQUENINHOS CLINICA LTDA",
    "pacientes": 20,
-   "participacao_pct": 4.77,
+   "participacao_pct": 4.59,
    "sessoes": 1103
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 140080.0,
    "custo_sessao": 169.79,
    "meses_ativos": 18,
    "nome": "BASTOS JARDIM LTDA",
    "pacientes": 16,
-   "participacao_pct": 3.06,
+   "participacao_pct": 2.95,
    "sessoes": 825
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 112320.0,
    "custo_sessao": 180.0,
    "meses_ativos": 18,
    "nome": "IZAIRA CRISTIANE CATALUNHA BOTELHO",
    "pacientes": 12,
-   "participacao_pct": 2.45,
+   "participacao_pct": 2.36,
    "sessoes": 624
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 104300.0,
    "custo_sessao": 200.96,
    "meses_ativos": 18,
    "nome": "PRIMEIRO PASSOS LTDA",
    "pacientes": 15,
-   "participacao_pct": 2.28,
+   "participacao_pct": 2.2,
    "sessoes": 519
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 89200.0,
    "custo_sessao": 200.0,
    "meses_ativos": 18,
    "nome": "LAGARES E PIMENTA LTDA",
    "pacientes": 14,
-   "participacao_pct": 1.95,
+   "participacao_pct": 1.88,
    "sessoes": 446
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 87119.15,
    "custo_sessao": 189.39,
    "meses_ativos": 18,
    "nome": "CLINICA INTEGRADA EM SAUDE LTDA",
    "pacientes": 9,
-   "participacao_pct": 1.9,
+   "participacao_pct": 1.83,
    "sessoes": 460
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
    "custo": 77472.0,
    "custo_sessao": 120.86,
    "meses_ativos": 18,
    "nome": "JC ORTOPEDIA LTDA",
    "pacientes": 25,
-   "participacao_pct": 1.69,
+   "participacao_pct": 1.63,
    "sessoes": 641
   },
   {
-   "canal": "Negociação Direta",
+   "at_pct": 0.0,
+   "at_sessoes": 0,
+   "canal": "Rede Credenciada",
    "custo": 61304.0,
    "custo_sessao": 151.0,
    "meses_ativos": 17,
    "nome": "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA",
    "pacientes": 15,
-   "participacao_pct": 1.34,
+   "participacao_pct": 1.29,
    "sessoes": 406
   },
   {
-   "canal": "Negociação Direta",
+   "at_pct": 0.0,
+   "at_sessoes": 0,
+   "canal": "Rede Credenciada",
    "custo": 60930.0,
    "custo_sessao": 160.34,
    "meses_ativos": 17,
    "nome": "CLINICA PSICONEURO GV LTDA",
    "pacientes": 14,
-   "participacao_pct": 1.33,
+   "participacao_pct": 1.28,
    "sessoes": 380
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 51200.0,
    "custo_sessao": 200.0,
    "meses_ativos": 18,
    "nome": "CASULO ESPAÇO DE SAUDE MULTIDISCIPLINAR LTDA",
    "pacientes": 5,
-   "participacao_pct": 1.12,
+   "participacao_pct": 1.08,
    "sessoes": 256
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 47570.0,
    "custo_sessao": 192.59,
    "meses_ativos": 11,
    "nome": "CLINICA NEUROAFETO LTDA",
    "pacientes": 6,
-   "participacao_pct": 1.04,
+   "participacao_pct": 1.0,
    "sessoes": 247
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 40136.47,
    "custo_sessao": 172.26,
    "meses_ativos": 5,
    "nome": "PATRICIA BARBOSA NASCIMENTO",
    "pacientes": "<5",
-   "participacao_pct": 0.88,
+   "participacao_pct": 0.85,
    "sessoes": 233
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 36600.0,
    "custo_sessao": 185.79,
    "meses_ativos": 7,
    "nome": "MARYANA ALVES DE SOUZA LTDA",
    "pacientes": 7,
-   "participacao_pct": 0.8,
+   "participacao_pct": 0.77,
    "sessoes": 197
   },
   {
-   "canal": "Negociação Direta",
+   "at_pct": 0.0,
+   "at_sessoes": 0,
+   "canal": "Rede Credenciada",
    "custo": 34590.0,
    "custo_sessao": 120.1,
    "meses_ativos": 17,
    "nome": "RESINTO ESPACO INTEGRADO LTDA",
    "pacientes": 6,
-   "participacao_pct": 0.76,
+   "participacao_pct": 0.73,
    "sessoes": 288
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 29590.0,
    "custo_sessao": 248.66,
    "meses_ativos": 14,
    "nome": "ESPACO INTEGRAR LTDA",
    "pacientes": "<5",
-   "participacao_pct": 0.65,
+   "participacao_pct": 0.62,
    "sessoes": 119
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 27931.43,
    "custo_sessao": 138.27,
    "meses_ativos": 18,
    "nome": "GILCIMARA COELHO RODRIGUES PSICOLOGIA",
    "pacientes": 5,
-   "participacao_pct": 0.61,
+   "participacao_pct": 0.59,
    "sessoes": 202
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 23000.0,
    "custo_sessao": 200.0,
    "meses_ativos": 13,
    "nome": "ESPACO NEUROPSI LTDA",
    "pacientes": "<5",
-   "participacao_pct": 0.5,
+   "participacao_pct": 0.48,
    "sessoes": 115
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 19000.0,
    "custo_sessao": 200.0,
    "meses_ativos": 15,
    "nome": "DESENVOLVA CLINICA DE DESENVOLVIMENTO INFANTIL",
    "pacientes": "<5",
-   "participacao_pct": 0.42,
+   "participacao_pct": 0.4,
    "sessoes": 95
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Intercâmbio",
    "custo": 16752.0,
    "custo_sessao": 125.95,
    "meses_ativos": 18,
    "nome": "UNIMED GERAIS DE MINAS",
    "pacientes": "<5",
-   "participacao_pct": 0.37,
+   "participacao_pct": 0.35,
    "sessoes": 133
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Intercâmbio",
    "custo": 12360.0,
    "custo_sessao": 120.0,
    "meses_ativos": 18,
    "nome": "UNIMED TEOFILO OTONI",
    "pacientes": 6,
-   "participacao_pct": 0.27,
+   "participacao_pct": 0.26,
    "sessoes": 103
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 12160.0,
    "custo_sessao": 160.0,
    "meses_ativos": 12,
    "nome": "PATRICIA CRUZEIRO MARTINS AIOLFI",
    "pacientes": "<5",
-   "participacao_pct": 0.27,
+   "participacao_pct": 0.26,
    "sessoes": 76
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 11816.86,
    "custo_sessao": 140.68,
    "meses_ativos": 5,
    "nome": "RENATA KELLY VAZ DE OLIVEIRA",
    "pacientes": "<5",
-   "participacao_pct": 0.26,
+   "participacao_pct": 0.25,
    "sessoes": 84
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Intercâmbio",
    "custo": 11160.0,
    "custo_sessao": 120.0,
    "meses_ativos": 16,
    "nome": "UNIMED VALE DO ACO",
    "pacientes": "<5",
-   "participacao_pct": 0.24,
+   "participacao_pct": 0.23,
    "sessoes": 93
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 9860.42,
    "custo_sessao": 151.7,
    "meses_ativos": 6,
    "nome": "IZIS SILVANO COSTA DA ROCHA",
    "pacientes": "<5",
-   "participacao_pct": 0.22,
+   "participacao_pct": 0.21,
    "sessoes": 65
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 8820.0,
    "custo_sessao": 180.0,
@@ -1225,26 +1293,32 @@
    "sessoes": 49
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 6885.98,
    "custo_sessao": 186.11,
    "meses_ativos": 3,
    "nome": "ANDREIA ARAUJO DE SOUZA",
    "pacientes": "<5",
-   "participacao_pct": 0.15,
+   "participacao_pct": 0.14,
    "sessoes": 37
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 6330.0,
    "custo_sessao": 147.21,
    "meses_ativos": 1,
    "nome": "FLORESCER CLINICA DE PSICOLOGIA",
    "pacientes": 16,
-   "participacao_pct": 0.14,
+   "participacao_pct": 0.13,
    "sessoes": 43
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 5580.38,
    "custo_sessao": 136.11,
@@ -1255,6 +1329,8 @@
    "sessoes": 41
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 5244.69,
    "custo_sessao": 104.89,
@@ -1265,16 +1341,20 @@
    "sessoes": 50
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 4851.82,
    "custo_sessao": 89.85,
    "meses_ativos": 8,
    "nome": "TATYANE MIELI PAMPLONA PORTO",
    "pacientes": "<5",
-   "participacao_pct": 0.11,
+   "participacao_pct": 0.1,
    "sessoes": 54
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta (P.F)",
    "custo": 4640.0,
    "custo_sessao": 90.98,
@@ -1285,6 +1365,8 @@
    "sessoes": 51
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 4630.0,
    "custo_sessao": 154.33,
@@ -1295,6 +1377,8 @@
    "sessoes": 30
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 4588.08,
    "custo_sessao": 152.94,
@@ -1305,26 +1389,32 @@
    "sessoes": 30
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Intercâmbio",
    "custo": 4512.0,
    "custo_sessao": 125.33,
    "meses_ativos": 2,
    "nome": "UNIMED NACIONAL - COOPERATIVA CENTRAL",
    "pacientes": "<5",
-   "participacao_pct": 0.1,
+   "participacao_pct": 0.09,
    "sessoes": 36
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 4375.32,
    "custo_sessao": 85.79,
    "meses_ativos": 4,
    "nome": "GEORGIA CRISTINA VILELA JANNUZZI",
    "pacientes": "<5",
-   "participacao_pct": 0.1,
+   "participacao_pct": 0.09,
    "sessoes": 51
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 4105.64,
    "custo_sessao": 178.51,
@@ -1335,16 +1425,20 @@
    "sessoes": 23
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 3550.46,
    "custo_sessao": 147.94,
    "meses_ativos": 3,
    "nome": "MARLE JOSE FERRARI JUNIOR",
    "pacientes": "<5",
-   "participacao_pct": 0.08,
+   "participacao_pct": 0.07,
    "sessoes": 24
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 3255.49,
    "custo_sessao": 87.99,
@@ -1355,6 +1449,8 @@
    "sessoes": 37
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 3211.65,
    "custo_sessao": 152.94,
@@ -1365,6 +1461,8 @@
    "sessoes": 21
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 3190.0,
    "custo_sessao": 212.67,
@@ -1375,16 +1473,20 @@
    "sessoes": 15
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 2982.91,
    "custo_sessao": 165.72,
    "meses_ativos": 4,
    "nome": "TAIS DIAS NUNES",
    "pacientes": "<5",
-   "participacao_pct": 0.07,
+   "participacao_pct": 0.06,
    "sessoes": 18
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 2880.0,
    "custo_sessao": 180.0,
@@ -1395,36 +1497,44 @@
    "sessoes": 16
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 2578.72,
    "custo_sessao": 171.91,
    "meses_ativos": 2,
    "nome": "OTONI PSICOLOGIA LTDA",
    "pacientes": "<5",
-   "participacao_pct": 0.06,
+   "participacao_pct": 0.05,
    "sessoes": 15
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 2550.0,
    "custo_sessao": 150.0,
    "meses_ativos": 7,
    "nome": "MILENE SABINI GOMES DE BARROS-ME",
    "pacientes": "<5",
-   "participacao_pct": 0.06,
+   "participacao_pct": 0.05,
    "sessoes": 17
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 2539.8,
    "custo_sessao": 126.99,
    "meses_ativos": 2,
    "nome": "MOREIRA E OLIVEIRA FISIOTERAPIA",
    "pacientes": "<5",
-   "participacao_pct": 0.06,
+   "participacao_pct": 0.05,
    "sessoes": 20
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
    "custo": 2448.0,
    "custo_sessao": 122.4,
@@ -1435,6 +1545,8 @@
    "sessoes": 20
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 2287.72,
    "custo_sessao": 114.39,
@@ -1445,6 +1557,8 @@
    "sessoes": 20
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 2160.0,
    "custo_sessao": 240.0,
@@ -1455,6 +1569,8 @@
    "sessoes": 9
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 2022.85,
    "custo_sessao": 112.38,
@@ -1465,6 +1581,8 @@
    "sessoes": 18
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1902.3,
    "custo_sessao": 172.94,
@@ -1475,6 +1593,8 @@
    "sessoes": 11
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1800.0,
    "custo_sessao": 225.0,
@@ -1485,6 +1605,8 @@
    "sessoes": 8
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1664.91,
    "custo_sessao": 97.94,
@@ -1495,6 +1617,8 @@
    "sessoes": 17
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1368.97,
    "custo_sessao": 136.9,
@@ -1505,6 +1629,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1348.94,
    "custo_sessao": 134.89,
@@ -1515,6 +1641,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 1300.0,
    "custo_sessao": 130.0,
@@ -1525,6 +1653,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1239.68,
    "custo_sessao": 247.94,
@@ -1535,6 +1665,8 @@
    "sessoes": 5
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1104.9,
    "custo_sessao": 110.49,
@@ -1545,6 +1677,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1103.43,
    "custo_sessao": 157.63,
@@ -1555,6 +1689,8 @@
    "sessoes": 7
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 1080.0,
    "custo_sessao": 180.0,
@@ -1565,6 +1701,8 @@
    "sessoes": 6
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 1012.3,
    "custo_sessao": 101.23,
@@ -1575,6 +1713,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 996.53,
    "custo_sessao": 110.73,
@@ -1585,6 +1725,8 @@
    "sessoes": 9
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 903.03,
    "custo_sessao": 90.3,
@@ -1595,6 +1737,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Intercâmbio",
    "custo": 882.0,
    "custo_sessao": 126.0,
@@ -1605,6 +1749,8 @@
    "sessoes": 7
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta",
    "custo": 800.0,
    "custo_sessao": 200.0,
@@ -1615,6 +1761,8 @@
    "sessoes": 4
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 749.36,
    "custo_sessao": 74.94,
@@ -1625,6 +1773,8 @@
    "sessoes": 10
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 672.0,
    "custo_sessao": 112.0,
@@ -1635,6 +1785,8 @@
    "sessoes": 6
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 583.92,
    "custo_sessao": 64.88,
@@ -1645,6 +1797,8 @@
    "sessoes": 9
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 562.5,
    "custo_sessao": 70.31,
@@ -1655,6 +1809,8 @@
    "sessoes": 8
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 385.87,
    "custo_sessao": 192.94,
@@ -1665,6 +1821,8 @@
    "sessoes": 2
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
    "custo": 378.0,
    "custo_sessao": 126.0,
@@ -1675,6 +1833,8 @@
    "sessoes": 3
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 362.62,
    "custo_sessao": 60.44,
@@ -1685,6 +1845,8 @@
    "sessoes": 6
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 343.36,
    "custo_sessao": 28.61,
@@ -1695,6 +1857,8 @@
    "sessoes": 12
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Reembolso",
    "custo": 336.0,
    "custo_sessao": 168.0,
@@ -1705,6 +1869,8 @@
    "sessoes": 2
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Negociação Direta (P.F)",
    "custo": 180.0,
    "custo_sessao": 180.0,
@@ -1715,6 +1881,8 @@
    "sessoes": 1
   },
   {
+   "at_pct": 0.0,
+   "at_sessoes": 0,
    "canal": "Rede Credenciada",
    "custo": 120.0,
    "custo_sessao": 120.0,
@@ -1727,14 +1895,14 @@
  ],
  "serie_mensal": [
   {
-   "custo": 187644.83,
-   "custo_sessao": 158.62,
+   "custo": 187944.83,
+   "custo_sessao": 158.47,
    "m": "2025/01",
    "pacientes": 386,
    "prestadores_ativos": 47,
-   "registros": 583,
-   "sessoes": 1183,
-   "sessoes_por_paciente": 3.06
+   "registros": 586,
+   "sessoes": 1186,
+   "sessoes_por_paciente": 3.07
   },
   {
    "custo": 198672.05,
@@ -1747,164 +1915,164 @@
    "sessoes_por_paciente": 3.3
   },
   {
-   "custo": 241352.75,
-   "custo_sessao": 160.47,
+   "custo": 242052.75,
+   "custo_sessao": 160.19,
    "m": "2025/03",
-   "pacientes": 416,
+   "pacientes": 417,
    "prestadores_ativos": 31,
-   "registros": 808,
-   "sessoes": 1504,
+   "registros": 815,
+   "sessoes": 1511,
    "sessoes_por_paciente": 3.62
   },
   {
-   "custo": 234757.54,
-   "custo_sessao": 157.87,
+   "custo": 236257.54,
+   "custo_sessao": 157.3,
    "m": "2025/04",
-   "pacientes": 429,
+   "pacientes": 431,
    "prestadores_ativos": 34,
-   "registros": 905,
-   "sessoes": 1487,
-   "sessoes_por_paciente": 3.47
+   "registros": 919,
+   "sessoes": 1502,
+   "sessoes_por_paciente": 3.48
   },
   {
-   "custo": 271683.45,
-   "custo_sessao": 158.88,
+   "custo": 279083.45,
+   "custo_sessao": 156.44,
    "m": "2025/05",
-   "pacientes": 441,
+   "pacientes": 442,
    "prestadores_ativos": 35,
-   "registros": 1008,
-   "sessoes": 1710,
-   "sessoes_por_paciente": 3.88
+   "registros": 1080,
+   "sessoes": 1784,
+   "sessoes_por_paciente": 4.04
   },
   {
-   "custo": 270964.65,
-   "custo_sessao": 158.64,
+   "custo": 279264.65,
+   "custo_sessao": 155.93,
    "m": "2025/06",
-   "pacientes": 460,
+   "pacientes": 461,
    "prestadores_ativos": 35,
-   "registros": 998,
-   "sessoes": 1708,
-   "sessoes_por_paciente": 3.71
+   "registros": 1080,
+   "sessoes": 1791,
+   "sessoes_por_paciente": 3.89
   },
   {
-   "custo": 282685.35,
-   "custo_sessao": 161.17,
+   "custo": 294285.35,
+   "custo_sessao": 157.37,
    "m": "2025/07",
    "pacientes": 469,
    "prestadores_ativos": 39,
-   "registros": 1097,
-   "sessoes": 1754,
-   "sessoes_por_paciente": 3.74
+   "registros": 1201,
+   "sessoes": 1870,
+   "sessoes_por_paciente": 3.99
   },
   {
-   "custo": 288579.55,
-   "custo_sessao": 161.22,
+   "custo": 300979.55,
+   "custo_sessao": 157.25,
    "m": "2025/08",
-   "pacientes": 469,
+   "pacientes": 471,
    "prestadores_ativos": 35,
-   "registros": 1148,
-   "sessoes": 1790,
-   "sessoes_por_paciente": 3.82
+   "registros": 1259,
+   "sessoes": 1914,
+   "sessoes_por_paciente": 4.06
   },
   {
-   "custo": 288892.59,
-   "custo_sessao": 162.3,
+   "custo": 301192.59,
+   "custo_sessao": 158.27,
    "m": "2025/09",
-   "pacientes": 468,
+   "pacientes": 474,
    "prestadores_ativos": 37,
-   "registros": 1171,
-   "sessoes": 1780,
-   "sessoes_por_paciente": 3.8
+   "registros": 1275,
+   "sessoes": 1903,
+   "sessoes_por_paciente": 4.01
   },
   {
-   "custo": 282479.79,
-   "custo_sessao": 161.69,
+   "custo": 296979.79,
+   "custo_sessao": 156.97,
    "m": "2025/10",
-   "pacientes": 469,
+   "pacientes": 477,
    "prestadores_ativos": 33,
-   "registros": 1134,
-   "sessoes": 1747,
-   "sessoes_por_paciente": 3.72
+   "registros": 1255,
+   "sessoes": 1892,
+   "sessoes_por_paciente": 3.97
   },
   {
-   "custo": 275059.7,
-   "custo_sessao": 162.28,
+   "custo": 287759.7,
+   "custo_sessao": 157.94,
    "m": "2025/11",
-   "pacientes": 468,
+   "pacientes": 476,
    "prestadores_ativos": 33,
-   "registros": 1109,
-   "sessoes": 1695,
-   "sessoes_por_paciente": 3.62
+   "registros": 1217,
+   "sessoes": 1822,
+   "sessoes_por_paciente": 3.83
   },
   {
-   "custo": 242465.05,
-   "custo_sessao": 163.61,
+   "custo": 253065.05,
+   "custo_sessao": 159.36,
    "m": "2025/12",
-   "pacientes": 463,
+   "pacientes": 471,
    "prestadores_ativos": 33,
-   "registros": 972,
-   "sessoes": 1482,
-   "sessoes_por_paciente": 3.2
+   "registros": 1062,
+   "sessoes": 1588,
+   "sessoes_por_paciente": 3.37
   },
   {
-   "custo": 199460.43,
-   "custo_sessao": 165.53,
+   "custo": 209960.43,
+   "custo_sessao": 160.28,
    "m": "2026/01",
-   "pacientes": 412,
+   "pacientes": 423,
    "prestadores_ativos": 32,
-   "registros": 770,
-   "sessoes": 1205,
-   "sessoes_por_paciente": 2.92
-  },
-  {
-   "custo": 221091.19,
-   "custo_sessao": 159.52,
-   "m": "2026/02",
-   "pacientes": 447,
-   "prestadores_ativos": 27,
-   "registros": 1007,
-   "sessoes": 1386,
+   "registros": 858,
+   "sessoes": 1310,
    "sessoes_por_paciente": 3.1
   },
   {
-   "custo": 282903.05,
-   "custo_sessao": 153.75,
+   "custo": 232391.19,
+   "custo_sessao": 155.03,
+   "m": "2026/02",
+   "pacientes": 459,
+   "prestadores_ativos": 27,
+   "registros": 1106,
+   "sessoes": 1499,
+   "sessoes_por_paciente": 3.27
+  },
+  {
+   "custo": 297603.05,
+   "custo_sessao": 149.78,
    "m": "2026/03",
-   "pacientes": 487,
+   "pacientes": 495,
    "prestadores_ativos": 32,
-   "registros": 1427,
-   "sessoes": 1840,
-   "sessoes_por_paciente": 3.78
+   "registros": 1556,
+   "sessoes": 1987,
+   "sessoes_por_paciente": 4.01
   },
   {
-   "custo": 280546.34,
-   "custo_sessao": 156.29,
+   "custo": 297746.34,
+   "custo_sessao": 151.37,
    "m": "2026/04",
-   "pacientes": 498,
+   "pacientes": 506,
    "prestadores_ativos": 32,
-   "registros": 1348,
-   "sessoes": 1795,
-   "sessoes_por_paciente": 3.6
+   "registros": 1500,
+   "sessoes": 1967,
+   "sessoes_por_paciente": 3.89
   },
   {
-   "custo": 267215.49,
-   "custo_sessao": 152.43,
+   "custo": 280315.49,
+   "custo_sessao": 148.79,
    "m": "2026/05",
-   "pacientes": 452,
+   "pacientes": 458,
    "prestadores_ativos": 28,
-   "registros": 1326,
-   "sessoes": 1753,
-   "sessoes_por_paciente": 3.88
+   "registros": 1445,
+   "sessoes": 1884,
+   "sessoes_por_paciente": 4.11
   },
   {
-   "custo": 260050.61,
-   "custo_sessao": 149.2,
+   "custo": 274050.61,
+   "custo_sessao": 145.54,
    "m": "2026/06",
-   "pacientes": 470,
+   "pacientes": 479,
    "prestadores_ativos": 30,
-   "registros": 1318,
-   "sessoes": 1743,
-   "sessoes_por_paciente": 3.71
+   "registros": 1442,
+   "sessoes": 1883,
+   "sessoes_por_paciente": 3.93
   }
  ],
  "serie_prestador": {
@@ -2675,64 +2843,64 @@
    },
    "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA": {
     "custo": [
-     10340.0,
+     10640.0,
      13200.0,
-     18260.0,
-     21340.0,
-     29480.0,
-     36740.0,
-     37620.0,
-     40700.0,
-     43120.0,
-     38060.0,
-     38720.0,
-     36300.0,
-     30800.0,
-     38660.0,
-     51200.0,
-     51040.0,
-     49500.0,
-     46200.0
+     18960.0,
+     22840.0,
+     36880.0,
+     45040.0,
+     49220.0,
+     53100.0,
+     55420.0,
+     52560.0,
+     51420.0,
+     46900.0,
+     41300.0,
+     49960.0,
+     65900.0,
+     68240.0,
+     62600.0,
+     60200.0
     ],
     "preco": [
+     212.8,
      220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     220.0,
-     219.66,
-     219.74,
-     220.0,
-     220.0,
-     220.0
+     210.67,
+     203.93,
+     177.31,
+     180.16,
+     171.5,
+     171.84,
+     173.73,
+     165.28,
+     169.7,
+     173.06,
+     168.57,
+     172.87,
+     173.42,
+     168.91,
+     175.84,
+     172.0
     ],
     "sessoes": [
-     47,
+     50,
      60,
-     83,
-     97,
-     134,
-     167,
-     171,
-     185,
-     196,
-     173,
-     176,
-     165,
-     140,
-     176,
-     233,
-     232,
-     225,
-     210
+     90,
+     112,
+     208,
+     250,
+     287,
+     309,
+     319,
+     318,
+     303,
+     271,
+     245,
+     289,
+     380,
+     404,
+     356,
+     350
     ]
    },
    "PEQUENINHOS CLINICA LTDA": {
@@ -2863,18 +3031,18 @@
  },
  "solicitante_executante": {
   "cobertura": {
-   "custo_pct": 50.99,
-   "registros_pct": 82.1
+   "custo_pct": 52.78,
+   "registros_pct": 83.44
   },
   "solicitantes": [
    {
     "cbos": "Psicologo clinico",
-    "custo": 1516706.0,
+    "custo": 1683706.0,
     "n_executantes": 10,
     "nome": "UNIMED GOVERNADOR VALADARES",
     "principal": "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)",
-    "principal_pct": 55.16,
-    "sessoes": 9908
+    "principal_pct": 49.69,
+    "sessoes": 11578
    },
    {
     "cbos": "Psicologo clinico",
@@ -2914,21 +3082,21 @@
    },
    {
     "cbos": "Médico Hematologista",
-    "custo": 48050.0,
+    "custo": 49050.0,
     "n_executantes": 2,
     "nome": "RINARA GROSSI ROCHA DE ANDRADE",
     "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "principal_pct": 51.74,
-    "sessoes": 290
+    "principal_pct": 52.72,
+    "sessoes": 300
    },
    {
     "cbos": "Médico neurologista",
-    "custo": 44042.0,
+    "custo": 48442.0,
     "n_executantes": 3,
     "nome": "MARIANNA SOTTE DA SILVA",
     "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "principal_pct": 70.43,
-    "sessoes": 241
+    "principal_pct": 73.12,
+    "sessoes": 285
    },
    {
     "cbos": "Psicologo clinico",
@@ -2950,12 +3118,12 @@
    },
    {
     "cbos": "Médico pediatra",
-    "custo": 4216.0,
+    "custo": 4616.0,
     "n_executantes": 2,
     "nome": "GABRIELA ALVIM PEREIRA THOME",
     "principal": "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA",
-    "principal_pct": 52.18,
-    "sessoes": 26
+    "principal_pct": 56.33,
+    "sessoes": 30
    },
    {
     "cbos": "Médico neurologista",
@@ -2980,29 +3148,29 @@
  },
  "tipo_pagamento": [
   {
-   "canal": "Negociação Direta",
-   "custo": 2059835.0,
-   "custo_sessao": 186.66,
-   "pacientes": 222,
-   "pct": 45.01,
-   "prestadores": 30,
-   "sessoes": 11035
+   "canal": "Rede Credenciada",
+   "custo": 2298786.0,
+   "custo_sessao": 148.39,
+   "pacientes": 436,
+   "pct": 48.4,
+   "prestadores": 10,
+   "sessoes": 15491
   },
   {
-   "canal": "Rede Credenciada",
-   "custo": 1646446.0,
-   "custo_sessao": 153.96,
-   "pacientes": 391,
-   "pct": 35.98,
-   "prestadores": 10,
-   "sessoes": 10694
+   "canal": "Negociação Direta",
+   "custo": 1580595.0,
+   "custo_sessao": 198.34,
+   "pacientes": 173,
+   "pct": 33.28,
+   "prestadores": 26,
+   "sessoes": 7969
   },
   {
    "canal": "Casa Unimed",
    "custo": 687720.0,
    "custo_sessao": 120.0,
    "pacientes": 209,
-   "pct": 15.03,
+   "pct": 14.48,
    "prestadores": 1,
    "sessoes": 5731
   },
@@ -3011,7 +3179,7 @@
    "custo": 132017.41,
    "custo_sessao": 136.38,
    "pacientes": 45,
-   "pct": 2.88,
+   "pct": 2.78,
    "prestadores": 43,
    "sessoes": 968
   },
@@ -3020,7 +3188,7 @@
    "custo": 45666.0,
    "custo_sessao": 122.76,
    "pacientes": 13,
-   "pct": 1.0,
+   "pct": 0.96,
    "prestadores": 5,
    "sessoes": 372
   },
@@ -3029,7 +3197,7 @@
    "custo": 4820.0,
    "custo_sessao": 92.69,
    "pacientes": "<5",
-   "pct": 0.11,
+   "pct": 0.1,
    "prestadores": 2,
    "sessoes": 52
   }
@@ -3077,22 +3245,22 @@
     5562.0
    ],
    "Negociação Direta": [
-    111915.0,
-    110105.0,
-    145045.0,
-    130780.0,
-    147605.0,
-    142880.0,
-    132090.0,
-    130480.0,
-    127270.0,
-    132310.0,
-    124940.0,
-    114180.0,
-    97880.0,
-    80910.0,
-    93305.0,
-    100065.0,
+    87545.0,
+    80305.0,
+    107635.0,
+    94850.0,
+    109745.0,
+    100900.0,
+    98520.0,
+    97550.0,
+    95540.0,
+    99840.0,
+    93990.0,
+    87140.0,
+    72490.0,
+    59140.0,
+    73625.0,
+    83705.0,
     73895.0,
     64180.0
    ],
@@ -3117,24 +3285,24 @@
     0.0
    ],
    "Rede Credenciada": [
-    26780.0,
-    42600.0,
-    45500.0,
-    53140.0,
-    69560.0,
-    80540.0,
-    86760.0,
-    104560.0,
-    109740.0,
-    101140.0,
-    105020.0,
-    94240.0,
-    73260.0,
-    103142.0,
-    134384.0,
-    132898.0,
-    139710.0,
-    143472.0
+    51450.0,
+    72400.0,
+    83610.0,
+    90570.0,
+    114820.0,
+    130820.0,
+    131930.0,
+    149890.0,
+    153770.0,
+    148110.0,
+    148670.0,
+    131880.0,
+    109150.0,
+    136212.0,
+    168764.0,
+    166458.0,
+    152810.0,
+    157472.0
    ],
    "Reembolso": [
     28135.83,

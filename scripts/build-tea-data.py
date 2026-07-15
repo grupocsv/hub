@@ -75,6 +75,25 @@ CANAL = {
 FAIXAS = ["0-2", "3-5", "6-8", "9-11", "12-14", "15-17", "18+"]
 BUCKETS_INTENSIDADE = ["<3", "3-4,9", "5-8,9", "9+"]  # esquema ÚNICO do contrato (§6.4)
 
+# Código de assistente terapêutica (AT): serviço prestado por profissional não
+# graduado, faturado por código próprio, mais barato que a sessão do especialista
+# (50005103). Até jun/2026 só a Pediakids negociou lançá-lo em separado. Entra no
+# escopo do painel (volume/custo/intensidade reais), mas fica rastreável por
+# prestador (campo at_pct/at_sessoes) para a leitura de ticket médio ser honesta.
+COD_ESPECIALISTA = "50005103"
+COD_AT = "50000519"
+
+# Prestadores credenciados ATUALMENTE, mas faturados no período como fornecedores/
+# negociação direta. Reclassificados para "Rede Credenciada" para refletir o vínculo
+# vigente (documentado na nota de método). Comparação por nome normalizado (upper).
+CREDENCIADA_OVERRIDE = {
+    "RESINTO ESPACO INTEGRADO LTDA",
+    "CLINICA PSICONEURO GV LTDA",
+    "ANIMA CENTRO DE TERAPIAS MULTIDISCIPLINAR LTDA",
+    "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
+    "CASA AURORA TERAPIAS LTDA",
+}
+
 COLS = ["anomes", "matricula", "nome", "nasc", "genero", "guia", "dt_atend",
         "cod_sol", "nome_sol", "cbos", "tipo_guia", "cod_proc", "nome_proc",
         "tipo_proc", "cod_prest", "nome_prest", "tipo_prest", "qtd", "valor"]
@@ -160,6 +179,8 @@ def prestador_agrupado(r):
 
 
 def canal_do(r):
+    if r["nome_prest"].strip().upper() in CREDENCIADA_OVERRIDE:
+        return "Rede Credenciada"
     t = r["tipo_prest"]
     if t not in CANAL:
         falha(f"Tipo Prestador desconhecido: '{t}' — atualizar o mapa do LEIA-ME")
@@ -302,17 +323,23 @@ def agregar(regs, corte):
 
     # ---- prestadores ----
     pr = defaultdict(lambda: {"c": 0.0, "s": 0.0, "p": set(), "meses": set(),
-                              "canais": Counter()})
+                              "canais": Counter(), "at_s": 0.0, "at_c": 0.0})
     for r in regs:
         e = pr[r["_prest"]]
         e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["p"].add(r["_pac"])
         e["meses"].add(r["anomes"]); e["canais"][r["_canal"]] += r["_val"]
+        if r["cod_proc"] == COD_AT:
+            e["at_s"] += r["_qtd"]; e["at_c"] += r["_val"]
     rank = sorted(pr.items(), key=lambda kv: -kv[1]["c"])
     d["ranking_prestadores"] = [{
         "nome": nome, "canal": e["canais"].most_common(1)[0][0],
         "custo": r2(e["c"]), "participacao_pct": r2(e["c"] / custo_total * 100),
         "sessoes": int(round(e["s"])), "custo_sessao": r2(e["c"] / e["s"]) if e["s"] else 0,
         "pacientes": k5(len(e["p"])), "meses_ativos": len(e["meses"]),
+        # Composição de código: parcela de sessões faturadas como assistente
+        # terapêutica (AT, código mais barato). >0 só para quem lança AT em separado.
+        "at_pct": r2(e["at_s"] / e["s"] * 100) if e["s"] else 0,
+        "at_sessoes": int(round(e["at_s"])),
     } for nome, e in rank]
 
     shares = [e["c"] / custo_total * 100 for _, e in rank]
