@@ -25,7 +25,7 @@ head:
       content: "https://hub.grupocsv.com/og/og_unimed.png"
 ---
 
-<style scoped>
+<style>
 .VPPage { padding: 0 !important; }
 
 .unimed-page {
@@ -50,6 +50,8 @@ head:
 .page-header .logo-link { display: inline-block; transition: transform 0.3s; }
 .page-header .logo-link:hover { transform: scale(1.05); }
 
+.page-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6f8f14; margin-bottom: 10px; }
+.dark .page-header .eyebrow { color: #a8d15a; }
 .page-header h1 { color: #00995d; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
 .dark .page-header h1 { color: #3dcc8e; }
 .page-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
@@ -98,8 +100,14 @@ head:
   text-transform: uppercase;
 }
 
-.tool-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; line-height: 1.35; flex-grow: 1; }
+.tool-card .tool-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(0,153,93,0.1); color: #00995d; margin-bottom: 16px; flex-shrink: 0; }
+.dark .tool-card .tool-icon { background: rgba(61,204,142,0.14); color: #3dcc8e; }
+.tool-card .tool-icon svg { width: 22px; height: 22px; }
+
+.tool-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; line-height: 1.35; flex-grow: 1; }
 .dark .tool-card .tool-title { color: var(--vp-c-text-1); }
+
+.tool-meta { display: block; color: var(--vp-c-text-2); font-size: 12.5px; font-weight: 500; margin: 0 0 18px; }
 
 .tool-link {
   display: block;
@@ -149,6 +157,7 @@ head:
     <a href="https://www.unimed.coop.br/site/web/governadorvaladares" target="_blank" class="logo-link">
       <img src="/img/prZGWXK.png" alt="Unimed Governador Valadares" class="logo">
     </a>
+    <p class="eyebrow">Hub de Ferramentas Profissionais</p>
     <h1>Hub Unimed Governador Valadares</h1>
     <p class="subtitle">Operadora de Planos de Saúde</p>
   </div>
@@ -196,6 +205,31 @@ onMounted(() => {
   }
 
   // Carregar tools.json e renderizar cards dinamicamente
+  const ICONS = {
+    activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+    heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+    clipboard: '<rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M9 12l2 2 4-4"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+    bars: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'
+  }
+  function pickIcon(title) {
+    const t = title.toLowerCase()
+    if (t.includes('tea') || t.includes('psicolog') || t.includes('autis')) return ICONS.activity
+    if (t.includes('pediatr')) return ICONS.smile
+    if (t.includes('gce') || t.includes('gerenciamento')) return ICONS.clipboard
+    if (t.includes('vivapleno') || t.includes('idoso')) return ICONS.heart
+    if (t.includes('drg') || t.includes('analytics')) return ICONS.bars
+    if (t.includes('coorden') || t.includes('cuidado')) return ICONS.shield
+    return ICONS.grid
+  }
+  function formatDate(iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    if (isNaN(d)) return ''
+    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
   fetch('/unimed/tools.json')
     .then(r => r.json())
     .then(data => {
@@ -203,9 +237,12 @@ onMounted(() => {
       if (!grid || !data.tools || data.tools.length === 0) return
       grid.innerHTML = data.tools.map((tool, i) => {
         const href = tool.external ? tool.file : `/unimed/${tool.file}`
+        const updated = formatDate(tool.lastModified)
         return `
         <div class="tool-card${i === 0 ? ' featured' : ''}">
+          <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pickIcon(tool.title)}</svg></div>
           <div class="tool-title">${tool.title}</div>
+          ${updated ? `<span class="tool-meta">Atualizado em ${updated}</span>` : '<span class="tool-meta">&nbsp;</span>'}
           <a target="_self" href="${href}" class="tool-link">Acessar</a>
         </div>
       `}).join('')
