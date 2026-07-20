@@ -7,6 +7,8 @@ import sys
 import unicodedata
 from pathlib import Path
 
+DATA_API = "https://unimed-te-data.guilherme-thom.workers.dev"
+
 
 def d_nome(valor):
     texto = unicodedata.normalize("NFKD", str(valor).strip())
@@ -17,6 +19,14 @@ def d_nome(valor):
 def exigir(condicao, mensagem, erros):
     if not condicao:
         erros.append(mensagem)
+
+
+def extrair_data_api(html):
+    correspondencia = re.search(
+        r"\bconst\s+DATA_API\s*=\s*(['\"])(?P<url>https://[^'\"]+)\1\s*;",
+        html,
+    )
+    return correspondencia.group("url") if correspondencia else None
 
 
 def verificar_ausencia_de_dados(html, rotulo, erros):
@@ -134,7 +144,7 @@ def validar(raiz):
 
     for html, rotulo in ((interno, "painel interno"), (publico, "cópia /p/")):
         exigir(
-            "https://unimed-te-data.guilherme-thom.workers.dev" in html,
+            extrair_data_api(html) == DATA_API,
             f"{rotulo}: endpoint privado de dados ausente",
             erros,
         )
