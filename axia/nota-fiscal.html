@@ -872,16 +872,22 @@ async function confirmarEmissao() {
     const emitResp = await fetch(COMPUTE_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
-        command: 'emit',
-        args: JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo })
+        command: `cd /home/ubuntu/workspace/nfse-emitter && node cli-emit.mjs "$(echo '${btoa(JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo }))}' | base64 -d)"`,
+        timeout: 60
       })
     });
-    const emitData = await emitResp.json();
-    if (emitData.error) {
+    const computeResp = await emitResp.json();
+    // Parsear resposta do /compute (stdout contém JSON do cli-emit.mjs)
+    let emitData;
+    try {
+      emitData = JSON.parse(computeResp.stdout || '{}');
+    } catch (e) {
+      emitData = { error: computeResp.stderr || 'Resposta inválida do servidor' };
+    }
+    if (computeResp.exit_code !== 0 || emitData.error) {
       hideOverlay();
       await fetch(`${API_BASE}/api/nf/solicitacoes/${solId}`, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: 'erro' }) });
-      showToast('Erro na emissão: ' + emitData.error, 'error');
-      // Exibir detalhes do erro se disponível
+      showToast('Erro na emissão: ' + (emitData.error || computeResp.stderr || 'Falha desconhecida'), 'error');
       if (emitData.alertas) {
         showToast('Código SEFIN: ' + JSON.stringify(emitData.alertas), 'error');
       }
@@ -1153,11 +1159,18 @@ async function solicitarCancelamento() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
-        command: 'cancel',
-        args: JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa })
+        command: `cd /home/ubuntu/workspace/nfse-emitter && node cli-cancel.mjs "$(echo '${btoa(JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa }))}' | base64 -d)"`,
+        timeout: 60
       })
     });
-    const data = await resp.json();
+    const computeResp = await resp.json();
+    let data;
+    try {
+      data = JSON.parse(computeResp.stdout || '{}');
+    } catch (e) {
+      data = { error: computeResp.stderr || 'Resposta inválida do servidor' };
+    }
+    if (computeResp.exit_code !== 0 && !data.error) data.error = computeResp.stderr || 'Falha no cancelamento';
     hideOverlay();
 
     const resultDiv = document.getElementById('cancel-result');
