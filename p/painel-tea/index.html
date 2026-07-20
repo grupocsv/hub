@@ -59,8 +59,10 @@
   --tabbar-h: 62px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
+html { font-size: 16px; height: 100%; overflow: hidden; }
 body {
+  height: 100%;
+  overflow: hidden !important;
   font-family: var(--font-sans);
   color: var(--ink);
   background: var(--u-paper);
@@ -78,7 +80,7 @@ button { font-family: var(--font-sans); }
 ::-webkit-scrollbar-thumb:hover { background: #b3c2b8; }
 
 /* ============================ APP SHELL ============================ */
-.app { display: flex; min-height: 100dvh; }
+.app { display: flex; height: 100dvh; min-height: 0; overflow: hidden; }
 
 /* ---------- Sidebar (desktop) ---------- */
 .sidebar {
@@ -86,9 +88,9 @@ button { font-family: var(--font-sans); }
   flex: 0 0 var(--sidebar-w);
   background: var(--u-dark);
   color: #fff;
-  position: sticky;
-  top: 0;
+  position: relative;
   height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   padding: 22px 16px 18px;
@@ -109,7 +111,7 @@ button { font-family: var(--font-sans); }
   padding: 5px 12px;
   display: inline-block;
 }
-.sb-nav { margin-top: 14px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.sb-nav { margin-top: 14px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
 .nav-item {
   display: flex;
   align-items: center;
@@ -135,11 +137,11 @@ button { font-family: var(--font-sans); }
 .sb-foot .sf-line { font-size: 10.5px; color: rgba(255,255,255,0.55); line-height: 1.45; }
 
 /* ---------- Main column ---------- */
-.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.main { flex: 1; min-width: 0; height: 100dvh; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 
 .topbar {
-  position: sticky;
-  top: 0;
+  position: relative;
+  flex: 0 0 auto;
   z-index: 50;
   background: rgba(250,250,247,0.92);
   backdrop-filter: blur(10px);
@@ -170,7 +172,9 @@ button { font-family: var(--font-sans); }
 .tb-info-btn { display: none; }
 
 /* ---------- Content ---------- */
-.content { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: 26px 30px 46px; }
+.content-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+.content-scroll:focus-visible { outline: 3px solid var(--u-green); outline-offset: -3px; }
+.content { width: 100%; max-width: 1280px; margin: 0 auto; padding: 26px 30px 46px; }
 .view { display: none; }
 .view.active { display: block; animation: viewIn 0.25s ease; }
 @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -588,14 +592,14 @@ tr.no-detail .detail-icon { display: none; }
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 9999px;
     border: 1px solid var(--line);
     background: #fff;
     color: var(--u-dark);
     cursor: pointer;
-    flex: 0 0 36px;
+    flex: 0 0 44px;
   }
   .tb-info-btn svg { width: 18px; height: 18px; }
   .tb-chips .chip.hide-m { display: none; }
@@ -762,10 +766,6 @@ html,body{max-width:100%;overflow-x:hidden}
     <span class="sb-period" id="sb_periodo">–</span>
   </div>
   <nav class="sb-nav">
-    <button class="nav-item" data-view="prestadores">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Prestadores
-    </button>
     <button class="nav-item" data-view="visao">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Visão Geral
@@ -777,6 +777,10 @@ html,body{max-width:100%;overflow-x:hidden}
     <button class="nav-item" data-view="especialidades">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
       Especialidades / Linhas de cuidado
+    </button>
+    <button class="nav-item" data-view="prestadores">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Prestadores
     </button>
     <button class="nav-item" data-view="pacientes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l1.06 1.06L12 20.58l7.36-7.29 1.06-1.06a5.4 5.4 0 0 0 0-7.65z"/></svg>
@@ -805,8 +809,8 @@ html,body{max-width:100%;overflow-x:hidden}
   <header class="topbar">
     <span class="tb-brand-m"><img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV"></span>
     <div class="tb-titles">
-      <h1 class="tb-title" id="tb_title">Prestadores</h1>
-      <div class="tb-sub" id="tb_sub">Rede prestadora no recorte selecionado</div>
+      <h1 class="tb-title" id="tb_title">Visão Geral</h1>
+      <div class="tb-sub" id="tb_sub">Síntese do período</div>
     </div>
     <div class="period-control" aria-label="Seleção global de período">
       <label for="period_type">Período</label>
@@ -822,6 +826,7 @@ html,body{max-width:100%;overflow-x:hidden}
     </button>
   </header>
 
+  <div class="content-scroll" id="content_scroll" role="region" aria-label="Conteúdo do painel" tabindex="0">
   <main class="content" id="content">
 
   <div class="err-card" id="boot_err" role="status" aria-live="polite" hidden>
@@ -862,14 +867,11 @@ html,body{max-width:100%;overflow-x:hidden}
   </footer>
 
   </main>
+  </div>
 </div>
 
 <nav class="tabbar" aria-label="Navegação inferior">
   <div class="tabs">
-    <button class="tab-item" data-view="prestadores">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Prestadores
-    </button>
     <button class="tab-item" data-view="visao">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Visão
@@ -881,6 +883,10 @@ html,body{max-width:100%;overflow-x:hidden}
     <button class="tab-item" data-view="especialidades">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
       Especialidades
+    </button>
+    <button class="tab-item" data-view="prestadores">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Prestadores
     </button>
     <button class="tab-item" data-view="pacientes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l1.06 1.06L12 20.58l7.36-7.29 1.06-1.06a5.4 5.4 0 0 0 0-7.65z"/></svg>
@@ -946,7 +952,7 @@ html,body{max-width:100%;overflow-x:hidden}
   };
   const TIPO_ORDEM = ['tudo', 'ano', 'semestre', 'trimestre', 'mes'];
   const TIPO_ROTULO = { tudo: 'Tudo', ano: 'Ano', semestre: 'Semestre', trimestre: 'Trimestre', mes: 'Mês' };
-  const VIEW_SLUGS = ['prestadores', 'visao', 'evolucao', 'especialidades', 'pacientes', 'canais', 'metodo'];
+  const VIEW_SLUGS = ['visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
   const RANK_PAGE_SIZE = 27;
   const DATA_API = 'https://unimed-te-data.guilherme-thom.workers.dev';
   const OPEN_SESSION_KEY = 'oa_sess_painel-tea';
@@ -959,7 +965,7 @@ html,body{max-width:100%;overflow-x:hidden}
   const rendered = new Set();
   const state = {
     periodId: null,
-    view: 'prestadores',
+    view: 'visao',
     specialty: 'todas',
     providerQuery: '',
     rankSort: 'pagamento',
@@ -1329,10 +1335,10 @@ html,body{max-width:100%;overflow-x:hidden}
   };
   function slugFromHash() {
     const slug = (location.hash || '').replace(/^#\/?/, '');
-    return VIEW_SLUGS.includes(slug) ? slug : 'prestadores';
+    return VIEW_SLUGS.includes(slug) ? slug : 'visao';
   }
   function navigate(slug, force) {
-    if (!VIEW_SLUGS.includes(slug)) slug = 'prestadores';
+    if (!VIEW_SLUGS.includes(slug)) slug = 'visao';
     state.view = slug;
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const sec = $('view-' + slug);
@@ -1349,7 +1355,7 @@ html,body{max-width:100%;overflow-x:hidden}
       RENDERERS[slug]();
       rendered.add(slug);
     }
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    $('content_scroll').scrollTo({ top: 0, behavior: 'auto' });
   }
 
   function bindShell() {
@@ -1753,7 +1759,7 @@ html,body{max-width:100%;overflow-x:hidden}
     }
     select.value = state.specialty;
     setKpis('pr_kpis', [
-      { label: 'Prestadores consolidados', valor: fmtN(pick(resumo, 'prestadores_consolidados', 'prestadores')) },
+      { label: 'Entidades prestadoras', valor: fmtN(pick(resumo, 'prestadores_consolidados', 'prestadores')) },
       { label: 'Pagamento', valor: brlK(pagamento(resumo)) },
       { label: 'Sessões faturadas', valor: fmtN(sessoes(resumo)) }
     ]);
@@ -1770,7 +1776,11 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Sessões faturadas', valor: fmtN(sessoes(resumo)) },
       { label: 'Pagamento', valor: brlK(pagamento(resumo)) },
       { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)) },
-      { label: 'Prestadores', valor: fmtN(pick(resumo, 'prestadores_consolidados', 'prestadores')) }
+      {
+        label: 'Cadastros de prestador',
+        valor: fmtN(pick(resumo, 'prestadores_observados', 'prestadores')),
+        sub: fmtN(pick(resumo, 'prestadores_consolidados', 'prestadores')) + ' entidades consolidadas'
+      }
     ], 'card');
     $('vg_population_note').replaceChildren(el('strong', null, 'Leituras não aditivas.'), document.createTextNode(' A população contém ' + kOr(pacientes(resumo)) + ' crianças únicas. As ' + fmtN(resumo.exposicoes) + ' exposições registram a presença da mesma criança em terapias distintas.'));
     lineChart('c_vg_cost', serieDe(r), 'pagamento', 'Pagamento', brlK, GREEN);
@@ -1923,18 +1933,18 @@ html,body{max-width:100%;overflow-x:hidden}
 <img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV" style="height:44px;margin-bottom:18px">
 <h1 id="gate-title" style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel Terapias Especiais — acesso restrito</h1>
 <p style="font-size:13px;color:#5c7f7d;margin:0 0 20px">Uso exclusivo Unimed Governador Valadares. Informe seu e-mail corporativo e a senha de acesso.</p>
-<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
+<label for="gate-email" style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
 <input id="gate-email" type="email" required placeholder="nome@unimedgv.com.br" autocomplete="email" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:14px">
-<label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">Senha</label>
+<label for="gate-pass" style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">Senha</label>
 <div style="position:relative;margin-bottom:18px">
-<input id="gate-pass" type="password" required style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 44px 10px 12px;border:1px solid #dfe3db;border-radius:10px">
-<button type="button" id="gate-eye" aria-label="Mostrar senha" aria-pressed="false" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;padding:6px;color:#5c7f7d;line-height:0">
+<input id="gate-pass" type="password" required style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 52px 10px 12px;border:1px solid #dfe3db;border-radius:10px">
+<button type="button" id="gate-eye" aria-label="Mostrar senha" aria-pressed="false" style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:44px;height:44px;background:none;border:0;cursor:pointer;padding:12px;color:#5c7f7d;line-height:0">
 <svg id="gate-eye-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
 <svg id="gate-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
 </button>
 </div>
 <button type="submit" id="gate-btn" style="width:100%;background:#00995d;color:#fff;border:0;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Entrar</button>
-<p id="gate-msg" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
+<p id="gate-msg" role="status" aria-live="polite" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
 </form></div>
 <script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://unimed-te-data.guilherme-thom.workers.dev/v1/session/open';
 function ok(){var g=document.getElementById('gate');if(g)g.remove();document.body.style.overflow='';}
