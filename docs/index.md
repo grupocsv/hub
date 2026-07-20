@@ -524,6 +524,7 @@ head:
           <div class="hero-group-btns">
             <a href="/compass/" class="hero-btn secondary">Compass™</a>
             <a href="/signal/" class="hero-btn secondary">Signal™</a>
+            <a href="https://tnumm.grupocsv.com" class="hero-btn secondary">TNUMM</a>
             <a href="https://deck.grupocsv.com" class="hero-btn secondary">Deck™</a>
             <a href="https://relay.axcare.com.br" class="hero-btn secondary">Relay™</a>
             <a href="https://rtav.axcare.app" class="hero-btn secondary">RTAV™</a>
@@ -570,6 +571,22 @@ head:
         <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="card-logo">
         <div class="card-name">TheraTech®</div>
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ FERRAMENTAS DO GRUPO ═══ -->
+  <div class="section" id="ferramentas-grupo">
+    <div class="section-header">
+      <h2 class="section-title">Ferramentas do Grupo</h2>
+      <p class="section-desc">Produtos autônomos e compartilhados do Grupo CSV.</p>
+    </div>
+    <div class="gov-grid">
+      <a href="https://tnumm.grupocsv.com" class="gov-card" target="_blank" rel="noopener noreferrer">
+        <div class="gc-title">TNUMM</div>
+        <div class="gc-desc">Consulta, histórico e atualização governada da Tabela Nacional Unimed de Materiais e Medicamentos.</div>
       </a>
     </div>
   </div>

@@ -17,6 +17,7 @@ Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress
 - **Infraestrutura Cognitiva** - Documentação técnica para desenvolvedores e agentes
 - **Compass™** - Linha editorial estratégica do Grupo CSV
 - **Signal™** - Resumo semanal de inteligência estratégica
+- **TNUMM** - Consulta, histórico e atualização governada da Tabela Nacional Unimed de Materiais e Medicamentos
 
 ---
 
@@ -28,7 +29,7 @@ O ecossistema Hub classifica seus ativos digitais em 5 categorias, conforme a ta
 | :--- | :--- | :--- | :--- |
 | **Página Estática** | Informar | Não | `compliance/*`, `founder/`, `thera/`, `medvalor/` |
 | **Ferramenta (Tool)** | Executar tarefa específica | Opcional | `axia/nota-fiscal.html`, `axia/reembolso.html`, `unihealth/calc-plantao.html` |
-| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html` |
+| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `tnumm.grupocsv.com` |
 | **Painel BI** | Visualizar e analisar dados | Sim | `unimed/onco.html`, `unimed/painel-onco-vo.html` |
 | **Portal** | Ponto de acesso unificado | Sim | `hub.grupocsv.com` (visão futura) |
 
@@ -62,6 +63,7 @@ O ecossistema Hub classifica seus ativos digitais em 5 categorias, conforme a ta
 | Fundador | `founder/` | **Página Estática** | Grupo CSV | Ativo |
 | Deck Institucional | `deck/` | **Página Estática** | Grupo CSV | Ativo |
 | Admin | `admin/` | **Ferramenta** | Grupo CSV | Ativo |
+| TNUMM | [tnumm.grupocsv.com](https://tnumm.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
 | ICDS (landing) | `icds/` | **Página Estática** | ICDS | Ativo |
 
 ---
@@ -179,6 +181,7 @@ Resumo semanal de inteligência estratégica do Grupo CSV. Sintetiza os 5 a 7 fa
 Aplicações web completas com autenticação, persistência e lógica de negócio.
 
 - **Data Set TEA:** [p/tea-dataset/](https://hub.grupocsv.com/p/tea-dataset/) — Coleta de dados multi-tenant para TEA (ICDS)
+- **TNUMM:** [tnumm.grupocsv.com](https://tnumm.grupocsv.com) — Consulta, histórico e atualização governada do catálogo TNUMM
 
 ---
 
