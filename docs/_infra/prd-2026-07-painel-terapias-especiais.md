@@ -267,7 +267,9 @@ Para a terapia T, rede R, período P: `sessões = Σ Quantidade`; `intensidade_m
 {
   "meta": { "periodo": {"inicio":"2025/01","fim":"2026/06"}, "gerado_em":"AAAA-MM-DD",
             "terapias_descartadas": [{"terapia":"Método PECS — Fonoaudiologia","codigo":"50005146","motivo":"cobertura incompleta (13/18 meses)"}] },
-  "populacao": { "criancas_unicas": 1416, "linhas_de_cuidado": {"1":716,"2":332,"3":246,"4":81,"5":26,"6":13,"7":2} },
+  "populacao": { "criancas_unicas": 1416,
+                 "distribuicao_clinica": {"1":730,"2":330,"3":248,"4":71,"5":22,"6":13,"7":2},
+                 "distribuicao_componentes": {"1":716,"2":332,"3":246,"4":81,"5":26,"6":13,"7":2} },
   "terapias": [ {"terapia":"Terapia ABA — Psicologia","codigo":"50005103","especialidade":"Psicologia","metodo":"ABA", "sessoes": 0, "pagamento": 0, "beneficiarios": 0, "por_mes":[...], "por_canal":[...]} ],
   "prestadores": [ {"nome":"...","canal":"...","especialidades":["Psicologia","Fonoaudiologia"],"custo":0,"sessoes":0,"custo_sessao":0,"pacientes":1,"at_pct":0} ],
   "series_mensais": { "2025/01": {"sessoes":0,"custo":0,"criancas_ativas":0}, "...": {} }
