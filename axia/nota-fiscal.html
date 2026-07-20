@@ -549,6 +549,7 @@
 const API_BASE = 'https://nfse-api.guilherme-thom.workers.dev';
 const NF_AUTH_KEY = 'nf_axia_2025_secure';
 const COMPUTE_URL = 'https://hooks.grupocsv.com/compute';
+const COMPUTE_TOKEN = 'compute_vps_csv_2026';
 function apiHeaders() { return { 'Content-Type': 'application/json', 'x-nf-auth': NF_AUTH_KEY }; }
 
 // STATE
@@ -869,7 +870,7 @@ async function confirmarEmissao() {
     // 2. Emitir via VPS
     updateOverlay('Transmitindo à SEFIN Nacional...');
     const emitResp = await fetch(COMPUTE_URL, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': NF_AUTH_KEY },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
         command: 'emit',
         args: JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: competenciaFmt, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo })
@@ -1150,7 +1151,7 @@ async function solicitarCancelamento() {
   try {
     const resp = await fetch(COMPUTE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': NF_AUTH_KEY },
+      headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
         command: 'cancel',
         args: JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa })
