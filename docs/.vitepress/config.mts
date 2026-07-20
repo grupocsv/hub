@@ -48,6 +48,7 @@ export default defineConfig({
         items: [
           { text: 'Compass\u2122', link: '/compass/' },
           { text: 'Signal\u2122', link: '/signal/' },
+          { text: 'TNUMM', link: 'https://tnumm.grupocsv.com' },
           { text: 'Deck\u2122', link: 'https://deck.grupocsv.com' },
           { text: 'Relay\u2122', link: 'https://relay.axcare.com.br' },
           { text: 'RTAV\u2122', link: 'https://rtav.axcare.app' },
@@ -140,6 +141,7 @@ export default defineConfig({
           items: [
             { text: 'Compass\u2122', link: '/_infra/ferramentas/compass' },
             { text: 'Signal\u2122', link: '/_infra/ferramentas/signal' },
+            { text: 'TNUMM', link: '/_infra/ferramentas/tnumm' },
             { text: 'Deck\u2122', link: '/_infra/ferramentas/deck' },
             { text: 'Relay\u2122', link: '/_infra/ferramentas/relay' },
             { text: 'RTAV\u2122', link: '/_infra/ferramentas/rtav' },
