@@ -25,7 +25,7 @@ head:
       content: "https://hub.grupocsv.com/og/og_unihealth.png"
 ---
 
-<style scoped>
+<style>
 .VPPage { padding: 0 !important; }
 
 .uh-page {
@@ -50,6 +50,8 @@ head:
 .uh-header .logo-link { display: inline-block; transition: transform 0.3s; }
 .uh-header .logo-link:hover { transform: scale(1.05); }
 
+.uh-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #c85c00; margin-bottom: 10px; }
+.dark .uh-header .eyebrow { color: #f0894a; }
 .uh-header h1 { color: #013d19; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
 .dark .uh-header h1 { color: #3dcc8e; }
 .uh-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
@@ -84,10 +86,14 @@ head:
 }
 .uh-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
 
-.uh-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; line-height: 1.35; flex-grow: 1; }
+.uh-card .uh-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(1,61,25,0.08); color: #013d19; margin-bottom: 16px; flex-shrink: 0; }
+.dark .uh-card .uh-icon { background: rgba(61,204,142,0.14); color: #3dcc8e; }
+.uh-card .uh-icon svg { width: 22px; height: 22px; }
+
+.uh-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; line-height: 1.35; flex-grow: 1; }
 .dark .uh-card .uh-title { color: var(--vp-c-text-1); }
 
-.uh-date { color: var(--vp-c-text-2); font-size: 13px; font-weight: 500; margin-bottom: 20px; display: block; }
+.uh-date { color: var(--vp-c-text-2); font-size: 12.5px; font-weight: 500; margin: 0 0 18px; display: block; }
 
 .uh-link {
   display: block;
@@ -140,6 +146,7 @@ head:
     <a href="https://icds.org.br/hospital-unimed-governador-valadares/" target="_blank" class="logo-link">
       <img src="/img/ac2rphe.png" alt="Unihealth Logo" class="logo">
     </a>
+    <p class="eyebrow">Hub de Ferramentas Profissionais</p>
     <h1>Hub Unihealth Governador Valadares</h1>
     <p class="subtitle">Hospital de Média/Alta Complexidade</p>
   </div>
@@ -186,6 +193,27 @@ onMounted(() => {
     document.body.appendChild(s)
   }
 
+  const ICONS = {
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    package: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+    currency: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+    bars: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'
+  }
+  function pickIcon(title) {
+    const t = title.toLowerCase()
+    if (t.includes('plant') || t.includes('variabilidade')) return ICONS.clock
+    if (t.includes('opme') || t.includes('fluxo')) return ICONS.package
+    if (t.includes('repasse')) return ICONS.currency
+    if (t.includes('correla') || t.includes('análise') || t.includes('analise')) return ICONS.bars
+    return ICONS.grid
+  }
+  function formatDate(iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    if (isNaN(d)) return ''
+    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
   fetch('/unihealth/tools.json')
     .then(r => r.json())
     .then(data => {
@@ -193,9 +221,12 @@ onMounted(() => {
       if (!grid || !data.tools || data.tools.length === 0) return
       grid.innerHTML = data.tools.map(tool => {
         const href = tool.external ? tool.file : `/unihealth/${tool.file}`
+        const updated = formatDate(tool.lastModified)
         return `
         <div class="uh-card">
+          <div class="uh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pickIcon(tool.title)}</svg></div>
           <div class="uh-title">${tool.title}</div>
+          ${updated ? `<span class="uh-date">Atualizado em ${updated}</span>` : '<span class="uh-date">&nbsp;</span>'}
           <a target="_self" href="${href}" class="uh-link">Acessar</a>
         </div>
       `}).join('')
