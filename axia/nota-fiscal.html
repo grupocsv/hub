@@ -420,13 +420,24 @@
       <p>Sistema de emissão automatizada de NFS-e da AxiaCare, integrado ao Sistema Nacional NFS-e (SEFIN). Emite notas fiscais de serviço com assinatura digital (certificado A1 ICP-Brasil), calcula retenções federais automaticamente e registra todo o histórico.</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Como Emitir</h3>
       <ol style="padding-left:20px; margin-bottom:16px;">
-        <li>Preencha os dados do tomador (CNPJ e razão social)</li>
-        <li>Informe a descrição do serviço e o valor</li>
-        <li>Selecione a competência (mês/ano de referência)</li>
-        <li>Informe os dados bancários para pagamento</li>
+        <li>Clique em um <strong>modelo rápido</strong> (ICDS Matriz ou ICDS Unihealth GV) — os campos serão preenchidos automaticamente</li>
+        <li>Verifique o <strong>Mês de referência (prestação)</strong> — pré-preenchido com o mês anterior, ajuste se necessário</li>
+        <li>A <strong>Competência (emissão)</strong> é o mês atual — conforme exigido pela prefeitura de GV</li>
+        <li>A <strong>descrição do serviço</strong> é montada automaticamente com o mês de referência e dados bancários</li>
         <li>Clique em "Revisar e Emitir" para ver o resumo</li>
         <li>Confirme a emissão no modal de revisão</li>
       </ol>
+      <h3 style="font-size:14px; margin:20px 0 8px;">Campos Importantes</h3>
+      <table style="font-size:12px; margin-bottom:16px;">
+        <thead><tr><th>Campo</th><th>Significado</th><th>Preenchimento</th></tr></thead>
+        <tbody>
+          <tr><td>Competência (emissão)</td><td>Mês em que a NF está sendo emitida</td><td>Automático (mês atual)</td></tr>
+          <tr><td>Mês de referência (prestação)</td><td>Mês em que o serviço foi prestado</td><td>Automático (mês anterior), editável</td></tr>
+          <tr><td>Descrição do Serviço</td><td>Texto que aparece na NF</td><td>Automático ao usar modelo</td></tr>
+        </tbody>
+      </table>
+      <h3 style="font-size:14px; margin:20px 0 8px;">Descrição Padrão</h3>
+      <p style="font-size:12px; background:var(--gray-50, #f9fafb); padding:8px 12px; border-radius:6px; font-family:monospace;">Apoio Técnico Consultivo - Gestão em Saúde - Ref. {Mês}/{Ano} Dados bancários: Ag: 0001 Conta: 639825225-5 | PIX CNPJ: 58.323.596/0001-40</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Retenções Calculadas</h3>
       <table style="font-size:12px; margin-bottom:16px;">
         <thead><tr><th>Tributo</th><th>Alíquota</th><th>Tipo</th></tr></thead>
@@ -441,8 +452,15 @@
       </table>
       <h3 style="font-size:14px; margin:20px 0 8px;">Cancelamento</h3>
       <p>O cancelamento direto (evento e101101) é aceito dentro do prazo parametrizado pelo município. Após o prazo, apenas substituição por outra nota é possível. O sistema envia o pedido assinado digitalmente para a SEFIN Nacional.</p>
-      <h3 style="font-size:14px; margin:20px 0 8px;">Modelos</h3>
-      <p>Salve combinações frequentes de tomador + serviço + valor como modelos para emissão com 1 clique. Os modelos ficam armazenados no sistema e podem ser editados ou excluídos a qualquer momento.</p>
+      <h3 style="font-size:14px; margin:20px 0 8px;">Modelos Configurados</h3>
+      <table style="font-size:12px; margin-bottom:16px;">
+        <thead><tr><th>Modelo</th><th>CNPJ Tomador</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>ICDS Matriz</td><td>06.288.135/0001-80</td><td>R$ 10.000,00</td></tr>
+          <tr><td>ICDS Unihealth GV</td><td>06.288.135/0021-24</td><td>R$ 30.000,00</td></tr>
+        </tbody>
+      </table>
+      <p>Ambos os modelos utilizam a mesma descrição padrão e dados bancários. Ao clicar no modelo, todos os campos são preenchidos automaticamente.</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Segurança</h3>
       <p>Os dados são processados localmente na VPS-CSV e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil. Nenhum dado sensível é armazenado no navegador.</p>
     </div>
