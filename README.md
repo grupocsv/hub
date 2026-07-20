@@ -47,7 +47,7 @@ O ecossistema Hub classifica seus ativos digitais em 5 categorias, conforme a ta
 | Cuidado Coordenado | `unimed/cuidadocoordenado.html` | **Painel BI** | Unimed GV | Ativo |
 | Especialidades | `unimed/especialidades.html` | **Painel BI** | Unimed GV | Ativo |
 | GCE | `unimed/gce.html` | **Painel BI** | Unimed GV | Ativo |
-| TEA (Unimed) | `unimed/tea.html` | **Painel BI** | Unimed GV | Ativo |
+| Terapias Especiais (Unimed) | `unimed/tea.html` | **Painel BI** | Unimed GV | Ativo |
 | Psiquiatria | `unimed/psiquiatria.html` | **Painel BI** | Unimed GV | Ativo |
 | Pediatria Ambulatorial | `unimed/ped-amb.html` | **Painel BI** | Unimed GV | Ativo |
 | Variabilidade de Exames | `unimed/variabilidade-exames.html` | **Painel BI** | Unimed GV | Ativo |

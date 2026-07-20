@@ -1,91 +1,244 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build-tea-data.py — Pipeline de dados do Painel TEA v2 (Unimed GV).
+Pipeline auditável do Painel Terapias Especiais — Unimed Governador Valadares.
 
-Lê a planilha oficial de micro-dados (xlsx ou csv, SEMPRE fora do repositório),
-aplica as regras do LEIA-ME e gera exclusivamente agregados k-anonimizados:
+Entrada de produção (artefato privado, fora de qualquer Git):
+  python scripts/build-tea-data.py <diretorio-com-19-fontes-xlsx>
+    --matriz <Matriz_Analitica_Terapias_Especiais_2025.xlsx>
+    --saida <diretorio-privado>/tea-2025-2026.json
+    --corte 2026-06-30
 
-  a) unimed/data/tea-2025-2026.json  (artefato canônico auditável)
-  b) o mesmo JSON injetado em unimed/tea.html entre os marcadores
-     <!-- TEA-DATA:BEGIN --> / <!-- TEA-DATA:END -->
-  c) --emit-public DIR : deriva a variante pública (Open Pages; o gate de senha é
-                         EXCLUSIVO do Worker — auth_gate=true no slug, nunca embutido)
-  d) --auditoria       : grava a fila nominal de auditoria AO LADO DO INSUMO
-                         (fora do repo) — uso interno da operadora, jamais commitada
+O diretório, a Matriz e a saída devem estar fora de qualquer repositório Git.
+O pipeline emite agregados completos para a camada privada autenticada, mantém
+os 19 hashes de origem e reconcilia 2025 com a Matriz. Nome, matrícula, data de
+nascimento e guia de beneficiário nunca integram o JSON.
 
-Referência normativa: docs/_infra/prd-2026-07-painel-tea-v2.md (§6).
-
-Regras invioláveis (LGPD — o repositório é público):
-  - Nome, matrícula, nascimento e nº de guia de beneficiário NUNCA saem deste script
-    em (a), (b) ou (c). Varredura anti-vazamento bloqueante antes de escrever.
-  - Contagens de pacientes < 5 são publicadas como "<5" (k-anonimato, k=5).
-  - Evento extremo único (registro >= R$ 10 mil ou paciente-mês > p99) de prestador
-    com < 5 pacientes não sai com nome do prestador + competência juntos.
-
-Uso:
-  python3 scripts/build-tea-data.py ~/dados/tea-2026-06.xlsx --corte 2026-06-30
-  python3 scripts/build-tea-data.py --csv insumo.csv --corte 2026-06-30
-  python3 scripts/build-tea-data.py --selftest       (usa a fixture sintética)
+Comandos auxiliares:
+  python scripts/build-tea-data.py --selftest
+  python scripts/build-tea-data.py --emit-p
 """
 
 import argparse
-import csv
 import hashlib
-import io
 import json
 import math
 import os
 import re
 import statistics
 import sys
+import tempfile
 import unicodedata
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from datetime import date, datetime
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from pathlib import Path
 
-VERSAO = "2.0.0"
-K_ANON = 5
-LIMIAR_EVENTO_EXTREMO = 10_000.0
-JSON_MAX_BYTES = 120 * 1024
-HTML_MAX_BYTES = 300 * 1024
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-JSON_OUT = os.path.join(REPO_ROOT, "unimed", "data", "tea-2025-2026.json")
-HTML_ALVO = os.path.join(REPO_ROOT, "unimed", "tea.html")
-MARC_INI = "<!-- TEA-DATA:BEGIN -->"
-MARC_FIM = "<!-- TEA-DATA:END -->"
+VERSAO = "4.0.0"
+JSON_MAX_BYTES = 8 * 1024 * 1024
 
-# ---- Regras do LEIA-ME (PRD §2.3) — completas; nenhuma regra implícita ----
-CASA_UNIMED = "CASA UNIMED"
-TIPO_CASA = "ATENDIMENTO ESPECIALIZADO"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+HTML_ALVO = REPO_ROOT / "unimed" / "tea.html"
+P_DIR = REPO_ROOT / "p" / "painel-tea"
+
+CORTE_PADRAO = date(2026, 6, 30)
+INICIO_CANONICO = "2025/01"
+FIM_CANONICO = "2026/06"
+
+
+def sequencia_meses(inicio, fim):
+    yi, mi = map(int, inicio.split("/"))
+    yf, mf = map(int, fim.split("/"))
+    meses = []
+    y, m = yi, mi
+    while (y, m) <= (yf, mf):
+        meses.append(f"{y:04d}/{m:02d}")
+        m += 1
+        if m == 13:
+            y, m = y + 1, 1
+    return tuple(meses)
+
+
+MESES_CANONICOS = sequencia_meses(INICIO_CANONICO, FIM_CANONICO)
+MESES_CANONICOS_SET = set(MESES_CANONICOS)
+MESES_PECS_ESPERADOS = {
+    "2025/01", "2025/02", "2025/03", "2025/05", "2025/08",
+    "2025/09", "2025/11", "2025/12", "2026/01", "2026/02",
+    "2026/03", "2026/05", "2026/06",
+}
+
+# O cabeçalho abaixo reproduz literalmente as 19 fontes oficiais recebidas.
+# A grafia sem acento de "Matricula" pertence ao schema de origem.
+CABECALHO_FONTE = [
+    "Ano/Mês",
+    "Matricula Beneficiário",
+    "Nome Beneficiário",
+    "Data Nascimento",
+    "Gênero Beneficiário",
+    "Numero Guia Principal",
+    "Data Atendimento",
+    "Código Solicitante",
+    "Nome Solicitante",
+    "CBOS Solicitante",
+    "Tipo Guia",
+    "Código Procedimento",
+    "Nome Procedimento",
+    "Tipo Procedimento GA",
+    "Código Prestador",
+    "Nome Prestador",
+    "Tipo Prestador",
+    "Quantidade Procedimento",
+    "Pagamento/Despesa",
+]
+
+CHAVES_FONTE = [
+    "anomes", "matricula", "nome", "nasc", "genero", "guia",
+    "dt_atend", "cod_sol", "nome_sol", "cbos", "tipo_guia",
+    "cod_proc", "nome_proc", "tipo_proc", "cod_prest",
+    "nome_prest", "tipo_prest", "qtd", "valor",
+]
+
+# 19 códigos de origem -> 18 terapias clínicas. O código de AT integra ABA
+# Psicologia e permanece identificável nos agregados de composição.
+MAPA_CODIGOS = {
+    "50005103": {
+        "id": "aba-psicologia",
+        "terapia": "Terapia ABA — Psicologia",
+        "especialidade": "Psicologia",
+        "metodo": "ABA",
+    },
+    "50000519": {
+        "id": "aba-psicologia",
+        "terapia": "Terapia ABA — Psicologia",
+        "especialidade": "Psicologia",
+        "metodo": "ABA",
+        "at": True,
+    },
+    "50005189": {
+        "id": "aba-fonoaudiologia",
+        "terapia": "Terapia ABA — Fonoaudiologia",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "ABA",
+    },
+    "50005170": {
+        "id": "aba-terapia-ocupacional",
+        "terapia": "Terapia ABA — Terapia Ocupacional",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "ABA",
+    },
+    "50005278": {
+        "id": "psicopedagogia",
+        "terapia": "Psicopedagogia",
+        "especialidade": "Psicopedagogia",
+        "metodo": "Psicopedagogia",
+    },
+    "50005375": {
+        "id": "ans-centros-referencia",
+        "terapia": "Terapias especiais (parecer ANS, centros de referência)",
+        "especialidade": "Multidisciplinar",
+        "metodo": "ANS — centros de referência",
+    },
+    "50005235": {
+        "id": "denver-terapia-ocupacional",
+        "terapia": "Método Denver — Terapia Ocupacional",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "Denver",
+    },
+    "50005227": {
+        "id": "denver-psicologia",
+        "terapia": "Método Denver — Psicologia",
+        "especialidade": "Psicologia",
+        "metodo": "Denver",
+    },
+    "50005243": {
+        "id": "denver-fonoaudiologia",
+        "terapia": "Método Denver — Fonoaudiologia",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "Denver",
+    },
+    "50005138": {
+        "id": "teacch-psicologia",
+        "terapia": "Método TEACCH — Psicologia",
+        "especialidade": "Psicologia",
+        "metodo": "TEACCH",
+    },
+    "50005219": {
+        "id": "teacch-fonoaudiologia",
+        "terapia": "Método TEACCH — Fonoaudiologia",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "TEACCH",
+    },
+    "50005200": {
+        "id": "teacch-terapia-ocupacional",
+        "terapia": "Método TEACCH — Terapia Ocupacional",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "TEACCH",
+    },
+    "50005197": {
+        "id": "bobath-terapia-ocupacional",
+        "terapia": "Método Bobath — Terapia Ocupacional Neurológica",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "Bobath",
+    },
+    "50005251": {
+        "id": "bobath-fonoaudiologia",
+        "terapia": "Método Bobath — Fonoaudiologia",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "Bobath",
+    },
+    "50005260": {
+        "id": "integracao-sensorial",
+        "terapia": "Integração Sensorial",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "Integração Sensorial",
+    },
+    "50005340": {
+        "id": "tgd-terapia-ocupacional",
+        "terapia": "Terapeuta Ocupacional — TGD",
+        "especialidade": "Terapia Ocupacional",
+        "metodo": "TGD",
+    },
+    "50005286": {
+        "id": "tgd-psicologia",
+        "terapia": "Psicólogo — TGD",
+        "especialidade": "Psicologia",
+        "metodo": "TGD",
+    },
+    "50005308": {
+        "id": "tgd-fonoaudiologia",
+        "terapia": "Fonoaudiólogo — TGD",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "TGD",
+    },
+    "50005146": {
+        "id": "pecs-fonoaudiologia",
+        "terapia": "Método PECS — Fonoaudiologia",
+        "especialidade": "Fonoaudiologia",
+        "metodo": "PECS",
+    },
+}
+
+COD_AT = "50000519"
+ID_PECS = "pecs-fonoaudiologia"
+PEDIAKIDS = "PEDIAKIDS CURSOS E SERVICOS MEDICOS LTDA"
+
 MERGE_CNPJ = {
     "ANA CAROLINA OLIVEIRA FARIA FALCAO LTDA",
     "CRIAR E CRESCER TEEN LTDA",
 }
-NOME_MERGE_CNPJ = "CRIAR E CRESCER TEEN (ex-Ana Carolina O. F. Falcão)"
-CANAL = {
+NOME_MERGE_CNPJ = "CRIAR E CRESCER TEEN LTDA"
+
+MAPA_CANAL = {
     "ATENDIMENTO ESPECIALIZADO": "Casa Unimed",
     "ATENDIMENTOS FORNECEDORES": "Negociação Direta",
     "CLINICA ESPECIALIZADA": "Rede Credenciada",
-    "OUTRAS ESPEC. EXCETO MEDICO": "Negociação Direta (P.F)",
+    "OUTRAS ESPEC. EXCETO MEDICO": "Negociação Direta (P.F.)",
     "REEMBOLSO": "Reembolso",
     "UNIMED NACIONAL": "Intercâmbio",
     "UNIMED REGIONAL": "Intercâmbio",
 }
-FAIXAS = ["0-2", "3-5", "6-8", "9-11", "12-14", "15-17", "18+"]
-BUCKETS_INTENSIDADE = ["<3", "3-4,9", "5-8,9", "9+"]  # esquema ÚNICO do contrato (§6.4)
 
-# Código de assistente terapêutica (AT): serviço prestado por profissional não
-# graduado, faturado por código próprio, mais barato que a sessão do especialista
-# (50005103). Até jun/2026 só a Pediakids negociou lançá-lo em separado. Entra no
-# escopo do painel (volume/custo/intensidade reais), mas fica rastreável por
-# prestador (campo at_pct/at_sessoes) para a leitura de ticket médio ser honesta.
-COD_ESPECIALISTA = "50005103"
-COD_AT = "50000519"
-
-# Prestadores credenciados ATUALMENTE, mas faturados no período como fornecedores/
-# negociação direta. Reclassificados para "Rede Credenciada" para refletir o vínculo
-# vigente (documentado na nota de método). Comparação por nome normalizado (upper).
 CREDENCIADA_OVERRIDE = {
     "RESINTO ESPACO INTEGRADO LTDA",
     "CLINICA PSICONEURO GV LTDA",
@@ -94,641 +247,1721 @@ CREDENCIADA_OVERRIDE = {
     "CASA AURORA TERAPIAS LTDA",
 }
 
-COLS = ["anomes", "matricula", "nome", "nasc", "genero", "guia", "dt_atend",
-        "cod_sol", "nome_sol", "cbos", "tipo_guia", "cod_proc", "nome_proc",
-        "tipo_proc", "cod_prest", "nome_prest", "tipo_prest", "qtd", "valor"]
+FAIXAS_ETARIAS = ("0–2", "3–5", "6–8", "9–11", "12–14", "15–17", "18+")
+BUCKETS_INTENSIDADE = ("<3", "3–4", "5–8", "9+")
+CENTAVO = Decimal("0.01")
+
+class ErroPipeline(RuntimeError):
+    pass
 
 
-def falha(msg):
-    print(f"ERRO: {msg}", file=sys.stderr)
-    sys.exit(1)
+def d_nome(valor):
+    """Rótulo de prestador/solicitante: CAIXA ALTA sem acento."""
+    texto = "" if valor is None else str(valor).strip()
+    texto = unicodedata.normalize("NFKD", texto)
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    return re.sub(r"\s+", " ", texto).upper()
 
 
-def dentro_de_repo_git(caminho):
-    d = os.path.dirname(os.path.abspath(caminho))
-    while True:
-        if os.path.isdir(os.path.join(d, ".git")):
-            return True
-        pai = os.path.dirname(d)
-        if pai == d:
-            return False
-        d = pai
+def chave_rotulo(valor):
+    return re.sub(r"[^A-Z0-9]+", " ", d_nome(valor)).strip()
 
 
-def ler_insumo(args):
-    caminho = args.csv or args.xlsx
-    if not caminho:
-        falha("informe o insumo (xlsx posicional ou --csv)")
-    if not os.path.isfile(caminho):
-        falha(f"insumo não encontrado: {caminho}")
-    if not args.permitir_insumo_no_repo and dentro_de_repo_git(caminho):
-        falha("o insumo está dentro de um repositório git — o dado bruto JAMAIS "
-              "pode viver no repo (PRD §6.1). Mova-o para fora e rode de novo.")
-    bruto = open(caminho, "rb").read()
-    sha = hashlib.sha256(bruto).hexdigest()
-    linhas = []
-    if args.csv:
-        r = csv.reader(io.StringIO(bruto.decode("utf-8")))
-        cab = next(r)
-        for row in r:
-            if any(c.strip() for c in row):
-                linhas.append(row)
+def texto_celula(valor):
+    if valor is None:
+        return ""
+    if isinstance(valor, (date, datetime)):
+        return valor.isoformat()
+    if isinstance(valor, float) and valor.is_integer():
+        return str(int(valor))
+    return str(valor).strip()
+
+
+def codigo_procedimento(valor):
+    if isinstance(valor, (int, float, Decimal)) and not isinstance(valor, bool):
+        d = Decimal(str(valor))
+        if d == d.to_integral_value():
+            return str(int(d))
+    texto = texto_celula(valor)
+    if re.fullmatch(r"\d{8}(?:\.0+)?", texto):
+        return texto.split(".")[0]
+    raise ErroPipeline(f"código de procedimento inválido: {texto!r}")
+
+
+def normalizar_anomes(valor):
+    if isinstance(valor, (date, datetime)):
+        return f"{valor.year:04d}/{valor.month:02d}"
+    texto = texto_celula(valor)
+    m = re.fullmatch(r"(\d{4})[/-](\d{1,2})(?:[/-]\d{1,2})?", texto)
+    if m:
+        ano, mes = int(m.group(1)), int(m.group(2))
     else:
+        m = re.fullmatch(r"(\d{1,2})[/-](\d{4})", texto)
+        if not m:
+            raise ErroPipeline(f"competência inválida: {texto!r}")
+        mes, ano = int(m.group(1)), int(m.group(2))
+    if not 1 <= mes <= 12:
+        raise ErroPipeline(f"competência inválida: {texto!r}")
+    return f"{ano:04d}/{mes:02d}"
+
+
+def normalizar_data(valor, campo):
+    if isinstance(valor, datetime):
+        return valor.date().isoformat()
+    if isinstance(valor, date):
+        return valor.isoformat()
+    texto = texto_celula(valor)
+    for formato in ("%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
         try:
-            import openpyxl
-        except ImportError:
-            falha("openpyxl não instalado (pip install openpyxl) — ou use --csv")
-        wb = openpyxl.load_workbook(caminho, data_only=True, read_only=True)
-        aba = next((n for n in wb.sheetnames if n.upper().startswith("DB")), None)
-        if not aba:
-            falha(f"nenhuma aba DB_* encontrada (abas: {wb.sheetnames})")
-        it = wb[aba].iter_rows(values_only=True)
-        next(it)  # cabeçalho
-        for row in it:
-            if row is None or all(c is None for c in row):
-                continue
-            out = []
-            for c in row:
-                if isinstance(c, datetime):
-                    out.append(c.strftime("%Y-%m-%d"))
-                else:
-                    out.append("" if c is None else str(c))
-            linhas.append(out)
-    regs = []
-    for row in linhas:
-        if len(row) < len(COLS):
-            falha(f"linha com {len(row)} colunas (esperado {len(COLS)}): {row[:3]}...")
-        regs.append(dict(zip(COLS, [str(c).strip() for c in row[:len(COLS)]])))
-    return regs, sha
+            return datetime.strptime(texto[:10], formato).date().isoformat()
+        except ValueError:
+            pass
+    raise ErroPipeline(f"{campo} inválida: {texto!r}")
 
 
-# ---------------- chaves e derivações ----------------
+def decimal_celula(valor, campo):
+    if isinstance(valor, Decimal):
+        return valor
+    if isinstance(valor, (int, float)) and not isinstance(valor, bool):
+        return Decimal(str(valor))
+    texto = texto_celula(valor).replace("\u00a0", "").replace("R$", "").replace(" ", "")
+    if "," in texto and "." in texto:
+        if texto.rfind(",") > texto.rfind("."):
+            texto = texto.replace(".", "").replace(",", ".")
+        else:
+            texto = texto.replace(",", "")
+    elif "," in texto:
+        texto = texto.replace(",", ".")
+    try:
+        return Decimal(texto)
+    except InvalidOperation as exc:
+        raise ErroPipeline(f"{campo} inválido: {valor!r}") from exc
 
-def chave_paciente(r):
-    # Regra 1 do LEIA-ME: NOME + DATA DE NASCIMENTO (nunca matrícula)
-    return (r["nome"].upper(), r["nasc"][:10])
+
+def dinheiro(valor):
+    if valor is None:
+        return None
+    return float(Decimal(valor).quantize(CENTAVO, rounding=ROUND_HALF_UP))
 
 
-def prestador_agrupado(r):
-    # Regra 2 (por REGISTRO) e 3 do LEIA-ME
-    if r["tipo_prest"] == TIPO_CASA:
-        return CASA_UNIMED
-    if r["nome_prest"] in MERGE_CNPJ:
-        return NOME_MERGE_CNPJ
-    return r["nome_prest"]
+def numero(valor):
+    if valor is None:
+        return None
+    d = Decimal(valor)
+    return int(d) if d == d.to_integral_value() else float(d)
 
 
-def canal_do(r):
-    if r["nome_prest"].strip().upper() in CREDENCIADA_OVERRIDE:
+def razao(numerador, denominador):
+    if not denominador:
+        return None
+    return dinheiro(Decimal(numerador) / Decimal(denominador))
+
+
+def sha256_arquivo(caminho):
+    h = hashlib.sha256()
+    with open(caminho, "rb") as f:
+        for bloco in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(bloco)
+    return h.hexdigest()
+
+
+def ancestral_git(caminho):
+    p = Path(caminho).resolve(strict=True)
+    if p.is_file():
+        p = p.parent
+    while True:
+        if (p / ".git").exists():
+            return p
+        if p.parent == p:
+            return None
+        p = p.parent
+
+
+def exigir_fora_de_git(caminho, rotulo):
+    real = Path(caminho).resolve(strict=True)
+    git = ancestral_git(real)
+    if git is not None:
+        raise ErroPipeline(
+            f"{rotulo} está dentro do repositório Git {git}; "
+            "dados brutos devem permanecer fora de qualquer Git"
+        )
+    return real
+
+
+def exigir_saida_fora_de_git(caminho):
+    """Valida um destino ainda inexistente sem criar nada no repositório."""
+    destino = Path(caminho).expanduser().resolve(strict=False)
+    if destino.exists() and destino.is_dir():
+        raise ErroPipeline("--saida deve apontar para um arquivo JSON")
+    if destino.suffix.lower() != ".json":
+        raise ErroPipeline("--saida deve usar a extensão .json")
+    pai = destino.parent
+    if not pai.is_dir():
+        raise ErroPipeline(
+            f"diretório de --saida não existe: {pai}; crie-o fora de qualquer Git"
+        )
+    git = ancestral_git(pai)
+    if git is not None:
+        raise ErroPipeline(
+            f"--saida está dentro do repositório Git {git}; "
+            "o artefato completo deve permanecer na camada privada"
+        )
+    return destino
+
+
+def catalogo_terapias():
+    por_id = {}
+    for codigo, regra in MAPA_CODIGOS.items():
+        item = por_id.setdefault(
+            regra["id"],
+            {
+                "id": regra["id"],
+                "terapia": regra["terapia"],
+                "especialidade": regra["especialidade"],
+                "metodo": regra["metodo"],
+                "codigos": [],
+            },
+        )
+        item["codigos"].append(codigo)
+    for item in por_id.values():
+        item["codigos"].sort(key=lambda c: (c == COD_AT, c))
+    return por_id
+
+
+CATALOGO_TERAPIAS = catalogo_terapias()
+
+
+def prestador_consolidado(nome_fonte):
+    return NOME_MERGE_CNPJ if nome_fonte in MERGE_CNPJ else nome_fonte
+
+
+def canal_do(tipo_prestador, nome_fonte):
+    if nome_fonte in CREDENCIADA_OVERRIDE:
         return "Rede Credenciada"
-    t = r["tipo_prest"]
-    if t not in CANAL:
-        falha(f"Tipo Prestador desconhecido: '{t}' — atualizar o mapa do LEIA-ME")
-    return CANAL[t]
+    tipo = d_nome(tipo_prestador)
+    if tipo not in MAPA_CANAL:
+        raise ErroPipeline(
+            f"Tipo Prestador desconhecido: {tipo_prestador!r}; atualize o mapa auditável"
+        )
+    return MAPA_CANAL[tipo]
 
 
-def idade_em(nasc_iso, corte):
-    # Método fixado (PRD §6.2): anos COMPLETOS (aniversário) na data de corte.
-    y, m, d = int(nasc_iso[:4]), int(nasc_iso[5:7]), int(nasc_iso[8:10])
-    return corte.year - y - ((corte.month, corte.day) < (m, d))
+def chave_paciente(registro):
+    # Regra oficial: valor de Nome + data de nascimento; sem matrícula e sem
+    # normalização fonética, retirada de acento ou aproximação de grafia.
+    return registro["nome"], registro["nasc"]
 
 
-def faixa_de(idade):
-    if idade < 3: return "0-2"
-    if idade < 6: return "3-5"
-    if idade < 9: return "6-8"
-    if idade < 12: return "9-11"
-    if idade < 15: return "12-14"
-    if idade < 18: return "15-17"
+def localizar_aba_dados(wb, arquivo):
+    candidatas = []
+    for ws in wb.worksheets:
+        for numero_linha, row in enumerate(
+            ws.iter_rows(min_row=1, max_row=30, values_only=True), start=1
+        ):
+            valores = [texto_celula(v) for v in row]
+            while valores and valores[-1] == "":
+                valores.pop()
+            if valores and valores[0] == "Ano/Mês":
+                if valores != CABECALHO_FONTE:
+                    raise ErroPipeline(
+                        f"{arquivo.name}: schema divergente na aba {ws.title!r}, "
+                        f"linha {numero_linha}; esperado exatamente 19 colunas"
+                    )
+                candidatas.append((ws, numero_linha))
+                break
+    if len(candidatas) != 1:
+        raise ErroPipeline(
+            f"{arquivo.name}: esperado um único cabeçalho 'Ano/Mês'; "
+            f"encontrados {len(candidatas)}"
+        )
+    return candidatas[0]
+
+
+def normalizar_registro(valores, arquivo, numero_linha):
+    bruto = dict(zip(CHAVES_FONTE, valores))
+    try:
+        anomes = normalizar_anomes(bruto["anomes"])
+        nasc = normalizar_data(bruto["nasc"], "Data Nascimento")
+        codigo = codigo_procedimento(bruto["cod_proc"])
+        qtd = decimal_celula(bruto["qtd"], "Quantidade Procedimento")
+        valor = decimal_celula(bruto["valor"], "Pagamento/Despesa")
+    except ErroPipeline as exc:
+        raise ErroPipeline(f"{arquivo.name}, linha {numero_linha}: {exc}") from exc
+
+    if codigo not in MAPA_CODIGOS:
+        raise ErroPipeline(
+            f"{arquivo.name}, linha {numero_linha}: código fora do catálogo: {codigo}"
+        )
+    if qtd < 0:
+        raise ErroPipeline(
+            f"{arquivo.name}, linha {numero_linha}: Quantidade Procedimento negativa"
+        )
+
+    nome = texto_celula(bruto["nome"])
+    nome_prestador_fonte = d_nome(bruto["nome_prest"])
+    tipo_prestador = texto_celula(bruto["tipo_prest"])
+    if not nome or not nasc or not nome_prestador_fonte or not tipo_prestador:
+        raise ErroPipeline(
+            f"{arquivo.name}, linha {numero_linha}: chave obrigatória ausente"
+        )
+
+    regra = MAPA_CODIGOS[codigo]
+    if codigo == COD_AT and nome_prestador_fonte != PEDIAKIDS:
+        raise ErroPipeline(
+            f"{arquivo.name}, linha {numero_linha}: código {COD_AT} só pode ser "
+            f"incorporado quando o prestador é {PEDIAKIDS}"
+        )
+
+    registro = {
+        "anomes": anomes,
+        "matricula": texto_celula(bruto["matricula"]),
+        "nome": nome,
+        "nasc": nasc,
+        "genero": d_nome(bruto["genero"]),
+        "guia": texto_celula(bruto["guia"]),
+        "dt_atend": texto_celula(bruto["dt_atend"]),
+        "cod_sol": texto_celula(bruto["cod_sol"]),
+        "nome_sol": d_nome(bruto["nome_sol"]),
+        "cbos": texto_celula(bruto["cbos"]),
+        "cod_proc": codigo,
+        "terapia_id": regra["id"],
+        "nome_prest_fonte": nome_prestador_fonte,
+        "nome_prest": prestador_consolidado(nome_prestador_fonte),
+        "tipo_prest": d_nome(tipo_prestador),
+        "canal": canal_do(tipo_prestador, nome_prestador_fonte),
+        "qtd": qtd,
+        "valor": valor,
+        "arquivo": arquivo.name,
+        "linha": numero_linha,
+    }
+    registro["paciente"] = chave_paciente(registro)
+    return registro
+
+
+def ler_fonte_xlsx(caminho):
+    try:
+        import openpyxl
+    except ImportError as exc:
+        raise ErroPipeline("openpyxl não instalado") from exc
+
+    wb = openpyxl.load_workbook(caminho, data_only=True, read_only=True)
+    try:
+        ws, linha_cabecalho = localizar_aba_dados(wb, caminho)
+        registros = []
+        for numero_linha, row in enumerate(
+            ws.iter_rows(min_row=linha_cabecalho + 1, values_only=True),
+            start=linha_cabecalho + 1,
+        ):
+            valores = list(row)
+            if not any(v is not None and texto_celula(v) != "" for v in valores):
+                continue
+            if len(valores) > len(CABECALHO_FONTE) and any(
+                texto_celula(v) for v in valores[len(CABECALHO_FONTE):]
+            ):
+                raise ErroPipeline(
+                    f"{caminho.name}, linha {numero_linha}: dados além das 19 colunas"
+                )
+            valores = (valores + [None] * len(CABECALHO_FONTE))[:len(CABECALHO_FONTE)]
+            registros.append(normalizar_registro(valores, caminho, numero_linha))
+    finally:
+        wb.close()
+
+    if not registros:
+        raise ErroPipeline(f"{caminho.name}: nenhuma linha de dados")
+    codigos = {r["cod_proc"] for r in registros}
+    if len(codigos) != 1:
+        raise ErroPipeline(
+            f"{caminho.name}: cada fonte deve conter um único código; encontrados {sorted(codigos)}"
+        )
+    return registros, next(iter(codigos))
+
+
+def descobrir_fontes(diretorio, matriz=None):
+    raiz = exigir_fora_de_git(diretorio, "diretório de fontes")
+    if not raiz.is_dir():
+        raise ErroPipeline(f"entrada deve ser um diretório: {raiz}")
+    matriz_real = Path(matriz).resolve(strict=True) if matriz else None
+    fontes = sorted(
+        (
+            p.resolve(strict=True)
+            for p in raiz.iterdir()
+            if p.is_file()
+            and p.suffix.lower() == ".xlsx"
+            and not p.name.startswith("~$")
+            and (matriz_real is None or p.resolve(strict=True) != matriz_real)
+        ),
+        key=lambda p: p.name.casefold(),
+    )
+    if len(fontes) != 19:
+        raise ErroPipeline(
+            f"esperadas exatamente 19 fontes xlsx em {raiz}; encontradas {len(fontes)}"
+        )
+    return raiz, fontes
+
+
+def ler_diretorio_fontes(diretorio, matriz=None):
+    _, fontes = descobrir_fontes(diretorio, matriz)
+    todos = []
+    manifesto = []
+    codigo_por_arquivo = {}
+    for fonte in fontes:
+        registros, codigo = ler_fonte_xlsx(fonte)
+        if codigo in codigo_por_arquivo:
+            raise ErroPipeline(
+                f"código {codigo} aparece em duas fontes: "
+                f"{codigo_por_arquivo[codigo]} e {fonte.name}"
+            )
+        codigo_por_arquivo[codigo] = fonte.name
+        todos.extend(registros)
+        meses = sorted({r["anomes"] for r in registros})
+        dentro = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+        manifesto.append(
+            {
+                "arquivo": fonte.name,
+                "sha256": sha256_arquivo(fonte),
+                "codigo": codigo,
+                "terapia_id": MAPA_CODIGOS[codigo]["id"],
+                "registros": len(registros),
+                "registros_periodo_canonico": len(dentro),
+                "competencias": meses,
+            }
+        )
+
+    recebidos = set(codigo_por_arquivo)
+    esperados = set(MAPA_CODIGOS)
+    if recebidos != esperados:
+        raise ErroPipeline(
+            "conjunto de códigos das 19 fontes divergente; "
+            f"faltantes={sorted(esperados - recebidos)}, extras={sorted(recebidos - esperados)}"
+        )
+    return todos, manifesto
+
+
+def preparar_universo(registros):
+    canonicos = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+    cobertura = defaultdict(set)
+    por_terapia = defaultdict(list)
+    for r in canonicos:
+        cobertura[r["terapia_id"]].add(r["anomes"])
+        por_terapia[r["terapia_id"]].append(r)
+
+    descartadas = []
+    mantidas = []
+    for terapia_id, definicao in sorted(CATALOGO_TERAPIAS.items()):
+        meses = cobertura.get(terapia_id, set())
+        faltantes = sorted(MESES_CANONICOS_SET - meses)
+        item = {
+            "id": terapia_id,
+            "terapia": definicao["terapia"],
+            "codigos": list(definicao["codigos"]),
+            "competencias_encontradas": len(meses),
+            "competencias_esperadas": len(MESES_CANONICOS),
+            "competencias_faltantes": faltantes,
+        }
+        if faltantes:
+            item["motivo"] = (
+                f"cobertura incompleta ({len(meses)}/{len(MESES_CANONICOS)} competências)"
+            )
+            item["pacientes"] = len(
+                {r["paciente"] for r in por_terapia.get(terapia_id, [])}
+            )
+            descartadas.append(item)
+        else:
+            mantidas.append(terapia_id)
+
+    if {x["id"] for x in descartadas} != {ID_PECS}:
+        raise ErroPipeline(
+            "normalização de cobertura deve descartar somente PECS — Fonoaudiologia; "
+            f"descartadas={[x['id'] for x in descartadas]}"
+        )
+    if cobertura[ID_PECS] != MESES_PECS_ESPERADOS:
+        raise ErroPipeline(
+            "cobertura observada de PECS diverge das 13 competências auditadas"
+        )
+    if len(mantidas) != 17:
+        raise ErroPipeline(f"esperadas 17 terapias mantidas; encontradas {len(mantidas)}")
+
+    incluidos = [r for r in canonicos if r["terapia_id"] in set(mantidas)]
+    return incluidos, mantidas, descartadas
+
+
+def solicitante_valido(registro):
+    nome = registro["nome_sol"]
+    return bool(
+        nome
+        and nome != "-"
+        and "NAO INFORMADO" not in nome
+    )
+
+
+# As seções seguintes agregam somente conjuntos de pacientes. A chave interna
+# Nome + Nascimento existe apenas em memória e nunca é transferida para o JSON.
+
+
+def gerar_periodos():
+    periodos = [
+        {
+            "id": "tudo",
+            "tipo": "tudo",
+            "rotulo": "Período completo",
+            "inicio": INICIO_CANONICO,
+            "fim": FIM_CANONICO,
+            "meses": list(MESES_CANONICOS),
+        }
+    ]
+    anos = sorted({m[:4] for m in MESES_CANONICOS})
+    for ano in anos:
+        meses = [m for m in MESES_CANONICOS if m.startswith(ano)]
+        periodos.append(
+            {
+                "id": f"ano-{ano}",
+                "tipo": "ano",
+                "rotulo": ano,
+                "inicio": meses[0],
+                "fim": meses[-1],
+                "meses": meses,
+            }
+        )
+    for ano in anos:
+        for semestre in (1, 2):
+            meses = [
+                m for m in MESES_CANONICOS
+                if m.startswith(ano)
+                and ((int(m[5:7]) - 1) // 6 + 1) == semestre
+            ]
+            if meses:
+                periodos.append(
+                    {
+                        "id": f"semestre-{ano}-S{semestre}",
+                        "tipo": "semestre",
+                        "rotulo": f"{semestre}º semestre de {ano}",
+                        "inicio": meses[0],
+                        "fim": meses[-1],
+                        "meses": meses,
+                    }
+                )
+    for ano in anos:
+        for trimestre in (1, 2, 3, 4):
+            meses = [
+                m for m in MESES_CANONICOS
+                if m.startswith(ano)
+                and ((int(m[5:7]) - 1) // 3 + 1) == trimestre
+            ]
+            if meses:
+                periodos.append(
+                    {
+                        "id": f"trimestre-{ano}-T{trimestre}",
+                        "tipo": "trimestre",
+                        "rotulo": f"{trimestre}º trimestre de {ano}",
+                        "inicio": meses[0],
+                        "fim": meses[-1],
+                        "meses": meses,
+                    }
+                )
+    for mes in MESES_CANONICOS:
+        periodo_id = mes.replace("/", "-")
+        periodos.append(
+            {
+                "id": f"mes-{periodo_id}",
+                "tipo": "mes",
+                "rotulo": mes,
+                "inicio": mes,
+                "fim": mes,
+                "meses": [mes],
+            }
+        )
+    return periodos
+
+
+def metricas_exatas(registros):
+    pacientes = {r["paciente"] for r in registros}
+    sessoes = sum((r["qtd"] for r in registros), Decimal(0))
+    # O PRD exclui somente lançamentos com pagamento igual a zero. Eventuais
+    # estornos negativos permanecem no denominador por serem linhas pagas.
+    sessoes_pagas = sum(
+        (r["qtd"] for r in registros if r["valor"] != 0), Decimal(0)
+    )
+    pagamento = sum((r["valor"] for r in registros), Decimal(0))
+    return {
+        "n_pacientes": len(pacientes),
+        "pacientes_set": pacientes,
+        "registros": len(registros),
+        "sessoes": sessoes,
+        "sessoes_pagas": sessoes_pagas,
+        "pagamento": pagamento,
+    }
+
+
+def publicar_metricas(exatas):
+    n = exatas["n_pacientes"]
+    if n == 0:
+        return {
+            "pacientes": 0,
+            "registros": 0,
+            "sessoes": 0,
+            "sessoes_pagas": 0,
+            "pagamento": 0.0,
+            "custo_sessao": None,
+            "custo_beneficiario": None,
+            "sessoes_beneficiario": None,
+        }
+    return {
+        "pacientes": n,
+        "registros": exatas["registros"],
+        "sessoes": numero(exatas["sessoes"]),
+        "sessoes_pagas": numero(exatas["sessoes_pagas"]),
+        "pagamento": dinheiro(exatas["pagamento"]),
+        "custo_sessao": razao(exatas["pagamento"], exatas["sessoes_pagas"]),
+        "custo_beneficiario": razao(exatas["pagamento"], n),
+        "sessoes_beneficiario": razao(exatas["sessoes"], n),
+    }
+
+
+def grupos(registros, chave):
+    saida = defaultdict(list)
+    for registro in registros:
+        saida[chave(registro)].append(registro)
+    return saida
+
+
+def pct(parte, total):
+    if not total:
+        return 0.0
+    return dinheiro(Decimal(parte) * Decimal(100) / Decimal(total))
+
+
+def faixa_etaria(idade):
+    if idade < 3:
+        return "0–2"
+    if idade < 6:
+        return "3–5"
+    if idade < 9:
+        return "6–8"
+    if idade < 12:
+        return "9–11"
+    if idade < 15:
+        return "12–14"
+    if idade < 18:
+        return "15–17"
     return "18+"
 
 
-def ym_int(anomes):  # "2025/01" -> 24301
-    return int(anomes[:4]) * 12 + int(anomes[5:7])
+def idade_na_data(nascimento, corte):
+    nasc = date.fromisoformat(nascimento)
+    return corte.year - nasc.year - (
+        (corte.month, corte.day) < (nasc.month, nasc.day)
+    )
 
 
-def k5(n):
-    return n if n >= K_ANON else "<5"
+def serie_mensal(registros, meses):
+    por_mes = grupos(registros, lambda r: r["anomes"])
+    serie = []
+    for mes in meses:
+        item = {"m": mes}
+        item.update(publicar_metricas(metricas_exatas(por_mes.get(mes, []))))
+        serie.append(item)
+    return serie
 
 
-def pctl(valores, p):
-    v = sorted(valores)
-    k = (len(v) - 1) * p
-    f, c = math.floor(k), math.ceil(k)
-    return v[f] + (v[c] - v[f]) * (k - f)
+def agregar_terapias(
+    registros,
+    terapias_mantidas,
+    pagamento_total,
+):
+    por_terapia = grupos(registros, lambda r: r["terapia_id"])
+    itens = []
+    for terapia_id in terapias_mantidas:
+        linhas = por_terapia.get(terapia_id, [])
+        exatas = metricas_exatas(linhas)
+        definicao = CATALOGO_TERAPIAS[terapia_id]
+        item = {
+            "id": terapia_id,
+            "terapia": definicao["terapia"],
+            "codigos": list(definicao["codigos"]),
+            "especialidade": definicao["especialidade"],
+            "metodo": definicao["metodo"],
+            "quantidade_entidades": 1,
+        }
+        item.update(publicar_metricas(exatas))
+        item["exposicoes"] = len(
+            {(r["paciente"], r["terapia_id"]) for r in linhas}
+        )
+        item["participacao_pct"] = pct(
+            exatas["pagamento"], pagamento_total
+        )
+        at = metricas_exatas(
+            [r for r in linhas if r["cod_proc"] == COD_AT]
+        )
+        item["at_sessoes"] = numero(at["sessoes"])
+        item["at_pct"] = (
+            pct(at["sessoes"], exatas["sessoes"])
+            if exatas["sessoes"] else None
+        )
+        itens.append(item)
+    itens.sort(key=lambda x: x["terapia"])
+    return itens
 
 
-def r2(x):
-    return round(x + 1e-9, 2)
+def agregar_prestadores(registros, meses):
+    por_prestador = grupos(registros, lambda r: r["nome_prest"])
+    itens = []
+    series = {}
+    for nome, linhas in por_prestador.items():
+        exatas = metricas_exatas(linhas)
+        item = {
+            "nome": nome,
+            "quantidade_entidades": 1,
+        }
+        item.update(publicar_metricas(exatas))
+        paciente_meses = len(
+            {(r["paciente"], r["anomes"]) for r in linhas}
+        )
+        item["paciente_meses"] = paciente_meses
+        item["intensidade_mensal"] = (
+            razao(exatas["sessoes"], paciente_meses)
+            if paciente_meses else None
+        )
+        item["nomes_fonte"] = sorted(
+            {r["nome_prest_fonte"] for r in linhas}
+        )
+        canal_pagamento = defaultdict(Decimal)
+        canal_registros = Counter()
+        for r in linhas:
+            canal_pagamento[r["canal"]] += r["valor"]
+            canal_registros[r["canal"]] += 1
+        item["canais"] = sorted(canal_pagamento)
+        item["canal"] = max(
+            canal_pagamento,
+            key=lambda c: (canal_pagamento[c], canal_registros[c], c),
+        )
+        terapia_ids = sorted({r["terapia_id"] for r in linhas})
+        item["terapias"] = [
+            CATALOGO_TERAPIAS[t]["terapia"] for t in terapia_ids
+        ]
+        item["especialidades"] = sorted(
+            {CATALOGO_TERAPIAS[t]["especialidade"] for t in terapia_ids}
+        )
+        item["metodos"] = sorted(
+            {CATALOGO_TERAPIAS[t]["metodo"] for t in terapia_ids}
+        )
+        at = metricas_exatas(
+            [r for r in linhas if r["cod_proc"] == COD_AT]
+        )
+        item["at_sessoes"] = numero(at["sessoes"])
+        item["at_pct"] = (
+            pct(at["sessoes"], exatas["sessoes"])
+            if exatas["sessoes"] else None
+        )
+        itens.append(item)
+        series[nome] = serie_mensal(linhas, meses)
+
+    itens.sort(key=lambda x: (-(x["pagamento"] or 0), x["nome"]))
+    return itens, dict(sorted(series.items()))
 
 
-# ---------------- agregação ----------------
+def distribuir_linhas_cuidado(registros, total_pacientes, periodo_id):
+    terapias_por_paciente = defaultdict(set)
+    codigos_por_paciente = defaultdict(set)
+    for r in registros:
+        terapias_por_paciente[r["paciente"]].add(r["terapia_id"])
+        codigos_por_paciente[r["paciente"]].add(r["cod_proc"])
 
-def agregar(regs, corte):
-    for r in regs:
-        r["_qtd"] = float(r["qtd"])
-        r["_val"] = float(r["valor"])
-        r["_pac"] = chave_paciente(r)
-        r["_prest"] = prestador_agrupado(r)
-        r["_canal"] = canal_do(r)
+    dist_clinica = Counter(len(v) for v in terapias_por_paciente.values())
+    dist_componentes = Counter(len(v) for v in codigos_por_paciente.values())
+    combinacoes = Counter(
+        tuple(sorted(v)) for v in terapias_por_paciente.values()
+    )
 
-    # Exclusão de adultos com codificação incerta (regra E5, decisão de 10/07/2026):
-    # paciente 18+ na data de corte é MANTIDO só com engajamento sustentado (>=6 meses
-    # ativos); uso esparso sob procedimento "pediátrico" é removido por dúvida de
-    # codificação. Muda os totais do painel — documentado na view Método.
-    meses_pac0 = defaultdict(set); nasc0 = {}
-    for r in regs:
-        meses_pac0[r["_pac"]].add(r["anomes"])
-        nasc0.setdefault(r["_pac"], r["nasc"][:10])
-    excluir = {p for p, ms in meses_pac0.items()
-               if idade_em(nasc0[p], corte) >= 18 and len(ms) < 6}
-    reg_excl = [r for r in regs if r["_pac"] in excluir]
-    regs = [r for r in regs if r["_pac"] not in excluir]
-    adultos_excluidos = {
-        "n_pacientes": len(excluir), "registros": len(reg_excl),
-        "custo": r2(sum(r["_val"] for r in reg_excl)),
-        "sessoes": int(round(sum(r["_qtd"] for r in reg_excl))),
-        "regra": "18+ com <6 meses ativos"}
+    distribuicao_exata = [
+        {
+            "faixa": (
+                "1 terapia" if quantidade == 1 else f"{quantidade} terapias"
+            ),
+            "quantidade_terapias": quantidade,
+            "pacientes": pacientes,
+            "pct": pct(pacientes, total_pacientes),
+        }
+        for quantidade, pacientes in sorted(dist_clinica.items())
+    ]
 
-    meses = sorted({r["anomes"] for r in regs})
-    pacientes = sorted({r["_pac"] for r in regs})
-    custo_total = sum(r["_val"] for r in regs)
-    sessoes_total = sum(r["_qtd"] for r in regs)
+    combinacoes_exatas = [
+        {
+            "rotulo": " + ".join(
+                CATALOGO_TERAPIAS[x]["terapia"] for x in ids
+            ),
+            "terapias": [
+                CATALOGO_TERAPIAS[x]["terapia"] for x in ids
+            ],
+            "pacientes": n,
+            "pct": pct(n, total_pacientes),
+            "quantidade_combinacoes": 1,
+        }
+        for ids, n in sorted(
+            combinacoes.items(), key=lambda item: (-item[1], item[0])
+        )
+    ]
 
-    d = {}
-    d["meta"] = {
-        "painel": "Painel Estratégico TEA — Terapia ABA · Psicologia (50005103)",
-        "data_corte": corte.isoformat(),
-        "gerado_em": date.today().isoformat(),
-        "versao_script": VERSAO,
-        "politica_k": K_ANON,
-        "periodo": {"inicio": meses[0], "fim": meses[-1], "competencias": len(meses)},
-        "contagens": {
-            "registros": len(regs),
-            "sessoes": int(round(sessoes_total)),
-            "custo_total": r2(custo_total),
-            "custo_por_sessao": r2(custo_total / sessoes_total),
-            "pacientes": len(pacientes),
-            "matriculas": len({r["matricula"] for r in regs}),
-            "prestadores": len({r["_prest"] for r in regs}),
+    exposicoes_clinicas = sum(
+        quantidade * pacientes
+        for quantidade, pacientes in dist_clinica.items()
+    )
+    exposicoes_componentes = sum(
+        quantidade * pacientes
+        for quantidade, pacientes in dist_componentes.items()
+    )
+    dois_mais_clinico = sum(
+        n for quantidade, n in dist_clinica.items() if quantidade >= 2
+    )
+    dois_mais_componentes = sum(
+        n for quantidade, n in dist_componentes.items() if quantidade >= 2
+    )
+    quatro_mais_clinico = sum(
+        n for quantidade, n in dist_clinica.items() if quantidade >= 4
+    )
+    quatro_mais_componentes = sum(
+        n for quantidade, n in dist_componentes.items() if quantidade >= 4
+    )
+    reconciliacao_componentes = None
+    if periodo_id == "tudo":
+        reconciliacao_componentes = {
+            "natureza": (
+                "Reconciliação técnica por códigos assistenciais; o código de "
+                "assistente terapêutica integra ABA — Psicologia e não constitui "
+                "uma terapia clínica adicional."
+            ),
+            "distribuicao": [
+                {
+                    "faixa": (
+                        "1 componente"
+                        if quantidade == 1
+                        else f"{quantidade} componentes"
+                    ),
+                    "quantidade_componentes": quantidade,
+                    "pacientes": pacientes,
+                    "pct": pct(pacientes, total_pacientes),
+                }
+                for quantidade, pacientes in sorted(dist_componentes.items())
+            ],
+            "exposicoes": exposicoes_componentes,
+            "dois_ou_mais_pct": pct(
+                dois_mais_componentes, total_pacientes
+            ),
+            "quatro_ou_mais_pct": pct(
+                quatro_mais_componentes, total_pacientes
+            ),
+        }
+
+    completo = {
+        "distribuicao": distribuicao_exata,
+        "exposicoes": exposicoes_clinicas,
+        "dois_ou_mais_pct": pct(dois_mais_clinico, total_pacientes),
+        "quatro_ou_mais_pct": pct(quatro_mais_clinico, total_pacientes),
+        "combinacoes": combinacoes_exatas,
+        "pacientes_em_combinacoes_agrupadas": 0,
+        "reconciliacao_componentes_codigo": reconciliacao_componentes,
+    }
+    auditoria = {
+        "distribuicao_clinica": dict(sorted(dist_clinica.items())),
+        "distribuicao_componentes": dict(sorted(dist_componentes.items())),
+        "exposicoes_clinicas": exposicoes_clinicas,
+        "exposicoes_componentes": exposicoes_componentes,
+        "dois_mais_clinico": dois_mais_clinico,
+        "dois_mais_componentes": dois_mais_componentes,
+        "quatro_mais_clinico": quatro_mais_clinico,
+        "quatro_mais_componentes": quatro_mais_componentes,
+        "combinacoes_exatas": dict(combinacoes),
+        "combinacoes_publicadas": {
+            item["rotulo"]: item["pacientes"]
+            for item in combinacoes_exatas
         },
-        "adultos_excluidos": adultos_excluidos,
     }
+    return completo, auditoria
 
-    # ---- série mensal ----
-    sm = []
-    por_mes = defaultdict(lambda: {"c": 0.0, "s": 0.0, "p": set(), "n": 0, "pr": set()})
-    for r in regs:
-        e = por_mes[r["anomes"]]
-        e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["p"].add(r["_pac"])
-        e["n"] += 1; e["pr"].add(r["_prest"])
-    for m in meses:
-        e = por_mes[m]
-        sm.append({"m": m, "custo": r2(e["c"]), "sessoes": int(round(e["s"])),
-                   "pacientes": len(e["p"]), "registros": e["n"],
-                   "custo_sessao": r2(e["c"] / e["s"]),
-                   "sessoes_por_paciente": r2(e["s"] / len(e["p"])),
-                   "prestadores_ativos": len(e["pr"])})
-    d["serie_mensal"] = sm
 
-    # ---- comparativos ----
-    anos = sorted({m[:4] for m in meses})
-    def soma(pred):
-        cs = [(x["custo"], x["sessoes"]) for x in sm if pred(x["m"])]
-        return r2(sum(c for c, _ in cs)), sum(s for _, s in cs)
-    ano_cheio = {}
-    for a in anos:
-        ms_do_ano = [m for m in meses if m.startswith(a)]
-        if len(ms_do_ano) == 12:
-            c, s = soma(lambda m, a=a: m.startswith(a))
-            ano_cheio[a] = {"custo": c, "sessoes": s}
-    ultimo_ano = meses[-1][:4]
-    s1_atual = [m for m in meses if m.startswith(ultimo_ano) and int(m[5:7]) <= 6]
-    s1_prev = [m.replace(ultimo_ano, str(int(ultimo_ano) - 1)) for m in s1_atual]
-    s1_prev = [m for m in s1_prev if m in meses]
-    comp = {"anos_fechados": ano_cheio}
-    if s1_atual and len(s1_prev) == len(s1_atual):
-        ca, sa = soma(lambda m: m in s1_atual)
-        cp, sp = soma(lambda m: m in s1_prev)
-        comp["s1_atual"] = {"ano": ultimo_ano, "custo": ca, "sessoes": sa,
-                            "media_mensal": r2(ca / len(s1_atual)),
-                            "run_rate_anual": r2(ca * 12 / len(s1_atual))}
-        comp["s1_anterior"] = {"custo": cp, "sessoes": sp}
-        comp["yoy_s1"] = {"custo_pct": r2((ca / cp - 1) * 100),
-                          "sessoes_pct": r2((sa / sp - 1) * 100)}
-    picos = max(sm, key=lambda x: x["custo"]); vales = min(sm, key=lambda x: x["custo"])
-    comp["pico"] = {"m": picos["m"], "custo": picos["custo"]}
-    comp["vale"] = {"m": vales["m"], "custo": vales["custo"]}
-    d["comparativos"] = comp
+def agregar_canais(registros):
+    por_canal = grupos(registros, lambda r: r["canal"])
+    itens = []
+    for canal, linhas in por_canal.items():
+        item = {"canal": canal}
+        item.update(publicar_metricas(metricas_exatas(linhas)))
+        item["prestadores"] = len({r["nome_prest"] for r in linhas})
+        itens.append(item)
+    itens.sort(
+        key=lambda x: (
+            x["pagamento"] is None,
+            -(x["pagamento"] or 0),
+            x["canal"],
+        )
+    )
+    return itens
 
-    # ---- prestadores ----
-    pr = defaultdict(lambda: {"c": 0.0, "s": 0.0, "p": set(), "meses": set(),
-                              "canais": Counter(), "at_s": 0.0, "at_c": 0.0})
-    for r in regs:
-        e = pr[r["_prest"]]
-        e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["p"].add(r["_pac"])
-        e["meses"].add(r["anomes"]); e["canais"][r["_canal"]] += r["_val"]
-        if r["cod_proc"] == COD_AT:
-            e["at_s"] += r["_qtd"]; e["at_c"] += r["_val"]
-    rank = sorted(pr.items(), key=lambda kv: -kv[1]["c"])
-    d["ranking_prestadores"] = [{
-        "nome": nome, "canal": e["canais"].most_common(1)[0][0],
-        "custo": r2(e["c"]), "participacao_pct": r2(e["c"] / custo_total * 100),
-        "sessoes": int(round(e["s"])), "custo_sessao": r2(e["c"] / e["s"]) if e["s"] else 0,
-        "pacientes": k5(len(e["p"])), "meses_ativos": len(e["meses"]),
-        # Composição de código: parcela de sessões faturadas como assistente
-        # terapêutica (AT, código mais barato). >0 só para quem lança AT em separado.
-        "at_pct": r2(e["at_s"] / e["s"] * 100) if e["s"] else 0,
-        "at_sessoes": int(round(e["at_s"])),
-    } for nome, e in rank]
 
-    shares = [e["c"] / custo_total * 100 for _, e in rank]
-    def hhi(sub):
-        t = sum(r["_val"] for r in sub)
-        pp = defaultdict(float)
-        for r in sub: pp[r["_prest"]] += r["_val"]
-        return r2(sum((v / t * 100) ** 2 for v in pp.values()))
-    conc = {"top5_pct": r2(sum(shares[:5])), "top10_pct": r2(sum(shares[:10])),
-            "top15_pct": r2(sum(shares[:15])), "hhi_periodo": hhi(regs)}
-    if ano_cheio:
-        a0 = sorted(ano_cheio)[0]
-        conc[f"hhi_{a0}"] = hhi([r for r in regs if r["anomes"].startswith(a0)])
-    if "s1_atual" in comp:
-        conc[f"hhi_s1_{ultimo_ano}"] = hhi([r for r in regs if r["anomes"] in s1_atual])
-    d["concentracao"] = conc
+def agregar_solicitantes(registros):
+    elegiveis = [r for r in registros if solicitante_valido(r)]
+    por_solicitante = grupos(elegiveis, lambda r: r["nome_sol"])
+    itens = []
+    for nome, linhas in por_solicitante.items():
+        exatas = metricas_exatas(linhas)
+        item = {"nome": nome}
+        item.update(publicar_metricas(exatas))
+        item["cbos"] = Counter(r["cbos"] for r in linhas).most_common(1)[0][0]
+        executores = []
+        for prestador, par in grupos(linhas, lambda r: r["nome_prest"]).items():
+            par_exato = metricas_exatas(par)
+            executante = {"nome": prestador}
+            executante.update(publicar_metricas(par_exato))
+            executante["pct_pagamento"] = pct(
+                par_exato["pagamento"], exatas["pagamento"]
+            )
+            executores.append(executante)
+        executores.sort(
+            key=lambda x: (-(x["pagamento"] or 0), x["nome"])
+        )
+        principal = executores[0] if executores else None
+        item["principal"] = principal["nome"] if principal else None
+        item["principal_pct"] = principal["pct_pagamento"] if principal else None
+        item["executores"] = executores
+        itens.append(item)
+    itens.sort(key=lambda x: (-(x["pagamento"] or 0), x["nome"]))
+    return {"itens": itens}
 
-    # série mensal dos top 15 (controle de peso do JSON)
-    top15 = [nome for nome, _ in rank[:15]]
-    sp = {}
-    for nome in top15:
-        serie = {"custo": [], "sessoes": [], "preco": []}
-        for m in meses:
-            rs = [r for r in regs if r["_prest"] == nome and r["anomes"] == m]
-            c = sum(r["_val"] for r in rs); s = sum(r["_qtd"] for r in rs)
-            serie["custo"].append(r2(c)); serie["sessoes"].append(int(round(s)))
-            serie["preco"].append(r2(c / s) if s else None)
-        sp[nome] = serie
-    d["serie_prestador"] = {"meses": meses, "prestadores": sp}
 
-    # dispersão de preço (>=100 sessões) e economia potencial
-    eleg = [(nome, e) for nome, e in rank if e["s"] >= 100]
-    media_carteira = custo_total / sessoes_total
-    disp = [{"nome": n, "preco": r2(e["c"] / e["s"]), "sessoes": int(round(e["s"]))}
-            for n, e in eleg]
-    disp.sort(key=lambda x: -x["preco"])
-    d["dispersao_preco"] = {
-        "prestadores": disp,
-        "referencias": {"casa_unimed": r2(pr[CASA_UNIMED]["c"] / pr[CASA_UNIMED]["s"]) if CASA_UNIMED in pr and pr[CASA_UNIMED]["s"] else None,
-                        "media_carteira": r2(media_carteira),
-                        "mediana_grupo": r2(statistics.median([x["preco"] for x in disp])) if disp else None},
-        "precos_unitarios_distintos": len({r2(r["_val"] / r["_qtd"]) for r in regs if r["_qtd"] > 0}),
-    }
-    econ = [{"nome": x["nome"], "preco": x["preco"], "sessoes": x["sessoes"],
-             "gap_total": r2(x["sessoes"] * (x["preco"] - media_carteira))}
-            for x in disp if x["preco"] > media_carteira]
-    d["economia_potencial"] = {"referencia": r2(media_carteira), "prestadores": econ,
-                               "gap_total": r2(sum(e["gap_total"] for e in econ))}
+def agregar_pacientes(registros, corte):
+    por_paciente = grupos(registros, lambda r: r["paciente"])
+    faixa_pacientes = defaultdict(set)
+    genero_pacientes = defaultdict(set)
+    intensidade = {}
+    custo_paciente = {}
+    for paciente, linhas in por_paciente.items():
+        idade = idade_na_data(paciente[1], corte)
+        faixa_pacientes[faixa_etaria(idade)].add(paciente)
+        genero_pacientes[linhas[0]["genero"] or "NAO INFORMADO"].add(paciente)
+        intensidade[paciente] = sum((r["qtd"] for r in linhas), Decimal(0))
+        custo_paciente[paciente] = sum((r["valor"] for r in linhas), Decimal(0))
 
-    # quadrante (elegíveis >=100 sessões): x = sessões/paciente-mês; y = R$/sessão
-    quad = []
-    pm_prest = defaultdict(set)
-    for r in regs:
-        pm_prest[r["_prest"]].add((r["_pac"], r["anomes"]))
-    for nome, e in eleg:
-        quad.append({"nome": nome, "x": r2(e["s"] / len(pm_prest[nome])),
-                     "y": r2(e["c"] / e["s"]), "custo": r2(e["c"]),
-                     "canal": pr[nome]["canais"].most_common(1)[0][0]})
-    d["quadrante_prestadores"] = {
-        "prestadores": quad,
-        "cortes": {"y": r2(media_carteira),
-                   "x": r2(statistics.median([q["x"] for q in quad])) if quad else None}}
+    def metricas_conjunto(pacientes):
+        return publicar_metricas(
+            metricas_exatas(
+                [r for r in registros if r["paciente"] in pacientes]
+            )
+        )
 
-    # ---- canais ----
-    tp = defaultdict(lambda: {"c": 0.0, "s": 0.0, "p": set(), "pr": set()})
-    for r in regs:
-        e = tp[r["_canal"]]
-        e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["p"].add(r["_pac"]); e["pr"].add(r["_prest"])
-    d["tipo_pagamento"] = [{
-        "canal": c, "custo": r2(e["c"]), "pct": r2(e["c"] / custo_total * 100),
-        "sessoes": int(round(e["s"])), "custo_sessao": r2(e["c"] / e["s"]),
-        "pacientes": k5(len(e["p"])), "prestadores": len(e["pr"]),
-    } for c, e in sorted(tp.items(), key=lambda kv: -kv[1]["c"])]
-    canais_ord = [x["canal"] for x in d["tipo_pagamento"]]
-    tpm = {c: [] for c in canais_ord}
-    for m in meses:
-        por_c = defaultdict(float)
-        for r in regs:
-            if r["anomes"] == m: por_c[r["_canal"]] += r["_val"]
-        for c in canais_ord: tpm[c].append(r2(por_c.get(c, 0.0)))
-    d["tipo_pagamento_mensal"] = {"meses": meses, "canais": tpm}
+    faixas = []
+    for faixa in FAIXAS_ETARIAS:
+        item = {"faixa": faixa}
+        item.update(metricas_conjunto(faixa_pacientes.get(faixa, set())))
+        faixas.append(item)
 
-    inter = [r for r in regs if r["_canal"] == "Intercâmbio"]
-    if inter:
-        si = defaultdict(float)
-        for r in inter: si[r["anomes"]] += r["_val"]
-        pico_m = max(si, key=si.get)
-        d["intercambio"] = {"custo": r2(sum(r["_val"] for r in inter)),
-                            "sessoes": int(round(sum(r["_qtd"] for r in inter))),
-                            "pacientes": k5(len({r["_pac"] for r in inter})),
-                            "cooperativas": sorted({r["nome_prest"] for r in inter}),
-                            "pico": {"m": pico_m, "custo": r2(si[pico_m])}}
+    genero = []
+    for rotulo, pacientes in sorted(genero_pacientes.items()):
+        item = {"genero": rotulo}
+        item.update(metricas_conjunto(pacientes))
+        genero.append(item)
+
+    bucket_pacientes = defaultdict(set)
+    for paciente, sessoes in intensidade.items():
+        if sessoes < 3:
+            bucket = "<3"
+        elif sessoes < 5:
+            bucket = "3–4"
+        elif sessoes < 9:
+            bucket = "5–8"
+        else:
+            bucket = "9+"
+        bucket_pacientes[bucket].add(paciente)
+    buckets = [
+        {
+            "faixa": bucket,
+            "pacientes": len(bucket_pacientes.get(bucket, set())),
+            "pct": pct(
+                len(bucket_pacientes.get(bucket, set())), len(por_paciente)
+            ),
+        }
+        for bucket in BUCKETS_INTENSIDADE
+    ]
+
+    valores_intensidade = list(intensidade.values())
+    valores_custo = list(custo_paciente.values())
+    if por_paciente:
+        media_intensidade = dinheiro(statistics.mean(valores_intensidade))
+        mediana_intensidade = dinheiro(statistics.median(valores_intensidade))
+        media_custo = dinheiro(statistics.mean(valores_custo))
+        mediana_custo = dinheiro(statistics.median(valores_custo))
     else:
-        d["intercambio"] = None
-
-    # ---- pacientes ----
-    nasc = {}; gen = {}
-    for r in regs:
-        nasc.setdefault(r["_pac"], r["nasc"][:10]); gen[r["_pac"]] = r["genero"]
-    idade = {p: idade_em(n, corte) for p, n in nasc.items()}
-    fx_p = defaultdict(list)
-    for p, i in idade.items(): fx_p[faixa_de(i)].append(p)
-    custo_p = defaultdict(float)
-    for r in regs: custo_p[r["_pac"]] += r["_val"]
-    d["faixa_etaria"] = [{"faixa": f, "pacientes": k5(len(fx_p.get(f, []))),
-                          "custo": r2(sum(custo_p[p] for p in fx_p.get(f, []))),
-                          "pct_custo": r2(sum(custo_p[p] for p in fx_p.get(f, [])) / custo_total * 100)}
-                         for f in FAIXAS]
-    fxg = []
-    for f in FAIXAS:
-        M = sum(1 for p in fx_p.get(f, []) if gen[p] == "MASCULINO")
-        F = sum(1 for p in fx_p.get(f, []) if gen[p] == "FEMININO")
-        fxg.append({"faixa": f, "M": k5(M), "F": k5(F)})
-    d["faixa_etaria_x_genero"] = fxg
-    tot_g = Counter(gen.values())
-    d["genero"] = {"M": tot_g.get("MASCULINO", 0), "F": tot_g.get("FEMININO", 0),
-                   "razao": r2(tot_g.get("MASCULINO", 0) / tot_g.get("FEMININO", 1))}
-
-    # intensidade — esquema único do contrato: média de sessões/mês-ativo por paciente
-    spm = defaultdict(float)
-    for r in regs: spm[(r["_pac"], r["anomes"])] += r["_qtd"]
-    medias = defaultdict(list)
-    for (p, _), s in spm.items(): medias[p].append(s)
-    media_pac = {p: statistics.mean(v) for p, v in medias.items()}
-    bkt = Counter()
-    for m in media_pac.values():
-        bkt["<3" if m < 3 else "3-4,9" if m < 5 else "5-8,9" if m < 9 else "9+"] += 1
-    todos_pm = list(spm.values())
-    d["intensidade"] = {
-        "buckets": [{"faixa": b, "pacientes": k5(bkt.get(b, 0))} for b in BUCKETS_INTENSIDADE],
-        "mediana_media_por_paciente": r2(statistics.median(sorted(media_pac.values()))),
-        "paciente_mes": {"n": len(todos_pm), "mediana": r2(statistics.median(todos_pm)),
-                         "p90": r2(pctl(todos_pm, 0.90)), "p99": r2(pctl(todos_pm, 0.99)),
-                         "max": r2(max(todos_pm))}}
-
-    vals = sorted(custo_p.values(), reverse=True)
-    n10 = max(1, len(vals) // 10)
-    d["custo_paciente"] = {"mediana": r2(statistics.median(vals)),
-                           "p90": r2(pctl(vals, 0.90)), "p99": r2(pctl(vals, 0.99)),
-                           "max": r2(vals[0]),
-                           "top10pct": {"pacientes": k5(n10), "pct_custo": r2(sum(vals[:n10]) / custo_total * 100)},
-                           "top10abs_pct_custo": r2(sum(vals[:10]) / custo_total * 100)}
-
-    # permanência / entradas / saídas
-    meses_pac = defaultdict(set)
-    for r in regs: meses_pac[r["_pac"]].add(r["anomes"])
-    perm = [len(v) for v in meses_pac.values()]
-    dist_perm = Counter()
-    for x in perm:
-        dist_perm["1-3" if x <= 3 else "4-6" if x <= 6 else "7-9" if x <= 9
-                  else "10-12" if x <= 12 else "13-17" if x <= 17 else str(len(meses))] += 1
-    d["permanencia"] = {"media": r2(statistics.mean(perm)), "mediana": r2(statistics.median(perm)),
-                        "presentes_todo_periodo": sum(1 for x in perm if x == len(meses)),
-                        "dist": [{"faixa": f, "pacientes": k5(dist_perm.get(f, 0))}
-                                 for f in ["1-3", "4-6", "7-9", "10-12", "13-17", str(len(meses))]]}
-    prim = {p: min(v) for p, v in meses_pac.items()}
-    ult = {p: max(v) for p, v in meses_pac.items()}
-    corte_churn = meses[-1]
-    es = []
-    for m in meses:
-        ent = sum(1 for v in prim.values() if v == m)
-        sai = sum(1 for v in ult.values() if v == m)
-        es.append({"m": m, "entradas": ent, "saidas": sai,
-                   "estoque_inicial": m == meses[0],
-                   "provisorio": ym_int(corte_churn) - ym_int(m) < 2})
-    d["entradas_saidas"] = es
-
-    # ---- qualidade / auditoria (agregados; regra de evento extremo aplicada) ----
-    sem_sol = [r for r in regs if "NÃO INFORMADO" in r["nome_sol"].upper() or r["nome_sol"] == "-"]
-    c_sem = sum(r["_val"] for r in sem_sol)
-    psi = sum(1 for r in regs if r["cbos"] == "Psicologo clinico")
-    med = sum(1 for r in regs if r["cbos"].startswith("Médico") or r["cbos"].startswith("MÉdico"))
-    lags = Counter()
-    for r in regs:
-        at = r["dt_atend"][:7]
-        lags[ym_int(r["anomes"]) - (int(at[:4]) * 12 + int(at[5:7]))] += 1
-    nlag = sum(lags.values())
-    retro = [r for r in regs if r["dt_atend"] and
-             (date(int(r["anomes"][:4]), int(r["anomes"][5:7]), 1)
-              - date(int(r["dt_atend"][:4]), int(r["dt_atend"][5:7]), int(r["dt_atend"][8:10]))).days > 90]
-    p99_pm = pctl(todos_pm, 0.99)
-    pac_por_prest = {n: len(e["p"]) for n, e in pr.items()}
-    extremos = []
-    for r in regs:
-        if r["_val"] >= LIMIAR_EVENTO_EXTREMO:
-            pequeno = pac_por_prest[r["_prest"]] < K_ANON
-            extremos.append({
-                "competencia": r["anomes"],
-                "sessoes": int(round(r["_qtd"])), "valor": r2(r["_val"]),
-                "canal": r["_canal"],
-                # regra §6.3: nome + competência juntos só se o prestador tem >=5 pacientes
-                "prestador": None if pequeno else r["_prest"],
-                "nota": "prestador com <5 pacientes — identificação na fila privada de auditoria"
-                        if pequeno else None})
-    multi_pm = sum(1 for v in {k: {r["_prest"] for r in regs if (r["_pac"], r["anomes"]) == k}
-                               for k in spm}.values() if len(v) > 1)
-    pr_por_pac = defaultdict(set)
-    for r in regs: pr_por_pac[r["_pac"]].add(r["_prest"])
-    multi_p = sum(1 for v in pr_por_pac.values() if len(v) > 1)
-    ad = [p for p, i in idade.items() if i >= 18]
-    d["qualidade"] = {
-        "sem_solicitante": {"registros": len(sem_sol), "pct_registros": r2(len(sem_sol) / len(regs) * 100),
-                            "custo": r2(c_sem), "pct_custo": r2(c_sem / custo_total * 100)},
-        "cbos": {"psicologo_pct": r2(psi / len(regs) * 100), "medicos_pct": r2(med / len(regs) * 100)},
-        "lag": {"pct_mesma_competencia": r2(lags.get(0, 0) / nlag * 100),
-                "pct_1_mes": r2(lags.get(1, 0) / nlag * 100), "max_meses": max(lags)},
-        "valor_zero": sum(1 for r in regs if r["_val"] == 0),
-        "retroativos_90d": {"registros": len(retro), "custo": r2(sum(r["_val"] for r in retro)),
-                            "pct_custo": r2(sum(r["_val"] for r in retro) / custo_total * 100)},
-        "eventos_extremos": extremos,
-        "multi_prestador": {"paciente_mes": multi_pm, "pacientes": k5(multi_p),
-                            "pct_pacientes": r2(multi_p / len(pacientes) * 100)},
-        "maiores_18": {"pacientes": k5(len(ad)),
-                       "custo": r2(sum(custo_p[p] for p in ad)),
-                       "sessoes": int(round(sum(spm[(p, m)] for (p, m) in spm if p in ad)))},
+        media_intensidade = mediana_intensidade = None
+        media_custo = mediana_custo = None
+    return {
+        "faixa_etaria": faixas,
+        "intensidade": {
+            "definicao": "Soma de sessões por beneficiário no período selecionado.",
+            "buckets": buckets,
+            "media": media_intensidade,
+            "mediana": mediana_intensidade,
+        },
+        "genero": genero,
+        "custo_por_paciente": {
+            "media": media_custo,
+            "mediana": mediana_custo,
+        },
     }
 
-    # ---- matriz solicitante × executante (decisão do responsável, 09/07/2026) ----
-    # Nomes de solicitantes são profissionais remunerados (mesma classe dos prestadores).
-    # Nenhuma contagem de pacientes por par — só custo/sessões/registros (sem risco k).
-    com_sol = [r for r in regs if "NÃO INFORMADO" not in r["nome_sol"].upper()
-               and r["nome_sol"].strip() not in ("-", "")]
-    sol = defaultdict(lambda: {"c": 0.0, "s": 0.0, "n": 0, "cbos": Counter(),
-                               "exec": defaultdict(float)})
-    for r in com_sol:
-        e = sol[r["nome_sol"].strip()]
-        e["c"] += r["_val"]; e["s"] += r["_qtd"]; e["n"] += 1
-        e["cbos"][r["cbos"]] += 1
-        e["exec"][r["_prest"]] += r["_val"]
-    top_sol = sorted(sol.items(), key=lambda kv: -kv[1]["c"])[:12]
-    lista_sol = []
-    for nome, e in top_sol:
-        exs = sorted(e["exec"].items(), key=lambda kv: -kv[1])
-        top3 = [{"nome": n2, "custo": r2(v), "pct": r2(v / e["c"] * 100)} for n2, v in exs[:3]]
-        outros = sum(v for _, v in exs[3:])
-        if outros > 0:
-            top3.append({"nome": "Outros", "custo": r2(outros), "pct": r2(outros / e["c"] * 100)})
-        lista_sol.append({
-            "nome": nome, "cbos": e["cbos"].most_common(1)[0][0],
-            "custo": r2(e["c"]), "sessoes": int(round(e["s"])),
-            "n_executantes": len(exs),
-            "principal": exs[0][0], "principal_pct": r2(exs[0][1] / e["c"] * 100)})
-    c_com_sol = sum(r["_val"] for r in com_sol)
-    d["solicitante_executante"] = {
-        "cobertura": {"registros_pct": r2(len(com_sol) / len(regs) * 100),
-                      "custo_pct": r2(c_com_sol / custo_total * 100)},
-        "solicitantes_distintos": len(sol),
-        "solicitantes": lista_sol}
 
-    # ---- projeção (3 cenários; premissas explícitas) ----
-    d["projecao"] = projetar(sm, meses)
+def agregar_recorte(registros, periodo, terapias_mantidas, corte):
+    meses = set(periodo["meses"])
+    linhas = [r for r in registros if r["anomes"] in meses]
+    exatas = metricas_exatas(linhas)
+    resumo = publicar_metricas(exatas)
+    resumo["exposicoes"] = len(
+        {(r["paciente"], r["terapia_id"]) for r in linhas}
+    )
+    resumo["componentes_codigo"] = len(
+        {(r["paciente"], r["cod_proc"]) for r in linhas}
+    )
+    resumo["prestadores_observados"] = len(
+        {r["nome_prest_fonte"] for r in linhas}
+    )
+    resumo["prestadores_consolidados"] = len(
+        {r["nome_prest"] for r in linhas}
+    )
+    linhas_cuidado, auditoria_linhas = distribuir_linhas_cuidado(
+        linhas, exatas["n_pacientes"], periodo["id"]
+    )
+    prestadores, serie_prestador = agregar_prestadores(
+        linhas, periodo["meses"]
+    )
+    publico = {
+        "resumo": resumo,
+        "serie_mensal": serie_mensal(linhas, periodo["meses"]),
+        "terapias": agregar_terapias(
+            linhas, terapias_mantidas, exatas["pagamento"]
+        ),
+        "prestadores": prestadores,
+        "serie_prestador": serie_prestador,
+        "linhas_cuidado": linhas_cuidado,
+        "canais": agregar_canais(linhas),
+        "solicitantes": agregar_solicitantes(linhas),
+        "pacientes": agregar_pacientes(linhas, corte),
+    }
+    auditoria = {
+        "metricas": exatas,
+        "linhas_cuidado": auditoria_linhas,
+        "prestadores_observados": resumo["prestadores_observados"],
+        "prestadores_consolidados": resumo["prestadores_consolidados"],
+    }
+    return publico, auditoria
 
-    return d, regs
+
+def construir_dados(
+    registros_todos,
+    registros_incluidos,
+    manifesto,
+    terapias_mantidas,
+    terapias_descartadas,
+    corte,
+):
+    periodos = gerar_periodos()
+    recortes = {}
+    auditorias = {}
+    for periodo in periodos:
+        recorte, auditoria = agregar_recorte(
+            registros_incluidos, periodo, terapias_mantidas, corte
+        )
+        recortes[periodo["id"]] = recorte
+        auditorias[periodo["id"]] = auditoria
+
+    catalogo_publico = [
+        CATALOGO_TERAPIAS[terapia_id]
+        for terapia_id in sorted(
+            terapias_mantidas,
+            key=lambda x: CATALOGO_TERAPIAS[x]["terapia"],
+        )
+    ]
+    at_exato = metricas_exatas(
+        [r for r in registros_incluidos if r["cod_proc"] == COD_AT]
+    )
+    at_publico = publicar_metricas(at_exato)
+    contagens = dict(recortes["tudo"]["resumo"])
+    contagens.update(
+        {
+            "terapias": len(terapias_mantidas),
+            "fontes": len(manifesto),
+        }
+    )
+    dados = {
+        "meta": {
+            "painel": "Painel Terapias Especiais — Unimed Governador Valadares",
+            "versao_script": VERSAO,
+            "gerado_em": date.today().isoformat(),
+            "data_corte_idade": corte.isoformat(),
+            "classificacao": "agregados completos de uso interno",
+            "identificadores_beneficiario": "não incluídos",
+            "periodo_canonico": {
+                "inicio": INICIO_CANONICO,
+                "fim": FIM_CANONICO,
+                "competencias": len(MESES_CANONICOS),
+            },
+            "periodos": periodos,
+            "terapias": catalogo_publico,
+            "terapias_descartadas": terapias_descartadas,
+            "contagens": contagens,
+            "manifesto_fontes": manifesto,
+            "excecao_at": {
+                "codigo": COD_AT,
+                "prestador": PEDIAKIDS,
+                "terapia_destino": "Terapia ABA — Psicologia",
+                "origem_preservada": True,
+                **at_publico,
+            },
+            "matriz_2025": None,
+        },
+        "recortes": recortes,
+    }
+    auditoria = {
+        "recortes": auditorias,
+        "registros_todos": registros_todos,
+        "registros_incluidos": registros_incluidos,
+    }
+    return dados, auditoria
 
 
-def projetar(sm, meses):
-    """Projeção de custo 12m: base / contido / expansão. Cenários, não compromissos."""
-    n = len(sm)
-    # índice sazonal por mês-calendário (sessões/paciente), normalizado
-    por_cal = defaultdict(list)
-    for x in sm: por_cal[int(x["m"][5:7])].append(x["sessoes_por_paciente"])
-    med_geral = statistics.mean([x["sessoes_por_paciente"] for x in sm])
-    idx = {mm: statistics.mean(v) / med_geral for mm, v in por_cal.items()}
-    for mm in range(1, 13): idx.setdefault(mm, 1.0)
-    # tendência linear de pacientes ativos (últimos 12 pontos ou todos)
-    pts = [x["pacientes"] for x in sm][-12:]
-    xs = list(range(len(pts)))
-    mx, my = statistics.mean(xs), statistics.mean(pts)
-    beta = (sum((a - mx) * (b - my) for a, b in zip(xs, pts))
-            / max(1e-9, sum((a - mx) ** 2 for a in xs)))
-    preco_ref = statistics.mean([x["custo_sessao"] for x in sm[-6:]])
-    ent_liq_exp = max(0.0, beta) + 2.0  # expansão: tendência + folga de 2 pacientes/mês
-    ult_pac = sm[-1]["pacientes"]
-    y0, m0 = int(meses[-1][:4]), int(meses[-1][5:7])
-    prox, cen = [], {"base": [], "contido": [], "expansao": []}
-    for i in range(1, 13):
-        mm = m0 + i
-        yy = y0 + (mm - 1) // 12
-        mm = (mm - 1) % 12 + 1
-        prox.append(f"{yy}/{mm:02d}")
-        for nome, pac_i in (("base", ult_pac + beta * i),
-                            ("contido", ult_pac),
-                            ("expansao", ult_pac + ent_liq_exp * i)):
-            custo = pac_i * med_geral * idx[mm] * preco_ref
-            cen[nome].append(r2(custo))
-    return {"meses": prox, "cenarios": cen,
-            "indice_sazonal": {f"{mm:02d}": r2(idx[mm]) for mm in range(1, 13)},
-            "premissas": ("Cenários calculados no build, não compromissos. Base: tendência linear de "
-                          "pacientes ativos (últimos 12 meses) × sessões/paciente sazonalizada × preço médio "
-                          "dos últimos 6 meses. Contido: pacientes ativos estabilizados no último valor. "
-                          "Expansão: tendência acrescida de 2 pacientes/mês. Competência, não caixa.")}
+# ---------------- reconciliação com a Matriz Analítica 2025 ----------------
+
+
+def percentil_linear(valores, proporcao):
+    ordenados = sorted(valores)
+    if not ordenados:
+        return None
+    posicao = (len(ordenados) - 1) * Decimal(str(proporcao))
+    inferior = int(math.floor(posicao))
+    superior = int(math.ceil(posicao))
+    if inferior == superior:
+        return ordenados[inferior]
+    fracao = posicao - inferior
+    return ordenados[inferior] + (
+        ordenados[superior] - ordenados[inferior]
+    ) * fracao
+
+
+def estatisticas_intensidade(registros):
+    sessoes_paciente = defaultdict(Decimal)
+    for r in registros:
+        sessoes_paciente[r["paciente"]] += r["qtd"]
+    valores = list(sessoes_paciente.values())
+    if not valores:
+        return {
+            "beneficiarios": 0,
+            "media": None,
+            "mediana": None,
+            "p25": None,
+            "p75": None,
+            "minimo": None,
+            "maximo": None,
+            "desvio_padrao": None,
+        }
+    media = statistics.mean(valores)
+    return {
+        "beneficiarios": len(valores),
+        "media": media,
+        "mediana": statistics.median(valores),
+        "p25": percentil_linear(valores, Decimal("0.25")),
+        "p75": percentil_linear(valores, Decimal("0.75")),
+        "minimo": min(valores),
+        "maximo": max(valores),
+        # A Matriz 2025 registra dispersão zero quando há uma única criança no
+        # estrato. Mantemos essa convenção para que a conferência seja literal;
+        # estratos vazios continuam representados por nulo no retorno acima.
+        "desvio_padrao": statistics.stdev(valores) if len(valores) > 1 else Decimal("0"),
+    }
+
+
+def rede_matriz(registro):
+    return (
+        "Rede própria"
+        if registro["tipo_prest"] == "ATENDIMENTO ESPECIALIZADO"
+        else "Rede externa"
+    )
+
+
+def agregados_matriz_esperados(registros):
+    ano = [r for r in registros if r["anomes"].startswith("2025/")]
+    por_terapia = grupos(ano, lambda r: r["terapia_id"])
+    resumo = {}
+    mensal = {}
+    rede = {}
+
+    for terapia_id, linhas in por_terapia.items():
+        propria = [r for r in linhas if rede_matriz(r) == "Rede própria"]
+        externa = [r for r in linhas if rede_matriz(r) == "Rede externa"]
+        total = metricas_exatas(linhas)
+        ep = metricas_exatas(propria)
+        ee = metricas_exatas(externa)
+        ip = estatisticas_intensidade(propria)
+        ie = estatisticas_intensidade(externa)
+        resumo[terapia_id] = {
+            "Registros": total["registros"],
+            "Beneficiários*": total["n_pacientes"],
+            "Sessões": total["sessoes"],
+            "Pagamento": total["pagamento"],
+            "Ben. própria": ep["n_pacientes"],
+            "Sessões própria": ep["sessoes"],
+            "Média própria": ip["media"],
+            "Mediana própria": ip["mediana"],
+            "Ben. externa": ee["n_pacientes"],
+            "Sessões externa": ee["sessoes"],
+            "Média externa": ie["media"],
+            "Mediana externa": ie["mediana"],
+            "Custo/sessão própria": (
+                ep["pagamento"] / ep["sessoes_pagas"]
+                if ep["sessoes_pagas"] else None
+            ),
+            "Custo/sessão externa": (
+                ee["pagamento"] / ee["sessoes_pagas"]
+                if ee["sessoes_pagas"] else None
+            ),
+        }
+
+        pacientes_propria = {r["paciente"] for r in propria}
+        pacientes_externa = {r["paciente"] for r in externa}
+        sobreposicao = len(pacientes_propria & pacientes_externa)
+        for nome_rede, linhas_rede in grupos(linhas, rede_matriz).items():
+            em = metricas_exatas(linhas_rede)
+            intensidade = estatisticas_intensidade(linhas_rede)
+            rede[(terapia_id, nome_rede)] = {
+                "Beneficiários": em["n_pacientes"],
+                "Sessões": em["sessoes"],
+                "Pagamento": em["pagamento"],
+                "Média": intensidade["media"],
+                "Mediana": intensidade["mediana"],
+                "P25": intensidade["p25"],
+                "P75": intensidade["p75"],
+                "Mínimo": intensidade["minimo"],
+                "Máximo": intensidade["maximo"],
+                "Desvio-padrão": intensidade["desvio_padrao"],
+                "Custo/sessão": (
+                    em["pagamento"] / em["sessoes_pagas"]
+                    if em["sessoes_pagas"] else None
+                ),
+                "Custo/beneficiário": (
+                    em["pagamento"] / em["n_pacientes"]
+                    if em["n_pacientes"] else None
+                ),
+                "Sobreposição": sobreposicao,
+            }
+
+    for (terapia_id, mes), linhas in grupos(
+        ano, lambda r: (r["terapia_id"], r["anomes"])
+    ).items():
+        propria = [r for r in linhas if rede_matriz(r) == "Rede própria"]
+        externa = [r for r in linhas if rede_matriz(r) == "Rede externa"]
+        total = metricas_exatas(linhas)
+        ep = metricas_exatas(propria)
+        ee = metricas_exatas(externa)
+        mensal[(terapia_id, mes)] = {
+            "Registros": total["registros"],
+            "Beneficiários": total["n_pacientes"],
+            "Sessões": total["sessoes"],
+            "Pagamento": total["pagamento"],
+            "Ben. própria": ep["n_pacientes"],
+            "Sessões própria": ep["sessoes"],
+            "Ben. externa": ee["n_pacientes"],
+            "Sessões externa": ee["sessoes"],
+        }
+    return {
+        "Resumo_Executivo": resumo,
+        "Mensal": mensal,
+        "Rede_por_Terapia": rede,
+    }
+
+
+def localizar_cabecalho_matriz(ws, primeira_coluna):
+    for numero_linha, row in enumerate(
+        ws.iter_rows(min_row=1, max_row=30, values_only=True), start=1
+    ):
+        valores = [texto_celula(v) for v in row]
+        if valores and valores[0] == primeira_coluna:
+            return numero_linha, valores
+    raise ErroPipeline(
+        f"Matriz, aba {ws.title}: cabeçalho {primeira_coluna!r} não encontrado"
+    )
+
+
+def indice_cabecalho(cabecalho, nome, aba):
+    try:
+        return cabecalho.index(nome)
+    except ValueError as exc:
+        raise ErroPipeline(
+            f"Matriz, aba {aba}: coluna obrigatória ausente: {nome}"
+        ) from exc
+
+
+def id_terapia_por_codigo_matriz(valor):
+    codigos = re.findall(r"\d{8}", texto_celula(valor))
+    ids = {MAPA_CODIGOS[c]["id"] for c in codigos if c in MAPA_CODIGOS}
+    if not ids:
+        return None
+    if len(ids) != 1:
+        raise ErroPipeline(
+            f"Matriz: códigos da mesma linha apontam para terapias distintas: {codigos}"
+        )
+    return next(iter(ids))
+
+
+def mapa_nomes_matriz():
+    mapa = {
+        chave_rotulo(item["terapia"]): terapia_id
+        for terapia_id, item in CATALOGO_TERAPIAS.items()
+    }
+    mapa[chave_rotulo("Terapias especiais cobertas conforme parecer ANS")] = (
+        "ans-centros-referencia"
+    )
+    return mapa
+
+
+MAPA_NOMES_MATRIZ = mapa_nomes_matriz()
+
+
+def id_terapia_por_nome_matriz(valor):
+    return MAPA_NOMES_MATRIZ.get(chave_rotulo(valor))
+
+
+def decimal_matriz(valor):
+    if valor is None or texto_celula(valor) == "":
+        return None
+    return decimal_celula(valor, "valor da Matriz")
+
+
+def valores_equivalentes(observado, esperado, campo):
+    if observado is None or esperado is None:
+        return observado is None and esperado is None
+    od = Decimal(str(observado))
+    ed = Decimal(str(esperado))
+    if campo in {
+        "Registros", "Beneficiários*", "Beneficiários", "Sessões",
+        "Ben. própria", "Sessões própria", "Ben. externa",
+        "Sessões externa", "Sobreposição",
+    }:
+        return od == ed
+    if "Pagamento" in campo or "Custo/" in campo:
+        # Conferência monetária ±0 no centavo publicado. A quantização absorve
+        # apenas a representação binária do Excel, nunca diferença de 1 centavo.
+        centavo = Decimal("0.01")
+        return (
+            od.quantize(centavo, rounding=ROUND_HALF_UP)
+            == ed.quantize(centavo, rounding=ROUND_HALF_UP)
+        )
+    return abs(od - ed) <= Decimal("0.000001")
+
+
+def comparar_celula(controle, aba, chave, campo, observado, esperado):
+    controle["campos_comparados"] += 1
+    if not valores_equivalentes(observado, esperado, campo):
+        controle["divergencias"].append(
+            f"{aba} {chave} {campo}: Matriz={observado!r}, pipeline={esperado!r}"
+        )
+
+
+def reconciliar_matriz(caminho, registros):
+    matriz = exigir_fora_de_git(caminho, "Matriz Analítica 2025")
+    if not matriz.is_file() or matriz.suffix.lower() != ".xlsx":
+        raise ErroPipeline("Matriz Analítica deve ser um arquivo xlsx")
+    try:
+        import openpyxl
+    except ImportError as exc:
+        raise ErroPipeline("openpyxl não instalado") from exc
+
+    esperados = agregados_matriz_esperados(registros)
+    controle = {"campos_comparados": 0, "divergencias": []}
+    wb = openpyxl.load_workbook(matriz, data_only=True, read_only=True)
+    try:
+        obrigatorias = {"Resumo_Executivo", "Mensal", "Rede_por_Terapia"}
+        faltantes = obrigatorias - set(wb.sheetnames)
+        if faltantes:
+            raise ErroPipeline(
+                f"Matriz sem abas obrigatórias: {sorted(faltantes)}"
+            )
+
+        # Resumo_Executivo: 14 campos por terapia.
+        ws = wb["Resumo_Executivo"]
+        linha, cab = localizar_cabecalho_matriz(ws, "Terapia")
+        campos_resumo = [
+            "Registros", "Beneficiários*", "Sessões", "Pagamento",
+            "Ben. própria", "Sessões própria", "Média própria",
+            "Mediana própria", "Ben. externa", "Sessões externa",
+            "Média externa", "Mediana externa", "Custo/sessão própria",
+            "Custo/sessão externa",
+        ]
+        indices = {
+            campo: indice_cabecalho(cab, campo, ws.title)
+            for campo in campos_resumo
+        }
+        idx_codigo = indice_cabecalho(cab, "Código", ws.title)
+        vistos = set()
+        for row in ws.iter_rows(min_row=linha + 1, values_only=True):
+            terapia_id = id_terapia_por_codigo_matriz(
+                row[idx_codigo] if idx_codigo < len(row) else None
+            )
+            if not terapia_id:
+                continue
+            if terapia_id in vistos:
+                raise ErroPipeline(
+                    f"Matriz, Resumo_Executivo: terapia duplicada {terapia_id}"
+                )
+            vistos.add(terapia_id)
+            esperado = esperados["Resumo_Executivo"].get(terapia_id)
+            if esperado is None:
+                raise ErroPipeline(
+                    f"Matriz contém terapia sem agregado 2025: {terapia_id}"
+                )
+            for campo, idx in indices.items():
+                observado = decimal_matriz(row[idx] if idx < len(row) else None)
+                comparar_celula(
+                    controle, ws.title, terapia_id, campo,
+                    observado, esperado[campo],
+                )
+        if vistos != set(esperados["Resumo_Executivo"]):
+            raise ErroPipeline(
+                "Matriz, Resumo_Executivo: conjunto de terapias divergente"
+            )
+
+        # Mensal: oito campos por terapia e competência.
+        ws = wb["Mensal"]
+        linha, cab = localizar_cabecalho_matriz(ws, "Terapia")
+        campos_mensal = [
+            "Registros", "Beneficiários", "Sessões", "Pagamento",
+            "Ben. própria", "Sessões própria", "Ben. externa",
+            "Sessões externa",
+        ]
+        indices = {
+            campo: indice_cabecalho(cab, campo, ws.title)
+            for campo in campos_mensal
+        }
+        idx_terapia = indice_cabecalho(cab, "Terapia", ws.title)
+        idx_mes = indice_cabecalho(cab, "Competência", ws.title)
+        vistos = set()
+        for row in ws.iter_rows(min_row=linha + 1, values_only=True):
+            terapia_id = id_terapia_por_nome_matriz(
+                row[idx_terapia] if idx_terapia < len(row) else None
+            )
+            if not terapia_id:
+                continue
+            mes = texto_celula(row[idx_mes] if idx_mes < len(row) else None)
+            if not mes.startswith("2025/"):
+                continue
+            chave = (terapia_id, mes)
+            if chave in vistos:
+                raise ErroPipeline(f"Matriz, Mensal: linha duplicada {chave}")
+            vistos.add(chave)
+            esperado = esperados["Mensal"].get(chave)
+            if esperado is None:
+                raise ErroPipeline(
+                    f"Matriz, Mensal: célula sem correspondente no pipeline: {chave}"
+                )
+            for campo, idx in indices.items():
+                observado = decimal_matriz(row[idx] if idx < len(row) else None)
+                comparar_celula(
+                    controle, ws.title, chave, campo,
+                    observado, esperado[campo],
+                )
+        if vistos != set(esperados["Mensal"]):
+            raise ErroPipeline("Matriz, Mensal: conjunto de linhas divergente")
+
+        # Rede_por_Terapia: 13 campos por linha da referência. Esta leitura
+        # existe apenas para reconciliação; o JSON do produto mantém rede única.
+        ws = wb["Rede_por_Terapia"]
+        linha, cab = localizar_cabecalho_matriz(ws, "Terapia")
+        campos_rede = [
+            "Beneficiários", "Sessões", "Pagamento", "Média", "Mediana",
+            "P25", "P75", "Mínimo", "Máximo", "Desvio-padrão",
+            "Custo/sessão", "Custo/beneficiário", "Sobreposição",
+        ]
+        indices = {
+            campo: indice_cabecalho(cab, campo, ws.title)
+            for campo in campos_rede
+        }
+        idx_terapia = indice_cabecalho(cab, "Terapia", ws.title)
+        idx_rede = indice_cabecalho(cab, "Rede", ws.title)
+        vistos = set()
+        for row in ws.iter_rows(min_row=linha + 1, values_only=True):
+            terapia_id = id_terapia_por_nome_matriz(
+                row[idx_terapia] if idx_terapia < len(row) else None
+            )
+            if not terapia_id:
+                continue
+            nome_rede = texto_celula(row[idx_rede] if idx_rede < len(row) else None)
+            chave = (terapia_id, nome_rede)
+            if chave in vistos:
+                raise ErroPipeline(
+                    f"Matriz, Rede_por_Terapia: linha duplicada {chave}"
+                )
+            vistos.add(chave)
+            esperado = esperados["Rede_por_Terapia"].get(chave)
+            if esperado is None:
+                raise ErroPipeline(
+                    f"Matriz, Rede_por_Terapia: linha sem correspondente: {chave}"
+                )
+            for campo, idx in indices.items():
+                observado = decimal_matriz(row[idx] if idx < len(row) else None)
+                comparar_celula(
+                    controle, ws.title, chave, campo,
+                    observado, esperado[campo],
+                )
+        if vistos != set(esperados["Rede_por_Terapia"]):
+            raise ErroPipeline(
+                "Matriz, Rede_por_Terapia: conjunto de linhas divergente"
+            )
+    finally:
+        wb.close()
+
+    if controle["divergencias"]:
+        amostra = "\n  - ".join(controle["divergencias"][:12])
+        raise ErroPipeline(
+            f"Matriz 2025 divergiu em {len(controle['divergencias'])} campos:\n"
+            f"  - {amostra}"
+        )
+    return {
+        "arquivo": matriz.name,
+        "sha256": sha256_arquivo(matriz),
+        "abas": [
+            "Resumo_Executivo", "Mensal", "Rede_por_Terapia"
+        ],
+        "campos_comparados": controle["campos_comparados"],
+        "status": "reconciliada",
+        "escopo": (
+            "2025, 18 terapias de origem; Método PECS — Fonoaudiologia "
+            "validada na Matriz e descartada do painel por cobertura incompleta"
+        ),
+    }
 
 
 # ---------------- validações bloqueantes ----------------
 
-def validar(d, regs):
-    erros = []
-    cont = d["meta"]["contagens"]
-    tot = cont["custo_total"]
 
-    def aprox(a, b, tol=0.02):
-        return abs(a - b) <= tol
-
-    if not aprox(sum(x["custo"] for x in d["serie_mensal"]), tot):
-        erros.append("soma da série mensal != custo total")
-    if not aprox(sum(x["custo"] for x in d["ranking_prestadores"]), tot):
-        erros.append("soma do ranking != custo total")
-    if not aprox(sum(x["custo"] for x in d["tipo_pagamento"]), tot):
-        erros.append("soma dos canais != custo total")
-    if sum(x["sessoes"] for x in d["serie_mensal"]) != cont["sessoes"]:
-        erros.append("soma de sessões mensais != total")
-
-    def soma_k(itens, campo):
-        s = 0
-        for x in itens:
-            v = x[campo]
-            s += 0 if v == "<5" else v
-        return s
-    npac = cont["pacientes"]
-    fx = soma_k(d["faixa_etaria"], "pacientes")
-    if not (npac - (K_ANON - 1) * len(FAIXAS) <= fx <= npac):
-        erros.append("buckets etários não fecham com o total de pacientes")
-    itn = soma_k(d["intensidade"]["buckets"], "pacientes")
-    if not (npac - (K_ANON - 1) * len(BUCKETS_INTENSIDADE) <= itn <= npac):
-        erros.append("buckets de intensidade não fecham com o total")
-    if d["genero"]["M"] + d["genero"]["F"] != npac:
-        erros.append("gênero não fecha com o total de pacientes")
-
-    blob = json.dumps(d, ensure_ascii=False)
-    # anti-vazamento: nenhum nome/matrícula/nascimento/guia de beneficiário no JSON
-    for r in regs:
-        for campo in ("nome", "matricula", "guia"):
-            v = r[campo].strip()
-            if len(v) >= 6 and v.upper() in blob.upper():
-                erros.append(f"VAZAMENTO: valor da coluna '{campo}' presente no JSON")
-                break
-        else:
-            continue
-        break
-    # verificação k: nenhum inteiro 1-4 em campos de contagem de pacientes
-    for m in re.finditer(r'"pacientes":\s*(\d+)', blob):
-        if int(m.group(1)) < K_ANON:
-            erros.append(f"k-anonimato violado: contagem de pacientes {m.group(1)} em claro")
-    # evento extremo de prestador pequeno não pode sair nomeado
-    pac_por_prest = {x["nome"]: x["pacientes"] for x in d["ranking_prestadores"]}
-    for ev in d["qualidade"]["eventos_extremos"]:
-        if ev["prestador"] is not None and pac_por_prest.get(ev["prestador"]) == "<5":
-            erros.append("evento extremo nomeado de prestador com <5 pacientes")
-    if len(blob.encode("utf-8")) > JSON_MAX_BYTES:
-        erros.append(f"JSON excede {JSON_MAX_BYTES // 1024} KB")
-    return erros
-
-
-# ---------------- saídas ----------------
-
-def escrever_json(d):
-    os.makedirs(os.path.dirname(JSON_OUT), exist_ok=True)
-    with open(JSON_OUT, "w", encoding="utf-8") as f:
-        json.dump(d, f, ensure_ascii=False, indent=1, sort_keys=True)
-        f.write("\n")
-
-
-def injetar_html(d, caminho=HTML_ALVO):
-    if not os.path.isfile(caminho):
-        print(f"AVISO: {caminho} não existe ainda — pulando injeção no HTML")
+def primeiro_padrao_encontrado(texto, valores):
+    """Busca linear Aho-Corasick sem devolver o dado sensível encontrado."""
+    # A saída usa dNome em vários rótulos. Normalizar os dois lados impede que
+    # a retirada de acentos transforme um identificador em falso negativo.
+    unicos = {d_nome(v) for v in valores if len(v.strip()) >= 6}
+    if not unicos:
         return False
-    html = open(caminho, encoding="utf-8").read()
-    if MARC_INI not in html or MARC_FIM not in html:
-        falha(f"marcadores TEA-DATA não encontrados em {caminho}")
-    bloco = (f"{MARC_INI}\n<script type=\"application/json\" id=\"tea-data\">"
-             f"{json.dumps(d, ensure_ascii=False, sort_keys=True)}</script>\n{MARC_FIM}")
-    novo = re.sub(re.escape(MARC_INI) + r".*?" + re.escape(MARC_FIM), lambda _: bloco,
-                  html, flags=re.S)
-    if len(novo.encode("utf-8")) > HTML_MAX_BYTES:
-        falha(f"HTML final excede {HTML_MAX_BYTES // 1024} KB (orçamento do PRD §7.2)")
-    open(caminho, "w", encoding="utf-8").write(novo)
-    return True
+    proximos = [{}]
+    falhas = [0]
+    finais = [False]
+    for valor in unicos:
+        estado = 0
+        for caractere in valor:
+            if caractere not in proximos[estado]:
+                proximos[estado][caractere] = len(proximos)
+                proximos.append({})
+                falhas.append(0)
+                finais.append(False)
+            estado = proximos[estado][caractere]
+        finais[estado] = True
+    fila = deque()
+    for estado in proximos[0].values():
+        fila.append(estado)
+    while fila:
+        atual = fila.popleft()
+        for caractere, destino in proximos[atual].items():
+            fila.append(destino)
+            retorno = falhas[atual]
+            while retorno and caractere not in proximos[retorno]:
+                retorno = falhas[retorno]
+            falhas[destino] = proximos[retorno].get(caractere, 0)
+            finais[destino] = finais[destino] or finais[falhas[destino]]
+    estado = 0
+    for caractere in d_nome(texto):
+        while estado and caractere not in proximos[estado]:
+            estado = falhas[estado]
+        estado = proximos[estado].get(caractere, 0)
+        if finais[estado]:
+            return True
+    return False
 
 
-P_DIR = os.path.join(REPO_ROOT, "p", "painel-tea")
+def validar_anti_vazamento(texto, registros):
+    campos = {
+        "nome de beneficiário": {r["nome"] for r in registros},
+        "matrícula": {r["matricula"] for r in registros},
+        "nascimento": {r["nasc"] for r in registros},
+        "guia": {r["guia"] for r in registros},
+    }
+    for rotulo, valores in campos.items():
+        if primeiro_padrao_encontrado(texto, valores):
+            raise ErroPipeline(
+                f"anti-vazamento bloqueou presença de {rotulo} no artefato"
+            )
 
-# Gate embutido para a cópia /p/ (hub.grupocsv.com/p/painel-tea/). No /p/ NÃO há
-# worker para injetar o gate (é estático no GitHub Pages), então o gate embutido é
-# o mecanismo correto — diferente do Open Pages, onde o worker é o dono. Valida
-# server-side no csv-open-auth (campo `senha`, e-mails @unimedgv), sessão de 4h.
-GATE_P_HTML = """<div id="gate" style="position:fixed;inset:0;z-index:99999;background:#003c3a;display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif">
-<form id="gate-form" style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:36px 32px;box-shadow:0 24px 64px rgba(0,0,0,.4)">
+
+def validar_estrutura_sem_identificadores(dados):
+    proibidas = {
+        "nome_beneficiario", "nome_beneficiário", "matricula", "matrícula",
+        "nascimento", "data_nascimento", "guia", "numero_guia",
+        "número_guia", "paciente", "chave_paciente",
+    }
+
+    def percorrer(no, caminho="dados"):
+        if isinstance(no, dict):
+            for chave, valor in no.items():
+                if chave.casefold() in proibidas:
+                    raise ErroPipeline(
+                        f"campo identificador proibido no artefato: {caminho}.{chave}"
+                    )
+                percorrer(valor, f"{caminho}.{chave}")
+        elif isinstance(no, list):
+            for indice, valor in enumerate(no):
+                percorrer(valor, f"{caminho}[{indice}]")
+
+    percorrer(dados)
+
+
+def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
+    erros = []
+    meta = dados["meta"]
+    if len(meta["terapias"]) != 17:
+        erros.append("JSON não contém exatamente 17 terapias")
+    if len(meta["manifesto_fontes"]) != 19:
+        erros.append("manifesto não contém exatamente 19 fontes")
+    if len(meta["periodos"]) != 30 or len(dados["recortes"]) != 30:
+        erros.append("contrato de períodos deve conter 30 recortes")
+    descartadas = meta["terapias_descartadas"]
+    if len(descartadas) != 1 or descartadas[0]["id"] != ID_PECS:
+        erros.append("descarte programático de PECS não está único")
+    if reconciliacao.get("status") != "reconciliada":
+        erros.append("Matriz 2025 não reconciliada")
+    if "projecao" in json.dumps(dados, ensure_ascii=False).lower():
+        erros.append("projeções não podem compor o produto")
+    for recorte in dados["recortes"].values():
+        for item in recorte["prestadores"]:
+            if d_nome(item["nome"]) != item["nome"]:
+                erros.append("rótulo de prestador fora da regra dNome")
+                break
+        for item in recorte["solicitantes"]["itens"]:
+            if d_nome(item["nome"]) != item["nome"]:
+                erros.append("rótulo de solicitante fora da regra dNome")
+                break
+
+    global_audit = auditoria["recortes"]["tudo"]
+    metricas = global_audit["metricas"]
+    linhas = global_audit["linhas_cuidado"]
+    if exigir_referencias:
+        referencias = [
+            (
+                metricas["n_pacientes"] == 1416,
+                f"crianças únicas: {metricas['n_pacientes']} != 1416",
+            ),
+            (
+                global_audit["prestadores_observados"] == 161,
+                "prestadores observados devem ser 161",
+            ),
+            (
+                global_audit["prestadores_consolidados"] == 160,
+                "prestadores consolidados devem ser 160",
+            ),
+            (
+                metricas["sessoes"] == Decimal("81217"),
+                f"sessões: {metricas['sessoes']} != 81217",
+            ),
+            (
+                metricas["pagamento"].quantize(CENTAVO) == Decimal("13919882.74"),
+                "pagamento total diverge de R$ 13.919.882,74",
+            ),
+            (
+                linhas["distribuicao_clinica"]
+                == {1: 730, 2: 330, 3: 248, 4: 71, 5: 22, 6: 13, 7: 2},
+                "distribuição clínica de linhas de cuidado diverge",
+            ),
+            (
+                linhas["exposicoes_clinicas"] == 2620,
+                "exposições clínicas devem ser 2.620",
+            ),
+            (
+                linhas["distribuicao_componentes"]
+                == {1: 716, 2: 332, 3: 246, 4: 81, 5: 26, 6: 13, 7: 2},
+                "reconciliação técnica por códigos diverge",
+            ),
+            (
+                linhas["exposicoes_componentes"] == 2664,
+                "exposições técnicas devem ser 2.664",
+            ),
+            (
+                reconciliacao.get("campos_comparados") == 2247,
+                "Matriz deve reconciliar exatamente 2.247 campos",
+            ),
+        ]
+        erros.extend(mensagem for ok, mensagem in referencias if not ok)
+    if erros:
+        raise ErroPipeline("validações reprovadas:\n  - " + "\n  - ".join(erros))
+
+    validar_estrutura_sem_identificadores(dados)
+    texto = json.dumps(dados, ensure_ascii=False, sort_keys=True)
+    if len(texto.encode("utf-8")) > JSON_MAX_BYTES:
+        raise ErroPipeline(
+            f"JSON excede o limite de {JSON_MAX_BYTES // (1024 * 1024)} MB"
+        )
+    validar_anti_vazamento(texto, auditoria["registros_todos"])
+    return texto
+
+
+# ---------------- saídas atômicas ----------------
+
+
+def escrita_atomica(caminho, conteudo):
+    destino = Path(caminho)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    descritor, temporario = tempfile.mkstemp(
+        prefix=f".{destino.name}.", suffix=".tmp", dir=destino.parent
+    )
+    try:
+        with os.fdopen(descritor, "w", encoding="utf-8", newline="\n") as f:
+            f.write(conteudo)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporario, destino)
+    finally:
+        if os.path.exists(temporario):
+            os.unlink(temporario)
+
+
+def escrita_atomica_multipla(saidas):
+    """Troca um conjunto de textos com rollback se qualquer troca falhar."""
+    originais = {}
+    for caminho, _ in saidas:
+        destino = Path(caminho)
+        originais[destino] = (
+            destino.read_text(encoding="utf-8") if destino.exists() else None
+        )
+
+    alterados = []
+    try:
+        for caminho, conteudo in saidas:
+            destino = Path(caminho)
+            escrita_atomica(destino, conteudo)
+            alterados.append(destino)
+    except Exception as exc:
+        falhas_rollback = []
+        for destino in reversed(alterados):
+            try:
+                original = originais[destino]
+                if original is None:
+                    destino.unlink(missing_ok=True)
+                else:
+                    escrita_atomica(destino, original)
+            except Exception as rollback_exc:  # pragma: no cover - falha de SO
+                falhas_rollback.append(f"{destino}: {rollback_exc}")
+        if falhas_rollback:
+            raise ErroPipeline(
+                "falha de escrita e rollback incompleto: "
+                + "; ".join(falhas_rollback)
+            ) from exc
+        raise
+
+
+# Gate visual preservado. O broker privado valida as mesmas credenciais no
+# csv-open-auth e emite uma sessão opaca, restrita ao painel, por quatro horas.
+GATE_P_HTML = """<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title" style="position:fixed;inset:0;z-index:99999;background:#003c3a;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif">
+<form id="gate-form" style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:36px 32px;box-shadow:0 24px 64px rgba(0,0,0,.4);margin:auto">
 <img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV" style="height:44px;margin-bottom:18px">
-<h1 style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel TEA — acesso restrito</h1>
+<h1 id="gate-title" style="font-size:19px;color:#004e4c;margin:0 0 6px">Painel Terapias Especiais — acesso restrito</h1>
 <p style="font-size:13px;color:#5c7f7d;margin:0 0 20px">Uso exclusivo Unimed Governador Valadares. Informe seu e-mail corporativo e a senha de acesso.</p>
 <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#5c7f7d;margin-bottom:5px">E-mail</label>
 <input id="gate-email" type="email" required placeholder="nome@unimedgv.com.br" autocomplete="email" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:1px solid #dfe3db;border-radius:10px;margin-bottom:14px">
@@ -743,163 +1976,586 @@ GATE_P_HTML = """<div id="gate" style="position:fixed;inset:0;z-index:99999;back
 <button type="submit" id="gate-btn" style="width:100%;background:#00995d;color:#fff;border:0;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Entrar</button>
 <p id="gate-msg" style="font-size:12.5px;color:#c0392b;min-height:16px;margin:12px 0 0"></p>
 </form></div>
-<script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://csv-open-auth.guilherme-thom.workers.dev/auth';
+<script>(function(){'use strict';var PAGE='painel-tea',KEY='oa_sess_'+PAGE,AUTH='https://unimed-te-data.guilherme-thom.workers.dev/v1/session/open';
 function ok(){var g=document.getElementById('gate');if(g)g.remove();document.body.style.overflow='';}
-try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.exp>Date.now()){ok();return;}}catch(e){}
+function ler(){try{return localStorage.getItem(KEY)||sessionStorage.getItem(KEY)||'';}catch(e){try{return sessionStorage.getItem(KEY)||'';}catch(_e){return '';}}}
+function salvar(value){try{localStorage.setItem(KEY,value);return true;}catch(e){try{sessionStorage.setItem(KEY,value);return true;}catch(_e){return false;}}}
+try{var s=JSON.parse(ler()||'null');if(s&&s.token&&s.exp>Date.now()){ok();return;}}catch(e){}
 document.body.style.overflow='hidden';
 var eye=document.getElementById('gate-eye');
 eye.addEventListener('click',function(){var inp=document.getElementById('gate-pass'),m=inp.type==='password';inp.type=m?'text':'password';eye.setAttribute('aria-pressed',String(m));eye.setAttribute('aria-label',m?'Ocultar senha':'Mostrar senha');document.getElementById('gate-eye-on').style.display=m?'none':'';document.getElementById('gate-eye-off').style.display=m?'':'none';inp.focus();});
 document.getElementById('gate-form').addEventListener('submit',function(ev){ev.preventDefault();
 var btn=document.getElementById('gate-btn'),msg=document.getElementById('gate-msg');btn.disabled=true;btn.textContent='Verificando\\u2026';msg.textContent='';
-fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,email:document.getElementById('gate-email').value.trim(),senha:document.getElementById('gate-pass').value})})
+fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,email:document.getElementById('gate-email').value.trim(),senha:document.getElementById('gate-pass').value}),signal:AbortSignal.timeout(20000)})
 .then(function(r){return r.json().catch(function(){return{};});})
-.then(function(j){if(j&&j.ok){try{localStorage.setItem(KEY,JSON.stringify({exp:Date.now()+4*3600*1000}));}catch(e){}ok();}
+.then(function(j){if(j&&j.ok&&j.token){var exp=Date.parse(j.expires_at);if(!Number.isFinite(exp))exp=Date.now()+4*3600*1000;if(!salvar(JSON.stringify({token:j.token,exp:exp}))){msg.textContent='O navegador bloqueou o armazenamento da sessão. Ajuste as permissões e tente novamente.';btn.disabled=false;btn.textContent='Entrar';return;}document.getElementById('gate-pass').value='';ok();}
 else{msg.textContent=(j&&(j.msg||j.error))||'Acesso negado. Confira e-mail e senha.';btn.disabled=false;btn.textContent='Entrar';}})
-.catch(function(){msg.textContent='Falha de rede. Tente novamente.';btn.disabled=false;btn.textContent='Entrar';});});})();</script>"""
+.catch(function(){msg.textContent='Falha de rede. Tente novamente.';btn.disabled=false;btn.textContent='Entrar';});});document.getElementById('gate-email').focus();})();</script>"""
 
 
 def emitir_p():
-    """Deriva a cópia compartilhável /p/painel-tea/ (hub.grupocsv.com/p/painel-tea/)
-    a partir da interna. Mora no repositório e publica no deploy do git — sem
-    republicação manual. Gate embutido (o /p/ é estático, sem worker). PRD §12."""
-    html = open(HTML_ALVO, encoding="utf-8").read()
-    # remove hub-auth (slot + script) e o link de volta ao portal
+    if not HTML_ALVO.is_file():
+        raise ErroPipeline(f"HTML interno não encontrado: {HTML_ALVO}")
+    html = HTML_ALVO.read_text(encoding="utf-8")
+    if re.search(r'id=["\']tea-data["\']', html, flags=re.I):
+        raise ErroPipeline(
+            "HTML interno ainda contém tea-data; remova o payload antes de gerar /p/"
+        )
     html = re.sub(r'<span id="hub-auth-slot"[^>]*></span>\s*', "", html)
-    html = re.sub(r'<script[^>]*src="[^"]*hub-auth\.js"[^>]*></script>\s*', "", html)
-    html = re.sub(r'<a [^>]*class="[^"]*voltar-hub[^"]*"[^>]*>.*?</a>\s*', "", html, flags=re.S)
-    # mesmo domínio (hub) — assets relativos funcionam; só ajusta a og:url canônica
-    html = html.replace('content="https://hub.grupocsv.com/unimed/tea.html"',
-                        'content="https://hub.grupocsv.com/p/painel-tea/"')
-    # gate embutido (id="gate") antes de </body>
+    html = re.sub(
+        r'<script[^>]*src="[^"]*hub-auth\.js"[^>]*></script>\s*', "", html
+    )
+    html = re.sub(
+        r'<a [^>]*class="[^"]*voltar-hub[^"]*"[^>]*>.*?</a>\s*',
+        "",
+        html,
+        flags=re.S,
+    )
+    html = html.replace(
+        'content="https://hub.grupocsv.com/unimed/tea.html"',
+        'content="https://hub.grupocsv.com/p/painel-tea/"',
+    )
     if 'id="gate"' not in html:
         html = html.replace("</body>", GATE_P_HTML + "\n</body>")
-    os.makedirs(P_DIR, exist_ok=True)
-    destino = os.path.join(P_DIR, "index.html")
-    open(destino, "w", encoding="utf-8").write(html)
+    if '<meta name="robots" content="noindex, nofollow">' not in html:
+        raise ErroPipeline("cópia /p/ perderia meta robots noindex, nofollow")
+    if 'id="gate"' not in html:
+        raise ErroPipeline("gate embutido não foi preservado na cópia /p/")
+    if re.search(r'<script[^>]*hub-auth\.js', html):
+        raise ErroPipeline("cópia /p/ não pode carregar hub-auth.js")
+    contratos_gate = {
+        "slug": "var PAGE='painel-tea'",
+        "sessão de 4 horas": "4*3600*1000",
+        "e-mail corporativo": "@unimedgv.com.br",
+        "controle de senha": 'id="gate-eye"',
+        "endpoint de autenticação": "unimed-te-data.guilherme-thom.workers.dev/v1/session/open",
+        "token opaco": "JSON.stringify({token:j.token,exp:exp})",
+    }
+    ausentes = [rotulo for rotulo, trecho in contratos_gate.items() if trecho not in html]
+    if ausentes:
+        raise ErroPipeline(
+            "cópia /p/ perdeu contrato do gate: " + ", ".join(ausentes)
+        )
+    destino = P_DIR / "index.html"
+    escrita_atomica(destino, html)
     print(f"cópia /p/: {destino} ({len(html.encode('utf-8')) // 1024} KB)")
     return destino
 
 
-def gravar_auditoria(regs, d, caminho_insumo):
-    """Fila nominal de auditoria — SEMPRE ao lado do insumo, fora do repo."""
-    destino = os.path.join(os.path.dirname(os.path.abspath(caminho_insumo)),
-                           "tea-fila-auditoria.csv")
-    if dentro_de_repo_git(destino):
-        falha("a fila de auditoria cairia dentro do repo — abortado")
-    spm = defaultdict(float)
-    for r in regs: spm[(r["_pac"], r["anomes"])] += r["_qtd"]
-    p99 = pctl(list(spm.values()), 0.99)
-    with open(destino, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["tipo", "competencia", "beneficiario", "nascimento", "prestador",
-                    "sessoes", "valor", "detalhe"])
-        for r in regs:
-            if r["_val"] >= LIMIAR_EVENTO_EXTREMO:
-                w.writerow(["registro>=10k", r["anomes"], r["nome"], r["nasc"][:10],
-                            r["nome_prest"], r["_qtd"], r["_val"], ""])
-            if r["_val"] == 0:
-                w.writerow(["valor_zero", r["anomes"], r["nome"], r["nasc"][:10],
-                            r["nome_prest"], r["_qtd"], 0, ""])
-        for (p, m), s in sorted(spm.items(), key=lambda kv: -kv[1]):
-            if s > p99:
-                w.writerow(["paciente_mes>p99", m, p[0], p[1], "", s, "",
-                            f"acima do p99 ({p99:.0f} sessões/mês)"])
-    print(f"fila de auditoria (PRIVADA, fora do repo): {destino}")
+def formatar_inteiro(valor):
+    return f"{int(valor):,}".replace(",", ".")
 
 
-# ---------------- selftest (fixture sintética) ----------------
+def formatar_brl(valor):
+    quantizado = Decimal(valor).quantize(CENTAVO, rounding=ROUND_HALF_UP)
+    base = f"{quantizado:,.2f}"
+    base = base.replace(",", "#").replace(".", ",").replace("#", ".")
+    return f"R$ {base}"
+
+
+def formatar_pct(valor):
+    return f"{Decimal(str(valor)).quantize(Decimal('0.1'))}%".replace(".", ",")
+
+
+def formatar_distribuicao(distribuicao):
+    return " / ".join(
+        f"{quantidade}={formatar_inteiro(distribuicao.get(quantidade, 0))}"
+        for quantidade in sorted(distribuicao)
+    )
+
+
+def imprimir_relatorio(dados, auditoria, reconciliacao, saida):
+    global_audit = auditoria["recortes"]["tudo"]
+    m = global_audit["metricas"]
+    l = global_audit["linhas_cuidado"]
+    print("=" * 78)
+    print("RELATÓRIO DO BUILD — PAINEL TERAPIAS ESPECIAIS")
+    print(f"Período canônico       : {INICIO_CANONICO} a {FIM_CANONICO}")
+    print(f"Fontes                 : {len(dados['meta']['manifesto_fontes'])}")
+    print(f"Terapias mantidas      : {len(dados['meta']['terapias'])}")
+    descarte = dados["meta"]["terapias_descartadas"][0]
+    print(
+        "Terapia descartada     : "
+        f"{descarte['terapia']} — {descarte['motivo']}"
+    )
+    print(f"Crianças únicas        : {formatar_inteiro(m['n_pacientes'])}")
+    print(
+        "Prestadores            : "
+        f"{formatar_inteiro(global_audit['prestadores_observados'])} "
+        "nomes-fonte / "
+        f"{formatar_inteiro(global_audit['prestadores_consolidados'])} "
+        "entidades após consolidar o par de CNPJ"
+    )
+    print(f"Sessões                : {formatar_inteiro(m['sessoes'])}")
+    print(f"Pagamento              : {formatar_brl(m['pagamento'])}")
+    print(f"Sessões no denominador : {formatar_inteiro(m['sessoes_pagas'])}")
+    print(
+        "Linhas clínicas (17)   : "
+        f"{formatar_distribuicao(l['distribuicao_clinica'])} "
+        f"| exposições={formatar_inteiro(l['exposicoes_clinicas'])} "
+        f"| 2+={formatar_pct(pct(l['dois_mais_clinico'], m['n_pacientes']))}"
+    )
+    print(
+        "Componentes por código : "
+        f"{formatar_distribuicao(l['distribuicao_componentes'])} "
+        f"| exposições={formatar_inteiro(l['exposicoes_componentes'])} "
+        f"| 2+={formatar_pct(pct(l['dois_mais_componentes'], m['n_pacientes']))}"
+    )
+    print(
+        "Nota de reconciliação  : componentes por código são um rastro técnico; "
+        "AT integra ABA — Psicologia e não é terapia clínica adicional"
+    )
+    print(
+        "Matriz Analítica 2025  : "
+        f"{reconciliacao['status']} em "
+        f"{formatar_inteiro(reconciliacao['campos_comparados'])} campos"
+    )
+    print("Hashes SHA-256:")
+    for item in dados["meta"]["manifesto_fontes"]:
+        print(f"  {item['sha256']}  {item['arquivo']}")
+    print(f"  {reconciliacao['sha256']}  {reconciliacao['arquivo']}")
+    print(f"JSON privado           : {saida}")
+    print("HTML/repositório       : nenhum dado gravado")
+    print("Validações             : todas aprovadas")
+    print("=" * 78)
+
+
+# ---------------- fixture sintética multi-fonte ----------------
+
+
+def exigir_teste(condicao, mensagem):
+    if not condicao:
+        raise ErroPipeline(f"selftest: {mensagem}")
+
+
+def valor_excel(valor):
+    if isinstance(valor, Decimal):
+        return float(valor)
+    return valor
+
+
+def criar_fontes_sinteticas(diretorio):
+    try:
+        from openpyxl import Workbook
+    except ImportError as exc:
+        raise ErroPipeline("openpyxl não instalado") from exc
+
+    diretorio.mkdir(parents=True, exist_ok=True)
+    pacientes = [
+        {
+            "nome": f"CRIANCA SINTETICA {i + 1}",
+            "nasc": date(1990, 1, 1) if i == 5 else date(2014, i + 1, 1),
+            "genero": "FEMININO" if i % 2 else "MASCULINO",
+        }
+        for i in range(6)
+    ]
+    for indice_codigo, codigo in enumerate(MAPA_CODIGOS):
+        wb = Workbook()
+        ws = wb.active
+        if indice_codigo == 0:
+            ws.title = "LEIA-ME"
+            ws["A1"] = "Instruções sintéticas"
+            ws = wb.create_sheet("Dados")
+            ws.append(["Fixture sintética; cabeçalho abaixo"])
+            ws.append([])
+        ws.append(CABECALHO_FONTE)
+        meses = (
+            sorted(MESES_PECS_ESPERADOS)
+            if codigo == "50005146"
+            else list(MESES_CANONICOS)
+        )
+        for mes in meses:
+            ano, numero_mes = map(int, mes.split("/"))
+            for i, paciente in enumerate(pacientes):
+                if codigo == COD_AT:
+                    prestador = PEDIAKIDS
+                elif codigo == "50005103" and i < 3:
+                    prestador = "ANA CAROLINA OLIVEIRA FARIA FALCAO LTDA"
+                elif codigo == "50005103":
+                    prestador = "CRIAR E CRESCER TEEN LTDA"
+                elif codigo == "50005189" and i == 0:
+                    prestador = "PRESTADOR RARO LTDA"
+                else:
+                    prestador = f"PRESTADOR {codigo} LTDA"
+                tipo_prestador = (
+                    "ATENDIMENTO ESPECIALIZADO"
+                    if i == 0 and codigo != COD_AT
+                    else "CLINICA ESPECIALIZADA"
+                )
+                qtd = (
+                    2
+                    if codigo == "50005103" and mes == "2025/01" and i == 0
+                    else 1
+                )
+                pagamento = (
+                    0
+                    if codigo == "50005103" and mes == "2025/01" and i == 0
+                    else 100 + indice_codigo
+                )
+                ws.append(
+                    [
+                        mes,
+                        f"MAT-{i + 1}-{codigo}",
+                        paciente["nome"],
+                        paciente["nasc"],
+                        paciente["genero"],
+                        f"GUIA-{codigo}-{mes.replace('/', '')}-{i + 1}",
+                        date(ano, numero_mes, 15),
+                        f"SOL-{i + 1}",
+                        "SOLICITANTE RARO" if i == 0 else "SOLICITANTE COMUM",
+                        "Psicologo clinico",
+                        "SPSADT",
+                        int(codigo),
+                        f"PROCEDIMENTO {codigo}",
+                        "SESSAO",
+                        f"PREST-{codigo}-{i + 1}",
+                        prestador,
+                        tipo_prestador,
+                        qtd,
+                        pagamento,
+                    ]
+                )
+        wb.save(diretorio / f"fonte-{codigo}.xlsx")
+
+
+def criar_matriz_sintetica(caminho, registros):
+    try:
+        from openpyxl import Workbook
+    except ImportError as exc:
+        raise ErroPipeline("openpyxl não instalado") from exc
+
+    esperados = agregados_matriz_esperados(registros)
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    ws = wb.create_sheet("Resumo_Executivo")
+    ws.append(["MATRIZ SINTÉTICA"])
+    ws.append([])
+    cab = [
+        "Terapia", "Código",
+        "Registros", "Beneficiários*", "Sessões", "Pagamento",
+        "Ben. própria", "Sessões própria", "Média própria",
+        "Mediana própria", "Ben. externa", "Sessões externa",
+        "Média externa", "Mediana externa", "Custo/sessão própria",
+        "Custo/sessão externa",
+    ]
+    ws.append(cab)
+    for terapia_id, valores in sorted(esperados["Resumo_Executivo"].items()):
+        definicao = CATALOGO_TERAPIAS[terapia_id]
+        ws.append(
+            [
+                definicao["terapia"],
+                " + ".join(definicao["codigos"]),
+                *[valor_excel(valores[c]) for c in cab[2:]],
+            ]
+        )
+
+    ws = wb.create_sheet("Mensal")
+    ws.append(["MATRIZ SINTÉTICA"])
+    ws.append([])
+    cab = [
+        "Terapia", "Competência", "Registros", "Beneficiários",
+        "Sessões", "Pagamento", "Ben. própria", "Sessões própria",
+        "Ben. externa", "Sessões externa",
+    ]
+    ws.append(cab)
+    for (terapia_id, mes), valores in sorted(esperados["Mensal"].items()):
+        ws.append(
+            [
+                CATALOGO_TERAPIAS[terapia_id]["terapia"],
+                mes,
+                *[valor_excel(valores[c]) for c in cab[2:]],
+            ]
+        )
+
+    ws = wb.create_sheet("Rede_por_Terapia")
+    ws.append(["MATRIZ SINTÉTICA"])
+    ws.append([])
+    cab = [
+        "Terapia", "Rede", "Beneficiários", "Sessões", "Pagamento",
+        "Média", "Mediana", "P25", "P75", "Mínimo", "Máximo",
+        "Desvio-padrão", "Custo/sessão", "Custo/beneficiário",
+        "Sobreposição",
+    ]
+    ws.append(cab)
+    for (terapia_id, rede), valores in sorted(
+        esperados["Rede_por_Terapia"].items()
+    ):
+        ws.append(
+            [
+                CATALOGO_TERAPIAS[terapia_id]["terapia"],
+                rede,
+                *[valor_excel(valores[c]) for c in cab[2:]],
+            ]
+        )
+    wb.save(caminho)
+
 
 def selftest():
-    fixture = os.path.join(REPO_ROOT, "scripts", "tests", "tea-fixture-sintetica.csv")
-    linhas = list(csv.reader(open(fixture, encoding="utf-8")))[1:]
-    regs = [dict(zip(COLS, [c.strip() for c in row])) for row in linhas]
-    d, regs = agregar(regs, date(2026, 6, 30))
-    erros = validar(d, regs)
-    assert not erros, f"fixture reprovou nas validações: {erros}"
-    c = d["meta"]["contagens"]
-    # a fixture tem 9 pacientes, 1 deles adulto (26 anos) com 2 meses ativos → excluído (regra E5)
-    assert d["meta"]["adultos_excluidos"]["n_pacientes"] == 1, "exclusão de adulto (E5) não aplicada"
-    assert c["pacientes"] == 8, f"fixture: esperado 8 pacientes após exclusão do adulto, veio {c['pacientes']}"
-    assert c["matriculas"] == 9, f"fixture: esperado 9 matrículas, veio {c['matriculas']}"
-    assert c["prestadores"] == 5, f"fixture: esperado 5 prestadores agrupados, veio {c['prestadores']}"
-    nomes = {x["nome"] for x in d["ranking_prestadores"]}
-    assert CASA_UNIMED in nomes and NOME_MERGE_CNPJ in nomes, "fusões do LEIA-ME não aplicadas"
-    assert "FICTICIO NEILSON SINTETICO" in nomes, "caso Neilson (registro próprio de reembolso) perdido"
-    assert any(x["pacientes"] == "<5" for x in d["ranking_prestadores"]), "k-anonimato não aplicado"
-    ev = d["qualidade"]["eventos_extremos"]
-    assert ev and ev[0]["prestador"] is None, "evento extremo de prestador pequeno saiu nomeado"
-    blob = json.dumps(d, ensure_ascii=False).upper()
-    assert "CRIANCA SINTETICA" not in blob and "ADULTO SINTETICO" not in blob, "nome de beneficiário vazou no JSON"
-    # teste de mutação: remover 1 paciente → revalida com totais novos (8 - UM - adulto já fora = 7)
-    regs2 = [dict(zip(COLS, [c.strip() for c in row])) for row in linhas
-             if row[2].strip() != "CRIANCA SINTETICA UM"]
-    d2, regs2 = agregar(regs2, date(2026, 6, 30))
-    assert not validar(d2, regs2), "mutação: validações estruturais reprovaram"
-    assert d2["meta"]["contagens"]["pacientes"] == 7, "mutação: contagem não caiu para 7"
-    print("selftest OK — fixture sintética passou em todas as validações "
-          "(regras do LEIA-ME, exclusão de adultos, k-anonimato, evento extremo, anti-vazamento, mutação)")
+    with tempfile.TemporaryDirectory(prefix="tea-f0-selftest-") as tmp:
+        raiz = Path(tmp)
+        fontes = raiz / "fontes"
+        criar_fontes_sinteticas(fontes)
+        registros_todos, manifesto = ler_diretorio_fontes(fontes)
+        incluidos, mantidas, descartadas = preparar_universo(registros_todos)
+        dados, auditoria = construir_dados(
+            registros_todos,
+            incluidos,
+            manifesto,
+            mantidas,
+            descartadas,
+            CORTE_PADRAO,
+        )
+        matriz = raiz / "Matriz_Analitica_2025_sintetica.xlsx"
+        criar_matriz_sintetica(matriz, registros_todos)
+        reconciliacao = reconciliar_matriz(matriz, registros_todos)
+        dados["meta"]["matriz_2025"] = reconciliacao
+        texto = validar_saida(
+            dados, auditoria, reconciliacao, exigir_referencias=False
+        )
+
+        global_audit = auditoria["recortes"]["tudo"]
+        exigir_teste(len(manifesto) == 19, "não leu 19 fontes")
+        exigir_teste(len(mantidas) == 17, "não manteve 17 terapias")
+        exigir_teste(
+            len(descartadas) == 1
+            and descartadas[0]["id"] == ID_PECS
+            and descartadas[0]["competencias_encontradas"] == 13,
+            "cobertura/descarte de PECS incorreto",
+        )
+        exigir_teste(
+            global_audit["metricas"]["n_pacientes"] == 6,
+            "deduplicação Nome+Nascimento incorreta ou adulto excluído",
+        )
+        exigir_teste(
+            global_audit["prestadores_observados"]
+            == global_audit["prestadores_consolidados"] + 1,
+            "merge do par de CNPJ não foi aplicado uma única vez",
+        )
+        at = dados["meta"]["excecao_at"]
+        exigir_teste(
+            at["prestador"] == PEDIAKIDS
+            and at["terapia_destino"] == "Terapia ABA — Psicologia"
+            and at["sessoes"] is not None,
+            "exceção AT não ficou rastreável",
+        )
+        exigir_teste(
+            global_audit["metricas"]["sessoes_pagas"]
+            < global_audit["metricas"]["sessoes"],
+            "sessões com pagamento zero não saíram do denominador",
+        )
+        denominador_teste = metricas_exatas(
+            [
+                {"paciente": ("A", "2020-01-01"), "qtd": Decimal("2"),
+                 "valor": Decimal("-10")},
+                {"paciente": ("B", "2020-01-01"), "qtd": Decimal("3"),
+                 "valor": Decimal("0")},
+            ]
+        )
+        exigir_teste(
+            denominador_teste["sessoes_pagas"] == Decimal("2"),
+            "denominador deve excluir somente pagamento zero",
+        )
+        exigir_teste(
+            len(dados["meta"]["periodos"]) == 30
+            and {
+                p["tipo"] for p in dados["meta"]["periodos"]
+            } == {"tudo", "ano", "semestre", "trimestre", "mes"},
+            "períodos permitidos incompletos",
+        )
+        raro = next(
+            x for x in dados["recortes"]["tudo"]["prestadores"]
+            if x["nome"] == "PRESTADOR RARO LTDA"
+        )
+        exigir_teste(
+            raro["pacientes"] == 1
+            and raro["pagamento"] is not None
+            and raro["sessoes"] is not None,
+            "prestador raro não permaneceu exato no artefato privado",
+        )
+        exigir_teste(
+            reconciliacao["campos_comparados"] > 0
+            and reconciliacao["status"] == "reconciliada",
+            "Matriz sintética não reconciliou",
+        )
+        exigir_teste(
+            "CRIANCA SINTETICA" not in texto,
+            "nome sintético vazou no JSON",
+        )
+        exigir_teste(
+            primeiro_padrao_encontrado("JOAO DA SILVA", {"JOÃO DA SILVA"}),
+            "anti-vazamento não normalizou acentos",
+        )
+        exigir_teste('"<5"' not in texto, "artefato privado contém máscara <5")
+        exigir_teste(
+            "OUTROS PRESTADORES" not in texto
+            and "OUTRAS TERAPIAS" not in texto
+            and "OUTROS SOLICITANTES" not in texto
+            and "OUTRAS COMBINACOES" not in texto,
+            "artefato privado contém agrupamento OUTROS",
+        )
+        exigir_teste(
+            not valores_equivalentes(
+                Decimal("100.01"), Decimal("100.00"), "Pagamento"
+            ),
+            "reconciliação monetária aceitou diferença de um centavo",
+        )
+        try:
+            validar_anti_vazamento(
+                "CRIANCA SINTETICA 1", registros_todos
+            )
+        except ErroPipeline:
+            pass
+        else:
+            raise ErroPipeline("selftest: mutação anti-vazamento não foi bloqueada")
+
+        falso_git = raiz / "falso-git"
+        falso_git.mkdir()
+        (falso_git / ".git").mkdir()
+        arquivo_interno = falso_git / "fonte.xlsx"
+        arquivo_interno.write_bytes(b"fixture")
+        try:
+            exigir_fora_de_git(arquivo_interno, "fixture")
+        except ErroPipeline:
+            pass
+        else:
+            raise ErroPipeline("selftest: insumo dentro de Git não foi bloqueado")
+
+        try:
+            exigir_saida_fora_de_git(falso_git / "saida.json")
+        except ErroPipeline:
+            pass
+        else:
+            raise ErroPipeline("selftest: saída dentro de Git não foi bloqueada")
+
+        try:
+            exigir_saida_fora_de_git(REPO_ROOT / "saida-privada-teste.json")
+        except ErroPipeline:
+            pass
+        else:
+            raise ErroPipeline("selftest: saída dentro do repo não foi bloqueada")
+
+        saida_privada = exigir_saida_fora_de_git(raiz / "saida-privada.json")
+        escrita_atomica(saida_privada, texto + "\n")
+        exigir_teste(
+            json.loads(saida_privada.read_text(encoding="utf-8")) == dados,
+            "artefato privado gravado diverge do objeto validado",
+        )
+
+        # Uma falha na segunda troca deve restaurar a primeira saída.
+        saida_a, saida_b = raiz / "saida-a.txt", raiz / "saida-b.txt"
+        saida_a.write_text("anterior-a", encoding="utf-8")
+        saida_b.write_text("anterior-b", encoding="utf-8")
+        escrita_real = globals()["escrita_atomica"]
+
+        def escrita_com_falha(caminho, conteudo):
+            if Path(caminho) == saida_b:
+                raise OSError("falha sintética na segunda troca")
+            return escrita_real(caminho, conteudo)
+
+        globals()["escrita_atomica"] = escrita_com_falha
+        try:
+            try:
+                escrita_atomica_multipla(
+                    [(saida_a, "nova-a"), (saida_b, "nova-b")]
+                )
+            except OSError:
+                pass
+            else:
+                raise ErroPipeline("selftest: falha sintética de escrita não ocorreu")
+        finally:
+            globals()["escrita_atomica"] = escrita_real
+        exigir_teste(
+            saida_a.read_text(encoding="utf-8") == "anterior-a"
+            and saida_b.read_text(encoding="utf-8") == "anterior-b",
+            "rollback não restaurou o par de saídas",
+        )
+
+    print(
+        "selftest OK — 19 fontes xlsx, schema/aba, cobertura e descarte, "
+        "AT, deduplicação, merge, métricas exatas, anti-vazamento, períodos, "
+        "destino privado, pagamento zero e Matriz 2025"
+    )
+
+
+def executar_build(diretorio, matriz, corte, saida):
+    destino = exigir_saida_fora_de_git(saida)
+    exigir_fora_de_git(matriz, "Matriz Analítica 2025")
+    registros_todos, manifesto = ler_diretorio_fontes(diretorio, matriz)
+    incluidos, mantidas, descartadas = preparar_universo(registros_todos)
+    dados, auditoria = construir_dados(
+        registros_todos,
+        incluidos,
+        manifesto,
+        mantidas,
+        descartadas,
+        corte,
+    )
+    # A Matriz valida as 18 terapias de origem, inclusive PECS. A publicação
+    # continua usando apenas ``incluidos`` (17 terapias com 18/18 competências).
+    reconciliacao = reconciliar_matriz(matriz, registros_todos)
+    dados["meta"]["matriz_2025"] = reconciliacao
+    texto_json = validar_saida(
+        dados, auditoria, reconciliacao, exigir_referencias=True
+    )
+    escrita_atomica(destino, texto_json + "\n")
+    imprimir_relatorio(dados, auditoria, reconciliacao, destino)
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("xlsx", nargs="?", help="planilha oficial (fora do repo)")
-    ap.add_argument("--csv", help="insumo em CSV (alternativa ao xlsx)")
-    ap.add_argument("--corte", help="data de corte AAAA-MM-DD (default: fim do último mês)")
-    ap.add_argument("--emit-p", action="store_true",
-                    help="gera a cópia compartilhável p/painel-tea/index.html a partir do unimed/tea.html atual (rode por último, após build-cte-data)")
-    ap.add_argument("--auditoria", action="store_true", help="grava a fila nominal ao lado do insumo")
-    ap.add_argument("--selftest", action="store_true", help="roda a fixture sintética")
-    ap.add_argument("--permitir-insumo-no-repo", action="store_true", help=argparse.SUPPRESS)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "diretorio",
+        nargs="?",
+        help="diretório externo com exatamente 19 planilhas-fonte xlsx",
+    )
+    ap.add_argument(
+        "--matriz",
+        help="Matriz Analítica 2025 externa, obrigatória no build real",
+    )
+    ap.add_argument(
+        "--saida",
+        help="arquivo JSON privado, obrigatoriamente fora de qualquer Git",
+    )
+    ap.add_argument(
+        "--corte",
+        default=CORTE_PADRAO.isoformat(),
+        help="data de corte etário AAAA-MM-DD (padrão: 2026-06-30)",
+    )
+    ap.add_argument(
+        "--emit-p",
+        action="store_true",
+        help="regenera p/painel-tea/index.html a partir do HTML interno atual",
+    )
+    ap.add_argument(
+        "--selftest",
+        action="store_true",
+        help="roda a fixture sintética multi-fonte fora do repositório",
+    )
     args = ap.parse_args()
 
-    if args.selftest:
-        selftest()
-        return
-
-    if args.emit_p and not (args.xlsx or args.csv):
-        emitir_p()
-        return
-
-    regs, sha = ler_insumo(args)
-    if args.corte:
+    try:
+        if args.selftest:
+            selftest()
+            return
+        if args.emit_p and not args.diretorio:
+            emitir_p()
+            return
+        if not args.diretorio:
+            ap.error("informe o diretório externo com as 19 fontes")
+        if not args.matriz:
+            ap.error("--matriz é obrigatória no build real")
+        if not args.saida:
+            ap.error("--saida é obrigatória no build real e deve ficar fora de Git")
         corte = date.fromisoformat(args.corte)
-    else:
-        ultimo = max(r["anomes"] for r in regs)
-        y, m = int(ultimo[:4]), int(ultimo[5:7])
-        corte = date(y, 12, 31) if m == 12 else date(y, m + 1, 1)
-        corte = date(y, m, (corte - date(y, m, 1)).days) if m != 12 else corte
-
-    d, regs = agregar(regs, corte)
-    d["meta"]["sha256_insumo"] = sha
-    erros = validar(d, regs)
-    if erros:
-        for e in erros:
-            print(f"VALIDAÇÃO FALHOU: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    escrever_json(d)
-    injetou = injetar_html(d)
-    c = d["meta"]["contagens"]
-    print("=" * 64)
-    print("RELATÓRIO DO BUILD — Painel TEA v2")
-    print(f"  Insumo SHA-256 : {sha[:16]}…")
-    print(f"  Período        : {d['meta']['periodo']['inicio']} a {d['meta']['periodo']['fim']} "
-          f"({d['meta']['periodo']['competencias']} competências)")
-    print(f"  Registros      : {c['registros']:,}".replace(",", "."))
-    print(f"  Sessões        : {c['sessoes']:,}".replace(",", "."))
-    print(f"  Custo total    : R$ {c['custo_total']:,.2f}")
-    print(f"  Pacientes      : {c['pacientes']} (matrículas: {c['matriculas']})")
-    print(f"  Prestadores    : {c['prestadores']} (agrupados)")
-    blob = json.dumps(d, ensure_ascii=False)
-    supr = blob.count('"<5"')
-    print(f"  Células '<5'   : {supr} (k={K_ANON})")
-    print(f"  JSON           : {len(blob.encode('utf-8')) // 1024} KB → {JSON_OUT}")
-    print(f"  HTML injetado  : {'sim' if injetou else 'NÃO (arquivo ausente)'}")
-    print("  Validações     : todas OK (somas, anti-vazamento, k, evento extremo)")
-    print("=" * 64)
-
-    if args.auditoria:
-        gravar_auditoria(regs, d, args.csv or args.xlsx)
+        executar_build(args.diretorio, args.matriz, corte, args.saida)
+        if args.emit_p:
+            emitir_p()
+    except (ErroPipeline, ValueError, OSError) as exc:
+        print(f"ERRO: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
 
 
 if __name__ == "__main__":

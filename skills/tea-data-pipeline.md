@@ -1,69 +1,133 @@
-# Skill: Atualização de dados do Painel TEA (rito oficial)
+# Rito oficial — dados privados do Painel Terapias Especiais
 
-**Painel:** `unimed/tea.html` (interno, portal/hub-auth) + `https://hub.grupocsv.com/p/painel-tea/` (cópia compartilhável, gate embutido, publica no deploy do git)
-**Pipeline:** `scripts/build-tea-data.py` · **PRD:** `docs/_infra/prd-2026-07-painel-tea-v2.md` (§6)
+Painel interno: `unimed/tea.html`
+Cópia compartilhável: `https://hub.grupocsv.com/p/painel-tea/`
+Pipeline: `scripts/build-tea-data.py`
+Fonte funcional: `docs/_infra/prd-2026-07-painel-terapias-especiais.md`
 
-## Regra de ouro (LGPD)
+## Arquitetura vigente
 
-O repositório `grupocsv/hub` é **público**. A planilha bruta contém nomes de crianças +
-condição de saúde (dado sensível de menores) e **JAMAIS** pode ser commitada, publicada
-ou copiada para dentro da árvore do repo (o script aborta se o insumo estiver dentro de
-um repo git). Só agregados k-anonimizados (k=5) são versionáveis. O `.gitignore` bloqueia
-`*.xlsx`, mas não confie só nele.
+O repositório `grupocsv/hub` é público e contém apenas a aplicação cliente.
+O JSON completo não é injetado no HTML, não é gravado em `unimed/data/` e não
+é versionado. Ele é produzido fora de qualquer Git e enviado à camada privada
+autenticada do painel.
 
-## Rito de atualização (10 passos)
+O artefato privado mantém métricas exatas, inclusive grupos raros, nomes de
+prestador e nomes de solicitante. Não há máscara `<5`, supressão nem agrupamento
+`OUTROS`. Nome, matrícula, data de nascimento, guia e qualquer chave individual
+de beneficiário continuam proibidos no JSON. A chave Nome + Nascimento existe
+somente em memória para deduplicação.
 
-1. Salvar a planilha nova em pasta local **fora do repo** (ex.: `~/GrupoCSV/dados-sensiveis/unimed-tea/tea-AAAA-MM.xlsx`).
-2. Backup no bucket R2 privado `csv-dados-sensiveis` (criado em 09/07/2026), da sua máquina:
-   `wrangler r2 object put csv-dados-sensiveis/unimed-tea/raw/tea-AAAA-MM.xlsx --file <arquivo>`.
-3. `git pull` no hub.
-4. Rodar o build e conferir o relatório (totais, células "<5", SHA-256):
-   `python3 scripts/build-tea-data.py <caminho>/tea-AAAA-MM.xlsx --corte AAAA-MM-DD`
-   — regenera `unimed/data/tea-2025-2026.json` e injeta o JSON no `unimed/tea.html`
-   (marcadores `TEA-DATA:BEGIN/END`). Qualquer validação reprovada → exit ≠ 0 e nada é escrito.
-5. Abrir `unimed/tea.html` no navegador e conferir as 6 seções.
-6. **Revisão humana do `git diff`** — só agregados; nenhum nome/matrícula de beneficiário.
-7. Commit com paths explícitos (`git add unimed/tea.html unimed/data/tea-2025-2026.json`) e push → deploy do hub.
-8. Gerar a cópia compartilhável `/p/` (mesmo domínio do hub, publica no deploy do git — SEM republicação manual):
-   `python3 scripts/build-tea-data.py --emit-p` → grava `p/painel-tea/index.html`
-   (hub-auth e link de volta removidos, gate EMBUTIDO com id="gate" — no `/p/` não há
-   worker, então o gate embutido é o mecanismo correto; campo `senha`, POST ao
-   csv-open-auth, e-mails @unimedgv, sessão 4h, botão "olhinho"). `git add p/painel-tea/index.html`.
-9. **Confirmar o gate**: abrir `https://hub.grupocsv.com/p/painel-tea/` em aba anônima —
-   o formulário "Painel TEA — acesso restrito" tem que aparecer antes de qualquer dado.
-   (A antiga cópia em `open.grupocsv.com/painel-tea/` foi APOSENTADA em 11/07/2026: o
-   painel é ferramenta do ambiente Unimed, então mora no domínio do hub via `/p/`.)
-10. A data de corte/versão já ficam no bloco `meta` (visíveis na topbar e na view Método).
+## Insumos e destino
 
-## Extras
+São obrigatórios:
 
-- `--auditoria` grava a fila nominal de auditoria **ao lado do insumo** (fora do repo) —
-  artefato privado da operadora; nunca commitá-la nem publicá-la.
-- **Envio da fila ao EVS (passo 11 do rito):** canal ÚNICO autorizado = **csv-mail**
-  (skill `csv-mail`; endpoint `https://mail-api.grupocsv.com/send-template`, com os
-  headers obrigatórios `User-Agent: csv-mail-client/1.0` e `Authorization: Bearer
-  <CSV_MAIL_API_KEY>` — a chave fica na skill privada/VPS, **jamais** neste repo público).
-  Anexar o CSV completo (base64), remetente institucional `guilherme@mail.grupocsv.com`
-  (from_name "Painel TEA · EVS"), destinatários da operadora (teste vigente:
-  guilherme.thome@unimedgv.com.br + cc naline.rocha@unimedgv.com.br) e conferir
-  `GET /status/:id` até `delivered`. **PROIBIDO** enviar por Gmail/Zapier/Criale —
-  os e-mails da Unimed são só destinatários, nunca remetentes (regra do responsável,
-  10/07/2026; a rota `mail_send` do Extensio MCP estava com defeito 522 nesta data —
-  use o endpoint direto).
-- `--selftest` roda a fixture sintética `scripts/tests/tea-fixture-sintetica.csv`
-  (cobre multi-carteirinha, fusão Casa Unimed, merge de CNPJ, k-anonimato, evento extremo).
-  Rode após qualquer mudança no script.
-- Regras do LEIA-ME hard-coded no script: chave de paciente = NOME+NASCIMENTO;
-  registros "ATENDIMENTO ESPECIALIZADO" → Casa Unimed (por registro); Ana Carolina Falcão +
-  Criar e Crescer Teen = mesmo prestador; mapa Tipo Prestador → canal de pagamento.
-  **Proibido** calcular indicadores TEA fora deste pipeline.
+1. diretório externo com exatamente 19 arquivos `.xlsx`, um por código de
+   origem;
+2. Matriz Analítica 2025 externa;
+3. arquivo de saída `.json` em diretório privado fora de qualquer Git.
 
-## Camada Coorte CTE (segundo pipeline)
+Exemplo de organização:
 
-`scripts/build-cte-data.py <censo-cte.xlsx> --corte AAAA-MM-DD` gera
-`unimed/data/cte-agregados.json` (coorte fixa de 300, consumo multidisciplinar
-integral, série 2024+) e injeta em `unimed/tea.html` entre `<!-- CTE-DATA:BEGIN/END -->`.
-Mesmas regras LGPD (xlsx fora do repo, k=5, anti-vazamento). `--selftest` roda
-`scripts/tests/cte-fixture-sintetica.csv`. O censo bruto (nomes, CID de menores)
-NUNCA entra no repo. Universo distinto do painel principal — todo número carrega
-o selo "Coorte CTE · 300".
+    C:\dev\GitHub\dados-brutos-te\
+    C:\dev\dados-privados-te\tea-2025-2026.json
+
+O pipeline resolve os caminhos reais e procura `.git` em todos os ancestrais.
+Insumo, Matriz ou saída dentro de qualquer Git provocam aborto sem opção de
+contorno. O diretório pai de `--saida` deve existir antes da execução.
+
+## Comando de produção
+
+    python scripts/build-tea-data.py "C:\dev\GitHub\dados-brutos-te\Análises Intensidade - Terapias Especiais" --matriz "C:\dev\GitHub\dados-brutos-te\Matriz_Analítica_Terapias_Especiais_2025.xlsx" --saida "C:\dev\dados-privados-te\tea-2025-2026.json" --corte 2026-06-30
+
+O build real:
+
+- exige as 19 fontes e os 19 códigos esperados;
+- localiza a aba pelo cabeçalho `Ano/Mês` e valida o schema literal de 19
+  colunas;
+- restringe o universo a 2025/01–2026/06;
+- mede cobertura e descarta programaticamente apenas Método PECS —
+  Fonoaudiologia;
+- integra o código 50000519 à ABA — Psicologia somente para PEDIAKIDS;
+- consolida o par de CNPJ definido no PRD;
+- reconcilia `Resumo_Executivo`, `Mensal` e `Rede_por_Terapia` da Matriz 2025;
+- valida todos os números de aceite antes da escrita;
+- varre chaves e valores para impedir identificadores de beneficiário;
+- grava atomicamente apenas o arquivo indicado por `--saida`.
+
+## Critérios bloqueantes
+
+- 19 fontes;
+- 17 terapias mantidas;
+- Método PECS — Fonoaudiologia descartado por cobertura 13/18;
+- 1.416 crianças únicas por Nome + Data de Nascimento;
+- 161 nomes de prestador nas fontes;
+- 160 prestadores após a consolidação do par de CNPJ;
+- 81.217 sessões;
+- R$ 13.919.882,74;
+- Matriz 2025 reconciliada em 2.247 campos;
+- 30 recortes de período: tudo, ano, semestre, trimestre e mês;
+- nenhum identificador individual de beneficiário no JSON.
+
+## Contrato privado
+
+O JSON mantém:
+
+    meta
+      periodo_canonico
+      periodos
+      terapias
+      terapias_descartadas
+      contagens
+      manifesto_fontes
+      excecao_at
+      matriz_2025
+    recortes
+      tudo
+      ano-AAAA
+      semestre-AAAA-Sn
+      trimestre-AAAA-Tn
+      mes-AAAA-MM
+
+Cada recorte contém resumo, série mensal, terapias, prestadores, série por
+prestador, linhas de cuidado, canais, solicitantes e perfil agregado dos
+pacientes. Prestadores, solicitantes, combinações e métricas aparecem de forma
+individual e exata. Rótulos de prestador e solicitante seguem `dNome`: CAIXA
+ALTA sem acento.
+
+Não existe manifesto público de dados. Se a aplicação cliente precisar de
+configuração estática, a lista permitida é somente versão de contrato e URL do
+endpoint autenticado; métricas, nomes, hashes de fonte e recortes são proibidos.
+
+## Testes locais
+
+    python -m py_compile scripts/build-tea-data.py scripts/check-tea-artifacts.py
+    python scripts/build-tea-data.py --selftest
+    python scripts/check-tea-artifacts.py --root .
+
+O selftest cria 19 fontes e uma Matriz sintética fora do repositório. Ele cobre
+schema/aba, cobertura e descarte, exceção AT, deduplicação, consolidação de
+CNPJ, métricas raras exatas, anti-vazamento, 30 períodos, pagamento zero,
+reconciliação e bloqueio de entrada/saída dentro de Git.
+
+O checker público exige a ausência de
+`unimed/data/tea-2025-2026.json`, do bloco `tea-data` e de qualquer payload com
+`recortes` nos dois HTML. Se os marcadores legados forem mantidos como ponto de
+referência, só podem conter espaço em branco ou comentário, nunca dados. O
+checker também preserva `noindex`, `hub-auth` no painel interno e o gate da
+cópia `/p/`.
+
+## Regeneração da cópia `/p/`
+
+Depois que `unimed/tea.html` estiver sem payload e configurado para buscar o
+endpoint autenticado:
+
+    python scripts/build-tea-data.py --emit-p
+
+O comando copia somente a aplicação cliente, remove `hub-auth` da variante
+compartilhável, preserva o gate vigente e mantém `noindex, nofollow`. Ele aborta
+se ainda encontrar um bloco `tea-data` no HTML interno.
+
+Antes do deploy, revisar o diff e executar o checker. O JSON privado é publicado
+fora do Git pelo rito da infraestrutura autenticada; nunca deve ser adicionado
+ao commit, anexado ao PR ou servido como arquivo estático.

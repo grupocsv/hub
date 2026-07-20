@@ -23,8 +23,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pipeline dependency
+        run: python3 -m pip install openpyxl==3.1.5
+
       - name: Check portal links
         run: python3 scripts/check-portal-links.py
+
+      - name: Test Terapias Especiais data pipeline
+        run: python3 scripts/build-tea-data.py --selftest
+
+      - name: Check shareable page reproducibility
+        run: |
+          python3 scripts/build-tea-data.py --emit-p
+          git diff --exit-code -- p/painel-tea/index.html
+
+      - name: Validate Terapias Especiais artifacts
+        run: python3 scripts/check-tea-artifacts.py
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -104,6 +123,7 @@ jobs:
             manifest.json \
             scripts/hub-auth.js \
             unimed/index.html unimed/tea.html \
+            p/painel-tea/index.html \
             unihealth/index.html \
             icds/index.html \
             axia/nota-fiscal.html \
@@ -114,8 +134,12 @@ jobs:
             fi
           done
           # O meta noindex deve sobreviver nas sub-páginas restritas standalone.
-          if [ -f "$DIST/unimed/tea.html" ] && ! grep -q 'name="robots"' "$DIST/unimed/tea.html"; then
-            echo "::error::meta noindex ausente em unimed/tea.html apos o build"
+          if [ -f "$DIST/unimed/tea.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/unimed/tea.html"; then
+            echo "::error::meta noindex, nofollow ausente em unimed/tea.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/p/painel-tea/index.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/p/painel-tea/index.html"; then
+            echo "::error::meta noindex, nofollow ausente em p/painel-tea/index.html apos o build"
             fail=1
           fi
           if [ "$fail" = "0" ]; then
@@ -124,6 +148,9 @@ jobs:
             echo "Smoke test FALHOU: artefato incompleto — deploy abortado."
             exit 1
           fi
+
+      - name: Validate published Terapias Especiais artifact
+        run: python3 scripts/check-tea-artifacts.py --root docs/.vitepress/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
