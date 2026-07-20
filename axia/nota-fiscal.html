@@ -265,19 +265,20 @@
     <div class="card-body" id="servico-body">
       <div class="form-group">
         <label>Descrição do Serviço <span class="required">*</span></label>
-        <div class="combobox">
-          <input type="text" class="form-control" id="descricao-servico" placeholder="Descrição do serviço prestado" autocomplete="off">
-          <div class="combobox-dropdown" id="descricao-dropdown"></div>
-        </div>
+        <textarea class="form-control" id="descricao-servico" rows="3" placeholder="Descrição do serviço prestado (preenchida automaticamente ao usar modelo)"></textarea>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
         <div class="form-group">
           <label>Valor do Serviço <span class="required">*</span></label>
           <input type="text" class="form-control" id="valor-servico" placeholder="R$ 0,00" inputmode="decimal">
         </div>
         <div class="form-group">
-          <label>Competência <span class="required">*</span></label>
+          <label>Competência (emissão) <span class="required">*</span></label>
           <input type="month" class="form-control" id="competencia">
+        </div>
+        <div class="form-group">
+          <label>Mês de referência (prestação) <span class="required">*</span></label>
+          <input type="month" class="form-control" id="mes-referencia">
         </div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
@@ -653,6 +654,36 @@ document.getElementById('valor-servico').addEventListener('input', function() {
   document.getElementById('competencia').value = `${y}-${m}`;
 })();
 
+// MES DE REFERENCIA DEFAULT (mes anterior)
+(function() {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  document.getElementById('mes-referencia').value = `${y}-${m}`;
+})();
+
+// DESCRICAO AUTOMATICA
+const DESCRICAO_PADRAO_TEMPLATE = 'Apoio T\u00e9cnico Consultivo - Gest\u00e3o em Sa\u00fade - Ref. {MES}/{ANO} Dados banc\u00e1rios: Ag: 0001 Conta: 639825225-5 | PIX CNPJ: 58.323.596/0001-40';
+const MESES_NOME = ['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function montarDescricao() {
+  const ref = document.getElementById('mes-referencia').value;
+  if (!ref) return '';
+  const [ano, mes] = ref.split('-');
+  const nomeMes = MESES_NOME[parseInt(mes, 10) - 1];
+  return DESCRICAO_PADRAO_TEMPLATE.replace('{MES}', nomeMes).replace('{ANO}', ano);
+}
+
+function atualizarDescricaoAutomatica() {
+  const descEl = document.getElementById('descricao-servico');
+  if (descEl.dataset.auto === 'true') {
+    descEl.value = montarDescricao();
+  }
+}
+
+document.getElementById('mes-referencia').addEventListener('change', atualizarDescricaoAutomatica);
+
 // COMBOBOX
 function setupCombobox(inputId, dropdownId, getItems, onSelect) {
   const input = document.getElementById(inputId);
@@ -704,7 +735,6 @@ async function loadReferenceData() {
       document.getElementById('tomador-endereco').value = t.endereco || '';
     }
   });
-  setupCombobox('descricao-servico', 'descricao-dropdown', () => servicos);
   setupCombobox('dados-bancarios', 'bancarios-dropdown', () => dadosBancarios);
 }
 
@@ -754,9 +784,9 @@ document.getElementById('btn-emitir').addEventListener('click', () => {
   const bancario = document.getElementById('dados-bancarios').value.trim();
   const obs = document.getElementById('observacoes').value.trim();
   const retTipo = document.getElementById('retencao-tipo').value;
-
+  const mesRef = document.getElementById('mes-referencia').value;
   // Validacoes
-  if (!cnpj || !razao || !descricao || !valor || !comp || !bancario) {
+  if (!cnpj || !razao || !descricao || !valor || !comp || !bancario || !mesRef) {
     showToast('Preencha todos os campos obrigatórios', 'error'); return;
   }
   if (!validateCNPJ(cnpj)) { showToast('CNPJ inválido — verifique os dígitos', 'error'); return; }
@@ -770,12 +800,18 @@ document.getElementById('btn-emitir').addEventListener('click', () => {
   // Armazenar payload para confirmacao
   emitPayload = { cnpj, razao, endereco, descricao, valor, valorStr, comp, competenciaFmt, bancario, obs, retTipo, retencoes };
 
+  // Mes de referencia
+  const refVal = document.getElementById('mes-referencia').value;
+  let refFmt = '';
+  if (refVal) { const [ry, rm] = refVal.split('-'); refFmt = `${MESES_NOME[parseInt(rm,10)-1]}/${ry}`; }
+
   // Montar resumo no modal
   const summary = document.getElementById('confirm-summary');
   summary.innerHTML = `
     <div class="summary-item full"><div class="label">Tomador</div><div class="value">${razao}</div></div>
     <div class="summary-item"><div class="label">CNPJ</div><div class="value">${cnpj}</div></div>
-    <div class="summary-item"><div class="label">Competência</div><div class="value">${competenciaFmt}</div></div>
+    <div class="summary-item"><div class="label">Competência (emissão)</div><div class="value">${competenciaFmt}</div></div>
+    <div class="summary-item"><div class="label">Referência (prestação)</div><div class="value">${refFmt}</div></div>
     <div class="summary-item"><div class="label">Valor Bruto</div><div class="value">${formatMoney(valor)}</div></div>
     <div class="summary-item"><div class="label">Retenções (${retencoes.pct}%)</div><div class="value" style="color:var(--red-accent);">- ${formatMoney(retencoes.total)}</div></div>
     <div class="summary-item"><div class="label">Valor Líquido</div><div class="value" style="color:var(--green-accent); font-size:16px;">${formatMoney(retencoes.liquido)}</div></div>
@@ -868,6 +904,16 @@ function resetForm() {
   document.getElementById('confirmation').classList.add('hidden');
   document.querySelectorAll('#tab-emitir .card:not(#confirmation), #tab-emitir .quick-models, #tab-emitir > div[style]').forEach(el => el.style.display = '');
   ['tomador-cnpj','tomador-razao','tomador-endereco','valor-servico','observacoes'].forEach(id => document.getElementById(id).value = '');
+  // Resetar descricao automatica
+  const descEl = document.getElementById('descricao-servico');
+  descEl.value = '';
+  descEl.dataset.auto = 'false';
+  descEl.readOnly = false;
+  descEl.style.backgroundColor = '';
+  // Resetar mes de referencia para mes anterior
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  document.getElementById('mes-referencia').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   emitPayload = null;
 }
 
@@ -981,11 +1027,16 @@ function usarModelo(id) {
   if (!m) return;
   document.getElementById('tomador-cnpj').value = maskCNPJ(m.tomador_cnpj || '');
   document.getElementById('tomador-razao').value = m.tomador_razao_social || '';
-  document.getElementById('descricao-servico').value = m.descricao_servico || '';
   if (m.valor_padrao) document.getElementById('valor-servico').value = maskCurrency(String(Math.round(m.valor_padrao * 100)));
   if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
   if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
   if (m.retencao_tipo) document.getElementById('retencao-tipo').value = m.retencao_tipo;
+  // Montar descricao automatica com mes de referencia
+  const descEl = document.getElementById('descricao-servico');
+  descEl.dataset.auto = 'true';
+  descEl.value = montarDescricao();
+  descEl.readOnly = true;
+  descEl.style.backgroundColor = 'var(--gray-50, #f9fafb)';
   showToast(`Modelo "${m.nome_modelo}" aplicado`, 'success');
   switchTab('emitir');
 }
