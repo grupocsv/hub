@@ -1045,6 +1045,12 @@ function usarModelo(id) {
   if (!m) return;
   document.getElementById('tomador-cnpj').value = maskCNPJ(m.tomador_cnpj || '');
   document.getElementById('tomador-razao').value = m.tomador_razao_social || '';
+  // Preencher endereco a partir da lista de tomadores
+  const cnpjLimpo = (m.tomador_cnpj || '').replace(/\D/g, '');
+  const tomador = tomadores.find(t => (t.cnpj || '').replace(/\D/g, '') === cnpjLimpo);
+  if (tomador && tomador.endereco) {
+    document.getElementById('tomador-endereco').value = tomador.endereco;
+  }
   if (m.valor_padrao) document.getElementById('valor-servico').value = maskCurrency(String(Math.round(m.valor_padrao * 100)));
   if (m.dados_bancarios) document.getElementById('dados-bancarios').value = m.dados_bancarios;
   if (m.observacoes) document.getElementById('observacoes').value = m.observacoes;
