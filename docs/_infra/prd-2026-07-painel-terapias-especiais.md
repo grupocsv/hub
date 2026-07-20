@@ -1,7 +1,9 @@
 # PRD — Painel Terapias Especiais (multidisciplinar) · Unimed Governador Valadares
 
-**Versão:** 1.0 · **Data:** 2026-07-16 · **Responsável do produto:** Guilherme (Grupo CSV / Escritório de Valor em Saúde · AxiaCare)
-**Status:** pronto para execução por agente/engenheiro em nova sessão · **Painel-alvo:** evolução do atual `unimed/tea.html` (repo público `grupocsv/hub`)
+**Versão:** 1.1 · **Data:** 2026-07-20 · **Responsável do produto:** Guilherme (Grupo CSV / Escritório de Valor em Saúde · AxiaCare)
+**Status:** em execução · **Painel-alvo:** evolução do atual `unimed/tea.html` (repo público `grupocsv/hub`)
+
+> **Decisão posterior incorporada em 2026-07-20:** o responsável do produto autorizou métricas completas, nomes de prestadores e solicitantes e recortes raros para os usuários autenticados. A supressão k=5 deixou de ser requisito da camada interna. Para que essa decisão não torne os dados públicos, o HTML permanece no Hub sem payload e o JSON completo passa a um R2 privado, servido por Worker que valida a sessão a cada requisição. O bruto e os identificadores de beneficiário continuam fora do Git e do navegador. Esta decisão substitui as referências anteriores a JSON completo embutido ou versionado e a supressão k=5.
 
 > Este documento é **autossuficiente**: contém contexto, hospedagem/acesso, modelo de dados, regras de negócio, especificação de telas, redesign visual, responsividade, método auditável, critérios de aceite e exemplos. Quem executar não precisa de conhecimento prévio da sessão que o gerou.
 
@@ -14,7 +16,7 @@
 3. **Nunca inventar.** Todo número exibido nasce de um pipeline reproduzível sobre os dados oficiais. O que os dados não sustentam fica declarado na aba **Método e Fontes** — clara, rastreável e auditável.
 4. **Nomes de prestador e solicitante em CAIXA ALTA sem acento** (regra `dNome` já existente no painel), aplicada a rótulos de dados (tabelas, eixos, legendas). Prosa corrida segue pt-BR normal.
 5. **Analisar os dados mais de uma vez antes de escrever qualquer linha de código.** O executor deve reconferir cobertura de período, chaves e agregações contra este PRD e contra os arquivos-fonte.
-6. **Preservar o que já está certo:** toda a lógica de **login, hospedagem, localização do painel, logomarcas e gate** permanece exatamente como está (ver §2). Não reimplementar autenticação nem mudar domínios.
+6. **Preservar o que já está certo:** interface, credenciais, localização do painel, logomarcas e gate permanecem como estão. A autorização dos dados é ampliada no servidor apenas para emitir e validar sessão opaca; não se cria um segundo login.
 
 ---
 
@@ -24,8 +26,9 @@
 
 **Hospedagem e domínios (NÃO alterar):**
 - **Interno (portal/hub-auth):** `https://hub.grupocsv.com/unimed/tea.html` — servido via GitHub Pages + Fastly a partir do repo `grupocsv/hub`. Deploy automático no push para `main` (workflow `.github/workflows/deploy.yml`, que roda build VitePress + *smoke test*).
-- **Cópia compartilhável (gate embutido):** `https://hub.grupocsv.com/p/painel-tea/`, gerada por `scripts/build-tea-data.py --emit-p` e registrada em `p/registry.json`. No `/p/` não há worker, então o gate é **embutido** (formulário e-mail corporativo + senha, POST ao `csv-open-auth`, sessão 4h, e-mails `@unimedgv`, botão "olhinho"). Publica no próprio deploy do git.
+- **Cópia compartilhável (gate embutido):** `https://hub.grupocsv.com/p/painel-tea/`, gerada por `scripts/build-tea-data.py --emit-p` e registrada em `p/registry.json`. O gate visual permanece **embutido** (formulário e-mail corporativo + senha, sessão 4h, e-mails `@unimedgv`, botão "olhinho"). O broker privado encaminha a validação ao `csv-open-auth` e devolve token opaco escopado; a interface estática nunca recebe o JSON antes dessa validação.
 - **Gate do portal interno:** `<script src="/scripts/hub-auth.js" data-portal="unimed">` — mantido.
+- **Dados do painel:** `unimed-te-data` valida a sessão existente e lê a versão ativa do bucket privado `unimed-te-data-private`. O endpoint não substitui os dois logins; apenas autoriza o acesso ao payload.
 - **Logomarcas:** Unimed GV (sidebar) e "Escritório de Valor em Saúde · AxiaCare · Grupo CSV" (rodapé/realização), servidas de `assets.grupocsv.com`. Mantidas.
 - **`<meta name="robots" content="noindex, nofollow">` é obrigatória** em `unimed/tea.html` — o *smoke test* do deploy falha sem ela. Não remover.
 
@@ -65,7 +68,7 @@ Cada terapia = um **código de procedimento** (SPSADT). A ABA · Psicologia soma
 
 ### 2.3 Normalização de período (regra dura)
 - **Período canônico do painel:** `2025/01 → 2026/06` (18 competências), que é a cobertura comum a todas as terapias mantidas.
-- **Descarte por cobertura incompleta:** qualquer terapia que **não cubra o período canônico inteiro** é **excluída** do painel. Hoje isso atinge **exatamente uma**: **Método PECS — Fonoaudiologia (50005146)** — só 13 de 18 meses (faltam 2025/04, 06, 07, 10 e 2026/04), 20 registros, 3 pacientes. Excluída (cobertura incompleta + fragilidade de k-anonimato).
+- **Descarte por cobertura incompleta:** qualquer terapia que **não cubra o período canônico inteiro** é **excluída** do painel. Hoje isso atinge **exatamente uma**: **Método PECS — Fonoaudiologia (50005146)** — só 13 de 18 meses (faltam 2025/04, 06, 07, 10 e 2026/04), 20 registros, 3 pacientes. Excluída por cobertura incompleta.
 - A regra é **programática, não hardcoded por nome**: o pipeline mede a cobertura mensal de cada terapia e descarta as que não têm todas as competências do período canônico, **listando no relatório de build** o que foi descartado e por quê (auditável).
 - **Fisioterapia** ainda não vem nos dados; entrará depois. **Não** deixar observação hardcoded sobre isso no produto — o painel simplesmente reflete as terapias presentes.
 
@@ -74,10 +77,11 @@ Cada terapia = um **código de procedimento** (SPSADT). A ABA · Psicologia soma
 ### 2.4 Números de referência do universo (18 competências, PECS descartada)
 Para calibrar KPIs e detectar regressões (o executor deve reproduzi-los ±0):
 - **Crianças únicas (dedup Nome+Nascimento, entre terapias): 1.416**
-- Exposições beneficiário-terapia (soma por terapia): 2.664
-- **Prestadores distintos (todas as terapias): 161**
+- Exposições beneficiário-terapia clínica (17 terapias, AT incorporada à ABA · Psicologia): **2.620**. A leitura técnica por código registra **2.664 componentes**.
+- **Prestadores na origem: 161 nomes** · **prestadores consolidados: 160 entidades** após a regra de mudança de CNPJ.
 - Sessões totais: **81.217** · Pagamento total: **R$ 13.919.882,74**
-- **Linhas de cuidado** (nº de terapias distintas por criança): 1 terapia 50,6% · 2 terapias 23,4% · 3 terapias 17,4% · 4+ 8,4% (máx. 7). **49,4% das crianças fazem 2+ terapias.**
+- **Linhas de cuidado clínicas** (17 terapias, AT incorporada): 1 terapia 730 · 2 terapias 330 · 3 terapias 248 · 4 terapias 71 · 5 terapias 22 · 6 terapias 13 · 7 terapias 2. **48,4% das crianças fazem 2+ terapias.**
+- **Reconciliação técnica por código:** 1 componente 716 · 2 componentes 332 · 3 componentes 246 · 4 componentes 81 · 5 componentes 26 · 6 componentes 13 · 7 componentes 2. Essa leitura reproduz os 2.664 componentes e os 49,4% originais, mas não deve contar o código de assistente terapêutica como uma 18ª terapia clínica.
 
 ---
 
@@ -124,12 +128,15 @@ O dado é sempre organizado a partir do **paciente** (criança). O que muda entr
 - **Intensidade** = soma de `Quantidade de Procedimento` por beneficiário dentro do recorte (terapia/rede/período). Média e mediana das sessões acumuladas por beneficiário.
 - **Custo/sessão** = `Pagamento` ÷ sessões; sessões com pagamento zero são excluídas **apenas do denominador** do custo unitário.
 - **Custo/beneficiário** = pagamento ÷ beneficiários do recorte.
-- **k-anonimato k=5**: contagens de pacientes < 5 viram "<5"; nenhum cruzamento que exponha < 5 crianças; eventos extremos de prestadores com < 5 pacientes não são nomeados. Nome, matrícula, nascimento e guia **nunca** saem do pipeline.
+- **Completude interna:** contagens, custos, sessões e nomes de prestadores e solicitantes são exibidos sem supressão, inclusive quando o recorte contém menos de cinco pacientes.
+- **Limite de identificação:** nome, matrícula, nascimento e guia de beneficiário **não** integram o JSON do painel. A chave Nome+Nascimento é usada apenas dentro do pipeline para relacionar os eventos à mesma criança e calcular a população deduplicada.
 
 ### 3.7 Pipeline técnico (arquitetura de execução)
-- Evoluir `scripts/build-tea-data.py` (ou criar `scripts/build-te-data.py` multi-terapia) mantendo o padrão: **insumo bruto fora do repo** (o script aborta se o insumo estiver dentro de um git), agregação k-anonimizada, injeção entre marcadores `<!-- TE-DATA:BEGIN/END -->` no HTML, `--emit-p`, `--selftest` com *fixture* sintética, relatório de build (totais, células "<5", SHA-256, terapias descartadas).
-- **Insumo multi-terapia:** o script lê as N planilhas-fonte (uma pasta fora do repo), aplica a normalização de período (§2.3), consolida a exceção Pediakids na ABA · Psicologia e emite **um único JSON** com todas as dimensões.
-- **CI/deploy:** manter o *smoke test* do build; adicionar asserts de integridade multi-terapia (nº de terapias, população dedup, soma de pagamentos) para travar regressões.
+- Evoluir `scripts/build-tea-data.py` mantendo o padrão: **insumo bruto fora do repo** (o script aborta se o insumo estiver dentro de um Git), `--selftest` com *fixture* sintética, relatório de build, hashes SHA-256 e terapias descartadas.
+- **Artefato privado:** o build real exige `--saida` fora de qualquer Git e emite um único JSON completo. O pipeline não escreve dados no HTML nem em `unimed/data/`.
+- **Entrega autenticada:** versões imutáveis do JSON ficam em R2 privado; o Worker valida sessão Unimed ou sessão escopada do gate antes de ler a versão ativa. Respostas usam `private, no-store`.
+- **`--emit-p`:** regenera somente a interface e o gate, sem dados. A aparência e as credenciais existentes são preservadas; o broker emite token opaco de quatro horas após validar no `csv-open-auth`.
+- **CI/deploy público:** o *smoke test* roda a fixture e falha se encontrar payload, recortes, nomes provenientes das fontes ou o antigo JSON no repositório, no HTML interno ou no `/p/`.
 
 ---
 
@@ -170,7 +177,7 @@ Reescrever a aba de forma clara, rastreável e auditável, cobrindo no mínimo:
 - **Período canônico** 2025/01–2026/06 e **terapias descartadas** por cobertura incompleta (hoje: PECS — Fonoaudiologia), com o motivo.
 - **Paciente** = Nome + Nascimento; **população** = conjunto dedup entre terapias; **exposições** = soma por terapia (não é população).
 - **Canais** (tabela §3.3) e **reclassificações** de credenciamento vigentes.
-- **Métricas** (§3.6), **k-anonimato** (k=5) e política de privacidade.
+- **Métricas** (§3.6), completude dos recortes autenticados e separação entre interface pública e dados privados.
 - **Fontes:** origem oficial da operadora (guias SPSADT), 18 meses. Sem benchmark público inventado.
 - **Limitações** declaradas (ex.: uma sessão faturada não equivale a uma hora de terapia; Fisioterapia ainda não presente — dito de forma neutra, sem promessa).
 
@@ -207,10 +214,11 @@ Alguns gráficos atuais não representam bem o dado (o executor deve revisar cad
 
 ## 10. LGPD e segurança (manter rigor atual)
 
-- Repo é **público**: planilha bruta (nomes/nascimento de menores + condição de saúde) **jamais** entra na árvore do repo; o pipeline aborta se o insumo estiver dentro de um git. Só agregados k≥5 são versionados.
+- Repo é **público**: planilha bruta (nomes/nascimento de menores + condição de saúde) **jamais** entra na árvore do repo; o pipeline aborta se o insumo, a Matriz ou a saída estiverem dentro de um Git. Nenhum agregado operacional é versionado.
 - Backup do bruto no bucket privado R2 `csv-dados-sensiveis`.
-- Varredura anti-vazamento no build (nenhum nome de beneficiário no HTML/JSON/`/p/`), além do k-anonimato.
-- Gate e sessões preservados (§1).
+- Varredura anti-vazamento no build: nenhum nome de beneficiário, matrícula, nascimento ou guia no JSON privado, no HTML ou no `/p/`.
+- R2 do painel sem domínio público; endpoint autenticado com CORS restrito, `private, no-store`, token fora da URL e registro de acesso sem payload.
+- Gate e interfaces preservados (§1); uma expiração gravada apenas no navegador não autoriza dados.
 
 ---
 
@@ -224,7 +232,7 @@ Proibido, em qualquer parte visível do produto: menção a IA, "assistente", "m
 
 O executor só considera pronto quando **todos** passam:
 1. **Escopo:** 17 terapias presentes; PECS — Fonoaudiologia ausente e listada como descartada no Método e no relatório de build.
-2. **Números de referência (§2.4) reproduzidos** (±0 ou justificados): 1.416 crianças únicas, 161 prestadores, 81.217 sessões, R$ 13.919.882,74; distribuição de linhas de cuidado.
+2. **Números de referência (§2.4) reproduzidos** (±0 ou justificados): 1.416 crianças únicas, 161 nomes de prestador na origem/160 entidades consolidadas, 81.217 sessões, R$ 13.919.882,74; distribuição clínica e reconciliação técnica das linhas de cuidado.
 3. **Conferência cruzada com a Matriz 2025:** agregados 2025 do painel batem com a Matriz Analítica (Resumo_Executivo, Mensal, Rede_por_Terapia).
 4. **Período** selecionável (mês/trimestre/semestre/ano/tudo), consistente entre abas.
 5. **Visão de rede** sem corte "recurso próprio"; canais preservados; reclassificações de credenciamento aplicadas.
@@ -233,19 +241,19 @@ O executor só considera pronto quando **todos** passam:
 8. **Responsivo** desktop e mobile, verificado em render real; sem rolagem horizontal de página; sem erros de console.
 9. **Método e Fontes** completo, auditável, sem invenção.
 10. **Zero metalinguagem de IA**; pt-BR correto com acentuação/cedilha.
-11. **LGPD:** anti-vazamento e k-anonimato OK; bruto fora do repo; `meta robots noindex` presente; `--emit-p` regenera `/p/` com gate.
+11. **Proteção dos dados:** anti-vazamento aprovado; bruto, Matriz e JSON completo fora do Git; HTML e `/p/` sem payload; endpoint nega requisição sem sessão; `meta robots noindex` presente; `--emit-p` regenera `/p/` com o gate preservado.
 12. **Deploy** verde (build + smoke test) e **verificação no link real** (não de memória) de que a versão nova está no ar.
 
 ---
 
 ## 13. Roadmap de fases sugerido
 
-- **F0 — Dados:** pipeline multi-terapia, normalização de período, exceção Pediakids, dedup população, tabela código→{especialidade,método}; relatório de build + selftest. Conferência cruzada com a Matriz.
+- **F0 — Dados:** pipeline multi-terapia, normalização de período, exceção Pediakids, dedup população, tabela código→{especialidade,método}; artefato privado, relatório de build + selftest. Conferência cruzada com a Matriz.
 - **F1 — Estrutura:** visão de rede única (remover corte recurso próprio), seletor de período global, menus revisados.
 - **F2 — Prestadores:** aba diferencial aprofundada (multi-especialidade).
 - **F3 — Multidisciplinar:** aba Especialidades/Linhas de cuidado + visual de combinações.
 - **F4 — Visual/responsivo:** redesign de gráficos fracos, mobile+desktop, render real.
-- **F5 — Método/QA/publicação:** Método auditável, critérios de aceite, `--emit-p`, deploy, verificação live.
+- **F5 — Método/QA/publicação:** Método auditável, Worker e R2 privados, critérios de aceite, `--emit-p`, deploy em ordem backend→interface e verificação live.
 
 ---
 
@@ -261,7 +269,7 @@ Para a terapia T, rede R, período P: `sessões = Σ Quantidade`; `intensidade_m
             "terapias_descartadas": [{"terapia":"Método PECS — Fonoaudiologia","codigo":"50005146","motivo":"cobertura incompleta (13/18 meses)"}] },
   "populacao": { "criancas_unicas": 1416, "linhas_de_cuidado": {"1":716,"2":332,"3":246,"4":81,"5":26,"6":13,"7":2} },
   "terapias": [ {"terapia":"Terapia ABA — Psicologia","codigo":"50005103","especialidade":"Psicologia","metodo":"ABA", "sessoes": 0, "pagamento": 0, "beneficiarios": 0, "por_mes":[...], "por_canal":[...]} ],
-  "prestadores": [ {"nome":"...","canal":"...","especialidades":["Psicologia","Fonoaudiologia"],"custo":0,"sessoes":0,"custo_sessao":0,"pacientes":"<5|n","at_pct":0} ],
+  "prestadores": [ {"nome":"...","canal":"...","especialidades":["Psicologia","Fonoaudiologia"],"custo":0,"sessoes":0,"custo_sessao":0,"pacientes":1,"at_pct":0} ],
   "series_mensais": { "2025/01": {"sessoes":0,"custo":0,"criancas_ativas":0}, "...": {} }
 }
 ```

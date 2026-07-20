@@ -88,7 +88,7 @@ PRODUCT_TAXONOMY = {
     # Painéis BI — Visualização e análise de dados
     "unimed/cuidadocoordenado.html":  {"category": "dashboard",    "entity": "Unimed GV",  "title": "Cuidado Coordenado"},
     "unimed/gce.html":                {"category": "dashboard",    "entity": "Unimed GV",  "title": "GCE"},
-    "unimed/tea.html":                {"category": "dashboard",    "entity": "Unimed GV",  "title": "TEA"},
+    "unimed/tea.html":                {"category": "dashboard",    "entity": "Unimed GV",  "title": "Terapias Especiais"},
     "unimed/ped-amb.html":            {"category": "dashboard",    "entity": "Unimed GV",  "title": "Pediatria Ambulatorial"},
     "unimed/vivapleno.html":          {"category": "dashboard",    "entity": "Unimed GV",  "title": "Viva Pleno"},
     "unimed/drg.html":                {"category": "tool",         "entity": "Unimed GV",  "title": "DRG Brasil Analytics"},
