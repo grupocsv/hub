@@ -7,11 +7,14 @@ Este arquivo orienta o agente/engenheiro que vai **executar** a evolução do Pa
 
 Leia **integralmente**, do início ao fim, antes de qualquer código:
 
-> **`docs/_infra/prd-2026-07-painel-terapias-especiais.md`**
+> **`docs/_infra/prd-2026-07-painel-terapias-gestao.md`** (v3 — reforma de gestão, o PRD vigente)
 
-É um PRD autossuficiente: contexto, hospedagem/acesso, modelo de dados, regras de
-negócio, especificação de telas, redesign visual, responsividade, método auditável,
-critérios de aceite e exemplos. Também consulte o histórico:
+O v3 reforma as telas e o contrato de dados sobre a base já implantada: seis
+perguntas de gestão, Visão Executiva com deltas e Fila de Ação, ranking Pareto,
+variabilidade justificada×injustificada, decomposição preço×volume×população×mix,
+correção da matriz e remoção dos visuais sem pergunta. Consulte também o
+histórico, que segue valendo no que o v3 não altera:
+`docs/_infra/prd-2026-07-painel-terapias-especiais.md` (v2 multidisciplinar),
 `docs/_infra/prd-2026-07-painel-tea-v2.md` e `skills/tea-data-pipeline.md`.
 
 ## 2. Onde já está o que existe (ponto de partida no repo)
