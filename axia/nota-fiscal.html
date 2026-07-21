@@ -316,6 +316,21 @@
       <h2 id="conf-title"></h2>
       <div id="conf-status" style="margin-bottom:12px;"></div>
       <dl id="conf-summary"></dl>
+      <div id="conf-pdf-actions" class="hidden" style="margin-top:16px; padding:16px; background:var(--green-light); border-radius:var(--radius); border:1px solid #27ae6033;">
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <a id="conf-pdf-download" href="#" target="_blank" class="btn btn-primary" style="text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Baixar PDF
+          </a>
+          <button class="btn btn-outline" onclick="togglePdfPreview()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Visualizar
+          </button>
+        </div>
+        <div id="conf-pdf-preview" class="hidden" style="margin-top:12px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--gray-200);">
+          <iframe id="conf-pdf-iframe" style="width:100%; height:500px; border:none;"></iframe>
+        </div>
+      </div>
       <div style="margin-top:16px; display:flex; gap:8px; justify-content:center;">
         <button class="btn btn-outline" onclick="resetForm()">Nova Emissão</button>
         <button class="btn btn-primary" onclick="switchTab('historico')">Ver Histórico</button>
@@ -361,6 +376,7 @@
             <th>Competência</th>
             <th>Status</th>
             <th>Chave</th>
+            <th>PDF</th>
             <th></th>
           </tr>
         </thead>
@@ -908,13 +924,13 @@ async function confirmarEmissao() {
       'Valor': valorStr,
       'Competencia': competenciaFmt,
       'Chave de Acesso': emitData.chaveAcesso || 'N/A',
-    });
+    }, emitData.chaveAcesso);
     showToast('NFS-e emitida com sucesso', 'success');
     await loadReferenceData();
   } catch (err) { hideOverlay(); showToast('Erro de conexão: ' + err.message, 'error'); }
 }
 
-function showConfirmation(title, status, details) {
+function showConfirmation(title, status, details, pdfChave) {
   const conf = document.getElementById('confirmation');
   document.querySelectorAll('#tab-emitir .card:not(#confirmation), #tab-emitir .quick-models, #tab-emitir > div[style]').forEach(el => el.style.display = 'none');
   document.getElementById('conf-icon').innerHTML = status === 'emitida'
@@ -924,7 +940,44 @@ function showConfirmation(title, status, details) {
   document.getElementById('conf-status').innerHTML = `<span class="badge ${getStatusInfo(status).cls}">${getStatusInfo(status).label}</span>`;
   const summary = document.getElementById('conf-summary');
   summary.innerHTML = Object.entries(details).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  // PDF actions
+  const pdfActions = document.getElementById('conf-pdf-actions');
+  if (pdfChave && status === 'emitida') {
+    const pdfUrl = `${API_BASE}/api/nf/pdf/${pdfChave}`;
+    document.getElementById('conf-pdf-download').href = pdfUrl;
+    pdfActions.classList.remove('hidden');
+    document.getElementById('conf-pdf-preview').classList.add('hidden');
+  } else {
+    pdfActions.classList.add('hidden');
+  }
   conf.classList.remove('hidden');
+}
+
+function togglePdfPreview() {
+  const preview = document.getElementById('conf-pdf-preview');
+  const iframe = document.getElementById('conf-pdf-iframe');
+  if (preview.classList.contains('hidden')) {
+    const pdfUrl = document.getElementById('conf-pdf-download').href;
+    iframe.src = pdfUrl;
+    preview.classList.remove('hidden');
+  } else {
+    preview.classList.add('hidden');
+    iframe.src = '';
+  }
+}
+
+function showPdfModal(chave) {
+  const url = `${API_BASE}/api/nf/pdf/${chave}`;
+  document.getElementById('pdf-modal-iframe').src = url;
+  document.getElementById('pdf-modal-download').href = url;
+  document.getElementById('pdf-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePdfModal(e) {
+  document.getElementById('pdf-modal').style.display = 'none';
+  document.getElementById('pdf-modal-iframe').src = '';
+  document.body.style.overflow = '';
 }
 
 function resetForm() {
@@ -973,6 +1026,16 @@ async function loadHistorico() {
         <td>${r.competencia || '-'}</td>
         <td><span class="badge ${si.cls}">${si.label}</span></td>
         <td><span style="font-family:monospace; font-size:10px; cursor:pointer;" title="${chave}" onclick="copiarChave('${chave}')">${chaveShort}</span></td>
+        <td>
+          ${(r.status === 'emitida' && chave !== '-') ? `<div style="display:flex;gap:4px;">
+            <a href="${API_BASE}/api/nf/pdf/${chave}" target="_blank" class="btn btn-ghost btn-sm" title="Visualizar PDF" style="text-decoration:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </a>
+            <button class="btn btn-ghost btn-sm" onclick="showPdfModal('${chave}')" title="Preview">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </button>
+          </div>` : '-'}
+        </td>
         <td>
           ${r.status === 'emitida' ? `<button class="btn btn-ghost btn-sm" onclick="preencherCancelamento('${chave}')" title="Cancelar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
@@ -1249,6 +1312,19 @@ handleTokenAction();
   </div>
   <div style="font-size:10.5px;color:#94a3b8;max-width:560px;margin:0 auto 14px;line-height:1.5">Os dados são processados localmente e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil.</div>
   <div style="font-size:11px;color:#94a3b8">Copyright &copy; 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
+</div>
+<!-- Modal PDF Preview -->
+<div id="pdf-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); padding:20px; cursor:pointer;" onclick="closePdfModal(event)">
+  <div style="max-width:900px; width:100%; height:100%; margin:0 auto; display:flex; flex-direction:column; cursor:default;" onclick="event.stopPropagation()">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span style="color:#fff; font-size:13px; font-weight:500;">Visualizar NFS-e</span>
+      <div style="display:flex; gap:8px;">
+        <a id="pdf-modal-download" href="#" target="_blank" style="color:#fff; font-size:12px; text-decoration:underline;">Abrir em nova aba</a>
+        <button onclick="closePdfModal()" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+    </div>
+    <iframe id="pdf-modal-iframe" style="flex:1; width:100%; border:none; border-radius:8px; background:#fff;"></iframe>
+  </div>
 </div>
 <script src="/scripts/hub-auth.js" data-portal="axia"></script>
 </body>
