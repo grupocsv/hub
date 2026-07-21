@@ -83,3 +83,12 @@ python3 scripts/build-tea-data.py --emit-p          # regenera p/painel-tea/inde
 
 Comece confirmando, em poucas linhas, seu entendimento do escopo e do período canônico
 antes de escrever código.
+
+## 8. Política de acesso corporativo
+
+- Contas cadastradas com status global `active` e e-mail de sufixo exato `@grupocsv.com` têm acesso a todos os portais válidos do Hub, com senha individual.
+- O painel `admin` permanece restrito às credenciais administrativas e não participa dessa política.
+- Conta corporativa inexistente, pendente ou revogada deve permanecer bloqueada; a revogação global é o mecanismo de desligamento.
+- Domínios externos continuam sujeitos ao vínculo individual por tenant nos portais parceiros e às regras legadas dos portais de empresa.
+- Os portais de empresa devem manter o e-mail corporativo como campo opcional e preservar o acesso compartilhado quando ele estiver vazio.
+- Fonte canônica do backend: `grupocsv/backend/workers/csv-auth/index.js`. Cliente: `scripts/hub-auth.js` e `docs/public/scripts/hub-auth.js`.
