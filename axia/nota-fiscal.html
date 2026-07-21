@@ -877,10 +877,12 @@ async function confirmarEmissao() {
       })
     });
     const computeResp = await emitResp.json();
-    // Parsear resposta do /compute (stdout contém JSON do cli-emit.mjs)
+    // Parsear resposta do /compute (stdout contém logs + JSON na última linha)
     let emitData;
     try {
-      emitData = JSON.parse(computeResp.stdout || '{}');
+      const lines = (computeResp.stdout || '').trim().split('\n');
+      const jsonLine = lines.reverse().find(l => l.startsWith('{'));
+      emitData = jsonLine ? JSON.parse(jsonLine) : { error: computeResp.stderr || 'Sem resposta JSON' };
     } catch (e) {
       emitData = { error: computeResp.stderr || 'Resposta inválida do servidor' };
     }
@@ -897,7 +899,7 @@ async function confirmarEmissao() {
     // 3. Atualizar com resultado
     await fetch(`${API_BASE}/api/nf/solicitacoes/${solId}/resultado`, {
       method: 'PUT', headers: apiHeaders(),
-      body: JSON.stringify({ chave_acesso: emitData.chaveAcesso, n_dps: emitData.nDps, status: 'emitida' })
+      body: JSON.stringify({ chave_acesso: emitData.chaveAcesso, n_dps: emitData.idDps || emitData.nDps, status: 'emitida' })
     });
 
     hideOverlay();
@@ -1166,7 +1168,9 @@ async function solicitarCancelamento() {
     const computeResp = await resp.json();
     let data;
     try {
-      data = JSON.parse(computeResp.stdout || '{}');
+      const lines = (computeResp.stdout || '').trim().split('\n');
+      const jsonLine = lines.reverse().find(l => l.startsWith('{'));
+      data = jsonLine ? JSON.parse(jsonLine) : { error: computeResp.stderr || 'Sem resposta JSON' };
     } catch (e) {
       data = { error: computeResp.stderr || 'Resposta inválida do servidor' };
     }
