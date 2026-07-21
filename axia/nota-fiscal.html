@@ -888,7 +888,7 @@ async function confirmarEmissao() {
     const emitResp = await fetch(COMPUTE_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
-        command: `cd /home/ubuntu/workspace/nfse-emitter && NFSE_AMBIENTE=producao node emitter.mjs emit "$(echo '${btoa(JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: emitPayload.comp, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo }))}' | base64 -d)"`,
+        command: `cd /home/ubuntu/workspace/nfse-emitter && NFSE_AMBIENTE=producao node emitter.mjs emit "$(echo '${btoa(unescape(encodeURIComponent(JSON.stringify({ tomador_cnpj: cnpj, tomador_razao: razao, descricao, valor, competencia: emitPayload.comp, dados_bancarios: bancario, observacoes: obs, retencao_tipo: retTipo }))))}' | base64 -d)"`,
         timeout: 60
       })
     });
@@ -1224,7 +1224,7 @@ async function solicitarCancelamento() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Compute-Token': COMPUTE_TOKEN },
       body: JSON.stringify({
-        command: `cd /home/ubuntu/workspace/nfse-emitter && node emitter.mjs cancel "$(echo '${btoa(JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa }))}' | base64 -d)"`,
+        command: `cd /home/ubuntu/workspace/nfse-emitter && NFSE_AMBIENTE=producao node emitter.mjs cancel "$(echo '${btoa(unescape(encodeURIComponent(JSON.stringify({ chave_acesso: chave, motivo_codigo: motivo, justificativa }))))}' | base64 -d)"`,
         timeout: 60
       })
     });
