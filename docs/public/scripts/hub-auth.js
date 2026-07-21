@@ -1,12 +1,12 @@
 /**
- * Hub CSV - Portal Authentication System v2.5.0
+ * Hub CSV - Portal Authentication System v2.6.0
  * Suporta autenticação individual (parceiros) e fixa (empresas)
  * Design system padronizado: fundo gradiente, card branco, logo, cadeado, botão teal
  *
  * Uso: Adicionar ao final do <body> de cada portal protegido:
  *   <script src="/scripts/hub-auth.js" data-portal="unimed"></script>
  *
- * Slot de montagem do widget de logout (v2.5.0):
+ * Slot de montagem do widget de logout (v2.6.0):
  *   A página pode indicar ONDE o badge de usuário + botão "Sair" devem montar,
  *   evitando o fallback position:fixed (que pode sobrepor botões no canto
  *   superior direito). Basta incluir no header:
@@ -89,9 +89,15 @@
   }
 
   async function doLogin(email, password) {
+    var normalizedEmail = String(email || '').trim().toLowerCase();
     var payload = { portal: PORTAL };
-    if (IS_PARTNER) { payload.email = email; payload.password = password; }
-    else if (IS_COMPANY) { payload.email = 'shared_' + PORTAL; payload.password = password; }
+    if (IS_PARTNER) {
+      payload.email = normalizedEmail;
+      payload.password = password;
+    } else if (IS_COMPANY) {
+      payload.email = normalizedEmail || 'shared_' + PORTAL;
+      payload.password = password;
+    }
 
     var resp = await fetch(AUTH_API + '/login', {
       method: 'POST',
@@ -100,7 +106,7 @@
     });
     var data = await resp.json();
     if (data.success && data.token) {
-      saveSession(data.token, email || 'shared_' + PORTAL, data.expires_at);
+      saveSession(data.token, data.email || normalizedEmail || 'shared_' + PORTAL, data.expires_at);
       return { success: true };
     }
     return { success: false, error: data.error || 'Erro ao autenticar' };
@@ -297,6 +303,11 @@
   function buildCompanyHTML() {
     return '\
 <div class="ha-error" id="ha-error"></div>\
+<div class="ha-field">\
+  <label>E-mail corporativo (opcional)</label>\
+  <input type="email" id="ha-email" placeholder="nome@grupocsv.com" autocomplete="email">\
+  <div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.4;">Colaboradores do Grupo CSV podem usar a credencial individual. Para o acesso compartilhado, deixe este campo em branco.</div>\
+</div>\
 <div class="ha-field">\
   <label>Senha</label>\
   <div class="ha-pw-wrap">\
