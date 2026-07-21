@@ -35,7 +35,12 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 
-VERSAO = "4.0.0"
+VERSAO = "4.1.0"
+
+# Contrato v4 (PRD escopos comparáveis): parâmetros das referências por
+# disciplina — mesmos limiares publicados em Método e Fontes.
+MIN_SESSOES_REFERENCIA = Decimal(100)
+MIN_PRESTADORES_REFERENCIA = 5
 JSON_MAX_BYTES = 8 * 1024 * 1024
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -959,6 +964,102 @@ def agregar_prestadores(registros, meses):
     return itens, dict(sorted(series.items()))
 
 
+def agregar_prestador_disciplina(registros):
+    # Contrato v4: fatia exata prestador × disciplina. A soma das fatias de um
+    # prestador reproduz o total dele no recorte (validado em validar_saida).
+    por_fatia = grupos(
+        registros,
+        lambda r: (
+            r["nome_prest"],
+            CATALOGO_TERAPIAS[r["terapia_id"]]["especialidade"],
+        ),
+    )
+    itens = []
+    for (nome, disciplina), linhas in por_fatia.items():
+        exatas = metricas_exatas(linhas)
+        item = {"nome": nome, "disciplina": disciplina}
+        item.update(publicar_metricas(exatas))
+        paciente_meses = len({(r["paciente"], r["anomes"]) for r in linhas})
+        item["paciente_meses"] = paciente_meses
+        item["intensidade_mensal"] = (
+            razao(exatas["sessoes"], paciente_meses) if paciente_meses else None
+        )
+        canal_pagamento = defaultdict(Decimal)
+        canal_registros = Counter()
+        for r in linhas:
+            canal_pagamento[r["canal"]] += r["valor"]
+            canal_registros[r["canal"]] += 1
+        item["canal"] = max(
+            canal_pagamento,
+            key=lambda c: (canal_pagamento[c], canal_registros[c], c),
+        )
+        at = metricas_exatas([r for r in linhas if r["cod_proc"] == COD_AT])
+        item["at_sessoes"] = numero(at["sessoes"])
+        item["at_pct"] = (
+            pct(at["sessoes"], exatas["sessoes"]) if exatas["sessoes"] else None
+        )
+        itens.append(item)
+    itens.sort(key=lambda x: (x["nome"], x["disciplina"]))
+    return itens
+
+
+def agregar_disciplina_serie(registros, meses):
+    # Contrato v4: série mensal por disciplina. A soma das disciplinas em cada
+    # competência reproduz a série mensal total (validado em validar_saida).
+    por_disciplina = grupos(
+        registros,
+        lambda r: CATALOGO_TERAPIAS[r["terapia_id"]]["especialidade"],
+    )
+    return {
+        disciplina: serie_mensal(linhas, meses)
+        for disciplina, linhas in sorted(por_disciplina.items())
+    }
+
+
+def referencias_disciplina(fatias):
+    # Contrato v4: mediana e quartis do R$/sessão e da intensidade por
+    # disciplina (e por canal dentro dela), sobre fatias com volume mínimo.
+    # Células com menos de MIN_PRESTADORES_REFERENCIA prestadores não publicam.
+    preco = {}
+    intensidade = {}
+    por_disciplina = defaultdict(list)
+    for item in fatias:
+        if (
+            item["sessoes"] is not None
+            and Decimal(str(item["sessoes"])) >= MIN_SESSOES_REFERENCIA
+            and item["custo_sessao"] is not None
+        ):
+            por_disciplina[item["disciplina"]].append(item)
+    def quartis(valores):
+        decimais = sorted(Decimal(str(v)) for v in valores)
+        return {
+            "mediana": dinheiro(percentil_linear(decimais, Decimal("0.5"))),
+            "p25": dinheiro(percentil_linear(decimais, Decimal("0.25"))),
+            "p75": dinheiro(percentil_linear(decimais, Decimal("0.75"))),
+            "n": len(decimais),
+        }
+
+    for disciplina, itens in sorted(por_disciplina.items()):
+        precos = [x["custo_sessao"] for x in itens]
+        if len(precos) >= MIN_PRESTADORES_REFERENCIA:
+            preco[disciplina] = quartis(precos)
+            preco[disciplina]["por_canal"] = {}
+            por_canal = defaultdict(list)
+            for x in itens:
+                por_canal[x["canal"]].append(x["custo_sessao"])
+            for canal, valores in sorted(por_canal.items()):
+                if len(valores) >= MIN_PRESTADORES_REFERENCIA:
+                    preco[disciplina]["por_canal"][canal] = quartis(valores)
+        intensidades = [
+            x["intensidade_mensal"]
+            for x in itens
+            if x["intensidade_mensal"] is not None
+        ]
+        if len(intensidades) >= MIN_PRESTADORES_REFERENCIA:
+            intensidade[disciplina] = quartis(intensidades)
+    return {"preco_disciplina": preco, "intensidade_disciplina": intensidade}
+
+
 def distribuir_linhas_cuidado(registros, total_pacientes, periodo_id):
     terapias_por_paciente = defaultdict(set)
     codigos_por_paciente = defaultdict(set)
@@ -1229,6 +1330,7 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
     prestadores, serie_prestador = agregar_prestadores(
         linhas, periodo["meses"]
     )
+    fatias_disciplina = agregar_prestador_disciplina(linhas)
     publico = {
         "resumo": resumo,
         "serie_mensal": serie_mensal(linhas, periodo["meses"]),
@@ -1237,6 +1339,9 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
         ),
         "prestadores": prestadores,
         "serie_prestador": serie_prestador,
+        "prestador_disciplina": fatias_disciplina,
+        "disciplina_serie": agregar_disciplina_serie(linhas, periodo["meses"]),
+        "referencias": referencias_disciplina(fatias_disciplina),
         "linhas_cuidado": linhas_cuidado,
         "canais": agregar_canais(linhas),
         "solicitantes": agregar_solicitantes(linhas),
@@ -1826,6 +1931,45 @@ def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
     descartadas = meta["terapias_descartadas"]
     if len(descartadas) != 1 or descartadas[0]["id"] != ID_PECS:
         erros.append("descarte programático de PECS não está único")
+
+    # Contrato v4: a soma das fatias prestador×disciplina reproduz o total do
+    # prestador, e a soma das séries por disciplina reproduz a série mensal.
+    for periodo_id, recorte in dados["recortes"].items():
+        fatias = recorte.get("prestador_disciplina")
+        if not isinstance(fatias, list):
+            erros.append(f"{periodo_id}: prestador_disciplina ausente")
+            continue
+        soma_prest = defaultdict(lambda: [Decimal(0), Decimal(0)])
+        for fatia in fatias:
+            soma_prest[fatia["nome"]][0] += Decimal(str(fatia["pagamento"]))
+            soma_prest[fatia["nome"]][1] += Decimal(str(fatia["sessoes"]))
+        for prestador in recorte["prestadores"]:
+            pago, sess = soma_prest.get(prestador["nome"], [Decimal(0), Decimal(0)])
+            if abs(pago - Decimal(str(prestador["pagamento"]))) > Decimal("0.02"):
+                erros.append(
+                    f"{periodo_id}: fatias de {prestador['nome']} não somam o "
+                    f"pagamento total ({pago} != {prestador['pagamento']})"
+                )
+            if sess != Decimal(str(prestador["sessoes"])):
+                erros.append(
+                    f"{periodo_id}: fatias de {prestador['nome']} não somam as sessões"
+                )
+        series_disc = recorte.get("disciplina_serie")
+        if not isinstance(series_disc, dict) or not series_disc:
+            erros.append(f"{periodo_id}: disciplina_serie ausente")
+        else:
+            for indice, ponto in enumerate(recorte["serie_mensal"]):
+                soma_pag = sum(
+                    (Decimal(str(serie[indice]["pagamento"] or 0)) for serie in series_disc.values()),
+                    Decimal(0),
+                )
+                if abs(soma_pag - Decimal(str(ponto["pagamento"] or 0))) > Decimal("0.02"):
+                    erros.append(
+                        f"{periodo_id}: disciplina_serie não soma a série mensal em {ponto['m']}"
+                    )
+                    break
+        if not isinstance(recorte.get("referencias"), dict):
+            erros.append(f"{periodo_id}: referencias por disciplina ausentes")
     if reconciliacao.get("status") != "reconciliada":
         erros.append("Matriz 2025 não reconciliada")
     if "projecao" in json.dumps(dados, ensure_ascii=False).lower():

@@ -1214,7 +1214,30 @@ html,body{max-width:100%;overflow-x:hidden}
   function prestadoresElegiveis(r) {
     return populacaoEscopo(r).filter(x => canalContratado(x) && n(sessoes(x)) !== null && sessoes(x) >= MIN_SESSOES_FAIXA && custoSessao(x) !== null);
   }
+  function fatiasDisciplina(r) {
+    const disc = disciplinaAtiva();
+    if (!disc) return null;
+    const fatias = asArray(r && r.prestador_disciplina).filter(f => f.disciplina === disc);
+    return fatias.length ? fatias : null;
+  }
+  function referenciaDisciplina(r) {
+    const disc = disciplinaAtiva();
+    if (!disc || !r || !isObject(r.referencias)) return null;
+    const preco = isObject(r.referencias.preco_disciplina) ? r.referencias.preco_disciplina[disc] : null;
+    const intensidade = isObject(r.referencias.intensidade_disciplina) ? r.referencias.intensidade_disciplina[disc] : null;
+    return preco || intensidade ? { preco, intensidade } : null;
+  }
   function faixasPorCanal(r) {
+    const refDisc = referenciaDisciplina(r);
+    if (refDisc && refDisc.preco) {
+      const mapa = {};
+      CANAIS_CONTRATADOS.forEach(canal => {
+        const celula = refDisc.preco.por_canal && refDisc.preco.por_canal[canal];
+        if (celula) mapa[canal] = celula;
+        else mapa[canal] = refDisc.preco;
+      });
+      return mapa;
+    }
     const ref = r && isObject(r.referencias) && isObject(r.referencias.preco_canal) ? r.referencias.preco_canal : null;
     if (ref) return ref;
     const mapa = {};
@@ -1921,8 +1944,10 @@ html,body{max-width:100%;overflow-x:hidden}
   function contextoPrestadores(r) {
     const chave = state.periodId + '|' + state.specialty;
     if (PRCTX.key === chave) return PRCTX;
-    const base = prestadoresDe(r).map(row => Object.assign({}, row, { _nome: dNome(row.nome), _intensidade: providerIntensity(row) }));
-    const total = pagamento(resumoDe(r)) || 0;
+    const base = providerRows(r);
+    const total = base.some(x => x._fatiaExata)
+      ? base.reduce((a, x) => a + (pagamento(x) || 0), 0)
+      : (pagamento(resumoDe(r)) || 0);
     const ordenado = base.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
     const pareto = new Map(); let acum = 0, pareto80 = null;
     ordenado.forEach((row, i) => {
@@ -1933,12 +1958,29 @@ html,body{max-width:100%;overflow-x:hidden}
     });
     const ant = recorteAnterior(state.periodId);
     const prev = new Map();
-    if (ant) prestadoresDe(ant.recorte).forEach(row => prev.set(row.nome, row));
+    if (ant) {
+      const disc = disciplinaAtiva();
+      const fatiasAnt = disc ? asArray(ant.recorte.prestador_disciplina).filter(f => f.disciplina === disc) : null;
+      if (fatiasAnt && fatiasAnt.length) fatiasAnt.forEach(f => prev.set(f.nome, f));
+      else prestadoresDe(ant.recorte).forEach(row => prev.set(row.nome, row));
+    }
     const comparavel = escopoComparavel();
     PRCTX = { key: chave, faixas: comparavel ? faixasPorCanal(r) : {}, medInt: comparavel ? medianaIntensidadeClinica(r) : null, prev, pareto, pareto80, anterior: ant };
     return PRCTX;
   }
   function providerRows(r) {
+    const fatias = fatiasDisciplina(r);
+    if (fatias) {
+      const totalDisc = fatias.reduce((a, f) => a + (pagamento(f) || 0), 0);
+      return fatias.map(f => Object.assign({}, f, {
+        especialidades: [f.disciplina],
+        _nome: dNome(f.nome),
+        _especialidades: [dNome(f.disciplina)],
+        _participacao: totalDisc ? (pagamento(f) || 0) / totalDisc * 100 : null,
+        _intensidade: providerIntensity(f),
+        _fatiaExata: true
+      }));
+    }
     const total = pagamento(resumoDe(r)) || 0;
     return prestadoresDe(r).map(row => Object.assign({}, row, {
       _nome: dNome(row.nome),
@@ -2060,9 +2102,14 @@ html,body{max-width:100%;overflow-x:hidden}
       }
       tr.append(atCell);
       const sparkCell = el('td', 'spark-cell');
-      const pontos = pontosPrestador(r, row.nome).map(x => n(x.sessoes));
-      const svg = sparklineSVG(pontos);
-      if (svg) sparkCell.append(svg); else sparkCell.textContent = '—';
+      if (row._fatiaExata) {
+        sparkCell.textContent = '—';
+        sparkCell.title = 'A série mensal por prestador cobre todas as disciplinas; a tendência da fatia chega em contrato futuro';
+      } else {
+        const pontos = pontosPrestador(r, row.nome).map(x => n(x.sessoes));
+        const svg = sparklineSVG(pontos);
+        if (svg) sparkCell.append(svg); else sparkCell.textContent = '—';
+      }
       tr.append(sparkCell);
       tr.tabIndex = 0; tr.setAttribute('role', 'button'); tr.setAttribute('aria-label', 'Abrir ficha de ' + row._nome);
       const abrir = () => abrirPrestador(row, r);
@@ -2409,6 +2456,15 @@ html,body{max-width:100%;overflow-x:hidden}
     if (notaId && $(notaId)) $(notaId).textContent = (contexto || '') + 'Decomposição exata: variação = ' + decomp.efeitos.map(e => e.rotulo.toLowerCase() + ' (' + brlK(e.valor) + ')').join(' + ') + '. Método declarado em Método e Fontes.';
   }
 
+  function providerRowsTotais(r) {
+    const total = pagamento(resumoDe(r)) || 0;
+    return prestadoresDe(r).map(row => Object.assign({}, row, {
+      _nome: dNome(row.nome),
+      _especialidades: especialidades(row).map(dNome),
+      _participacao: participacao(row, total),
+      _intensidade: providerIntensity(row)
+    }));
+  }
   let mapaPage = 1, mapaBusca = '';
   function renderInicio() {
     const r = recorteAtual();
@@ -2432,7 +2488,7 @@ html,body{max-width:100%;overflow-x:hidden}
       opt(k.rotulo, k.descricao + ' · ' + fmtN(contagem.get(k.id) || 0) + ' crianças', 'kit', k.id)));
     if ($('esc_sub')) $('esc_sub').textContent = 'Escopo ativo: ' + rotuloEscopo() + ' — aparece no topo de todas as abas';
     // mapa de comparabilidade
-    const todos = providerRows(r).filter(row => !mapaBusca || norm(row._nome).includes(norm(mapaBusca)))
+    const todos = providerRowsTotais(r).filter(row => !mapaBusca || norm(row._nome).includes(norm(mapaBusca)))
       .sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
     $('mapa_counter').textContent = fmtN(todos.length) + ' prestador' + (todos.length === 1 ? '' : 'es');
     mapaPage = Math.min(mapaPage, Math.max(1, Math.ceil(todos.length / RANK_PAGE_SIZE)));
@@ -2455,7 +2511,7 @@ html,body{max-width:100%;overflow-x:hidden}
     const mExp = $('mapa_export');
     if (mExp && !mExp.childElementCount) mExp.append(botaoExport('Exportar CSV', () => {
       exportCSV('mapa-comparabilidade.csv', ['Prestador', 'Disciplinas', 'Classe', 'Pagamento', 'Sessoes'],
-        providerRows(recorteAtual()).map(x => [x._nome, x._especialidades.join(' | '), classeComparabilidade(x), pagamento(x), sessoes(x)]));
+        providerRowsTotais(recorteAtual()).map(x => [x._nome, x._especialidades.join(' | '), classeComparabilidade(x), pagamento(x), sessoes(x)]));
     }));
     const busca = $('mapa_busca');
     if (busca && !busca.dataset.ligado) {
@@ -2491,11 +2547,21 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'crianças únicas por disciplina chegam com o contrato v4' },
         { label: 'Terapias no Escopo', valor: fmtN(rd.terapias), sub: disc },
-        { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: 'valores por prestador ainda totais; corte exato no contrato v4' }
+        { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: fatiasDisciplina(r) ? 'corte exato por disciplina (contrato v4)' : 'valores por prestador ainda totais; corte exato no contrato v4' }
       ], 'card');
       $('vg_population_note').replaceChildren(el('strong', null, 'Escopo ' + disc + '.'), document.createTextNode(' Todos os agregados desta tela vêm das terapias da disciplina; as leituras comparativas de prestadores estão na aba Prestadores, calculadas dentro do escopo.'));
-      prepararCanvas('c_vg_cost', false, 'A série mensal por disciplina chega com o contrato v4 do pipeline; a tendência da rede completa está no escopo Rede Completa.');
-      if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência Mensal da Disciplina — Contrato v4';
+      const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
+      if (serieDisc.length) {
+        lineChart('c_vg_cost', serieDisc, 'pagamento', 'Pagamento da disciplina', brlK, GREEN, { mediaMovel: true });
+        if ($('vg_trend_title')) {
+          const vals = serieDisc.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
+          if (vals.length >= 6) { const u3 = vals.slice(-3).reduce((a2, b2) => a2 + b2, 0), a3v = vals.slice(-6, -3).reduce((a2, b2) => a2 + b2, 0); const dd = deltaPct(u3, a3v); if (dd !== null) $('vg_trend_title').textContent = 'O custo de ' + disc + ' ' + (dd >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(dd)) + '% no trimestre contra o anterior'; }
+          else $('vg_trend_title').textContent = 'A tendência do pagamento de ' + disc + ' por competência';
+        }
+      } else {
+        prepararCanvas('c_vg_cost', false, 'A série mensal por disciplina chega com o contrato v4 do pipeline; a tendência da rede completa está no escopo Rede Completa.');
+        if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência Mensal da Disciplina — Contrato v4';
+      }
       renderSinais(r);
       return;
     }
@@ -2566,7 +2632,16 @@ html,body{max-width:100%;overflow-x:hidden}
       ]);
       const decompD = rdAnt ? decomposicaoVolumePreco(rd.sessoes, rd.pagamento, rdAnt.sessoes, rdAnt.pagamento) : null;
       waterfallChart('c_ev_waterfall', decompD, 'ev_wf_title', 'ev_wf_note', antRec ? 'Escopo ' + disc + ' — comparação com ' + antRec.periodo.rotulo + '. ' : '');
-      ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal por disciplina chega com o contrato v4 do pipeline.'));
+      const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
+      if (serieDisc.length) {
+        const ccmDisc = serieDisc.map(x => { const p = n(pick(x, 'pagamento')), c = n(pick(x, 'pacientes')); return Object.assign({}, x, { ccm: p !== null && c ? p / c : null }); });
+        lineChart('c_ev_ccm', ccmDisc, 'ccm', 'Custo por criança-mês', brl, GREEN);
+        lineChart('c_ev_patients', serieDisc, 'pacientes', 'Crianças ativas', fmtN, ORANGE);
+        lineChart('c_ev_sessions', serieDisc, 'sessoes', 'Sessões', fmtN, DARK);
+        lineChart('c_ev_price', serieDisc, 'custo_sessao', 'R$/sessão', brl, AMBER);
+      } else {
+        ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal por disciplina chega com o contrato v4 do pipeline.'));
+      }
       return;
     }
     const cmp = comparacaoResumo(r), rot = cmp ? cmp.rotulo : null;
