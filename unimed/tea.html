@@ -608,7 +608,8 @@ tr.no-detail .detail-icon { display: none; }
   .modal { border-radius: 20px 20px 0 0; max-height: 100dvh; margin-top: 4dvh; }
 }
 @media (max-width: 640px) {
-  .tb-chips { display: none; }
+  .tb-chips .chip:not(.escopo) { display: none; }
+  .chip.escopo { font-size: 11px; padding: 4px 10px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .kpi-grid .kpi-card:nth-child(3n) { border-right: 1px solid var(--line-soft); }
   .kpi-grid .kpi-card:nth-child(2n) { border-right: none; }
@@ -672,6 +673,28 @@ td.dneg{color:#9a5a17;font-weight:600}
 .card-flex{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%}
 .chip.filtro{background:#fdf1e3;border:1px solid #eccfa8;color:#9a5a17;font-weight:650}
 .intro-card{background:linear-gradient(135deg,#f4f9f7,#eef5f2);border-color:#d5e5df}
+/* PRD v4 — Início, escopo e comparabilidade */
+.howto{margin:4px 0 2px 20px;display:grid;gap:9px}
+.howto li{font-size:12.8px;line-height:1.55;color:var(--ink-2)}
+.howto strong{color:var(--u-dark)}
+.escopo-grupo{margin-bottom:18px}
+.escopo-grupo:last-child{margin-bottom:0}
+.escopo-grupo-titulo{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.escopo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.escopo-opt{font:inherit;text-align:left;background:var(--u-paper);border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:44px;transition:border-color .15s,background .15s}
+.escopo-opt:hover{border-color:var(--u-green)}
+.escopo-opt[aria-pressed="true"]{background:#e6f4ee;border-color:var(--u-green-dark);box-shadow:inset 0 0 0 1px var(--u-green-dark)}
+.escopo-opt:focus-visible{outline:3px solid var(--u-green);outline-offset:2px}
+.eo-titulo{font-weight:700;font-size:13.5px;color:var(--u-dark)}
+.eo-sub{font-size:11px;color:var(--ink-3);line-height:1.4}
+.chip.escopo{background:var(--u-dark);color:#fff;border:none;font-weight:650;cursor:pointer;min-height:28px}
+.chip.escopo:hover{background:var(--u-green-dark)}
+.chip-disc{display:inline-block;font-size:10.5px;font-weight:650;background:var(--u-paper);border:1px solid var(--line-soft);border-radius:999px;padding:1px 8px;margin:1px 3px 1px 0;color:var(--ink-2)}
+.chip-classe{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px}
+.chip-classe.mono{background:#eef3f2;color:var(--ink-2);border:1px solid var(--line)}
+.chip-classe.integrada{background:#e6f4ee;color:var(--u-green-dark);border:1px solid #bfe0d2}
+.chip-classe.mista{background:#fbf6ec;color:#8a6116;border:1px solid #eadcbc}
+#pa_kits tr.kit-ativo td{background:#e6f4ee;font-weight:650}
 .intro-text{font-size:12.5px;line-height:1.62;color:var(--ink-2);margin-bottom:9px;max-width:960px}
 .intro-text:last-child{margin-bottom:0}
 .intro-text strong{color:var(--u-dark)}
@@ -784,6 +807,10 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="sb-app-sub">Visão multidisciplinar · Unimed GV</div>
   </div>
   <nav class="sb-nav">
+    <button class="nav-item" data-view="inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+      Início
+    </button>
     <button class="nav-item" data-view="visao">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Visão Geral
@@ -836,6 +863,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <select id="period_value" aria-label="Recorte do período"></select>
     </div>
     <div class="tb-chips">
+      <button class="chip escopo" id="tb_escopo" type="button" aria-label="Escopo assistencial ativo; toque para alterar no Início">–</button>
       <span class="chip" id="tb_periodo">–</span>
       <span class="chip soft hide-m" id="tb_atualizado">–</span>
       <a class="tb-voltar voltar-hub hide-m" href="index.html">← Hub Unimed</a>
@@ -855,6 +883,7 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 
   <!-- ==================== VISÃO GERAL ==================== -->
+  <section class="view" id="view-inicio" data-title="Início" data-sub="Escopo, período e como usar o painel"></section>
   <section class="view" id="view-visao" data-title="Visão Geral" data-sub="Síntese do período"></section>
 
   <!-- ==================== EVOLUÇÃO ==================== -->
@@ -893,6 +922,10 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <nav class="tabbar" aria-label="Navegação inferior">
   <div class="tabs">
+    <button class="tab-item" data-view="inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+      Início
+    </button>
     <button class="tab-item" data-view="visao">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Visão
@@ -979,7 +1012,15 @@ html,body{max-width:100%;overflow-x:hidden}
   };
   const TIPO_ORDEM = ['tudo', 'ano', 'semestre', 'trimestre', 'mes'];
   const TIPO_ROTULO = { tudo: 'Tudo', ano: 'Ano', semestre: 'Semestre', trimestre: 'Trimestre', mes: 'Mês' };
-  const VIEW_SLUGS = ['visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
+  const VIEW_SLUGS = ['inicio', 'visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
+  const KITS = [
+    { id: 'tripe', rotulo: 'Tripé', descricao: 'Psicologia/ABA + Fonoaudiologia + Terapia Ocupacional' },
+    { id: 'tripe-ampliado', rotulo: 'Tripé Ampliado', descricao: 'O tripé mais uma ou mais terapias complementares' },
+    { id: 'duas', rotulo: 'Duas Terapias', descricao: 'Qualquer combinação de duas terapias' },
+    { id: 'multiplas-sem-tripe', rotulo: 'Três ou Mais sem o Tripé Completo', descricao: 'Três ou mais terapias sem fechar o tripé' },
+    { id: 'unica', rotulo: 'Terapia Única', descricao: 'Uma única terapia no período' }
+  ];
+  const TRIPE_SET = ['PSICOLOGIA', 'FONOAUDIOLOGIA', 'TERAPIA OCUPACIONAL'];
   const RANK_PAGE_SIZE = 15;
   const CANAIS_CONTRATADOS = ['Rede Credenciada', 'Negociação Direta', 'Casa Unimed', 'Intercâmbio'];
   const MIN_SESSOES_FAIXA = 100;
@@ -995,7 +1036,9 @@ html,body{max-width:100%;overflow-x:hidden}
   const rendered = new Set();
   const state = {
     periodId: null,
-    view: 'visao',
+    view: 'inicio',
+    escopoTipo: 'rede',
+    escopoValor: null,
     specialty: 'todas',
     providerQuery: '',
     rankSort: 'pagamento',
@@ -1094,8 +1137,84 @@ html,body{max-width:100%;overflow-x:hidden}
     return pac ? total / pac : null;
   }
   const canalContratado = row => CANAIS_CONTRATADOS.includes(nomeCanal(row));
+
+  /* ---------- escopo assistencial (PRD v4 §2-§5, interino client-side) ---------- */
+  const disciplinaAtiva = () => state.escopoTipo === 'disciplina' ? state.escopoValor : null;
+  const kitAtivo = () => state.escopoTipo === 'kit' ? state.escopoValor : null;
+  function disciplinasDisponiveis() {
+    const full = recorteTudo();
+    const mapa = new Map();
+    terapiasDe(full).forEach(t => {
+      const key = String(t.especialidade || 'Não informada');
+      const item = mapa.get(key) || { nome: key, pagamento: 0, sessoes: 0 };
+      item.pagamento += pagamento(t) || 0; item.sessoes += sessoes(t) || 0;
+      mapa.set(key, item);
+    });
+    return [...mapa.values()].sort((a, b) => b.pagamento - a.pagamento);
+  }
+  function classeComparabilidade(row) {
+    const set = row._especialidades || especialidades(row).map(dNome);
+    if (set.length <= 1) return 'Mono-disciplina';
+    return TRIPE_SET.every(t => set.includes(t)) ? 'Multidisciplinar Integrada' : 'Mista';
+  }
+  function classificarKit(especialidadesSet) {
+    const s = [...new Set(especialidadesSet.map(dNome))];
+    const temTripe = TRIPE_SET.every(t => s.includes(t));
+    if (s.length === 1) return 'unica';
+    if (s.length === 2) return 'duas';
+    if (s.length === 3 && temTripe) return 'tripe';
+    if (temTripe) return 'tripe-ampliado';
+    return 'multiplas-sem-tripe';
+  }
+  function kitsDoRecorte(r) {
+    const terapiaSpec = new Map(terapiasDe(r).map(x => [nomeTerapia(x), String(x.especialidade || '')]));
+    const contagem = new Map(KITS.map(k => [k.id, 0]));
+    asArray(linhasDe(r).combinacoes).forEach(row => {
+      const specs = [...new Set(asArray(row.terapias).map(t => terapiaSpec.get(t)).filter(Boolean))];
+      const alvo = specs.length ? specs : asArray(row.terapias);
+      const kit = classificarKit(alvo);
+      const v = n(pacientes(row));
+      if (v !== null) contagem.set(kit, (contagem.get(kit) || 0) + v);
+    });
+    return contagem;
+  }
+  function terapiasEscopo(r) {
+    const disc = disciplinaAtiva();
+    const all = terapiasDe(r);
+    return disc ? all.filter(t => String(t.especialidade || '') === disc) : all;
+  }
+  function resumoDisciplina(r) {
+    const disc = disciplinaAtiva();
+    if (!disc) return null;
+    const ts = terapiasEscopo(r);
+    const pag = ts.reduce((a, t) => a + (pagamento(t) || 0), 0);
+    const ses = ts.reduce((a, t) => a + (sessoes(t) || 0), 0);
+    let expo = 0, expoOk = true;
+    ts.forEach(t => { const e = n(exposicoesTerapia(t)); if (e === null) expoOk = false; else expo += e; });
+    return { pagamento: pag, sessoes: ses, exposicoes: expoOk ? expo : null, custo_sessao: ses ? pag / ses : null, terapias: ts.length };
+  }
+  function selecionarEscopo(tipo, valor) {
+    state.escopoTipo = tipo;
+    state.escopoValor = valor || null;
+    state.specialty = tipo === 'disciplina' && valor ? valor : 'todas';
+    state.rankPage = 1;
+    try { sessionStorage.setItem('tea-escopo', JSON.stringify({ tipo, valor: state.escopoValor })); } catch (_e) {}
+    rendered.clear();
+    destruirGraficos();
+    atualizarCabecalho();
+    navigate(state.view, true);
+  }
+  function rotuloEscopo() {
+    if (state.escopoTipo === 'disciplina' && state.escopoValor) return state.escopoValor;
+    if (state.escopoTipo === 'kit' && state.escopoValor) { const k = KITS.find(x => x.id === state.escopoValor); return 'Kit ' + (k ? k.rotulo : state.escopoValor); }
+    return 'Rede Completa';
+  }
+  const escopoComparavel = () => state.specialty !== 'todas';
+  function populacaoEscopo(r) {
+    return providerRows(r).filter(row => state.specialty === 'todas' || especialidades(row).includes(state.specialty));
+  }
   function prestadoresElegiveis(r) {
-    return providerRows(r).filter(x => canalContratado(x) && n(sessoes(x)) !== null && sessoes(x) >= MIN_SESSOES_FAIXA && custoSessao(x) !== null);
+    return populacaoEscopo(r).filter(x => canalContratado(x) && n(sessoes(x)) !== null && sessoes(x) >= MIN_SESSOES_FAIXA && custoSessao(x) !== null);
   }
   function faixasPorCanal(r) {
     const ref = r && isObject(r.referencias) && isObject(r.referencias.preco_canal) ? r.referencias.preco_canal : null;
@@ -1114,7 +1233,7 @@ html,body{max-width:100%;overflow-x:hidden}
     return (preco - faixa.mediana) / faixa.mediana * 100;
   }
   function medianaIntensidadeClinica(r) {
-    const vals = providerRows(r).filter(canalContratado).map(x => x._intensidade).filter(v => v !== null);
+    const vals = populacaoEscopo(r).filter(canalContratado).map(x => x._intensidade).filter(v => v !== null);
     return quantil(vals, .5);
   }
   function decomposicaoPagamento(cur, prev) {
@@ -1158,7 +1277,8 @@ html,body{max-width:100%;overflow-x:hidden}
   function filaAcao(r) {
     const pronta = asArray(r && r.fila_acao);
     if (pronta.length) return pronta.slice(0, 8);
-    const faixas = faixasPorCanal(r), medInt = medianaIntensidadeClinica(r), itens = [];
+    const comparavel = escopoComparavel();
+    const faixas = comparavel ? faixasPorCanal(r) : {}, medInt = comparavel ? medianaIntensidadeClinica(r) : null, itens = [];
     prestadoresElegiveis(r).forEach(row => {
       const pagto = pagamento(row);
       if (pagto === null || pagto < 50000) return;
@@ -1445,11 +1565,32 @@ html,body{max-width:100%;overflow-x:hidden}
       </div>
       <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="se_title">Solicitantes — concentração no executante principal</h2><p class="card-sub">Ordenada pelo % no principal; leitura de verificação, sem inferência de irregularidade</p></div><span id="se_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="se_table" aria-label="Solicitantes e executantes"><thead><tr><th>Solicitante</th><th>CBOS</th><th>Pagamento</th><th>Sessões</th><th>Executantes</th><th>Principal</th><th>% no principal</th></tr></thead><tbody></tbody></table></div><div class="pager" id="se_pager"></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div><p class="narrative" id="pr_solic_note"></p></section>`;
 
-    $('view-visao').innerHTML = `
-      <section class="card intro-card"><div class="card-hd"><div><h2 class="card-title">Sobre este painel</h2></div></div>
+    $('view-inicio').innerHTML = `
+      <section class="card intro-card"><div class="card-hd"><div><h2 class="card-title">Sobre o Painel</h2></div></div>
         <p class="intro-text">O Painel Terapias Especiais consolida as terapias voltadas ao transtorno do espectro autista (TEA) e demais terapias especiais da carteira da Unimed Governador Valadares — 17 terapias com cobertura completa no período, envolvendo psicologia, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia, musicoterapia e demais especialidades — a partir das guias oficiais de faturamento, com a criança como unidade de análise (população deduplicada por nome e nascimento).</p>
-        <p class="intro-text"><strong>Como usar:</strong> o seletor de período no topo aplica o mesmo recorte a todas as abas — a visão inicial traz o período completo (jan/2025 a jun/2026) e é possível descer até o mês. Em Prestadores, clique em qualquer linha para abrir a ficha detalhada; as tabelas têm busca, ordenação e exportação. Todo indicador, faixa de referência e regra de cálculo está documentado na aba <strong>Método e Fontes</strong>.</p>
+        <p class="intro-text">O princípio do painel é a comparabilidade: prestadores são comparados dentro da mesma disciplina e pacientes nas mesmas combinações de terapia. O escopo escolhido abaixo governa todas as abas.</p>
       </section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Como Usar</h2></div></div>
+        <ol class="howto">
+          <li><strong>Escolha o escopo assistencial</strong> abaixo — rede completa para o retrato geral, uma disciplina para leituras comparativas de prestadores, um kit para coortes de pacientes.</li>
+          <li><strong>Escolha o período</strong> no seletor do topo — o painel abre no período completo (jan/2025 a jun/2026) e desce até o mês; o recorte vale para todas as abas.</li>
+          <li><strong>Navegue pelas abas</strong> — em Prestadores, clique em qualquer linha para abrir a ficha; as tabelas têm busca, ordenação, paginação e exportação em CSV.</li>
+          <li><strong>Consulte o método</strong> — todo indicador, faixa de referência e regra de cálculo está documentado em Método e Fontes.</li>
+        </ol>
+      </section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Escopo Assistencial</h2><p class="card-sub" id="esc_sub">O escopo ativo aparece no topo de todas as abas</p></div></div>
+        <div class="escopo-grupo"><div class="escopo-grupo-titulo">Rede</div><div class="escopo-grid" id="esc_rede"></div></div>
+        <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Disciplina — Comparação de Prestadores</div><div class="escopo-grid" id="esc_disciplinas"></div></div>
+        <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Kit de Terapias — Coortes de Pacientes</div><div class="escopo-grid" id="esc_kits"></div><p class="narrative">Kits são cortes descritivos de gestão construídos a partir das combinações registradas; o plano terapêutico é individual e nenhuma combinação é padrão obrigatório. O tripé psicologia/ABA + fonoaudiologia + terapia ocupacional é o núcleo convergente das diretrizes brasileiras.</p></div>
+      </section>
+      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title">Mapa de Comparabilidade — Quem Faz o Quê</h2><p class="card-sub">Disciplinas atendidas e classe de comparabilidade de cada prestador; a classe define com quem cada um pode ser comparado, sem juízo de desempenho</p></div><span id="mapa_export"></span></div></div>
+        <div class="filter-strip"><div class="filter-field"><label for="mapa_busca">Prestador</label><input type="search" id="mapa_busca" placeholder="Buscar prestador" autocomplete="off"></div><span class="chip soft" id="mapa_counter">–</span></div>
+        <div class="t-wrap scroll-container"><table class="rank" id="mapa_table" aria-label="Mapa de comparabilidade dos prestadores"><thead><tr><th>Prestador</th><th>Disciplinas</th><th>Classe</th><th>Pagamento</th><th>Sessões</th></tr></thead><tbody></tbody></table></div>
+        <div class="pager" id="mapa_pager"></div>
+        <p class="narrative">Os valores desta tabela são totais do prestador em todas as disciplinas que atende; o corte exato por disciplina chega com o contrato v4 do pipeline, declarado em Método e Fontes.</p>
+      </section>`;
+
+    $('view-visao').innerHTML = `
       <div class="kpi-grid" id="vg_kpis"></div><div class="metric-note" id="vg_population_note"></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="vg_trend_title">A tendência do pagamento por competência</h2><p class="card-sub">Barras mensais e média móvel de 3 meses</p></div></div><div class="chart-box"><canvas id="c_vg_cost" role="img" aria-label="Pagamento mensal com média móvel"></canvas></div></section>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="fa_title">Sinais do recorte</h2><p class="card-sub">Desvios objetivos contra as faixas e medianas publicadas, ordenados por valor; regras declaradas em Método e Fontes, sem inferência de irregularidade</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="fa_table" aria-label="Sinais do recorte"><thead><tr><th>#</th><th>Prestador ou tema</th><th>Sinal</th><th>Valor associado</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="fa_note"></p></section>`;
@@ -1469,6 +1610,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
     $('view-pacientes').innerHTML = `
       <p class="v-lead">O perfil da população apresenta as contagens completas do recorte autorizado, preservando a criança como unidade de análise.</p><div class="kpi-row" id="pa_kpis"></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Coortes por Kit de Terapias</h2><p class="card-sub">Cortes descritivos das combinações registradas; o plano terapêutico é individual e nenhum kit é padrão obrigatório</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="pa_kits" aria-label="Crianças por kit de terapias"><thead><tr><th>Kit</th><th>Composição</th><th>Crianças</th><th>% da População com Combinação Registrada</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="pa_kits_note"></p></section>
       <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">A população se distribui por faixa etária</h2></div><div class="chart-box med"><canvas id="c_pa_age" role="img" aria-label="Crianças por faixa etária"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">A intensidade se distribui entre faixas de sessões</h2></div><div class="chart-box med"><canvas id="c_pa_intensity" role="img" aria-label="Crianças por faixa de intensidade"></canvas></div></section></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Quantas terapias cada criança utiliza</h2><p class="card-sub">Distribuição por número de terapias — única ocorrência no painel</p></div></div><div class="chart-box med"><canvas id="c_pa_care" role="img" aria-label="Crianças por número de terapias"></canvas></div></section>
       <div class="metric-note" id="pa_gender_note"></div>
@@ -1497,6 +1639,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <p><strong>Sinais do recorte:</strong> regras determinísticas e objetivas — preço acima de P75 + 10% da faixa do canal com pagamento ≥ R$ 50 mil; intensidade ≥ 1,5× a mediana da rede contratada com o mesmo piso; dispersão de preço do reembolso acima de 3× o IQR da rede contratada. O painel apresenta os desvios contra as referências publicadas; não emite recomendação de conduta — a leitura e a decisão são da gestão.</p>
         <p><strong>Comparação interna (metades):</strong> quando o recorte não tem período anterior de mesma duração (ex.: o período completo), as variações e a decomposição comparam a metade mais recente da série mensal com a metade anterior, com o rótulo indicando os meses envolvidos; a população de cada metade é a média mensal de crianças ativas.</p>
         <p><strong>Quadrantes da matriz intensidade × preço:</strong> as medianas das principais clínicas dividem o plano em A (preço acima, intensidade abaixo), B (ambos acima), C (ambos abaixo) e D (preço abaixo, intensidade acima). A posição orienta a pergunta a fazer — não constitui juízo sobre o prestador.</p>
+        <p><strong>Escopo assistencial (interino):</strong> o escopo por disciplina usa o atributo de especialidade dos prestadores e os agregados por terapia; os valores por prestador permanecem totais do prestador em todas as disciplinas até o contrato v4 do pipeline publicar o corte prestador×disciplina. Leituras comparativas (faixas, desvios, quadrantes, sinais de prestador) só são calculadas dentro de um escopo de disciplina. Kits são cortes descritivos derivados das combinações publicadas; nenhum kit é padrão obrigatório — o núcleo convergente das diretrizes brasileiras (SBP, Ministério da Saúde 2025, SOPERJ, SBNI 2025) é o tripé psicologia/ABA + fonoaudiologia + terapia ocupacional. Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
         <p><strong>Cenário entre canais:</strong> o quadro de oportunidade da aba Canais é um teto de sensibilidade (diferencial de preço × volume), sem considerar capacidade instalada, perfil clínico ou custo marginal.</p>
       </section>
       <section class="card metodo-block"><h3>Limitações</h3><p>O painel representa as terapias presentes nos arquivos oficiais e o período coberto pelo pipeline. Os valores são de competência de faturamento, não de caixa. Os dados de custo e utilização não sustentam inferência de causalidade clínica. Não são apresentados cenários futuros. As leituras de desvio, intensidade e concentração priorizam verificação e não constituem conclusão sobre conduta de prestadores.</p></section>`;
@@ -1536,12 +1679,14 @@ html,body{max-width:100%;overflow-x:hidden}
     const p = PERIODOS.find(x => x.id === state.periodId), meta = DATA && DATA.meta ? DATA.meta : {};
     const label = p ? p.rotulo : 'Período não informado';
     $('tb_periodo').textContent = label;
+    if ($('tb_escopo')) $('tb_escopo').textContent = rotuloEscopo();
     const corteBruto = pick(meta, 'data_corte_idade', 'data_corte');
     const corte = corteBruto ? String(corteBruto).split('-').reverse().join('/') : null;
     $('tb_atualizado').textContent = corte ? 'corte ' + corte : (meta.gerado_em ? 'base ' + meta.gerado_em : 'base oficial');
   }
 
   const RENDERERS = {
+    inicio: renderInicio,
     prestadores: renderPrestadores,
     visao: renderVisao,
     evolucao: renderEvolucao,
@@ -1552,7 +1697,7 @@ html,body{max-width:100%;overflow-x:hidden}
   };
   function slugFromHash() {
     const slug = (location.hash || '').replace(/^#\/?/, '');
-    return VIEW_SLUGS.includes(slug) ? slug : 'visao';
+    return VIEW_SLUGS.includes(slug) ? slug : 'inicio';
   }
   function navigate(slug, force) {
     if (!VIEW_SLUGS.includes(slug)) slug = 'visao';
@@ -1578,6 +1723,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function bindShell() {
     document.querySelectorAll('.nav-item[data-view],.tab-item[data-view]').forEach(b => b.addEventListener('click', () => { location.hash = '#/' + b.dataset.view; }));
     $('tb_info').addEventListener('click', () => { location.hash = '#/metodo'; });
+    if ($('tb_escopo')) $('tb_escopo').addEventListener('click', () => { location.hash = '#/inicio'; });
     window.addEventListener('hashchange', () => navigate(slugFromHash()));
     let buscaTimer = null;
     $('pr_search').addEventListener('input', ev => {
@@ -1634,6 +1780,13 @@ html,body{max-width:100%;overflow-x:hidden}
     let saved = null;
     try { saved = sessionStorage.getItem('tea-periodo'); } catch (_e) {}
     state.periodId = PERIODOS.some(p => p.id === saved) ? saved : ((PERIODOS.find(p => p.id === 'tudo') || PERIODOS[0]).id);
+    try {
+      const esc = JSON.parse(sessionStorage.getItem('tea-escopo') || 'null');
+      if (esc && ['rede', 'disciplina', 'kit'].includes(esc.tipo)) {
+        state.escopoTipo = esc.tipo; state.escopoValor = esc.valor || null;
+        state.specialty = esc.tipo === 'disciplina' && esc.valor ? esc.valor : 'todas';
+      }
+    } catch (_e) {}
     popularPeriodos();
     atualizarCabecalho();
     bindShell();
@@ -1768,7 +1921,8 @@ html,body{max-width:100%;overflow-x:hidden}
 
   let PRCTX = { key: null, faixas: {}, medInt: null, prev: new Map(), pareto: new Map(), pareto80: null };
   function contextoPrestadores(r) {
-    if (PRCTX.key === state.periodId) return PRCTX;
+    const chave = state.periodId + '|' + state.specialty;
+    if (PRCTX.key === chave) return PRCTX;
     const base = prestadoresDe(r).map(row => Object.assign({}, row, { _nome: dNome(row.nome), _intensidade: providerIntensity(row) }));
     const total = pagamento(resumoDe(r)) || 0;
     const ordenado = base.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
@@ -1782,7 +1936,8 @@ html,body{max-width:100%;overflow-x:hidden}
     const ant = recorteAnterior(state.periodId);
     const prev = new Map();
     if (ant) prestadoresDe(ant.recorte).forEach(row => prev.set(row.nome, row));
-    PRCTX = { key: state.periodId, faixas: faixasPorCanal(r), medInt: medianaIntensidadeClinica(r), prev, pareto, pareto80, anterior: ant };
+    const comparavel = escopoComparavel();
+    PRCTX = { key: chave, faixas: comparavel ? faixasPorCanal(r) : {}, medInt: comparavel ? medianaIntensidadeClinica(r) : null, prev, pareto, pareto80, anterior: ant };
     return PRCTX;
   }
   function providerRows(r) {
@@ -1967,7 +2122,15 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!cara && !alta) return 'C — preço e intensidade abaixo das medianas';
     return 'D — preço abaixo e intensidade acima das medianas';
   }
+  const MSG_ESCOPO = 'As leituras comparativas exigem escopo de disciplina — selecione no Início. Comparar preço e intensidade entre disciplinas diferentes não é uma comparação justa.';
   function renderProviderMatrix(r) {
+    if (!escopoComparavel()) {
+      prepararCanvas('c_pr_matrix', false, MSG_ESCOPO);
+      if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço — Exige Escopo de Disciplina';
+      $('pr_matrix_legend').replaceChildren();
+      $('pr_matrix_note').textContent = 'O mapa de comparabilidade do Início mostra quem faz o quê; escolha uma disciplina para comparar as clínicas dela.';
+      return;
+    }
     const contratados = providersFiltered(r).filter(x => canalContratado(x) && x._intensidade !== null && custoSessao(x) !== null && pagamento(x) !== null);
     let rows = contratados.filter(x => n(sessoes(x)) !== null && sessoes(x) >= MIN_SESSOES_FAIXA);
     let cap = '';
@@ -2039,6 +2202,13 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 
   function renderProviderDispersion(r) {
+    if (!escopoComparavel()) {
+      prepararCanvas('c_pr_disp', false, MSG_ESCOPO);
+      if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço — Exige Escopo de Disciplina';
+      $('pr_disp_sub').textContent = 'Faixas de referência são calculadas por disciplina';
+      $('pr_disp_note').textContent = '';
+      return;
+    }
     const rows = desviosOrdenados(r), top = rows.slice(0, 12);
     const acima = rows.filter(x => x._desvio > 10).length;
     if ($('pr_disp_title')) $('pr_disp_title').textContent = acima ? fmtN(acima) + ' prestador' + (acima === 1 ? ' está' : 'es estão') + ' mais de 10% acima da faixa do canal' : 'Os preços da rede estão dentro da faixa dos canais';
@@ -2086,6 +2256,12 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 
   function renderIntensityDeviation(r) {
+    if (!escopoComparavel()) {
+      prepararCanvas('c_pr_intdev', false, MSG_ESCOPO);
+      if ($('pr_int_title')) $('pr_int_title').textContent = 'Intensidade vs Mediana — Exige Escopo de Disciplina';
+      $('pr_int_note').textContent = '';
+      return;
+    }
     const ctx = contextoPrestadores(r), med = ctx.medInt;
     const rows = elegiveisFiltrados(r)
       .filter(x => x._intensidade !== null && med)
@@ -2177,21 +2353,27 @@ html,body{max-width:100%;overflow-x:hidden}
 
   function renderPrestadores(refresh) {
     const r = recorteAtual(), resumo = resumoDe(r), all = providerRows(r), ctx = contextoPrestadores(r);
+    notaEscopo('view-prestadores');
     const spec = [...new Set(all.flatMap(x => especialidades(x)))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    if (!spec.includes(state.specialty)) state.specialty = 'todas';
+    if (state.specialty !== 'todas' && !spec.includes(state.specialty)) state.specialty = 'todas';
     const select = $('pr_specialty');
     if (!refresh || select.options.length === 0) {
       const todas = el('option', null, 'Todas as especialidades'); todas.value = 'todas';
       select.replaceChildren(todas, ...spec.map(s => { const o = el('option', null, s); o.value = s; return o; }));
     }
     select.value = state.specialty;
+    const travado = !!disciplinaAtiva();
+    select.disabled = travado;
+    select.title = travado ? 'Definido pelo escopo assistencial selecionado no Início' : '';
     const top10 = all.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0)).slice(0, 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
     const totalPag = pagamento(resumo) || 0;
     const foraFaixa = all.filter(x => desvioFaixa(x, ctx.faixas) !== null && desvioFaixa(x, ctx.faixas) > 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
     setKpis('pr_kpis', [
-      { label: 'Pagamento', valor: brlK(pagamento(resumo)) },
+      { label: 'Pagamento', valor: brlK(pagamento(resumo)), sub: escopoComparavel() ? 'total do recorte; escopo ' + rotuloEscopo() + ' aplicado às leituras' : null },
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores' },
-      { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal' }
+      escopoComparavel()
+        ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'exige escopo de disciplina — selecione no Início' }
     ]);
     const obs = pick(resumo, 'prestadores_observados', 'prestadores'), cons = pick(resumo, 'prestadores_consolidados', 'prestadores');
     $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas. Canal e especialidade são atributos, não cortes de população.'));
@@ -2229,8 +2411,96 @@ html,body{max-width:100%;overflow-x:hidden}
     if (notaId && $(notaId)) $(notaId).textContent = (contexto || '') + 'Decomposição exata: variação = ' + decomp.efeitos.map(e => e.rotulo.toLowerCase() + ' (' + brlK(e.valor) + ')').join(' + ') + '. Método declarado em Método e Fontes.';
   }
 
+  let mapaPage = 1, mapaBusca = '';
+  function renderInicio() {
+    const r = recorteAtual();
+    const marcar = (container, ativo) => { container.querySelectorAll('.escopo-opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.escopo === ativo))); };
+    const opt = (titulo, sub, tipo, valor) => {
+      const b = el('button', 'escopo-opt'); b.type = 'button'; b.dataset.escopo = tipo + ':' + (valor || '');
+      b.append(el('span', 'eo-titulo', titulo));
+      if (sub) b.append(el('span', 'eo-sub', sub));
+      b.setAttribute('aria-pressed', String(state.escopoTipo === tipo && (state.escopoValor || '') === (valor || '')));
+      b.addEventListener('click', () => { selecionarEscopo(tipo, valor); renderInicio(); });
+      return b;
+    };
+    const rede = $('esc_rede');
+    rede.replaceChildren(opt('Rede Completa', 'Retrato populacional e financeiro, sem comparações entre disciplinas', 'rede', null));
+    const totalRede = pagamento(resumoDe(recorteTudo())) || 0;
+    const discBox = $('esc_disciplinas');
+    discBox.replaceChildren(...disciplinasDisponiveis().map(d =>
+      opt(d.nome, brlK(d.pagamento) + (totalRede ? ' · ' + fmt1(d.pagamento / totalRede * 100) + '% do pagamento' : ''), 'disciplina', d.nome)));
+    const kitsBox = $('esc_kits'), contagem = kitsDoRecorte(recorteTudo());
+    kitsBox.replaceChildren(...KITS.map(k =>
+      opt(k.rotulo, k.descricao + ' · ' + fmtN(contagem.get(k.id) || 0) + ' crianças', 'kit', k.id)));
+    if ($('esc_sub')) $('esc_sub').textContent = 'Escopo ativo: ' + rotuloEscopo() + ' — aparece no topo de todas as abas';
+    // mapa de comparabilidade
+    const todos = providerRows(r).filter(row => !mapaBusca || norm(row._nome).includes(norm(mapaBusca)))
+      .sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
+    $('mapa_counter').textContent = fmtN(todos.length) + ' prestador' + (todos.length === 1 ? '' : 'es');
+    mapaPage = Math.min(mapaPage, Math.max(1, Math.ceil(todos.length / RANK_PAGE_SIZE)));
+    const slice = todos.slice((mapaPage - 1) * RANK_PAGE_SIZE, mapaPage * RANK_PAGE_SIZE);
+    const tbody = $('mapa_table').querySelector('tbody');
+    tbody.replaceChildren(...slice.map(row => {
+      const tr = el('tr');
+      tr.append(el('td', 'prest', row._nome));
+      const tdDisc = el('td');
+      (row._especialidades.length ? row._especialidades : ['—']).forEach(dsc => tdDisc.append(el('span', 'chip-disc', dsc)));
+      tr.append(tdDisc);
+      const classe = classeComparabilidade(row);
+      const tdCl = el('td'); tdCl.append(el('span', 'chip-classe ' + (classe === 'Mono-disciplina' ? 'mono' : classe === 'Multidisciplinar Integrada' ? 'integrada' : 'mista'), classe)); tr.append(tdCl);
+      tr.append(el('td', 'num', brl(pagamento(row))));
+      tr.append(el('td', 'num', fmtN(sessoes(row))));
+      return tr;
+    }));
+    if (!slice.length) { const tr = el('tr'), td = el('td', null, 'Nenhum prestador corresponde à busca.'); td.colSpan = 5; tr.append(td); tbody.append(tr); }
+    pagerGenerico($('mapa_pager'), todos.length, RANK_PAGE_SIZE, mapaPage, p => { mapaPage = p; renderInicio(); });
+    const mExp = $('mapa_export');
+    if (mExp && !mExp.childElementCount) mExp.append(botaoExport('Exportar CSV', () => {
+      exportCSV('mapa-comparabilidade.csv', ['Prestador', 'Disciplinas', 'Classe', 'Pagamento', 'Sessoes'],
+        providerRows(recorteAtual()).map(x => [x._nome, x._especialidades.join(' | '), classeComparabilidade(x), pagamento(x), sessoes(x)]));
+    }));
+    const busca = $('mapa_busca');
+    if (busca && !busca.dataset.ligado) {
+      busca.dataset.ligado = '1';
+      busca.addEventListener('input', ev => { mapaBusca = ev.target.value; mapaPage = 1; renderInicio(); });
+    }
+  }
+
+  function notaEscopo(idView) {
+    const sec = $(idView);
+    if (!sec) return;
+    let nota = sec.querySelector('.escopo-note');
+    const kit = kitAtivo();
+    if (!kit) { if (nota) nota.remove(); return; }
+    const k = KITS.find(x => x.id === kit);
+    if (!nota) { nota = el('div', 'metric-note escopo-note'); sec.prepend(nota); }
+    nota.replaceChildren(el('strong', null, 'Escopo Kit ' + (k ? k.rotulo : kit) + '.'), document.createTextNode(' A distribuição da coorte está nas abas Início e Pacientes; o corte completo por kit nas demais leituras chega com o contrato v4 do pipeline. Abaixo, a leitura da rede completa.'));
+  }
+
   function renderVisao() {
     const r = recorteAtual(), resumo = resumoDe(r), ctx = contextoPrestadores(r);
+    notaEscopo('view-visao');
+    const disc = disciplinaAtiva();
+    if (disc) {
+      const rd = resumoDisciplina(r);
+      const antRec = recorteAnterior(state.periodId);
+      let rdAnt = null;
+      if (antRec) { const guarda = state.escopoValor; const rAnt = antRec.recorte; const ts = terapiasDe(rAnt).filter(t => String(t.especialidade || '') === guarda); const pag = ts.reduce((a, t) => a + (pagamento(t) || 0), 0), ses = ts.reduce((a, t) => a + (sessoes(t) || 0), 0); rdAnt = { pagamento: pag, sessoes: ses }; }
+      const rotD = antRec ? 'vs ' + antRec.periodo.rotulo : null;
+      setKpis('vg_kpis', [
+        { label: 'Pagamento da Disciplina', valor: brlK(rd.pagamento), delta: rdAnt ? deltaPct(rd.pagamento, rdAnt.pagamento) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'Sessões da Disciplina', valor: fmtN(rd.sessoes), delta: rdAnt ? deltaPct(rd.sessoes, rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'crianças únicas por disciplina chegam com o contrato v4' },
+        { label: 'Terapias no Escopo', valor: fmtN(rd.terapias), sub: disc },
+        { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: 'valores por prestador ainda totais; corte exato no contrato v4' }
+      ], 'card');
+      $('vg_population_note').replaceChildren(el('strong', null, 'Escopo ' + disc + '.'), document.createTextNode(' Todos os agregados desta tela vêm das terapias da disciplina; as leituras comparativas de prestadores estão na aba Prestadores, calculadas dentro do escopo.'));
+      prepararCanvas('c_vg_cost', false, 'A série mensal por disciplina chega com o contrato v4 do pipeline; a tendência da rede completa está no escopo Rede Completa.');
+      if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência Mensal da Disciplina — Contrato v4';
+      renderSinais(r);
+      return;
+    }
     const cmp = comparacaoResumo(r);
     const ccm = custoCriancaMes(r);
     const ccmDelta = cmp && n(cmp.cur.pagamento) !== null && cmp.cur.pacientes && cmp.prev.pacientes ? deltaPct(cmp.cur.pagamento / cmp.cur.pacientes, cmp.prev.pagamento / cmp.prev.pacientes) : null;
@@ -2244,7 +2514,9 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Crianças ativas', valor: kOr(pacientes(resumo)), delta: cmp ? deltaPct(n(cmp.cur.pacientes), n(cmp.prev.pacientes)) : null, deltaLabel: rot, subir_e_ruim: false },
       { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)), delta: cmp && cmp.cur.sessoes && cmp.prev.sessoes ? deltaPct(cmp.cur.pagamento / cmp.cur.sessoes, cmp.prev.pagamento / cmp.prev.sessoes) : null, deltaLabel: rot, subir_e_ruim: true },
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores prestadores' },
-      { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal' }
+      escopoComparavel()
+        ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'exige escopo de disciplina — selecione no Início' }
     ], 'card');
     $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia. Detalhes de população na aba Pacientes; contagens de prestador em Método e Fontes.'));
     const serie = serieDe(r);
@@ -2255,6 +2527,10 @@ html,body{max-width:100%;overflow-x:hidden}
       const d = deltaPct(ult3, ant3);
       if (d !== null) $('vg_trend_title').textContent = 'O custo ' + (d >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(d)) + '% no trimestre contra o anterior';
     }
+    renderSinais(r);
+  }
+
+  function renderSinais(r) {
     const fila = filaAcao(r), tbody = $('fa_table').querySelector('tbody');
     tbody.replaceChildren(...fila.map((item, i) => {
       const tr = el('tr', item.row ? 'clickable' : null);
@@ -2268,11 +2544,33 @@ html,body{max-width:100%;overflow-x:hidden}
     }));
     if (!fila.length) { const tr = el('tr'), td = el('td', null, 'Nenhum sinal ativo pelas regras vigentes neste recorte.'); td.colSpan = 4; tr.append(td); tbody.append(tr); }
     if ($('fa_title')) $('fa_title').textContent = fila.length ? 'Sinais do recorte — ' + fmtN(fila.length) + ' desvio' + (fila.length === 1 ? '' : 's') + ' contra as referências publicadas' : 'Sinais do recorte — nenhum desvio contra as referências';
-    $('fa_note').textContent = 'Regras objetivas: preço acima de P75 + 10% da faixa do canal com pagamento de R$ 50 mil ou mais; intensidade 1,5× ou mais a mediana da rede contratada com o mesmo piso; dispersão de reembolso acima de 3× o IQR da rede. O valor associado dimensiona o sinal. O painel apresenta os desvios; a leitura e a decisão são da gestão.';
+    $('fa_note').textContent = (escopoComparavel()
+      ? 'Regras objetivas dentro do escopo ' + rotuloEscopo() + ': preço acima de P75 + 10% da faixa do canal com pagamento de R$ 50 mil ou mais; intensidade 1,5× ou mais a mediana do escopo com o mesmo piso; dispersão de reembolso acima de 3× o IQR da rede contratada. '
+      : 'Na rede completa, apenas sinais estruturais (reembolso) são publicados — sinais de prestador exigem escopo de disciplina, selecionável no Início. ')
+      + 'O valor associado dimensiona o sinal. O painel apresenta os desvios; a leitura e a decisão são da gestão.';
   }
 
   function renderEvolucao() {
     const r = recorteAtual(), resumo = resumoDe(r), serie = serieDe(r);
+    notaEscopo('view-evolucao');
+    const disc = disciplinaAtiva();
+    if (disc) {
+      const rd = resumoDisciplina(r);
+      const antRec = recorteAnterior(state.periodId);
+      let rdAnt = null;
+      if (antRec) { const ts = terapiasDe(antRec.recorte).filter(t => String(t.especialidade || '') === disc); rdAnt = { pagamento: ts.reduce((a, t) => a + (pagamento(t) || 0), 0), sessoes: ts.reduce((a, t) => a + (sessoes(t) || 0), 0) }; }
+      const rotD = antRec ? 'vs ' + antRec.periodo.rotulo : null;
+      setKpis('ev_kpis', [
+        { label: 'Pagamento da Disciplina', valor: brlK(rd.pagamento), delta: rdAnt ? deltaPct(rd.pagamento, rdAnt.pagamento) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'Sessões da Disciplina', valor: fmtN(rd.sessoes), delta: rdAnt ? deltaPct(rd.sessoes, rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
+        { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes) }
+      ]);
+      const decompD = rdAnt ? decomposicaoVolumePreco(rd.sessoes, rd.pagamento, rdAnt.sessoes, rdAnt.pagamento) : null;
+      waterfallChart('c_ev_waterfall', decompD, 'ev_wf_title', 'ev_wf_note', antRec ? 'Escopo ' + disc + ' — comparação com ' + antRec.periodo.rotulo + '. ' : '');
+      ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal por disciplina chega com o contrato v4 do pipeline.'));
+      return;
+    }
     const cmp = comparacaoResumo(r), rot = cmp ? cmp.rotulo : null;
     setKpis('ev_kpis', [
       { label: 'Pagamento', valor: brlK(pagamento(resumo)), delta: cmp ? deltaPct(cmp.cur.pagamento, cmp.prev.pagamento) : null, deltaLabel: rot, subir_e_ruim: true },
@@ -2290,7 +2588,8 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 
   function renderEspecialidades() {
-    const r = recorteAtual(), resumo = resumoDe(r), therapies = terapiasDe(r), specialties = agregarEspecialidades(r), care = linhasRows(r), linhas = linhasDe(r);
+    const r = recorteAtual(), resumo = resumoDe(r), therapies = terapiasEscopo(r), specialties = agregarEspecialidades(r), care = linhasRows(r), linhas = linhasDe(r);
+    notaEscopo('view-especialidades');
     const lider = therapies.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0))[0];
     const totalTer = pagamento(resumo) || 0;
     setKpis('es_kpis', [
@@ -2319,10 +2618,12 @@ html,body{max-width:100%;overflow-x:hidden}
       }));
       if (!linhasFx.length) { const tr = el('tr'), td = el('td', null, 'Nenhuma faixa publicável neste recorte (mínimo de ' + fmtN(MIN_PRESTADORES_FAIXA) + ' prestadores por canal).'); td.colSpan = 5; tr.append(td); fx.append(tr); }
     }
-    const terapiaSpec = new Map(therapies.map(x => [nomeTerapia(x), String(x.especialidade || '')]));
+    const terapiaSpec = new Map(terapiasDe(r).map(x => [nomeTerapia(x), String(x.especialidade || '')]));
+    const discAtual = disciplinaAtiva();
     const combosMap = new Map();
     asArray(linhas.combinacoes).forEach(row => {
       const specs = [...new Set(asArray(row.terapias).map(t => terapiaSpec.get(t)).filter(Boolean))].sort();
+      if (discAtual && !specs.includes(discAtual)) return;
       const key = specs.length ? specs.join(' + ') : asArray(row.terapias).join(' + ');
       const prev = combosMap.get(key) || 0, value = n(pacientes(row)); if (value !== null) combosMap.set(key, prev + value);
     });
@@ -2343,6 +2644,18 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function renderPacientes() {
     const r = recorteAtual(), resumo = resumoDe(r), p = pacientesDe(r), intensity = isObject(p.intensidade) ? p.intensidade : {}, care = linhasRows(r);
+    notaEscopo('view-pacientes');
+    const contagemKits = kitsDoRecorte(r), totalKits = [...contagemKits.values()].reduce((a, b) => a + b, 0);
+    const kitAtual = kitAtivo(), kitsBody = $('pa_kits') ? $('pa_kits').querySelector('tbody') : null;
+    if (kitsBody) {
+      kitsBody.replaceChildren(...KITS.map(k => {
+        const v = contagemKits.get(k.id) || 0;
+        const tr = el('tr', k.id === kitAtual ? 'kit-ativo' : null);
+        [k.rotulo, k.descricao, fmtN(v), totalKits ? pct(v / totalKits * 100) : '—'].forEach((txt, i) => tr.append(el('td', i >= 2 ? 'num' : '', txt)));
+        return tr;
+      }));
+      $('pa_kits_note').textContent = (kitAtual ? 'O kit selecionado no Início está destacado. ' : '') + 'Contagens derivadas das combinações publicadas pelo pipeline; percentuais sobre as crianças com combinação registrada no recorte. Perfil completo da coorte (idade, custo, permanência por kit) chega com o contrato v4.';
+    }
     setKpis('pa_kpis', [
       { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) },
       { label: 'Custo por criança-mês', valor: brl(custoCriancaMes(r)), sub: 'pagamento ÷ criança×mês ativo' },
@@ -2363,6 +2676,13 @@ html,body{max-width:100%;overflow-x:hidden}
 
   function renderCanais() {
     const r = recorteAtual(), resumo = resumoDe(r), rows = canaisDe(r).slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0)), total = pagamento(resumo) || 0;
+    notaEscopo('view-canais');
+    const secCanais = $('view-canais');
+    let notaDisc = secCanais.querySelector('.disc-note');
+    if (disciplinaAtiva()) {
+      if (!notaDisc) { notaDisc = el('div', 'metric-note disc-note'); secCanais.prepend(notaDisc); }
+      notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' O corte de canais por disciplina chega com o contrato v4 do pipeline; abaixo, a leitura da rede completa.'));
+    } else if (notaDisc) notaDisc.remove();
     const casa = rows.find(x => nomeCanal(x) === 'Casa Unimed');
     const casaPct = casa && total ? (pagamento(casa) || 0) / total * 100 : null;
     setKpis('ca_kpis', [
