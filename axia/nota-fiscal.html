@@ -370,7 +370,7 @@
       <table>
         <thead>
           <tr>
-            <th>Data</th>
+            <th>Data/Hora</th>
             <th>Tomador</th>
             <th>Valor</th>
             <th>Competência</th>
@@ -806,6 +806,13 @@ function formatDate(d) {
   const dt = new Date(d);
   return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
+function formatDateTime(d) {
+  if (!d) return '-';
+  const dt = new Date(d);
+  const data = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' });
+  const hora = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+  return `${data} ${hora}`;
+}
 
 // EMITIR NFS-e (com modal de confirmacao)
 document.getElementById('btn-emitir').addEventListener('click', () => {
@@ -1020,7 +1027,7 @@ async function loadHistorico() {
       const chave = r.chave_acesso || '-';
       const chaveShort = chave.length > 10 ? chave.slice(0, 6) + '...' + chave.slice(-6) : chave;
       return `<tr>
-        <td>${formatDate(r.created_at)}</td>
+        <td title="Criado: ${formatDateTime(r.created_at)}">${formatDateTime(r.updated_at || r.created_at)}</td>
         <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.tomador_razao_social || ''}">${r.tomador_razao_social || '-'}</td>
         <td>${formatMoney(r.valor)}</td>
         <td>${r.competencia || '-'}</td>
@@ -1059,9 +1066,9 @@ function preencherCancelamento(chave) {
 // EXPORTAR CSV
 function exportarCSV() {
   if (!historicoData.length) { showToast('Nenhum dado para exportar', 'warning'); return; }
-  const headers = ['Data', 'Tomador', 'CNPJ', 'Valor', 'Competencia', 'Status', 'Chave de Acesso'];
+  const headers = ['Data/Hora Status', 'Criado em', 'Tomador', 'CNPJ', 'Valor', 'Competencia', 'Status', 'Chave de Acesso'];
   const rows = historicoData.map(r => [
-    formatDate(r.created_at), r.tomador_razao_social || '', r.tomador_cnpj || '',
+    formatDateTime(r.updated_at || r.created_at), formatDateTime(r.created_at), r.tomador_razao_social || '', r.tomador_cnpj || '',
     r.valor || '0', r.competencia || '', r.status || '', r.chave_acesso || ''
   ]);
   const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
