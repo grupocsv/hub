@@ -7,7 +7,8 @@ Este arquivo orienta o agente/engenheiro que vai **executar** a evolução do Pa
 
 Leia **integralmente**, do início ao fim, antes de qualquer código:
 
-> **`docs/_infra/prd-2026-07-painel-terapias-gestao.md`** (v3 — reforma de gestão, o PRD vigente)
+> **`docs/_infra/prd-2026-07-painel-escopos-comparaveis.md`** (v4 — escopos comparáveis, o PRD vigente)
+> **`docs/_infra/prd-2026-07-painel-terapias-gestao.md`** (v3 — reforma de gestão, vigente no que o v4 não altera)
 
 O v3 reforma as telas e o contrato de dados sobre a base já implantada: seis
 perguntas de gestão, Visão Executiva com deltas e Fila de Ação, ranking Pareto,
