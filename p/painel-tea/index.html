@@ -735,6 +735,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .card,.note-card,.kpi-grid,.status-card,.achado{border-radius:20px}
 .period-control{display:flex;align-items:center;gap:7px;flex:0 1 auto;min-width:0}
 .period-control label{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;font-weight:700;color:var(--ink-3);white-space:nowrap}
+.pc-datas{font-size:11px;font-weight:650;color:var(--ink-3);background:var(--u-paper);border:1px solid var(--line-soft);border-radius:9999px;padding:6px 11px;white-space:nowrap}
 .period-control select,.filter-field select,.filter-field input,.provider-picker select{min-height:40px;border:1px solid var(--line);border-radius:9999px;background:#fff;color:var(--u-dark);font:600 12px var(--font-sans);padding:8px 34px 8px 13px;outline:none;max-width:190px}
 .period-control select:focus,.filter-field select:focus,.filter-field input:focus,.provider-picker select:focus{border-color:var(--u-green);box-shadow:0 0 0 3px rgba(0,153,93,.1)}
 .filter-strip{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
@@ -793,9 +794,10 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (max-width:700px){
   .method-grid,.modal-series-grid{grid-template-columns:1fr}
   .source-row{grid-template-columns:1fr;gap:2px}
-  .period-control{grid-template-columns:1fr 1fr}
+  .period-control{grid-template-columns:1fr 1fr;flex-wrap:wrap}
   .period-control label{grid-column:1/-1}
   .period-control select{font-size:12px;padding-right:25px}
+  .pc-datas{flex:1 1 100%;text-align:center;padding:4px 8px;font-size:10.5px}
   .filter-field,.filter-field.compact{flex:1 1 100%;min-width:0}
   .provider-picker{align-items:stretch;flex-direction:column}
   .provider-picker select{width:100%;max-width:none}
@@ -875,6 +877,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <label for="period_type">Período</label>
       <select id="period_type" aria-label="Granularidade do período"></select>
       <select id="period_value" aria-label="Recorte do período"></select>
+      <span class="pc-datas" id="tb_datas" title="Início e fim do período selecionado">–</span>
     </div>
     <div class="tb-chips">
       <button class="chip escopo" id="tb_escopo" type="button" aria-label="Escopo assistencial ativo; toque para alterar no Início">–</button>
@@ -921,8 +924,8 @@ html,body{max-width:100%;overflow-x:hidden}
       <img class="lg-unimedgv" src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV">
       <span class="sf-sep"></span>
       <img class="lg-evs" src="https://assets.grupocsv.com/logos/evs/icon-1x1-sem-fundo.png" alt="EVS">
-      <img class="lg-axia" src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare">
-      <img class="lg-gcsv" src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV">
+      <a href="https://grupocsv.com/axiacare" target="_blank" rel="noopener" aria-label="AxiaCare"><img class="lg-axia" src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare"></a>
+      <a href="https://grupocsv.com/" target="_blank" rel="noopener" aria-label="Grupo CSV"><img class="lg-gcsv" src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV"></a>
     </div>
     <div class="sf-legal">Uso Interno · Dados Agregados</div>
   </footer>
@@ -1738,10 +1741,20 @@ html,body{max-width:100%;overflow-x:hidden}
     atualizarCabecalho();
     navigate(state.view, true);
   }
+  function datasPeriodo(p) {
+    if (!p) return null;
+    const ini = p.inicio || asArray(p.meses)[0], fim = p.fim || asArray(p.meses).slice(-1)[0];
+    if (!ini || !fim) return null;
+    const [aI, mI] = String(ini).split('/'), [aF, mF] = String(fim).split('/');
+    if (!aI || !mI || !aF || !mF) return null;
+    const ultimoDia = new Date(Number(aF), Number(mF), 0).getDate();
+    return '01/' + mI + '/' + aI + ' – ' + String(ultimoDia).padStart(2, '0') + '/' + mF + '/' + aF;
+  }
   function atualizarCabecalho() {
     const p = PERIODOS.find(x => x.id === state.periodId), meta = DATA && DATA.meta ? DATA.meta : {};
     const label = p ? p.rotulo : 'Período não informado';
     $('tb_periodo').textContent = label;
+    if ($('tb_datas')) $('tb_datas').textContent = datasPeriodo(p) || '–';
     if ($('tb_escopo')) $('tb_escopo').textContent = rotuloEscopo();
     const corteBruto = pick(meta, 'data_corte_idade', 'data_corte');
     const corte = corteBruto ? String(corteBruto).split('-').reverse().join('/') : null;
