@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-22",
+  "scope": "grupo_csv",
+  "products": [
+    {
+      "id": "compass",
+      "name": "Compass™",
+      "descriptor": "Publicações Estratégicas",
+      "url": "/compass/",
+      "infra_doc": "/_infra/ferramentas/compass"
+    },
+    {
+      "id": "signal",
+      "name": "Signal™",
+      "descriptor": "Boletim Semanal de Inteligência",
+      "url": "/signal/",
+      "infra_doc": "/_infra/ferramentas/signal"
+    },
+    {
+      "id": "cmm",
+      "name": "CMM",
+      "descriptor": "Catálogo de Materiais e Medicamentos",
+      "url": "https://cmm.grupocsv.com",
+      "infra_doc": "/_infra/ferramentas/cmm",
+      "source_note": "Fonte canônica atual: publicações oficiais TNUMM"
+    },
+    {
+      "id": "deck",
+      "name": "Deck™",
+      "descriptor": "Painel de Contexto Ativo",
+      "url": "https://deck.grupocsv.com",
+      "infra_doc": "/_infra/ferramentas/deck"
+    },
+    {
+      "id": "relay",
+      "name": "Relay™",
+      "descriptor": "Mensagens Institucionais Padronizadas",
+      "url": "https://relay.axcare.com.br",
+      "infra_doc": "/_infra/ferramentas/relay"
+    },
+    {
+      "id": "rtav",
+      "name": "RTAV™",
+      "descriptor": "Referencial Técnico de Avaliação por Valor",
+      "url": "https://rtav.axcare.app",
+      "infra_doc": "/_infra/ferramentas/rtav"
+    },
+    {
+      "id": "panta",
+      "name": "Panta™",
+      "descriptor": "Omnisearch Federado",
+      "url": "/panta/",
+      "infra_doc": "/_infra/ferramentas/panta"
+    },
+    {
+      "id": "discovery",
+      "name": "Discovery™",
+      "descriptor": "Diagnóstico Estratégico para OPSS",
+      "url": "https://discovery.axcare.app",
+      "infra_doc": "/_infra/ferramentas/discovery"
+    }
+  ]
+}

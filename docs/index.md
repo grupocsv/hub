@@ -7,7 +7,7 @@ head:
       content: "Hub Grupo CSV | Cuidados em Saúde com Valor"
   - - meta
     - property: og:description
-      content: "Portal central do ecossistema Grupo CSV — AxiaCare®, MedValor®, TheraTech®"
+      content: "Portal central do ecossistema Grupo CSV — AxiaCare®, MedValor®, Thera®"
   - - meta
     - property: og:image
       content: "https://hub.grupocsv.com/og/og_hub.png"
@@ -52,7 +52,7 @@ head:
               radial-gradient(ellipse at 80% 80%, rgba(25,99,150,0.2) 0%, transparent 50%);
   pointer-events: none;
 }
-.hub-hero .inner { position: relative; max-width: 800px; margin: 0 auto; }
+.hub-hero .inner { position: relative; max-width: 1180px; margin: 0 auto; }
 .hub-hero .logo { width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3)); }
 .hub-hero h1 { font-size: clamp(2.2rem, 4.5vw, 3.2rem); font-weight: 800; margin: 0 0 0; border: none; color: white; letter-spacing: -1px; }
 .hub-hero .hero-rule {
@@ -85,15 +85,25 @@ head:
 .hub-hero .hero-btn.secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
 .hub-hero .hero-groups {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 32px;
   justify-content: center;
-  flex-wrap: wrap;
+  width: 100%;
 }
 .hub-hero .hero-group {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+.hub-hero .hero-group.products {
+  width: 100%;
+  max-width: 920px;
+}
+.hub-hero .hero-group.governance {
+  width: 100%;
+  max-width: 620px;
 }
 .hub-hero .hero-group-label {
   font-size: 0.68rem;
@@ -107,6 +117,26 @@ head:
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
+}
+.hub-hero .hero-group-btns.products {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.hub-hero .hero-group-btns.products .hero-btn {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 56px;
+  padding: 12px 16px;
+  text-align: center;
+}
+.hub-hero .hero-group-btns.governance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
 }
 .hub-hero .hero-group-divider {
   display: none;
@@ -441,9 +471,11 @@ head:
   .hub-hero .tagline { font-size: 0.78rem; margin-bottom: 24px; letter-spacing: 0.06em; word-wrap: break-word; overflow-wrap: break-word; }
   .hub-hero .hero-actions { gap: 16px; }
   .hub-hero .hero-btn { width: 100%; max-width: 280px; text-align: center; padding: 12px 20px; font-size: 0.9rem; }
-  .hub-hero .hero-groups { flex-direction: column; gap: 16px; }
+  .hub-hero .hero-groups { gap: 20px; }
   .hub-hero .hero-group-divider { display: none; }
   .hub-hero .hero-group-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
+  .hub-hero .hero-group-btns.products { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 360px; }
+  .hub-hero .hero-group-btns.governance { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 360px; }
   .hub-hero .hero-group-btns .hero-btn { width: 100%; text-align: center; max-width: none; padding: 10px 12px; font-size: 0.82rem; }
   .hub-hero .hero-group-btns .hero-btn.admin { grid-column: 1 / -1; max-width: 160px; justify-self: center; }
 
@@ -517,24 +549,25 @@ head:
     <div class="hero-rule"></div>
     <p class="tagline">Cuidados em Saúde com Valor</p>
     <div class="hero-actions">
-      <a href="#parceiros" class="hero-btn primary">Dashboards e Ferramentas</a>
+      <a href="#produtos-do-grupo" class="hero-btn primary">Dashboards e Ferramentas</a>
       <div class="hero-groups">
-        <div class="hero-group">
-          <span class="hero-group-label">Corporativo</span>
-          <div class="hero-group-btns">
-            <a href="/compass/" class="hero-btn secondary">Compass™</a>
-            <a href="/signal/" class="hero-btn secondary">Signal™</a>
-            <a href="https://tnumm.grupocsv.com" class="hero-btn secondary">TNUMM</a>
-            <a href="https://deck.grupocsv.com" class="hero-btn secondary">Deck™</a>
-            <a href="https://relay.axcare.com.br" class="hero-btn secondary">Relay™</a>
-            <a href="https://rtav.axcare.app" class="hero-btn secondary">RTAV™</a>
-            <a href="/panta/" class="hero-btn secondary" target="_self">Panta™</a>
+        <div class="hero-group products" id="produtos-do-grupo">
+          <span class="hero-group-label">Produtos do Grupo CSV</span>
+          <div class="hero-group-btns products" data-product-catalog="grupo-csv">
+            <a href="/compass/" class="hero-btn secondary" data-product-id="compass">Compass™</a>
+            <a href="/signal/" class="hero-btn secondary" data-product-id="signal">Signal™</a>
+            <a href="https://cmm.grupocsv.com" class="hero-btn secondary" data-product-id="cmm">CMM</a>
+            <a href="https://deck.grupocsv.com" class="hero-btn secondary" data-product-id="deck">Deck™</a>
+            <a href="https://relay.axcare.com.br" class="hero-btn secondary" data-product-id="relay">Relay™</a>
+            <a href="https://rtav.axcare.app" class="hero-btn secondary" data-product-id="rtav">RTAV™</a>
+            <a href="/panta/" class="hero-btn secondary" data-product-id="panta" target="_self">Panta™</a>
+            <a href="https://discovery.axcare.app" class="hero-btn secondary" data-product-id="discovery">Discovery™</a>
           </div>
         </div>
         <div class="hero-group-divider"></div>
-        <div class="hero-group">
+        <div class="hero-group governance">
           <span class="hero-group-label">Governança</span>
-          <div class="hero-group-btns">
+          <div class="hero-group-btns governance">
             <a href="/compliance/" class="hero-btn secondary">Compliance</a>
             <a href="/_infra/" class="hero-btn secondary">Infraestrutura</a>
             <a href="/admin/" class="hero-btn admin" target="_self"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admin</a>
@@ -568,25 +601,9 @@ head:
       </a>
       <a href="/thera/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #6B5B95, #7c3aed);"></div>
-        <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" class="card-logo">
-        <div class="card-name">TheraTech®</div>
+        <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="Thera" class="card-logo">
+        <div class="card-name">Thera</div>
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
-      </a>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- ═══ FERRAMENTAS DO GRUPO ═══ -->
-  <div class="section" id="ferramentas-grupo">
-    <div class="section-header">
-      <h2 class="section-title">Ferramentas do Grupo</h2>
-      <p class="section-desc">Produtos autônomos e compartilhados do Grupo CSV.</p>
-    </div>
-    <div class="gov-grid">
-      <a href="https://tnumm.grupocsv.com" class="gov-card" target="_blank" rel="noopener noreferrer">
-        <div class="gc-title">TNUMM</div>
-        <div class="gc-desc">Consulta, histórico e atualização governada da Tabela Nacional Unimed de Materiais e Medicamentos.</div>
       </a>
     </div>
   </div>
@@ -686,7 +703,7 @@ head:
       <span class="logo-divider"></span>
       <a href="https://axcare.com.br" target="_blank" title="AxiaCare®"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
       <a href="https://medvalor.med.br" target="_blank" title="MedValor®"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
-      <a href="https://thera.tech" target="_blank" title="TheraTech®"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="TheraTech" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://thera.tech" target="_blank" title="Thera"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="Thera" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
     </div>
     <div class="footer-contacts">
       <a href="mailto:contato@grupocsv.com">contato@grupocsv.com</a>

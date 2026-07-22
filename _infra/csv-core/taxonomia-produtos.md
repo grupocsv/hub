@@ -4,6 +4,8 @@
 
 Este documento define a classificação oficial dos ativos digitais do ecossistema Hub CSV. Deve ser consultado ao nomear, organizar e planejar qualquer novo produto digital do Grupo CSV e parceiros.
 
+O inventário transversal exibido na página inicial é mantido em `produtos-grupo.json`. Produtos do Grupo CSV permanecem no catálogo central; páginas de empresas e parceiros exibem somente seus recursos operacionais próprios e entregáveis específicos.
+
 As definições foram consolidadas a partir de Gartner, TOGAF, SBIS e CDHI.br, adaptadas ao contexto do Hub.
 
 ## Categorias
@@ -81,6 +83,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 | `unihealth/calc-plantao.html` | **Ferramenta** | Calculadora client-side com escopo bem definido. |
 | `unimed/onco.html` | **Painel BI** | Visualização de dados de oncologia com filtros e gráficos. |
 | `compliance/*` | **Página Estática** | Conteúdo informativo sem interatividade. |
+| `cmm.grupocsv.com` | **WebApp** | Catálogo versionado, autenticação, API e atualização governada. TNUMM é a fonte canônica atual, não a identidade do produto. |
 
 ## Recomendações
 
