@@ -618,7 +618,7 @@ tr.no-detail .detail-icon { display: none; }
 }
 @media (max-width: 640px) {
   .tb-chips .chip:not(.escopo) { display: none; }
-  .chip.escopo { font-size: 11px; padding: 4px 10px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tb-chips .chip.escopo { font-size: 11px; padding: 4px 10px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 40px; display: inline-flex; align-items: center; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .kpi-grid .kpi-card:nth-child(3n) { border-right: 1px solid var(--line-soft); }
   .kpi-grid .kpi-card:nth-child(2n) { border-right: none; }
@@ -768,8 +768,8 @@ html,body{max-width:100%;overflow-x:hidden}
 .source-list{display:grid;gap:8px}
 .source-row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft)}
 .source-row:last-child{border-bottom:0}
-.source-row dt{font-size:11px;font-weight:700;color:var(--u-dark)}
-.source-row dd{font:12.5px/1.55 var(--font-serif);color:var(--ink-2);margin:0}
+.source-row dt{font-size:11px;font-weight:700;color:var(--u-dark);overflow-wrap:anywhere}
+.source-row dd{font:12.5px/1.55 var(--font-serif);color:var(--ink-2);margin:0;overflow-wrap:anywhere;min-width:0}
 .suppressed{color:var(--ink-4);font-style:italic}
 
 @media (max-width:1180px){
@@ -2751,13 +2751,29 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes) }
       ]);
+      const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
       const rdV5cur = resumoDisciplinaV5(r);
       const rdV5ant = antRec && antRec.recorte && isObject(antRec.recorte.resumo_disciplina) && isObject(antRec.recorte.resumo_disciplina[disc]) ? antRec.recorte.resumo_disciplina[disc] : null;
-      const decompD = rdV5cur && rdV5ant && n(pacientes(rdV5cur)) && n(pacientes(rdV5ant))
+      let decompD = rdV5cur && rdV5ant && n(pacientes(rdV5cur)) && n(pacientes(rdV5ant))
         ? decomposicaoPagamento(rdV5cur, rdV5ant)
         : (rdAnt ? decomposicaoVolumePreco(rd.sessoes, rd.pagamento, rdAnt.sessoes, rdAnt.pagamento) : null);
-      waterfallChart('c_ev_waterfall', decompD, 'ev_wf_title', 'ev_wf_note', antRec ? 'Escopo ' + disc + ' — comparação com ' + antRec.periodo.rotulo + '. ' : '');
-      const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
+      let ctxWf = antRec ? 'Escopo ' + disc + ' — comparação com ' + antRec.periodo.rotulo + '. ' : '', rotWf;
+      if (!decompD) {
+        const serieD = serieDisc.filter(x => n(pick(x, 'pagamento')) !== null);
+        if (serieD.length >= 4) {
+          const metade = Math.floor(serieD.length / 2);
+          const agg = fatia => ({
+            pagamento: fatia.reduce((a, x) => a + (n(pick(x, 'pagamento')) || 0), 0),
+            sessoes: fatia.reduce((a, x) => a + (n(pick(x, 'sessoes')) || 0), 0),
+            pacientes: (() => { const v = fatia.map(x => n(pick(x, 'pacientes'))).filter(x => x !== null); return v.length ? v.reduce((a, b2) => a + b2, 0) / v.length : null; })()
+          });
+          const curM = agg(serieD.slice(serieD.length - metade)), prevM = agg(serieD.slice(serieD.length - 2 * metade, serieD.length - metade));
+          decompD = decomposicaoPagamento(curM, prevM) || decomposicaoVolumePreco(curM.sessoes, curM.pagamento, prevM.sessoes, prevM.pagamento);
+          ctxWf = 'Escopo ' + disc + ' — últimos ' + metade + ' meses vs ' + metade + ' anteriores; a população de cada metade é a média mensal. ';
+          rotWf = { base: metade + ' m anteriores', fim: 'últimos ' + metade + ' m' };
+        }
+      }
+      waterfallChart('c_ev_waterfall', decompD, 'ev_wf_title', 'ev_wf_note', ctxWf, rotWf);
       if (serieDisc.length) {
         const ccmDisc = serieDisc.map(x => { const p = n(pick(x, 'pagamento')), c = n(pick(x, 'pacientes')); return Object.assign({}, x, { ccm: p !== null && c ? p / c : null }); });
         lineChart('c_ev_ccm', ccmDisc, 'ccm', 'Custo por criança-mês', brl, GREEN);
@@ -2919,7 +2935,8 @@ html,body{max-width:100%;overflow-x:hidden}
     const kitDados = !discCanais ? kitInfoV5(r) : null;
     const kitCanais = kitDados && asArray(kitDados.canais).length ? asArray(kitDados.canais) : null;
     const fonte = discCanais || kitCanais || canaisDe(r);
-    const rows = fonte.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
+    const rows = fonte.map(x => Object.assign({}, x)).sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
+    rows.forEach(x => { if (n(x.custo_sessao) === null && n(x.sessoes)) x.custo_sessao = (pagamento(x) || 0) / n(x.sessoes); });
     const total = (discCanais || kitCanais) ? rows.reduce((a, x) => a + (pagamento(x) || 0), 0) : (pagamento(resumo) || 0);
     notaEscopo('view-canais');
     const secCanais = $('view-canais');

@@ -35,7 +35,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 
-VERSAO = "4.1.0"
+VERSAO = "5.0.0"
 
 # Contrato v4 (PRD escopos comparáveis): parâmetros das referências por
 # disciplina — mesmos limiares publicados em Método e Fontes.
@@ -251,6 +251,51 @@ CREDENCIADA_OVERRIDE = {
     "CUIDARIM ESPACO DE DESENVOLVIMENTO INFANTIL LTDA",
     "CASA AURORA TERAPIAS LTDA",
 }
+
+# Contrato v5: todo registro com Tipo Prestador = ATENDIMENTO ESPECIALIZADO é
+# atendimento da Casa Unimed e consolida na entidade única publicada. A regra
+# vale por REGISTRO: o mesmo profissional permanece prestador individual nos
+# registros dos demais canais.
+CASA_UNIMED = "CASA UNIMED"
+TIPO_CASA_UNIMED = "ATENDIMENTO ESPECIALIZADO"
+CANAL_CASA_UNIMED = "Casa Unimed"
+
+# Contrato v5: kits terapêuticos — mesma taxonomia do painel. Cada criança é
+# classificada pelo CONJUNTO de disciplinas utilizadas no recorte; os kits são
+# mutuamente exclusivos e exaustivos por construção. Célula com menos de
+# K_MINIMO_KIT crianças não publica (k-anonimato).
+K_MINIMO_KIT = 5
+DISC_PSI = "Psicologia"
+DISC_FONO = "Fonoaudiologia"
+DISC_TO = "Terapia Ocupacional"
+TRIPE_DISCIPLINAS = frozenset({DISC_PSI, DISC_FONO, DISC_TO})
+KITS = (
+    {
+        "id": "tripe",
+        "rotulo": "Psicologia + Fonoaudiologia + Terapia Ocupacional",
+        "criterio": "exatamente as três disciplinas principais em conjunto",
+    },
+    {
+        "id": "tripe-ampliado",
+        "rotulo": "Psicologia + Fonoaudiologia + Terapia Ocupacional + outras",
+        "criterio": "as três disciplinas principais mais uma ou mais complementares",
+    },
+    {
+        "id": "duas",
+        "rotulo": "Duas Terapias",
+        "criterio": "exatamente duas disciplinas, em qualquer combinação",
+    },
+    {
+        "id": "multiplas-sem-tripe",
+        "rotulo": "Três ou Mais — Outras Combinações",
+        "criterio": "três ou mais disciplinas sem conter as três principais",
+    },
+    {
+        "id": "unica",
+        "rotulo": "Terapia Única",
+        "criterio": "uma única disciplina no recorte",
+    },
+)
 
 FAIXAS_ETARIAS = ("0–2", "3–5", "6–8", "9–11", "12–14", "15–17", "18+")
 BUCKETS_INTENSIDADE = ("<3", "3–4", "5–8", "9+")
@@ -517,6 +562,17 @@ def normalizar_registro(valores, arquivo, numero_linha):
             f"incorporado quando o prestador é {PEDIAKIDS}"
         )
 
+    tipo_normalizado = d_nome(tipo_prestador)
+    canal = canal_do(tipo_prestador, nome_prestador_fonte)
+    # Guarda de coerência do contrato v5: um registro da Casa jamais pode sair
+    # em outro canal (colisão com CREDENCIADA_OVERRIDE). Hoje é impossível nos
+    # dados; se um dia acontecer, o pipeline para em vez de decidir sozinho.
+    if tipo_normalizado == TIPO_CASA_UNIMED and canal != CANAL_CASA_UNIMED:
+        raise ErroPipeline(
+            f"{arquivo.name}, linha {numero_linha}: tipo {TIPO_CASA_UNIMED} "
+            f"com canal divergente ({canal})"
+        )
+
     registro = {
         "anomes": anomes,
         "matricula": texto_celula(bruto["matricula"]),
@@ -532,8 +588,16 @@ def normalizar_registro(valores, arquivo, numero_linha):
         "terapia_id": regra["id"],
         "nome_prest_fonte": nome_prestador_fonte,
         "nome_prest": prestador_consolidado(nome_prestador_fonte),
-        "tipo_prest": d_nome(tipo_prestador),
-        "canal": canal_do(tipo_prestador, nome_prestador_fonte),
+        "tipo_prest": tipo_normalizado,
+        "canal": canal,
+        # Entidade publicável, derivada por registro. tipo_prest, nome_prest e
+        # nome_prest_fonte permanecem crus: a Matriz 2025 e os contadores
+        # 161/160 dependem deles.
+        "prest_entidade": (
+            CASA_UNIMED
+            if tipo_normalizado == TIPO_CASA_UNIMED
+            else prestador_consolidado(nome_prestador_fonte)
+        ),
         "qtd": qtd,
         "valor": valor,
         "arquivo": arquivo.name,
@@ -908,7 +972,9 @@ def agregar_terapias(
 
 
 def agregar_prestadores(registros, meses):
-    por_prestador = grupos(registros, lambda r: r["nome_prest"])
+    # Contrato v5: ranking por entidade publicada. Os registros da Casa Unimed
+    # consolidam num item único com a composição por profissional.
+    por_prestador = grupos(registros, lambda r: r["prest_entidade"])
     itens = []
     series = {}
     for nome, linhas in por_prestador.items():
@@ -957,6 +1023,23 @@ def agregar_prestadores(registros, meses):
             pct(at["sessoes"], exatas["sessoes"])
             if exatas["sessoes"] else None
         )
+        if nome == CASA_UNIMED:
+            composicao = []
+            for profissional, plinhas in grupos(
+                linhas, lambda r: r["nome_prest"]
+            ).items():
+                pexatas = metricas_exatas(plinhas)
+                composicao.append(
+                    {
+                        "nome": profissional,
+                        "sessoes": numero(pexatas["sessoes"]),
+                        "pagamento": dinheiro(pexatas["pagamento"]),
+                        "pacientes": pexatas["n_pacientes"],
+                    }
+                )
+            composicao.sort(key=lambda x: (-(x["pagamento"] or 0), x["nome"]))
+            item["composicao"] = composicao
+            item["quantidade_entidades"] = len(composicao)
         itens.append(item)
         series[nome] = serie_mensal(linhas, meses)
 
@@ -964,13 +1047,18 @@ def agregar_prestadores(registros, meses):
     return itens, dict(sorted(series.items()))
 
 
-def agregar_prestador_disciplina(registros):
+def agregar_prestador_disciplina(registros, chave_nome=None):
     # Contrato v4: fatia exata prestador × disciplina. A soma das fatias de um
     # prestador reproduz o total dele no recorte (validado em validar_saida).
+    # Contrato v5: a chave padrão é a entidade publicada (coerente com o
+    # ranking); as referências continuam consumindo fatias por profissional
+    # via chave_nome=lambda r: r["nome_prest"].
+    if chave_nome is None:
+        chave_nome = lambda r: r["prest_entidade"]
     por_fatia = grupos(
         registros,
         lambda r: (
-            r["nome_prest"],
+            chave_nome(r),
             CATALOGO_TERAPIAS[r["terapia_id"]]["especialidade"],
         ),
     )
@@ -1003,6 +1091,10 @@ def agregar_prestador_disciplina(registros):
     return itens
 
 
+def disciplina_do(registro):
+    return CATALOGO_TERAPIAS[registro["terapia_id"]]["especialidade"]
+
+
 def agregar_disciplina_serie(registros, meses):
     # Contrato v4: série mensal por disciplina. A soma das disciplinas em cada
     # competência reproduz a série mensal total (validado em validar_saida).
@@ -1014,6 +1106,110 @@ def agregar_disciplina_serie(registros, meses):
         disciplina: serie_mensal(linhas, meses)
         for disciplina, linhas in sorted(por_disciplina.items())
     }
+
+
+def agregar_disciplina_canais(registros):
+    # Contrato v5: leitura por canal dentro de cada disciplina, para a aba
+    # Canais reagir ao escopo de disciplina. Cross-foot duplo validado em
+    # validar_saida: contra prestador_disciplina e contra canais do recorte.
+    por_disciplina = grupos(registros, disciplina_do)
+    saida = {}
+    for disciplina, linhas in sorted(por_disciplina.items()):
+        itens = []
+        for canal, linhas_canal in sorted(
+            grupos(linhas, lambda r: r["canal"]).items()
+        ):
+            item = {"canal": canal}
+            item.update(publicar_metricas(metricas_exatas(linhas_canal)))
+            item["exposicoes"] = len(
+                {(r["paciente"], r["terapia_id"]) for r in linhas_canal}
+            )
+            item["prestadores"] = len(
+                {r["prest_entidade"] for r in linhas_canal}
+            )
+            item["profissionais"] = len(
+                {r["nome_prest"] for r in linhas_canal}
+            )
+            itens.append(item)
+        itens.sort(key=lambda x: (-(x["pagamento"] or 0), x["canal"]))
+        saida[disciplina] = itens
+    return saida
+
+
+def agregar_resumo_disciplina(registros):
+    # Contrato v5: resumo por disciplina com crianças únicas deduplicadas
+    # DENTRO da disciplina. A soma de pacientes entre disciplinas excede o
+    # total do recorte por construção; pagamento e sessões somam exatos.
+    por_disciplina = grupos(registros, disciplina_do)
+    saida = {}
+    for disciplina, linhas in sorted(por_disciplina.items()):
+        item = publicar_metricas(metricas_exatas(linhas))
+        item["exposicoes"] = len(
+            {(r["paciente"], r["terapia_id"]) for r in linhas}
+        )
+        saida[disciplina] = item
+    return saida
+
+
+def kit_da_crianca(disciplinas):
+    # Taxonomia do painel: classificação exaustiva e mutuamente exclusiva da
+    # criança pelo conjunto de disciplinas utilizadas no recorte.
+    if len(disciplinas) == 1:
+        return "unica"
+    if len(disciplinas) == 2:
+        return "duas"
+    if disciplinas == TRIPE_DISCIPLINAS:
+        return "tripe"
+    if TRIPE_DISCIPLINAS <= disciplinas:
+        return "tripe-ampliado"
+    return "multiplas-sem-tripe"
+
+
+def agregar_kits(registros):
+    # Contrato v5: agregados por kit terapêutico. Kit ausente do JSON significa
+    # suprimido pelo k-anonimato (menos de K_MINIMO_KIT crianças), nunca zero.
+    disciplinas_paciente = defaultdict(set)
+    for r in registros:
+        disciplinas_paciente[r["paciente"]].add(disciplina_do(r))
+    linhas_kit = grupos(
+        registros, lambda r: kit_da_crianca(disciplinas_paciente[r["paciente"]])
+    )
+    saida = {}
+    for kit in KITS:
+        linhas = linhas_kit.get(kit["id"], [])
+        criancas = {r["paciente"] for r in linhas}
+        if len(criancas) < K_MINIMO_KIT:
+            continue
+        exatas = metricas_exatas(linhas)
+        item = {
+            "id": kit["id"],
+            "rotulo": kit["rotulo"],
+            "criterio": kit["criterio"],
+            "criancas": len(criancas),
+        }
+        item.update(publicar_metricas(exatas))
+        crianca_meses = len({(r["paciente"], r["anomes"]) for r in linhas})
+        item["crianca_meses"] = crianca_meses
+        item["custo_crianca_mes"] = razao(exatas["pagamento"], crianca_meses)
+        canais = []
+        for canal, linhas_canal in sorted(
+            grupos(linhas, lambda r: r["canal"]).items()
+        ):
+            canal_exatas = metricas_exatas(linhas_canal)
+            canais.append(
+                {
+                    "canal": canal,
+                    "pagamento": dinheiro(canal_exatas["pagamento"]),
+                    "sessoes": numero(canal_exatas["sessoes"]),
+                    "pct_pagamento": pct(
+                        canal_exatas["pagamento"], exatas["pagamento"]
+                    ),
+                }
+            )
+        canais.sort(key=lambda x: (-(x["pagamento"] or 0), x["canal"]))
+        item["canais"] = canais
+        saida[kit["id"]] = item
+    return saida
 
 
 def referencias_disciplina(fatias):
@@ -1185,7 +1381,10 @@ def agregar_canais(registros):
     for canal, linhas in por_canal.items():
         item = {"canal": canal}
         item.update(publicar_metricas(metricas_exatas(linhas)))
-        item["prestadores"] = len({r["nome_prest"] for r in linhas})
+        # Contrato v5: prestadores conta entidades publicadas (a Casa Unimed
+        # vale 1); profissionais conta pessoas físicas/CNPJs de origem.
+        item["prestadores"] = len({r["prest_entidade"] for r in linhas})
+        item["profissionais"] = len({r["nome_prest"] for r in linhas})
         itens.append(item)
     itens.sort(
         key=lambda x: (
@@ -1207,7 +1406,9 @@ def agregar_solicitantes(registros):
         item.update(publicar_metricas(exatas))
         item["cbos"] = Counter(r["cbos"] for r in linhas).most_common(1)[0][0]
         executores = []
-        for prestador, par in grupos(linhas, lambda r: r["nome_prest"]).items():
+        # Contrato v5: na visão do solicitante o encaminhamento é para a
+        # entidade publicada — os profissionais da Casa consolidam nela.
+        for prestador, par in grupos(linhas, lambda r: r["prest_entidade"]).items():
             par_exato = metricas_exatas(par)
             executante = {"nome": prestador}
             executante.update(publicar_metricas(par_exato))
@@ -1324,6 +1525,18 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
     resumo["prestadores_consolidados"] = len(
         {r["nome_prest"] for r in linhas}
     )
+    # Contrato v5: contadores da camada de entidades publicadas. Os dois
+    # campos acima permanecem intactos — ancoram a auditoria (161/160).
+    profissionais_casa = {
+        r["nome_prest"] for r in linhas if r["prest_entidade"] == CASA_UNIMED
+    }
+    profissionais_fora = {
+        r["nome_prest"] for r in linhas if r["prest_entidade"] != CASA_UNIMED
+    }
+    resumo["prestadores_publicados"] = len(
+        {r["prest_entidade"] for r in linhas}
+    )
+    resumo["profissionais_casa_unimed"] = len(profissionais_casa)
     linhas_cuidado, auditoria_linhas = distribuir_linhas_cuidado(
         linhas, exatas["n_pacientes"], periodo["id"]
     )
@@ -1331,6 +1544,13 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
         linhas, periodo["meses"]
     )
     fatias_disciplina = agregar_prestador_disciplina(linhas)
+    # Referências permanecem na granularidade profissional (nome_prest):
+    # colapsar dezenas de profissionais da Casa em uma observação distorceria
+    # mediana, quartis e o piso k>=5. As fatias abaixo não são publicadas.
+    fatias_profissional = agregar_prestador_disciplina(
+        linhas, chave_nome=lambda r: r["nome_prest"]
+    )
+    por_disciplina = grupos(linhas, disciplina_do)
     publico = {
         "resumo": resumo,
         "serie_mensal": serie_mensal(linhas, periodo["meses"]),
@@ -1341,7 +1561,14 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
         "serie_prestador": serie_prestador,
         "prestador_disciplina": fatias_disciplina,
         "disciplina_serie": agregar_disciplina_serie(linhas, periodo["meses"]),
-        "referencias": referencias_disciplina(fatias_disciplina),
+        "disciplina_canais": agregar_disciplina_canais(linhas),
+        "resumo_disciplina": agregar_resumo_disciplina(linhas),
+        "pacientes_disciplina": {
+            disciplina: agregar_pacientes(linhas_disc, corte)
+            for disciplina, linhas_disc in sorted(por_disciplina.items())
+        },
+        "kits": agregar_kits(linhas),
+        "referencias": referencias_disciplina(fatias_profissional),
         "linhas_cuidado": linhas_cuidado,
         "canais": agregar_canais(linhas),
         "solicitantes": agregar_solicitantes(linhas),
@@ -1352,6 +1579,10 @@ def agregar_recorte(registros, periodo, terapias_mantidas, corte):
         "linhas_cuidado": auditoria_linhas,
         "prestadores_observados": resumo["prestadores_observados"],
         "prestadores_consolidados": resumo["prestadores_consolidados"],
+        "prestadores_publicados": resumo["prestadores_publicados"],
+        "profissionais_exclusivos_casa": len(
+            profissionais_casa - profissionais_fora
+        ),
     }
     return publico, auditoria
 
@@ -1417,6 +1648,26 @@ def construir_dados(
                 "origem_preservada": True,
                 **at_publico,
             },
+            "casa_unimed": {
+                "entidade": CASA_UNIMED,
+                "criterio": f"registro com Tipo Prestador = {TIPO_CASA_UNIMED}",
+                "consolidacao": (
+                    "por registro; o mesmo profissional pode figurar como "
+                    "prestador individual nos demais canais"
+                ),
+                "profissionais": contagens["profissionais_casa_unimed"],
+            },
+            "kits_catalogo": {
+                "regra": (
+                    "classificação por criança pelo conjunto de disciplinas "
+                    "utilizadas no recorte; kit ausente de um recorte foi "
+                    f"suprimido pelo k-anonimato (menos de {K_MINIMO_KIT} "
+                    "crianças), nunca é zero"
+                ),
+                "k_minimo": K_MINIMO_KIT,
+                "kits": [dict(kit) for kit in KITS],
+            },
+            "referencias_granularidade": "profissional (nome_prest)",
             "matriz_2025": None,
         },
         "recortes": recortes,
@@ -1970,6 +2221,203 @@ def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
                     break
         if not isinstance(recorte.get("referencias"), dict):
             erros.append(f"{periodo_id}: referencias por disciplina ausentes")
+
+        # Contrato v5: consolidação da Casa Unimed coerente com a composição.
+        resumo = recorte["resumo"]
+        casa = next(
+            (x for x in recorte["prestadores"] if x["nome"] == CASA_UNIMED),
+            None,
+        )
+        if casa is not None:
+            composicao = casa.get("composicao") or []
+            soma_pag = sum(
+                (Decimal(str(p["pagamento"])) for p in composicao), Decimal(0)
+            )
+            soma_sess = sum(
+                (Decimal(str(p["sessoes"])) for p in composicao), Decimal(0)
+            )
+            if abs(soma_pag - Decimal(str(casa["pagamento"]))) > Decimal("0.02"):
+                erros.append(
+                    f"{periodo_id}: composição da Casa Unimed não soma o "
+                    f"pagamento da entidade ({soma_pag} != {casa['pagamento']})"
+                )
+            if soma_sess != Decimal(str(casa["sessoes"])):
+                erros.append(
+                    f"{periodo_id}: composição da Casa Unimed não soma as sessões"
+                )
+            if casa["canais"] != [CANAL_CASA_UNIMED]:
+                erros.append(
+                    f"{periodo_id}: entidade Casa Unimed com canal fora de "
+                    f"{CANAL_CASA_UNIMED}"
+                )
+            if len(composicao) != casa["quantidade_entidades"]:
+                erros.append(
+                    f"{periodo_id}: quantidade_entidades diverge da composição"
+                )
+            if len(composicao) != resumo["profissionais_casa_unimed"]:
+                erros.append(
+                    f"{periodo_id}: profissionais_casa_unimed diverge da composição"
+                )
+            serie_casa = recorte["serie_prestador"].get(CASA_UNIMED)
+            soma_serie = sum(
+                (Decimal(str(p["pagamento"] or 0)) for p in serie_casa or []),
+                Decimal(0),
+            )
+            if serie_casa is None or abs(
+                soma_serie - Decimal(str(casa["pagamento"]))
+            ) > Decimal("0.02"):
+                erros.append(
+                    f"{periodo_id}: serie_prestador da Casa Unimed não soma o pagamento"
+                )
+        elif resumo["profissionais_casa_unimed"]:
+            erros.append(
+                f"{periodo_id}: profissionais da Casa contados sem entidade publicada"
+            )
+        for item in recorte["prestadores"]:
+            if item["nome"] != CASA_UNIMED and CANAL_CASA_UNIMED in item["canais"]:
+                erros.append(
+                    f"{periodo_id}: registro do canal Casa Unimed escapou da "
+                    f"consolidação em {item['nome']}"
+                )
+        audit_recorte = auditoria["recortes"][periodo_id]
+        esperado_publicados = (
+            resumo["prestadores_consolidados"]
+            - audit_recorte["profissionais_exclusivos_casa"]
+            + (1 if casa is not None else 0)
+        )
+        if resumo["prestadores_publicados"] != esperado_publicados:
+            erros.append(
+                f"{periodo_id}: prestadores_publicados fora do invariante "
+                "consolidados - exclusivos da Casa + 1"
+            )
+        if resumo["prestadores_publicados"] != len(recorte["prestadores"]):
+            erros.append(
+                f"{periodo_id}: prestadores_publicados diverge do ranking"
+            )
+
+        # Contrato v5: cross-foot de disciplina_canais e resumo_disciplina.
+        disc_canais = recorte.get("disciplina_canais")
+        resumo_disc = recorte.get("resumo_disciplina")
+        if not isinstance(series_disc, dict):
+            series_disc = {}
+        if not isinstance(disc_canais, dict) or not isinstance(resumo_disc, dict):
+            erros.append(
+                f"{periodo_id}: disciplina_canais/resumo_disciplina ausentes"
+            )
+        else:
+            if not (set(disc_canais) == set(resumo_disc) == set(series_disc)):
+                erros.append(
+                    f"{periodo_id}: conjuntos de disciplinas divergentes entre "
+                    "disciplina_canais, resumo_disciplina e disciplina_serie"
+                )
+            soma_fatias = defaultdict(lambda: [Decimal(0), Decimal(0)])
+            for fatia in fatias:
+                soma_fatias[fatia["disciplina"]][0] += Decimal(str(fatia["pagamento"]))
+                soma_fatias[fatia["disciplina"]][1] += Decimal(str(fatia["sessoes"]))
+            soma_canal = defaultdict(lambda: [Decimal(0), Decimal(0)])
+            for disciplina, itens_canal in disc_canais.items():
+                pago = sum(
+                    (Decimal(str(x["pagamento"] or 0)) for x in itens_canal),
+                    Decimal(0),
+                )
+                sess = sum(
+                    (Decimal(str(x["sessoes"] or 0)) for x in itens_canal),
+                    Decimal(0),
+                )
+                pago_fatias, sess_fatias = soma_fatias.get(
+                    disciplina, [Decimal(0), Decimal(0)]
+                )
+                if abs(pago - pago_fatias) > Decimal("0.02") or sess != sess_fatias:
+                    erros.append(
+                        f"{periodo_id}: disciplina_canais de {disciplina} não "
+                        "soma as fatias prestador x disciplina"
+                    )
+                for x in itens_canal:
+                    soma_canal[x["canal"]][0] += Decimal(str(x["pagamento"] or 0))
+                    soma_canal[x["canal"]][1] += Decimal(str(x["sessoes"] or 0))
+            for item in recorte["canais"]:
+                pago, sess = soma_canal.get(
+                    item["canal"], [Decimal(0), Decimal(0)]
+                )
+                if abs(pago - Decimal(str(item["pagamento"] or 0))) > Decimal(
+                    "0.02"
+                ) or sess != Decimal(str(item["sessoes"] or 0)):
+                    erros.append(
+                        f"{periodo_id}: disciplina_canais não cruza com o "
+                        f"canal {item['canal']}"
+                    )
+            for disciplina, item in resumo_disc.items():
+                serie = series_disc.get(disciplina) or []
+                pago = sum(
+                    (Decimal(str(p["pagamento"] or 0)) for p in serie),
+                    Decimal(0),
+                )
+                sess = sum(
+                    (Decimal(str(p["sessoes"] or 0)) for p in serie), Decimal(0)
+                )
+                if abs(pago - Decimal(str(item["pagamento"] or 0))) > Decimal(
+                    "0.02"
+                ) or sess != Decimal(str(item["sessoes"] or 0)):
+                    erros.append(
+                        f"{periodo_id}: resumo_disciplina de {disciplina} não "
+                        "soma a série da disciplina"
+                    )
+        pacientes_disc = recorte.get("pacientes_disciplina")
+        if not isinstance(pacientes_disc, dict) or (
+            isinstance(resumo_disc, dict) and set(pacientes_disc) != set(resumo_disc)
+        ):
+            erros.append(f"{periodo_id}: pacientes_disciplina incompleto")
+
+        # Contrato v5: kits publicados somente com k>=5 e somas coerentes.
+        kits = recorte.get("kits")
+        if not isinstance(kits, dict):
+            erros.append(f"{periodo_id}: kits ausentes")
+        else:
+            ids_catalogo = {k["id"] for k in KITS}
+            total_criancas = 0
+            for kit_id, item in kits.items():
+                if kit_id not in ids_catalogo or item["id"] != kit_id:
+                    erros.append(f"{periodo_id}: kit fora do catálogo: {kit_id}")
+                    continue
+                if item["criancas"] < K_MINIMO_KIT:
+                    erros.append(
+                        f"{periodo_id}: kit {kit_id} publicado com menos de "
+                        f"{K_MINIMO_KIT} crianças"
+                    )
+                if item["criancas"] != item["pacientes"]:
+                    erros.append(
+                        f"{periodo_id}: kit {kit_id} com criancas != pacientes"
+                    )
+                total_criancas += item["criancas"]
+                pago = sum(
+                    (Decimal(str(x["pagamento"] or 0)) for x in item["canais"]),
+                    Decimal(0),
+                )
+                sess = sum(
+                    (Decimal(str(x["sessoes"] or 0)) for x in item["canais"]),
+                    Decimal(0),
+                )
+                if abs(pago - Decimal(str(item["pagamento"] or 0))) > Decimal(
+                    "0.02"
+                ) or sess != Decimal(str(item["sessoes"] or 0)):
+                    erros.append(
+                        f"{periodo_id}: canais do kit {kit_id} não somam o total"
+                    )
+                recomputado = razao(
+                    Decimal(str(item["pagamento"] or 0)), item["crianca_meses"]
+                )
+                if recomputado is None or abs(
+                    Decimal(str(recomputado))
+                    - Decimal(str(item["custo_crianca_mes"]))
+                ) > Decimal("0.01"):
+                    erros.append(
+                        f"{periodo_id}: custo_crianca_mes do kit {kit_id} não "
+                        "reproduz pagamento/criança-mês"
+                    )
+            if total_criancas > resumo["pacientes"]:
+                erros.append(
+                    f"{periodo_id}: kits somam mais crianças que o recorte"
+                )
     if reconciliacao.get("status") != "reconciliada":
         erros.append("Matriz 2025 não reconciliada")
     if "projecao" in json.dumps(dados, ensure_ascii=False).lower():
@@ -2000,6 +2448,17 @@ def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
             (
                 global_audit["prestadores_consolidados"] == 160,
                 "prestadores consolidados devem ser 160",
+            ),
+            # Contrato v5, fixado no primeiro build real após conferência
+            # manual: 148 = 160 consolidados - 13 exclusivos da Casa + 1.
+            (
+                global_audit["prestadores_publicados"] == 148,
+                "entidades publicadas devem ser 148",
+            ),
+            (
+                dados["recortes"]["tudo"]["resumo"]["profissionais_casa_unimed"]
+                == 14,
+                "a Casa Unimed deve consolidar 14 profissionais",
             ),
             (
                 metricas["sessoes"] == Decimal("81217"),
@@ -2230,6 +2689,38 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida):
         f"{formatar_inteiro(global_audit['prestadores_consolidados'])} "
         "entidades após consolidar o par de CNPJ"
     )
+    recorte_tudo = dados["recortes"]["tudo"]
+    resumo_tudo = recorte_tudo["resumo"]
+    print(
+        "Entidades publicadas   : "
+        f"{formatar_inteiro(resumo_tudo['prestadores_publicados'])} "
+        f"(Casa Unimed consolida "
+        f"{formatar_inteiro(resumo_tudo['profissionais_casa_unimed'])} "
+        "profissionais)"
+    )
+    casa = next(
+        (x for x in recorte_tudo["prestadores"] if x["nome"] == CASA_UNIMED),
+        None,
+    )
+    if casa is not None:
+        print(
+            "Casa Unimed            : "
+            f"{formatar_brl(casa['pagamento'])} / "
+            f"{formatar_inteiro(casa['sessoes'])} sessões na entidade"
+        )
+    print("Disciplina x canal     : ok (cross-foot canais/disciplinas)")
+    kits = recorte_tudo["kits"]
+    print(
+        "Kits publicados        : "
+        + (
+            "; ".join(
+                f"{item['id']}={formatar_inteiro(item['criancas'])} crianças"
+                for item in kits.values()
+            )
+            or "nenhum"
+        )
+        + f" | suprimidos por k<{K_MINIMO_KIT}: {len(KITS) - len(kits)}"
+    )
     print(f"Sessões                : {formatar_inteiro(m['sessoes'])}")
     print(f"Pagamento              : {formatar_brl(m['pagamento'])}")
     print(f"Sessões no denominador : {formatar_inteiro(m['sessoes_pagas'])}")
@@ -2285,14 +2776,18 @@ def criar_fontes_sinteticas(diretorio):
         raise ErroPipeline("openpyxl não instalado") from exc
 
     diretorio.mkdir(parents=True, exist_ok=True)
+    # Pacientes 1–6 frequentam todas as fontes (kit tripé ampliado); 7–11
+    # existem só nas três fontes das disciplinas principais (kit tripé, k==5);
+    # 12–13 existem só em Psicologia (kit "unica", k<5 — não publica).
     pacientes = [
         {
             "nome": f"CRIANCA SINTETICA {i + 1}",
-            "nasc": date(1990, 1, 1) if i == 5 else date(2014, i + 1, 1),
+            "nasc": date(1990, 1, 1) if i == 5 else date(2014, i % 12 + 1, 1),
             "genero": "FEMININO" if i % 2 else "MASCULINO",
         }
-        for i in range(6)
+        for i in range(13)
     ]
+    fontes_tripe = {"50005103", "50005189", "50005170"}
     for indice_codigo, codigo in enumerate(MAPA_CODIGOS):
         wb = Workbook()
         ws = wb.active
@@ -2311,6 +2806,10 @@ def criar_fontes_sinteticas(diretorio):
         for mes in meses:
             ano, numero_mes = map(int, mes.split("/"))
             for i, paciente in enumerate(pacientes):
+                if 6 <= i <= 10 and codigo not in fontes_tripe:
+                    continue
+                if i >= 11 and codigo != "50005103":
+                    continue
                 if codigo == COD_AT:
                     prestador = PEDIAKIDS
                 elif codigo == "50005103" and i < 3:
@@ -2321,9 +2820,11 @@ def criar_fontes_sinteticas(diretorio):
                     prestador = "PRESTADOR RARO LTDA"
                 else:
                     prestador = f"PRESTADOR {codigo} LTDA"
+                # O raro (50005189, i==0) fica em CLINICA para permanecer um
+                # item individual exato; os demais i==0 exercem a Casa Unimed.
                 tipo_prestador = (
                     "ATENDIMENTO ESPECIALIZADO"
-                    if i == 0 and codigo != COD_AT
+                    if i == 0 and codigo not in (COD_AT, "50005189")
                     else "CLINICA ESPECIALIZADA"
                 )
                 qtd = (
@@ -2468,7 +2969,7 @@ def selftest():
             "cobertura/descarte de PECS incorreto",
         )
         exigir_teste(
-            global_audit["metricas"]["n_pacientes"] == 6,
+            global_audit["metricas"]["n_pacientes"] == 13,
             "deduplicação Nome+Nascimento incorreta ou adulto excluído",
         )
         exigir_teste(
@@ -2522,6 +3023,143 @@ def selftest():
             and reconciliacao["status"] == "reconciliada",
             "Matriz sintética não reconciliou",
         )
+
+        # Contrato v5: consolidação da Casa Unimed, disciplina × canal e kits.
+        recorte_tudo = dados["recortes"]["tudo"]
+        resumo_tudo = recorte_tudo["resumo"]
+        casa = next(
+            (x for x in recorte_tudo["prestadores"] if x["nome"] == CASA_UNIMED),
+            None,
+        )
+        exigir_teste(
+            casa is not None and casa.get("composicao"),
+            "entidade CASA UNIMED ausente ou sem composição",
+        )
+        exigir_teste(
+            casa["canais"] == [CANAL_CASA_UNIMED]
+            and casa["quantidade_entidades"] == len(casa["composicao"]) == 16
+            and resumo_tudo["profissionais_casa_unimed"] == 16,
+            "composição da Casa Unimed deve consolidar 16 profissionais",
+        )
+        exigir_teste(
+            sum(
+                (Decimal(str(p["sessoes"])) for p in casa["composicao"]),
+                Decimal(0),
+            )
+            == Decimal(str(casa["sessoes"])),
+            "composição da Casa Unimed não soma as sessões da entidade",
+        )
+        item_misto = next(
+            x for x in recorte_tudo["prestadores"]
+            if x["nome"] == NOME_MERGE_CNPJ
+        )
+        exigir_teste(
+            NOME_MERGE_CNPJ in {p["nome"] for p in casa["composicao"]}
+            and CANAL_CASA_UNIMED not in item_misto["canais"],
+            "caso misto: profissional deve estar na composição da Casa e "
+            "permanecer individual sem o canal Casa Unimed",
+        )
+        exigir_teste(
+            CASA_UNIMED in recorte_tudo["serie_prestador"],
+            "serie_prestador deve conter CASA UNIMED",
+        )
+        exigir_teste(
+            resumo_tudo["prestadores_publicados"]
+            == resumo_tudo["prestadores_consolidados"] + 1
+            == len(recorte_tudo["prestadores"]),
+            "entidades publicadas devem ser consolidados + 1 na fixture",
+        )
+        registro_casa = next(
+            r for r in incluidos if r["tipo_prest"] == TIPO_CASA_UNIMED
+        )
+        exigir_teste(
+            rede_matriz(registro_casa) == "Rede própria"
+            and registro_casa["prest_entidade"] == CASA_UNIMED,
+            "rede_matriz e prest_entidade devem coexistir sem derivar um do outro",
+        )
+        solicitante_raro = next(
+            x for x in recorte_tudo["solicitantes"]["itens"]
+            if x["nome"] == "SOLICITANTE RARO"
+        )
+        exigir_teste(
+            {e["nome"] for e in solicitante_raro["executores"]}
+            == {CASA_UNIMED, PEDIAKIDS, "PRESTADOR RARO LTDA"},
+            "executores do solicitante raro devem consolidar a Casa Unimed",
+        )
+        exigir_teste(
+            any(
+                fatia["nome"] == CASA_UNIMED
+                for fatia in recorte_tudo["prestador_disciplina"]
+            ),
+            "prestador_disciplina deve conter fatias da entidade CASA UNIMED",
+        )
+        exigir_teste(
+            recorte_tudo["referencias"]["preco_disciplina"][DISC_TO]["n"] == 6,
+            "referências devem permanecer na granularidade profissional",
+        )
+        canal_casa = next(
+            x for x in recorte_tudo["canais"] if x["canal"] == CANAL_CASA_UNIMED
+        )
+        exigir_teste(
+            canal_casa["prestadores"] == 1 and canal_casa["profissionais"] == 16,
+            "canal Casa Unimed deve contar 1 entidade e 16 profissionais",
+        )
+        exigir_teste(
+            set(recorte_tudo["disciplina_canais"])
+            == set(recorte_tudo["resumo_disciplina"])
+            == set(recorte_tudo["disciplina_serie"])
+            == set(recorte_tudo["pacientes_disciplina"]),
+            "disciplinas divergentes entre os agregados por disciplina",
+        )
+        exigir_teste(
+            all(
+                {CANAL_CASA_UNIMED, "Rede Credenciada"}
+                <= {x["canal"] for x in itens}
+                for itens in recorte_tudo["disciplina_canais"].values()
+            ),
+            "disciplina_canais deve cobrir Casa Unimed e Rede Credenciada",
+        )
+        exigir_teste(
+            recorte_tudo["resumo_disciplina"][DISC_PSI]["pacientes"] == 13
+            and recorte_tudo["resumo_disciplina"][DISC_FONO]["pacientes"] == 11,
+            "crianças únicas por disciplina divergem da fixture",
+        )
+        kits = recorte_tudo["kits"]
+        exigir_teste(
+            set(kits) == {"tripe", "tripe-ampliado"},
+            "kits publicados devem ser tripé (k==5) e tripé ampliado (k==6)",
+        )
+        tripe = kits["tripe"]
+        exigir_teste(
+            tripe["criancas"] == 5
+            and kits["tripe-ampliado"]["criancas"] == 6
+            and tripe["crianca_meses"] == 90
+            and tripe["sessoes"] == 270,
+            "coorte do kit tripé diverge da fixture",
+        )
+        exigir_teste(
+            tripe["custo_crianca_mes"]
+            == dinheiro(Decimal(str(tripe["pagamento"])) / Decimal(90))
+            and [x["canal"] for x in tripe["canais"]] == ["Rede Credenciada"]
+            and tripe["canais"][0]["pagamento"] == tripe["pagamento"],
+            "métricas do kit tripé incoerentes",
+        )
+        valores_guarda = [
+            "2025/01", "MAT-GUARDA", "CRIANCA GUARDA", date(2015, 1, 1),
+            "FEMININO", "GUIA-GUARDA", date(2025, 1, 15), "SOL-GUARDA",
+            "SOLICITANTE GUARDA", "Psicologo clinico", "SPSADT",
+            50005103, "PROCEDIMENTO GUARDA", "SESSAO", "PREST-GUARDA",
+            "RESINTO ESPACO INTEGRADO LTDA", "ATENDIMENTO ESPECIALIZADO",
+            1, 100,
+        ]
+        try:
+            normalizar_registro(valores_guarda, Path("fixture-guarda.xlsx"), 2)
+        except ErroPipeline:
+            pass
+        else:
+            raise ErroPipeline(
+                "selftest: guarda de coerência da Casa Unimed não bloqueou"
+            )
         exigir_teste(
             "CRIANCA SINTETICA" not in texto,
             "nome sintético vazou no JSON",
@@ -2618,7 +3256,9 @@ def selftest():
     print(
         "selftest OK — 19 fontes xlsx, schema/aba, cobertura e descarte, "
         "AT, deduplicação, merge, métricas exatas, anti-vazamento, períodos, "
-        "destino privado, pagamento zero e Matriz 2025"
+        "destino privado, pagamento zero, Matriz 2025, Casa Unimed "
+        "(consolidação por registro, composição, caso misto, guarda), "
+        "disciplina × canal, resumo/pacientes por disciplina e kits (k>=5)"
     )
 
 
