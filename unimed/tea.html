@@ -690,6 +690,9 @@ td.dneg{color:#9a5a17;font-weight:600}
 .chip.escopo{background:var(--u-dark);color:#fff;border:none;font-weight:650;cursor:pointer;min-height:28px}
 .chip.escopo:hover{background:var(--u-green-dark)}
 .chip-disc{display:inline-block;font-size:10.5px;font-weight:650;background:var(--u-paper);border:1px solid var(--line-soft);border-radius:999px;padding:1px 8px;margin:1px 3px 1px 0;color:var(--ink-2)}
+.eo-titulo.eo-chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.eo-titulo.eo-chips .chip-disc{margin:0}
+.eo-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
 .chip-classe{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px}
 .chip-classe.mono{background:#eef3f2;color:var(--ink-2);border:1px solid var(--line)}
 .chip-classe.integrada{background:#e6f4ee;color:var(--u-green-dark);border:1px solid #bfe0d2}
@@ -845,7 +848,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <img class="lg-evs" src="https://assets.grupocsv.com/logos/evs/selo-white-web-360.png" alt="Escritório de Valor em Saúde">
       <img class="lg-unimed" src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares">
     </div>
-    <div class="sf-line">Realização: Escritório de Valor em Saúde · Unimed Operadora<br>AxiaCare · Grupo CSV</div>
+    <div class="sf-line">Unimed Governador Valadares<br>Escritório de Valor em Saúde · AxiaCare · Grupo CSV</div>
   </div>
 </aside>
 
@@ -1014,13 +1017,21 @@ html,body{max-width:100%;overflow-x:hidden}
   const TIPO_ROTULO = { tudo: 'Tudo', ano: 'Ano', semestre: 'Semestre', trimestre: 'Trimestre', mes: 'Mês' };
   const VIEW_SLUGS = ['inicio', 'visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
   const KITS = [
-    { id: 'tripe', rotulo: 'Tripé', descricao: 'Psicologia/ABA + Fonoaudiologia + Terapia Ocupacional' },
-    { id: 'tripe-ampliado', rotulo: 'Tripé Ampliado', descricao: 'O tripé mais uma ou mais terapias complementares' },
-    { id: 'duas', rotulo: 'Duas Terapias', descricao: 'Qualquer combinação de duas terapias' },
-    { id: 'multiplas-sem-tripe', rotulo: 'Três ou Mais sem o Tripé Completo', descricao: 'Três ou mais terapias sem fechar o tripé' },
-    { id: 'unica', rotulo: 'Terapia Única', descricao: 'Uma única terapia no período' }
+    { id: 'tripe', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional', curto: 'Psicologia + Fono + T.O.', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], descricao: 'As três terapias em conjunto' },
+    { id: 'tripe-ampliado', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional + outras', curto: 'Psicologia + Fono + T.O. + outras', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], extra: '+ outras terapias', descricao: 'As três terapias mais uma ou mais complementares' },
+    { id: 'duas', rotulo: 'Duas Terapias', curto: 'Duas Terapias', composicao: [], descricao: 'Qualquer combinação de duas terapias' },
+    { id: 'multiplas-sem-tripe', rotulo: 'Três ou Mais — Outras Combinações', curto: 'Três ou Mais — Outras', composicao: [], descricao: 'Três ou mais terapias em outra combinação' },
+    { id: 'unica', rotulo: 'Terapia Única', curto: 'Terapia Única', composicao: [], descricao: 'Uma única terapia no período' }
   ];
   const TRIPE_SET = ['PSICOLOGIA', 'FONOAUDIOLOGIA', 'TERAPIA OCUPACIONAL'];
+  const DISC_CORES = { 'PSICOLOGIA': '#f47920', 'FONOAUDIOLOGIA': '#ed1651', 'TERAPIA OCUPACIONAL': '#a3238e', 'PSICOPEDAGOGIA': '#2a78d6', 'MULTIDISCIPLINAR': '#00995d', 'FISIOTERAPIA': '#0a8fa3', 'PSICOMOTRICIDADE': '#b7791f', 'MUSICOTERAPIA': '#7a5195' };
+  const corDisciplina = nome => DISC_CORES[dNome(String(nome || ''))] || '#6b6f6c';
+  function chipDisc(nome, texto) {
+    const s = el('span', 'chip-disc', texto || nome);
+    const c = corDisciplina(nome);
+    s.style.color = c; s.style.borderColor = c + '55'; s.style.background = c + '12';
+    return s;
+  }
   const RANK_PAGE_SIZE = 15;
   const CANAIS_CONTRATADOS = ['Rede Credenciada', 'Negociação Direta', 'Casa Unimed', 'Intercâmbio'];
   const MIN_SESSOES_FAIXA = 100;
@@ -1206,7 +1217,7 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function rotuloEscopo() {
     if (state.escopoTipo === 'disciplina' && state.escopoValor) return state.escopoValor;
-    if (state.escopoTipo === 'kit' && state.escopoValor) { const k = KITS.find(x => x.id === state.escopoValor); return 'Kit ' + (k ? k.rotulo : state.escopoValor); }
+    if (state.escopoTipo === 'kit' && state.escopoValor) { const k = KITS.find(x => x.id === state.escopoValor); return k ? (k.curto || k.rotulo) : state.escopoValor; }
     return 'Rede Completa';
   }
   const escopoComparavel = () => state.specialty !== 'todas';
@@ -1581,21 +1592,21 @@ html,body{max-width:100%;overflow-x:hidden}
         </tr></thead><tbody></tbody></table></div>
         <div class="scroll-hint">Deslize para consultar todas as colunas.</div><div class="pager" id="pr_pager"></div>
       </section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_matrix_title">Preço × intensidade na rede contratada</h2><p class="card-sub">Escala focada na janela P5–P95; reembolso tem leitura própria na aba Canais</p></div></div><div class="chart-box tall"><canvas id="c_pr_matrix" role="img" aria-label="Matriz de intensidade por preço dos prestadores"></canvas></div><div class="chart-legend" id="pr_matrix_legend" aria-hidden="false"></div><p class="narrative" id="pr_matrix_note"></p></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_matrix_title">Preço × intensidade na rede contratada</h2><p class="card-sub">Escala focada na janela P5–P95; o reembolso é tratado na aba Canais</p></div></div><div class="chart-box tall"><canvas id="c_pr_matrix" role="img" aria-label="Matriz de intensidade por preço dos prestadores"></canvas></div><div class="chart-legend" id="pr_matrix_legend" aria-hidden="false"></div><p class="narrative" id="pr_matrix_note"></p></section>
       <div class="grid-2">
         <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_disp_title">Desvio de preço vs faixa do canal</h2><p class="card-sub" id="pr_disp_sub">Maiores desvios absolutos; faixa de ±10% sombreada</p></div></div><div class="chart-box tall"><canvas id="c_pr_disp" role="img" aria-label="Desvio do preço por sessão vs faixa do canal"></canvas></div><p class="narrative" id="pr_disp_note"></p><div class="card-actions" id="pr_disp_actions"></div><div class="t-wrap scroll-container" id="pr_disp_all" hidden><table class="rank" id="disp_table" aria-label="Todos os desvios de preço"><thead><tr><th>Prestador</th><th>Canal</th><th>R$/sessão</th><th>Mediana do canal</th><th>Desvio</th><th>Sessões</th></tr></thead><tbody></tbody></table><div class="pager" id="disp_pager"></div></div></section>
         <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_int_title">Intensidade vs mediana da rede</h2><p class="card-sub">Razão sobre a mediana clínica; acima de 1,5× em destaque para verificação de perfil</p></div></div><div class="chart-box tall"><canvas id="c_pr_intdev" role="img" aria-label="Razão de intensidade vs mediana da rede"></canvas></div><p class="narrative" id="pr_int_note"></p></section>
       </div>
-      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="se_title">Solicitantes — concentração no executante principal</h2><p class="card-sub">Ordenada pelo % no principal; leitura de verificação, sem inferência de irregularidade</p></div><span id="se_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="se_table" aria-label="Solicitantes e executantes"><thead><tr><th>Solicitante</th><th>CBOS</th><th>Pagamento</th><th>Sessões</th><th>Executantes</th><th>Principal</th><th>% no principal</th></tr></thead><tbody></tbody></table></div><div class="pager" id="se_pager"></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div><p class="narrative" id="pr_solic_note"></p></section>`;
+      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="se_title">Solicitantes — concentração no executante principal</h2><p class="card-sub">Ordenada pelo percentual de sessões concentrado no executante principal</p></div><span id="se_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="se_table" aria-label="Solicitantes e executantes"><thead><tr><th>Solicitante</th><th>CBOS</th><th>Pagamento</th><th>Sessões</th><th>Executantes</th><th>Principal</th><th>% no principal</th></tr></thead><tbody></tbody></table></div><div class="pager" id="se_pager"></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div><p class="narrative" id="pr_solic_note"></p></section>`;
 
     $('view-inicio').innerHTML = `
       <section class="card intro-card"><div class="card-hd"><div><h2 class="card-title">Sobre o Painel</h2></div></div>
         <p class="intro-text">O Painel Terapias Especiais consolida as terapias voltadas ao transtorno do espectro autista (TEA) e demais terapias especiais da carteira da Unimed Governador Valadares — 17 terapias com cobertura completa no período, envolvendo psicologia, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia, musicoterapia e demais especialidades — a partir das guias oficiais de faturamento, com a criança como unidade de análise (população deduplicada por nome e nascimento).</p>
-        <p class="intro-text">O princípio do painel é a comparabilidade: prestadores são comparados dentro da mesma disciplina e pacientes nas mesmas combinações de terapia. O escopo escolhido abaixo governa todas as abas.</p>
+        <p class="intro-text">Prestadores são comparados dentro da mesma disciplina e pacientes dentro da mesma combinação de terapias. A seleção feita abaixo vale para todas as abas.</p>
       </section>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Como Usar</h2></div></div>
         <ol class="howto">
-          <li><strong>Escolha o escopo assistencial</strong> abaixo — rede completa para o retrato geral, uma disciplina para leituras comparativas de prestadores, um kit para coortes de pacientes.</li>
+          <li><strong>Escolha o escopo assistencial</strong> abaixo — rede completa para o retrato geral, uma disciplina para comparar prestadores, uma combinação de terapias para analisar grupos de pacientes.</li>
           <li><strong>Escolha o período</strong> no seletor do topo — o painel abre no período completo (jan/2025 a jun/2026) e desce até o mês; o recorte vale para todas as abas.</li>
           <li><strong>Navegue pelas abas</strong> — em Prestadores, clique em qualquer linha para abrir a ficha; as tabelas têm busca, ordenação, paginação e exportação em CSV.</li>
           <li><strong>Consulte o método</strong> — todo indicador, faixa de referência e regra de cálculo está documentado em Método e Fontes.</li>
@@ -1604,68 +1615,68 @@ html,body{max-width:100%;overflow-x:hidden}
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Escopo Assistencial</h2><p class="card-sub" id="esc_sub">O escopo ativo aparece no topo de todas as abas</p></div></div>
         <div class="escopo-grupo"><div class="escopo-grupo-titulo">Rede</div><div class="escopo-grid" id="esc_rede"></div></div>
         <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Disciplina — Comparação de Prestadores</div><div class="escopo-grid" id="esc_disciplinas"></div></div>
-        <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Kit de Terapias — Coortes de Pacientes</div><div class="escopo-grid" id="esc_kits"></div><p class="narrative">Kits são cortes descritivos de gestão construídos a partir das combinações registradas; o plano terapêutico é individual e nenhuma combinação é padrão obrigatório. O tripé psicologia/ABA + fonoaudiologia + terapia ocupacional é o núcleo convergente das diretrizes brasileiras.</p></div>
+        <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Combinação de Terapias — Grupos de Pacientes</div><div class="escopo-grid" id="esc_kits"></div></div>
       </section>
-      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title">Mapa de Comparabilidade — Quem Faz o Quê</h2><p class="card-sub">Disciplinas atendidas e classe de comparabilidade de cada prestador; a classe define com quem cada um pode ser comparado, sem juízo de desempenho</p></div><span id="mapa_export"></span></div></div>
+      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title">Prestadores por Disciplina</h2><p class="card-sub">Disciplinas atendidas, perfil de atuação e volume de cada prestador no período</p></div><span id="mapa_export"></span></div></div>
         <div class="filter-strip"><div class="filter-field"><label for="mapa_busca">Prestador</label><input type="search" id="mapa_busca" placeholder="Buscar prestador" autocomplete="off"></div><span class="chip soft" id="mapa_counter">–</span></div>
-        <div class="t-wrap scroll-container"><table class="rank" id="mapa_table" aria-label="Mapa de comparabilidade dos prestadores"><thead><tr><th>Prestador</th><th>Disciplinas</th><th>Classe</th><th>Pagamento</th><th>Sessões</th></tr></thead><tbody></tbody></table></div>
+        <div class="t-wrap scroll-container"><table class="rank" id="mapa_table" aria-label="Prestadores por disciplina"><thead><tr><th>Prestador</th><th>Disciplinas</th><th>Perfil</th><th>Pagamento</th><th>Sessões</th></tr></thead><tbody></tbody></table></div>
         <div class="pager" id="mapa_pager"></div>
-        <p class="narrative">Os valores desta tabela são totais do prestador em todas as disciplinas que atende; o corte exato por disciplina chega com o contrato v4 do pipeline, declarado em Método e Fontes.</p>
+        <p class="narrative">Pagamento e sessões somam todas as disciplinas do prestador.</p>
       </section>`;
 
     $('view-visao').innerHTML = `
       <div class="kpi-grid" id="vg_kpis"></div><div class="metric-note" id="vg_population_note"></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="vg_trend_title">A tendência do pagamento por competência</h2><p class="card-sub">Barras mensais e média móvel de 3 meses</p></div></div><div class="chart-box"><canvas id="c_vg_cost" role="img" aria-label="Pagamento mensal com média móvel"></canvas></div></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="fa_title">Sinais do recorte</h2><p class="card-sub">Desvios objetivos contra as faixas e medianas publicadas, ordenados por valor; regras declaradas em Método e Fontes, sem inferência de irregularidade</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="fa_table" aria-label="Sinais do recorte"><thead><tr><th>#</th><th>Prestador ou tema</th><th>Sinal</th><th>Valor associado</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="fa_note"></p></section>`;
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="fa_title">Sinais do recorte</h2><p class="card-sub">Desvios contra as faixas e medianas de referência, ordenados pelo valor associado; regras em Método e Fontes</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="fa_table" aria-label="Sinais do recorte"><thead><tr><th>#</th><th>Prestador ou tema</th><th>Sinal</th><th>Valor associado</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="fa_note"></p></section>`;
 
     $('view-evolucao').innerHTML = `
-      <p class="v-lead">A pergunta desta aba: o custo cresce por população, por volume por criança ou por preço? A decomposição responde; as séries dão o contexto.</p><div class="kpi-row" id="ev_kpis"></div>
+      <div class="kpi-row" id="ev_kpis"></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ev_wf_title">Por que o pagamento variou</h2><p class="card-sub">Decomposição da variação vs período anterior: população × sessões por criança × preço</p></div></div><div class="chart-box med"><canvas id="c_ev_waterfall" role="img" aria-label="Decomposição da variação do pagamento"></canvas></div><p class="narrative" id="ev_wf_note"></p></section>
       <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">O custo por criança-mês — a série de eficiência</h2></div><div class="chart-box med"><canvas id="c_ev_ccm" role="img" aria-label="Custo por criança-mês por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">As crianças ativas por competência</h2></div><div class="chart-box med"><canvas id="c_ev_patients" role="img" aria-label="Crianças ativas por competência"></canvas></div></section></div>
       <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">As sessões faturadas por competência</h2></div><div class="chart-box med"><canvas id="c_ev_sessions" role="img" aria-label="Sessões por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">O custo médio por sessão por competência</h2></div><div class="chart-box med"><canvas id="c_ev_price" role="img" aria-label="Custo médio por sessão por competência"></canvas></div></section></div>`;
 
     $('view-especialidades').innerHTML = `
-      <p class="v-lead">As terapias clínicas, especialidades e combinações descrevem a multidisciplinaridade sem confundir população deduplicada com exposições.</p><div class="kpi-row" id="es_kpis"></div><div class="metric-note" id="es_population_note"></div>
+      <div class="kpi-row" id="es_kpis"></div><div class="metric-note" id="es_population_note"></div>
       <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">O pagamento se distribui entre as 17 terapias clínicas</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_cost" role="img" aria-label="Pagamento por terapia clínica"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">As sessões se distribuem entre as terapias clínicas</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_sessions" role="img" aria-label="Sessões por terapia clínica"></canvas></div></section></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Detalhe auditável por terapia clínica</h2><p class="card-sub">Pacientes nesta tabela são exposições da terapia, não população</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_table" aria-label="Detalhe por terapia clínica"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th><th>Exposições</th><th>Sessões</th><th>Pagamento</th><th>R$/sessão</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">A referência de preço por canal</h2><p class="card-sub">Mediana e faixa interquartil do R$/sessão dos prestadores com 100 ou mais sessões; base das leituras de desvio</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_faixas" aria-label="Faixas de referência de preço por canal"><thead><tr><th>Canal</th><th>P25</th><th>Mediana</th><th>P75</th><th>Prestadores na faixa</th></tr></thead><tbody></tbody></table></div><p class="narrative">Faixas calculadas sobre os agregados publicados, no nível do canal; o refinamento por terapia chega com o contrato v3 do pipeline. Faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas.</p></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">As combinações mais frequentes descrevem o cuidado multidisciplinar</h2><p class="card-sub">Combinações de especialidades ou terapias publicadas pelo pipeline</p></div></div><div class="chart-box tall"><canvas id="c_es_combos" role="img" aria-label="Combinações mais frequentes de terapias"></canvas></div><p class="narrative" id="es_care_note"></p></section>`;
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">A referência de preço por canal</h2><p class="card-sub">Mediana e faixa interquartil do R$/sessão dos prestadores com 100 ou mais sessões; base das leituras de desvio</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_faixas" aria-label="Faixas de referência de preço por canal"><thead><tr><th>Canal</th><th>P25</th><th>Mediana</th><th>P75</th><th>Prestadores na faixa</th></tr></thead><tbody></tbody></table></div><p class="narrative">Faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas; o reembolso fica fora por dispersão estrutural de preço.</p></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">As combinações mais frequentes de terapias</h2><p class="card-sub">Crianças por combinação registrada no recorte</p></div></div><div class="chart-box tall"><canvas id="c_es_combos" role="img" aria-label="Combinações mais frequentes de terapias"></canvas></div><p class="narrative" id="es_care_note"></p></section>`;
 
     $('view-pacientes').innerHTML = `
-      <p class="v-lead">O perfil da população apresenta as contagens completas do recorte autorizado, preservando a criança como unidade de análise.</p><div class="kpi-row" id="pa_kpis"></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">Coortes por Kit de Terapias</h2><p class="card-sub">Cortes descritivos das combinações registradas; o plano terapêutico é individual e nenhum kit é padrão obrigatório</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="pa_kits" aria-label="Crianças por kit de terapias"><thead><tr><th>Kit</th><th>Composição</th><th>Crianças</th><th>% da População com Combinação Registrada</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="pa_kits_note"></p></section>
+      <div class="kpi-row" id="pa_kpis"></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Crianças por Combinação de Terapias</h2><p class="card-sub">Distribuição das crianças pelas combinações registradas no recorte</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="pa_kits" aria-label="Crianças por combinação de terapias"><thead><tr><th>Combinação</th><th>Descrição</th><th>Crianças</th><th>% das Crianças com Combinação Registrada</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="pa_kits_note"></p></section>
       <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">A população se distribui por faixa etária</h2></div><div class="chart-box med"><canvas id="c_pa_age" role="img" aria-label="Crianças por faixa etária"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">A intensidade se distribui entre faixas de sessões</h2></div><div class="chart-box med"><canvas id="c_pa_intensity" role="img" aria-label="Crianças por faixa de intensidade"></canvas></div></section></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Quantas terapias cada criança utiliza</h2><p class="card-sub">Distribuição por número de terapias — única ocorrência no painel</p></div></div><div class="chart-box med"><canvas id="c_pa_care" role="img" aria-label="Crianças por número de terapias"></canvas></div></section>
       <div class="metric-note" id="pa_gender_note"></div>
       <div class="note-card"><span class="nc-label">Acesso</span> As métricas completas são carregadas somente após autenticação. Nome, matrícula, nascimento e número de guia de beneficiário não integram o painel.</div>`;
 
     $('view-canais').innerHTML = `
-      <p class="v-lead">O canal é atributo do pagamento na visão de rede única; a pergunta desta aba é onde o mix e o diferencial de preço entre canais criam oportunidade.</p><div class="kpi-row" id="ca_kpis"></div>
+      <div class="kpi-row" id="ca_kpis"></div>
       <div class="grid-2"><section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_pay_title">O pagamento se distribui entre os canais</h2><p class="card-sub">Rótulos com participação percentual</p></div></div><div class="chart-box med"><canvas id="c_ca_payment" role="img" aria-label="Pagamento por canal"></canvas></div></section><section class="card"><div class="card-hd"><div><h2 class="card-title">O custo por sessão varia conforme o canal</h2><p class="card-sub" id="ca_price_sub">Rótulos com o volume de sessões que sustenta cada preço</p></div></div><div class="chart-box med"><canvas id="c_ca_price" role="img" aria-label="Custo por sessão por canal"></canvas></div></section></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_op_title">A oportunidade entre canais</h2><p class="card-sub">Cenário de sensibilidade: diferencial de R$/sessão vs Casa Unimed × volume de cada canal externo; premissas em Método e Fontes</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_op_table" aria-label="Oportunidade por canal"><thead><tr><th>Canal</th><th>R$/sessão</th><th>Diferencial vs Casa Unimed</th><th>Sessões</th><th>Sensibilidade no período</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="ca_op_note"></p></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_reemb_title">Reembolso — a leitura própria</h2><p class="card-sub">Fora das faixas de referência da rede contratada por dispersão estrutural de preço</p></div></div><div class="metric-note" id="ca_reemb_note"></div></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_reemb_title">Reembolso</h2><p class="card-sub">Fora das faixas de referência da rede contratada por dispersão estrutural de preço</p></div></div><div class="metric-note" id="ca_reemb_note"></div></section>
       <section class="card"><div class="card-hd"><div class="card-flex"><h2 class="card-title">Detalhe auditável por canal</h2><span id="ca_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_table" aria-label="Detalhe por canal de pagamento"><thead><tr><th>Canal</th><th>Pagamento</th><th>% total</th><th>Sessões</th><th>R$/sessão</th><th>Pacientes</th><th>Prestadores</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>`;
 
     $('view-metodo').innerHTML = `
-      <p class="v-lead">As definições abaixo descrevem o contrato de dados, as fontes e as limitações usadas em todas as abas.</p>
+      <p class="v-lead">Definições, fontes e limitações de todos os indicadores do painel.</p>
       <section class="card metodo-block"><h3>Escopo clínico e códigos</h3><p>O painel considera 17 terapias clínicas com cobertura completa no período canônico. O código 50000519 é componente de faturamento de assistente terapêutica integrado à Terapia ABA — Psicologia; não constitui uma 18ª terapia.</p><div class="scroll-container"><table class="method-table" id="mt_codes"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th></tr></thead><tbody></tbody></table></div></section>
       <div class="method-grid"><section class="card metodo-block"><h3>Período e cobertura</h3><p id="mt_period"></p><div id="mt_discarded"></div></section><section class="card metodo-block"><h3>Paciente, população e prestadores</h3><p><strong>Paciente único:</strong> Nome + Data de Nascimento. Matrícula não é chave de deduplicação.</p><p id="mt_provider_method"></p><p><strong>População e exposições:</strong> crianças únicas são deduplicadas entre terapias; exposições beneficiário-terapia são contagens por terapia e não podem ser somadas como população.</p></section></div>
       <section class="card metodo-block"><h3>Duas distribuições auditáveis do número de terapias por criança</h3><div id="mt_distributions"></div><p>A distribuição clínica usa as 17 terapias consolidadas. A publicação agrupa as faixas em “1 terapia” e “2 ou mais terapias” para impedir reconstrução de células raras. A reconciliação técnica usa componentes por código de faturamento para conferir a base; o código de assistente terapêutica permanece dentro de ABA — Psicologia e não recebe rótulo de terapia clínica.</p></section>
-      <div class="method-grid"><section class="card metodo-block"><h3>Métricas e privacidade</h3><p><strong>Unidade:</strong> sessão faturada. Uma sessão faturada não equivale necessariamente a uma hora de atendimento.</p><p><strong>Intensidade:</strong> soma de sessões por criança no recorte; a média mensal considera os meses ativos definidos pelo pipeline.</p><p><strong>Custo por sessão:</strong> pagamento dividido pelas sessões pagas; registros com pagamento zero ficam fora somente desse denominador.</p><p><strong>Completude:</strong> usuários autenticados visualizam contagens, custos, sessões e nomes de prestadores e solicitantes sem supressão, inclusive nos recortes raros.</p><p><strong>Assistente terapêutica:</strong> a parcela AT por prestador é apresentada integralmente em todos os períodos disponíveis.</p></section><section class="card metodo-block"><h3>Canais da rede</h3><p>ATENDIMENTO ESPECIALIZADO → Casa Unimed; ATENDIMENTOS FORNECEDORES → Negociação Direta; CLÍNICA ESPECIALIZADA → Rede Credenciada; OUTRAS ESPEC. EXCETO MÉDICO → Negociação Direta (P.F.); REEMBOLSO → Reembolso; UNIMED NACIONAL/REGIONAL → Intercâmbio.</p><p>RESINTO, PSICONEURO, ANIMA, CUIDARIM e AURORA seguem as reclassificações vigentes para Rede Credenciada.</p></section></div>
+      <div class="method-grid"><section class="card metodo-block"><h3>Métricas e privacidade</h3><p><strong>Unidade:</strong> sessão faturada. Uma sessão faturada não equivale necessariamente a uma hora de atendimento.</p><p><strong>Intensidade:</strong> soma de sessões por criança no recorte; a média mensal considera os meses com atendimento da criança.</p><p><strong>Custo por sessão:</strong> pagamento dividido pelas sessões pagas; registros com pagamento zero ficam fora somente desse denominador.</p><p><strong>Completude:</strong> usuários autenticados visualizam contagens, custos, sessões e nomes de prestadores e solicitantes sem supressão, inclusive nos recortes raros.</p><p><strong>Assistente terapêutica:</strong> a parcela AT por prestador é apresentada integralmente em todos os períodos disponíveis.</p></section><section class="card metodo-block"><h3>Canais da rede</h3><p>ATENDIMENTO ESPECIALIZADO → Casa Unimed; ATENDIMENTOS FORNECEDORES → Negociação Direta; CLÍNICA ESPECIALIZADA → Rede Credenciada; OUTRAS ESPEC. EXCETO MÉDICO → Negociação Direta (P.F.); REEMBOLSO → Reembolso; UNIMED NACIONAL/REGIONAL → Intercâmbio.</p><p>RESINTO, PSICONEURO, ANIMA, CUIDARIM e AURORA seguem as reclassificações vigentes para Rede Credenciada.</p></section></div>
       <section class="card metodo-block"><h3>Fontes, conferências e rastreabilidade</h3><dl class="source-list" id="mt_sources"></dl></section>
       <section class="card metodo-block"><h3>Indicadores de gestão e regras de leitura</h3>
         <p><strong>Custo por criança-mês:</strong> pagamento do recorte dividido pela soma de crianças ativas em cada competência (criança×mês). Neutraliza o crescimento populacional na leitura de eficiência.</p>
         <p><strong>Variação vs período anterior:</strong> todo delta compara o recorte selecionado com o período imediatamente anterior de mesma duração (mês vs mês anterior, trimestre vs trimestre anterior, e assim por diante). O recorte "Tudo" não tem comparação.</p>
-        <p><strong>Faixas de referência de preço:</strong> mediana e quartis do R$/sessão dos prestadores com ${MIN_SESSOES_FAIXA} ou mais sessões, por canal da rede contratada (${CANAIS_CONTRATADOS.join(', ')}); faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas. Calculadas no navegador sobre os agregados publicados; o refinamento por terapia chega com o contrato v3 do pipeline. O reembolso fica fora das faixas por dispersão estrutural.</p>
+        <p><strong>Faixas de referência de preço:</strong> mediana e quartis do R$/sessão dos prestadores com ${MIN_SESSOES_FAIXA} ou mais sessões, por canal da rede contratada (${CANAIS_CONTRATADOS.join(', ')}); faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas. No escopo de disciplina, as faixas usam os valores dos prestadores dentro da disciplina. O reembolso fica fora das faixas por dispersão estrutural.</p>
         <p><strong>Desvio de faixa:</strong> diferença percentual do R$/sessão do prestador contra a mediana da faixa do seu canal. Desvio acima de +10% recebe destaque de verificação — a composição de serviço e o contrato explicam parte das diferenças.</p>
         <p><strong>Decomposição da variação:</strong> a variação do pagamento entre períodos é decomposta em efeito população ((pac₁−pac₀)×spm₀×preço₀), efeito sessões por criança (pac₁×(spm₁−spm₀)×preço₀) e efeito preço (pac₁×spm₁×(preço₁−preço₀)), onde spm é sessões por criança e preço é R$/sessão. A soma dos três efeitos reproduz exatamente a variação total.</p>
         <p><strong>Sinais do recorte:</strong> regras determinísticas e objetivas — preço acima de P75 + 10% da faixa do canal com pagamento ≥ R$ 50 mil; intensidade ≥ 1,5× a mediana da rede contratada com o mesmo piso; dispersão de preço do reembolso acima de 3× o IQR da rede contratada. O painel apresenta os desvios contra as referências publicadas; não emite recomendação de conduta — a leitura e a decisão são da gestão.</p>
         <p><strong>Comparação interna (metades):</strong> quando o recorte não tem período anterior de mesma duração (ex.: o período completo), as variações e a decomposição comparam a metade mais recente da série mensal com a metade anterior, com o rótulo indicando os meses envolvidos; a população de cada metade é a média mensal de crianças ativas.</p>
-        <p><strong>Quadrantes da matriz intensidade × preço:</strong> as medianas das principais clínicas dividem o plano em A (preço acima, intensidade abaixo), B (ambos acima), C (ambos abaixo) e D (preço abaixo, intensidade acima). A posição orienta a pergunta a fazer — não constitui juízo sobre o prestador.</p>
-        <p><strong>Escopo assistencial (interino):</strong> o escopo por disciplina usa o atributo de especialidade dos prestadores e os agregados por terapia; os valores por prestador permanecem totais do prestador em todas as disciplinas até o contrato v4 do pipeline publicar o corte prestador×disciplina. Leituras comparativas (faixas, desvios, quadrantes, sinais de prestador) só são calculadas dentro de um escopo de disciplina. Kits são cortes descritivos derivados das combinações publicadas; nenhum kit é padrão obrigatório — o núcleo convergente das diretrizes brasileiras (SBP, Ministério da Saúde 2025, SOPERJ, SBNI 2025) é o tripé psicologia/ABA + fonoaudiologia + terapia ocupacional. Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
+        <p><strong>Quadrantes da matriz intensidade × preço:</strong> as medianas das principais clínicas dividem o plano em A (preço acima, intensidade abaixo), B (ambos acima), C (ambos abaixo) e D (preço abaixo, intensidade acima).</p>
+        <p><strong>Escopo assistencial:</strong> no escopo por disciplina, os números de cada prestador vêm do corte prestador×disciplina da consolidação de dados; quando um recorte não traz esse corte, os valores por prestador são totais e a tela indica. Faixas, desvios, quadrantes e sinais de prestador são calculados dentro de um escopo de disciplina. As combinações de terapias derivam das combinações registradas por criança no período; o plano terapêutico é individual (SBP, Ministério da Saúde 2025, SBNI 2025). Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
         <p><strong>Cenário entre canais:</strong> o quadro de oportunidade da aba Canais é um teto de sensibilidade (diferencial de preço × volume), sem considerar capacidade instalada, perfil clínico ou custo marginal.</p>
       </section>
-      <section class="card metodo-block"><h3>Limitações</h3><p>O painel representa as terapias presentes nos arquivos oficiais e o período coberto pelo pipeline. Os valores são de competência de faturamento, não de caixa. Os dados de custo e utilização não sustentam inferência de causalidade clínica. Não são apresentados cenários futuros. As leituras de desvio, intensidade e concentração priorizam verificação e não constituem conclusão sobre conduta de prestadores.</p></section>`;
+      <section class="card metodo-block"><h3>Limitações</h3><p>O painel representa as terapias presentes nos arquivos oficiais e o período coberto pela consolidação de dados. Os valores são de competência de faturamento, não de caixa. Os dados de custo e utilização não sustentam inferência de causalidade clínica. Não são apresentados cenários futuros. As leituras de desvio, intensidade e concentração priorizam verificação e não constituem conclusão sobre conduta de prestadores.</p></section>`;
   }
 
   function popularPeriodos() {
@@ -2169,13 +2180,13 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!cara && !alta) return 'C — preço e intensidade abaixo das medianas';
     return 'D — preço abaixo e intensidade acima das medianas';
   }
-  const MSG_ESCOPO = 'As leituras comparativas exigem escopo de disciplina — selecione no Início. Comparar preço e intensidade entre disciplinas diferentes não é uma comparação justa.';
+  const MSG_ESCOPO = 'As comparações de preço e intensidade são feitas por disciplina — selecione uma disciplina no Início.';
   function renderProviderMatrix(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_matrix', false, MSG_ESCOPO);
-      if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço — Exige Escopo de Disciplina';
+      if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço — Selecione uma Disciplina';
       $('pr_matrix_legend').replaceChildren();
-      $('pr_matrix_note').textContent = 'O mapa de comparabilidade do Início mostra quem faz o quê; escolha uma disciplina para comparar as clínicas dela.';
+      $('pr_matrix_note').textContent = 'A tabela Prestadores por Disciplina, no Início, mostra as disciplinas de cada prestador.';
       return;
     }
     const contratados = providersFiltered(r).filter(x => canalContratado(x) && x._intensidade !== null && custoSessao(x) !== null && pagamento(x) !== null);
@@ -2251,7 +2262,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderProviderDispersion(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_disp', false, MSG_ESCOPO);
-      if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço — Exige Escopo de Disciplina';
+      if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço — Selecione uma Disciplina';
       $('pr_disp_sub').textContent = 'Faixas de referência são calculadas por disciplina';
       $('pr_disp_note').textContent = '';
       return;
@@ -2305,7 +2316,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderIntensityDeviation(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_intdev', false, MSG_ESCOPO);
-      if ($('pr_int_title')) $('pr_int_title').textContent = 'Intensidade vs Mediana — Exige Escopo de Disciplina';
+      if ($('pr_int_title')) $('pr_int_title').textContent = 'Intensidade vs Mediana — Selecione uma Disciplina';
       $('pr_int_note').textContent = '';
       return;
     }
@@ -2420,7 +2431,7 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
-        : { label: 'Fora de faixa de preço', valor: '—', sub: 'exige escopo de disciplina — selecione no Início' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'selecione uma disciplina no Início' }
     ]);
     const obs = pick(resumo, 'prestadores_observados', 'prestadores'), cons = pick(resumo, 'prestadores_consolidados', 'prestadores');
     $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas. Canal e especialidade são atributos, não cortes de população.'));
@@ -2439,10 +2450,14 @@ html,body{max-width:100%;overflow-x:hidden}
       { rotulo: (rotulos && rotulos.fim) || 'Período atual', tipo: 'total', valor: decomp.fim }
     ];
     let corrente = 0;
+    const niveis = [];
     const barras = passos.map(p => {
-      if (p.tipo === 'base' || p.tipo === 'total') { corrente = p.valor; return [0, p.valor]; }
-      const ini = corrente; corrente += p.valor; return [ini, corrente];
+      if (p.tipo === 'base' || p.tipo === 'total') { corrente = p.valor; niveis.push(p.valor); return [0, p.valor]; }
+      const ini = corrente; corrente += p.valor; niveis.push(ini, corrente); return [ini, corrente];
     });
+    const nivMin = Math.min(...niveis), nivMax = Math.max(...niveis);
+    const focar = Number.isFinite(nivMin) && Number.isFinite(nivMax) && nivMin > 0 && (nivMax - nivMin) < nivMin * 0.35;
+    const folga = (nivMax - nivMin) * 0.35 || nivMax * 0.05;
     if (!prepararCanvas(id, true)) return;
     novoChart(id, {
       type: 'bar',
@@ -2450,7 +2465,7 @@ html,body{max-width:100%;overflow-x:hidden}
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx2 => { const p = passos[ctx2.dataIndex]; return p.rotulo + ': ' + (p.tipo === 'efeito' ? (p.valor >= 0 ? '+' : '') : '') + brlK(p.valor); } } } },
-        scales: { x: eixoX({ ticks: { autoSkip: false, callback: function(v) { return trunc(this.getLabelForValue(v), 16); } } }), y: eixoY(v => brlK(v), { beginAtZero: true }) }
+        scales: { x: eixoX({ ticks: { autoSkip: false, callback: function(v) { return trunc(this.getLabelForValue(v), 16); } } }), y: eixoY(v => brlK(v), focar ? { beginAtZero: false, min: Math.max(0, nivMin - folga), max: nivMax + folga } : { beginAtZero: true }) }
       }
     });
     const dTotal = decomp.total, dPct = decomp.base ? dTotal / Math.abs(decomp.base) * 100 : null;
@@ -2483,13 +2498,27 @@ html,body{max-width:100%;overflow-x:hidden}
     rede.replaceChildren(opt('Rede Completa', 'Retrato populacional e financeiro, sem comparações entre disciplinas', 'rede', null));
     const totalRede = pagamento(resumoDe(recorteTudo())) || 0;
     const discBox = $('esc_disciplinas');
-    discBox.replaceChildren(...disciplinasDisponiveis().map(d =>
-      opt(d.nome, brlK(d.pagamento) + (totalRede ? ' · ' + fmt1(d.pagamento / totalRede * 100) + '% do pagamento' : ''), 'disciplina', d.nome)));
+    discBox.replaceChildren(...disciplinasDisponiveis().map(d => {
+      const b = opt(d.nome, brlK(d.pagamento) + (totalRede ? ' · ' + fmt1(d.pagamento / totalRede * 100) + '% do pagamento' : ''), 'disciplina', d.nome);
+      const cor = corDisciplina(d.nome), dot = el('span', 'eo-dot');
+      dot.style.background = cor;
+      b.querySelector('.eo-titulo').prepend(dot);
+      b.style.borderLeft = '4px solid ' + cor;
+      return b;
+    }));
     const kitsBox = $('esc_kits'), contagem = kitsDoRecorte(recorteTudo());
-    kitsBox.replaceChildren(...KITS.map(k =>
-      opt(k.rotulo, k.descricao + ' · ' + fmtN(contagem.get(k.id) || 0) + ' crianças', 'kit', k.id)));
+    kitsBox.replaceChildren(...KITS.map(k => {
+      const b = opt(k.composicao.length ? '' : k.rotulo, k.descricao + ' · ' + fmtN(contagem.get(k.id) || 0) + ' crianças', 'kit', k.id);
+      if (k.composicao.length) {
+        const t = b.querySelector('.eo-titulo');
+        t.classList.add('eo-chips');
+        k.composicao.forEach(nome => t.append(chipDisc(nome)));
+        if (k.extra) t.append(el('span', 'chip-disc', k.extra));
+      }
+      return b;
+    }));
     if ($('esc_sub')) $('esc_sub').textContent = 'Escopo ativo: ' + rotuloEscopo() + ' — aparece no topo de todas as abas';
-    // mapa de comparabilidade
+    // prestadores por disciplina
     const todos = providerRowsTotais(r).filter(row => !mapaBusca || norm(row._nome).includes(norm(mapaBusca)))
       .sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
     $('mapa_counter').textContent = fmtN(todos.length) + ' prestador' + (todos.length === 1 ? '' : 'es');
@@ -2500,7 +2529,8 @@ html,body{max-width:100%;overflow-x:hidden}
       const tr = el('tr');
       tr.append(el('td', 'prest', row._nome));
       const tdDisc = el('td');
-      (row._especialidades.length ? row._especialidades : ['—']).forEach(dsc => tdDisc.append(el('span', 'chip-disc', dsc)));
+      if (row._especialidades.length) row._especialidades.forEach(dsc => tdDisc.append(chipDisc(dsc)));
+      else tdDisc.append(el('span', 'chip-disc', '—'));
       tr.append(tdDisc);
       const classe = classeComparabilidade(row);
       const tdCl = el('td'); tdCl.append(el('span', 'chip-classe ' + (classe === 'Mono-disciplina' ? 'mono' : classe === 'Multidisciplinar Integrada' ? 'integrada' : 'mista'), classe)); tr.append(tdCl);
@@ -2512,7 +2542,7 @@ html,body{max-width:100%;overflow-x:hidden}
     pagerGenerico($('mapa_pager'), todos.length, RANK_PAGE_SIZE, mapaPage, p => { mapaPage = p; renderInicio(); });
     const mExp = $('mapa_export');
     if (mExp && !mExp.childElementCount) mExp.append(botaoExport('Exportar CSV', () => {
-      exportCSV('mapa-comparabilidade.csv', ['Prestador', 'Disciplinas', 'Classe', 'Pagamento', 'Sessoes'],
+      exportCSV('prestadores-por-disciplina.csv', ['Prestador', 'Disciplinas', 'Perfil', 'Pagamento', 'Sessoes'],
         providerRowsTotais(recorteAtual()).map(x => [x._nome, x._especialidades.join(' | '), classeComparabilidade(x), pagamento(x), sessoes(x)]));
     }));
     const busca = $('mapa_busca');
@@ -2530,7 +2560,7 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!kit) { if (nota) nota.remove(); return; }
     const k = KITS.find(x => x.id === kit);
     if (!nota) { nota = el('div', 'metric-note escopo-note'); sec.prepend(nota); }
-    nota.replaceChildren(el('strong', null, 'Escopo Kit ' + (k ? k.rotulo : kit) + '.'), document.createTextNode(' A distribuição da coorte está nas abas Início e Pacientes; o corte completo por kit nas demais leituras chega com o contrato v4 do pipeline. Abaixo, a leitura da rede completa.'));
+    nota.replaceChildren(el('strong', null, 'Combinação selecionada: ' + (k ? (k.curto || k.rotulo) : kit) + '.'), document.createTextNode(' A distribuição das crianças por combinação está nas abas Início e Pacientes; abaixo, a leitura da rede completa.'));
   }
 
   function renderVisao() {
@@ -2547,11 +2577,11 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'Pagamento da Disciplina', valor: brlK(rd.pagamento), delta: rdAnt ? deltaPct(rd.pagamento, rdAnt.pagamento) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'Sessões da Disciplina', valor: fmtN(rd.sessoes), delta: rdAnt ? deltaPct(rd.sessoes, rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
-        { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'crianças únicas por disciplina chegam com o contrato v4' },
+        { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'exposições beneficiário-terapia no recorte' },
         { label: 'Terapias no Escopo', valor: fmtN(rd.terapias), sub: disc },
-        { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: fatiasDisciplina(r) ? 'corte exato por disciplina (contrato v4)' : 'valores por prestador ainda totais; corte exato no contrato v4' }
+        { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: fatiasDisciplina(r) ? 'números da disciplina' : 'valores totais do prestador' }
       ], 'card');
-      $('vg_population_note').replaceChildren(el('strong', null, 'Escopo ' + disc + '.'), document.createTextNode(' Todos os agregados desta tela vêm das terapias da disciplina; as leituras comparativas de prestadores estão na aba Prestadores, calculadas dentro do escopo.'));
+      $('vg_population_note').replaceChildren(el('strong', null, 'Escopo ' + disc + '.'), document.createTextNode(' Valores das terapias da disciplina; comparações de prestadores na aba Prestadores.'));
       const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
       if (serieDisc.length) {
         lineChart('c_vg_cost', serieDisc, 'pagamento', 'Pagamento da disciplina', brlK, GREEN, { mediaMovel: true });
@@ -2561,8 +2591,8 @@ html,body{max-width:100%;overflow-x:hidden}
           else $('vg_trend_title').textContent = 'A tendência do pagamento de ' + disc + ' por competência';
         }
       } else {
-        prepararCanvas('c_vg_cost', false, 'A série mensal por disciplina chega com o contrato v4 do pipeline; a tendência da rede completa está no escopo Rede Completa.');
-        if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência Mensal da Disciplina — Contrato v4';
+        prepararCanvas('c_vg_cost', false, 'A série mensal desta disciplina não está disponível neste recorte.');
+        if ($('vg_trend_title')) $('vg_trend_title').textContent = 'A tendência do pagamento de ' + disc + ' por competência';
       }
       renderSinais(r);
       return;
@@ -2582,7 +2612,7 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores prestadores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
-        : { label: 'Fora de faixa de preço', valor: '—', sub: 'exige escopo de disciplina — selecione no Início' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'selecione uma disciplina no Início' }
     ], 'card');
     $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia. Detalhes de população na aba Pacientes; contagens de prestador em Método e Fontes.'));
     const serie = serieDe(r);
@@ -2611,9 +2641,9 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!fila.length) { const tr = el('tr'), td = el('td', null, 'Nenhum sinal ativo pelas regras vigentes neste recorte.'); td.colSpan = 4; tr.append(td); tbody.append(tr); }
     if ($('fa_title')) $('fa_title').textContent = fila.length ? 'Sinais do recorte — ' + fmtN(fila.length) + ' desvio' + (fila.length === 1 ? '' : 's') + ' contra as referências publicadas' : 'Sinais do recorte — nenhum desvio contra as referências';
     $('fa_note').textContent = (escopoComparavel()
-      ? 'Regras objetivas dentro do escopo ' + rotuloEscopo() + ': preço acima de P75 + 10% da faixa do canal com pagamento de R$ 50 mil ou mais; intensidade 1,5× ou mais a mediana do escopo com o mesmo piso; dispersão de reembolso acima de 3× o IQR da rede contratada. '
-      : 'Na rede completa, apenas sinais estruturais (reembolso) são publicados — sinais de prestador exigem escopo de disciplina, selecionável no Início. ')
-      + 'O valor associado dimensiona o sinal. O painel apresenta os desvios; a leitura e a decisão são da gestão.';
+      ? 'Regras do escopo ' + rotuloEscopo() + ': preço acima de P75 + 10% da faixa do canal com pagamento de R$ 50 mil ou mais; intensidade 1,5× ou mais a mediana do escopo com o mesmo piso; dispersão de reembolso acima de 3× o IQR da rede contratada. '
+      : 'Na rede completa, apenas sinais estruturais (reembolso) são publicados — sinais de prestador são calculados por disciplina, selecionável no Início. ')
+      + 'O valor associado dimensiona o sinal.';
   }
 
   function renderEvolucao() {
@@ -2642,7 +2672,7 @@ html,body{max-width:100%;overflow-x:hidden}
         lineChart('c_ev_sessions', serieDisc, 'sessoes', 'Sessões', fmtN, DARK);
         lineChart('c_ev_price', serieDisc, 'custo_sessao', 'R$/sessão', brl, AMBER);
       } else {
-        ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal por disciplina chega com o contrato v4 do pipeline.'));
+        ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal desta disciplina não está disponível neste recorte.'));
       }
       return;
     }
@@ -2672,7 +2702,7 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Terapia líder de custo', valor: lider ? trunc(nomeTerapia(lider), 26) : '—', sub: lider && totalTer ? pct((pagamento(lider) || 0) / totalTer * 100) + ' do pagamento' : null },
       { label: 'Exposições', valor: fmtN(resumo.exposicoes) }, { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) }
     ]);
-    $('es_population_note').replaceChildren(el('strong', null, 'Objeto-paciente.'), document.createTextNode(' Exposições por terapia podem ser somadas para descrever o cuidado, mas não substituem a população deduplicada.'));
+    $('es_population_note').replaceChildren(el('strong', null, 'Exposições.'), document.createTextNode(' Exposições por terapia descrevem o cuidado; a população é a contagem de crianças únicas.'));
     const byPay = therapies.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
     const bySessions = therapies.slice().sort((a, b) => (sessoes(b) || 0) - (sessoes(a) || 0));
     barChart('c_es_therapy_cost', byPay.map(nomeTerapia), byPay.map(pagamento), 'Pagamento', brlK, { colors: byPay.map(() => GREEN), maxBarThickness: 20 });
@@ -2705,7 +2735,7 @@ html,body{max-width:100%;overflow-x:hidden}
     const combos = [...combosMap].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
     const comboBox = $('c_es_combos').closest('.chart-box'); comboBox.style.height = Math.min(820, Math.max(360, combos.length * 28 + 60)) + 'px';
     barChart('c_es_combos', combos.map(x => x.label), combos.map(x => x.value), 'Crianças', fmtN, { colors: combos.map(() => ORANGE), empty: 'Nenhuma combinação foi registrada neste recorte.' });
-    $('es_care_note').textContent = 'A distribuição clínica registra ' + fmtN(linhas.exposicoes) + ' exposições. ' + pct(linhas.dois_ou_mais_pct) + ' das crianças utilizam duas ou mais terapias; todas as combinações registradas são apresentadas.';
+    $('es_care_note').textContent = 'A distribuição clínica registra ' + fmtN(linhas.exposicoes) + ' exposições. ' + pct(linhas.dois_ou_mais_pct) + ' das crianças utilizam duas ou mais terapias.';
   }
 
   function patientRows(raw, labelKeys) {
@@ -2726,10 +2756,16 @@ html,body{max-width:100%;overflow-x:hidden}
       kitsBody.replaceChildren(...KITS.map(k => {
         const v = contagemKits.get(k.id) || 0;
         const tr = el('tr', k.id === kitAtual ? 'kit-ativo' : null);
-        [k.rotulo, k.descricao, fmtN(v), totalKits ? pct(v / totalKits * 100) : '—'].forEach((txt, i) => tr.append(el('td', i >= 2 ? 'num' : '', txt)));
+        const tdK = el('td');
+        if (k.composicao.length) {
+          k.composicao.forEach(nome => tdK.append(chipDisc(nome)));
+          if (k.extra) tdK.append(el('span', 'chip-disc', k.extra));
+        } else tdK.textContent = k.rotulo;
+        tr.append(tdK);
+        [k.descricao, fmtN(v), totalKits ? pct(v / totalKits * 100) : '—'].forEach((txt, i) => tr.append(el('td', i >= 1 ? 'num' : '', txt)));
         return tr;
       }));
-      $('pa_kits_note').textContent = (kitAtual ? 'O kit selecionado no Início está destacado. ' : '') + 'Contagens derivadas das combinações publicadas pelo pipeline; percentuais sobre as crianças com combinação registrada no recorte. Perfil completo da coorte (idade, custo, permanência por kit) chega com o contrato v4.';
+      $('pa_kits_note').textContent = (kitAtual ? 'A combinação selecionada no Início está destacada. ' : '') + 'Contagens derivadas das combinações registradas; percentuais sobre as crianças com combinação registrada no recorte.';
     }
     setKpis('pa_kpis', [
       { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) },
@@ -2756,7 +2792,7 @@ html,body{max-width:100%;overflow-x:hidden}
     let notaDisc = secCanais.querySelector('.disc-note');
     if (disciplinaAtiva()) {
       if (!notaDisc) { notaDisc = el('div', 'metric-note disc-note'); secCanais.prepend(notaDisc); }
-      notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' O corte de canais por disciplina chega com o contrato v4 do pipeline; abaixo, a leitura da rede completa.'));
+      notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' Os totais por canal referem-se à rede completa; as faixas de preço por canal dentro da disciplina estão na aba Prestadores.'));
     } else if (notaDisc) notaDisc.remove();
     const casa = rows.find(x => nomeCanal(x) === 'Casa Unimed');
     const casaPct = casa && total ? (pagamento(casa) || 0) / total * 100 : null;
