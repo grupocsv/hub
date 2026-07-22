@@ -2120,7 +2120,7 @@ html,body{max-width:100%;overflow-x:hidden}
       const tr = el('tr', propria ? 'clickable is-own' : 'clickable');
       const dPer = row._deltaPeriodo === null ? '—' : (row._deltaPeriodo >= 0 ? '+' : '') + fmt1(row._deltaPeriodo) + '%';
       const tdNome = el('td', 'prest', row._nome);
-      if (propria) tdNome.append(el('span', 'chip-own', 'rede própria'));
+      if (propria) tdNome.append(el('span', 'chip-own', 'serviço próprio'));
       tr.append(tdNome);
       tr.append(el('td', '', nomeCanal(row)));
       tr.append(el('td', 'num', brl(pagamento(row))));
@@ -2584,7 +2584,7 @@ html,body{max-width:100%;overflow-x:hidden}
       const propria = row._nome === 'CASA UNIMED';
       const tr = el('tr', propria ? 'is-own' : null);
       const tdNome = el('td', 'prest', row._nome);
-      if (propria) tdNome.append(el('span', 'chip-own', 'rede própria'));
+      if (propria) tdNome.append(el('span', 'chip-own', 'serviço próprio'));
       tr.append(tdNome);
       const tdDisc = el('td');
       if (row._especialidades.length) row._especialidades.forEach(dsc => tdDisc.append(chipDisc(dsc)));
