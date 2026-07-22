@@ -7,6 +7,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -84,7 +85,13 @@ def main() -> int:
         errors.append("a navegação principal não aponta diretamente para o catálogo")
     if "text: 'Ferramentas'" in nav:
         errors.append("o submenu superior redundante Ferramentas ainda existe")
-    if "TNUMM" in nav or "tnumm.grupocsv.com" in nav:
+    nav_links = re.findall(r"link:\s*['\"]([^'\"]+)['\"]", nav)
+    nav_hosts = {
+        urlparse(link).hostname
+        for link in nav_links
+        if link.startswith(("https://", "http://"))
+    }
+    if "TNUMM" in nav or "tnumm.grupocsv.com" in nav_hosts:
         errors.append("a navegação principal ainda usa a identidade antiga")
 
     allowed_axia = (
