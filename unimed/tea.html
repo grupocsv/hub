@@ -14,11 +14,20 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 
-<meta property="og:type" content="article">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
 <meta property="og:title" content="Painel Terapias Especiais | Unimed GV">
 <meta property="og:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais — 18 competências oficiais.">
 <meta property="og:url" content="https://hub.grupocsv.com/unimed/tea.html">
-<meta property="og:image" content="https://hub.grupocsv.com/assets/og/og_tea.png">
+<meta property="og:site_name" content="Unimed GV | Hub Grupo CSV">
+<meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Painel Terapias Especiais | Unimed GV">
+<meta name="twitter:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais — 18 competências oficiais.">
+<meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
 <meta name="theme-color" content="#004e4c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -698,6 +707,8 @@ td.dneg{color:#9a5a17;font-weight:600}
 .chip-classe.integrada{background:#e6f4ee;color:var(--u-green-dark);border:1px solid #bfe0d2}
 .chip-classe.mista{background:#fbf6ec;color:#8a6116;border:1px solid #eadcbc}
 #pa_kits tr.kit-ativo td{background:#e6f4ee;font-weight:650}
+.rank tbody tr.is-own td{background:#e9f5ef}
+.chip-own{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--u-green-dark);background:#e6f4ee;border:1px solid #bfe0d2;border-radius:999px;padding:1px 7px;vertical-align:1px}
 .intro-text{font-size:12.5px;line-height:1.62;color:var(--ink-2);margin-bottom:9px;max-width:960px}
 .intro-text:last-child{margin-bottom:0}
 .intro-text strong{color:var(--u-dark)}
@@ -882,7 +893,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
   <div class="err-card" id="boot_err" role="status" aria-live="polite" hidden>
     <strong>Não foi possível montar os gráficos.</strong>
-    <p>A biblioteca de visualização (CDN) não carregou. Todos os números, tabelas e narrativas desta página continuam íntegros abaixo — apenas os gráficos foram substituídos por resumos.</p>
+    <p>Os gráficos não puderam ser carregados. Números e tabelas seguem disponíveis abaixo.</p>
   </div>
 
   <!-- ==================== VISÃO GERAL ==================== -->
@@ -915,7 +926,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <img class="lg-axia" src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare">
       <img class="lg-gcsv" src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV">
     </div>
-    <div class="sf-legal">Uso interno · dados agregados completos · método auditável</div>
+    <div class="sf-legal">Uso Interno · Dados Agregados</div>
   </footer>
 
   </main>
@@ -973,12 +984,12 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
     <div class="modal-kpis" id="modal_kpis"></div>
     <div class="modal-section" id="modal_wf_section">
-      <div class="card-sub">Por que o pagamento variou — decomposição vs período anterior</div>
+      <div class="card-sub">Decomposição da Variação vs Período Anterior</div>
       <div class="modal-chart"><canvas id="c_modal_waterfall"></canvas></div>
       <p class="narrative" id="modal_wf_note"></p>
     </div>
     <div class="modal-section">
-      <div class="card-sub">Custo e sessões por competência</div>
+      <div class="card-sub">Sessões por Competência</div>
       <div class="modal-chart"><canvas id="c_modal_serie"></canvas></div>
     </div>
     <div class="modal-section">
@@ -1210,6 +1221,7 @@ html,body{max-width:100%;overflow-x:hidden}
     state.specialty = tipo === 'disciplina' && valor ? valor : 'todas';
     state.rankPage = 1;
     try { sessionStorage.setItem('tea-escopo', JSON.stringify({ tipo, valor: state.escopoValor })); } catch (_e) {}
+    PRCTX.key = null;
     rendered.clear();
     destruirGraficos();
     atualizarCabecalho();
@@ -1239,6 +1251,25 @@ html,body{max-width:100%;overflow-x:hidden}
     const preco = isObject(r.referencias.preco_disciplina) ? r.referencias.preco_disciplina[disc] : null;
     const intensidade = isObject(r.referencias.intensidade_disciplina) ? r.referencias.intensidade_disciplina[disc] : null;
     return preco || intensidade ? { preco, intensidade } : null;
+  }
+  /* contrato v5 — cortes por disciplina e por combinação */
+  function resumoDisciplinaV5(r) {
+    const disc = disciplinaAtiva();
+    return disc && r && isObject(r.resumo_disciplina) && isObject(r.resumo_disciplina[disc]) ? r.resumo_disciplina[disc] : null;
+  }
+  function pacientesDisciplinaV5(r) {
+    const disc = disciplinaAtiva();
+    return disc && r && isObject(r.pacientes_disciplina) && isObject(r.pacientes_disciplina[disc]) ? r.pacientes_disciplina[disc] : null;
+  }
+  function canaisDisciplinaV5(r) {
+    const disc = disciplinaAtiva();
+    if (!disc || !r || !isObject(r.disciplina_canais)) return null;
+    const lista = asArray(r.disciplina_canais[disc]);
+    return lista.length ? lista : null;
+  }
+  function kitInfoV5(r) {
+    const kit = kitAtivo();
+    return kit && r && isObject(r.kits) && isObject(r.kits[kit]) ? r.kits[kit] : null;
   }
   function faixasPorCanal(r) {
     const refDisc = referenciaDisciplina(r);
@@ -1448,7 +1479,7 @@ html,body{max-width:100%;overflow-x:hidden}
     }
     if (!response.ok) throw new Error('O serviço de dados está temporariamente indisponível.');
     try { return await response.json(); }
-    catch (_e) { throw new Error('O serviço retornou um contrato de dados inválido.'); }
+    catch (_e) { throw new Error('O serviço de dados retornou uma resposta inválida.'); }
   }
 
   function estadoBoot(titulo, texto, tentarNovamente) {
@@ -1565,16 +1596,16 @@ html,body{max-width:100%;overflow-x:hidden}
   const eixoY = (formatter, extra) => Object.assign({ grid: { color: GRID }, border: { display: false }, ticks: { callback: formatter } }, extra || {});
   function vazioNoCanvas(id, texto) {
     const cv = $(id), box = cv && cv.closest('.chart-box,.modal-chart');
-    if (box) box.replaceChildren(el('div', 'empty-state', texto || 'O recorte não contém dados suficientes para este visual.'));
+    if (box) box.replaceChildren(el('div', 'empty-state', texto || 'Sem dados suficientes neste recorte para este gráfico.'));
   }
 
   function montarViews() {
     $('view-prestadores').innerHTML = `
-      <p class="v-lead">A rede em um plano de decisão: quem concentra o pagamento, quem está fora das faixas de preço e de intensidade, e como cada prestador variou.</p>
+      <p class="v-lead">Concentração do pagamento, desvios de preço e de intensidade e variação de cada prestador no período.</p>
       <div class="kpi-row" id="pr_kpis"></div>
       <div class="metric-note" id="pr_network_note"></div>
       <section class="card" aria-labelledby="pr_rank_title">
-        <div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="pr_rank_title">Ranking Pareto da rede</h2><p class="card-sub" id="pr_pareto_sub">Busca, filtro, ordenação e paginação; clique na linha para abrir a ficha</p></div><span id="pr_export"></span></div></div>
+        <div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="pr_rank_title">Ranking de Prestadores</h2><p class="card-sub" id="pr_pareto_sub">Clique na linha para abrir a ficha do prestador</p></div><span id="pr_export"></span></div></div>
         <div class="filter-strip">
           <div class="filter-field"><label for="pr_search">Prestador</label><input type="search" id="pr_search" placeholder="Buscar prestador" autocomplete="off"></div>
           <div class="filter-field compact"><label for="pr_specialty">Especialidade</label><select id="pr_specialty"></select></div>
@@ -1595,14 +1626,14 @@ html,body{max-width:100%;overflow-x:hidden}
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_matrix_title">Preço × intensidade na rede contratada</h2><p class="card-sub">Escala focada na janela P5–P95; o reembolso é tratado na aba Canais</p></div></div><div class="chart-box tall"><canvas id="c_pr_matrix" role="img" aria-label="Matriz de intensidade por preço dos prestadores"></canvas></div><div class="chart-legend" id="pr_matrix_legend" aria-hidden="false"></div><p class="narrative" id="pr_matrix_note"></p></section>
       <div class="grid-2">
         <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_disp_title">Desvio de preço vs faixa do canal</h2><p class="card-sub" id="pr_disp_sub">Maiores desvios absolutos; faixa de ±10% sombreada</p></div></div><div class="chart-box tall"><canvas id="c_pr_disp" role="img" aria-label="Desvio do preço por sessão vs faixa do canal"></canvas></div><p class="narrative" id="pr_disp_note"></p><div class="card-actions" id="pr_disp_actions"></div><div class="t-wrap scroll-container" id="pr_disp_all" hidden><table class="rank" id="disp_table" aria-label="Todos os desvios de preço"><thead><tr><th>Prestador</th><th>Canal</th><th>R$/sessão</th><th>Mediana do canal</th><th>Desvio</th><th>Sessões</th></tr></thead><tbody></tbody></table><div class="pager" id="disp_pager"></div></div></section>
-        <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_int_title">Intensidade vs mediana da rede</h2><p class="card-sub">Razão sobre a mediana clínica; acima de 1,5× em destaque para verificação de perfil</p></div></div><div class="chart-box tall"><canvas id="c_pr_intdev" role="img" aria-label="Razão de intensidade vs mediana da rede"></canvas></div><p class="narrative" id="pr_int_note"></p></section>
+        <section class="card"><div class="card-hd"><div><h2 class="card-title" id="pr_int_title">Intensidade vs mediana da rede</h2><p class="card-sub">Razão sobre a mediana da rede; destaque acima de 1,5×</p></div></div><div class="chart-box tall"><canvas id="c_pr_intdev" role="img" aria-label="Razão de intensidade vs mediana da rede"></canvas></div><p class="narrative" id="pr_int_note"></p></section>
       </div>
-      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="se_title">Solicitantes — concentração no executante principal</h2><p class="card-sub">Ordenada pelo percentual de sessões concentrado no executante principal</p></div><span id="se_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="se_table" aria-label="Solicitantes e executantes"><thead><tr><th>Solicitante</th><th>CBOS</th><th>Pagamento</th><th>Sessões</th><th>Executantes</th><th>Principal</th><th>% no principal</th></tr></thead><tbody></tbody></table></div><div class="pager" id="se_pager"></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div><p class="narrative" id="pr_solic_note"></p></section>`;
+      <section class="card"><div class="card-hd"><div class="card-flex"><div><h2 class="card-title" id="se_title">Concentração de Sessões por Solicitante</h2><p class="card-sub">Ordenada pelo percentual de sessões concentrado no executante principal</p></div><span id="se_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="se_table" aria-label="Solicitantes e executantes"><thead><tr><th>Solicitante</th><th>CBOS</th><th>Pagamento</th><th>Sessões</th><th>Executantes</th><th>Principal</th><th>% no principal</th></tr></thead><tbody></tbody></table></div><div class="pager" id="se_pager"></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div><p class="narrative" id="pr_solic_note"></p></section>`;
 
     $('view-inicio').innerHTML = `
       <section class="card intro-card"><div class="card-hd"><div><h2 class="card-title">Sobre o Painel</h2></div></div>
         <p class="intro-text">O Painel Terapias Especiais consolida as terapias voltadas ao transtorno do espectro autista (TEA) e demais terapias especiais da carteira da Unimed Governador Valadares — 17 terapias com cobertura completa no período, envolvendo psicologia, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia, musicoterapia e demais especialidades — a partir das guias oficiais de faturamento, com a criança como unidade de análise (população deduplicada por nome e nascimento).</p>
-        <p class="intro-text">Prestadores são comparados dentro da mesma disciplina e pacientes dentro da mesma combinação de terapias. A seleção feita abaixo vale para todas as abas.</p>
+        <p class="intro-text">Prestadores são comparados dentro da mesma disciplina; pacientes, dentro da mesma combinação de terapias.</p>
       </section>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Como Usar</h2></div></div>
         <ol class="howto">
@@ -1612,7 +1643,7 @@ html,body{max-width:100%;overflow-x:hidden}
           <li><strong>Consulte o método</strong> — todo indicador, faixa de referência e regra de cálculo está documentado em Método e Fontes.</li>
         </ol>
       </section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">Escopo Assistencial</h2><p class="card-sub" id="esc_sub">O escopo ativo aparece no topo de todas as abas</p></div></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Escopo Assistencial</h2><p class="card-sub" id="esc_sub">Seleção aplicada a todas as abas</p></div></div>
         <div class="escopo-grupo"><div class="escopo-grupo-titulo">Rede</div><div class="escopo-grid" id="esc_rede"></div></div>
         <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Disciplina — Comparação de Prestadores</div><div class="escopo-grid" id="esc_disciplinas"></div></div>
         <div class="escopo-grupo"><div class="escopo-grupo-titulo">Por Combinação de Terapias — Grupos de Pacientes</div><div class="escopo-grid" id="esc_kits"></div></div>
@@ -1626,36 +1657,36 @@ html,body{max-width:100%;overflow-x:hidden}
 
     $('view-visao').innerHTML = `
       <div class="kpi-grid" id="vg_kpis"></div><div class="metric-note" id="vg_population_note"></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="vg_trend_title">A tendência do pagamento por competência</h2><p class="card-sub">Barras mensais e média móvel de 3 meses</p></div></div><div class="chart-box"><canvas id="c_vg_cost" role="img" aria-label="Pagamento mensal com média móvel"></canvas></div></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="fa_title">Sinais do recorte</h2><p class="card-sub">Desvios contra as faixas e medianas de referência, ordenados pelo valor associado; regras em Método e Fontes</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="fa_table" aria-label="Sinais do recorte"><thead><tr><th>#</th><th>Prestador ou tema</th><th>Sinal</th><th>Valor associado</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="fa_note"></p></section>`;
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="vg_trend_title">Tendência do Pagamento por Competência</h2><p class="card-sub">Barras mensais e média móvel de 3 meses</p></div></div><div class="chart-box"><canvas id="c_vg_cost" role="img" aria-label="Pagamento mensal com média móvel"></canvas></div></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="fa_title">Sinais do Período</h2><p class="card-sub">Desvios contra as faixas de referência, ordenados pelo valor associado</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="fa_table" aria-label="Sinais do recorte"><thead><tr><th>#</th><th>Prestador ou tema</th><th>Sinal</th><th>Valor associado</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="fa_note"></p></section>`;
 
     $('view-evolucao').innerHTML = `
       <div class="kpi-row" id="ev_kpis"></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ev_wf_title">Por que o pagamento variou</h2><p class="card-sub">Decomposição da variação vs período anterior: população × sessões por criança × preço</p></div></div><div class="chart-box med"><canvas id="c_ev_waterfall" role="img" aria-label="Decomposição da variação do pagamento"></canvas></div><p class="narrative" id="ev_wf_note"></p></section>
-      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">O custo por criança-mês — a série de eficiência</h2></div><div class="chart-box med"><canvas id="c_ev_ccm" role="img" aria-label="Custo por criança-mês por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">As crianças ativas por competência</h2></div><div class="chart-box med"><canvas id="c_ev_patients" role="img" aria-label="Crianças ativas por competência"></canvas></div></section></div>
-      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">As sessões faturadas por competência</h2></div><div class="chart-box med"><canvas id="c_ev_sessions" role="img" aria-label="Sessões por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">O custo médio por sessão por competência</h2></div><div class="chart-box med"><canvas id="c_ev_price" role="img" aria-label="Custo médio por sessão por competência"></canvas></div></section></div>`;
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ev_wf_title">Decomposição da Variação do Pagamento</h2><p class="card-sub">População × sessões por criança × preço, vs período anterior</p></div></div><div class="chart-box med"><canvas id="c_ev_waterfall" role="img" aria-label="Decomposição da variação do pagamento"></canvas></div><p class="narrative" id="ev_wf_note"></p></section>
+      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">Custo por Criança-Mês</h2></div><div class="chart-box med"><canvas id="c_ev_ccm" role="img" aria-label="Custo por criança-mês por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">Crianças Ativas por Competência</h2></div><div class="chart-box med"><canvas id="c_ev_patients" role="img" aria-label="Crianças ativas por competência"></canvas></div></section></div>
+      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">Sessões Faturadas por Competência</h2></div><div class="chart-box med"><canvas id="c_ev_sessions" role="img" aria-label="Sessões por competência"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">Custo Médio por Sessão por Competência</h2></div><div class="chart-box med"><canvas id="c_ev_price" role="img" aria-label="Custo médio por sessão por competência"></canvas></div></section></div>`;
 
     $('view-especialidades').innerHTML = `
       <div class="kpi-row" id="es_kpis"></div><div class="metric-note" id="es_population_note"></div>
-      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">O pagamento se distribui entre as 17 terapias clínicas</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_cost" role="img" aria-label="Pagamento por terapia clínica"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">As sessões se distribuem entre as terapias clínicas</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_sessions" role="img" aria-label="Sessões por terapia clínica"></canvas></div></section></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">Detalhe auditável por terapia clínica</h2><p class="card-sub">Pacientes nesta tabela são exposições da terapia, não população</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_table" aria-label="Detalhe por terapia clínica"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th><th>Exposições</th><th>Sessões</th><th>Pagamento</th><th>R$/sessão</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">A referência de preço por canal</h2><p class="card-sub">Mediana e faixa interquartil do R$/sessão dos prestadores com 100 ou mais sessões; base das leituras de desvio</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_faixas" aria-label="Faixas de referência de preço por canal"><thead><tr><th>Canal</th><th>P25</th><th>Mediana</th><th>P75</th><th>Prestadores na faixa</th></tr></thead><tbody></tbody></table></div><p class="narrative">Faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas; o reembolso fica fora por dispersão estrutural de preço.</p></section>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">As combinações mais frequentes de terapias</h2><p class="card-sub">Crianças por combinação registrada no recorte</p></div></div><div class="chart-box tall"><canvas id="c_es_combos" role="img" aria-label="Combinações mais frequentes de terapias"></canvas></div><p class="narrative" id="es_care_note"></p></section>`;
+      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">Pagamento por Terapia Clínica</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_cost" role="img" aria-label="Pagamento por terapia clínica"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">Sessões por Terapia Clínica</h2></div><div class="chart-box tall"><canvas id="c_es_therapy_sessions" role="img" aria-label="Sessões por terapia clínica"></canvas></div></section></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Detalhamento por Terapia Clínica</h2><p class="card-sub">Pacientes nesta tabela são exposições da terapia, não população</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_table" aria-label="Detalhe por terapia clínica"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th><th>Exposições</th><th>Sessões</th><th>Pagamento</th><th>R$/sessão</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Referência de Preço por Canal</h2><p class="card-sub">Mediana e faixa interquartil do R$/sessão dos prestadores com 100 ou mais sessões</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="es_faixas" aria-label="Faixas de referência de preço por canal"><thead><tr><th>Canal</th><th>P25</th><th>Mediana</th><th>P75</th><th>Prestadores na faixa</th></tr></thead><tbody></tbody></table></div><p class="narrative">Faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas; o reembolso fica fora por dispersão estrutural de preço.</p></section>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Combinações de Terapias Mais Frequentes</h2><p class="card-sub">Crianças por combinação registrada no recorte</p></div></div><div class="chart-box tall"><canvas id="c_es_combos" role="img" aria-label="Combinações mais frequentes de terapias"></canvas></div><p class="narrative" id="es_care_note"></p></section>`;
 
     $('view-pacientes').innerHTML = `
       <div class="kpi-row" id="pa_kpis"></div>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Crianças por Combinação de Terapias</h2><p class="card-sub">Distribuição das crianças pelas combinações registradas no recorte</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="pa_kits" aria-label="Crianças por combinação de terapias"><thead><tr><th>Combinação</th><th>Descrição</th><th>Crianças</th><th>% das Crianças com Combinação Registrada</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="pa_kits_note"></p></section>
-      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">A população se distribui por faixa etária</h2></div><div class="chart-box med"><canvas id="c_pa_age" role="img" aria-label="Crianças por faixa etária"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">A intensidade se distribui entre faixas de sessões</h2></div><div class="chart-box med"><canvas id="c_pa_intensity" role="img" aria-label="Crianças por faixa de intensidade"></canvas></div></section></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title">Quantas terapias cada criança utiliza</h2><p class="card-sub">Distribuição por número de terapias — única ocorrência no painel</p></div></div><div class="chart-box med"><canvas id="c_pa_care" role="img" aria-label="Crianças por número de terapias"></canvas></div></section>
+      <div class="grid-2"><section class="card"><div class="card-hd"><h2 class="card-title">Crianças por Faixa Etária</h2></div><div class="chart-box med"><canvas id="c_pa_age" role="img" aria-label="Crianças por faixa etária"></canvas></div></section><section class="card"><div class="card-hd"><h2 class="card-title">Crianças por Faixa de Intensidade</h2></div><div class="chart-box med"><canvas id="c_pa_intensity" role="img" aria-label="Crianças por faixa de intensidade"></canvas></div></section></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title">Terapias por Criança</h2><p class="card-sub">Distribuição das crianças por número de terapias</p></div></div><div class="chart-box med"><canvas id="c_pa_care" role="img" aria-label="Crianças por número de terapias"></canvas></div></section>
       <div class="metric-note" id="pa_gender_note"></div>
       <div class="note-card"><span class="nc-label">Acesso</span> As métricas completas são carregadas somente após autenticação. Nome, matrícula, nascimento e número de guia de beneficiário não integram o painel.</div>`;
 
     $('view-canais').innerHTML = `
       <div class="kpi-row" id="ca_kpis"></div>
-      <div class="grid-2"><section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_pay_title">O pagamento se distribui entre os canais</h2><p class="card-sub">Rótulos com participação percentual</p></div></div><div class="chart-box med"><canvas id="c_ca_payment" role="img" aria-label="Pagamento por canal"></canvas></div></section><section class="card"><div class="card-hd"><div><h2 class="card-title">O custo por sessão varia conforme o canal</h2><p class="card-sub" id="ca_price_sub">Rótulos com o volume de sessões que sustenta cada preço</p></div></div><div class="chart-box med"><canvas id="c_ca_price" role="img" aria-label="Custo por sessão por canal"></canvas></div></section></div>
-      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_op_title">A oportunidade entre canais</h2><p class="card-sub">Cenário de sensibilidade: diferencial de R$/sessão vs Casa Unimed × volume de cada canal externo; premissas em Método e Fontes</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_op_table" aria-label="Oportunidade por canal"><thead><tr><th>Canal</th><th>R$/sessão</th><th>Diferencial vs Casa Unimed</th><th>Sessões</th><th>Sensibilidade no período</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="ca_op_note"></p></section>
+      <div class="grid-2"><section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_pay_title">Pagamento por Canal</h2><p class="card-sub">Participação de cada canal no pagamento do período</p></div></div><div class="chart-box med"><canvas id="c_ca_payment" role="img" aria-label="Pagamento por canal"></canvas></div></section><section class="card"><div class="card-hd"><div><h2 class="card-title">R$/Sessão por Canal</h2><p class="card-sub" id="ca_price_sub">Volume de sessões indicado em cada canal</p></div></div><div class="chart-box med"><canvas id="c_ca_price" role="img" aria-label="Custo por sessão por canal"></canvas></div></section></div>
+      <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_op_title">Oportunidade entre Canais</h2><p class="card-sub">Cenário de sensibilidade: diferencial de R$/sessão vs Casa Unimed × volume de cada canal externo</p></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_op_table" aria-label="Oportunidade por canal"><thead><tr><th>Canal</th><th>R$/sessão</th><th>Diferencial vs Casa Unimed</th><th>Sessões</th><th>Sensibilidade no período</th></tr></thead><tbody></tbody></table></div><p class="narrative" id="ca_op_note"></p></section>
       <section class="card"><div class="card-hd"><div><h2 class="card-title" id="ca_reemb_title">Reembolso</h2><p class="card-sub">Fora das faixas de referência da rede contratada por dispersão estrutural de preço</p></div></div><div class="metric-note" id="ca_reemb_note"></div></section>
-      <section class="card"><div class="card-hd"><div class="card-flex"><h2 class="card-title">Detalhe auditável por canal</h2><span id="ca_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_table" aria-label="Detalhe por canal de pagamento"><thead><tr><th>Canal</th><th>Pagamento</th><th>% total</th><th>Sessões</th><th>R$/sessão</th><th>Pacientes</th><th>Prestadores</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>`;
+      <section class="card"><div class="card-hd"><div class="card-flex"><h2 class="card-title">Detalhamento por Canal</h2><span id="ca_export"></span></div></div><div class="t-wrap scroll-container"><table class="rank" id="ca_table" aria-label="Detalhe por canal de pagamento"><thead><tr><th>Canal</th><th>Pagamento</th><th>% total</th><th>Sessões</th><th>R$/sessão</th><th>Pacientes</th><th>Prestadores</th></tr></thead><tbody></tbody></table></div><div class="scroll-hint">Deslize para consultar todas as colunas.</div></section>`;
 
     $('view-metodo').innerHTML = `
       <p class="v-lead">Definições, fontes e limitações de todos os indicadores do painel.</p>
@@ -1668,15 +1699,15 @@ html,body{max-width:100%;overflow-x:hidden}
         <p><strong>Custo por criança-mês:</strong> pagamento do recorte dividido pela soma de crianças ativas em cada competência (criança×mês). Neutraliza o crescimento populacional na leitura de eficiência.</p>
         <p><strong>Variação vs período anterior:</strong> todo delta compara o recorte selecionado com o período imediatamente anterior de mesma duração (mês vs mês anterior, trimestre vs trimestre anterior, e assim por diante). O recorte "Tudo" não tem comparação.</p>
         <p><strong>Faixas de referência de preço:</strong> mediana e quartis do R$/sessão dos prestadores com ${MIN_SESSOES_FAIXA} ou mais sessões, por canal da rede contratada (${CANAIS_CONTRATADOS.join(', ')}); faixas com menos de ${MIN_PRESTADORES_FAIXA} prestadores não são publicadas. No escopo de disciplina, as faixas usam os valores dos prestadores dentro da disciplina. O reembolso fica fora das faixas por dispersão estrutural.</p>
-        <p><strong>Desvio de faixa:</strong> diferença percentual do R$/sessão do prestador contra a mediana da faixa do seu canal. Desvio acima de +10% recebe destaque de verificação — a composição de serviço e o contrato explicam parte das diferenças.</p>
+        <p><strong>Desvio de faixa:</strong> diferença percentual do R$/sessão do prestador contra a mediana da faixa do seu canal. Desvio acima de +10% recebe destaque; composição de serviço e contrato explicam parte das diferenças.</p>
         <p><strong>Decomposição da variação:</strong> a variação do pagamento entre períodos é decomposta em efeito população ((pac₁−pac₀)×spm₀×preço₀), efeito sessões por criança (pac₁×(spm₁−spm₀)×preço₀) e efeito preço (pac₁×spm₁×(preço₁−preço₀)), onde spm é sessões por criança e preço é R$/sessão. A soma dos três efeitos reproduz exatamente a variação total.</p>
-        <p><strong>Sinais do recorte:</strong> regras determinísticas e objetivas — preço acima de P75 + 10% da faixa do canal com pagamento ≥ R$ 50 mil; intensidade ≥ 1,5× a mediana da rede contratada com o mesmo piso; dispersão de preço do reembolso acima de 3× o IQR da rede contratada. O painel apresenta os desvios contra as referências publicadas; não emite recomendação de conduta — a leitura e a decisão são da gestão.</p>
+        <p><strong>Sinais do período:</strong> preço acima de P75 + 10% da faixa do canal com pagamento ≥ R$ 50 mil; intensidade ≥ 1,5× a mediana da rede contratada com o mesmo piso; dispersão de preço do reembolso acima de 3× o IQR da rede contratada.</p>
         <p><strong>Comparação interna (metades):</strong> quando o recorte não tem período anterior de mesma duração (ex.: o período completo), as variações e a decomposição comparam a metade mais recente da série mensal com a metade anterior, com o rótulo indicando os meses envolvidos; a população de cada metade é a média mensal de crianças ativas.</p>
         <p><strong>Quadrantes da matriz intensidade × preço:</strong> as medianas das principais clínicas dividem o plano em A (preço acima, intensidade abaixo), B (ambos acima), C (ambos abaixo) e D (preço abaixo, intensidade acima).</p>
-        <p><strong>Escopo assistencial:</strong> no escopo por disciplina, os números de cada prestador vêm do corte prestador×disciplina da consolidação de dados; quando um recorte não traz esse corte, os valores por prestador são totais e a tela indica. Faixas, desvios, quadrantes e sinais de prestador são calculados dentro de um escopo de disciplina. As combinações de terapias derivam das combinações registradas por criança no período; o plano terapêutico é individual (SBP, Ministério da Saúde 2025, SBNI 2025). Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
+        <p><strong>Escopo assistencial:</strong> no escopo por disciplina, os números de cada prestador vêm do corte prestador×disciplina da consolidação de dados; quando um recorte não traz esse corte, os valores por prestador são totais, com indicação na própria tabela. Faixas, desvios, quadrantes e sinais de prestador são calculados dentro de um escopo de disciplina. As combinações de terapias derivam das combinações registradas por criança no período; o plano terapêutico é individual (SBP, Ministério da Saúde 2025, SBNI 2025). Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
         <p><strong>Cenário entre canais:</strong> o quadro de oportunidade da aba Canais é um teto de sensibilidade (diferencial de preço × volume), sem considerar capacidade instalada, perfil clínico ou custo marginal.</p>
       </section>
-      <section class="card metodo-block"><h3>Limitações</h3><p>O painel representa as terapias presentes nos arquivos oficiais e o período coberto pela consolidação de dados. Os valores são de competência de faturamento, não de caixa. Os dados de custo e utilização não sustentam inferência de causalidade clínica. Não são apresentados cenários futuros. As leituras de desvio, intensidade e concentração priorizam verificação e não constituem conclusão sobre conduta de prestadores.</p></section>`;
+      <section class="card metodo-block"><h3>Limitações</h3><p>O painel representa as terapias presentes nos arquivos oficiais e o período coberto pela consolidação de dados. Os valores são de competência de faturamento, não de caixa. Os dados de custo e utilização não sustentam inferência de causalidade clínica. Não são apresentados cenários futuros. Desvios de preço, intensidade e concentração indicam onde aprofundar a análise; não caracterizam, por si, conduta irregular de prestadores.</p></section>`;
   }
 
   function popularPeriodos() {
@@ -1806,7 +1837,7 @@ html,body{max-width:100%;overflow-x:hidden}
       && Object.keys(DATA.recortes).length === 30
       && isObject(DATA.recortes.tudo);
     if (!contratoValido) {
-      estadoBoot('Não foi possível carregar os dados do painel.', 'O contrato recebido não corresponde ao período e às terapias esperados.', true);
+      estadoBoot('Não foi possível carregar os dados do painel.', 'Os dados recebidos não correspondem ao período e às terapias esperados.', true);
       return;
     }
     if (typeof Chart === 'undefined') estadoBoot('Não foi possível montar os gráficos.', 'Todos os números e tabelas permanecem disponíveis; apenas os gráficos não foram carregados.', false);
@@ -1853,7 +1884,7 @@ html,body{max-width:100%;overflow-x:hidden}
     box.querySelectorAll('.chart-empty').forEach(x => x.remove());
     cv.hidden = !temDados;
     if (!temDados) {
-      const empty = el('div', 'empty-state chart-empty', mensagem || 'O recorte não contém dados suficientes para este visual.');
+      const empty = el('div', 'empty-state chart-empty', mensagem || 'Sem dados suficientes neste recorte para este gráfico.');
       box.append(empty);
     }
     return temDados;
@@ -1955,7 +1986,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
   let PRCTX = { key: null, faixas: {}, medInt: null, prev: new Map(), pareto: new Map(), pareto80: null };
   function contextoPrestadores(r) {
-    const chave = state.periodId + '|' + state.specialty;
+    const chave = state.periodId + '|' + state.escopoTipo + '|' + (state.escopoValor || '') + '|' + state.specialty;
     if (PRCTX.key === chave) return PRCTX;
     const base = providerRows(r);
     const total = base.some(x => x._fatiaExata)
@@ -2075,7 +2106,7 @@ html,body{max-width:100%;overflow-x:hidden}
       chip.hidden = !filtros.length;
       chip.textContent = filtros.length ? 'Filtro ativo em tabela e gráficos — ' + filtros.join(' · ') : '';
     }
-    if ($('pr_pareto_sub')) $('pr_pareto_sub').textContent = ctx.pareto80 ? 'Os ' + fmtN(ctx.pareto80) + ' primeiros prestadores concentram 80% do pagamento do recorte. Clique na linha para abrir a ficha.' : 'Busca, filtro, ordenação e paginação; clique na linha para abrir a ficha.';
+    if ($('pr_pareto_sub')) $('pr_pareto_sub').textContent = ctx.pareto80 ? 'Os ' + fmtN(ctx.pareto80) + ' primeiros prestadores concentram 80% do pagamento do recorte. Clique na linha para abrir a ficha.' : 'Clique na linha para abrir a ficha do prestador.';
     const exportBox = $('pr_export');
     if (exportBox && !exportBox.childElementCount) exportBox.append(botaoExport('Exportar CSV', () => {
       const todos = ordenarPrestadores(providersFiltered(recorteAtual()).map(x => enriquecerLinha(x, contextoPrestadores(recorteAtual()))));
@@ -2085,9 +2116,12 @@ html,body{max-width:100%;overflow-x:hidden}
     const start = (state.rankPage - 1) * RANK_PAGE_SIZE;
     const page = rows.slice(start, start + RANK_PAGE_SIZE), tbody = $('pr_table').querySelector('tbody');
     tbody.replaceChildren(...page.map(row => {
-      const tr = el('tr', 'clickable');
+      const propria = row._nome === 'CASA UNIMED';
+      const tr = el('tr', propria ? 'clickable is-own' : 'clickable');
       const dPer = row._deltaPeriodo === null ? '—' : (row._deltaPeriodo >= 0 ? '+' : '') + fmt1(row._deltaPeriodo) + '%';
-      tr.append(el('td', 'prest', row._nome));
+      const tdNome = el('td', 'prest', row._nome);
+      if (propria) tdNome.append(el('span', 'chip-own', 'rede própria'));
+      tr.append(tdNome);
       tr.append(el('td', '', nomeCanal(row)));
       tr.append(el('td', 'num', brl(pagamento(row))));
       tr.append(el('td', 'num', pct(row._participacao)));
@@ -2117,7 +2151,7 @@ html,body{max-width:100%;overflow-x:hidden}
       const sparkCell = el('td', 'spark-cell');
       if (row._fatiaExata) {
         sparkCell.textContent = '—';
-        sparkCell.title = 'A série mensal por prestador cobre todas as disciplinas; a tendência da fatia chega em contrato futuro';
+        sparkCell.title = 'Tendência disponível apenas para o total do prestador; a série por disciplina ainda não está disponível.';
       } else {
         const pontos = pontosPrestador(r, row.nome).map(x => n(x.sessoes));
         const svg = sparklineSVG(pontos);
@@ -2184,7 +2218,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderProviderMatrix(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_matrix', false, MSG_ESCOPO);
-      if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço — Selecione uma Disciplina';
+      if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço por Disciplina';
       $('pr_matrix_legend').replaceChildren();
       $('pr_matrix_note').textContent = 'A tabela Prestadores por Disciplina, no Início, mostra as disciplinas de cada prestador.';
       return;
@@ -2208,12 +2242,12 @@ html,body{max-width:100%;overflow-x:hidden}
       return { x: clamp(rx, limX), y: clamp(ry, limY), r: anc ? 5 : 4 + 12 * Math.sqrt(pagamento(x) / maxPay), nome: x._nome, canal: nomeCanal(x), pagamento: pagamento(x), rx, ry, anc };
     });
     const dsBase = pontos.filter(p => !p.anc), dsAnc = pontos.filter(p => p.anc);
-    const tooltipCb = ctx => [ctx.raw.nome, 'Canal: ' + ctx.raw.canal, 'Intensidade: ' + fmt2(ctx.raw.rx) + ' sessões/paciente-mês', 'Preço: ' + brl(ctx.raw.ry), 'Pagamento: ' + brl(ctx.raw.pagamento), 'Quadrante ' + quadranteDe(ctx.raw.rx, ctx.raw.ry, refs)].concat(ctx.raw.anc ? ['Fora da janela P5–P95 — posição ancorada na borda'] : []);
+    const tooltipCb = ctx => [ctx.raw.nome, 'Canal: ' + ctx.raw.canal, 'Intensidade: ' + fmt2(ctx.raw.rx) + ' sessões/paciente-mês', 'Preço: ' + brl(ctx.raw.ry), 'Pagamento: ' + brl(ctx.raw.pagamento), 'Quadrante ' + quadranteDe(ctx.raw.rx, ctx.raw.ry, refs)].concat(ctx.raw.anc ? ['Fora da janela P5–P95; exibido na borda do gráfico'] : []);
     novoChart('c_pr_matrix', {
       type: 'bubble',
       data: { datasets: [
         { label: 'Principais clínicas', backgroundColor: DARK + 'a8', borderColor: DARK, borderWidth: 1, data: dsBase },
-        { label: 'Fora da janela (ancorado)', backgroundColor: '#ffffff', borderColor: STONE, borderWidth: 1.6, pointStyle: 'triangle', data: dsAnc }
+        { label: 'Fora da janela P5–P95', backgroundColor: '#ffffff', borderColor: STONE, borderWidth: 1.6, pointStyle: 'triangle', data: dsAnc }
       ] },
       plugins: [matrixReferencePlugin, quadranteLetrasPlugin],
       options: {
@@ -2225,13 +2259,13 @@ html,body{max-width:100%;overflow-x:hidden}
         }
       }
     });
-    if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × preço das principais clínicas — a referência é o meio';
+    if ($('pr_matrix_title')) $('pr_matrix_title').textContent = 'Intensidade × Preço das Principais Clínicas';
     const legend = $('pr_matrix_legend'); legend.replaceChildren();
-    [[DARK, 'Principais clínicas (tamanho = pagamento)'], ['#fff', 'Fora da janela P5–P95 (ancorado, valor real no detalhe)']].forEach(([cor, rotulo]) => {
+    [[DARK, 'Principais clínicas (tamanho = pagamento)'], ['#fff', 'Fora da janela P5–P95 (exibido na borda; valores reais no detalhe)']].forEach(([cor, rotulo]) => {
       const item = el('span', 'lg-item'); const dot = el('span', 'lg-dot'); dot.style.background = cor; dot.style.border = '1px solid ' + STONE; item.append(dot, document.createTextNode(rotulo)); legend.append(item);
     });
     const sw = el('span', 'lg-item'); const box = el('span', 'legend-swatch'); box.style.background = 'rgba(0,153,93,.16)'; sw.append(box, document.createTextNode('Faixa central (IQR)')); legend.append(sw);
-    $('pr_matrix_note').textContent = 'Clínicas da rede contratada com ' + fmtN(MIN_SESSOES_FAIXA) + '+ sessões; o gráfico tende ao meio — a faixa central (' + fmt2(refs.x1) + ' a ' + fmt2(refs.x2) + ' sessões/paciente-mês; ' + brl(refs.y1) + ' a ' + brl(refs.y2) + ' por sessão) é a referência do cuidado típico. Leitura dos quadrantes: A (preço acima, intensidade abaixo) concentra as posições que mais merecem atenção; B (preço e intensidade acima) pede parcimônia, porque perfis mais graves explicam parte das posições; C (preço e intensidade abaixo) pode indicar baixo acesso; D (preço abaixo, intensidade acima) é favorável em custo, e os extremos também merecem avaliação. Quanto mais distante do centro, mais a posição pede contexto.' + (fora ? ' ' + fmtN(fora) + ' ponto' + (fora === 1 ? '' : 's') + ' fora da janela P5–P95, ancorado' + (fora === 1 ? '' : 's') + ' na borda.' : '') + cap;
+    $('pr_matrix_note').textContent = 'Clínicas da rede contratada com ' + fmtN(MIN_SESSOES_FAIXA) + ' ou mais sessões; tamanho do ponto = pagamento. Faixa central (IQR): ' + fmt2(refs.x1) + ' a ' + fmt2(refs.x2) + ' sessões/paciente-mês e ' + brl(refs.y1) + ' a ' + brl(refs.y2) + ' por sessão. Quadrantes: A — preço acima e intensidade abaixo das medianas; B — ambos acima; C — ambos abaixo; D — preço abaixo e intensidade acima.' + (fora ? ' ' + fmtN(fora) + ' ponto' + (fora === 1 ? '' : 's') + ' fora da janela P5–P95, exibido' + (fora === 1 ? '' : 's') + ' na borda.' : '') + cap;
   }
 
   const faixaDivergentePlugin = {
@@ -2262,7 +2296,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderProviderDispersion(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_disp', false, MSG_ESCOPO);
-      if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço — Selecione uma Disciplina';
+      if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço por Disciplina';
       $('pr_disp_sub').textContent = 'Faixas de referência são calculadas por disciplina';
       $('pr_disp_note').textContent = '';
       return;
@@ -2271,7 +2305,7 @@ html,body{max-width:100%;overflow-x:hidden}
     const acima = rows.filter(x => x._desvio > 10).length;
     if ($('pr_disp_title')) $('pr_disp_title').textContent = acima ? fmtN(acima) + ' prestador' + (acima === 1 ? ' está' : 'es estão') + ' mais de 10% acima da faixa do canal' : 'Os preços da rede estão dentro da faixa dos canais';
     $('pr_disp_sub').textContent = 'Maiores desvios absolutos entre ' + fmtN(rows.length) + ' prestadores com ' + fmtN(MIN_SESSOES_FAIXA) + '+ sessões; faixa de ±10% sombreada';
-    if (!prepararCanvas('c_pr_disp', top.length > 0, 'Não há prestadores elegíveis para a leitura de desvio neste recorte.')) { $('pr_disp_note').textContent = ''; return; }
+    if (!prepararCanvas('c_pr_disp', top.length > 0, 'Não há prestadores elegíveis para o cálculo de desvio neste recorte.')) { $('pr_disp_note').textContent = ''; return; }
     novoChart('c_pr_disp', {
       type: 'bar',
       data: { labels: top.map(x => x._nome), datasets: [{ label: 'Desvio vs mediana do canal', data: top.map(x => x._desvio), backgroundColor: top.map(x => x._desvio > 10 ? AMBER : (x._desvio < -10 ? '#9db4b1' : ASH)), borderRadius: 5, borderSkipped: false, maxBarThickness: 18 }] },
@@ -2282,7 +2316,7 @@ html,body{max-width:100%;overflow-x:hidden}
         scales: { x: eixoY(v => (v >= 0 ? '+' : '') + NF0.format(v) + '%'), y: eixoX({ ticks: { autoSkip: false, callback: function(v) { return trunc(this.getLabelForValue(v), 30); } } }) }
       }
     });
-    $('pr_disp_note').textContent = 'Desvio do R$/sessão contra a mediana da faixa do próprio canal (prestadores com ' + fmtN(MIN_SESSOES_FAIXA) + '+ sessões). Desvio positivo não é conclusão: a composição de serviço e o contrato explicam parte das diferenças — a faixa aponta onde verificar primeiro.';
+    $('pr_disp_note').textContent = 'Desvio do R$/sessão sobre a mediana do próprio canal, entre prestadores com ' + fmtN(MIN_SESSOES_FAIXA) + ' ou mais sessões. Composição de serviço e contrato explicam parte das diferenças.';
     const actions = $('pr_disp_actions');
     if (actions && !actions.childElementCount) {
       const btn = el('button', 'btn-mini', 'Ver todos os desvios');
@@ -2316,7 +2350,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderIntensityDeviation(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_intdev', false, MSG_ESCOPO);
-      if ($('pr_int_title')) $('pr_int_title').textContent = 'Intensidade vs Mediana — Selecione uma Disciplina';
+      if ($('pr_int_title')) $('pr_int_title').textContent = 'Intensidade vs Mediana por Disciplina';
       $('pr_int_note').textContent = '';
       return;
     }
@@ -2327,7 +2361,7 @@ html,body{max-width:100%;overflow-x:hidden}
       .sort((a, b) => b._razao - a._razao);
     const top = rows.slice(0, 12), altos = rows.filter(x => x._razao >= 1.5).length;
     if ($('pr_int_title')) $('pr_int_title').textContent = altos ? fmtN(altos) + ' prestador' + (altos === 1 ? ' aplica' : 'es aplicam') + ' 1,5× ou mais a intensidade mediana da rede' : 'A intensidade da rede contratada segue a mediana';
-    if (!prepararCanvas('c_pr_intdev', top.length > 0, 'Não há prestadores elegíveis para a leitura de intensidade neste recorte.')) { $('pr_int_note').textContent = ''; return; }
+    if (!prepararCanvas('c_pr_intdev', top.length > 0, 'Não há prestadores elegíveis para o cálculo de intensidade neste recorte.')) { $('pr_int_note').textContent = ''; return; }
     novoChart('c_pr_intdev', {
       type: 'bar',
       data: { labels: top.map(x => x._nome), datasets: [{ label: 'Razão vs mediana', data: top.map(x => x._razao), backgroundColor: top.map(x => x._razao >= 1.5 ? ORANGE : ASH), borderRadius: 5, borderSkipped: false, maxBarThickness: 18 }] },
@@ -2337,7 +2371,7 @@ html,body{max-width:100%;overflow-x:hidden}
         scales: { x: eixoY(v => fmt1(v) + '×', { beginAtZero: true }), y: eixoX({ ticks: { autoSkip: false, callback: function(v) { return trunc(this.getLabelForValue(v), 30); } } }) }
       }
     });
-    $('pr_int_note').textContent = 'Razão da intensidade (sessões por paciente-mês) sobre a mediana da rede contratada (' + fmt2(med) + '). Intensidade alta com perfil clínico compatível é cuidado, não desvio — o perfil de cada prestador está na ficha.';
+    $('pr_int_note').textContent = 'Razão da intensidade (sessões por paciente-mês) sobre a mediana da rede contratada (' + fmt2(med) + '). O perfil de cada prestador está na ficha.';
   }
 
   let sePage = 1;
@@ -2363,8 +2397,8 @@ html,body{max-width:100%;overflow-x:hidden}
         solicitantesDe(recorteAtual()).map(x => [dNome(x.nome), x.cbos, pagamento(x), sessoes(x), asArray(x.executores).length, x.principal ? dNome(x.principal) : '', x.principal_pct]));
     }));
     const altos = rows.filter(x => n(x.principal_pct) !== null && n(x.principal_pct) >= 80).length;
-    if ($('se_title')) $('se_title').textContent = altos ? fmtN(altos) + ' solicitante' + (altos === 1 ? ' concentra' : 's concentram') + ' 80% ou mais das sessões em um único executante' : 'Solicitantes — concentração no executante principal';
-    $('pr_solic_note').textContent = 'Tabela ordenada pelo percentual de sessões no executante principal, paginada em ' + fmtN(RANK_PAGE_SIZE) + ' linhas. Concentração alta pode refletir a própria estrutura da clínica — a leitura é de verificação, não de conclusão.';
+    if ($('se_title')) $('se_title').textContent = altos ? fmtN(altos) + ' solicitante' + (altos === 1 ? ' concentra' : 's concentram') + ' 80% ou mais das sessões em um único executante' : 'Concentração de Sessões por Solicitante';
+    $('pr_solic_note').textContent = 'Concentração alta pode refletir a estrutura da própria clínica.';
   }
 
   function abrirPrestador(row, r) {
@@ -2377,10 +2411,31 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'R$/sessão', valor: brl(custoSessao(row)) }, { label: 'Pacientes', valor: kOr(pacientes(row)) },
       { label: 'Sessões especialista', valor: fmtN(especialista) }, { label: 'Assistente terapêutica', valor: at === null ? '—' : fmtN(at) + ' · ' + pct(row.at_pct) }
     ]);
+    const compAntiga = $('modal_composicao');
+    if (compAntiga) compAntiga.remove();
+    const composicao = asArray(row.composicao);
+    if (composicao.length) {
+      const box = el('div', 'modal-section'); box.id = 'modal_composicao';
+      box.append(el('div', 'card-sub', 'Profissionais que compõem a Casa Unimed no recorte'));
+      const wrap = el('div', 't-wrap scroll-container'), table = el('table', 'rank');
+      const thead = document.createElement('thead'); thead.innerHTML = '<tr><th>Profissional</th><th>Sessões</th><th>Pagamento</th></tr>'; table.append(thead);
+      const tb = document.createElement('tbody');
+      composicao.slice().sort((a, b) => (n(b.pagamento) || 0) - (n(a.pagamento) || 0)).forEach(prof => {
+        const tr = el('tr');
+        tr.append(el('td', 'prest', dNome(prof.nome)));
+        tr.append(el('td', 'num', fmtN(n(prof.sessoes))));
+        tr.append(el('td', 'num', brl(n(prof.pagamento))));
+        tb.append(tr);
+      });
+      table.append(tb); wrap.append(table); box.append(wrap);
+      const kpis = $('modal_kpis');
+      kpis.parentNode.insertBefore(box, kpis.nextSibling);
+    }
     const ctx = contextoPrestadores(r);
     const ant = ctx.prev.get(row.nome);
     const points = pontosPrestador(r, row.nome);
     let decompModal = ant ? decomposicaoPagamento(row, ant) : null, ctxModal = ctx.anterior ? 'Comparação com ' + ctx.anterior.periodo.rotulo + '. ' : '', rotModal;
+    if (disciplinaAtiva() && row._fatiaExata) ctxModal = 'Os indicadores acima são da disciplina ' + disciplinaAtiva() + '; a série mensal e a decomposição referem-se ao total do prestador. ' + ctxModal;
     if (!decompModal && points.length >= 4) {
       const metade = Math.floor(points.length / 2);
       const soma = fatia => fatia.reduce((a, x) => { const s = n(x.sessoes) || 0, pr = n(x.custo_sessao); return { s: a.s + s, p: a.p + (pr !== null ? s * pr : 0) }; }, { s: 0, p: 0 });
@@ -2393,7 +2448,7 @@ html,body{max-width:100%;overflow-x:hidden}
     lineChart('c_modal_serie', points, 'sessoes', 'Sessões', fmtN, GREEN);
     const faixa = ctx.faixas[nomeCanal(row)];
     lineChart('c_modal_preco', points, 'custo_sessao', 'R$/sessão', brl, ORANGE, faixa ? { refY: faixa.mediana, refRotulo: 'mediana ' + nomeCanal(row) + ' ' + brl(faixa.mediana) } : undefined);
-    if ($('modal_preco_note')) $('modal_preco_note').textContent = faixa ? 'A linha tracejada marca a mediana de preço do canal ' + nomeCanal(row) + ' (' + brl(faixa.mediana) + ') — a referência usada nas leituras de desvio.' : 'Sem faixa de referência publicável para o canal deste prestador no recorte.';
+    if ($('modal_preco_note')) $('modal_preco_note').textContent = faixa ? 'A linha tracejada marca a mediana de preço do canal ' + nomeCanal(row) + ' (' + brl(faixa.mediana) + '), referência do cálculo de desvio.' : 'Sem faixa de referência publicável para o canal deste prestador no recorte.';
     $('modal_overlay').hidden = false;
     $('modal_fechar').focus();
     const app = document.querySelector('.app');
@@ -2427,14 +2482,14 @@ html,body{max-width:100%;overflow-x:hidden}
     const totalPag = pagamento(resumo) || 0;
     const foraFaixa = all.filter(x => desvioFaixa(x, ctx.faixas) !== null && desvioFaixa(x, ctx.faixas) > 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
     setKpis('pr_kpis', [
-      { label: 'Pagamento', valor: brlK(pagamento(resumo)), sub: escopoComparavel() ? 'total do recorte; escopo ' + rotuloEscopo() + ' aplicado às leituras' : null },
+      { label: 'Pagamento', valor: brlK(pagamento(resumo)), sub: escopoComparavel() ? 'total do recorte no escopo ' + rotuloEscopo() : null },
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
-        : { label: 'Fora de faixa de preço', valor: '—', sub: 'selecione uma disciplina no Início' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'calculado por disciplina' }
     ]);
     const obs = pick(resumo, 'prestadores_observados', 'prestadores'), cons = pick(resumo, 'prestadores_consolidados', 'prestadores');
-    $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas. Canal e especialidade são atributos, não cortes de população.'));
+    $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas. Canal e especialidade são características do prestador e não dividem a população.'));
     renderProviderTable(); renderProviderMatrix(r); renderProviderDispersion(r); renderIntensityDeviation(r); renderSolicitantes(r);
   }
 
@@ -2469,8 +2524,8 @@ html,body{max-width:100%;overflow-x:hidden}
       }
     });
     const dTotal = decomp.total, dPct = decomp.base ? dTotal / Math.abs(decomp.base) * 100 : null;
-    if (tituloId && $(tituloId)) $(tituloId).textContent = 'O pagamento ' + (dTotal >= 0 ? 'cresceu ' : 'recuou ') + brlK(Math.abs(dTotal)) + (dPct === null ? '' : ' (' + (dTotal >= 0 ? '+' : '−') + fmt1(Math.abs(dPct)) + '%)') + ' na comparação';
-    if (notaId && $(notaId)) $(notaId).textContent = (contexto || '') + 'Decomposição exata: variação = ' + decomp.efeitos.map(e => e.rotulo.toLowerCase() + ' (' + brlK(e.valor) + ')').join(' + ') + '. Método declarado em Método e Fontes.';
+    if (tituloId && $(tituloId)) $(tituloId).textContent = 'Variação do Pagamento: ' + (dTotal >= 0 ? '+' : '−') + brlK(Math.abs(dTotal)) + (dPct === null ? '' : ' (' + (dTotal >= 0 ? '+' : '−') + fmt1(Math.abs(dPct)) + '%)');
+    if (notaId && $(notaId)) $(notaId).textContent = (contexto || '') + 'Decomposição exata: variação = ' + decomp.efeitos.map(e => e.rotulo.toLowerCase() + ' (' + brlK(e.valor) + ')').join(' + ') + '.';
   }
 
   function providerRowsTotais(r) {
@@ -2517,7 +2572,7 @@ html,body{max-width:100%;overflow-x:hidden}
       }
       return b;
     }));
-    if ($('esc_sub')) $('esc_sub').textContent = 'Escopo ativo: ' + rotuloEscopo() + ' — aparece no topo de todas as abas';
+    if ($('esc_sub')) $('esc_sub').textContent = 'Escopo ativo: ' + rotuloEscopo();
     // prestadores por disciplina
     const todos = providerRowsTotais(r).filter(row => !mapaBusca || norm(row._nome).includes(norm(mapaBusca)))
       .sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
@@ -2526,8 +2581,11 @@ html,body{max-width:100%;overflow-x:hidden}
     const slice = todos.slice((mapaPage - 1) * RANK_PAGE_SIZE, mapaPage * RANK_PAGE_SIZE);
     const tbody = $('mapa_table').querySelector('tbody');
     tbody.replaceChildren(...slice.map(row => {
-      const tr = el('tr');
-      tr.append(el('td', 'prest', row._nome));
+      const propria = row._nome === 'CASA UNIMED';
+      const tr = el('tr', propria ? 'is-own' : null);
+      const tdNome = el('td', 'prest', row._nome);
+      if (propria) tdNome.append(el('span', 'chip-own', 'rede própria'));
+      tr.append(tdNome);
       const tdDisc = el('td');
       if (row._especialidades.length) row._especialidades.forEach(dsc => tdDisc.append(chipDisc(dsc)));
       else tdDisc.append(el('span', 'chip-disc', '—'));
@@ -2560,15 +2618,31 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!kit) { if (nota) nota.remove(); return; }
     const k = KITS.find(x => x.id === kit);
     if (!nota) { nota = el('div', 'metric-note escopo-note'); sec.prepend(nota); }
-    nota.replaceChildren(el('strong', null, 'Combinação selecionada: ' + (k ? (k.curto || k.rotulo) : kit) + '.'), document.createTextNode(' A distribuição das crianças por combinação está nas abas Início e Pacientes; abaixo, a leitura da rede completa.'));
+    nota.replaceChildren(el('strong', null, 'Combinação selecionada: ' + (k ? (k.curto || k.rotulo) : kit) + '.'), document.createTextNode(' A distribuição das crianças por combinação está nas abas Início e Pacientes; abaixo, os números da rede completa.'));
   }
 
   function renderVisao() {
     const r = recorteAtual(), resumo = resumoDe(r), ctx = contextoPrestadores(r);
     notaEscopo('view-visao');
+    const kitVg = kitInfoV5(r);
+    if (kitVg) {
+      setKpis('vg_kpis', [
+        { label: 'Crianças da Combinação', valor: kOr(pacientes(kitVg)) },
+        { label: 'Pagamento', valor: brlK(pagamento(kitVg)), sub: rotuloEscopo() },
+        { label: 'Sessões', valor: fmtN(sessoes(kitVg)) },
+        { label: 'R$/Sessão', valor: brl(custoSessao(kitVg)) },
+        { label: 'Custo por criança-mês', valor: brl(n(pick(kitVg, 'custo_crianca_mes', 'custo_paciente_mes', 'custo_por_crianca_mes'))), sub: 'pagamento ÷ criança×mês ativo' }
+      ], 'card');
+      $('vg_population_note').replaceChildren(el('strong', null, 'Combinação ' + rotuloEscopo() + '.'), document.createTextNode(' Valores do grupo de crianças que fazem essa combinação de terapias no recorte.'));
+      prepararCanvas('c_vg_cost', false, 'A série mensal por combinação não é publicada; a tendência da rede está no escopo Rede Completa.');
+      if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência do Pagamento por Competência';
+      renderSinais(r);
+      return;
+    }
     const disc = disciplinaAtiva();
     if (disc) {
       const rd = resumoDisciplina(r);
+      const rdV5vg = resumoDisciplinaV5(r);
       const antRec = recorteAnterior(state.periodId);
       let rdAnt = null;
       if (antRec) { const guarda = state.escopoValor; const rAnt = antRec.recorte; const ts = terapiasDe(rAnt).filter(t => String(t.especialidade || '') === guarda); const pag = ts.reduce((a, t) => a + (pagamento(t) || 0), 0), ses = ts.reduce((a, t) => a + (sessoes(t) || 0), 0); rdAnt = { pagamento: pag, sessoes: ses }; }
@@ -2577,7 +2651,9 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'Pagamento da Disciplina', valor: brlK(rd.pagamento), delta: rdAnt ? deltaPct(rd.pagamento, rdAnt.pagamento) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'Sessões da Disciplina', valor: fmtN(rd.sessoes), delta: rdAnt ? deltaPct(rd.sessoes, rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
-        { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'exposições beneficiário-terapia no recorte' },
+        rdV5vg
+          ? { label: 'Crianças da Disciplina', valor: kOr(pacientes(rdV5vg)), sub: 'população deduplicada na disciplina' }
+          : { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes), sub: 'exposições beneficiário-terapia no recorte' },
         { label: 'Terapias no Escopo', valor: fmtN(rd.terapias), sub: disc },
         { label: 'Prestadores no Escopo', valor: fmtN(populacaoEscopo(r).length), sub: fatiasDisciplina(r) ? 'números da disciplina' : 'valores totais do prestador' }
       ], 'card');
@@ -2588,11 +2664,11 @@ html,body{max-width:100%;overflow-x:hidden}
         if ($('vg_trend_title')) {
           const vals = serieDisc.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
           if (vals.length >= 6) { const u3 = vals.slice(-3).reduce((a2, b2) => a2 + b2, 0), a3v = vals.slice(-6, -3).reduce((a2, b2) => a2 + b2, 0); const dd = deltaPct(u3, a3v); if (dd !== null) $('vg_trend_title').textContent = 'O custo de ' + disc + ' ' + (dd >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(dd)) + '% no trimestre contra o anterior'; }
-          else $('vg_trend_title').textContent = 'A tendência do pagamento de ' + disc + ' por competência';
+          else $('vg_trend_title').textContent = 'Tendência do Pagamento de ' + disc + ' por Competência';
         }
       } else {
         prepararCanvas('c_vg_cost', false, 'A série mensal desta disciplina não está disponível neste recorte.');
-        if ($('vg_trend_title')) $('vg_trend_title').textContent = 'A tendência do pagamento de ' + disc + ' por competência';
+        if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência do Pagamento de ' + disc + ' por Competência';
       }
       renderSinais(r);
       return;
@@ -2612,9 +2688,9 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores prestadores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
-        : { label: 'Fora de faixa de preço', valor: '—', sub: 'selecione uma disciplina no Início' }
+        : { label: 'Fora de faixa de preço', valor: '—', sub: 'calculado por disciplina' }
     ], 'card');
-    $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia. Detalhes de população na aba Pacientes; contagens de prestador em Método e Fontes.'));
+    $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia.'));
     const serie = serieDe(r);
     lineChart('c_vg_cost', serie, 'pagamento', 'Pagamento', brlK, GREEN, { mediaMovel: true });
     const vals = serie.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
@@ -2639,17 +2715,30 @@ html,body{max-width:100%;overflow-x:hidden}
       return tr;
     }));
     if (!fila.length) { const tr = el('tr'), td = el('td', null, 'Nenhum sinal ativo pelas regras vigentes neste recorte.'); td.colSpan = 4; tr.append(td); tbody.append(tr); }
-    if ($('fa_title')) $('fa_title').textContent = fila.length ? 'Sinais do recorte — ' + fmtN(fila.length) + ' desvio' + (fila.length === 1 ? '' : 's') + ' contra as referências publicadas' : 'Sinais do recorte — nenhum desvio contra as referências';
+    if ($('fa_title')) $('fa_title').textContent = fila.length ? fmtN(fila.length) + (fila.length === 1 ? ' Sinal no Período' : ' Sinais no Período') : 'Nenhum Sinal no Período';
     $('fa_note').textContent = (escopoComparavel()
       ? 'Regras do escopo ' + rotuloEscopo() + ': preço acima de P75 + 10% da faixa do canal com pagamento de R$ 50 mil ou mais; intensidade 1,5× ou mais a mediana do escopo com o mesmo piso; dispersão de reembolso acima de 3× o IQR da rede contratada. '
-      : 'Na rede completa, apenas sinais estruturais (reembolso) são publicados — sinais de prestador são calculados por disciplina, selecionável no Início. ')
-      + 'O valor associado dimensiona o sinal.';
+      : 'Na rede completa, apenas sinais estruturais (reembolso) são publicados — sinais de prestador são calculados por disciplina. ').trim();
   }
 
   function renderEvolucao() {
     const r = recorteAtual(), resumo = resumoDe(r), serie = serieDe(r);
     notaEscopo('view-evolucao');
     const disc = disciplinaAtiva();
+    const kitEv = kitInfoV5(r);
+    if (kitEv) {
+      setKpis('ev_kpis', [
+        { label: 'Crianças da Combinação', valor: kOr(pacientes(kitEv)) },
+        { label: 'Pagamento', valor: brlK(pagamento(kitEv)), sub: rotuloEscopo() },
+        { label: 'Sessões', valor: fmtN(sessoes(kitEv)) },
+        { label: 'R$/Sessão', valor: brl(custoSessao(kitEv)) }
+      ]);
+      prepararCanvas('c_ev_waterfall', false, 'A decomposição por combinação não é publicada; a decomposição da rede está no escopo Rede Completa.');
+      if ($('ev_wf_title')) $('ev_wf_title').textContent = 'Decomposição da Variação do Pagamento';
+      if ($('ev_wf_note')) $('ev_wf_note').textContent = '';
+      ['c_ev_ccm', 'c_ev_patients', 'c_ev_sessions', 'c_ev_price'].forEach(id => prepararCanvas(id, false, 'A série mensal por combinação não é publicada.'));
+      return;
+    }
     if (disc) {
       const rd = resumoDisciplina(r);
       const antRec = recorteAnterior(state.periodId);
@@ -2662,7 +2751,11 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'R$/Sessão da Disciplina', valor: brl(rd.custo_sessao), delta: rdAnt && rdAnt.sessoes ? deltaPct(rd.custo_sessao, rdAnt.pagamento / rdAnt.sessoes) : null, deltaLabel: rotD, subir_e_ruim: true },
         { label: 'Exposições da Disciplina', valor: fmtN(rd.exposicoes) }
       ]);
-      const decompD = rdAnt ? decomposicaoVolumePreco(rd.sessoes, rd.pagamento, rdAnt.sessoes, rdAnt.pagamento) : null;
+      const rdV5cur = resumoDisciplinaV5(r);
+      const rdV5ant = antRec && antRec.recorte && isObject(antRec.recorte.resumo_disciplina) && isObject(antRec.recorte.resumo_disciplina[disc]) ? antRec.recorte.resumo_disciplina[disc] : null;
+      const decompD = rdV5cur && rdV5ant && n(pacientes(rdV5cur)) && n(pacientes(rdV5ant))
+        ? decomposicaoPagamento(rdV5cur, rdV5ant)
+        : (rdAnt ? decomposicaoVolumePreco(rd.sessoes, rd.pagamento, rdAnt.sessoes, rdAnt.pagamento) : null);
       waterfallChart('c_ev_waterfall', decompD, 'ev_wf_title', 'ev_wf_note', antRec ? 'Escopo ' + disc + ' — comparação com ' + antRec.periodo.rotulo + '. ' : '');
       const serieDisc = r && isObject(r.disciplina_serie) ? asArray(r.disciplina_serie[disc]) : [];
       if (serieDisc.length) {
@@ -2696,8 +2789,14 @@ html,body{max-width:100%;overflow-x:hidden}
     const r = recorteAtual(), resumo = resumoDe(r), therapies = terapiasEscopo(r), specialties = agregarEspecialidades(r), care = linhasRows(r), linhas = linhasDe(r);
     notaEscopo('view-especialidades');
     const lider = therapies.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0))[0];
-    const totalTer = pagamento(resumo) || 0;
-    setKpis('es_kpis', [
+    const discEs = disciplinaAtiva(), rdEs = discEs ? resumoDisciplina(r) : null, rdV5 = resumoDisciplinaV5(r);
+    const totalTer = discEs && rdEs ? rdEs.pagamento : (pagamento(resumo) || 0);
+    setKpis('es_kpis', discEs && rdEs ? [
+      { label: 'Pagamento da Disciplina', valor: brlK(rdEs.pagamento), sub: discEs },
+      { label: 'Terapia líder de custo', valor: lider ? trunc(nomeTerapia(lider), 26) : '—', sub: lider && totalTer ? pct((pagamento(lider) || 0) / totalTer * 100) + ' do pagamento da disciplina' : null },
+      { label: 'Exposições da Disciplina', valor: fmtN(rdEs.exposicoes) },
+      { label: 'Crianças únicas', valor: rdV5 ? kOr(pacientes(rdV5)) : '—', sub: rdV5 ? 'crianças da disciplina' : 'não publicadas por disciplina neste recorte' }
+    ] : [
       { label: 'Pagamento', valor: brlK(pagamento(resumo)) },
       { label: 'Terapia líder de custo', valor: lider ? trunc(nomeTerapia(lider), 26) : '—', sub: lider && totalTer ? pct((pagamento(lider) || 0) / totalTer * 100) + ' do pagamento' : null },
       { label: 'Exposições', valor: fmtN(resumo.exposicoes) }, { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) }
@@ -2713,8 +2812,12 @@ html,body{max-width:100%;overflow-x:hidden}
       [nomeTerapia(row), asArray(row.codigos).join(' + ') || pick(row, 'codigo') || '—', row.especialidade || '—', row.metodo || '—', kOr(exposicoesTerapia(row)), fmtN(sessoes(row)), brl(pagamento(row)), brl(custoSessao(row))].forEach((txt, i) => tr.append(el('td', i >= 4 ? 'num' : '', txt)));
       return tr;
     }));
-    const faixas = faixasPorCanal(r), fx = $('es_faixas') ? $('es_faixas').querySelector('tbody') : null;
-    if (fx) {
+    const fx = $('es_faixas') ? $('es_faixas').querySelector('tbody') : null;
+    if (fx && !escopoComparavel()) {
+      const tr = el('tr'), td = el('td', null, 'As faixas de preço são calculadas por disciplina — selecione uma disciplina no Início.');
+      td.colSpan = 5; tr.append(td); fx.replaceChildren(tr);
+    } else if (fx) {
+      const faixas = faixasPorCanal(r);
       const linhasFx = CANAIS_CONTRATADOS.filter(c => faixas[c]);
       fx.replaceChildren(...linhasFx.map(canal => {
         const f = faixas[canal], tr = el('tr');
@@ -2724,11 +2827,12 @@ html,body{max-width:100%;overflow-x:hidden}
       if (!linhasFx.length) { const tr = el('tr'), td = el('td', null, 'Nenhuma faixa publicável neste recorte (mínimo de ' + fmtN(MIN_PRESTADORES_FAIXA) + ' prestadores por canal).'); td.colSpan = 5; tr.append(td); fx.append(tr); }
     }
     const terapiaSpec = new Map(terapiasDe(r).map(x => [nomeTerapia(x), String(x.especialidade || '')]));
-    const discAtual = disciplinaAtiva();
+    const discAtual = disciplinaAtiva(), kitAtualEs = kitAtivo();
     const combosMap = new Map();
     asArray(linhas.combinacoes).forEach(row => {
       const specs = [...new Set(asArray(row.terapias).map(t => terapiaSpec.get(t)).filter(Boolean))].sort();
       if (discAtual && !specs.includes(discAtual)) return;
+      if (kitAtualEs && classificarKit(specs.length ? specs : asArray(row.terapias)) !== kitAtualEs) return;
       const key = specs.length ? specs.join(' + ') : asArray(row.terapias).join(' + ');
       const prev = combosMap.get(key) || 0, value = n(pacientes(row)); if (value !== null) combosMap.set(key, prev + value);
     });
@@ -2748,8 +2852,16 @@ html,body{max-width:100%;overflow-x:hidden}
     return rows.slice().sort((a, b) => chave(a.label) - chave(b.label));
   }
   function renderPacientes() {
-    const r = recorteAtual(), resumo = resumoDe(r), p = pacientesDe(r), intensity = isObject(p.intensidade) ? p.intensidade : {}, care = linhasRows(r);
+    const r = recorteAtual(), resumo = resumoDe(r), pRede = pacientesDe(r), care = linhasRows(r);
+    const pd = pacientesDisciplinaV5(r), rdPa = resumoDisciplinaV5(r), kitPa = kitInfoV5(r), discPa = disciplinaAtiva();
+    const p = pd || pRede, intensity = isObject(p.intensidade) ? p.intensidade : {};
     notaEscopo('view-pacientes');
+    const secPa = $('view-pacientes');
+    let notaPa = secPa.querySelector('.disc-note');
+    if (discPa) {
+      if (!notaPa) { notaPa = el('div', 'metric-note disc-note'); secPa.prepend(notaPa); }
+      notaPa.replaceChildren(el('strong', null, 'Escopo ' + discPa + '.'), document.createTextNode(pd ? ' Perfil das crianças da disciplina.' : ' O perfil por disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
+    } else if (notaPa) notaPa.remove();
     const contagemKits = kitsDoRecorte(r), totalKits = [...contagemKits.values()].reduce((a, b) => a + b, 0);
     const kitAtual = kitAtivo(), kitsBody = $('pa_kits') ? $('pa_kits').querySelector('tbody') : null;
     if (kitsBody) {
@@ -2767,13 +2879,29 @@ html,body{max-width:100%;overflow-x:hidden}
       }));
       $('pa_kits_note').textContent = (kitAtual ? 'A combinação selecionada no Início está destacada. ' : '') + 'Contagens derivadas das combinações registradas; percentuais sobre as crianças com combinação registrada no recorte.';
     }
-    setKpis('pa_kpis', [
-      { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) },
-      { label: 'Custo por criança-mês', valor: brl(custoCriancaMes(r)), sub: 'pagamento ÷ criança×mês ativo' },
-      { label: 'Intensidade mediana', valor: fmt2(intensity.mediana), sub: 'sessões por criança no recorte' },
-      { label: 'Custo médio por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.media) },
-      { label: 'Custo mediano por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.mediana), sub: 'média acima da mediana indica cauda de alto custo' }
-    ]);
+    if (pd) {
+      setKpis('pa_kpis', [
+        { label: 'Crianças da Disciplina', valor: rdPa ? kOr(pacientes(rdPa)) : kOr(pacientes(pd)) },
+        { label: 'Intensidade mediana', valor: fmt2(intensity.mediana), sub: 'sessões por criança na disciplina' },
+        { label: 'Custo médio por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.media), sub: discPa },
+        { label: 'Custo mediano por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.mediana), sub: 'média acima da mediana indica concentração do custo em poucas crianças' }
+      ]);
+    } else if (kitPa) {
+      setKpis('pa_kpis', [
+        { label: 'Crianças da Combinação', valor: kOr(pacientes(kitPa)) },
+        { label: 'Pagamento', valor: brlK(pagamento(kitPa)), sub: rotuloEscopo() },
+        { label: 'Sessões', valor: fmtN(sessoes(kitPa)) },
+        { label: 'Custo por criança-mês', valor: brl(n(pick(kitPa, 'custo_crianca_mes', 'custo_paciente_mes', 'custo_por_crianca_mes'))), sub: 'pagamento ÷ criança×mês ativo' }
+      ]);
+    } else {
+      setKpis('pa_kpis', [
+        { label: 'Crianças únicas', valor: kOr(pacientes(resumo)) },
+        { label: 'Custo por criança-mês', valor: brl(custoCriancaMes(r)), sub: 'pagamento ÷ criança×mês ativo' },
+        { label: 'Intensidade mediana', valor: fmt2(intensity.mediana), sub: 'sessões por criança no recorte' },
+        { label: 'Custo médio por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.media) },
+        { label: 'Custo mediano por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.mediana), sub: 'média acima da mediana indica concentração do custo em poucas crianças' }
+      ]);
+    }
     const age = ordenarOrdinal(patientRows(p.faixa_etaria, ['faixa'])), buckets = ordenarOrdinal(patientRows(intensity.buckets, ['faixa'])), gender = patientRows(p.genero, ['genero']);
     barChart('c_pa_age', age.map(x => x.label), age.map(x => x.pacientes), 'Crianças', fmtN, { colors: age.map(() => GREEN), horizontal: false });
     barChart('c_pa_intensity', buckets.map(x => x.label), buckets.map(x => x.pacientes), 'Crianças', fmtN, { colors: buckets.map(() => DARK), horizontal: false });
@@ -2781,23 +2909,31 @@ html,body{max-width:100%;overflow-x:hidden}
     const gnote = $('pa_gender_note');
     if (gnote) {
       const partes = gender.filter(x => n(x.pacientes) !== null).map(x => x.label + ': ' + fmtN(x.pacientes));
-      gnote.replaceChildren(el('strong', null, 'Gênero.'), document.createTextNode(' ' + (partes.length ? partes.join(' · ') + '.' : 'Sem contagens publicadas neste recorte.') + ' Contagem descritiva de contexto; não altera decisão de rede.'));
+      gnote.replaceChildren(el('strong', null, 'Gênero.'), document.createTextNode(' ' + (partes.length ? partes.join(' · ') + '.' : 'Sem contagens publicadas neste recorte.')));
     }
   }
 
   function renderCanais() {
-    const r = recorteAtual(), resumo = resumoDe(r), rows = canaisDe(r).slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0)), total = pagamento(resumo) || 0;
+    const r = recorteAtual(), resumo = resumoDe(r);
+    const discCanais = canaisDisciplinaV5(r);
+    const kitDados = !discCanais ? kitInfoV5(r) : null;
+    const kitCanais = kitDados && asArray(kitDados.canais).length ? asArray(kitDados.canais) : null;
+    const fonte = discCanais || kitCanais || canaisDe(r);
+    const rows = fonte.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
+    const total = (discCanais || kitCanais) ? rows.reduce((a, x) => a + (pagamento(x) || 0), 0) : (pagamento(resumo) || 0);
     notaEscopo('view-canais');
     const secCanais = $('view-canais');
     let notaDisc = secCanais.querySelector('.disc-note');
-    if (disciplinaAtiva()) {
+    if (disciplinaAtiva() || kitCanais) {
       if (!notaDisc) { notaDisc = el('div', 'metric-note disc-note'); secCanais.prepend(notaDisc); }
-      notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' Os totais por canal referem-se à rede completa; as faixas de preço por canal dentro da disciplina estão na aba Prestadores.'));
+      if (discCanais) notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' Valores dos canais dentro da disciplina.'));
+      else if (kitCanais) notaDisc.replaceChildren(el('strong', null, 'Combinação ' + rotuloEscopo() + '.'), document.createTextNode(' Valores dos canais dentro do grupo de crianças da combinação.'));
+      else notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' O corte de canais desta disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
     } else if (notaDisc) notaDisc.remove();
     const casa = rows.find(x => nomeCanal(x) === 'Casa Unimed');
     const casaPct = casa && total ? (pagamento(casa) || 0) / total * 100 : null;
     setKpis('ca_kpis', [
-      { label: 'Pagamento', valor: brlK(pagamento(resumo)) },
+      { label: 'Pagamento', valor: brlK((discCanais || kitCanais) ? total : pagamento(resumo)), sub: discCanais ? disciplinaAtiva() : (kitCanais ? rotuloEscopo() : null) },
       { label: 'Participação Casa Unimed', valor: pct(casaPct), sub: 'parcela do pagamento no serviço próprio' },
       { label: 'R$/sessão Casa Unimed', valor: casa ? brl(custoSessao(casa)) : '—' },
       { label: 'R$/sessão da rede externa', valor: (() => { const ext = rows.filter(x => nomeCanal(x) !== 'Casa Unimed'); const s = ext.reduce((a, x) => a + (sessoes(x) || 0), 0), pgt = ext.reduce((a, x) => a + (pagamento(x) || 0), 0); return s ? brl(pgt / s) : '—'; })(), sub: 'média ponderada dos canais externos' }
@@ -2832,7 +2968,7 @@ html,body{max-width:100%;overflow-x:hidden}
         return tr;
       }));
       if (!externos.length || precoCasa === null) { const tr = el('tr'), td = el('td', null, 'Sem base para o cenário neste recorte.'); td.colSpan = 5; tr.append(td); opBody.append(tr); }
-      if ($('ca_op_title')) $('ca_op_title').textContent = totalOp > 0 ? 'A oportunidade entre canais soma até ' + brlK(totalOp) + ' no período' : 'A oportunidade entre canais';
+      if ($('ca_op_title')) $('ca_op_title').textContent = totalOp > 0 ? 'Oportunidade entre Canais: até ' + brlK(totalOp) + ' no período' : 'Oportunidade entre Canais';
       if ($('ca_op_note')) $('ca_op_note').textContent = 'Cenário de sensibilidade: diferencial de R$/sessão de cada canal externo vs Casa Unimed multiplicado pelo volume do canal. É teto teórico de referência — supõe deslocamento integral e não considera capacidade instalada, perfil clínico nem custo marginal do serviço próprio.';
     }
     const reemb = rows.find(x => nomeCanal(x) === 'Reembolso'), rnote = $('ca_reemb_note');
@@ -2840,13 +2976,16 @@ html,body{max-width:100%;overflow-x:hidden}
       if (reemb) {
         const prests = providerRows(r).filter(x => nomeCanal(x) === 'Reembolso' && custoSessao(x) !== null).map(custoSessao);
         const p25 = quantil(prests, .25), p75 = quantil(prests, .75);
-        rnote.replaceChildren(el('strong', null, 'Reembolso.'), document.createTextNode(' ' + brlK(pagamento(reemb)) + ' no período (' + pct(participacao(reemb, total)) + ' do total) · ' + fmtN(sessoes(reemb)) + ' sessões · R$/sessão médio ' + brl(custoSessao(reemb)) + (p25 !== null && p75 !== null ? ' · preços por prestador entre ' + brl(p25) + ' e ' + brl(p75) + ' (P25–P75)' : '') + '. O reembolso não integra as faixas de referência da rede contratada; dispersão alta aciona a fila de ação.'));
+        rnote.replaceChildren(el('strong', null, 'Reembolso.'), document.createTextNode(' ' + brlK(pagamento(reemb)) + ' no período (' + pct(participacao(reemb, total)) + ' do total) · ' + fmtN(sessoes(reemb)) + ' sessões · R$/sessão médio ' + brl(custoSessao(reemb)) + (p25 !== null && p75 !== null ? ' · preços por prestador entre ' + brl(p25) + ' e ' + brl(p75) + ' (P25–P75)' : '') + '. O reembolso não integra as faixas de referência da rede contratada; dispersão alta gera sinal na aba Visão Geral.'));
       } else rnote.replaceChildren(el('strong', null, 'Reembolso.'), document.createTextNode(' Sem movimento neste recorte.'));
     }
     const exportBox = $('ca_export');
     if (exportBox && !exportBox.childElementCount) exportBox.append(botaoExport('Exportar CSV', () => {
+      const rAtual = recorteAtual();
+      const fonteAtual = canaisDisciplinaV5(rAtual) || canaisDe(rAtual);
+      const tAtual = fonteAtual.reduce((a, x) => a + (pagamento(x) || 0), 0) || (pagamento(resumoDe(rAtual)) || 0);
       exportCSV('canais.csv', ['Canal', 'Pagamento', '% total', 'Sessoes', 'R$/sessao', 'Pacientes', 'Prestadores'],
-        canaisDe(recorteAtual()).map(x => [nomeCanal(x), pagamento(x), participacao(x, total), sessoes(x), custoSessao(x), pacientes(x), x.prestadores]));
+        fonteAtual.map(x => [nomeCanal(x), pagamento(x), participacao(x, tAtual), sessoes(x), custoSessao(x), pacientes(x), x.prestadores]));
     }));
     const tbody = $('ca_table').querySelector('tbody');
     tbody.replaceChildren(...rows.map(row => {
@@ -2886,7 +3025,7 @@ html,body{max-width:100%;overflow-x:hidden}
     $('mt_provider_method').innerHTML = '<strong>Prestadores:</strong> a base registra ' + fmtN(pick(fullSummary, 'prestadores_observados', 'prestadores')) + ' cadastros de prestador na origem e ' + fmtN(pick(fullSummary, 'prestadores_consolidados', 'prestadores')) + ' entidades após a consolidação oficial dos dois nomes do mesmo prestador.';
     const discarded = asArray(meta.terapias_descartadas), discardedBox = $('mt_discarded'); discardedBox.replaceChildren();
     discarded.forEach(row => discardedBox.append(el('p', null, 'Descartada: ' + (row.terapia || row.id || 'terapia não informada') + (asArray(row.codigos).length ? ' (' + row.codigos.join(', ') + ')' : row.codigo ? ' (' + row.codigo + ')' : '') + ' — ' + (row.motivo || 'cobertura incompleta') + '.')));
-    if (!discarded.length) discardedBox.append(el('p', null, 'O contrato carregado não informa terapias descartadas.'));
+    if (!discarded.length) discardedBox.append(el('p', null, 'A base carregada não informa terapias descartadas.'));
     const full = recorteTudo(), linhas = linhasDe(full), recon = isObject(linhas.reconciliacao_componentes_codigo) ? linhas.reconciliacao_componentes_codigo : {};
     const distBox = $('mt_distributions'); distBox.replaceChildren();
     appendDistribution(distBox, 'Distribuição clínica consolidada', linhas.distribuicao, linhas.exposicoes, linhas.dois_ou_mais_pct, linhas.quatro_ou_mais_pct);
@@ -2898,7 +3037,7 @@ html,body{max-width:100%;overflow-x:hidden}
     sources.forEach((row, i) => sourceRow(dl, 'Fonte ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · código ' + (row.codigo || '—') + ' · ' + fmtN(asArray(row.competencias).length) + ' competências · SHA-256 ' + (row.sha256 || 'não informado')));
     const matriz = meta.matriz_2025;
     if (isObject(matriz)) sourceRow(dl, 'Matriz Analítica 2025', 'Status: ' + (matriz.status || 'não informado') + ' · ' + fmtN(pick(matriz, 'campos_comparados')) + ' campos comparados · SHA-256 ' + (matriz.sha256 || 'não informado') + '.');
-    else sourceRow(dl, 'Matriz Analítica 2025', 'O contrato carregado não contém o resultado da conferência cruzada.');
+    else sourceRow(dl, 'Matriz Analítica 2025', 'A base carregada não contém o resultado da conferência cruzada.');
     sourceRow(dl, 'Acesso e proteção dos dados', 'Métricas completas disponíveis somente após autenticação; dados brutos, nomes de beneficiários, matrículas, guias e datas de nascimento não são enviados ao navegador.');
   }
   const observadorLogout = new MutationObserver(() => {
