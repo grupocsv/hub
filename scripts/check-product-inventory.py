@@ -86,12 +86,12 @@ def main() -> int:
     if "text: 'Ferramentas'" in nav:
         errors.append("o submenu superior redundante Ferramentas ainda existe")
     nav_links = re.findall(r"link:\s*['\"]([^'\"]+)['\"]", nav)
-    nav_hosts = {
-        urlparse(link).hostname
+    legacy_domain_present = any(
+        urlparse(link).hostname == "tnumm.grupocsv.com"
         for link in nav_links
         if link.startswith(("https://", "http://"))
-    }
-    if "TNUMM" in nav or "tnumm.grupocsv.com" in nav_hosts:
+    )
+    if "TNUMM" in nav or legacy_domain_present:
         errors.append("a navegação principal ainda usa a identidade antiga")
 
     allowed_axia = (
