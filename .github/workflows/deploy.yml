@@ -34,6 +34,9 @@ jobs:
       - name: Check portal links
         run: python3 scripts/check-portal-links.py
 
+      - name: Check canonical product inventory
+        run: python3 scripts/check-product-inventory.py
+
       - name: Test Terapias Especiais data pipeline
         run: python3 scripts/build-tea-data.py --selftest
 

@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: "Hub Grupo CSV",
-  description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, TheraTech®",
+  description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, Thera®",
   lang: 'pt-BR',
 
   head: [
@@ -11,7 +11,7 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicons/favicon-32x32.png' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicons/favicon-16x16.png' }],
     ['meta', { property: 'og:title', content: 'Hub Grupo CSV | Portal Central' }],
-    ['meta', { property: 'og:description', content: 'Ecossistema de soluções em saúde: AxiaCare®, MedValor®, TheraTech®' }],
+    ['meta', { property: 'og:description', content: 'Ecossistema de soluções em saúde: AxiaCare®, MedValor®, Thera®' }],
     ['meta', { property: 'og:image', content: 'https://hub.grupocsv.com/og/og_hub.png' }],
     ['meta', { property: 'og:url', content: 'https://hub.grupocsv.com' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -32,7 +32,7 @@ export default defineConfig({
         items: [
           { text: 'AxiaCare\u00AE', link: '/axia/' },
           { text: 'MedValor\u00AE', link: '/medvalor/' },
-          { text: 'TheraTech\u00AE', link: '/thera/' },
+          { text: 'Thera', link: '/thera/' },
         ]
       },
       {
@@ -43,19 +43,7 @@ export default defineConfig({
           { text: 'ICDS', link: '/icds/' },
         ]
       },
-      {
-        text: 'Ferramentas',
-        items: [
-          { text: 'Compass\u2122', link: '/compass/' },
-          { text: 'Signal\u2122', link: '/signal/' },
-          { text: 'TNUMM', link: 'https://tnumm.grupocsv.com' },
-          { text: 'Deck\u2122', link: 'https://deck.grupocsv.com' },
-          { text: 'Relay\u2122', link: 'https://relay.axcare.com.br' },
-          { text: 'RTAV\u2122', link: 'https://rtav.axcare.app' },
-          { text: 'Panta\u2122', link: '/panta/' },
-          { text: 'Discovery™', link: 'https://discovery.axcare.app' },
-        ]
-      },
+      { text: 'Produtos', link: '/#produtos-do-grupo' },
       {
         text: 'Governan\u00E7a',
         items: [
@@ -141,7 +129,7 @@ export default defineConfig({
           items: [
             { text: 'Compass\u2122', link: '/_infra/ferramentas/compass' },
             { text: 'Signal\u2122', link: '/_infra/ferramentas/signal' },
-            { text: 'TNUMM', link: '/_infra/ferramentas/tnumm' },
+            { text: 'CMM', link: '/_infra/ferramentas/cmm' },
             { text: 'Deck\u2122', link: '/_infra/ferramentas/deck' },
             { text: 'Relay\u2122', link: '/_infra/ferramentas/relay' },
             { text: 'RTAV\u2122', link: '/_infra/ferramentas/rtav' },
@@ -167,7 +155,7 @@ export default defineConfig({
           items: [
             { text: 'AxiaCare\u00AE', link: '/_infra/axiacare/mandate' },
             { text: 'MedValor\u00AE', link: '/_infra/medvalor/mandate' },
-            { text: 'TheraTech\u00AE', link: '/_infra/thera/mandate' },
+            { text: 'Thera', link: '/_infra/thera/mandate' },
           ]
         },
         {

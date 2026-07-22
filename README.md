@@ -10,14 +10,12 @@ Portal central do ecossistema **Grupo CSV** - Cuidados em Saúde com Valor.
 
 Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress](https://vitepress.dev/), servindo como ponto de entrada unificado para:
 
-- **Empresas do Grupo** - AxiaCare®, MedValor®, TheraTech®
+- **Empresas do Grupo** - AxiaCare®, MedValor®, Thera
 - **Instituições Parceiras** - Entregáveis para Unimed GV e Unihealth
 - **Governança e Compliance** - Políticas, termos e documentação de integridade
 - **Fundador** - Informações sobre Guilherme Thomé
 - **Infraestrutura Cognitiva** - Documentação técnica para desenvolvedores e agentes
-- **Compass™** - Linha editorial estratégica do Grupo CSV
-- **Signal™** - Resumo semanal de inteligência estratégica
-- **TNUMM** - Consulta, histórico e atualização governada da Tabela Nacional Unimed de Materiais e Medicamentos
+- **Produtos do Grupo CSV** - Compass™, Signal™, CMM, Deck™, Relay™, RTAV™, Panta™ e Discovery™
 
 ---
 
@@ -25,11 +23,13 @@ Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress
 
 O ecossistema Hub classifica seus ativos digitais em 5 categorias, conforme a taxonomia oficial definida em `_infra/csv-core/taxonomia-produtos.md`.
 
+O inventário canônico dos produtos exibidos na página inicial está em `_infra/csv-core/produtos-grupo.json` e é validado automaticamente no pipeline de publicação.
+
 | Categoria | Propósito | Back-end | Exemplos no Hub |
 | :--- | :--- | :--- | :--- |
 | **Página Estática** | Informar | Não | `compliance/*`, `founder/`, `thera/`, `medvalor/` |
 | **Ferramenta (Tool)** | Executar tarefa específica | Opcional | `axia/nota-fiscal.html`, `axia/reembolso.html`, `unihealth/calc-plantao.html` |
-| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `tnumm.grupocsv.com` |
+| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `cmm.grupocsv.com` |
 | **Painel BI** | Visualizar e analisar dados | Sim | `unimed/onco.html`, `unimed/painel-onco-vo.html` |
 | **Portal** | Ponto de acesso unificado | Sim | `hub.grupocsv.com` (visão futura) |
 
@@ -63,7 +63,14 @@ O ecossistema Hub classifica seus ativos digitais em 5 categorias, conforme a ta
 | Fundador | `founder/` | **Página Estática** | Grupo CSV | Ativo |
 | Deck Institucional | `deck/` | **Página Estática** | Grupo CSV | Ativo |
 | Admin | `admin/` | **Ferramenta** | Grupo CSV | Ativo |
-| TNUMM | [tnumm.grupocsv.com](https://tnumm.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
+| Compass™ | `compass/` | **Página Estática** | Grupo CSV | Ativo |
+| Signal™ | `signal/` | **Página Estática** | Grupo CSV | Ativo |
+| CMM | [cmm.grupocsv.com](https://cmm.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
+| Deck™ | [deck.grupocsv.com](https://deck.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
+| Relay™ | [relay.axcare.com.br](https://relay.axcare.com.br) | **WebApp** | Grupo CSV | Ativo |
+| RTAV™ | [rtav.axcare.app](https://rtav.axcare.app) | **WebApp** | Grupo CSV | Ativo |
+| Panta™ | [panta.grupocsv.com](https://panta.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
+| Discovery™ | [discovery.axcare.app](https://discovery.axcare.app) | **WebApp** | Grupo CSV | Ativo |
 | ICDS (landing) | `icds/` | **Página Estática** | ICDS | Ativo |
 
 ---
@@ -83,7 +90,7 @@ grupocsv/hub/
 │
 ├── axia/                    # AxiaCare — Ferramentas e WebApps
 ├── medvalor/                # MedValor — Página institucional
-├── thera/                   # TheraTech — Página institucional
+├── thera/                   # Thera — Página institucional
 │
 ├── unimed/                  # Unimed GV — Painéis BI e dashboards
 ├── unihealth/               # Unihealth — Painéis BI e ferramentas
@@ -147,7 +154,7 @@ grupocsv/hub/
 |---------|-----|--------|
 | **AxiaCare®** | Azul/Verde (#196396 + #2DBF7F) | Ativo |
 | **MedValor®** | Laranja (#c2410c) | Placeholder |
-| **TheraTech®** | Roxo (#6B5B95) | Placeholder |
+| **Thera** | Roxo (#6B5B95) | Placeholder |
 
 ### Módulo 2 - Instituições Parceiras
 - **Unimed Governador Valadares** - Painéis BI, relatórios, dashboards
@@ -181,7 +188,7 @@ Resumo semanal de inteligência estratégica do Grupo CSV. Sintetiza os 5 a 7 fa
 Aplicações web completas com autenticação, persistência e lógica de negócio.
 
 - **Data Set TEA:** [p/tea-dataset/](https://hub.grupocsv.com/p/tea-dataset/) — Coleta de dados multi-tenant para TEA (ICDS)
-- **TNUMM:** [tnumm.grupocsv.com](https://tnumm.grupocsv.com) — Consulta, histórico e atualização governada do catálogo TNUMM
+- **CMM:** [cmm.grupocsv.com](https://cmm.grupocsv.com) — catálogo versionado de materiais e medicamentos, com publicações TNUMM como fonte canônica atual
 
 ---
 
@@ -192,6 +199,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 | `csv-auth` | Autenticação e sessões | D1, Resend |
 | `csv-ai` | Assistente de IA contextual | D1, AI Gateway |
 | `csv-email` | Envio de e-mails e persistência de formulários | D1, Resend |
+| `tnumm` | WebApp, API e atualização governada do CMM | D1 `tnumm-control`, R2 `tnumm-evidence` |
 
 ---
 
@@ -271,7 +279,7 @@ O workflow:
 
 © 2026 Grupo CSV. Todos os direitos reservados.
 
-**AxiaCare®**, **MedValor®** e **TheraTech®** são marcas registradas do Grupo CSV.
+**AxiaCare®**, **MedValor®** e **Thera** integram o portfólio de marcas do Grupo CSV.
 
 ---
 
