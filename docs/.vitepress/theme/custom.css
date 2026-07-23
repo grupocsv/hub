@@ -9,3 +9,37 @@
     height: 40px !important;
   }
 }
+
+/* Mobile: navbar de 360px é apertada (logo + título + busca + menu + widget de
+   logout do usuário logado). Reduz a logo no mobile p/ dar espaço e evitar
+   overflow horizontal quando o widget hub-auth é injetado. */
+@media (max-width: 767px) {
+  .VPNavBarTitle .logo {
+    height: 24px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsividade — páginas com layout:page (.VPPage)
+   Essas páginas renderizam FORA do container .vp-doc, que é o que normalmente
+   dá scroll horizontal a tabelas e blocos de código. Sem esse tratamento,
+   tabelas largas e código longo estouram o viewport no mobile e empurram o
+   body inteiro (texto cortado). Estas regras replicam o comportamento do
+   .vp-doc para o .VPPage: conteúdo largo rola dentro do próprio bloco.
+   ========================================================================== */
+.VPPage table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.VPPage [class*='language-'] {
+  max-width: 100%;
+}
+.VPPage [class*='language-'] pre {
+  overflow-x: auto;
+}
+.VPPage pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
