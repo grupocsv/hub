@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="hub-category" content="webapp">
+  <meta name="hub-entity" content="AxiaCare">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta name="theme-color" content="#004e4c">
+  <title>Sistema Unimed | AxiaCare | Hub Grupo CSV</title>
+  <meta name="description" content="Acervo de trabalho da AxiaCare para consulta de entidades e ativos institucionais do Sistema Unimed.">
+  <link rel="icon" href="/favicons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+  <style>
+    :root {
+      --axia-blue: #196396;
+      --axia-deep: #103e5f;
+      --u-green: #00995d;
+      --u-green-hover: #007f4d;
+      --u-citrus: #8baf1f;
+      --u-dark: #004e4c;
+      --u-orange: #f47920;
+      --u-paper: #fafaf7;
+      --u-paper-deep: #f1f1ec;
+      --u-line: #e3e3dc;
+      --u-stone: #6b6f6c;
+      --u-white: #ffffff;
+      --danger: #a22b2b;
+      --danger-soft: #fff1f0;
+      --warning: #7b5700;
+      --warning-soft: #fff8df;
+      --font-ui: "Unimed Sans 2020", "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      --font-body: "Unimed Serif 2020", "Source Serif 4", Georgia, serif;
+      --radius-box: 28px;
+      --radius-card: 22px;
+      --radius-small: 18px;
+      --radius-pill: 9999px;
+      --shadow-soft: 0 8px 28px rgba(0, 78, 76, 0.08);
+      --max-width: 1240px;
+      --page-pad: clamp(16px, 4vw, 40px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { color-scheme: light; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--u-dark);
+      background: var(--u-paper);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
+    [hidden] { display: none !important; }
+
+    :focus-visible {
+      outline: 3px solid rgba(0, 153, 93, 0.45);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 1000;
+      transform: translateY(-160%);
+      padding: 10px 16px;
+      border-radius: var(--radius-pill);
+      color: var(--u-white);
+      background: var(--u-dark);
+      font-family: var(--font-ui);
+      font-weight: 700;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      border-bottom: 1px solid rgba(25, 99, 150, 0.12);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      width: min(100%, var(--max-width));
+      min-height: 68px;
+      margin: 0 auto;
+      padding: 10px var(--page-pad);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      color: var(--axia-deep);
+      text-decoration: none;
+      font-family: var(--font-ui);
+    }
+    .brand-link img { width: auto; height: 42px; }
+    .brand-label {
+      padding-left: 12px;
+      border-left: 1px solid rgba(25, 99, 150, 0.2);
+      font-size: 0.87rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-ui);
+    }
+    .header-link {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border: 1px solid rgba(25, 99, 150, 0.18);
+      border-radius: var(--radius-pill);
+      color: var(--axia-blue);
+      background: var(--u-white);
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .header-link:hover { border-color: var(--axia-blue); background: #f4f8fb; }
+    #hub-auth-slot { display: inline-flex; align-items: center; }
+
+    main {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+      padding: clamp(24px, 4vw, 48px) var(--page-pad) 56px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 54px);
+      border-radius: var(--radius-box);
+      color: var(--u-paper);
+      background: var(--u-dark);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      bottom: -110px;
+      width: 280px;
+      height: 280px;
+      border: 42px solid rgba(139, 175, 31, 0.18);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 5px 13px;
+      border: 1px solid rgba(250, 250, 247, 0.28);
+      border-radius: var(--radius-pill);
+      background: rgba(250, 250, 247, 0.09);
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      max-width: 760px;
+      margin: 18px 0 10px;
+      font-family: var(--font-ui);
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+    }
+    .hero p {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0;
+      color: rgba(250, 250, 247, 0.88);
+      font-size: clamp(1rem, 1.5vw, 1.18rem);
+    }
+    .hero-note {
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-ui);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+    .hero-note::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--u-citrus);
+      box-shadow: 0 0 0 5px rgba(139, 175, 31, 0.16);
+    }
+
+    .search-panel {
+      position: relative;
+      z-index: 2;
+      margin-top: -10px;
+      padding: clamp(22px, 4vw, 34px);
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-box);
+      background: var(--u-paper);
+      box-shadow: var(--shadow-soft);
+    }
+    .panel-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    .panel-heading h2 {
+      margin: 0 0 4px;
+      font-family: var(--font-ui);
+      font-size: clamp(1.3rem, 2vw, 1.75rem);
+      line-height: 1.2;
+    }
+    .panel-heading p { margin: 0; color: var(--u-stone); font-size: 0.96rem; }
+    .api-link {
+      flex: 0 0 auto;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 15px;
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-pill);
+      color: var(--u-dark);
+      background: var(--u-white);
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .api-link:hover { border-color: var(--u-green); color: var(--u-green-hover); }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: minmax(240px, 2fr) minmax(92px, 0.5fr) minmax(190px, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .field { min-width: 0; }
+    .field label {
+      display: block;
+      margin: 0 0 7px 12px;
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .field input {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 17px;
+      border: 1px solid #cfd4ce;
+      border-radius: var(--radius-pill);
+      color: var(--u-dark);
+      background: var(--u-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+    }
+    .field input::placeholder { color: #818682; }
+    .field input:focus { border-color: var(--u-green); outline: 3px solid rgba(0, 153, 93, 0.14); }
+    .search-actions { display: flex; align-items: center; gap: 8px; }
+    .btn {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.56; cursor: not-allowed; }
+    .btn-primary { color: var(--u-white); background: var(--u-green); }
+    .btn-primary:hover:not(:disabled) { background: var(--u-green-hover); }
+    .btn-secondary { border-color: var(--u-line); color: var(--u-dark); background: var(--u-white); }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--u-green); color: var(--u-green-hover); }
+
+    .results-section { padding-top: 30px; }
+    .results-head {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .results-head h2 {
+      margin: 0;
+      font-family: var(--font-ui);
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+    }
+    .result-summary { margin: 0; color: var(--u-stone); font-family: var(--font-ui); font-size: 0.88rem; }
+
+    .state-panel {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 10px;
+      padding: clamp(24px, 5vw, 46px);
+      border: 1px dashed #cbd1ca;
+      border-radius: var(--radius-card);
+      background: var(--u-paper);
+    }
+    .state-panel[data-kind="error"],
+    .state-panel[data-kind="auth"] { border-style: solid; border-color: #e7b9b5; background: var(--danger-soft); }
+    .state-panel[data-kind="forbidden"] { border-style: solid; border-color: #ecd79a; background: var(--warning-soft); }
+    .state-panel h3 { margin: 0; font-family: var(--font-ui); font-size: 1.15rem; }
+    .state-panel p { max-width: 650px; margin: 0; color: var(--u-stone); }
+    .state-panel .btn { margin-top: 8px; }
+    .loading-line { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-ui); font-weight: 700; }
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(0, 78, 76, 0.18);
+      border-top-color: var(--u-green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .entity-card {
+      min-width: 0;
+      min-height: 270px;
+      display: flex;
+      flex-direction: column;
+      padding: 22px;
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-card);
+      background: var(--u-paper);
+      box-shadow: 0 3px 12px rgba(0, 78, 76, 0.035);
+    }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .code-pill, .meta-pill {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 11px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .code-pill { color: var(--u-white); background: var(--u-dark); letter-spacing: 0.06em; }
+    .meta-pill { color: var(--u-dark); background: var(--u-paper-deep); }
+    .entity-card h3 {
+      margin: 18px 0 14px;
+      font-family: var(--font-ui);
+      font-size: 1.22rem;
+      line-height: 1.22;
+      overflow-wrap: anywhere;
+    }
+    .entity-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+      margin: 0 0 18px;
+    }
+    .entity-facts div { min-width: 0; }
+    .entity-facts dt {
+      margin: 0 0 2px;
+      color: var(--u-stone);
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .entity-facts dd {
+      margin: 0;
+      font-family: var(--font-ui);
+      font-size: 0.86rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .card-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .asset-note { color: var(--u-stone); font-size: 0.82rem; }
+    .card-button { min-height: 44px; padding: 9px 16px; }
+
+    .more-row { display: flex; justify-content: center; margin-top: 22px; }
+
+    dialog {
+      width: min(1060px, calc(100% - 32px));
+      max-height: calc(100vh - 32px);
+      margin: auto;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      border-radius: var(--radius-box);
+      color: var(--u-dark);
+      background: var(--u-paper);
+      box-shadow: 0 22px 70px rgba(0, 39, 38, 0.25);
+    }
+    dialog::backdrop { background: rgba(0, 39, 38, 0.64); backdrop-filter: blur(3px); }
+    .dialog-shell { max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
+    .dialog-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      padding: 22px clamp(20px, 4vw, 34px);
+      border-bottom: 1px solid var(--u-line);
+      background: var(--u-dark);
+      color: var(--u-paper);
+    }
+    .dialog-heading { min-width: 0; }
+    .dialog-kicker { display: block; margin-bottom: 4px; font-family: var(--font-ui); font-size: 0.75rem; font-weight: 700; opacity: 0.78; }
+    .dialog-header h2 { margin: 0; font-family: var(--font-ui); font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.16; overflow-wrap: anywhere; }
+    .dialog-close {
+      width: 44px;
+      height: 44px;
+      margin-left: auto;
+      flex: 0 0 44px;
+      border: 1px solid rgba(250, 250, 247, 0.3);
+      border-radius: 50%;
+      color: var(--u-paper);
+      background: rgba(250, 250, 247, 0.08);
+      font-family: var(--font-ui);
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .dialog-close:hover { background: rgba(250, 250, 247, 0.16); }
+    .dialog-body { overflow-y: auto; padding: clamp(20px, 4vw, 34px); }
+    .detail-facts {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 28px;
+    }
+    .detail-facts div { min-width: 0; padding: 15px; border: 1px solid var(--u-line); border-radius: var(--radius-small); background: var(--u-white); }
+    .detail-facts dt { margin: 0 0 4px; color: var(--u-stone); font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; }
+    .detail-facts dd { margin: 0; font-family: var(--font-ui); font-size: 0.92rem; font-weight: 800; overflow-wrap: anywhere; }
+    .variants-heading { margin: 0 0 5px; font-family: var(--font-ui); font-size: 1.3rem; }
+    .variants-intro { margin: 0 0 18px; color: var(--u-stone); }
+    .variant-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .variant-card { min-width: 0; padding: 18px; border: 1px solid var(--u-line); border-radius: var(--radius-card); background: var(--u-white); }
+    .variant-card h4 { margin: 0 0 12px; font-family: var(--font-ui); font-size: 1rem; }
+    .preview-box {
+      min-height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      overflow: hidden;
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-small);
+      background-color: var(--u-paper);
+      background-image: linear-gradient(45deg, rgba(0, 78, 76, 0.035) 25%, transparent 25%), linear-gradient(-45deg, rgba(0, 78, 76, 0.035) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0, 78, 76, 0.035) 75%), linear-gradient(-45deg, transparent 75%, rgba(0, 78, 76, 0.035) 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    }
+    .preview-box img { width: 100%; max-height: 220px; object-fit: contain; }
+    .preview-empty { max-width: 220px; color: var(--u-stone); text-align: center; font-size: 0.86rem; }
+    .format-list { min-height: 42px; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .format-button {
+      min-height: 40px;
+      padding: 8px 13px;
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-pill);
+      color: var(--u-dark);
+      background: var(--u-paper);
+      font-family: var(--font-ui);
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .format-button:hover:not(:disabled) { border-color: var(--u-green); color: var(--u-green-hover); }
+    .dialog-status { margin-top: 18px; color: var(--u-stone); font-family: var(--font-ui); font-size: 0.86rem; }
+
+    .page-footer {
+      margin-top: 34px;
+      padding: 18px 4px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid rgba(0, 78, 76, 0.13);
+      color: #51615f;
+      font-size: 0.82rem;
+    }
+    .page-footer strong { font-family: var(--font-ui); color: var(--u-dark); }
+
+    @media (max-width: 980px) {
+      .search-form { grid-template-columns: 1fr 1fr; }
+      .field-query { grid-column: 1 / -1; }
+      .search-actions { justify-content: flex-start; }
+      .entity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .detail-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      .header-inner { gap: 10px; }
+      .brand-label, .header-link.api-docs { display: none; }
+      .header-actions { gap: 6px; }
+      .header-link { padding: 7px 12px; font-size: 0.78rem; }
+      .panel-heading { align-items: flex-start; flex-direction: column; }
+      .search-form { grid-template-columns: 1fr; }
+      .field-query { grid-column: auto; }
+      .search-actions { width: 100%; }
+      .search-actions .btn-primary { flex: 1; }
+      .entity-grid { grid-template-columns: 1fr; }
+      .variant-grid { grid-template-columns: 1fr; }
+      .page-footer { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .brand-link img { height: 36px; }
+      main { padding-left: 12px; padding-right: 12px; }
+      .hero, .search-panel { border-radius: 22px; }
+      .hero { padding: 28px 22px; }
+      .search-panel { padding: 22px 18px; }
+      .entity-facts { grid-template-columns: 1fr; }
+      .detail-facts { grid-template-columns: 1fr; }
+      dialog { width: calc(100% - 16px); max-height: calc(100vh - 16px); border-radius: 22px; }
+      .dialog-shell { max-height: calc(100vh - 16px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+    @media print {
+      .app-header, .search-panel, .page-footer, dialog { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand-link" href="/axia/" target="_self" aria-label="Voltar ao portal da AxiaCare">
+        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare">
+        <span class="brand-label">Sistema Unimed</span>
+      </a>
+      <nav class="header-actions" aria-label="Navegação do produto">
+        <a class="header-link api-docs" href="https://api.grupocsv.com/unimed/v1/openapi.json" target="_blank" rel="noopener noreferrer">Contrato da API</a>
+        <a class="header-link" href="/axia/" target="_self">AxiaCare</a>
+        <span id="hub-auth-slot" aria-label="Sessão do Hub"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" aria-labelledby="titulo-principal">
+      <span class="eyebrow">Acervo institucional</span>
+      <h1 id="titulo-principal">Sistema Unimed</h1>
+      <p>Consulte entidades, códigos e ativos de identidade visual em um único ambiente de trabalho da AxiaCare.</p>
+      <div class="hero-note">Acervo privado para atividades autorizadas de apoio à gestão</div>
+    </section>
+
+    <section class="search-panel" aria-labelledby="titulo-busca">
+      <div class="panel-heading">
+        <div>
+          <h2 id="titulo-busca">Buscar no catálogo</h2>
+          <p>Use um ou mais campos. Códigos com três ou quatro posições são aceitos.</p>
+        </div>
+        <a class="api-link" href="https://api.grupocsv.com/unimed/v1/openapi.json" target="_blank" rel="noopener noreferrer">Integração por GET</a>
+      </div>
+      <form id="search-form" class="search-form" role="search" novalidate>
+        <div class="field field-query">
+          <label for="query">Nome ou código</label>
+          <input id="query" name="q" type="search" autocomplete="off" placeholder="Ex.: Governador Valadares ou 0236">
+        </div>
+        <div class="field">
+          <label for="uf">UF</label>
+          <input id="uf" name="uf" type="text" inputmode="text" autocomplete="off" maxlength="2" pattern="[A-Za-z]{2}" placeholder="Ex.: MG">
+        </div>
+        <div class="field">
+          <label for="entity-type">Tipo institucional ou PTU</label>
+          <input id="entity-type" name="type" type="text" autocomplete="off" placeholder="Ex.: Singular">
+        </div>
+        <div class="search-actions">
+          <button class="btn btn-primary" type="submit" id="search-button">Buscar</button>
+          <button class="btn btn-secondary" type="button" id="clear-button" aria-label="Limpar filtros">Limpar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="results-section" aria-labelledby="titulo-resultados">
+      <div class="results-head">
+        <h2 id="titulo-resultados">Entidades</h2>
+        <p class="result-summary" id="result-summary"></p>
+      </div>
+
+      <div id="status-region" class="state-panel" role="status" aria-live="polite" aria-atomic="true">
+        <div class="loading-line"><span class="spinner" aria-hidden="true"></span><span>Aguardando autenticação…</span></div>
+      </div>
+
+      <div id="entity-grid" class="entity-grid" aria-live="polite" hidden></div>
+
+      <div class="more-row">
+        <button class="btn btn-secondary" type="button" id="more-button" hidden>Carregar mais</button>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <span><strong>AxiaCare</strong> — Grupo CSV</span>
+      <span>Cuidados em Saúde com Valor · Acervo de trabalho</span>
+    </footer>
+  </main>
+
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div class="dialog-heading">
+          <span class="dialog-kicker" id="detail-code">Entidade do Sistema Unimed</span>
+          <h2 id="detail-title">Detalhes</h2>
+        </div>
+        <button class="dialog-close" type="button" id="dialog-close" aria-label="Fechar detalhes">×</button>
+      </header>
+      <div class="dialog-body" id="dialog-body"></div>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const API_BASE = 'https://api.grupocsv.com/unimed';
+      const API_ORIGIN = new URL(API_BASE).origin;
+      const TOKEN_KEY = 'hub_auth_axiacare_token';
+      const EMAIL_KEY = 'hub_auth_axiacare_email';
+      const EXPIRES_KEY = 'hub_auth_axiacare_expires';
+      const PAGE_SIZE = 24;
+      const FORMAT_ORDER = ['PNG', 'SVG', 'PDF', 'AI'];
+      const VARIANTS = [
+        { key: 'box_pinheiro', label: 'Com box e pinheiro' },
+        { key: 'box', label: 'Com box, sem pinheiro' },
+        { key: 'sem_box_pinheiro', label: 'Sem box e com pinheiro' },
+        { key: 'sem_box', label: 'Sem box e sem pinheiro' }
+      ];
+      const VALUE_LABELS = {
+        active: 'Ativa',
+        ativa: 'Ativa',
+        apoio_gestao: 'Apoio à gestão',
+        cadop_active_portfolio_transferred: 'Cadastro ANS ativo; carteira transferida',
+        cancelled: 'Cancelada',
+        central_nacional: 'Central nacional',
+        central_regional: 'Central regional',
+        central_servicos: 'Central de serviços',
+        confederacao: 'Confederação',
+        confederacao_nacional: 'Confederação nacional',
+        empresa_complexo: 'Empresa do complexo',
+        empresa_sistema: 'Empresa do Sistema',
+        entidade_internacional: 'Entidade internacional',
+        escritorio_sistema: 'Escritório do Sistema',
+        federacao: 'Federação',
+        federacao_ou_interfederativa: 'Federação ou interfederativa',
+        fundacao_sistema: 'Fundação do Sistema',
+        holding_sistema: 'Holding do Sistema',
+        historical_inactive: 'Histórica/inativa',
+        iniciativa_sistema: 'Iniciativa do Sistema',
+        interfederativa_federacao: 'Federação/interfederativa',
+        intrafederativa: 'Intrafederativa',
+        nao_avaliado: 'Não avaliada',
+        operadora: 'Operadora',
+        operadora_plano_saude: 'Operadora de plano de saúde',
+        pendente: 'Pendente',
+        pendente_ambiguidade: 'Pendente por ambiguidade',
+        registro_operacional: 'Registro operacional',
+        seccional: 'Seccional',
+        singular: 'Singular',
+        teste: 'Teste'
+      };
+
+      const form = document.getElementById('search-form');
+      const queryInput = document.getElementById('query');
+      const ufInput = document.getElementById('uf');
+      const typeInput = document.getElementById('entity-type');
+      const searchButton = document.getElementById('search-button');
+      const clearButton = document.getElementById('clear-button');
+      const statusRegion = document.getElementById('status-region');
+      const entityGrid = document.getElementById('entity-grid');
+      const resultSummary = document.getElementById('result-summary');
+      const moreButton = document.getElementById('more-button');
+      const dialog = document.getElementById('detail-dialog');
+      const dialogBody = document.getElementById('dialog-body');
+      const detailTitle = document.getElementById('detail-title');
+      const detailCode = document.getElementById('detail-code');
+      const closeButton = document.getElementById('dialog-close');
+
+      let nextCursor = null;
+      let renderedEntities = [];
+      let listAbortController = null;
+      let detailAbortController = null;
+      let objectUrls = [];
+
+      class ApiError extends Error {
+        constructor(status, message) {
+          super(message);
+          this.name = 'ApiError';
+          this.status = status;
+        }
+      }
+
+      function create(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = String(text);
+        return node;
+      }
+
+      function storageValue(storage, key) {
+        try { return storage.getItem(key); } catch (_error) { return null; }
+      }
+
+      function currentToken() {
+        return storageValue(localStorage, TOKEN_KEY) || storageValue(sessionStorage, TOKEN_KEY);
+      }
+
+      function clearAxiaSession() {
+        try {
+          [localStorage, sessionStorage].forEach(storage => {
+            storage.removeItem(TOKEN_KEY);
+            storage.removeItem(EMAIL_KEY);
+            storage.removeItem(EXPIRES_KEY);
+          });
+        } catch (_error) {}
+      }
+
+      function pause(milliseconds) {
+        return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+      }
+
+      async function waitForToken(signal) {
+        const deadline = Date.now() + 10 * 60 * 1000;
+        while (Date.now() < deadline) {
+          if (signal && signal.aborted) throw new DOMException('A operação foi cancelada.', 'AbortError');
+          const token = currentToken();
+          if (token) return token;
+          await pause(250);
+        }
+        throw new ApiError(401, 'A autenticação não foi concluída.');
+      }
+
+      function safeUrl(value) {
+        if (!value || typeof value !== 'string') return null;
+        try {
+          const url = new URL(value, API_BASE + '/');
+          const apiPath = new URL(API_BASE).pathname.replace(/\/$/, '');
+          const withinApi = url.pathname === apiPath || url.pathname.startsWith(`${apiPath}/`);
+          return url.protocol === 'https:' && url.origin === API_ORIGIN && withinApi ? url : null;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      async function request(path, options = {}, consumeResponse = null) {
+        const externalSignal = options.signal;
+        let controller = null;
+        let timeoutId = null;
+        let timedOut = false;
+        const relayAbort = () => controller && controller.abort();
+
+        try {
+          const token = await waitForToken(externalSignal);
+          controller = new AbortController();
+          if (externalSignal) {
+            if (externalSignal.aborted) controller.abort();
+            else externalSignal.addEventListener('abort', relayAbort, { once: true });
+          }
+          timeoutId = window.setTimeout(() => {
+            timedOut = true;
+            controller.abort();
+          }, 20000);
+
+          const url = safeUrl(path.startsWith('http') ? path : API_BASE + path);
+          if (!url) throw new ApiError(400, 'A URL solicitada é inválida.');
+
+          const headers = new Headers(options.headers || {});
+          if (url.origin === API_ORIGIN) headers.set('X-Auth-Token', token);
+
+          const response = await fetch(url.href, {
+            method: options.method || 'GET',
+            headers,
+            cache: 'no-store',
+            credentials: 'omit',
+            redirect: 'error',
+            signal: controller.signal
+          });
+          if (!response.ok) {
+            let serverMessage = '';
+            try {
+              const body = await response.json();
+              serverMessage = typeof body.message === 'string'
+                ? body.message
+                : (typeof body.error === 'string'
+                    ? body.error
+                    : (body.error && typeof body.error.message === 'string' ? body.error.message : ''));
+            } catch (_error) {}
+            throw new ApiError(response.status, serverMessage || `Falha HTTP ${response.status}.`);
+          }
+          return consumeResponse ? await consumeResponse(response) : response;
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            if (timedOut) throw new ApiError(0, 'O serviço excedeu o tempo limite de resposta.');
+            throw error;
+          }
+          if (error instanceof ApiError) throw error;
+          throw new ApiError(0, 'Não foi possível alcançar o serviço.');
+        } finally {
+          if (timeoutId) window.clearTimeout(timeoutId);
+          if (externalSignal) externalSignal.removeEventListener('abort', relayAbort);
+        }
+      }
+
+      async function requestJson(path, options = {}) {
+        return request(path, options, async response => {
+          if (response.status === 204) return null;
+          try { return await response.json(); }
+          catch (_error) { throw new ApiError(502, 'O serviço retornou um contrato inválido.'); }
+        });
+      }
+
+      function firstValue(source, keys) {
+        if (!source || typeof source !== 'object') return null;
+        for (const key of keys) {
+          if (source[key] !== undefined && source[key] !== null && source[key] !== '') return source[key];
+        }
+        return null;
+      }
+
+      function canonicalCode(value) {
+        if (value === null || value === undefined) return '—';
+        const raw = String(value).trim();
+        return /^\d{1,4}$/.test(raw) ? raw.padStart(4, '0') : raw;
+      }
+
+      function displayValue(value, fallback = 'Não informado') {
+        if (value === null || value === undefined || value === '') return fallback;
+        const raw = String(value);
+        return VALUE_LABELS[raw.toLowerCase()] || raw;
+      }
+
+      function normalizeEntity(raw) {
+        const source = raw && typeof raw === 'object' ? raw : {};
+        const ans = source.ans && typeof source.ans === 'object' ? source.ans : {};
+        const assets = source.assets && typeof source.assets === 'object' ? source.assets : {};
+        return {
+          raw: source,
+          id: firstValue(source, ['id', 'entity_id', 'uuid']),
+          code: canonicalCode(firstValue(source, ['codigo_sistema_unimed', 'code', 'codigo', 'nme', 'id'])),
+          name: displayValue(firstValue(source, ['nome_atual', 'name', 'nome', 'razao_social']), 'Nome não informado'),
+          uf: displayValue(firstValue(source, ['uf', 'estado', 'state']), '—'),
+          type: displayValue(firstValue(source, ['institutional_type', 'tipo_institucional_atual', 'type', 'tipo'])),
+          typePtu: displayValue(firstValue(source, ['type_ptu', 'tipo_ptu'])),
+          role: displayValue(firstValue(source, ['papel_operacional', 'operational_role', 'role', 'papel'])),
+          ansStatus: displayValue(firstValue(source, ['situacao_ans', 'ans_status', 'status_ans']) || firstValue(ans, ['status', 'situacao'])),
+          ansRegistry: displayValue(firstValue(source, ['registro_ans', 'ans_registry', 'codigo_ans']) || firstValue(ans, ['registration', 'registro']), '—'),
+          assetCount: firstValue(source, ['assets_count', 'asset_count', 'total_assets']) ?? firstValue(assets, ['count', 'total'])
+        };
+      }
+
+      function arrayFromEnvelope(body, keys) {
+        if (Array.isArray(body)) return body;
+        if (!body || typeof body !== 'object') return [];
+        if (Array.isArray(body.data)) return body.data;
+        for (const key of keys) if (Array.isArray(body[key])) return body[key];
+        if (body.data && typeof body.data === 'object') {
+          for (const key of keys) if (Array.isArray(body.data[key])) return body.data[key];
+        }
+        return [];
+      }
+
+      function extractEntities(body) {
+        return arrayFromEnvelope(body, ['entities', 'items', 'results']).map(normalizeEntity);
+      }
+
+      function extractMeta(body) {
+        if (!body || typeof body !== 'object') return {};
+        return body.meta || (body.data && !Array.isArray(body.data) && body.data.meta) || {};
+      }
+
+      function extractSingleEntity(body, fallback) {
+        if (!body) return fallback;
+        let candidate = body;
+        if (body.data && !Array.isArray(body.data)) candidate = body.data;
+        if (body.entity && typeof body.entity === 'object') candidate = body.entity;
+        if (candidate.entity && typeof candidate.entity === 'object') candidate = candidate.entity;
+        if (Array.isArray(candidate)) candidate = candidate[0];
+        return candidate && typeof candidate === 'object' ? normalizeEntity(candidate) : fallback;
+      }
+
+      function normalizeFormat(value) {
+        const raw = String(value || '').replace(/^\./, '').trim().toUpperCase();
+        return raw || 'ARQUIVO';
+      }
+
+      function normalizeAsset(raw, inheritedVariant) {
+        const source = raw && typeof raw === 'object' ? raw : {};
+        const links = source.links && typeof source.links === 'object' ? source.links : {};
+        return {
+          raw: source,
+          id: firstValue(source, ['id', 'asset_id', 'uuid']),
+          variant: firstValue(source, ['variant', 'variante', 'variant_key', 'composition']) || inheritedVariant,
+          hasBox: firstValue(source, ['has_box', 'com_box']),
+          hasTree: firstValue(source, ['has_symbol', 'has_tree', 'has_pinheiro', 'com_pinheiro']),
+          format: normalizeFormat(firstValue(source, ['format', 'formato', 'extension', 'ext', 'mime_extension'])),
+          fileName: firstValue(source, ['original_filename', 'file_name', 'filename', 'nome_arquivo', 'name']),
+          previewUrl: firstValue(source, ['preview_url', 'thumbnail_url', 'previewUrl']) || links.preview || links.thumbnail,
+          downloadUrl: firstValue(source, ['download_url', 'content_url', 'downloadUrl']) || links.download || links.content,
+          version: firstValue(source, ['version', 'versao']),
+          sha256: firstValue(source, ['sha256', 'hash'])
+        };
+      }
+
+      function expandAssetItem(item) {
+        if (!item || typeof item !== 'object') return [];
+        const inheritedVariant = firstValue(item, ['variant', 'variante', 'variant_key', 'composition']);
+        const nested = firstValue(item, ['assets', 'files', 'arquivos']);
+        if (Array.isArray(nested)) return nested.map(asset => normalizeAsset(asset, inheritedVariant));
+        if (item.formats && typeof item.formats === 'object' && !Array.isArray(item.formats)) {
+          return Object.entries(item.formats).flatMap(([format, value]) => {
+            const values = Array.isArray(value) ? value : [value];
+            return values.map(entry => normalizeAsset(
+              entry && typeof entry === 'object' ? { ...entry, format: entry.format || format } : { format, download_url: entry },
+              inheritedVariant
+            ));
+          });
+        }
+        return [normalizeAsset(item, inheritedVariant)];
+      }
+
+      function extractAssets(body) {
+        return arrayFromEnvelope(body, ['assets', 'items', 'results']).flatMap(expandAssetItem);
+      }
+
+      function normalizeToken(value) {
+        return String(value || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+      }
+
+      function booleanValue(value) {
+        if (value === true || value === 1 || value === '1') return true;
+        if (value === false || value === 0 || value === '0') return false;
+        const normalized = normalizeToken(value);
+        if (['true', 'sim', 'yes', 'com'].includes(normalized)) return true;
+        if (['false', 'nao', 'no', 'sem'].includes(normalized)) return false;
+        return null;
+      }
+
+      function variantKey(asset) {
+        const raw = normalizeToken(asset.variant);
+        let hasBox = booleanValue(asset.hasBox);
+        let hasTree = booleanValue(asset.hasTree);
+
+        if (hasBox === null) {
+          if (raw.includes('sem_box') || raw.includes('sembox')) hasBox = false;
+          else if (raw.includes('box')) hasBox = true;
+        }
+        if (hasTree === null) {
+          if (raw.includes('sem_pinheiro') || raw.includes('sempinheiro') || raw.includes('without_tree')) hasTree = false;
+          else if (raw.includes('pinheiro') || raw.includes('tree')) hasTree = true;
+        }
+
+        if (hasBox === true && hasTree === true) return 'box_pinheiro';
+        if (hasBox === true && hasTree !== true) return 'box';
+        if (hasBox === false && hasTree === true) return 'sem_box_pinheiro';
+        if (hasBox === false && hasTree !== true) return 'sem_box';
+
+        if (['box_pinheiro', 'com_box_pinheiro'].includes(raw)) return 'box_pinheiro';
+        if (['box', 'com_box'].includes(raw)) return 'box';
+        if (['sem_box_pinheiro', 'sembox_pinheiro'].includes(raw)) return 'sem_box_pinheiro';
+        if (['sem_box', 'sembox'].includes(raw)) return 'sem_box';
+        return null;
+      }
+
+      function showState(kind, title, message, action) {
+        entityGrid.hidden = true;
+        statusRegion.hidden = false;
+        statusRegion.dataset.kind = kind;
+        statusRegion.replaceChildren();
+
+        if (kind === 'loading') {
+          const line = create('div', 'loading-line');
+          const spinner = create('span', 'spinner');
+          spinner.setAttribute('aria-hidden', 'true');
+          line.append(spinner, create('span', null, title));
+          statusRegion.append(line);
+          if (message) statusRegion.append(create('p', null, message));
+          return;
+        }
+
+        statusRegion.append(create('h3', null, title), create('p', null, message));
+        if (action) {
+          const button = create('button', 'btn btn-secondary', action.label);
+          button.type = 'button';
+          button.addEventListener('click', action.handler);
+          statusRegion.append(button);
+        }
+      }
+
+      function factList(entity) {
+        const list = create('dl', 'entity-facts');
+        [['UF', entity.uf], ['Tipo PTU', entity.typePtu], ['Papel', entity.role], ['ANS', entity.ansStatus]].forEach(([label, value]) => {
+          const group = create('div');
+          group.append(create('dt', null, label), create('dd', null, value));
+          list.append(group);
+        });
+        return list;
+      }
+
+      function renderEntityCard(entity) {
+        const article = create('article', 'entity-card');
+        const top = create('div', 'card-top');
+        top.append(create('span', 'code-pill', entity.code), create('span', 'meta-pill', entity.uf));
+
+        const title = create('h3', null, entity.name);
+        const footer = create('div', 'card-footer');
+        const count = Number(entity.assetCount);
+        const assetLabel = Number.isFinite(count)
+          ? `${new Intl.NumberFormat('pt-BR').format(count)} ${count === 1 ? 'arquivo' : 'arquivos'}`
+          : 'Cobertura visual não informada';
+        const detailButton = create('button', 'btn btn-secondary card-button', 'Ver detalhes');
+        detailButton.type = 'button';
+        detailButton.setAttribute('aria-label', `Ver detalhes de ${entity.name}`);
+        detailButton.addEventListener('click', () => openDetail(entity));
+        footer.append(create('span', 'asset-note', assetLabel), detailButton);
+
+        article.append(top, title, factList(entity), footer);
+        return article;
+      }
+
+      function renderEntities(entities, append) {
+        if (!append) entityGrid.replaceChildren();
+        const fragment = document.createDocumentFragment();
+        entities.forEach(entity => fragment.append(renderEntityCard(entity)));
+        entityGrid.append(fragment);
+        statusRegion.hidden = true;
+        entityGrid.hidden = false;
+      }
+
+      function searchParams(cursor) {
+        const params = new URLSearchParams();
+        const q = queryInput.value.trim();
+        const uf = ufInput.value.trim().toUpperCase();
+        const type = typeInput.value.trim();
+        if (q) params.set('q', q);
+        if (uf) params.set('uf', uf);
+        if (type) params.set('type', type);
+        params.set('limit', String(PAGE_SIZE));
+        if (cursor) params.set('cursor', cursor);
+        return params;
+      }
+
+      function friendlyError(error, retry) {
+        if (error && error.name === 'AbortError') return;
+        if (error instanceof ApiError && error.status === 400) {
+          showState('invalid', 'Filtros inválidos', 'Revise os filtros informados e faça uma nova busca.', {
+            label: 'Revisar filtros',
+            handler: () => queryInput.focus()
+          });
+          return;
+        }
+        if (error instanceof ApiError && error.status === 401) {
+          clearAxiaSession();
+          showState('auth', 'Sessão expirada', 'Sua sessão não autoriza mais esta consulta. Entre novamente para continuar.', {
+            label: 'Entrar novamente',
+            handler: () => window.location.reload()
+          });
+          return;
+        }
+        if (error instanceof ApiError && error.status === 403) {
+          showState('forbidden', 'Acesso não autorizado', 'Sua conta está autenticada, mas não possui permissão para este acervo.', {
+            label: 'Voltar à AxiaCare',
+            handler: () => { window.location.href = '/axia/'; }
+          });
+          return;
+        }
+        if (error instanceof ApiError && error.status === 429) {
+          showState('error', 'Muitas consultas em sequência', 'Aguarde alguns instantes e tente novamente.', { label: 'Tentar novamente', handler: retry });
+          return;
+        }
+        showState('error', 'Não foi possível carregar o catálogo', 'O serviço está temporariamente indisponível. Seus filtros foram preservados.', {
+          label: 'Tentar novamente',
+          handler: retry
+        });
+      }
+
+      async function loadEntities({ append = false, cursor = null } = {}) {
+        if (listAbortController) listAbortController.abort();
+        const controller = new AbortController();
+        listAbortController = controller;
+        searchButton.disabled = true;
+        moreButton.disabled = true;
+        moreButton.hidden = true;
+
+        if (!append) {
+          renderedEntities = [];
+          nextCursor = null;
+          resultSummary.textContent = '';
+          showState('loading', 'Carregando o catálogo…', 'A consulta será iniciada assim que a sessão estiver disponível.');
+        }
+
+        try {
+          const params = searchParams(cursor);
+          const body = await requestJson(`/v1/entities?${params.toString()}`, { signal: controller.signal });
+          if (listAbortController !== controller || controller.signal.aborted) return;
+          const entities = extractEntities(body);
+          const meta = extractMeta(body);
+          renderedEntities = append ? renderedEntities.concat(entities) : entities;
+          nextCursor = firstValue(meta, ['next_cursor', 'nextCursor', 'cursor_next']) || null;
+
+          if (!renderedEntities.length) {
+            showState('empty', 'Nenhuma entidade encontrada', 'Revise o nome, o código, a UF ou o tipo institucional e faça uma nova busca.');
+            resultSummary.textContent = '0 resultados';
+          } else {
+            renderEntities(entities, append);
+            const totalValue = Number(firstValue(meta, ['total', 'total_count', 'count']));
+            resultSummary.textContent = Number.isFinite(totalValue)
+              ? `${new Intl.NumberFormat('pt-BR').format(totalValue)} ${totalValue === 1 ? 'entidade' : 'entidades'}`
+              : `${new Intl.NumberFormat('pt-BR').format(renderedEntities.length)} resultados exibidos`;
+          }
+          moreButton.hidden = !nextCursor;
+        } catch (error) {
+          if (listAbortController !== controller || controller.signal.aborted) return;
+          if (!append) friendlyError(error, () => loadEntities());
+          else if (
+            error instanceof ApiError
+            && [400, 401, 403, 429].includes(error.status)
+          ) {
+            friendlyError(error, () => loadEntities({ append: true, cursor }));
+          } else if (error.name !== 'AbortError') {
+            resultSummary.textContent = 'Não foi possível carregar a próxima página.';
+            moreButton.hidden = false;
+          }
+        } finally {
+          if (listAbortController === controller) {
+            listAbortController = null;
+            searchButton.disabled = false;
+            moreButton.disabled = false;
+          }
+        }
+      }
+
+      function detailFactGrid(entity) {
+        const list = create('dl', 'detail-facts');
+        [
+          ['UF', entity.uf],
+          ['Tipo PTU', entity.typePtu],
+          ['Tipo institucional', entity.type],
+          ['Papel operacional', entity.role],
+          ['Situação ANS', entity.ansStatus],
+          ['Registro ANS', entity.ansRegistry]
+        ].forEach(([label, value]) => {
+          const group = create('div');
+          group.append(create('dt', null, label), create('dd', null, value));
+          list.append(group);
+        });
+        return list;
+      }
+
+      function assetContentPath(asset, purpose) {
+        const direct = purpose === 'preview' ? asset.previewUrl : asset.downloadUrl;
+        if (direct && safeUrl(direct)) return safeUrl(direct).href;
+        if (!asset.id) return null;
+        if (purpose === 'preview' && asset.format === 'PNG') return `${API_BASE}/v1/assets/${encodeURIComponent(asset.id)}/download`;
+        if (purpose === 'download') return `${API_BASE}/v1/assets/${encodeURIComponent(asset.id)}/download`;
+        return null;
+      }
+
+      async function loadPreview(box, asset, altText, signal) {
+        const showUnavailable = () => {
+          box.replaceChildren(create('span', 'preview-empty', 'Preview indisponível para esta composição.'));
+        };
+        const path = assetContentPath(asset, 'preview');
+        if (!path) {
+          showUnavailable();
+          return;
+        }
+        try {
+          const url = safeUrl(path);
+          if (!url) {
+            showUnavailable();
+            return;
+          }
+          const blob = await request(url.href, { signal }, response => response.blob());
+          if (!blob.type.startsWith('image/')) {
+            showUnavailable();
+            return;
+          }
+          const objectUrl = URL.createObjectURL(blob);
+          objectUrls.push(objectUrl);
+          const image = create('img');
+          image.alt = altText;
+          image.src = objectUrl;
+          box.replaceChildren(image);
+        } catch (error) {
+          if (error.name !== 'AbortError') box.replaceChildren(create('span', 'preview-empty', 'Preview temporariamente indisponível.'));
+        }
+      }
+
+      function sanitizeFilename(value) {
+        const cleaned = String(value || 'asset-unimed')
+          .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '-')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return cleaned || 'asset-unimed';
+      }
+
+      async function downloadAsset(asset, button, liveRegion) {
+        const path = assetContentPath(asset, 'download');
+        if (!path) {
+          liveRegion.textContent = 'Este formato não possui um endereço de download disponível.';
+          return;
+        }
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Baixando…';
+        liveRegion.textContent = `Preparando ${asset.format}.`;
+        try {
+          const result = await request(path, {}, async response => ({
+            blob: await response.blob(),
+            disposition: response.headers.get('Content-Disposition') || ''
+          }));
+          const blob = result.blob;
+          const disposition = result.disposition;
+          const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+          const plainMatch = disposition.match(/filename="?([^";]+)"?/i);
+          let headerName = '';
+          try { headerName = utfMatch ? decodeURIComponent(utfMatch[1]) : (plainMatch ? plainMatch[1] : ''); }
+          catch (_error) { headerName = ''; }
+          const extension = asset.format === 'ARQUIVO' ? '' : `.${asset.format.toLowerCase()}`;
+          const filename = sanitizeFilename(headerName || asset.fileName || `asset-unimed${extension}`);
+          const objectUrl = URL.createObjectURL(blob);
+          const link = create('a');
+          link.href = objectUrl;
+          link.download = filename;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+          liveRegion.textContent = `${filename} preparado para download.`;
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 401) {
+            clearAxiaSession();
+            liveRegion.textContent = 'Sua sessão expirou. Recarregue a página para entrar novamente.';
+          } else if (error instanceof ApiError && error.status === 403) {
+            liveRegion.textContent = 'Sua conta não possui permissão para baixar este arquivo.';
+          } else {
+            liveRegion.textContent = 'Não foi possível baixar este arquivo agora.';
+          }
+        } finally {
+          button.disabled = false;
+          button.textContent = originalLabel;
+        }
+      }
+
+      function renderVariantCard(variant, assets, entity, signal, liveRegion) {
+        const card = create('section', 'variant-card');
+        card.setAttribute('aria-labelledby', `variant-${variant.key}`);
+        const heading = create('h4', null, variant.label);
+        heading.id = `variant-${variant.key}`;
+        const preview = create('div', 'preview-box');
+        const previewAsset = assets.find(asset => asset.previewUrl) || assets.find(asset => asset.format === 'PNG');
+        preview.append(create(
+          'span',
+          'preview-empty',
+          previewAsset ? 'Carregando preview…' : 'Preview indisponível para esta composição.'
+        ));
+        const formats = create('div', 'format-list');
+
+        const uniqueFormats = new Map();
+        assets.forEach(asset => {
+          const key = `${asset.format}:${asset.id || asset.downloadUrl || asset.fileName || uniqueFormats.size}`;
+          if (!uniqueFormats.has(key)) uniqueFormats.set(key, asset);
+        });
+        [...uniqueFormats.values()]
+          .sort((a, b) => {
+            const ai = FORMAT_ORDER.indexOf(a.format);
+            const bi = FORMAT_ORDER.indexOf(b.format);
+            return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || a.format.localeCompare(b.format, 'pt-BR');
+          })
+          .forEach(asset => {
+            const button = create('button', 'format-button', asset.format);
+            button.type = 'button';
+            button.setAttribute('aria-label', `Baixar ${asset.format} — ${variant.label} — ${entity.name}`);
+            button.addEventListener('click', () => downloadAsset(asset, button, liveRegion));
+            formats.append(button);
+          });
+
+        if (!formats.childElementCount) formats.append(create('span', 'preview-empty', 'Sem formatos para download.'));
+        card.append(heading, preview, formats);
+
+        if (previewAsset) loadPreview(preview, previewAsset, `${variant.label} — ${entity.name}`, signal);
+        return card;
+      }
+
+      function cleanupObjectUrls() {
+        objectUrls.forEach(url => URL.revokeObjectURL(url));
+        objectUrls = [];
+      }
+
+      function dialogLoading(entity) {
+        detailCode.textContent = entity.code === '—' ? 'Entidade do Sistema Unimed' : `Código ${entity.code}`;
+        detailTitle.textContent = entity.name;
+        dialogBody.replaceChildren();
+        const panel = create('div', 'state-panel');
+        panel.dataset.kind = 'loading';
+        const line = create('div', 'loading-line');
+        const spinner = create('span', 'spinner');
+        spinner.setAttribute('aria-hidden', 'true');
+        line.append(spinner, create('span', null, 'Carregando detalhes e assets…'));
+        panel.append(line);
+        dialogBody.append(panel);
+      }
+
+      async function openDetail(baseEntity) {
+        cleanupObjectUrls();
+        if (detailAbortController) detailAbortController.abort();
+        const controller = new AbortController();
+        detailAbortController = controller;
+        dialogLoading(baseEntity);
+        if (!dialog.open) dialog.showModal();
+
+        const identifier = baseEntity.code !== '—' ? baseEntity.code : baseEntity.id;
+        if (!identifier) {
+          dialogBody.replaceChildren(create('div', 'state-panel'));
+          dialogBody.firstChild.append(create('h3', null, 'Identificador indisponível'), create('p', null, 'A API não informou um identificador que permita abrir esta entidade.'));
+          return;
+        }
+
+        try {
+          const [entityResult, assetsResult] = await Promise.allSettled([
+            requestJson(`/v1/entities/${encodeURIComponent(identifier)}`, { signal: controller.signal }),
+            requestJson(`/v1/entities/${encodeURIComponent(identifier)}/assets`, { signal: controller.signal })
+          ]);
+          if (detailAbortController !== controller || controller.signal.aborted) return;
+
+          const entity = entityResult.status === 'fulfilled' ? extractSingleEntity(entityResult.value, baseEntity) : baseEntity;
+          const assets = assetsResult.status === 'fulfilled' ? extractAssets(assetsResult.value) : [];
+
+          const rejected = [entityResult, assetsResult].find(result => result.status === 'rejected');
+          if (rejected && rejected.reason instanceof ApiError && rejected.reason.status === 401) {
+            clearAxiaSession();
+            throw rejected.reason;
+          }
+          if (rejected && rejected.reason instanceof ApiError && rejected.reason.status === 403) throw rejected.reason;
+          if (rejected && rejected.reason instanceof ApiError && rejected.reason.status === 404) throw rejected.reason;
+
+          detailCode.textContent = entity.code === '—' ? 'Entidade do Sistema Unimed' : `Código ${entity.code}`;
+          detailTitle.textContent = entity.name;
+          dialogBody.replaceChildren();
+          dialogBody.append(detailFactGrid(entity));
+          dialogBody.append(create('h3', 'variants-heading', 'Identidade visual'));
+          dialogBody.append(create('p', 'variants-intro', 'Previews de referência e formatos disponíveis no acervo.'));
+
+          const liveRegion = create('p', 'dialog-status');
+          liveRegion.setAttribute('role', 'status');
+          liveRegion.setAttribute('aria-live', 'polite');
+          const grid = create('div', 'variant-grid');
+          VARIANTS.forEach(variant => {
+            const variantAssets = assets.filter(asset => variantKey(asset) === variant.key);
+            grid.append(renderVariantCard(variant, variantAssets, entity, controller.signal, liveRegion));
+          });
+          dialogBody.append(grid, liveRegion);
+
+          const unclassified = assets.filter(asset => !variantKey(asset)).length;
+          if (unclassified) liveRegion.textContent = `${unclassified} ${unclassified === 1 ? 'arquivo não pôde' : 'arquivos não puderam'} ser associado a uma das quatro composições.`;
+          else if (assetsResult.status === 'rejected') liveRegion.textContent = 'Os dados da entidade foram carregados, mas os assets estão temporariamente indisponíveis.';
+          else if (!assets.length) liveRegion.textContent = 'A API não registrou assets para esta entidade.';
+        } catch (error) {
+          if (detailAbortController !== controller || controller.signal.aborted) return;
+          if (error.name === 'AbortError') return;
+          dialogBody.replaceChildren();
+          const panel = create('div', 'state-panel');
+          if (error instanceof ApiError && error.status === 401) {
+            panel.dataset.kind = 'auth';
+            panel.append(create('h3', null, 'Sessão expirada'), create('p', null, 'Feche esta janela e entre novamente para consultar os detalhes.'));
+          } else if (error instanceof ApiError && error.status === 403) {
+            panel.dataset.kind = 'forbidden';
+            panel.append(create('h3', null, 'Acesso não autorizado'), create('p', null, 'Sua conta não possui permissão para consultar os detalhes deste acervo.'));
+          } else if (error instanceof ApiError && error.status === 404) {
+            panel.dataset.kind = 'empty';
+            panel.append(create('h3', null, 'Entidade não encontrada'), create('p', null, 'Este registro não está mais disponível no catálogo atual.'));
+          } else {
+            panel.dataset.kind = 'error';
+            panel.append(create('h3', null, 'Detalhes indisponíveis'), create('p', null, 'Não foi possível carregar esta entidade agora.'));
+          }
+          dialogBody.append(panel);
+        }
+      }
+
+      function closeDialog() {
+        if (detailAbortController) detailAbortController.abort();
+        cleanupObjectUrls();
+        dialog.close();
+      }
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        ufInput.value = ufInput.value.trim().toUpperCase();
+        loadEntities();
+      });
+      ufInput.addEventListener('input', () => { ufInput.value = ufInput.value.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 2); });
+      clearButton.addEventListener('click', () => {
+        form.reset();
+        queryInput.focus();
+        loadEntities();
+      });
+      moreButton.addEventListener('click', () => {
+        if (nextCursor) loadEntities({ append: true, cursor: nextCursor });
+      });
+      closeButton.addEventListener('click', closeDialog);
+      dialog.addEventListener('cancel', event => {
+        event.preventDefault();
+        closeDialog();
+      });
+      dialog.addEventListener('click', event => {
+        if (event.target === dialog) closeDialog();
+      });
+      dialog.addEventListener('close', cleanupObjectUrls);
+
+      loadEntities();
+    })();
+  </script>
+  <script src="/scripts/hub-auth.js" data-portal="axia"></script>
+</body>
+</html>

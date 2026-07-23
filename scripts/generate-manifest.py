@@ -18,6 +18,11 @@ from datetime import datetime, timezone
 # Diretório raiz do repositório (pode ser passado como argumento)
 REPO_ROOT = sys.argv[1] if len(sys.argv) > 1 else "."
 
+
+def posix_path(path):
+    """Normaliza caminhos do manifest para URLs, inclusive no Windows."""
+    return str(path).replace("\\", "/")
+
 # Regras de prioridade por caminho (menor número = maior prioridade)
 PRIORITY_RULES = [
     ("llms.txt",                          0, "entrypoint"),
@@ -119,8 +124,13 @@ CATEGORY_DESCRIPTIONS = {
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
+        content = f.read()
+    # O Git converte LF para CRLF no checkout Windows quando core.autocrlf=true.
+    # O manifesto deve identificar o conteúdo lógico versionado, não o sistema
+    # operacional que executou o gerador.
+    if os.path.splitext(path)[1].lower() in {".html", ".json", ".md", ".txt"}:
+        content = content.replace(b"\r\n", b"\n")
+    h.update(content)
     return h.hexdigest()
 
 
@@ -185,7 +195,7 @@ def discover_product_pages(repo_root):
             if not f.endswith(".html"):
                 continue
             fpath = os.path.join(root, f)
-            rel = os.path.relpath(fpath, repo_root)
+            rel = posix_path(os.path.relpath(fpath, repo_root))
             if should_ignore(rel):
                 continue
             category = get_meta_content(fpath, "hub-category")
@@ -204,6 +214,7 @@ def discover_product_pages(repo_root):
 
 
 def should_ignore(rel_path):
+    rel_path = posix_path(rel_path)
     for pattern in IGNORE_PATTERNS:
         if pattern in rel_path:
             return True
@@ -211,6 +222,7 @@ def should_ignore(rel_path):
 
 
 def get_priority_and_tag(rel_path):
+    rel_path = posix_path(rel_path)
     for prefix, priority, tag in PRIORITY_RULES:
         if prefix in rel_path:
             return priority, tag
@@ -219,6 +231,7 @@ def get_priority_and_tag(rel_path):
 
 def make_id(rel_path):
     """Gera um ID legível a partir do caminho relativo."""
+    rel_path = posix_path(rel_path)
     name = rel_path.replace("docs/_infra/", "").replace("docs/", "")
     name = name.replace("/", "-").replace(".md", "").replace(".txt", "").replace(".html", "")
     name = name.strip("-")
@@ -242,6 +255,7 @@ def to_served_url(rel_path):
     deploy (llms.txt, completeness-checklist.md, p/registry.json) mantêm o
     caminho direto.
     """
+    rel_path = posix_path(rel_path)
     RAW_ROOT_FILES = {"llms.txt", "completeness-checklist.md", "p/registry.json"}
     if rel_path in RAW_ROOT_FILES:
         return "/" + rel_path
@@ -269,7 +283,7 @@ def discover_assets(repo_root):
         for root, dirs, files in os.walk(infra_dir):
             for f in sorted(files):
                 if f.endswith(".md"):
-                    rel = os.path.relpath(os.path.join(root, f), repo_root)
+                    rel = posix_path(os.path.relpath(os.path.join(root, f), repo_root))
                     if not should_ignore(rel):
                         assets.append(rel)
 
@@ -283,14 +297,14 @@ def discover_assets(repo_root):
     if os.path.isdir(docs_dir):
         for f in sorted(os.listdir(docs_dir)):
             if f.endswith(".md") and f != "index.md":
-                rel = os.path.join("docs", f)
+                rel = posix_path(os.path.join("docs", f))
                 if not should_ignore(rel):
                     assets.append(rel)
 
     # 5. Registry de paginas publicas
     registry_path = os.path.join(repo_root, "p", "registry.json")
     if os.path.isfile(registry_path):
-        assets.append(os.path.join("p", "registry.json"))
+        assets.append("p/registry.json")
 
     return assets
 

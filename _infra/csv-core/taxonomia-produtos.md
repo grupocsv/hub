@@ -77,6 +77,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 | Ativo Digital | Categoria | Justificativa |
 | :--- | :--- | :--- |
 | `icds/tea-dataset.html` | **WebApp** | Lógica complexa, multi-tenancy, login, back-end para persistência. |
+| `axia/sistema-unimed.html` | **WebApp** | Catálogo autenticado com busca, API versionada e assets privados. |
 | `axia/nota-fiscal.html` | **Ferramenta** | Foco em uma única tarefa (gerar NF) com envio para Worker. |
 | `axia/reembolso.html` | **Ferramenta** | Foco em uma única tarefa (solicitar reembolso) com envio para Worker. |
 | `axia/propostas.html` | **WebApp** | Lógica de negócio complexa para gerar propostas, com múltiplos inputs e envio. |

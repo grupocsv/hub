@@ -129,7 +129,7 @@ jobs:
             p/painel-tea/index.html \
             unihealth/index.html \
             icds/index.html \
-            axia/nota-fiscal.html \
+            axia/nota-fiscal.html axia/sistema-unimed.html \
             compliance/privacidade.html; do
             if [ ! -f "$DIST/$f" ]; then
               echo "::error::arquivo critico ausente no build: $f"
@@ -143,6 +143,22 @@ jobs:
           fi
           if [ -f "$DIST/p/painel-tea/index.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/p/painel-tea/index.html"; then
             echo "::error::meta noindex, nofollow ausente em p/painel-tea/index.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/axia/sistema-unimed.html"; then
+            echo "::error::meta noindex, nofollow ausente em axia/sistema-unimed.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<meta name="hub-category" content="webapp">' "$DIST/axia/sistema-unimed.html"; then
+            echo "::error::hub-category=webapp ausente em axia/sistema-unimed.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<meta name="hub-entity" content="AxiaCare">' "$DIST/axia/sistema-unimed.html"; then
+            echo "::error::hub-entity=AxiaCare ausente em axia/sistema-unimed.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<script src="/scripts/hub-auth.js" data-portal="axia"></script>' "$DIST/axia/sistema-unimed.html"; then
+            echo "::error::gate AxiaCare ausente em axia/sistema-unimed.html apos o build"
             fail=1
           fi
           if [ "$fail" = "0" ]; then
