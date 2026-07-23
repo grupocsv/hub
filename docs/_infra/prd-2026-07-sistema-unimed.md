@@ -107,8 +107,15 @@ Resposta preferencial:
 ```http
 GET /v1/entities/{codigo}
 GET /v1/entities/{codigo}/assets
+GET /v1/entities/{codigo}/logos?set=primary|secondary|all
 GET /v1/assets/{asset_id}/download
 ```
+
+Para agentes e integrações, `/logos` é a rota canônica. Sem `set`, o contrato
+assume `primary` e devolve os quatro PNGs — duas composições com box e duas sem
+box, contemplando as opções com e sem pinheiro. SVG, PDF e AI são formatos
+secundários e permanecem acessíveis com `set=secondary` ou `set=all`.
+`/assets` preserva o acesso compatível ao acervo completo.
 
 O payload de assets deve informar, no mínimo:
 
@@ -222,6 +229,7 @@ A ausência de uma variante é exibida como indisponibilidade factual, sem gerar
 10. `check-portal-links.py`, build VitePress e smoke tests aprovam o artefato.
 11. O manifest inclui `axia/sistema-unimed.html` como `webapp` da AxiaCare.
 12. Nenhuma publicação, migration ou alteração de permissão ocorre sem a etapa operacional correspondente.
+13. A interface e a API identificam PNG como formato padrão; SVG, PDF e AI aparecem como secundários.
 
 ## 11. Evolução compatível
 

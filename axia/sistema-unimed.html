@@ -353,17 +353,17 @@
 
     .entity-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
     }
     .entity-card {
       min-width: 0;
-      min-height: 270px;
+      min-height: 232px;
       display: flex;
       flex-direction: column;
-      padding: 22px;
+      padding: 18px;
       border: 1px solid var(--u-line);
-      border-radius: var(--radius-card);
+      border-radius: 18px;
       background: var(--u-paper);
       box-shadow: 0 3px 12px rgba(0, 78, 76, 0.035);
     }
@@ -382,17 +382,17 @@
     .code-pill { color: var(--u-white); background: var(--u-dark); letter-spacing: 0.06em; }
     .meta-pill { color: var(--u-dark); background: var(--u-paper-deep); }
     .entity-card h3 {
-      margin: 18px 0 14px;
+      margin: 14px 0 10px;
       font-family: var(--font-ui);
-      font-size: 1.22rem;
+      font-size: 1.08rem;
       line-height: 1.22;
       overflow-wrap: anywhere;
     }
     .entity-facts {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px 14px;
-      margin: 0 0 18px;
+      gap: 8px 12px;
+      margin: 0 0 14px;
     }
     .entity-facts div { min-width: 0; }
     .entity-facts dt {
@@ -405,7 +405,7 @@
     .entity-facts dd {
       margin: 0;
       font-family: var(--font-ui);
-      font-size: 0.86rem;
+      font-size: 0.8rem;
       font-weight: 700;
       overflow-wrap: anywhere;
     }
@@ -501,20 +501,49 @@
       cursor: pointer;
     }
     .format-button:hover:not(:disabled) { border-color: var(--u-green); color: var(--u-green-hover); }
+    .format-button-primary {
+      border-color: var(--u-green);
+      color: var(--u-white);
+      background: var(--u-green);
+    }
+    .format-button-primary:hover:not(:disabled) {
+      border-color: var(--u-green-hover);
+      color: var(--u-white);
+      background: var(--u-green-hover);
+    }
+    .secondary-formats { margin-top: 10px; }
+    .secondary-formats summary {
+      width: fit-content;
+      color: var(--u-stone);
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .secondary-formats[open] summary { color: var(--u-dark); }
+    .format-list-secondary { min-height: 0; margin-top: 8px; }
     .dialog-status { margin-top: 18px; color: var(--u-stone); font-family: var(--font-ui); font-size: 0.86rem; }
 
     .page-footer {
       margin-top: 34px;
-      padding: 18px 4px 0;
+      padding: 16px;
       display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      border-top: 1px solid rgba(0, 78, 76, 0.13);
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 14px;
+      background: var(--u-white);
+      box-shadow: 0 4px 12px rgba(13, 38, 76, 0.1);
       color: #51615f;
-      font-size: 0.82rem;
+      text-align: center;
     }
     .page-footer strong { font-family: var(--font-ui); color: var(--u-dark); }
+    .page-footer .small { color: #5b6470; font-size: 0.85rem; }
 
+    @media (max-width: 1180px) {
+      .entity-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
     @media (max-width: 980px) {
       .search-form { grid-template-columns: 1fr 1fr; }
       .field-query { grid-column: 1 / -1; }
@@ -534,7 +563,6 @@
       .search-actions .btn-primary { flex: 1; }
       .entity-grid { grid-template-columns: 1fr; }
       .variant-grid { grid-template-columns: 1fr; }
-      .page-footer { flex-direction: column; }
     }
     @media (max-width: 480px) {
       .brand-link img { height: 36px; }
@@ -627,8 +655,8 @@
     </section>
 
     <footer class="page-footer">
-      <span><strong>AxiaCare</strong> — Grupo CSV</span>
-      <span>Cuidados em Saúde com Valor · Acervo de trabalho</span>
+      <strong>AxiaCare® — Grupo CSV</strong>
+      <div class="small">© 2026 Grupo CSV. Cuidados em Saúde com Valor. Todos os direitos reservados.</div>
     </footer>
   </main>
 
@@ -922,13 +950,15 @@
       function normalizeAsset(raw, inheritedVariant) {
         const source = raw && typeof raw === 'object' ? raw : {};
         const links = source.links && typeof source.links === 'object' ? source.links : {};
+        const format = normalizeFormat(firstValue(source, ['format', 'formato', 'extension', 'ext', 'mime_extension']));
         return {
           raw: source,
           id: firstValue(source, ['id', 'asset_id', 'uuid']),
           variant: firstValue(source, ['variant', 'variante', 'variant_key', 'composition']) || inheritedVariant,
           hasBox: firstValue(source, ['has_box', 'com_box']),
           hasTree: firstValue(source, ['has_symbol', 'has_tree', 'has_pinheiro', 'com_pinheiro']),
-          format: normalizeFormat(firstValue(source, ['format', 'formato', 'extension', 'ext', 'mime_extension'])),
+          format,
+          isDefault: format === 'PNG',
           fileName: firstValue(source, ['original_filename', 'file_name', 'filename', 'nome_arquivo', 'name']),
           previewUrl: firstValue(source, ['preview_url', 'thumbnail_url', 'previewUrl']) || links.preview || links.thumbnail,
           downloadUrl: firstValue(source, ['download_url', 'content_url', 'downloadUrl']) || links.download || links.content,
@@ -1289,13 +1319,16 @@
         const heading = create('h4', null, variant.label);
         heading.id = `variant-${variant.key}`;
         const preview = create('div', 'preview-box');
-        const previewAsset = assets.find(asset => asset.previewUrl) || assets.find(asset => asset.format === 'PNG');
+        const previewAsset = assets.find(asset => asset.format === 'PNG' && asset.previewUrl)
+          || assets.find(asset => asset.format === 'PNG')
+          || assets.find(asset => asset.previewUrl);
         preview.append(create(
           'span',
           'preview-empty',
           previewAsset ? 'Carregando preview…' : 'Preview indisponível para esta composição.'
         ));
-        const formats = create('div', 'format-list');
+        const primaryFormats = create('div', 'format-list format-list-primary');
+        const secondaryFormats = create('div', 'format-list format-list-secondary');
 
         const uniqueFormats = new Map();
         assets.forEach(asset => {
@@ -1309,15 +1342,34 @@
             return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || a.format.localeCompare(b.format, 'pt-BR');
           })
           .forEach(asset => {
-            const button = create('button', 'format-button', asset.format);
+            const isPrimary = asset.isDefault || asset.format === 'PNG';
+            const button = create(
+              'button',
+              isPrimary ? 'format-button format-button-primary' : 'format-button',
+              isPrimary ? `${asset.format} · padrão` : asset.format
+            );
             button.type = 'button';
-            button.setAttribute('aria-label', `Baixar ${asset.format} — ${variant.label} — ${entity.name}`);
+            button.setAttribute(
+              'aria-label',
+              `Baixar ${asset.format}${isPrimary ? ' padrão' : ' secundário'} — ${variant.label} — ${entity.name}`
+            );
             button.addEventListener('click', () => downloadAsset(asset, button, liveRegion));
-            formats.append(button);
+            (isPrimary ? primaryFormats : secondaryFormats).append(button);
           });
 
-        if (!formats.childElementCount) formats.append(create('span', 'preview-empty', 'Sem formatos para download.'));
-        card.append(heading, preview, formats);
+        if (!primaryFormats.childElementCount) {
+          primaryFormats.append(create('span', 'preview-empty', 'PNG padrão indisponível para esta composição.'));
+        }
+        card.append(heading, preview, primaryFormats);
+        if (secondaryFormats.childElementCount) {
+          const secondaryDetails = create('details', 'secondary-formats');
+          const secondaryCount = secondaryFormats.childElementCount;
+          secondaryDetails.append(
+            create('summary', null, `Formatos secundários (${secondaryCount})`),
+            secondaryFormats
+          );
+          card.append(secondaryDetails);
+        }
 
         if (previewAsset) loadPreview(preview, previewAsset, `${variant.label} — ${entity.name}`, signal);
         return card;
@@ -1360,7 +1412,7 @@
         try {
           const [entityResult, assetsResult] = await Promise.allSettled([
             requestJson(`/v1/entities/${encodeURIComponent(identifier)}`, { signal: controller.signal }),
-            requestJson(`/v1/entities/${encodeURIComponent(identifier)}/assets`, { signal: controller.signal })
+            requestJson(`/v1/entities/${encodeURIComponent(identifier)}/logos?set=all`, { signal: controller.signal })
           ]);
           if (detailAbortController !== controller || controller.signal.aborted) return;
 
@@ -1380,7 +1432,11 @@
           dialogBody.replaceChildren();
           dialogBody.append(detailFactGrid(entity));
           dialogBody.append(create('h3', 'variants-heading', 'Identidade visual'));
-          dialogBody.append(create('p', 'variants-intro', 'Previews de referência e formatos disponíveis no acervo.'));
+          dialogBody.append(create(
+            'p',
+            'variants-intro',
+            'Os quatro PNGs são o conjunto padrão. SVG, PDF e AI permanecem disponíveis como formatos secundários.'
+          ));
 
           const liveRegion = create('p', 'dialog-status');
           liveRegion.setAttribute('role', 'status');
