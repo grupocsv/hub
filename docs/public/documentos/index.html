@@ -52,6 +52,48 @@
         </form>
       </section>
 
+      <section id="docs-filters" class="docs-filters" aria-label="Filtros do Catálogo">
+        <form class="docs-filters__form" novalidate>
+          <label>
+            <span>Coleção</span>
+            <select id="docs-collection-filter" name="collectionId" disabled>
+              <option value="">Todas as Coleções</option>
+            </select>
+          </label>
+          <label>
+            <span>Tag</span>
+            <select id="docs-tag-filter" name="tagId" disabled>
+              <option value="">Todas as Tags</option>
+            </select>
+          </label>
+          <label>
+            <span>Classificação</span>
+            <select id="docs-classification-filter" name="classification" disabled>
+              <option value="">Todas as Classificações</option>
+              <option value="public">Público</option>
+              <option value="internal">Interno</option>
+              <option value="restricted">Restrito</option>
+              <option value="confidential">Confidencial</option>
+            </select>
+          </label>
+          <label>
+            <span>Estado</span>
+            <select id="docs-lifecycle-filter" name="lifecycleStatus" disabled>
+              <option value="">Todos os Estados</option>
+              <option value="draft">Rascunho</option>
+              <option value="active">Ativo</option>
+              <option value="archived">Arquivado</option>
+              <option value="deletion_requested">Exclusão Solicitada</option>
+              <option value="deleting">Em Exclusão</option>
+            </select>
+          </label>
+          <div class="docs-filters__actions">
+            <button class="docs-button docs-button--secondary" type="reset" disabled>Limpar</button>
+            <button class="docs-button docs-button--primary" type="submit" disabled>Aplicar Filtros</button>
+          </div>
+        </form>
+      </section>
+
       <section class="docs-workspace" aria-labelledby="docs-content-title">
         <h2 id="docs-content-title" class="sr-only">Catálogo de Documentos</h2>
 
@@ -64,8 +106,28 @@
         </div>
 
         <div id="docs-content" class="docs-content" hidden></div>
+        <button id="docs-load-more" class="docs-button docs-button--secondary docs-load-more" type="button" hidden disabled>Carregar Mais</button>
       </section>
     </main>
+
+    <div id="docs-detail" class="docs-dialog" role="dialog" aria-modal="true" aria-labelledby="docs-detail-title" hidden>
+      <button class="docs-dialog__backdrop" type="button" data-action="close-detail" aria-label="Fechar Detalhes"></button>
+      <section class="docs-dialog__panel" tabindex="-1">
+        <header class="docs-dialog__header">
+          <div>
+            <p class="docs-eyebrow">Detalhes do Documento</p>
+            <h2 id="docs-detail-title">Documento</h2>
+          </div>
+          <button class="docs-dialog__close" type="button" data-action="close-detail" aria-label="Fechar Detalhes">Fechar</button>
+        </header>
+        <div id="docs-detail-content" class="docs-detail-content"></div>
+        <div id="docs-detail-actions" class="docs-detail-actions" aria-label="Ações Autorizadas"></div>
+        <section class="docs-versions" aria-labelledby="docs-versions-title">
+          <h3 id="docs-versions-title">Versões</h3>
+          <div id="docs-version-list"></div>
+        </section>
+      </section>
+    </div>
 
     <footer class="docs-footer">
       <p><strong>Grupo CSV</strong> — Cuidados em Saúde com Valor.</p>

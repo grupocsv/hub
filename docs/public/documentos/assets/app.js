@@ -1,5 +1,7 @@
 import { createDocumentApiClient } from './api-client.js';
 import { createSessionCoordinator, resolvePortalContext } from './session.js';
+import { createDocumentosView } from './view.js';
+import { createDocumentosWorkspace } from './workspace.js';
 
 const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
 const VALID_STATES = new Set(['loading', 'unavailable', 'empty', 'error']);
@@ -65,9 +67,16 @@ export function shouldStartNetwork(config) {
 }
 
 function setControlsEnabled(enabled) {
-  for (const selector of ['#docs-search', '.docs-search__submit', '#docs-upload']) {
-    const control = document.querySelector(selector);
-    if (control) control.disabled = !enabled;
+  for (const selector of [
+    '#docs-search',
+    '.docs-search__submit',
+    '#docs-upload',
+    '.docs-filters__form select',
+    '.docs-filters__form button',
+  ]) {
+    for (const control of document.querySelectorAll(selector)) {
+      control.disabled = !enabled;
+    }
   }
 }
 
@@ -146,6 +155,7 @@ function inertApplication(status, portal = null) {
     status,
     portal,
     getClient: () => null,
+    getWorkspace: () => null,
     destroy() {},
   });
 }
@@ -169,6 +179,11 @@ export async function bootstrapDocumentosApp(
   const renderState = dependencies.renderState ?? renderShellState;
   const createCoordinator = dependencies.createCoordinator ?? createSessionCoordinator;
   const createClient = dependencies.createClient ?? createDocumentApiClient;
+  const createView =
+    dependencies.createView ?? (typeof document !== 'undefined' ? createDocumentosView : null);
+  const createWorkspace =
+    dependencies.createWorkspace ??
+    (typeof document !== 'undefined' ? createDocumentosWorkspace : null);
   const lifecycleTarget = dependencies.lifecycleTarget ?? globalThis.window;
   const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
   const onReady = dependencies.onReady ?? (() => {});
@@ -189,10 +204,17 @@ export async function bootstrapDocumentosApp(
 
   let activeSession = null;
   let client = null;
+  let workspace = null;
   let destroyed = false;
   let coordinator;
 
-  function waitingForSession() {
+  function destroyWorkspace(reason) {
+    workspace?.destroy(reason);
+    workspace = null;
+  }
+
+  function waitingForSession(reason = null) {
+    if (reason) destroyWorkspace(reason);
     activeSession = null;
     client = null;
     renderState('loading', 'Aguardando a autenticação do Hub.', { controlsEnabled: false });
@@ -200,6 +222,7 @@ export async function bootstrapDocumentosApp(
 
   function handleSessionReady(session) {
     if (destroyed) return;
+    destroyWorkspace('session_replaced');
     activeSession = session;
     client = createClient({
       baseUrl: config.apiBaseUrl,
@@ -207,11 +230,23 @@ export async function bootstrapDocumentosApp(
       onUnauthorized: () => coordinator.invalidate(),
     });
     renderState('loading', undefined, { controlsEnabled: true });
-    onReady({ portal, session, client, features: config.features });
+
+    if (typeof createView === 'function' && typeof createWorkspace === 'function') {
+      const view = createView({ renderState });
+      workspace = createWorkspace({ client, portal, view, lifecycleTarget });
+      const currentWorkspace = workspace;
+      Promise.resolve(currentWorkspace.start()).catch(() => {
+        if (workspace !== currentWorkspace || destroyed) return;
+        destroyWorkspace('startup_failed');
+        renderState('error', undefined, { controlsEnabled: true });
+      });
+    }
+
+    onReady({ portal, session, client, workspace, features: config.features });
   }
 
   function handleSessionLost() {
-    waitingForSession();
+    waitingForSession('session_lost');
   }
 
   coordinator = createCoordinator({
@@ -238,7 +273,10 @@ export async function bootstrapDocumentosApp(
     status: startResult.status,
     portal,
     getClient: () => client,
+    getWorkspace: () => workspace,
     destroy() {
+      if (destroyed) return;
+      destroyWorkspace('destroyed');
       destroyed = true;
       activeSession = null;
       client = null;

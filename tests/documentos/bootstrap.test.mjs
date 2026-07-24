@@ -133,6 +133,67 @@ test('não cria cliente nem inicia operação documental antes da sessão', asyn
   assert.deepEqual(states.at(-1)[2], { controlsEnabled: true });
 });
 
+test('sessão válida inicia um workspace isolado e perda de contexto o destrói', async () => {
+  let coordinatorOptions;
+  let starts = 0;
+  const destroyed = [];
+  const created = [];
+  let readyPayload;
+  const coordinator = {
+    async start() {
+      return { status: 'waiting_for_session', portal: 'unimed' };
+    },
+    stop() {},
+    invalidate() {},
+  };
+
+  const app = await bootstrapDocumentosApp(READY_CONFIG, {
+    locationSearch: '?portal=unimed',
+    prepareShell() {},
+    renderState() {},
+    createCoordinator(options) {
+      coordinatorOptions = options;
+      return coordinator;
+    },
+    createClient() {
+      return { request() {} };
+    },
+    createView() {
+      return { id: `view-${created.length + 1}` };
+    },
+    createWorkspace(options) {
+      created.push(options);
+      return {
+        start() {
+          starts += 1;
+        },
+        destroy(reason) {
+          destroyed.push(reason);
+        },
+      };
+    },
+    onReady(payload) {
+      readyPayload = payload;
+    },
+  });
+
+  coordinatorOptions.onSessionReady(SESSION);
+  assert.equal(starts, 1);
+  assert.equal(created.length, 1);
+  assert.equal(created[0].client, app.getClient());
+  assert.equal(created[0].portal, 'unimed');
+  assert.equal(readyPayload.workspace, app.getWorkspace());
+
+  coordinatorOptions.onSessionLost();
+  assert.deepEqual(destroyed, ['session_lost']);
+  assert.equal(app.getWorkspace(), null);
+
+  coordinatorOptions.onSessionReady(SESSION);
+  assert.equal(starts, 2);
+  app.destroy();
+  assert.deepEqual(destroyed, ['session_lost', 'destroyed']);
+});
+
 test('401 coordena limpeza da sessão ativa e sessão perdida desabilita os controles', async () => {
   let coordinatorOptions;
   let clientOptions;

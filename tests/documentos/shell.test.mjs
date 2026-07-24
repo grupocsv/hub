@@ -84,6 +84,11 @@ test('inclui estados visuais de carregamento, indisponibilidade, vazio e erro', 
     assert.match(app, new RegExp(`['\"]${state}['\"]`));
   }
   assert.match(css, /\.skeleton/);
+  assert.match(css, /\.docs-filters__form/);
+  assert.match(css, /\.docs-card-grid/);
+  assert.match(css, /\.docs-dialog\s*\{/);
+  assert.match(css, /\.docs-dialog__panel/);
+  assert.match(app, /querySelectorAll\(selector\)/);
 });
 
 test('falha fechado sem configuração válida e não inicia rede quando desabilitado', async () => {
