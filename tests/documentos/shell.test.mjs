@@ -101,6 +101,16 @@ test('falha fechado sem configuração válida e não inicia rede quando desabil
       enabledPortals: [],
       features: {},
     }),
+    'unavailable',
+  );
+  assert.equal(
+    deriveStartupState({
+      schemaVersion: 1,
+      enabled: true,
+      apiBaseUrl: 'https://hub.grupocsv.com',
+      enabledPortals: ['unimed'],
+      features: {},
+    }),
     'loading',
   );
   assert.equal(shouldStartNetwork({ schemaVersion: 1, enabled: false }), false);

@@ -1,3 +1,6 @@
+import { createDocumentApiClient } from './api-client.js';
+import { createSessionCoordinator, resolvePortalContext } from './session.js';
+
 const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
 const VALID_STATES = new Set(['loading', 'unavailable', 'empty', 'error']);
 
@@ -47,6 +50,7 @@ function isReadyConfig(config) {
       config.enabled === true &&
       hasValidApiBaseUrl(config.apiBaseUrl) &&
       Array.isArray(config.enabledPortals) &&
+      config.enabledPortals.length > 0 &&
       config.features &&
       typeof config.features === 'object',
   );
@@ -82,7 +86,7 @@ function renderSkeletons(container) {
   container.append(grid);
 }
 
-export function renderShellState(state, detail) {
+export function renderShellState(state, detail, options = {}) {
   if (typeof document === 'undefined') return;
 
   const normalized = VALID_STATES.has(state) ? state : 'error';
@@ -90,9 +94,10 @@ export function renderShellState(state, detail) {
   const body = document.body;
   const status = document.querySelector('#docs-status');
   const content = document.querySelector('#docs-content');
+  const controlsEnabled = options.controlsEnabled ?? normalized !== 'unavailable';
 
   body.dataset.state = normalized;
-  setControlsEnabled(normalized !== 'unavailable');
+  setControlsEnabled(controlsEnabled);
 
   if (!status || !content) return;
   status.className = `docs-state is-${normalized}`;
@@ -131,20 +136,130 @@ function bindStaticForms() {
   });
 }
 
+function prepareDocumentosShell() {
+  bindNavigation();
+  bindStaticForms();
+}
+
+function inertApplication(status, portal = null) {
+  return Object.freeze({
+    status,
+    portal,
+    getClient: () => null,
+    destroy() {},
+  });
+}
+
 export function bootDocumentosShell(config = globalThis.HUB_DOCUMENTOS_CONFIG) {
   if (typeof document === 'undefined') return 'unavailable';
 
-  bindNavigation();
-  bindStaticForms();
+  prepareDocumentosShell();
   const startupState = deriveStartupState(config);
-  renderShellState(startupState);
+  renderShellState(startupState, undefined, {
+    controlsEnabled: false,
+  });
   return startupState;
+}
+
+export async function bootstrapDocumentosApp(
+  config = globalThis.HUB_DOCUMENTOS_CONFIG,
+  dependencies = {},
+) {
+  const prepareShell = dependencies.prepareShell ?? prepareDocumentosShell;
+  const renderState = dependencies.renderState ?? renderShellState;
+  const createCoordinator = dependencies.createCoordinator ?? createSessionCoordinator;
+  const createClient = dependencies.createClient ?? createDocumentApiClient;
+  const lifecycleTarget = dependencies.lifecycleTarget ?? globalThis.window;
+  const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
+  const onReady = dependencies.onReady ?? (() => {});
+
+  prepareShell();
+  if (!shouldStartNetwork(config)) {
+    renderState('unavailable', undefined, { controlsEnabled: false });
+    return inertApplication('unavailable');
+  }
+
+  const portal = resolvePortalContext(locationSearch, config.enabledPortals);
+  if (!portal) {
+    renderState('unavailable', 'O acesso deve ser iniciado por um portal habilitado.', {
+      controlsEnabled: false,
+    });
+    return inertApplication('invalid_portal');
+  }
+
+  let activeSession = null;
+  let client = null;
+  let destroyed = false;
+  let coordinator;
+
+  function waitingForSession() {
+    activeSession = null;
+    client = null;
+    renderState('loading', 'Aguardando a autenticação do Hub.', { controlsEnabled: false });
+  }
+
+  function handleSessionReady(session) {
+    if (destroyed) return;
+    activeSession = session;
+    client = createClient({
+      baseUrl: config.apiBaseUrl,
+      getSession: () => activeSession,
+      onUnauthorized: () => coordinator.invalidate(),
+    });
+    renderState('loading', undefined, { controlsEnabled: true });
+    onReady({ portal, session, client, features: config.features });
+  }
+
+  function handleSessionLost() {
+    waitingForSession();
+  }
+
+  coordinator = createCoordinator({
+    search: locationSearch,
+    enabledPortals: config.enabledPortals,
+    onSessionReady: handleSessionReady,
+    onSessionRequired: waitingForSession,
+    onSessionLost: handleSessionLost,
+  });
+
+  waitingForSession();
+  let startResult;
+  try {
+    startResult = await coordinator.start();
+  } catch {
+    renderState('error', 'Não foi possível iniciar a autenticação.', { controlsEnabled: false });
+    return inertApplication('authentication_unavailable', portal);
+  }
+
+  const handlePageHide = () => coordinator.stop();
+  lifecycleTarget?.addEventListener?.('pagehide', handlePageHide);
+
+  return Object.freeze({
+    status: startResult.status,
+    portal,
+    getClient: () => client,
+    destroy() {
+      destroyed = true;
+      activeSession = null;
+      client = null;
+      lifecycleTarget?.removeEventListener?.('pagehide', handlePageHide);
+      coordinator.stop();
+    },
+  });
+}
+
+async function autoBootstrap() {
+  try {
+    await bootstrapDocumentosApp();
+  } catch {
+    renderShellState('error', undefined, { controlsEnabled: false });
+  }
 }
 
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => bootDocumentosShell(), { once: true });
+    document.addEventListener('DOMContentLoaded', autoBootstrap, { once: true });
   } else {
-    bootDocumentosShell();
+    autoBootstrap();
   }
 }
