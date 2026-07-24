@@ -4,11 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#1b1e24">
     <meta http-equiv="Content-Security-Policy" content="__DOCUMENTOS_CSP__">
     <title>Documentos | Grupo CSV</title>
+    <link rel="stylesheet" href="./assets/documentos.css">
   </head>
-  <body>
-    <main id="app"></main>
+  <body class="docs-app" data-state="unavailable">
+    <a class="skip-link" href="#docs-main">Ir para o Conteúdo</a>
+
+    <header class="docs-topbar">
+      <div class="docs-topbar__inner">
+        <a class="docs-brand" href="/" aria-label="Hub Grupo CSV — Página Inicial">
+          <span class="docs-brand__mark" aria-hidden="true"></span>
+          <span class="docs-brand__name">Grupo CSV</span>
+          <span class="docs-brand__product">Documentos</span>
+        </a>
+
+        <nav class="docs-nav" aria-label="Navegação de Documentos">
+          <button class="docs-nav__item" type="button" data-view="documentos" aria-current="page">Documentos</button>
+          <button class="docs-nav__item" type="button" data-view="colecoes">Coleções</button>
+          <button class="docs-nav__item" type="button" data-view="favoritos">Favoritos</button>
+          <button class="docs-nav__item" type="button" data-view="recentes">Recentes</button>
+        </nav>
+
+        <div class="docs-topbar__actions">
+          <button class="docs-button docs-button--primary" id="docs-upload" type="button" disabled>Enviar Documento</button>
+          <div id="hub-auth-slot" aria-label="Sessão do Hub"></div>
+        </div>
+      </div>
+    </header>
+
+    <main id="docs-main" class="docs-main" tabindex="-1">
+      <section class="docs-hero" aria-labelledby="docs-title">
+        <div>
+          <p class="docs-eyebrow">Conhecimento Institucional</p>
+          <h1 id="docs-title">Documentos</h1>
+          <p class="docs-lead">Encontre, consulte e compartilhe o conhecimento autorizado da sua organização.</p>
+        </div>
+
+        <form class="docs-search" role="search" novalidate>
+          <label for="docs-search">Buscar Documentos</label>
+          <div class="docs-search__control">
+            <span class="docs-search__icon" aria-hidden="true"></span>
+            <input id="docs-search" name="query" type="search" inputmode="search" autocomplete="off" placeholder="Título, coleção ou conteúdo" disabled>
+            <button class="docs-search__submit" type="submit" disabled>Buscar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="docs-workspace" aria-labelledby="docs-content-title">
+        <h2 id="docs-content-title" class="sr-only">Catálogo de Documentos</h2>
+
+        <div id="docs-status" class="docs-state is-unavailable" role="status" aria-live="polite" aria-atomic="true" data-state="unavailable">
+          <span class="docs-state__indicator" aria-hidden="true"></span>
+          <div>
+            <strong>Catálogo Indisponível</strong>
+            <p>A configuração segura desta aplicação ainda não foi habilitada.</p>
+          </div>
+        </div>
+
+        <div id="docs-content" class="docs-content" hidden></div>
+      </section>
+    </main>
+
+    <footer class="docs-footer">
+      <p><strong>Grupo CSV</strong> — Cuidados em Saúde com Valor.</p>
+      <a href="/">Voltar ao Hub</a>
+    </footer>
+
     <script src="./assets/runtime-config.js" integrity="__DOCUMENTOS_RUNTIME_INTEGRITY__" crossorigin="anonymous"></script>
+    <script type="module" src="./assets/app.js"></script>
   </body>
 </html>
