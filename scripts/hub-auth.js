@@ -624,6 +624,13 @@
   .ha-user-badge span { display: none; }\
   .ha-logout-btn span { display: none; }\
 }\
+/* Mobile: na navbar do VitePress o espaco e critico (logo + titulo + busca + menu).\
+   O widget in-nav vira so o botao de sair (icone), sem badge nem borda, p/ nao estourar 360px. */\
+@media (max-width: 768px) {\
+  #hub-auth-logout.ha-in-nav { padding-left: 4px; border-left: none; gap: 4px; }\
+  #hub-auth-logout.ha-in-nav .ha-user-badge { display: none; }\
+  #hub-auth-logout.ha-in-nav .ha-logout-btn { padding: 5px 7px; }\
+}\
 @media print { #hub-auth-logout { display: none !important; } }\
 </style>\
 <span class="ha-user-badge">\
