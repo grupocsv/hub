@@ -1274,6 +1274,34 @@ html,body{max-width:100%;overflow-x:hidden}
     const kit = kitAtivo();
     return kit && r && isObject(r.kits) && isObject(r.kits[kit]) ? r.kits[kit] : null;
   }
+  function carteiraMultidisciplinar(r) {
+    // crianças com duas ou mais disciplinas terapêuticas: soma das combinações,
+    // exceto a terapia única (as combinações particionam a população)
+    const ks = r && isObject(r.kits) ? r.kits : null;
+    if (!ks) return null;
+    let criancas = 0, pagamentoTotal = 0, achou = false;
+    Object.entries(ks).forEach(([id, k]) => {
+      if (id === 'unica' || !isObject(k)) return;
+      const p = n(k.pacientes);
+      if (p === null) return;
+      achou = true; criancas += p; pagamentoTotal += n(k.pagamento) || 0;
+    });
+    return achou ? { criancas, pagamento: pagamentoTotal } : null;
+  }
+  function estratosRede(lista) {
+    const CONTRATADOS = ['Negociação Direta', 'Rede Credenciada', 'Casa Unimed', 'Negociação Direta (P.F.)'];
+    let contratados = 0, soReembolso = 0, soIntercambio = 0, indefinidos = 0;
+    (lista || []).forEach(p => {
+      const cs = asArray(p && p.canais);
+      if (!cs.length) { indefinidos++; return; }
+      if (cs.some(c => CONTRATADOS.includes(c))) contratados++;
+      else if (cs.length === 1 && cs[0] === 'Reembolso') soReembolso++;
+      else if (cs.length === 1 && cs[0] === 'Intercâmbio') soIntercambio++;
+      else indefinidos++;
+    });
+    return !indefinidos && (contratados || soReembolso || soIntercambio)
+      ? { contratados, soReembolso, soIntercambio } : null;
+  }
   function faixasPorCanal(r) {
     const refDisc = referenciaDisciplina(r);
     if (refDisc && refDisc.preco) {
@@ -2502,7 +2530,11 @@ html,body{max-width:100%;overflow-x:hidden}
         : { label: 'Fora de faixa de preço', valor: '—', sub: 'calculado por disciplina' }
     ]);
     const obs = pick(resumo, 'prestadores_observados', 'prestadores'), cons = pick(resumo, 'prestadores_consolidados', 'prestadores');
-    $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas. Canal e especialidade são características do prestador e não dividem a população.'));
+    const estratos = estratosRede(prestadoresDe(r));
+    const fraseEstratos = estratos
+      ? ' Das entidades pagas, ' + fmtN(estratos.contratados) + ' atuam na rede contratada, ' + fmtN(estratos.soReembolso) + ' receberam apenas reembolso e ' + fmtN(estratos.soIntercambio) + ' apenas intercâmbio.'
+      : '';
+    $('pr_network_note').replaceChildren(el('strong', null, 'Rede única.'), document.createTextNode(' O recorte registra ' + fmtN(obs) + ' cadastros de prestador na origem e ' + fmtN(cons) + ' entidades consolidadas.' + fraseEstratos + ' Canal e especialidade são características do prestador e não dividem a população.'));
     renderProviderTable(); renderProviderMatrix(r); renderProviderDispersion(r); renderIntensityDeviation(r); renderSolicitantes(r);
   }
 
@@ -2703,7 +2735,11 @@ html,body{max-width:100%;overflow-x:hidden}
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
         : { label: 'Fora de faixa de preço', valor: '—', sub: 'calculado por disciplina' }
     ], 'card');
-    $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia.'));
+    const cartMulti = carteiraMultidisciplinar(r), popTotal = n(pacientes(resumo)), pagTotalNota = pagamento(resumo);
+    const fraseCarteira = cartMulti && popTotal && pagTotalNota
+      ? ' A carteira multidisciplinar — ' + fmtN(cartMulti.criancas) + ' crianças com duas ou mais disciplinas (' + pct(cartMulti.criancas / popTotal * 100) + ' da população) — concentra ' + pct(cartMulti.pagamento / pagTotalNota * 100) + ' do pagamento.'
+      : '';
+    $('vg_population_note').replaceChildren(el('strong', null, 'Base do recorte.'), document.createTextNode(' ' + kOr(pacientes(resumo)) + ' crianças únicas (população deduplicada), ' + fmtN(sessoes(resumo)) + ' sessões faturadas e ' + fmtN(resumo.exposicoes) + ' exposições beneficiário-terapia.' + fraseCarteira));
     const serie = serieDe(r);
     lineChart('c_vg_cost', serie, 'pagamento', 'Pagamento', brlK, GREEN, { mediaMovel: true });
     const vals = serie.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
@@ -2906,7 +2942,11 @@ html,body{max-width:100%;overflow-x:hidden}
         [k.descricao, fmtN(v), totalKits ? pct(v / totalKits * 100) : '—'].forEach((txt, i) => tr.append(el('td', i >= 1 ? 'num' : '', txt)));
         return tr;
       }));
-      $('pa_kits_note').textContent = (kitAtual ? 'A combinação selecionada no Início está destacada. ' : '') + 'Contagens derivadas das combinações registradas; percentuais sobre as crianças com combinação registrada no recorte.';
+      const cartPa = carteiraMultidisciplinar(r), resumoPa = resumoDe(r);
+      const fraseCartPa = cartPa && n(pacientes(resumoPa)) && pagamento(resumoPa)
+        ? ' A carteira multidisciplinar (duas ou mais disciplinas) reúne ' + fmtN(cartPa.criancas) + ' crianças e concentra ' + pct(cartPa.pagamento / pagamento(resumoPa) * 100) + ' do pagamento do recorte.'
+        : '';
+      $('pa_kits_note').textContent = (kitAtual ? 'A combinação selecionada no Início está destacada. ' : '') + 'Contagens derivadas das combinações registradas; percentuais sobre as crianças com combinação registrada no recorte.' + fraseCartPa;
     }
     if (pd) {
       setKpis('pa_kpis', [
