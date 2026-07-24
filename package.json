@@ -6,7 +6,9 @@
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "documentos:generate": "node scripts/generate-documentos-config.mjs",
+    "documentos:test": "node --test tests/documentos/*.test.mjs"
   },
   "repository": {
     "type": "git",

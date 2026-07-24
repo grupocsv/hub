@@ -63,6 +63,12 @@ jobs:
       - name: Generate portal tools.json
         run: python3 scripts/generate-portal-tools.py .
 
+      - name: Test Hub Documentos contracts
+        run: npm run documentos:test
+
+      - name: Generate Hub Documentos runtime config
+        run: npm run documentos:generate
+
       - name: Build with VitePress
         run: npm run docs:build
 
