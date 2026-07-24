@@ -1,0 +1,10 @@
+edition: S29
+year: 2026
+period: "13 a 17 de julho de 2026"
+generated: "2026-07-24"
+dictionary_version: "v4.7"
+facts_count: 6
+new_terms: 10
+sources:
+  notion_pages: 9
+  gmail_messages: 10
