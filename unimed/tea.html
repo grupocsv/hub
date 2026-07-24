@@ -1031,10 +1031,9 @@ html,body{max-width:100%;overflow-x:hidden}
   const TIPO_ROTULO = { tudo: 'Tudo', ano: 'Ano', semestre: 'Semestre', trimestre: 'Trimestre', mes: 'Mês' };
   const VIEW_SLUGS = ['inicio', 'visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
   const KITS = [
-    { id: 'tripe', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional', curto: 'Psicologia + Fono + T.O.', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], descricao: 'As três terapias em conjunto' },
-    { id: 'tripe-ampliado', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional + outras', curto: 'Psicologia + Fono + T.O. + outras', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], extra: '+ outras terapias', descricao: 'As três terapias mais uma ou mais complementares' },
+    { id: 'tripe', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional', curto: 'Psicologia + Fono + T.O.', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], descricao: 'As três terapias centrais em conjunto' },
     { id: 'duas', rotulo: 'Duas Terapias', curto: 'Duas Terapias', composicao: [], descricao: 'Qualquer combinação de duas terapias' },
-    { id: 'multiplas-sem-tripe', rotulo: 'Três ou Mais — Outras Combinações', curto: 'Três ou Mais — Outras', composicao: [], descricao: 'Três ou mais terapias em outra combinação' },
+    { id: 'outras', rotulo: 'Outras Combinações', curto: 'Outras', composicao: [], descricao: 'Três ou mais terapias em qualquer outra combinação, incluindo o trio central com terapias complementares' },
     { id: 'unica', rotulo: 'Terapia Única', curto: 'Terapia Única', composicao: [], descricao: 'Uma única terapia no período' }
   ];
   const TRIPE_SET = ['PSICOLOGIA', 'FONOAUDIOLOGIA', 'TERAPIA OCUPACIONAL'];
@@ -1188,8 +1187,7 @@ html,body{max-width:100%;overflow-x:hidden}
     if (s.length === 1) return 'unica';
     if (s.length === 2) return 'duas';
     if (s.length === 3 && temTripe) return 'tripe';
-    if (temTripe) return 'tripe-ampliado';
-    return 'multiplas-sem-tripe';
+    return 'outras'; // trio central + terapias complementares OU 3+ sem o trio completo
   }
   function kitsDoRecorte(r) {
     const terapiaSpec = new Map(terapiasDe(r).map(x => [nomeTerapia(x), String(x.especialidade || '')]));
