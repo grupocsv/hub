@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
     <meta name="theme-color" content="#1b1e24">
     <meta http-equiv="Content-Security-Policy" content="__DOCUMENTOS_CSP__">
     <title>Documentos | Grupo CSV</title>
     <link rel="stylesheet" href="./assets/documentos.css">
+    <link id="hub-auth-styles" rel="stylesheet" href="/scripts/hub-auth.css">
   </head>
   <body class="docs-app" data-state="unavailable">
     <a class="skip-link" href="#docs-main">Ir para o Conteúdo</a>
@@ -23,12 +25,12 @@
         <nav class="docs-nav" aria-label="Navegação de Documentos">
           <button class="docs-nav__item" type="button" data-view="documentos" aria-current="page">Documentos</button>
           <button class="docs-nav__item" type="button" data-view="colecoes">Coleções</button>
-          <button class="docs-nav__item" type="button" data-view="favoritos">Favoritos</button>
+          <button class="docs-nav__item" type="button" data-view="favoritos" hidden disabled>Favoritos</button>
           <button class="docs-nav__item" type="button" data-view="recentes">Recentes</button>
         </nav>
 
         <div class="docs-topbar__actions">
-          <button class="docs-button docs-button--primary" id="docs-upload" type="button" disabled>Enviar Documento</button>
+          <button class="docs-button docs-button--primary" id="docs-upload" type="button" hidden disabled>Enviar Documento</button>
           <div id="hub-auth-slot" aria-label="Sessão do Hub"></div>
         </div>
       </div>
@@ -111,7 +113,7 @@
     </main>
 
     <div id="docs-detail" class="docs-dialog" role="dialog" aria-modal="true" aria-labelledby="docs-detail-title" hidden>
-      <button class="docs-dialog__backdrop" type="button" data-action="close-detail" aria-label="Fechar Detalhes"></button>
+      <div class="docs-dialog__backdrop" data-action="close-detail" aria-hidden="true"></div>
       <section class="docs-dialog__panel" tabindex="-1">
         <header class="docs-dialog__header">
           <div>

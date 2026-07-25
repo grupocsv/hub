@@ -131,6 +131,17 @@ jobs:
             CNAME \
             manifest.json \
             scripts/hub-auth.js \
+            scripts/hub-auth.css \
+            documentos/index.html \
+            documentos/assets/api-client.js \
+            documentos/assets/app.js \
+            documentos/assets/catalog.js \
+            documentos/assets/detail.js \
+            documentos/assets/documentos.css \
+            documentos/assets/runtime-config.js \
+            documentos/assets/session.js \
+            documentos/assets/view.js \
+            documentos/assets/workspace.js \
             unimed/index.html unimed/tea.html \
             p/painel-tea/index.html \
             unihealth/index.html \
@@ -166,6 +177,24 @@ jobs:
           if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<script src="/scripts/hub-auth.js" data-portal="axia"></script>' "$DIST/axia/sistema-unimed.html"; then
             echo "::error::gate AxiaCare ausente em axia/sistema-unimed.html apos o build"
             fail=1
+          fi
+          if [ -f "$DIST/documentos/index.html" ]; then
+            if ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/documentos/index.html"; then
+              echo "::error::meta noindex, nofollow ausente em documentos/index.html apos o build"
+              fail=1
+            fi
+            if ! grep -q 'http-equiv="Content-Security-Policy"' "$DIST/documentos/index.html"; then
+              echo "::error::CSP ausente em documentos/index.html apos o build"
+              fail=1
+            fi
+            if grep -Eq "script-src[^;\"]*'unsafe-inline'|style-src[^;\"]*'unsafe-inline'" "$DIST/documentos/index.html"; then
+              echo "::error::CSP permissiva em documentos/index.html apos o build"
+              fail=1
+            fi
+            if ! grep -q "windowRef.top === windowRef.self" "$DIST/documentos/assets/app.js"; then
+              echo "::error::bloqueio de contexto enquadrado ausente em documentos/assets/app.js"
+              fail=1
+            fi
           fi
           if [ "$fail" = "0" ]; then
             echo "Smoke test OK: artefato integro."

@@ -6,7 +6,7 @@
   "features": {
     "favorites": true,
     "offline": false,
-    "upload": true,
-    "viewer": true
+    "upload": false,
+    "viewer": false
   }
 }

@@ -8,7 +8,7 @@ const READY_CONFIG = Object.freeze({
   enabled: true,
   apiBaseUrl: 'https://hub.grupocsv.com',
   enabledPortals: ['unimed'],
-  features: { favorites: true, upload: true, viewer: true, offline: false },
+  features: { favorites: true, upload: false, viewer: false, offline: false },
 });
 
 const SESSION = Object.freeze({
@@ -27,12 +27,20 @@ function createLifecycleTarget() {
       if (listeners.get(type) === callback) listeners.delete(type);
     },
     dispatch(type, event = {}) {
-      listeners.get(type)?.(event);
+      return listeners.get(type)?.(event);
     },
     count() {
       return listeners.size;
     },
   };
+}
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
 }
 
 test('configuração desabilitada falha fechado sem criar sessão ou cliente', async () => {
@@ -59,6 +67,30 @@ test('configuração desabilitada falha fechado sem criar sessão ou cliente', a
   assert.equal(coordinators, 0);
   assert.equal(clients, 0);
   assert.equal(states.at(-1)[0], 'unavailable');
+});
+
+test('contexto enquadrado falha fechado antes de autenticação ou rede', async () => {
+  let coordinators = 0;
+  let clients = 0;
+  const states = [];
+  const result = await bootstrapDocumentosApp(READY_CONFIG, {
+    locationSearch: '?portal=unimed',
+    windowRef: { top: {}, self: {} },
+    prepareShell() {},
+    renderState: (...args) => states.push(args),
+    createCoordinator() {
+      coordinators += 1;
+    },
+    createClient() {
+      clients += 1;
+    },
+  });
+
+  assert.equal(result.status, 'framed_context_blocked');
+  assert.equal(coordinators, 0);
+  assert.equal(clients, 0);
+  assert.match(states.at(-1)[1], /outra página/i);
+  assert.deepEqual(states.at(-1)[2], { controlsEnabled: false });
 });
 
 test('portal ausente, duplicado ou desabilitado falha fechado antes do Hub Auth', async () => {
@@ -138,6 +170,7 @@ test('sessão válida inicia um workspace isolado e perda de contexto o destrói
   let starts = 0;
   const destroyed = [];
   const created = [];
+  const createdViews = [];
   let readyPayload;
   const coordinator = {
     async start() {
@@ -158,7 +191,8 @@ test('sessão válida inicia um workspace isolado e perda de contexto o destrói
     createClient() {
       return { request() {} };
     },
-    createView() {
+    createView(options) {
+      createdViews.push(options);
       return { id: `view-${created.length + 1}` };
     },
     createWorkspace(options) {
@@ -182,6 +216,7 @@ test('sessão válida inicia um workspace isolado e perda de contexto o destrói
   assert.equal(created.length, 1);
   assert.equal(created[0].client, app.getClient());
   assert.equal(created[0].portal, 'unimed');
+  assert.deepEqual(createdViews[0].features, READY_CONFIG.features);
   assert.equal(readyPayload.workspace, app.getWorkspace());
 
   coordinatorOptions.onSessionLost();
@@ -194,11 +229,55 @@ test('sessão válida inicia um workspace isolado e perda de contexto o destrói
   assert.deepEqual(destroyed, ['session_lost', 'destroyed']);
 });
 
-test('401 coordena limpeza da sessão ativa e sessão perdida desabilita os controles', async () => {
+test('mantém controles bloqueados enquanto o workspace ainda carrega metadados', async () => {
+  let coordinatorOptions;
+  const workspaceStart = deferred();
+  const states = [];
+  const app = await bootstrapDocumentosApp(READY_CONFIG, {
+    locationSearch: '?portal=unimed',
+    prepareShell() {},
+    renderState: (...args) => states.push(args),
+    createCoordinator(options) {
+      coordinatorOptions = options;
+      return {
+        async start() {
+          return { status: 'waiting_for_session', portal: 'unimed' };
+        },
+        stop() {},
+        invalidate() {},
+      };
+    },
+    createClient() {
+      return { request() {} };
+    },
+    createView() {
+      return {};
+    },
+    createWorkspace() {
+      return {
+        start() {
+          return workspaceStart.promise;
+        },
+        destroy() {},
+      };
+    },
+  });
+
+  coordinatorOptions.onSessionReady(SESSION);
+  assert.equal(states.at(-1)[0], 'loading');
+  assert.deepEqual(states.at(-1)[2], { controlsEnabled: false });
+
+  workspaceStart.resolve();
+  await Promise.resolve();
+  app.destroy();
+});
+
+test('401 invalida imediatamente sessão, client e workspace antes do reload', async () => {
   let coordinatorOptions;
   let clientOptions;
   let invalidations = 0;
   const states = [];
+  const destroyed = [];
   const coordinator = {
     async start() {
       return { status: 'authenticated', portal: 'unimed' };
@@ -209,7 +288,7 @@ test('401 coordena limpeza da sessão ativa e sessão perdida desabilita os cont
     },
   };
 
-  await bootstrapDocumentosApp(READY_CONFIG, {
+  const app = await bootstrapDocumentosApp(READY_CONFIG, {
     locationSearch: '?portal=unimed',
     prepareShell() {},
     renderState: (...args) => states.push(args),
@@ -221,22 +300,44 @@ test('401 coordena limpeza da sessão ativa e sessão perdida desabilita os cont
       clientOptions = options;
       return {};
     },
+    createView() {
+      return {};
+    },
+    createWorkspace() {
+      return {
+        start() {},
+        destroy(reason) {
+          destroyed.push(reason);
+        },
+      };
+    },
   });
 
   coordinatorOptions.onSessionReady(SESSION);
+  assert.equal(clientOptions.getSession(), SESSION);
+  assert.notEqual(app.getWorkspace(), null);
   clientOptions.onUnauthorized();
   assert.equal(invalidations, 1);
-
-  coordinatorOptions.onSessionLost();
+  assert.equal(clientOptions.getSession(), null);
+  assert.equal(app.getClient(), null);
+  assert.equal(app.getWorkspace(), null);
+  assert.deepEqual(destroyed, ['unauthorized']);
   assert.equal(states.at(-1)[0], 'loading');
   assert.deepEqual(states.at(-1)[2], { controlsEnabled: false });
+
+  app.destroy();
 });
 
-test('pagehide e desmontagem param a observação da sessão sem persistir estado', async () => {
+test('pagehide destrói sessão em memória e pageshow revalida antes de recriar o workspace', async () => {
   const lifecycleTarget = createLifecycleTarget();
   let stops = 0;
+  let starts = 0;
+  let coordinatorOptions;
+  const destroyed = [];
+  const states = [];
   const coordinator = {
     async start() {
+      starts += 1;
       return { status: 'waiting_for_session', portal: 'unimed' };
     },
     stop() {
@@ -248,6 +349,66 @@ test('pagehide e desmontagem param a observação da sessão sem persistir estad
   const app = await bootstrapDocumentosApp(READY_CONFIG, {
     locationSearch: '?portal=unimed',
     prepareShell() {},
+    renderState: (...args) => states.push(args),
+    lifecycleTarget,
+    createCoordinator(options) {
+      coordinatorOptions = options;
+      return coordinator;
+    },
+    createClient() {
+      return { request() {} };
+    },
+    createView() {
+      return {};
+    },
+    createWorkspace() {
+      return {
+        start() {},
+        destroy(reason) {
+          destroyed.push(reason);
+        },
+      };
+    },
+  });
+
+  coordinatorOptions.onSessionReady(SESSION);
+  assert.notEqual(app.getWorkspace(), null);
+  assert.equal(lifecycleTarget.count(), 2);
+  lifecycleTarget.dispatch('pagehide', { persisted: true });
+  assert.equal(stops, 1);
+  assert.deepEqual(destroyed, ['pagehide']);
+  assert.equal(app.getWorkspace(), null);
+  assert.equal(app.getClient(), null);
+  assert.equal(states.at(-1)[2].controlsEnabled, false);
+
+  await lifecycleTarget.dispatch('pageshow', { persisted: true });
+  assert.equal(starts, 2);
+  assert.equal(app.getWorkspace(), null);
+  coordinatorOptions.onSessionReady(SESSION);
+  assert.notEqual(app.getWorkspace(), null);
+
+  app.destroy();
+  assert.equal(stops, 2);
+  assert.equal(lifecycleTarget.count(), 0);
+});
+
+test('registra a fronteira BFCache antes de aguardar o carregamento do Hub Auth', async () => {
+  const lifecycleTarget = createLifecycleTarget();
+  const startup = deferred();
+  let stops = 0;
+  const coordinator = {
+    start() {
+      return startup.promise;
+    },
+    stop() {
+      stops += 1;
+    },
+    invalidate() {},
+  };
+
+  const booting = bootstrapDocumentosApp(READY_CONFIG, {
+    locationSearch: '?portal=unimed',
+    prepareShell() {},
     renderState() {},
     lifecycleTarget,
     createCoordinator() {
@@ -255,10 +416,14 @@ test('pagehide e desmontagem param a observação da sessão sem persistir estad
     },
   });
 
-  assert.equal(lifecycleTarget.count(), 1);
-  lifecycleTarget.dispatch('pagehide');
+  await Promise.resolve();
+  assert.equal(lifecycleTarget.count(), 2);
+  lifecycleTarget.dispatch('pagehide', { persisted: true });
   assert.equal(stops, 1);
+
+  startup.resolve({ status: 'stopped', portal: 'unimed' });
+  const app = await booting;
+  assert.equal(app.status, 'stopped');
   app.destroy();
-  assert.equal(stops, 2);
   assert.equal(lifecycleTarget.count(), 0);
 });

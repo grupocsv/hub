@@ -25,6 +25,7 @@ const FEATURE_KEYS = new Set(['favorites', 'offline', 'upload', 'viewer']);
 const REGISTRY_KEYS = new Set(['schemaVersion', 'tenants']);
 const TENANT_KEYS = new Set(['portal', 'enabled', 'href']);
 const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
+const HUB_AUTH_ORIGIN = 'https://csv-auth.guilherme-thom.workers.dev';
 const CANONICAL_PORTAL = /^[a-z0-9][a-z0-9-]{0,63}$/u;
 const DOCUMENTOS_ROUTE = '/documentos/';
 
@@ -185,6 +186,10 @@ function safeJson(value) {
     .replaceAll('\u2029', '\\u2029');
 }
 
+function normalizeLineEndings(value) {
+  return value.replace(/\r\n?/gu, '\n');
+}
+
 function runtimeSource(config) {
   return `globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(${safeJson(config)});\n`;
 }
@@ -201,12 +206,11 @@ function cspFor(config, integrity) {
     "style-src 'self'",
     "img-src 'self' blob: data:",
     "font-src 'self'",
-    `connect-src 'self'${connectSource}`,
+    `connect-src 'self'${connectSource} ${HUB_AUTH_ORIGIN}`,
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'none'",
-    "frame-ancestors 'none'",
   ].join('; ');
 }
 
@@ -279,7 +283,9 @@ export async function generateDocumentosConfig(root) {
     registryPath,
     'Registro declarativo de tenants',
   );
-  const template = await readRequired(templatePath, 'Template do shell');
+  const template = normalizeLineEndings(
+    await readRequired(templatePath, 'Template do shell'),
+  );
   const registry = validateRegistry(parseJson(registryText, registryPath));
   const config = validateConfig(parseJson(configText, configPath), registry);
   const runtime = runtimeSource(config);

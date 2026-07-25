@@ -130,6 +130,41 @@ test('cancela a listagem anterior e nunca mistura resposta de busca com catálog
   assert.deepEqual(states.at(-1).items.map((item) => item.documentId), ['document-search']);
 });
 
+test('não pagina o snapshot anterior enquanto uma nova listagem está carregando', async () => {
+  const replacement = deferred();
+  const calls = [];
+  const client = {
+    request(target) {
+      calls.push(target);
+      if (calls.length === 1) {
+        return Promise.resolve({
+          data: {
+            items: [catalogItem({ documentId: 'document-a' })],
+            next_cursor: 'cursor-a',
+          },
+        });
+      }
+      return replacement.promise;
+    },
+  };
+  const controller = createCatalogController({ client });
+
+  await controller.loadList({ classification: 'internal' });
+  const loadingReplacement = controller.loadList({ classification: 'public' });
+  const paginationDuringLoad = await controller.loadNext();
+
+  assert.equal(calls.length, 2);
+  assert.equal(paginationDuringLoad.items[0].documentId, 'document-a');
+  replacement.resolve({
+    data: {
+      items: [catalogItem({ documentId: 'document-b', classification: 'public' })],
+      next_cursor: null,
+    },
+  });
+  const replaced = await loadingReplacement;
+  assert.equal(replaced.items[0].documentId, 'document-b');
+});
+
 test('carrega coleções e tags em requests separados e representa catálogo vazio', async () => {
   const calls = [];
   const states = [];
@@ -160,25 +195,51 @@ test('carrega coleções e tags em requests separados e representa catálogo vaz
   assert.equal(states.at(-1).status, 'empty');
 });
 
-test('recentes são efêmeros, ordenados e limpos em toda fronteira de contexto', () => {
-  let now = 1;
-  const store = createRecentStore({ portal: 'unimed', now: () => now });
-  store.record('document-a');
-  now = 2;
-  store.record('document-b');
-  now = 3;
-  store.record('document-a');
-  assert.deepEqual(store.list(), ['document-a', 'document-b']);
+test('cancelamento interrompe também os metadados iniciais do catálogo', async () => {
+  const collections = deferred();
+  const tags = deferred();
+  const calls = [];
+  const controller = createCatalogController({
+    client: {
+      request(target, options = {}) {
+        calls.push({ target, options });
+        return target === '/v1/collections' ? collections.promise : tags.promise;
+      },
+    },
+  });
+
+  const loading = controller.loadMetadata();
+  controller.cancelActive();
+  assert.equal(calls.length, 2);
+  assert.equal(calls.every(({ options }) => options.signal.aborted), true);
+
+  collections.resolve({ data: { items: [] } });
+  tags.resolve({ data: { items: [] } });
+  assert.equal(await loading, null);
+});
+
+test('recentes são efêmeros, limitados a 20 e ordenados pelo updatedAt da API', () => {
+  const store = createRecentStore({ portal: 'unimed' });
+  for (let index = 0; index < 22; index += 1) {
+    store.record(`document-${index}`, `2026-07-24T${String(index).padStart(2, '0')}:00:00.000Z`);
+  }
+  store.record('document-2', '2026-07-25T00:00:00.000Z');
+
+  assert.equal(store.size, 20);
+  assert.equal(store.list()[0], 'document-2');
+  assert.equal(store.list().includes('document-0'), false);
+  assert.equal(store.list().includes('document-1'), false);
+  assert.throws(() => store.record('document-invalid', 'data inválida'), /atualização/i);
 
   store.setPortal('icds');
   assert.deepEqual(store.list(), []);
-  store.record('document-c');
+  store.record('document-c', '2026-07-25T01:00:00.000Z');
   store.clear('session_lost');
   assert.deepEqual(store.list(), []);
   assert.equal(store.size, 0);
 });
 
-test('BFCache cancela efeitos e limpa recentes antes de qualquer retomada', () => {
+test('pagehide cancela efeitos e limpa estado antes de qualquer BFCache', () => {
   const listeners = new Map();
   const order = [];
   const target = {
@@ -193,11 +254,20 @@ test('BFCache cancela efeitos e limpa recentes antes de qualquer retomada', () =
     target,
     cancelActive: () => order.push('cancel'),
     clearSensitiveState: () => order.push('clear'),
-    onRestored: () => order.push('restored'),
   });
 
-  listeners.get('pageshow')({ persisted: true });
-  assert.deepEqual(order, ['cancel', 'clear', 'restored']);
+  listeners.get('pagehide')({ persisted: true });
+  assert.deepEqual(order, ['cancel', 'clear']);
   lifecycle.destroy();
   assert.equal(listeners.size, 0);
+});
+
+test('aceita identificadores opacos de até 256 caracteres sem aceitar controles ou espaços laterais', () => {
+  const opaqueId = `documento-${'á'.repeat(246)}`;
+  assert.equal(
+    buildCatalogTarget({ collectionId: opaqueId }),
+    `/v1/documents?collection_id=${encodeURIComponent(opaqueId)}&limit=20`,
+  );
+  assert.throws(() => buildCatalogTarget({ collectionId: ` ${opaqueId}` }), /coleção/i);
+  assert.throws(() => buildCatalogTarget({ tagId: `tag\u0000id` }), /tag/i);
 });

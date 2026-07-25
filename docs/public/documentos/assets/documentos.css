@@ -756,6 +756,20 @@ textarea:focus-visible {
   color: var(--csv-muted);
 }
 
+.docs-detail-message {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 123, 136, 0.4);
+  border-radius: var(--radius-md);
+  background: rgba(255, 123, 136, 0.1);
+  color: var(--csv-body);
+}
+
+.docs-detail-message.is-conflict {
+  border-color: rgba(240, 180, 91, 0.45);
+  background: rgba(240, 180, 91, 0.1);
+}
+
 .docs-card__description {
   flex: 1 1 auto;
   display: -webkit-box;

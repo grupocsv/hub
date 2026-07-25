@@ -41,6 +41,8 @@ test('oferece navegação, busca, upload e região de estado com rótulos explí
   assert.match(template, /<label[^>]+for="docs-search"[^>]*>Buscar Documentos<\/label>/);
   assert.match(template, /<input[^>]+id="docs-search"[^>]+type="search"/);
   assert.match(template, /<button[^>]+id="docs-upload"[^>]*>[^<]*Enviar Documento/);
+  assert.match(template, /<button[^>]+id="docs-upload"[^>]+hidden[^>]+disabled|<button[^>]+id="docs-upload"[^>]+disabled[^>]+hidden/);
+  assert.match(template, /data-view="favoritos"[^>]+hidden[^>]+disabled|data-view="favoritos"[^>]+disabled[^>]+hidden/);
   assert.match(template, /id="docs-status"[^>]+role="status"[^>]+aria-live="polite"/);
   assert.match(template, /id="docs-content"/);
 });
@@ -89,6 +91,9 @@ test('inclui estados visuais de carregamento, indisponibilidade, vazio e erro', 
   assert.match(css, /\.docs-dialog\s*\{/);
   assert.match(css, /\.docs-dialog__panel/);
   assert.match(app, /querySelectorAll\(selector\)/);
+  assert.match(app, /['"]\[data-view\]['"]/);
+  assert.match(app, /if\s*\(button\.disabled\)\s*return/);
+  assert.match(app, /normalized\s*===\s*['"]loading['"][^]*status\.hidden\s*=\s*false/);
 });
 
 test('falha fechado sem configuração válida e não inicia rede quando desabilitado', async () => {

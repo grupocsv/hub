@@ -169,7 +169,10 @@ test('normaliza a matriz pública de erros sem incluir dados sensíveis', async 
               request_id: `req-${status}`,
             },
           },
-          status === 429 ? { 'retry-after': '7' } : {},
+          {
+            'x-request-id': `req-${status}`,
+            ...(status === 429 ? { 'retry-after': '7' } : {}),
+          },
         ),
       );
 
@@ -221,6 +224,32 @@ test('401 invalida a sessão uma única vez e nunca retém o token no erro', asy
   assert.doesNotMatch(JSON.stringify(error), /token-super-secreto/);
 });
 
+test('401 invalida pelos cabeçalhos sem aguardar um corpo pendente', async () => {
+  let bodyRead = false;
+  const invalidations = [];
+  const client = clientWith(
+    async () => ({
+      status: 401,
+      ok: false,
+      headers: new Headers({
+        'content-type': 'application/json',
+        'x-request-id': 'req-401-header',
+      }),
+      json() {
+        bodyRead = true;
+        return new Promise(() => {});
+      },
+    }),
+    { onUnauthorized: () => invalidations.push('invalidada') },
+  );
+
+  const error = await captureError(() => client.request('/v1/documents'));
+  assert.equal(error.code, 'session_expired');
+  assert.equal(error.requestId, 'req-401-header');
+  assert.deepEqual(invalidations, ['invalidada']);
+  assert.equal(bodyRead, false);
+});
+
 test('distingue timeout interno de cancelamento solicitado pelo chamador', async () => {
   const hangingFetch = async (_url, init) =>
     new Promise((resolve, reject) => {
@@ -252,6 +281,30 @@ test('distingue timeout interno de cancelamento solicitado pelo chamador', async
   assert.equal(abortError.code, 'request_aborted');
   assert.equal(abortError.category, 'abort');
   assert.equal(abortError.retriable, false);
+});
+
+test('timeout permanece ativo durante a leitura do corpo da resposta', async () => {
+  const client = clientWith(
+    async () => ({
+      status: 200,
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json() {
+        return new Promise(() => {});
+      },
+    }),
+    {
+      setTimer(callback) {
+        queueMicrotask(callback);
+        return 1;
+      },
+      clearTimer() {},
+    },
+  );
+
+  const error = await captureError(() => client.request('/v1/documents'));
+  assert.equal(error.code, 'request_timeout');
+  assert.equal(error.category, 'timeout');
 });
 
 test('suporta resposta sem corpo e preserva apenas metadados públicos necessários', async () => {

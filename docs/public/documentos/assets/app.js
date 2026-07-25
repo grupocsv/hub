@@ -58,6 +58,15 @@ function isReadyConfig(config) {
   );
 }
 
+export function isTopLevelContext(windowRef = globalThis.window) {
+  if (!windowRef || !('top' in windowRef) || !('self' in windowRef)) return true;
+  try {
+    return windowRef.top === windowRef.self;
+  } catch {
+    return false;
+  }
+}
+
 export function deriveStartupState(config) {
   return isReadyConfig(config) ? 'loading' : 'unavailable';
 }
@@ -70,9 +79,9 @@ function setControlsEnabled(enabled) {
   for (const selector of [
     '#docs-search',
     '.docs-search__submit',
-    '#docs-upload',
     '.docs-filters__form select',
     '.docs-filters__form button',
+    '[data-view]',
   ]) {
     for (const control of document.querySelectorAll(selector)) {
       control.disabled = !enabled;
@@ -117,7 +126,7 @@ export function renderShellState(state, detail, options = {}) {
   if (paragraph) paragraph.textContent = detail || copy.detail;
 
   if (normalized === 'loading') {
-    status.hidden = true;
+    status.hidden = false;
     content.hidden = false;
     renderSkeletons(content);
     return;
@@ -132,6 +141,7 @@ function bindNavigation() {
   const buttons = [...document.querySelectorAll('[data-view]')];
   for (const button of buttons) {
     button.addEventListener('click', () => {
+      if (button.disabled) return;
       for (const candidate of buttons) candidate.removeAttribute('aria-current');
       button.setAttribute('aria-current', 'page');
     });
@@ -185,10 +195,17 @@ export async function bootstrapDocumentosApp(
     dependencies.createWorkspace ??
     (typeof document !== 'undefined' ? createDocumentosWorkspace : null);
   const lifecycleTarget = dependencies.lifecycleTarget ?? globalThis.window;
+  const windowRef = dependencies.windowRef ?? globalThis.window;
   const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
   const onReady = dependencies.onReady ?? (() => {});
 
   prepareShell();
+  if (!isTopLevelContext(windowRef)) {
+    renderState('unavailable', 'A aplicação não pode ser aberta dentro de outra página.', {
+      controlsEnabled: false,
+    });
+    return inertApplication('framed_context_blocked');
+  }
   if (!shouldStartNetwork(config)) {
     renderState('unavailable', undefined, { controlsEnabled: false });
     return inertApplication('unavailable');
@@ -206,6 +223,7 @@ export async function bootstrapDocumentosApp(
   let client = null;
   let workspace = null;
   let destroyed = false;
+  let suspended = false;
   let coordinator;
 
   function destroyWorkspace(reason) {
@@ -227,19 +245,33 @@ export async function bootstrapDocumentosApp(
     client = createClient({
       baseUrl: config.apiBaseUrl,
       getSession: () => activeSession,
-      onUnauthorized: () => coordinator.invalidate(),
+      onUnauthorized: () => {
+        waitingForSession('unauthorized');
+        coordinator.invalidate();
+      },
     });
-    renderState('loading', undefined, { controlsEnabled: true });
+    renderState('loading', undefined, { controlsEnabled: false });
 
     if (typeof createView === 'function' && typeof createWorkspace === 'function') {
-      const view = createView({ renderState });
-      workspace = createWorkspace({ client, portal, view, lifecycleTarget });
-      const currentWorkspace = workspace;
-      Promise.resolve(currentWorkspace.start()).catch(() => {
-        if (workspace !== currentWorkspace || destroyed) return;
-        destroyWorkspace('startup_failed');
-        renderState('error', undefined, { controlsEnabled: true });
+      const view = createView({ renderState, features: config.features });
+      workspace = createWorkspace({
+        client,
+        portal,
+        view,
+        lifecycleTarget,
+        features: config.features,
       });
+      const currentWorkspace = workspace;
+      const workspaceStart = currentWorkspace.start();
+      renderState('loading', undefined, { controlsEnabled: false });
+      Promise.resolve(workspaceStart)
+        .catch(() => {
+          if (workspace !== currentWorkspace || destroyed) return;
+          destroyWorkspace('startup_failed');
+          renderState('error', undefined, { controlsEnabled: false });
+        });
+    } else {
+      renderState('loading', undefined, { controlsEnabled: true });
     }
 
     onReady({ portal, session, client, workspace, features: config.features });
@@ -249,6 +281,35 @@ export async function bootstrapDocumentosApp(
     waitingForSession('session_lost');
   }
 
+  const handlePageHide = () => {
+    if (destroyed) return;
+    suspended = true;
+    destroyWorkspace('pagehide');
+    activeSession = null;
+    client = null;
+    renderState('loading', 'A sessão será revalidada ao retornar.', {
+      controlsEnabled: false,
+    });
+    coordinator.stop();
+  };
+
+  let startResult;
+  const handlePageShow = async (event) => {
+    if (destroyed || suspended !== true || event?.persisted !== true) return;
+    suspended = false;
+    renderState('loading', 'Revalidando a autenticação do Hub.', {
+      controlsEnabled: false,
+    });
+    try {
+      startResult = await coordinator.start();
+    } catch {
+      waitingForSession('authentication_unavailable');
+      renderState('error', 'Não foi possível revalidar a autenticação.', {
+        controlsEnabled: false,
+      });
+    }
+  };
+
   coordinator = createCoordinator({
     search: locationSearch,
     enabledPortals: config.enabledPortals,
@@ -257,17 +318,18 @@ export async function bootstrapDocumentosApp(
     onSessionLost: handleSessionLost,
   });
 
+  lifecycleTarget?.addEventListener?.('pagehide', handlePageHide);
+  lifecycleTarget?.addEventListener?.('pageshow', handlePageShow);
   waitingForSession();
-  let startResult;
   try {
     startResult = await coordinator.start();
   } catch {
+    lifecycleTarget?.removeEventListener?.('pagehide', handlePageHide);
+    lifecycleTarget?.removeEventListener?.('pageshow', handlePageShow);
+    coordinator.stop();
     renderState('error', 'Não foi possível iniciar a autenticação.', { controlsEnabled: false });
     return inertApplication('authentication_unavailable', portal);
   }
-
-  const handlePageHide = () => coordinator.stop();
-  lifecycleTarget?.addEventListener?.('pagehide', handlePageHide);
 
   return Object.freeze({
     status: startResult.status,
@@ -276,11 +338,12 @@ export async function bootstrapDocumentosApp(
     getWorkspace: () => workspace,
     destroy() {
       if (destroyed) return;
-      destroyWorkspace('destroyed');
       destroyed = true;
+      destroyWorkspace('destroyed');
       activeSession = null;
       client = null;
       lifecycleTarget?.removeEventListener?.('pagehide', handlePageHide);
+      lifecycleTarget?.removeEventListener?.('pageshow', handlePageShow);
       coordinator.stop();
     },
   });

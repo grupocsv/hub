@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import {
   buildCatalogViewModel,
   buildDetailViewModel,
+  resolveCatalogFocusIntent,
+  shouldRestoreCatalogFocus,
 } from '../../docs/public/documentos/assets/view.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +44,18 @@ test('constrói modelo de catálogo verificável para pronto, vazio, erro e pagi
   assert.throws(() => buildCatalogViewModel({ status: 'ready', items: [{}], nextCursor: null }), /catálogo/i);
 });
 
+test('Recentes aceita snapshot completo com favorito ainda desconhecido', () => {
+  const recent = buildCatalogViewModel({
+    status: 'ready',
+    mode: 'recent',
+    items: [catalogItem({ favorite: null })],
+    nextCursor: null,
+  });
+
+  assert.equal(recent.items[0].favorite, null);
+  assert.equal(recent.items[0].isSearchResult, false);
+});
+
 test('constrói modelo de detalhe somente com ações autorizadas e versões públicas', () => {
   const model = buildDetailViewModel(
     {
@@ -65,12 +79,126 @@ test('constrói modelo de detalhe somente com ações autorizadas e versões pú
       },
     },
     [{ versionId: 'version-a', versionNumber: 1, publicationStatus: 'eligible' }],
+    { viewer: true, openViewer: true, favorites: true },
   );
 
   assert.equal(model.favorite, true);
   assert.deepEqual(model.actions.map(({ id }) => id), ['open', 'favorite', 'edit', 'archive']);
   assert.equal(model.versions[0].canPromote, true);
   assert.equal(model.actions.some(({ id }) => id === 'requestDeletion'), false);
+});
+
+test('favoritos permanecem ocultos quando o flag está desligado', () => {
+  const state = {
+    status: 'ready',
+    favorite: true,
+    detail: {
+      document: catalogItem({ indexingPolicy: 'metadata_only' }),
+      permissions: ['read'],
+    },
+    actions: {
+      open: true,
+      favorite: true,
+    },
+  };
+
+  const disabled = buildDetailViewModel(state, [], {
+    viewer: false,
+    openViewer: false,
+    favorites: false,
+  });
+  const enabled = buildDetailViewModel(state, [], {
+    viewer: false,
+    openViewer: false,
+    favorites: true,
+  });
+
+  assert.equal(disabled.actions.some(({ id }) => id === 'favorite'), false);
+  assert.equal(enabled.actions.some(({ id }) => id === 'favorite'), true);
+});
+
+test('resultado de busca não infere estado de favorito desconhecido', () => {
+  const model = buildDetailViewModel(
+    {
+      status: 'ready',
+      favorite: null,
+      detail: {
+        document: catalogItem({ indexingPolicy: 'metadata_only' }),
+        permissions: ['read'],
+      },
+      actions: {
+        open: true,
+        favorite: true,
+      },
+    },
+    [],
+    { favorites: true },
+  );
+
+  assert.equal(model.favorite, null);
+  assert.equal(model.actions.some(({ id }) => id === 'favorite'), false);
+});
+
+test('viewer permanece oculto sem flag e handler e conflitos têm mensagem pública', () => {
+  const state = {
+    status: 'conflict',
+    favorite: false,
+    error: new Error('O conteúdo foi alterado. Atualize os dados e tente novamente.'),
+    detail: {
+      document: catalogItem({ indexingPolicy: 'metadata_only' }),
+      permissions: ['read'],
+    },
+    actions: {
+      open: true,
+      favorite: true,
+    },
+    pending: {
+      type: 'metadata',
+      values: { title: 'Rascunho preservado' },
+    },
+  };
+
+  assert.equal(
+    buildDetailViewModel(state, [], { viewer: false, openViewer: true }).actions.some(
+      ({ id }) => id === 'open',
+    ),
+    false,
+  );
+  assert.equal(
+    buildDetailViewModel(state, [], { viewer: true, openViewer: false }).actions.some(
+      ({ id }) => id === 'open',
+    ),
+    false,
+  );
+  const enabled = buildDetailViewModel(state, [], { viewer: true, openViewer: true });
+  assert.equal(enabled.actions.some(({ id }) => id === 'open'), true);
+  assert.equal(enabled.message, state.error.message);
+  assert.deepEqual(enabled.pending, state.pending);
+  assert.equal(enabled.busy, false);
+  assert.equal(enabled.actionsDisabled, true);
+  assert.equal(enabled.canReload, true);
+});
+
+test('restaura foco do catálogo somente quando a ação assíncrona ainda detém a intenção', () => {
+  const body = {};
+  const origin = { isConnected: true };
+  const otherControl = {};
+
+  assert.equal(shouldRestoreCatalogFocus(origin, origin, body), true);
+  assert.equal(shouldRestoreCatalogFocus({ isConnected: false }, body, body), true);
+  assert.equal(shouldRestoreCatalogFocus(origin, otherControl, body), false);
+
+  let intent = resolveCatalogFocusIntent(undefined, origin, otherControl, body);
+  assert.equal(intent, false);
+  origin.isConnected = false;
+  intent = resolveCatalogFocusIntent(intent, origin, body, body);
+  assert.equal(intent, false);
+
+  const retainedOrigin = { isConnected: true };
+  intent = resolveCatalogFocusIntent(undefined, retainedOrigin, retainedOrigin, body);
+  retainedOrigin.isConnected = false;
+  intent = resolveCatalogFocusIntent(intent, retainedOrigin, body, body);
+  assert.equal(intent, true);
 });
 
 test('camada DOM não usa HTML arbitrário e shell contém filtros e painel semântico', async () => {
@@ -90,4 +218,40 @@ test('camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(template, /aria-modal="true"/);
   assert.match(template, /id="docs-detail-title"/);
   assert.match(template, /id="docs-load-more"/);
+  assert.match(template, /id="docs-upload"[^>]*hidden[^>]*disabled|id="docs-upload"[^>]*disabled[^>]*hidden/);
+  assert.match(template, /class="docs-dialog__backdrop"[^>]*aria-hidden="true"/);
+  assert.doesNotMatch(template, /class="docs-dialog__backdrop"[^>]*<button/i);
+  assert.match(source, /clearSensitiveState\(\)[\s\S]*searchInput\.value\s*=\s*''/);
+  assert.match(source, /backgroundElements[\s\S]*\.inert\s*=/);
+  assert.match(
+    source,
+    /event\.key\s*===\s*['"]Escape['"][\s\S]{0,300}handlers\.closeDocument/,
+  );
+  assert.match(source, /previousFocus[\s\S]{0,300}isConnected/);
+  assert.match(source, /fallbackFocus/);
+  assert.match(source, /data-action[^]*reload-detail|['"]reload-detail['"]/);
+  assert.match(source, /aria-busy/);
+  assert.match(source, /features\.favorites\s*===\s*true/);
+  assert.match(source, /data-view="favoritos"/);
+  assert.match(source, /favoritesEnabled\s*&&\s*Boolean\(boundHandlers\)/);
+  assert.match(source, /selectNavigation\(['"]documentos['"]\)/);
+  assert.match(
+    source,
+    /reset['"][^]*selectNavigation\(['"]documentos['"]\)[^]*applyFilters\(\{\}\)/,
+  );
+  assert.match(
+    source,
+    /open-collection['"][^]*selectNavigation\(['"]documentos['"]\)[^]*applyFilters/,
+  );
+  assert.match(source, /input:not\(:disabled\)/);
+  assert.match(source, /disabled:\s*model\?\.actionsDisabled\s*===\s*true/);
+  assert.match(source, /handlers\.toggleCardFavorite\?\./);
+  assert.match(source, /ariaLabel:\s*`Ver detalhes de \$\{item\.title\}`/);
+  assert.match(source, /ariaLabel:\s*`Promover versão \$\{/);
+  assert.match(source, /ariaLabel:\s*`Ver documentos da coleção \$\{item\.name\}`/);
+  assert.match(
+    source,
+    /function renderCollections[^]*loadMore\.hidden\s*=\s*true[^]*loadMore\.disabled\s*=\s*true[^]*items\.length\s*===\s*0/,
+  );
+  assert.match(source, /function setFilters\(/);
 });

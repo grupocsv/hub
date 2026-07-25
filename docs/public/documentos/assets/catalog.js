@@ -15,18 +15,32 @@ const LIFECYCLE_STATUSES = new Set([
   'deleting',
   'deleted',
 ]);
-const IDENTIFIER_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9._:-]{0,127})$/;
+const PORTAL_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/u;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
 const CATALOG_PAGE_SIZE = 20;
 const SEARCH_MAX_LENGTH = 500;
-const DEFAULT_RECENT_LIMIT = 50;
+const DEFAULT_RECENT_LIMIT = 20;
 
 function plainObject(value) {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
-function identifier(value, name) {
-  if (typeof value !== 'string' || !IDENTIFIER_PATTERN.test(value)) {
+function opaqueIdentifier(value, name) {
+  if (
+    typeof value !== 'string' ||
+    value.length === 0 ||
+    value.length > 256 ||
+    value !== value.trim() ||
+    CONTROL_CHARACTER_PATTERN.test(value)
+  ) {
     throw new TypeError(`${name} inválido.`);
+  }
+  return value;
+}
+
+function portalIdentifier(value) {
+  if (typeof value !== 'string' || !PORTAL_PATTERN.test(value)) {
+    throw new TypeError('Portal inválido.');
   }
   return value;
 }
@@ -49,7 +63,7 @@ export function buildCatalogTarget(input = {}) {
 
   const parameters = new URLSearchParams();
   if (input.collectionId !== undefined) {
-    parameters.set('collection_id', identifier(input.collectionId, 'Coleção'));
+    parameters.set('collection_id', opaqueIdentifier(input.collectionId, 'Coleção'));
   }
   const lifecycleStatus = optionalEnum(
     input.lifecycleStatus,
@@ -64,7 +78,7 @@ export function buildCatalogTarget(input = {}) {
   );
   if (classification) parameters.set('classification', classification);
   if (input.tagId !== undefined) {
-    parameters.set('tag_id', identifier(input.tagId, 'Tag'));
+    parameters.set('tag_id', opaqueIdentifier(input.tagId, 'Tag'));
   }
   if (input.favorite !== undefined) {
     if (input.favorite !== true) throw new TypeError('Favorito inválido.');
@@ -211,6 +225,7 @@ export function createCatalogController(options = {}) {
   }
 
   let activeRequest = null;
+  let activeMetadataRequest = null;
   let requestVersion = 0;
   let destroyed = false;
   let currentState = Object.freeze({
@@ -224,7 +239,9 @@ export function createCatalogController(options = {}) {
   function cancelActive() {
     requestVersion += 1;
     activeRequest?.abort();
+    activeMetadataRequest?.abort();
     activeRequest = null;
+    activeMetadataRequest = null;
   }
 
   function begin(mode) {
@@ -316,6 +333,7 @@ export function createCatalogController(options = {}) {
   }
 
   async function loadNext() {
+    if (activeRequest) return currentState;
     if (currentState.mode !== 'catalog' || !currentState.nextCursor) return currentState;
     return loadList(
       { ...currentState.filters, cursor: currentState.nextCursor },
@@ -324,11 +342,27 @@ export function createCatalogController(options = {}) {
   }
 
   async function loadMetadata() {
-    const [collections, tags] = await Promise.all([
-      client.request('/v1/collections'),
-      client.request('/v1/tags'),
-    ]);
-    return normalizeMetadataPayload(collections.data, tags.data);
+    cancelActive();
+    const request = {
+      controller: new AbortController(),
+      version: requestVersion,
+    };
+    activeMetadataRequest = request.controller;
+    try {
+      const [collections, tags] = await Promise.all([
+        client.request('/v1/collections', { signal: request.controller.signal }),
+        client.request('/v1/tags', { signal: request.controller.signal }),
+      ]);
+      if (isStale(request)) return null;
+      return normalizeMetadataPayload(collections.data, tags.data);
+    } catch (error) {
+      if (isStale(request) || error?.code === 'request_aborted') return null;
+      throw error;
+    } finally {
+      if (activeMetadataRequest === request.controller) {
+        activeMetadataRequest = null;
+      }
+    }
   }
 
   return Object.freeze({
@@ -352,10 +386,9 @@ export function createCatalogController(options = {}) {
 }
 
 export function createRecentStore(options = {}) {
-  let portal = identifier(options.portal, 'Portal');
-  const now = options.now ?? Date.now;
+  let portal = portalIdentifier(options.portal);
   const limit = options.limit ?? DEFAULT_RECENT_LIMIT;
-  if (typeof now !== 'function' || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) {
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > DEFAULT_RECENT_LIMIT) {
     throw new TypeError('Configuração de recentes inválida.');
   }
 
@@ -370,10 +403,14 @@ export function createRecentStore(options = {}) {
   }
 
   return Object.freeze({
-    record(documentId) {
-      const normalized = identifier(documentId, 'Documento');
+    record(documentId, updatedAt) {
+      const normalized = opaqueIdentifier(documentId, 'Documento');
+      const timestamp = typeof updatedAt === 'string' ? Date.parse(updatedAt) : Number.NaN;
+      if (!Number.isFinite(timestamp)) {
+        throw new TypeError('Data de atualização inválida.');
+      }
       entries.delete(normalized);
-      entries.set(normalized, Number(now()));
+      entries.set(normalized, timestamp);
       trim();
     },
     list() {
@@ -384,7 +421,7 @@ export function createRecentStore(options = {}) {
       );
     },
     setPortal(nextPortal) {
-      const normalized = identifier(nextPortal, 'Portal');
+      const normalized = portalIdentifier(nextPortal);
       if (normalized === portal) return;
       entries.clear();
       portal = normalized;
@@ -402,22 +439,19 @@ export function bindCatalogLifecycle(options = {}) {
   const target = options.target;
   const cancelActive = options.cancelActive ?? (() => {});
   const clearSensitiveState = options.clearSensitiveState ?? (() => {});
-  const onRestored = options.onRestored ?? (() => {});
   if (!target?.addEventListener || !target?.removeEventListener) {
     throw new TypeError('Alvo de ciclo de vida inválido.');
   }
 
-  const onPageShow = (event) => {
-    if (event?.persisted !== true) return;
+  const onPageHide = () => {
     cancelActive();
-    clearSensitiveState('bfcache');
-    onRestored();
+    clearSensitiveState('pagehide');
   };
-  target.addEventListener('pageshow', onPageShow);
+  target.addEventListener('pagehide', onPageHide);
 
   return Object.freeze({
     destroy() {
-      target.removeEventListener('pageshow', onPageShow);
+      target.removeEventListener('pagehide', onPageHide);
     },
   });
 }

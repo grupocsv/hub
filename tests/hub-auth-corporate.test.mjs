@@ -8,23 +8,32 @@ async function renderAuthForPortal(portal, sourcePath) {
   const appended = [];
   const storage = new Map();
 
-  const makeElement = () => ({
-    id: '',
-    style: {},
-    innerHTML: '',
-    classList: { add() {}, remove() {} },
-    querySelector() { return null; },
-    querySelectorAll() { return []; },
-    addEventListener() {},
-    appendChild() {},
-    remove() {},
-  });
+  const makeElement = () => {
+    const attributes = new Map();
+    return {
+      id: '',
+      style: {},
+      innerHTML: '',
+      classList: { add() {}, remove() {}, contains() { return false; } },
+      setAttribute(name, value) { attributes.set(name, String(value)); },
+      getAttribute(name) { return attributes.get(name) ?? null; },
+      querySelector() { return null; },
+      querySelectorAll() { return []; },
+      addEventListener() {},
+      appendChild() {},
+      remove() {},
+    };
+  };
 
   const document = {
     readyState: 'complete',
     currentScript: { getAttribute(name) { return name === 'data-portal' ? portal : null; } },
+    head: {
+      appendChild() {},
+    },
     body: {
       style: {},
+      classList: { add() {}, remove() {} },
       appendChild(element) { appended.push(element); },
     },
     createElement: makeElement,

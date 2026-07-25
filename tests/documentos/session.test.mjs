@@ -5,6 +5,7 @@ import {
   clearCanonicalSession,
   createHubAuthDescriptor,
   createSessionCoordinator,
+  loadHubAuthScript,
   readCanonicalSession,
   resolvePortalContext,
 } from '../../docs/public/documentos/assets/session.js';
@@ -42,6 +43,14 @@ function storedSession(portal, { token = 'token-secreto', email = 'pessoa@exempl
     [keys.email]: email,
     [keys.expires]: expires,
   };
+}
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
 }
 
 test('aceita somente um portal habilitado e normaliza o alias canônico', () => {
@@ -151,7 +160,10 @@ test('coordenador não inicia trabalho autenticado antes da sessão e detecta lo
     localStorage,
     sessionStorage,
     now: () => Date.parse('2026-07-24T12:00:00.000Z'),
-    loadAuth: async (descriptor) => loaded.push(descriptor),
+    loadAuth: async (descriptor) => {
+      loaded.push(descriptor);
+      return { readiness: { status: 'required', portal: descriptor.portal } };
+    },
     schedule: (callback) => {
       scheduled.push(callback);
       return scheduled.length;
@@ -227,7 +239,9 @@ test('invalidação por 401 remove somente a sessão do portal ativo e reinicia 
     localStorage,
     sessionStorage,
     now: () => Date.parse('2026-07-24T12:00:00.000Z'),
-    loadAuth: async () => {},
+    loadAuth: async (descriptor) => ({
+      readiness: { status: 'valid', portal: descriptor.portal },
+    }),
     schedule: () => 1,
     cancel: () => {},
     reload: () => {
@@ -243,4 +257,235 @@ test('invalidação por 401 remove somente a sessão do portal ativo e reinicia 
   assert.equal(localStorage.getItem(unimedKeys.token), null);
   assert.equal(localStorage.getItem(icdsKeys.token), 'token-icds');
   assert.equal(reloads, 1);
+});
+
+test('stop durante o carregamento do Hub Auth impede sessão e observador tardios', async () => {
+  const authLoad = deferred();
+  let ready = 0;
+  let required = 0;
+  let scheduled = 0;
+  const coordinator = createSessionCoordinator({
+    search: '?portal=unimed',
+    enabledPortals: ['unimed'],
+    localStorage: createStorage(
+      storedSession('unimed', { expires: '2026-07-24T13:00:00.000Z' }),
+    ),
+    sessionStorage: createStorage(),
+    now: () => Date.parse('2026-07-24T12:00:00.000Z'),
+    loadAuth: () => authLoad.promise,
+    schedule: () => {
+      scheduled += 1;
+      return scheduled;
+    },
+    cancel() {},
+    onSessionReady: () => {
+      ready += 1;
+    },
+    onSessionRequired: () => {
+      required += 1;
+    },
+  });
+
+  const starting = coordinator.start();
+  coordinator.stop();
+  authLoad.resolve();
+
+  assert.deepEqual(await starting, { status: 'stopped', portal: 'unimed' });
+  assert.equal(ready, 0);
+  assert.equal(required, 0);
+  assert.equal(scheduled, 0);
+});
+
+test('carregador aguarda o readiness público antes de liberar o coordenador', async () => {
+  const readiness = deferred();
+  const listeners = new Map();
+  const script = {
+    dataset: {},
+    addEventListener(type, callback) {
+      listeners.set(type, callback);
+    },
+  };
+  const windowRef = { HUB_AUTH_READY: readiness.promise };
+  const documentRef = {
+    defaultView: windowRef,
+    head: {
+      append() {
+        listeners.get('load')?.();
+      },
+    },
+    createElement() {
+      return script;
+    },
+    getElementById() {
+      return null;
+    },
+  };
+
+  let settled = false;
+  const loading = loadHubAuthScript(createHubAuthDescriptor('unimed'), documentRef)
+    .then((result) => {
+      settled = true;
+      return result;
+    });
+  await Promise.resolve();
+  assert.equal(settled, false);
+
+  readiness.resolve({ status: 'valid', portal: 'unimed' });
+  const result = await loading;
+  assert.equal(result.script, script);
+  assert.deepEqual(result.readiness, { status: 'valid', portal: 'unimed' });
+});
+
+test('script existente consulta o readiness corrente após a rodada de pageshow', async () => {
+  const currentReadiness = deferred();
+  const script = { dataset: { portal: 'unimed' } };
+  const windowRef = {
+    HUB_AUTH_READY: Promise.resolve({ status: 'valid', portal: 'unimed' }),
+  };
+  const documentRef = {
+    defaultView: windowRef,
+    head: {},
+    createElement() {
+      throw new Error('não deve criar outro script');
+    },
+    getElementById() {
+      return script;
+    },
+  };
+
+  let settled = false;
+  const loading = loadHubAuthScript(createHubAuthDescriptor('unimed'), documentRef)
+    .then((result) => {
+      settled = true;
+      return result;
+    });
+  windowRef.HUB_AUTH_READY = currentReadiness.promise;
+  await Promise.resolve();
+  assert.equal(settled, false);
+
+  currentReadiness.resolve({ status: 'required', portal: 'unimed' });
+  const result = await loading;
+  assert.equal(result.readiness.status, 'required');
+});
+
+test('readiness indisponível ignora sessão antiga, mas observa um novo login verificado', async () => {
+  let ready = 0;
+  let required = 0;
+  let scheduledCallback;
+  const localStorage = createStorage(
+    storedSession('unimed', { expires: '2026-07-24T13:00:00.000Z' }),
+  );
+  const sessionStorage = createStorage();
+  const coordinator = createSessionCoordinator({
+    search: '?portal=unimed',
+    enabledPortals: ['unimed'],
+    localStorage,
+    sessionStorage,
+    now: () => Date.parse('2026-07-24T12:00:00.000Z'),
+    loadAuth: async () => ({
+      readiness: { status: 'unavailable', portal: 'unimed' },
+    }),
+    schedule: (callback) => {
+      scheduledCallback = callback;
+      return 1;
+    },
+    onSessionReady: () => {
+      ready += 1;
+    },
+    onSessionRequired: () => {
+      required += 1;
+    },
+  });
+
+  assert.deepEqual(await coordinator.start(), {
+    status: 'waiting_for_session',
+    portal: 'unimed',
+  });
+  assert.equal(ready, 0);
+  assert.equal(required, 1);
+  assert.equal(typeof scheduledCallback, 'function');
+  assert.deepEqual(localStorage.snapshot(), {});
+
+  const keys = sessionKeys('unimed');
+  localStorage.setItem(keys.token, 'token-verificado-no-retry');
+  localStorage.setItem(keys.email, 'pessoa@exemplo.com');
+  localStorage.setItem(keys.expires, '2026-07-24T13:00:00.000Z');
+  scheduledCallback();
+
+  assert.equal(ready, 1);
+});
+
+test('start antigo não revive sessão nem timer após stop seguido de novo start', async () => {
+  const firstAuth = deferred();
+  const secondAuth = deferred();
+  const authLoads = [firstAuth, secondAuth];
+  const ready = [];
+  const scheduled = [];
+  const cancelled = [];
+  const coordinator = createSessionCoordinator({
+    search: '?portal=unimed',
+    enabledPortals: ['unimed'],
+    localStorage: createStorage(
+      storedSession('unimed', { expires: '2026-07-24T13:00:00.000Z' }),
+    ),
+    sessionStorage: createStorage(),
+    now: () => Date.parse('2026-07-24T12:00:00.000Z'),
+    loadAuth: () => authLoads.shift().promise,
+    schedule: (callback) => {
+      scheduled.push(callback);
+      return scheduled.length;
+    },
+    cancel: (handle) => cancelled.push(handle),
+    onSessionReady: (session) => ready.push(session.token),
+  });
+
+  const firstStart = coordinator.start();
+  coordinator.stop();
+  const secondStart = coordinator.start();
+  secondAuth.resolve({ readiness: { status: 'valid', portal: 'unimed' } });
+  assert.equal((await secondStart).status, 'authenticated');
+  firstAuth.resolve({ readiness: { status: 'valid', portal: 'unimed' } });
+  assert.equal((await firstStart).status, 'stopped');
+
+  assert.deepEqual(ready, ['token-secreto']);
+  assert.equal(scheduled.length, 1);
+  coordinator.stop();
+  assert.deepEqual(cancelled, [1]);
+});
+
+test('script existente ainda em carga aguarda load e readiness em vez de falhar cedo', async () => {
+  const readiness = deferred();
+  const listeners = new Map();
+  const script = {
+    dataset: { portal: 'unimed', hubAuthLoad: 'loading' },
+    addEventListener(type, callback) {
+      listeners.set(type, callback);
+    },
+  };
+  const windowRef = {};
+  const documentRef = {
+    defaultView: windowRef,
+    head: {},
+    createElement() {
+      throw new Error('não deve criar outro script');
+    },
+    getElementById() {
+      return script;
+    },
+  };
+
+  let settled = false;
+  const loading = loadHubAuthScript(createHubAuthDescriptor('unimed'), documentRef)
+    .then((result) => {
+      settled = true;
+      return result;
+    });
+  await Promise.resolve();
+  assert.equal(settled, false);
+
+  windowRef.HUB_AUTH_READY = readiness.promise;
+  listeners.get('load')();
+  readiness.resolve({ status: 'required', portal: 'unimed' });
+  const result = await loading;
+  assert.equal(result.readiness.status, 'required');
 });

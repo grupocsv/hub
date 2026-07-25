@@ -1,4 +1,4 @@
-const IDENTIFIER_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9._:-]{0,127})$/;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/u;
 const PATCH_KEYS = new Set([
   'collectionId',
   'title',
@@ -8,7 +8,13 @@ const PATCH_KEYS = new Set([
 ]);
 
 function identifier(value, name) {
-  if (typeof value !== 'string' || !IDENTIFIER_PATTERN.test(value)) {
+  if (
+    typeof value !== 'string' ||
+    value.length === 0 ||
+    value.length > 256 ||
+    value !== value.trim() ||
+    CONTROL_CHARACTER_PATTERN.test(value)
+  ) {
     throw new TypeError(`${name} inválido.`);
   }
   return value;
@@ -39,14 +45,25 @@ function normalizeDocument(value) {
   ) {
     throw new TypeError('Detalhe documental inválido.');
   }
-  return Object.freeze({ ...value });
+  return Object.freeze({
+    ...value,
+    documentId: identifier(value.documentId, 'Documento'),
+  });
 }
 
-export function normalizeDocumentDetail(payload, headers, fallbackPermissions = []) {
+export function normalizeDocumentDetail(
+  payload,
+  headers,
+  fallbackPermissions = [],
+  expectedDocumentId = null,
+) {
   if (!plainObject(payload) || !plainObject(payload.document)) {
     throw new TypeError('Resposta de detalhe inválida.');
   }
   const document = normalizeDocument(payload.document);
+  if (expectedDocumentId !== null && document.documentId !== expectedDocumentId) {
+    throw new TypeError('Resposta de detalhe inválida.');
+  }
   const headerEtag = headers?.get?.('etag');
   const etag = typeof headerEtag === 'string' && headerEtag.length > 0 ? headerEtag : document.etag;
   if (typeof etag !== 'string' || etag.length === 0) {
@@ -128,13 +145,49 @@ export function createDocumentDetailController(options = {}) {
   }
 
   let current = null;
-  let favorite = false;
+  let favorite = null;
   let destroyed = false;
-  let activeRequest = null;
+  let generation = 0;
+  let activeDetailRequest = null;
+  let activeVersionRequest = null;
+  let activeMutation = null;
 
-  function documentTarget(suffix = '') {
+  function documentTarget(documentId, suffix = '') {
+    return `/v1/documents/${encodeURIComponent(identifier(documentId, 'Documento'))}${suffix}`;
+  }
+
+  function contextForCurrent() {
     if (!current) throw new TypeError('Detalhe documental não carregado.');
-    return `/v1/documents/${encodeURIComponent(current.document.documentId)}${suffix}`;
+    return Object.freeze({
+      documentId: current.document.documentId,
+      generation,
+      detail: current,
+    });
+  }
+
+  function contextIsActive(context) {
+    return (
+      !destroyed &&
+      current?.document?.documentId === context.documentId &&
+      generation === context.generation
+    );
+  }
+
+  function generationIsActive(expectedGeneration) {
+    return !destroyed && generation === expectedGeneration;
+  }
+
+  function abortOperation(operation) {
+    operation?.controller?.abort();
+  }
+
+  function invalidateOperations() {
+    abortOperation(activeDetailRequest);
+    abortOperation(activeVersionRequest);
+    abortOperation(activeMutation);
+    activeDetailRequest = null;
+    activeVersionRequest = null;
+    activeMutation = null;
   }
 
   function emit(status, extra = {}) {
@@ -151,43 +204,116 @@ export function createDocumentDetailController(options = {}) {
     );
   }
 
-  async function runMutation(action, request, normalizeResult) {
-    assertAction(current, action);
-    emit('saving');
+  async function runMutation(action, requestFactory, applyResponse, pending = null) {
+    const context = contextForCurrent();
+    assertAction(context.detail, action);
+    if (activeMutation) {
+      throw new TypeError('Já existe uma operação em andamento.');
+    }
+
+    const operation = {
+      context,
+      controller: new AbortController(),
+    };
+    activeMutation = operation;
+    emit('saving', pending ? { pending } : {});
     try {
-      const response = await client.request(request.target, request.options);
-      if (normalizeResult) current = normalizeResult(response);
-      emit('ready');
-      return current;
+      const request = requestFactory(context);
+      const response = await client.request(request.target, {
+        ...request.options,
+        signal: operation.controller.signal,
+      });
+      if (!contextIsActive(context)) return null;
+
+      const applied = applyResponse
+        ? applyResponse(response, context)
+        : { value: current, extra: {} };
+      if (!contextIsActive(context)) return null;
+      emit('ready', applied.extra ?? {});
+      return applied.value;
     } catch (error) {
-      if (error?.code === 'conflict') emit('conflict', { error });
-      else emit('error', { error });
+      if (!contextIsActive(context) || error?.code === 'request_aborted') return null;
+      const extra = pending ? { error, pending } : { error };
+      if (error?.code === 'conflict') emit('conflict', extra);
+      else emit('error', extra);
       throw error;
+    } finally {
+      if (activeMutation === operation) activeMutation = null;
     }
   }
 
   async function load(documentId, loadOptions = {}) {
     const normalizedId = identifier(documentId, 'Documento');
-    activeRequest?.abort();
+    generation += 1;
+    const requestGeneration = generation;
+    invalidateOperations();
+    current = null;
+    favorite = null;
     const controller = new AbortController();
-    activeRequest = controller;
+    const operation = { controller, generation: requestGeneration, documentId: normalizedId };
+    activeDetailRequest = operation;
     emit('loading');
     try {
       const response = await client.request(
-        `/v1/documents/${encodeURIComponent(normalizedId)}`,
+        documentTarget(normalizedId),
         { signal: controller.signal },
       );
-      if (controller.signal.aborted || destroyed) return null;
-      current = normalizeDocumentDetail(response.data, response.headers);
-      favorite = loadOptions.favorite === true;
+      if (controller.signal.aborted || !generationIsActive(requestGeneration)) return null;
+      current = normalizeDocumentDetail(response.data, response.headers, [], normalizedId);
+      favorite =
+        typeof loadOptions.favorite === 'boolean' ? loadOptions.favorite : null;
       emit('ready');
       return current;
     } catch (error) {
-      if (controller.signal.aborted || error?.code === 'request_aborted') return null;
+      if (
+        controller.signal.aborted ||
+        !generationIsActive(requestGeneration) ||
+        error?.code === 'request_aborted'
+      ) {
+        return null;
+      }
       emit('error', { error });
       throw error;
     } finally {
-      if (activeRequest === controller) activeRequest = null;
+      if (activeDetailRequest === operation) activeDetailRequest = null;
+    }
+  }
+
+  async function refresh() {
+    const context = contextForCurrent();
+    assertAction(context.detail, 'open');
+    abortOperation(activeDetailRequest);
+    const operation = {
+      context,
+      controller: new AbortController(),
+    };
+    activeDetailRequest = operation;
+    emit('loading');
+    try {
+      const response = await client.request(documentTarget(context.documentId), {
+        signal: operation.controller.signal,
+      });
+      if (!contextIsActive(context)) return null;
+      current = normalizeDocumentDetail(
+        response.data,
+        response.headers,
+        context.detail.permissions,
+        context.documentId,
+      );
+      emit('ready');
+      return current;
+    } catch (error) {
+      if (
+        !contextIsActive(context) ||
+        operation.controller.signal.aborted ||
+        error?.code === 'request_aborted'
+      ) {
+        return null;
+      }
+      emit('error', { error });
+      throw error;
+    } finally {
+      if (activeDetailRequest === operation) activeDetailRequest = null;
     }
   }
 
@@ -195,82 +321,154 @@ export function createDocumentDetailController(options = {}) {
     const body = normalizePatch(patch);
     return runMutation(
       'edit',
-      {
-        target: documentTarget(),
+      (context) => ({
+        target: documentTarget(context.documentId),
         options: {
           method: 'PATCH',
-          headers: { 'If-Match': current.etag },
+          headers: { 'If-Match': context.detail.etag },
           body,
         },
+      }),
+      (response, context) => {
+        current = normalizeDocumentDetail(
+          response.data,
+          response.headers,
+          context.detail.permissions,
+          context.documentId,
+        );
+        return { value: current };
       },
-      (response) => normalizeDocumentDetail(response.data, response.headers, current.permissions),
+      Object.freeze({ type: 'metadata', values: body }),
     );
   }
 
   async function setFavorite(value) {
     if (typeof value !== 'boolean') throw new TypeError('Favorito inválido.');
-    assertAction(current, 'favorite');
-    await client.request(documentTarget('/favorite'), {
-      method: value ? 'POST' : 'DELETE',
-      ...(value ? { body: {} } : {}),
-    });
-    favorite = value;
-    emit('ready');
-    return favorite;
+    return runMutation(
+      'favorite',
+      (context) => ({
+        target: documentTarget(context.documentId, '/favorite'),
+        options: {
+          method: value ? 'POST' : 'DELETE',
+          ...(value ? { body: {} } : {}),
+        },
+      }),
+      () => {
+        favorite = value;
+        return { value: favorite };
+      },
+    );
   }
 
   async function transition(action) {
     return runMutation(
       action,
-      {
-        target: documentTarget(action === 'archive' ? '/archive' : '/restore'),
+      (context) => ({
+        target: documentTarget(
+          context.documentId,
+          action === 'archive' ? '/archive' : '/restore',
+        ),
         options: { method: 'POST', body: {} },
+      }),
+      (response, context) => {
+        current = normalizeDocumentDetail(
+          response.data,
+          response.headers,
+          context.detail.permissions,
+          context.documentId,
+        );
+        return { value: current };
       },
-      (response) => normalizeDocumentDetail(response.data, response.headers, current.permissions),
     );
   }
 
   async function requestDeletion(reason) {
-    assertAction(current, 'requestDeletion');
     const normalizedReason = typeof reason === 'string' ? reason.trim() : '';
     if (normalizedReason.length === 0 || normalizedReason.length > 2000) {
       throw new TypeError('Motivo de exclusão inválido.');
     }
-    const response = await client.request(documentTarget('/deletion-requests'), {
-      method: 'POST',
-      body: {
-        request_id: identifier(createRequestId(), 'Solicitação'),
-        reason: normalizedReason,
-        requested_at: now(),
-      },
+    const body = Object.freeze({
+      request_id: identifier(createRequestId(), 'Solicitação'),
+      reason: normalizedReason,
+      requested_at: now(),
     });
-    emit('ready', { deletionRequest: response.data?.request ?? null });
-    return response.data?.request ?? null;
+    return runMutation(
+      'requestDeletion',
+      (context) => ({
+        target: documentTarget(context.documentId, '/deletion-requests'),
+        options: {
+          method: 'POST',
+          body,
+        },
+      }),
+      (response) => {
+        const deletionRequest = response.data?.request ?? null;
+        return {
+          value: deletionRequest,
+          extra: { deletionRequest },
+        };
+      },
+      Object.freeze({ type: 'deletion', values: { reason: normalizedReason } }),
+    );
   }
 
   async function loadVersions() {
-    assertAction(current, 'open');
-    const response = await client.request(documentTarget('/versions'));
-    return normalizeVersions(response.data);
+    const context = contextForCurrent();
+    assertAction(context.detail, 'open');
+    abortOperation(activeVersionRequest);
+    const operation = {
+      context,
+      controller: new AbortController(),
+    };
+    activeVersionRequest = operation;
+    try {
+      const response = await client.request(documentTarget(context.documentId, '/versions'), {
+        signal: operation.controller.signal,
+      });
+      if (!contextIsActive(context)) return null;
+      return normalizeVersions(response.data);
+    } catch (error) {
+      if (
+        !contextIsActive(context) ||
+        operation.controller.signal.aborted ||
+        error?.code === 'request_aborted'
+      ) {
+        return null;
+      }
+      throw error;
+    } finally {
+      if (activeVersionRequest === operation) activeVersionRequest = null;
+    }
   }
 
   async function promoteVersion(versionId) {
-    assertAction(current, 'promoteVersion');
     const normalizedId = identifier(versionId, 'Versão');
-    const response = await client.request(
-      documentTarget(`/versions/${encodeURIComponent(normalizedId)}/promote`),
-      { method: 'POST', body: {} },
+    return runMutation(
+      'promoteVersion',
+      (context) => ({
+        target: documentTarget(
+          context.documentId,
+          `/versions/${encodeURIComponent(normalizedId)}/promote`,
+        ),
+        options: { method: 'POST', body: {} },
+      }),
+      (response) => {
+        const version = response.data?.version;
+        if (!plainObject(version) || typeof version.publicationStatus !== 'string') {
+          throw new TypeError('Resposta de promoção inválida.');
+        }
+        const promotedVersion = Object.freeze({ ...version });
+        return {
+          value: promotedVersion,
+          extra: { promotedVersion },
+        };
+      },
     );
-    const version = response.data?.version;
-    if (!plainObject(version) || typeof version.publicationStatus !== 'string') {
-      throw new TypeError('Resposta de promoção inválida.');
-    }
-    emit('ready', { promotedVersion: Object.freeze({ ...version }) });
-    return Object.freeze({ ...version });
   }
 
   return Object.freeze({
     load,
+    refresh,
     updateMetadata,
     setFavorite,
     archive: () => transition('archive'),
@@ -280,16 +478,22 @@ export function createDocumentDetailController(options = {}) {
     promoteVersion,
     getDetail: () => current,
     getFavorite: () => favorite,
+    getContext: () =>
+      current
+        ? Object.freeze({ documentId: current.document.documentId, generation })
+        : null,
     cancel() {
-      activeRequest?.abort();
-      activeRequest = null;
+      generation += 1;
+      invalidateOperations();
+      current = null;
+      favorite = null;
     },
     destroy() {
       destroyed = true;
-      activeRequest?.abort();
-      activeRequest = null;
+      generation += 1;
+      invalidateOperations();
       current = null;
-      favorite = false;
+      favorite = null;
     },
   });
 }

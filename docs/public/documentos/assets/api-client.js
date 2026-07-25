@@ -222,6 +222,24 @@ async function readResponseData(response, responseType) {
   }
 }
 
+function waitForAbortable(operation, signal) {
+  if (signal.aborted) return Promise.reject(signal.reason);
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason);
+    signal.addEventListener('abort', abort, { once: true });
+    Promise.resolve(operation).then(
+      (value) => {
+        signal.removeEventListener('abort', abort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener('abort', abort);
+        reject(error);
+      },
+    );
+  });
+}
+
 function createAbortContext(callerSignal, timeoutMs, setTimer, clearTimer) {
   const controller = new AbortController();
   let timedOut = false;
@@ -301,9 +319,8 @@ export function createDocumentApiClient(options = {}) {
       clearTimer,
     );
 
-    let response;
     try {
-      response = await fetchImpl(url.href, {
+      const response = await fetchImpl(url.href, {
         method: requestOptions.method || 'GET',
         headers,
         body: preparedBody.body,
@@ -313,33 +330,47 @@ export function createDocumentApiClient(options = {}) {
         redirect: 'error',
         referrerPolicy: 'strict-origin-when-cross-origin',
       });
-    } catch {
-      const code = abortContext.signal.aborted ? abortContext.resultCode() : 'network_unavailable';
+
+      if (response.status === 401) {
+        onUnauthorized();
+        throw new DocumentApiError({
+          status: response.status,
+          code: 'session_expired',
+          requestId: publicRequestId(response, null),
+          retryAfterSeconds: retryAfterSeconds(response),
+        });
+      }
+
+      const data = await waitForAbortable(
+        readResponseData(response, requestOptions.responseType || 'json'),
+        abortContext.signal,
+      );
+      const requestId = publicRequestId(response, data);
+
+      if (!response.ok) {
+        throw new DocumentApiError({
+          status: response.status,
+          code: codeForStatus(response.status),
+          requestId,
+          retryAfterSeconds: retryAfterSeconds(response),
+        });
+      }
+
+      return Object.freeze({
+        status: response.status,
+        data,
+        headers: response.headers,
+        requestId,
+      });
+    } catch (error) {
+      if (error instanceof DocumentApiError) throw error;
+      const code = abortContext.signal.aborted
+        ? abortContext.resultCode()
+        : 'network_unavailable';
       throw new DocumentApiError({ code });
     } finally {
       abortContext.dispose();
     }
-
-    const data = await readResponseData(response, requestOptions.responseType || 'json');
-    const requestId = publicRequestId(response, data);
-
-    if (!response.ok) {
-      const code = codeForStatus(response.status);
-      if (response.status === 401) onUnauthorized();
-      throw new DocumentApiError({
-        status: response.status,
-        code,
-        requestId,
-        retryAfterSeconds: retryAfterSeconds(response),
-      });
-    }
-
-    return Object.freeze({
-      status: response.status,
-      data,
-      headers: response.headers,
-      requestId,
-    });
   }
 
   return Object.freeze({ request });

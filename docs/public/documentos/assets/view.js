@@ -35,7 +35,11 @@ function catalogItem(value) {
     (!searchResult && typeof value.classification !== 'string') ||
     (!searchResult && typeof value.lifecycleStatus !== 'string') ||
     (!searchResult && typeof value.updatedAt !== 'string') ||
-    (searchResult ? value.favorite !== null : typeof value.favorite !== 'boolean')
+    (
+      searchResult
+        ? value.favorite !== null
+        : typeof value.favorite !== 'boolean' && value.favorite !== null
+    )
   ) {
     throw new TypeError('Item de catálogo inválido.');
   }
@@ -64,7 +68,7 @@ export function buildCatalogViewModel(state) {
   });
 }
 
-export function buildDetailViewModel(state, versions = []) {
+export function buildDetailViewModel(state, versions = [], capabilities = {}) {
   if (!plainObject(state) || !['loading', 'ready', 'saving', 'conflict', 'error'].includes(state.status)) {
     throw new TypeError('Estado de detalhe inválido.');
   }
@@ -73,15 +77,24 @@ export function buildDetailViewModel(state, versions = []) {
   if (document !== null && !plainObject(document)) {
     throw new TypeError('Estado de detalhe inválido.');
   }
-  const visibleActions = ACTIONS.filter((action) => actions[action.id] === true).map((action) =>
-    Object.freeze({
-      ...action,
-      label:
-        action.id === 'favorite' && state.favorite === true
-          ? 'Remover dos Favoritos'
-          : action.label,
-    }),
-  );
+  const visibleActions = ACTIONS.filter((action) => {
+    if (actions[action.id] !== true) return false;
+    if (action.id === 'open') {
+      return capabilities.viewer === true && capabilities.openViewer === true;
+    }
+    if (action.id === 'favorite') {
+      return capabilities.favorites === true && typeof state.favorite === 'boolean';
+    }
+    return true;
+  }).map((action) =>
+      Object.freeze({
+        ...action,
+        label:
+          action.id === 'favorite' && state.favorite === true
+            ? 'Remover dos Favoritos'
+            : action.label,
+      }),
+    );
   const normalizedVersions = versions.map((version) => {
     if (!plainObject(version) || typeof version.versionId !== 'string') {
       throw new TypeError('Versão documental inválida.');
@@ -95,10 +108,25 @@ export function buildDetailViewModel(state, versions = []) {
   return Object.freeze({
     status: state.status,
     document,
-    favorite: state.favorite === true,
+    favorite: typeof state.favorite === 'boolean' ? state.favorite : null,
     actions: Object.freeze(visibleActions),
     versions: Object.freeze(normalizedVersions),
     busy: state.status === 'loading' || state.status === 'saving',
+    actionsDisabled: state.status !== 'ready',
+    canReload:
+      document !== null && (state.status === 'conflict' || state.status === 'error'),
+    message:
+      state.status === 'conflict' || state.status === 'error'
+        ? state.error?.message || 'Não foi possível concluir a operação.'
+        : null,
+    pending: plainObject(state.pending)
+      ? Object.freeze({
+          ...state.pending,
+          values: plainObject(state.pending.values)
+            ? Object.freeze({ ...state.pending.values })
+            : Object.freeze({}),
+        })
+      : null,
   });
 }
 
@@ -118,8 +146,29 @@ function button(documentRef, label, action, options = {}) {
   element.dataset.action = action;
   if (options.documentId) element.dataset.documentId = options.documentId;
   if (options.versionId) element.dataset.versionId = options.versionId;
+  if (options.ariaLabel) element.setAttribute('aria-label', options.ariaLabel);
   if (options.disabled) element.disabled = true;
   return element;
+}
+
+export function shouldRestoreCatalogFocus(origin, activeElement, body) {
+  return Boolean(
+    activeElement === origin ||
+      (origin?.isConnected === false && (!activeElement || activeElement === body)),
+  );
+}
+
+export function resolveCatalogFocusIntent(previousIntent, origin, activeElement, body) {
+  if (
+    activeElement &&
+    activeElement !== body &&
+    activeElement !== origin
+  ) {
+    return false;
+  }
+  if (previousIntent === false) return false;
+  if (previousIntent === true) return true;
+  return shouldRestoreCatalogFocus(origin, activeElement, body);
 }
 
 function formatDate(value) {
@@ -136,6 +185,15 @@ function formatDate(value) {
 export function createDocumentosView(options = {}) {
   const documentRef = options.documentRef ?? globalThis.document;
   const renderState = options.renderState ?? (() => {});
+  const features = plainObject(options.features) ? options.features : Object.freeze({});
+  const favoritesEnabled = features.favorites === true;
+  const canUpload = options.canUpload === true;
+  const onActionError =
+    options.onActionError ??
+    (() =>
+      renderState('error', 'Não foi possível concluir a ação solicitada.', {
+        controlsEnabled: true,
+      }));
   if (!documentRef?.querySelector || typeof renderState !== 'function') {
     throw new TypeError('Dependências obrigatórias da apresentação estão ausentes.');
   }
@@ -151,10 +209,15 @@ export function createDocumentosView(options = {}) {
   const filtersForm = documentRef.querySelector('.docs-filters__form');
   const searchForm = documentRef.querySelector('.docs-search');
   const searchInput = documentRef.querySelector('#docs-search');
+  const uploadButton = documentRef.querySelector('#docs-upload');
+  const favoritesNavigation = documentRef.querySelector('[data-view="favoritos"]');
   const collectionFilter = documentRef.querySelector('#docs-collection-filter');
   const tagFilter = documentRef.querySelector('#docs-tag-filter');
   const classificationFilter = documentRef.querySelector('#docs-classification-filter');
   const lifecycleFilter = documentRef.querySelector('#docs-lifecycle-filter');
+  const backgroundElements = [
+    ...documentRef.querySelectorAll('.skip-link, .docs-topbar, #docs-main, .docs-footer'),
+  ];
   if (!content || !loadMore || !detailRoot || !detailPanel || !detailContent || !detailActions || !versionList) {
     throw new TypeError('Shell de apresentação incompleto.');
   }
@@ -164,6 +227,51 @@ export function createDocumentosView(options = {}) {
   let lastDetailState = null;
   let versions = Object.freeze([]);
   let cleanup = [];
+  let pendingActionFocus = null;
+  let pendingCatalogFocus = null;
+
+  function dispatch(action) {
+    Promise.resolve()
+      .then(action)
+      .catch((error) => {
+        if (error?.code === 'request_aborted') return;
+        onActionError(error);
+      });
+  }
+
+  function setBackgroundInert(value) {
+    for (const element of backgroundElements) {
+      element.inert = value;
+      if (value) element.setAttribute?.('aria-hidden', 'true');
+      else element.removeAttribute?.('aria-hidden');
+    }
+  }
+
+  function syncFeatureControls() {
+    if (uploadButton) {
+      const enabled =
+        features.upload === true &&
+        canUpload &&
+        typeof boundHandlers?.openUpload === 'function';
+      uploadButton.hidden = !enabled;
+      uploadButton.disabled = !enabled;
+    }
+    if (favoritesNavigation) {
+      const enabled = favoritesEnabled && Boolean(boundHandlers);
+      favoritesNavigation.hidden = !enabled;
+      favoritesNavigation.disabled = !enabled;
+    }
+  }
+
+  function selectNavigation(viewName = 'documentos') {
+    for (const navigation of documentRef.querySelectorAll('[data-view]')) {
+      if (navigation.dataset.view === viewName) {
+        navigation.setAttribute('aria-current', 'page');
+      } else {
+        navigation.removeAttribute('aria-current');
+      }
+    }
+  }
 
   function listen(target, event, handler) {
     target?.addEventListener?.(event, handler);
@@ -198,26 +306,71 @@ export function createDocumentosView(options = {}) {
     replaceSelectOptions(tagFilter, metadata.tags, 'tagId', 'name', 'Todas as Tags');
   }
 
+  function setFilters(filters = {}) {
+    if (collectionFilter) collectionFilter.value = filters.collectionId ?? '';
+    if (tagFilter) tagFilter.value = filters.tagId ?? '';
+    if (classificationFilter) classificationFilter.value = filters.classification ?? '';
+    if (lifecycleFilter) lifecycleFilter.value = filters.lifecycleStatus ?? '';
+  }
+
   function showContent() {
     const status = documentRef.querySelector('#docs-status');
     if (status) status.hidden = true;
     content.hidden = false;
   }
 
+  function captureCatalogFocusIntent() {
+    if (!pendingCatalogFocus) return;
+    pendingCatalogFocus.shouldRestore = resolveCatalogFocusIntent(
+      pendingCatalogFocus.shouldRestore,
+      pendingCatalogFocus.origin,
+      documentRef.activeElement,
+      documentRef.body,
+    );
+  }
+
+  function restoreCatalogFocus() {
+    if (!pendingCatalogFocus) return;
+    captureCatalogFocusIntent();
+    const origin = pendingCatalogFocus.origin;
+    const shouldRestore = pendingCatalogFocus.shouldRestore === true;
+    if (!shouldRestore) {
+      pendingCatalogFocus = null;
+      return;
+    }
+    const replacement = [...content.querySelectorAll('[data-action]')].find(
+      (element) =>
+        element.dataset.action === pendingCatalogFocus.action &&
+        (
+          pendingCatalogFocus.documentId === null ||
+          element.dataset.documentId === pendingCatalogFocus.documentId
+        ) &&
+        !element.disabled,
+    );
+    const fallback = documentRef.querySelector('[data-view][aria-current="page"]');
+    (replacement ?? fallback)?.focus?.();
+    pendingCatalogFocus = null;
+  }
+
   function renderCatalog(state) {
+    captureCatalogFocusIntent();
     const model = buildCatalogViewModel(state);
     if (model.status === 'loading') {
+      loadMore.hidden = true;
+      loadMore.disabled = true;
       renderState('loading', undefined, { controlsEnabled: true });
       return;
     }
     if (model.status === 'empty') {
       renderState('empty', undefined, { controlsEnabled: true });
       loadMore.hidden = true;
+      restoreCatalogFocus();
       return;
     }
     if (model.status === 'error') {
       renderState('error', undefined, { controlsEnabled: true });
       loadMore.hidden = true;
+      restoreCatalogFocus();
       return;
     }
 
@@ -255,16 +408,21 @@ export function createDocumentosView(options = {}) {
         button(documentRef, 'Ver Detalhes', 'open-detail', {
           documentId: item.documentId,
           className: 'docs-button docs-button--secondary',
+          ariaLabel: `Ver detalhes de ${item.title}`,
         }),
       );
-      if (typeof item.favorite === 'boolean') {
+      if (favoritesEnabled && typeof item.favorite === 'boolean') {
         const favoriteButton = button(
           documentRef,
           item.favorite ? 'Remover dos Favoritos' : 'Favoritar',
           'toggle-card-favorite',
-          { documentId: item.documentId },
+          {
+            documentId: item.documentId,
+            ariaLabel: `${item.favorite ? 'Remover dos favoritos' : 'Favoritar'}: ${item.title}`,
+          },
         );
         favoriteButton.dataset.favorite = String(item.favorite);
+        favoriteButton.setAttribute('aria-pressed', String(item.favorite));
         actions.append(favoriteButton);
       }
       article.append(actions);
@@ -274,22 +432,33 @@ export function createDocumentosView(options = {}) {
     showContent();
     loadMore.hidden = !model.hasNextPage;
     loadMore.disabled = !model.hasNextPage;
+    restoreCatalogFocus();
   }
 
   function closeDetail() {
     if (detailRoot.hidden) return;
     detailRoot.hidden = true;
     documentRef.body?.classList?.remove('is-dialog-open');
-    previousFocus?.focus?.();
+    setBackgroundInert(false);
+    const fallbackFocus =
+      documentRef.querySelector('[data-view][aria-current="page"]') ??
+      searchInput ??
+      documentRef.querySelector('#docs-main');
+    const focusTarget =
+      previousFocus && previousFocus.isConnected !== false ? previousFocus : fallbackFocus;
+    focusTarget?.focus?.();
     previousFocus = null;
+    pendingActionFocus = null;
   }
 
   function openDetail() {
-    if (!detailRoot.hidden) return;
-    previousFocus = documentRef.activeElement;
-    detailRoot.hidden = false;
-    documentRef.body?.classList?.add('is-dialog-open');
-    detailPanel.focus();
+    if (detailRoot.hidden) {
+      previousFocus = documentRef.activeElement;
+      detailRoot.hidden = false;
+      documentRef.body?.classList?.add('is-dialog-open');
+      setBackgroundInert(true);
+      detailPanel.focus();
+    }
   }
 
   function detailField(list, label, value) {
@@ -300,7 +469,7 @@ export function createDocumentosView(options = {}) {
     list.append(wrapper);
   }
 
-  function renderEditForm(document) {
+  function renderEditForm(document, values = {}, disabled = false, focus = true) {
     const form = documentRef.createElement('form');
     form.id = 'docs-edit-form';
     form.className = 'docs-inline-form';
@@ -309,20 +478,28 @@ export function createDocumentosView(options = {}) {
     title.name = 'title';
     title.required = true;
     title.maxLength = 500;
-    title.value = document.title;
+    title.value = typeof values.title === 'string' ? values.title : document.title;
+    title.disabled = disabled;
     titleLabel.append(title);
     const descriptionLabel = appendTextElement(documentRef, form, 'label', '', 'Descrição');
     const description = documentRef.createElement('textarea');
     description.name = 'description';
     description.maxLength = 4000;
-    description.value = document.description;
+    description.value =
+      typeof values.description === 'string' ? values.description : document.description;
+    description.disabled = disabled;
     descriptionLabel.append(description);
-    form.append(button(documentRef, 'Salvar Alterações', 'save-metadata', { type: 'submit' }));
+    form.append(
+      button(documentRef, 'Salvar Alterações', 'save-metadata', {
+        type: 'submit',
+        disabled,
+      }),
+    );
     detailContent.append(form);
-    title.focus();
+    if (focus) title.focus();
   }
 
-  function renderDeletionForm() {
+  function renderDeletionForm(values = {}, disabled = false, focus = true) {
     const form = documentRef.createElement('form');
     form.id = 'docs-deletion-form';
     form.className = 'docs-inline-form';
@@ -331,10 +508,17 @@ export function createDocumentosView(options = {}) {
     reason.name = 'reason';
     reason.required = true;
     reason.maxLength = 2000;
+    reason.value = typeof values.reason === 'string' ? values.reason : '';
+    reason.disabled = disabled;
     reasonLabel.append(reason);
-    form.append(button(documentRef, 'Confirmar Solicitação', 'confirm-deletion', { type: 'submit' }));
+    form.append(
+      button(documentRef, 'Confirmar Solicitação', 'confirm-deletion', {
+        type: 'submit',
+        disabled,
+      }),
+    );
     detailContent.append(form);
-    reason.focus();
+    if (focus) reason.focus();
   }
 
   function renderVersions(items = versions) {
@@ -346,7 +530,13 @@ export function createDocumentosView(options = {}) {
     }
     const list = documentRef.createElement('ul');
     list.className = 'docs-version-list';
-    const model = lastDetailState ? buildDetailViewModel(lastDetailState, versions) : null;
+    const model = lastDetailState
+        ? buildDetailViewModel(lastDetailState, versions, {
+          viewer: features.viewer === true,
+          openViewer: typeof boundHandlers?.openViewer === 'function',
+          favorites: favoritesEnabled,
+        })
+      : null;
     for (const version of model?.versions ?? versions) {
       const item = documentRef.createElement('li');
       appendTextElement(
@@ -358,7 +548,12 @@ export function createDocumentosView(options = {}) {
       );
       if (version.canPromote) {
         item.append(
-          button(documentRef, 'Promover', 'promote-version', { versionId: version.versionId }),
+          button(documentRef, 'Promover', 'promote-version', {
+            versionId: version.versionId,
+            documentId: model?.document?.documentId,
+            disabled: model?.actionsDisabled === true,
+            ariaLabel: `Promover versão ${version.versionNumber ?? version.versionId}`,
+          }),
         );
       }
       list.append(item);
@@ -366,19 +561,83 @@ export function createDocumentosView(options = {}) {
     versionList.append(list);
   }
 
+  function renderVersionsError() {
+    versions = Object.freeze([]);
+    versionList.replaceChildren();
+    const message = appendTextElement(
+      documentRef,
+      versionList,
+      'p',
+      'docs-detail-message is-error',
+      'Não foi possível carregar o histórico de versões.',
+    );
+    message.setAttribute('role', 'alert');
+  }
+
   function renderDetail(state) {
+    const wasOpen = !detailRoot.hidden;
+    const activeAction =
+      (detailRoot.contains?.(documentRef.activeElement)
+        ? documentRef.activeElement?.dataset?.action ?? null
+        : null) ?? pendingActionFocus;
+    if (state.status === 'loading') {
+      versions = Object.freeze([]);
+      renderVersions([]);
+    }
     lastDetailState = state;
-    const model = buildDetailViewModel(state, versions);
+    const model = buildDetailViewModel(state, versions, {
+      viewer: features.viewer === true,
+      openViewer: typeof boundHandlers?.openViewer === 'function',
+      favorites: favoritesEnabled,
+    });
+    if (model.busy) detailPanel.setAttribute('aria-busy', 'true');
+    else detailPanel.removeAttribute('aria-busy');
     if (!model.document) {
-      if (state.status === 'loading') {
-        detailContent.replaceChildren();
-        appendTextElement(documentRef, detailContent, 'p', 'docs-muted', 'Carregando Detalhes.');
-        openDetail();
+      if (detailTitle) detailTitle.textContent = 'Detalhes do Documento';
+      detailContent.replaceChildren();
+      detailActions.replaceChildren();
+      renderVersions([]);
+      const message =
+        state.status === 'loading'
+          ? 'Carregando Detalhes.'
+          : model.message || 'Não foi possível carregar os detalhes.';
+      const messageElement = appendTextElement(
+        documentRef,
+        detailContent,
+        'p',
+        state.status === 'loading' ? 'docs-muted' : 'docs-detail-message',
+        message,
+      );
+      if (state.status !== 'loading') messageElement.setAttribute('role', 'alert');
+      openDetail();
+      if (wasOpen) {
+        const close = detailRoot.querySelector('[data-action="close-detail"]');
+        (close ?? detailPanel).focus();
       }
       return;
     }
     if (detailTitle) detailTitle.textContent = model.document.title;
     detailContent.replaceChildren();
+    if (model.message) {
+      const messageElement = appendTextElement(
+        documentRef,
+        detailContent,
+        'p',
+        `docs-detail-message is-${state.status}`,
+        model.message,
+      );
+      messageElement.setAttribute('role', 'alert');
+    }
+    if (state.status === 'saving') {
+      const savingMessage = appendTextElement(
+        documentRef,
+        detailContent,
+        'p',
+        'docs-muted',
+        'Salvando alterações.',
+      );
+      savingMessage.setAttribute('role', 'status');
+    }
     const description = appendTextElement(
       documentRef,
       detailContent,
@@ -398,17 +657,45 @@ export function createDocumentosView(options = {}) {
     detailActions.replaceChildren();
     for (const action of model.actions) {
       const actionButton = button(documentRef, action.label, action.id, {
-        disabled: model.busy,
+        disabled: model.actionsDisabled,
+        documentId: model.document.documentId,
         className:
           action.id === 'requestDeletion'
             ? 'docs-button docs-button--danger'
             : 'docs-button docs-button--secondary',
       });
-      if (action.id === 'favorite') actionButton.dataset.favorite = String(model.favorite);
+      if (action.id === 'favorite') {
+        actionButton.dataset.favorite = String(model.favorite);
+        actionButton.setAttribute('aria-pressed', String(model.favorite));
+      }
       detailActions.append(actionButton);
     }
+    if (model.canReload) {
+      detailActions.append(
+        button(documentRef, 'Recarregar Documento', 'reload-detail', {
+          documentId: model.document.documentId,
+        }),
+      );
+    }
     renderVersions(model.versions);
+    if (model.pending?.type === 'metadata') {
+      renderEditForm(model.document, model.pending.values, true, false);
+    }
+    if (model.pending?.type === 'deletion') {
+      renderDeletionForm(model.pending.values, true, false);
+    }
     openDetail();
+    if (wasOpen) {
+      const availableActions = [...detailRoot.querySelectorAll('[data-action]')];
+      const replacement = availableActions.find(
+        (element) => element.dataset.action === activeAction && !element.disabled,
+      );
+      const reload = availableActions.find(
+        (element) => element.dataset.action === 'reload-detail' && !element.disabled,
+      );
+      (replacement ?? reload ?? detailPanel).focus();
+      if (state.status !== 'saving') pendingActionFocus = null;
+    }
   }
 
   function renderRecent(items) {
@@ -421,6 +708,9 @@ export function createDocumentosView(options = {}) {
   }
 
   function renderCollections(items) {
+    captureCatalogFocusIntent();
+    loadMore.hidden = true;
+    loadMore.disabled = true;
     if (items.length === 0) {
       renderState('empty', 'Nenhuma coleção está disponível.', { controlsEnabled: true });
       return;
@@ -432,14 +722,15 @@ export function createDocumentosView(options = {}) {
       const card = documentRef.createElement('article');
       card.className = 'docs-collection-card';
       appendTextElement(documentRef, card, 'h3', '', item.name);
-      const open = button(documentRef, 'Ver Documentos', 'open-collection');
+      const open = button(documentRef, 'Ver Documentos', 'open-collection', {
+        ariaLabel: `Ver documentos da coleção ${item.name}`,
+      });
       open.dataset.collectionId = item.collectionId;
       card.append(open);
       list.append(card);
     }
     content.append(list);
     showContent();
-    loadMore.hidden = true;
   }
 
   function formFilters() {
@@ -453,75 +744,177 @@ export function createDocumentosView(options = {}) {
   function bind(handlers) {
     if (boundHandlers) throw new TypeError('Apresentação já vinculada.');
     boundHandlers = handlers;
+    selectNavigation('documentos');
+    syncFeatureControls();
 
     listen(searchForm, 'submit', (event) => {
       event.preventDefault();
+      pendingCatalogFocus = null;
       const query = searchInput?.value?.trim();
-      if (query) handlers.search(query);
-      else handlers.navigate('documentos');
+      selectNavigation('documentos');
+      dispatch(() => (query ? handlers.search(query) : handlers.navigate('documentos')));
     });
     listen(filtersForm, 'submit', (event) => {
       event.preventDefault();
-      handlers.applyFilters(formFilters());
+      pendingCatalogFocus = null;
+      selectNavigation('documentos');
+      dispatch(() => handlers.applyFilters(formFilters()));
     });
     listen(filtersForm, 'reset', () => {
-      globalThis.queueMicrotask(() => handlers.applyFilters({}));
+      globalThis.queueMicrotask(() => {
+        pendingCatalogFocus = null;
+        selectNavigation('documentos');
+        dispatch(() => handlers.applyFilters({}));
+      });
     });
-    listen(loadMore, 'click', () => handlers.loadNext());
+    listen(loadMore, 'click', () => dispatch(() => handlers.loadNext()));
+    listen(uploadButton, 'click', () => dispatch(() => handlers.openUpload?.()));
     for (const navigation of documentRef.querySelectorAll('[data-view]')) {
-      listen(navigation, 'click', () => handlers.navigate(navigation.dataset.view));
+      listen(navigation, 'click', () => {
+        if (navigation.disabled) return;
+        pendingCatalogFocus = null;
+        selectNavigation(navigation.dataset.view);
+        dispatch(() => handlers.navigate(navigation.dataset.view));
+      });
     }
     listen(content, 'click', (event) => {
       const target = event.target.closest?.('[data-action]');
-      if (!target) return;
+      if (!target || target.disabled) return;
       const documentId = target.dataset.documentId;
       if (target.dataset.action === 'open-detail') {
-        const favorite = target.closest('[data-document-id]')
-          ?.querySelector('[data-action="toggle-card-favorite"]')
-          ?.dataset.favorite === 'true';
-        handlers.openDocument(documentId, { favorite });
+        pendingCatalogFocus = null;
+        const favoriteControl = target.closest('[data-document-id]')
+          ?.querySelector('[data-action="toggle-card-favorite"]');
+        const loadOptions = favoriteControl
+          ? { favorite: favoriteControl.dataset.favorite === 'true' }
+          : {};
+        dispatch(() => handlers.openDocument(documentId, loadOptions));
       }
       if (target.dataset.action === 'toggle-card-favorite') {
-        handlers.openDocument(documentId, { favorite: target.dataset.favorite === 'true' }).then(() =>
-          handlers.setFavorite(target.dataset.favorite !== 'true'),
-        );
+        if (!favoritesEnabled) return;
+        const nextFavorite = target.dataset.favorite !== 'true';
+        pendingCatalogFocus = {
+          action: target.dataset.action,
+          documentId,
+          origin: target,
+        };
+        target.disabled = true;
+        target.setAttribute('aria-busy', 'true');
+        dispatch(async () => {
+          try {
+            return await handlers.toggleCardFavorite?.(nextFavorite, documentId, {
+              favorite: target.dataset.favorite === 'true',
+            });
+          } catch (error) {
+            const shouldMoveFocus = shouldRestoreCatalogFocus(
+              target,
+              documentRef.activeElement,
+              documentRef.body,
+            );
+            pendingCatalogFocus = null;
+            onActionError(error);
+            if (shouldMoveFocus) {
+              documentRef
+                .querySelector('[data-view][aria-current="page"]')
+                ?.focus?.();
+            }
+            return null;
+          } finally {
+            if (target.isConnected !== false) {
+              target.disabled = false;
+              target.removeAttribute('aria-busy');
+            }
+          }
+        });
       }
       if (target.dataset.action === 'open-collection') {
-        handlers.applyFilters({ collectionId: target.dataset.collectionId });
+        pendingCatalogFocus = {
+          action: target.dataset.action,
+          documentId: null,
+          origin: target,
+        };
+        selectNavigation('documentos');
+        dispatch(() => handlers.applyFilters({ collectionId: target.dataset.collectionId }));
       }
     });
     listen(detailRoot, 'click', (event) => {
       const target = event.target.closest?.('[data-action]');
-      if (!target) return;
+      if (!target || target.disabled) return;
       const action = target.dataset.action;
-      if (action === 'close-detail') closeDetail();
-      if (action === 'open') handlers.openViewer?.();
-      if (action === 'favorite') handlers.setFavorite(target.dataset.favorite !== 'true');
+      const documentId =
+        target.dataset.documentId ?? lastDetailState?.detail?.document?.documentId ?? null;
+      if (action === 'close-detail') {
+        closeDetail();
+        dispatch(() => handlers.closeDocument?.());
+      }
+      if (action === 'reload-detail') {
+        pendingActionFocus = action;
+        const loadOptions =
+          typeof lastDetailState?.favorite === 'boolean'
+            ? { favorite: lastDetailState.favorite }
+            : {};
+        dispatch(() =>
+          handlers.openDocument(documentId, loadOptions),
+        );
+      }
+      if (action === 'open') dispatch(() => handlers.openViewer?.(documentId));
+      if (action === 'favorite') {
+        if (!favoritesEnabled) return;
+        pendingActionFocus = action;
+        dispatch(() =>
+          handlers.setFavorite(target.dataset.favorite !== 'true', documentId),
+        );
+      }
       if (action === 'edit' && lastDetailState?.detail?.document) {
         renderEditForm(lastDetailState.detail.document);
       }
-      if (action === 'archive') handlers.archive();
-      if (action === 'restore') handlers.restore();
+      if (action === 'archive') {
+        pendingActionFocus = action;
+        dispatch(() => handlers.archive(documentId));
+      }
+      if (action === 'restore') {
+        pendingActionFocus = action;
+        dispatch(() => handlers.restore(documentId));
+      }
       if (action === 'requestDeletion') renderDeletionForm();
-      if (action === 'promote-version') handlers.promoteVersion(target.dataset.versionId);
+      if (action === 'promote-version') {
+        pendingActionFocus = action;
+        dispatch(() => handlers.promoteVersion(target.dataset.versionId, documentId));
+      }
     });
     listen(detailRoot, 'submit', (event) => {
       event.preventDefault();
       const data = new FormData(event.target);
       if (event.target.id === 'docs-edit-form') {
-        handlers.updateMetadata({
-          title: String(data.get('title') ?? ''),
-          description: String(data.get('description') ?? ''),
-        });
+        pendingActionFocus = 'edit';
+        const documentId = lastDetailState?.detail?.document?.documentId ?? null;
+        dispatch(() =>
+          handlers.updateMetadata(
+            {
+              title: String(data.get('title') ?? ''),
+              description: String(data.get('description') ?? ''),
+            },
+            documentId,
+          ),
+        );
       }
       if (event.target.id === 'docs-deletion-form') {
-        handlers.requestDeletion(String(data.get('reason') ?? ''));
+        pendingActionFocus = 'requestDeletion';
+        const documentId = lastDetailState?.detail?.document?.documentId ?? null;
+        dispatch(() =>
+          handlers.requestDeletion(String(data.get('reason') ?? ''), documentId),
+        );
       }
     });
     listen(detailRoot, 'keydown', (event) => {
-      if (event.key === 'Escape') closeDetail();
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDetail();
+        dispatch(() => handlers.closeDocument?.());
+        return;
+      }
       if (event.key !== 'Tab') return;
-      const focusable = [...detailRoot.querySelectorAll('button:not(:disabled), input, textarea, select, [tabindex]:not([tabindex="-1"])')]
+      const focusable = [...detailRoot.querySelectorAll('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
         .filter((element) => !element.hidden);
       if (focusable.length === 0) return;
       const first = focusable[0];
@@ -537,32 +930,56 @@ export function createDocumentosView(options = {}) {
 
     return () => {
       for (const remove of cleanup.splice(0)) remove();
+      selectNavigation('documentos');
       boundHandlers = null;
+      syncFeatureControls();
     };
+  }
+
+  function clearSensitiveState() {
+    closeDetail();
+    setBackgroundInert(false);
+    content.replaceChildren();
+    content.hidden = true;
+    detailContent.replaceChildren();
+    detailActions.replaceChildren();
+    versionList.replaceChildren();
+    if (detailTitle) detailTitle.textContent = 'Documento';
+    if (searchInput) searchInput.value = '';
+    replaceSelectOptions(
+      collectionFilter,
+      [],
+      'collectionId',
+      'name',
+      'Todas as Coleções',
+    );
+    replaceSelectOptions(tagFilter, [], 'tagId', 'name', 'Todas as Tags');
+    if (classificationFilter) classificationFilter.value = '';
+    if (lifecycleFilter) lifecycleFilter.value = '';
+    loadMore.hidden = true;
+    loadMore.disabled = true;
+    versions = Object.freeze([]);
+    lastDetailState = null;
+    pendingActionFocus = null;
+    pendingCatalogFocus = null;
+    syncFeatureControls();
   }
 
   return Object.freeze({
     bind,
     setMetadata,
+    setFilters,
     renderCatalog,
     renderDetail,
     renderVersions,
+    renderVersionsError,
     renderRecent,
     renderCollections,
-    clearSensitiveState() {
-      closeDetail();
-      content.replaceChildren();
-      detailContent.replaceChildren();
-      detailActions.replaceChildren();
-      versionList.replaceChildren();
-      loadMore.hidden = true;
-      versions = Object.freeze([]);
-      lastDetailState = null;
-    },
+    clearSensitiveState,
     destroy() {
       for (const remove of cleanup.splice(0)) remove();
       boundHandlers = null;
-      closeDetail();
+      clearSensitiveState();
     },
   });
 }

@@ -18,8 +18,8 @@ const VALID_CONFIG = Object.freeze({
   features: {
     favorites: true,
     offline: false,
-    upload: true,
-    viewer: true,
+    upload: false,
+    viewer: false,
   },
 });
 
@@ -126,7 +126,45 @@ test('gera runtime config e shell com SRI SHA-384 e CSP coerentes', async () => 
     assert.match(generated.shell, new RegExp(`integrity="${integrity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
     assert.match(generated.shell, /crossorigin="anonymous"/);
     assert.match(generated.shell, new RegExp(`script-src[^\"]*'${integrity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`));
+    assert.doesNotMatch(generated.shell, /style-src[^"]*'unsafe-inline'/);
     assert.doesNotMatch(generated.shell, /__DOCUMENTOS_(?:CSP|RUNTIME_INTEGRITY)__/);
+  });
+});
+
+test('CSP habilitada permite somente API documental e origem pública do Hub Auth', async () => {
+  const config = {
+    ...VALID_CONFIG,
+    enabled: true,
+    apiBaseUrl: 'https://hub.grupocsv.com',
+    enabledPortals: ['unimed'],
+  };
+  const registry = {
+    schemaVersion: 1,
+    tenants: [{ portal: 'unimed', enabled: true, href: '/documentos/' }],
+  };
+
+  await withFixture({ config, registry }, async (root) => {
+    const result = runGenerator(root);
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    const { shell } = await readGeneratedSet(root);
+    const csp = shell.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+    assert.ok(csp);
+    const connectSources = csp
+      .split('; ')
+      .find((directive) => directive.startsWith('connect-src '))
+      ?.split(' ')
+      .slice(1);
+
+    assert.deepEqual(connectSources, [
+      "'self'",
+      'https://hub.grupocsv.com',
+      'https://csv-auth.guilherme-thom.workers.dev',
+    ]);
+    assert.doesNotMatch(
+      csp,
+      /frame-ancestors/,
+      'frame-ancestors não produz proteção quando entregue por meta CSP',
+    );
   });
 });
 
@@ -142,6 +180,23 @@ test('produz exatamente os mesmos artefatos em execuções consecutivas', async 
 
     assert.deepEqual(secondSet, firstSet);
   });
+});
+
+test('normaliza LF e CRLF para o mesmo shell gerado', async () => {
+  let shellLf;
+  await withFixture({ template: SHELL_TEMPLATE }, async (root) => {
+    const result = runGenerator(root);
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    shellLf = (await readGeneratedSet(root)).shell;
+  });
+  await withFixture(
+    { template: SHELL_TEMPLATE.replaceAll('\n', '\r\n') },
+    async (root) => {
+      const result = runGenerator(root);
+      assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+      assert.equal((await readGeneratedSet(root)).shell, shellLf);
+    },
+  );
 });
 
 test('ignora variável de ambiente como fonte da base da API', async () => {
@@ -251,6 +306,7 @@ test('mantém o conjunto canônico intacto quando a geração falha antes da pro
 test('executa a geração versionada antes do build do Hub', async () => {
   const packageJson = JSON.parse(await readFile(join(REPO_ROOT, 'package.json'), 'utf8'));
   const workflow = await readFile(join(REPO_ROOT, '.github', 'workflows', 'deploy.yml'), 'utf8');
+  const attributes = await readFile(join(REPO_ROOT, '.gitattributes'), 'utf8');
 
   assert.equal(
     packageJson.scripts['documentos:generate'],
@@ -258,7 +314,7 @@ test('executa a geração versionada antes do build do Hub', async () => {
   );
   assert.equal(
     packageJson.scripts['documentos:test'],
-    'node --test tests/documentos/*.test.mjs',
+    'node --test tests/documentos/*.test.mjs tests/hub-auth-corporate.test.mjs',
   );
 
   const generationStep = workflow.indexOf('npm run documentos:generate');
@@ -266,4 +322,25 @@ test('executa a geração versionada antes do build do Hub', async () => {
   assert.ok(generationStep >= 0, 'workflow deve gerar a configuração do Hub Documentos');
   assert.ok(buildStep >= 0, 'workflow deve manter o build VitePress');
   assert.ok(generationStep < buildStep, 'geração segura deve ocorrer antes do build');
+  for (const criticalArtifact of [
+    'documentos/index.html',
+    'documentos/assets/api-client.js',
+    'documentos/assets/app.js',
+    'documentos/assets/catalog.js',
+    'documentos/assets/detail.js',
+    'documentos/assets/documentos.css',
+    'documentos/assets/runtime-config.js',
+    'documentos/assets/session.js',
+    'documentos/assets/view.js',
+    'documentos/assets/workspace.js',
+  ]) {
+    assert.match(workflow, new RegExp(criticalArtifact.replaceAll('.', '\\.')));
+  }
+  assert.match(workflow, /noindex, nofollow ausente em documentos\/index\.html/);
+  assert.match(workflow, /CSP ausente em documentos\/index\.html/);
+  assert.match(workflow, /CSP permissiva em documentos\/index\.html/);
+  assert.match(workflow, /bloqueio de contexto enquadrado ausente/);
+  assert.match(attributes, /\/docs\/public\/documentos\/\*\* text eol=lf/);
+  assert.match(attributes, /\/scripts\/hub-auth\.js text eol=lf/);
+  assert.match(attributes, /\/tests\/documentos\/\*\* text eol=lf/);
 });
