@@ -15,7 +15,7 @@ Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress
 - **Governança e Compliance** - Políticas, termos e documentação de integridade
 - **Fundador** - Informações sobre Guilherme Thomé
 - **Infraestrutura Cognitiva** - Documentação técnica para desenvolvedores e agentes
-- **Produtos do Grupo CSV** - Compass™, Signal™, CMM, Deck™, Relay™, RTAV™, Panta™ e Discovery™
+- **Produtos do Grupo CSV** - Compass™, Signal™, CMM, Themis™, Deck™, Relay™, RTAV™, Panta™ e Discovery™
 
 ---
 
@@ -29,7 +29,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | :--- | :--- | :--- | :--- |
 | **Página Estática** | Informar | Não | `compliance/*`, `founder/`, `thera/`, `medvalor/` |
 | **Ferramenta (Tool)** | Executar tarefa específica | Opcional | `axia/nota-fiscal.html`, `axia/reembolso.html`, `unihealth/calc-plantao.html` |
-| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `cmm.grupocsv.com` |
+| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `cmm.grupocsv.com`, `themis.grupocsv.com` |
 | **Painel BI** | Visualizar e analisar dados | Sim | `unimed/onco.html`, `unimed/painel-onco-vo.html` |
 | **Portal** | Ponto de acesso unificado | Sim | `hub.grupocsv.com` (visão futura) |
 
@@ -66,6 +66,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | Compass™ | `compass/` | **Página Estática** | Grupo CSV | Ativo |
 | Signal™ | `signal/` | **Página Estática** | Grupo CSV | Ativo |
 | CMM | [cmm.grupocsv.com](https://cmm.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
+| Themis™ | [themis.grupocsv.com](https://themis.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
 | Deck™ | [deck.grupocsv.com](https://deck.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
 | Relay™ | [relay.axcare.com.br](https://relay.axcare.com.br) | **WebApp** | Grupo CSV | Ativo |
 | RTAV™ | [rtav.axcare.app](https://rtav.axcare.app) | **WebApp** | Grupo CSV | Ativo |
@@ -189,6 +190,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 
 - **Data Set TEA:** [p/tea-dataset/](https://hub.grupocsv.com/p/tea-dataset/) — Coleta de dados multi-tenant para TEA (ICDS)
 - **CMM:** [cmm.grupocsv.com](https://cmm.grupocsv.com) — catálogo versionado de materiais e medicamentos, com publicações TNUMM como fonte canônica atual
+- **Themis™:** [themis.grupocsv.com](https://themis.grupocsv.com) — gestão médico-jurídica baseada em evidências documentais
 
 ---
 
@@ -200,6 +202,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 | `csv-ai` | Assistente de IA contextual | D1, AI Gateway |
 | `csv-email` | Envio de e-mails e persistência de formulários | D1, Resend |
 | `tnumm` | WebApp, API e atualização governada do CMM | D1 `tnumm-control`, R2 `tnumm-evidence` |
+| `themis` | WebApp médico-jurídico interno e processamento durável | Workflow `themis-processing`, R2 `themis-private`, Supabase |
 
 ---
 

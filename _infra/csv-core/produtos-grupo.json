@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-22",
+  "updated_at": "2026-07-25",
   "scope": "grupo_csv",
   "products": [
     {
@@ -24,6 +24,13 @@
       "url": "https://cmm.grupocsv.com",
       "infra_doc": "/_infra/ferramentas/cmm",
       "source_note": "Fonte canônica atual: publicações oficiais TNUMM"
+    },
+    {
+      "id": "themis",
+      "name": "Themis™",
+      "descriptor": "Gestão Médico-Jurídica Baseada em Evidências",
+      "url": "https://themis.grupocsv.com",
+      "infra_doc": "/_infra/ferramentas/themis"
     },
     {
       "id": "deck",

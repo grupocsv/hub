@@ -120,7 +120,7 @@ head:
 }
 .hub-hero .hero-group-btns.products {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
 }
@@ -474,7 +474,7 @@ head:
   .hub-hero .hero-groups { gap: 20px; }
   .hub-hero .hero-group-divider { display: none; }
   .hub-hero .hero-group-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
-  .hub-hero .hero-group-btns.products { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 360px; }
+  .hub-hero .hero-group-btns.products { grid-template-columns: 1fr; max-width: 360px; }
   .hub-hero .hero-group-btns.governance { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 360px; }
   .hub-hero .hero-group-btns .hero-btn { width: 100%; text-align: center; max-width: none; padding: 10px 12px; font-size: 0.82rem; }
   .hub-hero .hero-group-btns .hero-btn.admin { grid-column: 1 / -1; max-width: 160px; justify-self: center; }
@@ -557,6 +557,7 @@ head:
             <a href="/compass/" class="hero-btn secondary" data-product-id="compass">Compass™</a>
             <a href="/signal/" class="hero-btn secondary" data-product-id="signal">Signal™</a>
             <a href="https://cmm.grupocsv.com" class="hero-btn secondary" data-product-id="cmm">CMM</a>
+            <a href="https://themis.grupocsv.com" class="hero-btn secondary" data-product-id="themis">Themis™</a>
             <a href="https://deck.grupocsv.com" class="hero-btn secondary" data-product-id="deck">Deck™</a>
             <a href="https://relay.axcare.com.br" class="hero-btn secondary" data-product-id="relay">Relay™</a>
             <a href="https://rtav.axcare.app" class="hero-btn secondary" data-product-id="rtav">RTAV™</a>

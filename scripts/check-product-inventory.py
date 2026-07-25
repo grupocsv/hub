@@ -27,7 +27,17 @@ def main() -> int:
     products = payload.get("products", [])
     errors: list[str] = []
 
-    expected_ids = ["compass", "signal", "cmm", "deck", "relay", "rtav", "panta", "discovery"]
+    expected_ids = [
+        "compass",
+        "signal",
+        "cmm",
+        "themis",
+        "deck",
+        "relay",
+        "rtav",
+        "panta",
+        "discovery",
+    ]
     ids = [product.get("id") for product in products]
     names = [product.get("name") for product in products]
     if ids != expected_ids:
@@ -42,6 +52,7 @@ def main() -> int:
     config = read("docs/.vitepress/config.mts")
     nav = config.split("sidebar:", 1)[0]
     readme = read("README.md")
+    taxonomy = read("_infra/csv-core/taxonomia-produtos.md")
     axia_sources = {
         "docs/axia/index.md": read("docs/axia/index.md"),
         "axia/index.html": read("axia/index.html"),
@@ -78,8 +89,10 @@ def main() -> int:
         errors.append("a dobra adicional rejeitada ainda existe")
     if re.search(r">\s*TNUMM\s*<", home):
         errors.append("TNUMM ainda aparece como identidade de produto na página inicial")
-    if "repeat(4, minmax(0, 1fr))" not in home or "repeat(2, minmax(0, 1fr))" not in home:
-        errors.append("a grade homogênea 4 × 2 no desktop e 2 × 4 no mobile não está declarada")
+    if "repeat(3, minmax(0, 1fr))" not in home or (
+        ".hero-group-btns.products { grid-template-columns: 1fr;" not in home
+    ):
+        errors.append("a grade homogênea 3 × 3 no desktop e 1 × 9 no mobile não está declarada")
 
     if "{ text: 'Produtos', link: '/#produtos-do-grupo' }" not in nav:
         errors.append("a navegação principal não aponta diretamente para o catálogo")
@@ -109,6 +122,8 @@ def main() -> int:
 
     if 'id="svc-cmm"' not in admin or "https://cmm.grupocsv.com/api/health" not in admin:
         errors.append("o Admin não monitora o health do CMM")
+    if 'id="svc-themis"' not in admin or "https://themis.grupocsv.com/api/health" not in admin:
+        errors.append("o Admin não monitora o health da Themis™")
     if admin != admin_mirror:
         errors.append("admin/index.html e docs/public/admin/index.html estão divergentes")
 
@@ -123,8 +138,23 @@ def main() -> int:
         if value not in infra:
             errors.append(f"Infra incompleta para o CMM: {value}")
 
+    required_themis_infra = (
+        "themis.grupocsv.com",
+        "themis-processing",
+        "themis-private",
+        "hstoxemjhpdltzwrmbkf",
+        "axiacare/themis",
+    )
+    for value in required_themis_infra:
+        if value not in infra:
+            errors.append(f"Infra incompleta para a Themis™: {value}")
+
     if "https://cmm.grupocsv.com" not in readme or "| CMM |" not in readme:
         errors.append("README não registra o CMM e seu domínio canônico")
+    if "https://themis.grupocsv.com" not in readme or "| Themis™ |" not in readme:
+        errors.append("README não registra a Themis™ e seu domínio canônico")
+    if "| `themis.grupocsv.com` | **WebApp** |" not in taxonomy:
+        errors.append("a taxonomia não classifica a Themis™ como WebApp")
     if re.search(r"\*\*TNUMM\*\*|\|\s*TNUMM\s*\|", readme):
         errors.append("README ainda trata TNUMM como produto")
 

@@ -131,6 +131,7 @@ export default defineConfig({
             { text: 'Compass\u2122', link: '/_infra/ferramentas/compass' },
             { text: 'Signal\u2122', link: '/_infra/ferramentas/signal' },
             { text: 'CMM', link: '/_infra/ferramentas/cmm' },
+            { text: 'Themis\u2122', link: '/_infra/ferramentas/themis' },
             { text: 'Deck\u2122', link: '/_infra/ferramentas/deck' },
             { text: 'Relay\u2122', link: '/_infra/ferramentas/relay' },
             { text: 'RTAV\u2122', link: '/_infra/ferramentas/rtav' },
