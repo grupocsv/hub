@@ -2,13 +2,13 @@
 
 ## Visão Geral
 
-Themis™ é a ferramenta autoral do Grupo CSV para estruturar casos médico-jurídicos e produzir análises técnicas, relatórios e quesitos de defesa rastreáveis às evidências documentais. A implantação inicial é uma ferramenta interna dedicada à Unimed Governador Valadares.
+Themis™ é a ferramenta interna do Grupo CSV para estruturar casos médico-jurídicos e produzir análises técnicas, relatórios e quesitos de defesa rastreáveis às evidências documentais. A implantação inicial é uma ferramenta interna dedicada à Unimed Governador Valadares.
 
 | Campo | Valor |
 |---|---|
 | Nome | Themis™ |
 | Categoria | WebApp interno |
-| Portfólio | Ferramenta Autoral Genérica do Grupo CSV |
+| Portfólio | Ferramenta reutilizável do Grupo CSV |
 | Cliente inicial | Unimed Governador Valadares |
 | URL canônica | [themis.grupocsv.com](https://themis.grupocsv.com) |
 | Proprietário | Grupo CSV — Cuidados em Saúde com Valor |
