@@ -85,6 +85,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 | `unimed/onco.html` | **Painel BI** | Visualização de dados de oncologia com filtros e gráficos. |
 | `compliance/*` | **Página Estática** | Conteúdo informativo sem interatividade. |
 | `cmm.grupocsv.com` | **WebApp** | Catálogo versionado, autenticação, API e atualização governada. TNUMM é a fonte canônica atual, não a identidade do produto. |
+| `themis.grupocsv.com` | **WebApp** | Casos, documentos, evidências, papéis, processamento durável, revisão e auditoria em uma solução de negócio interna. |
 
 ## Recomendações
 

@@ -1277,6 +1277,20 @@
                             <a href="https://cmm.grupocsv.com" target="_blank" rel="noopener" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">Aplicação</a>
                         </div>
                     </div>
+                    <div class="pw-card" id="svc-themis">
+                        <div class="pw-portal">themis.grupocsv.com</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Themis™ — gestão médico-jurídica baseada em evidências documentais.
+                        </p>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <span id="svc-themis-status" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d1d5db;"></span>
+                            <span id="svc-themis-label" style="font-size: 13px; color: var(--text-secondary);">Verificando...</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="https://themis.grupocsv.com/api/health" target="_blank" rel="noopener" style="font-size: 12px; padding: 6px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Health</a>
+                            <a href="https://themis.grupocsv.com" target="_blank" rel="noopener" style="font-size: 12px; padding: 6px 14px; background: #f3f4f6; color: var(--primary-dark); border-radius: 8px; text-decoration: none; font-weight: 600;">Aplicação</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2687,7 +2701,8 @@ function toggleAdminPw() {
             { id: 'core', url: 'https://core.gabialvim.com.br/health' },
             { id: 'cooperados', url: 'https://cooperados.unimedgv.com/api/stats' },
             { id: 'panta', url: 'https://panta.grupocsv.com/health' },
-            { id: 'cmm', url: 'https://cmm.grupocsv.com/api/health' }
+            { id: 'cmm', url: 'https://cmm.grupocsv.com/api/health' },
+            { id: 'themis', url: 'https://themis.grupocsv.com/api/health' }
         ];
         let onlineCount = 0;
         for (const svc of services) {
