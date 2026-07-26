@@ -21,7 +21,19 @@ const CONFIG_KEYS = new Set([
   'enabledPortals',
   'features',
 ]);
-const FEATURE_KEYS = new Set(['favorites', 'offline', 'upload', 'viewer']);
+const FEATURE_KEYS = new Set([
+  'favorites',
+  'offline',
+  'search',
+  'upload',
+  'viewer',
+]);
+const REQUIRED_FEATURE_KEYS = Object.freeze([
+  'favorites',
+  'offline',
+  'upload',
+  'viewer',
+]);
 const REGISTRY_KEYS = new Set(['schemaVersion', 'tenants']);
 const TENANT_KEYS = new Set(['portal', 'enabled', 'href']);
 const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
@@ -99,11 +111,17 @@ function validateFeatures(value) {
   assertOnlyKeys(value, FEATURE_KEYS, 'em features');
 
   const normalized = {};
-  for (const key of FEATURE_KEYS) {
+  for (const key of REQUIRED_FEATURE_KEYS) {
     if (typeof value[key] !== 'boolean') {
       fail(`Feature pública inválida: ${key}.`);
     }
     normalized[key] = value[key];
+  }
+  if (Object.hasOwn(value, 'search')) {
+    if (typeof value.search !== 'boolean') {
+      fail('Feature pública inválida: search.');
+    }
+    normalized.search = value.search;
   }
   if (normalized.offline) {
     fail('A feature offline permanece indisponível nesta fase.');

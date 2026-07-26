@@ -53,7 +53,8 @@ TENANT_KEYS = frozenset(("portal", "enabled", "href"))
 CONFIG_KEYS = frozenset(
     ("schemaVersion", "enabled", "apiBaseUrl", "enabledPortals", "features")
 )
-FEATURE_KEYS = frozenset(("favorites", "offline", "upload", "viewer"))
+REQUIRED_FEATURE_KEYS = frozenset(("favorites", "offline", "upload", "viewer"))
+FEATURE_KEYS = REQUIRED_FEATURE_KEYS | frozenset(("search",))
 OUTPUT_KEYS = frozenset(("portal", "generatedAt", "totalTools", "tools"))
 OVERRIDE_KEYS = frozenset(("note", "featured", "title"))
 BASELINE_KEYS = frozenset(
@@ -462,7 +463,7 @@ def validate_runtime_config(value: object, registry: dict[str, dict]) -> set[str
     if not is_record(features):
         fail("Objeto de features inválido.")
     assert_only_keys(features, FEATURE_KEYS, "em features")
-    if set(features) != FEATURE_KEYS:
+    if not REQUIRED_FEATURE_KEYS.issubset(features):
         fail("Objeto de features incompleto.")
     for feature, enabled in features.items():
         if not isinstance(enabled, bool):

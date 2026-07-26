@@ -256,7 +256,7 @@ function fixture(overrides = {}) {
     createRecentStore() {
       return recent;
     },
-    features: overrides.features ?? { favorites: true },
+    features: overrides.features ?? { favorites: true, search: true },
     createViewerController(options) {
       viewerOptions = options;
       return viewer;
@@ -279,6 +279,7 @@ function fixture(overrides = {}) {
     calls,
     getHandlers: () => handlers,
     getLifecycleOptions: () => lifecycleOptions,
+    getDetailOptions: () => detailOptions,
     getViewerOptions: () => viewerOptions,
     getUploadOptions: () => uploadOptions,
     emitCatalog: (state) => catalogOptions.onState(state),
@@ -438,6 +439,18 @@ test("orquestra busca, filtros, favoritos e paginação sem filtrar favoritos lo
       ["view.filters", { collectionId: "collection-a", tagId: "tag-a" }],
       ["view.filters", {}],
     ],
+  );
+});
+
+test("busca falha fechado quando features.search está ausente", async () => {
+  const context = fixture({ features: { favorites: true } });
+  await context.workspace.start();
+  context.calls.length = 0;
+
+  assert.equal(await context.getHandlers().search("oncologia"), null);
+  assert.equal(
+    context.calls.some(([name]) => name === "catalog.search"),
+    false,
   );
 });
 
@@ -655,6 +668,101 @@ test("favorito do cartão valida o detalhe sem abrir o modal", async () => {
   );
 });
 
+test("favorito de cartão supersedido não atinge o documento que assumiu a seleção", async () => {
+  const pendingCardLoad = deferred();
+  let controllerDocumentId = null;
+  const favoriteTargets = [];
+  let context;
+  context = fixture({
+    detail: {
+      async load(documentId) {
+        context.calls.push(["detail.load", documentId]);
+        controllerDocumentId = documentId;
+        if (documentId === "document-a") return pendingCardLoad.promise;
+        return {
+          document: {
+            documentId,
+            title: "Documento B",
+            description: "",
+            classification: "internal",
+            lifecycleStatus: "active",
+            indexingPolicy: "metadata_only",
+            updatedAt: "2026-07-24T12:00:00.000Z",
+          },
+          permissions: ["read"],
+        };
+      },
+      async loadVersions() {
+        return [];
+      },
+      async setFavorite(value) {
+        favoriteTargets.push([controllerDocumentId, value]);
+        return value;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const toggle = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await context.workspace.openDocument("document-b");
+  pendingCardLoad.resolve({
+    document: {
+      documentId: "document-a",
+      title: "Documento A",
+      description: "",
+      classification: "internal",
+      lifecycleStatus: "active",
+      indexingPolicy: "metadata_only",
+      updatedAt: "2026-07-24T11:00:00.000Z",
+    },
+    permissions: ["read"],
+  });
+
+  assert.equal(await toggle, null);
+  assert.deepEqual(favoriteTargets, []);
+});
+
+test("bloqueia de forma determinística favoritos concorrentes do mesmo cartão", async () => {
+  const pendingFavorite = deferred();
+  let favoriteRequests = 0;
+  let context;
+  context = fixture({
+    detail: {
+      async setFavorite(value) {
+        favoriteRequests += 1;
+        context.calls.push(["detail.favorite", value]);
+        return pendingFavorite.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const first = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  const second = context.workspace.toggleCardFavorite(
+    false,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+
+  assert.equal(favoriteRequests, 1);
+  assert.equal(await second, null);
+  pendingFavorite.resolve(true);
+  assert.equal(await first, true);
+  assert.equal(favoriteRequests, 1);
+});
+
 test("resultado parcial de busca não contamina snapshot completo de Recentes", async () => {
   const context = fixture();
   await context.workspace.start();
@@ -775,6 +883,91 @@ test("não renderiza versões tardias de A depois que B assume o detalhe", async
   );
 });
 
+test("rejeita histórico explicitamente identificado como pertencente a outro documento", async () => {
+  const context = fixture({
+    detail: {
+      async loadVersions() {
+        return [
+          {
+            documentId: "document-b",
+            versionId: "version-b",
+            publicationStatus: "current",
+          },
+        ];
+      },
+    },
+  });
+  await context.workspace.start();
+  context.calls.length = 0;
+
+  await context.workspace.openDocument("document-a");
+
+  assert.equal(
+    context.calls.some(
+      ([name, versions]) =>
+        name === "view.versions" &&
+        versions.some?.((version) => version.documentId === "document-b"),
+    ),
+    false,
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "view.versions.error"),
+    true,
+  );
+});
+
+test("nova seleção limpa detalhe e versões antes do carregamento e mantém erro neutro", async () => {
+  const pendingDocument = deferred();
+  let context;
+  context = fixture({
+    detail: {
+      async load(documentId) {
+        if (documentId === "document-b") return pendingDocument.promise;
+        const loaded = {
+          document: {
+            documentId,
+            title: "Documento A",
+            description: "Conteúdo anterior.",
+            classification: "internal",
+            lifecycleStatus: "active",
+            indexingPolicy: "metadata_only",
+            updatedAt: "2026-07-24T11:00:00.000Z",
+          },
+          permissions: ["read", "update_metadata"],
+        };
+        context.getDetailOptions().onState({
+          status: "ready",
+          documentId,
+          detail: loaded,
+          actions: { open: true, edit: true },
+        });
+        return loaded;
+      },
+    },
+  });
+  await context.workspace.start();
+  await context.workspace.openDocument("document-a");
+  context.calls.length = 0;
+
+  const opening = context.workspace.openDocument("document-b");
+  await Promise.resolve();
+  const loading = context.calls
+    .filter(([name]) => name === "view.detail")
+    .at(-1)?.[1];
+  assert.equal(loading?.status, "loading");
+  assert.equal(loading?.documentId, "document-b");
+  assert.equal(loading?.detail, null);
+
+  pendingDocument.reject(new Error("detalhe indisponível"));
+  await assert.rejects(() => opening, /detalhe indisponível/i);
+  const failed = context.calls
+    .filter(([name]) => name === "view.detail")
+    .at(-1)?.[1];
+  assert.equal(failed?.status, "error");
+  assert.equal(failed?.documentId, "document-b");
+  assert.equal(failed?.detail, null);
+});
+
 test("flag de favoritos desligado impede navegação e mutação também no workspace", async () => {
   const context = fixture({ features: { favorites: false } });
   await context.workspace.start();
@@ -885,6 +1078,86 @@ test("pagehide e destruição limpam estado sensível sem request automático co
   ]);
   assert.ok(context.calls.some(([name]) => name === "catalog.destroy"));
   assert.ok(context.calls.some(([name]) => name === "detail.destroy"));
+});
+
+test("pagehide invalida callbacks tardios de catálogo e detalhe", async () => {
+  const context = fixture();
+  await context.workspace.start();
+  const lifecycle = context.getLifecycleOptions();
+  lifecycle.cancelActive();
+  lifecycle.clearSensitiveState("pagehide");
+  const clearIndex = context.calls.findLastIndex(
+    ([name]) => name === "view.clear",
+  );
+
+  context.emitCatalog({
+    status: "ready",
+    mode: "catalog",
+    items: [
+      {
+        documentId: "document-antigo",
+        title: "Documento Antigo",
+        description: "",
+        classification: "internal",
+        lifecycleStatus: "active",
+        updatedAt: "2026-07-24T10:00:00.000Z",
+        favorite: false,
+      },
+    ],
+    nextCursor: null,
+  });
+  context.getDetailOptions().onState({
+    status: "ready",
+    documentId: "document-antigo",
+    detail: {
+      document: {
+        documentId: "document-antigo",
+        title: "Documento Antigo",
+      },
+      permissions: ["read"],
+    },
+    actions: { open: true },
+  });
+
+  assert.equal(
+    context.calls
+      .slice(clearIndex + 1)
+      .some(([name]) => name === "view.catalog" || name === "view.detail"),
+    false,
+  );
+});
+
+test("callback tardio de mutação não substitui a seleção atual", async () => {
+  const context = fixture();
+  await context.workspace.start();
+  await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
+
+  context.getDetailOptions().onState({
+    status: "ready",
+    documentId: "document-a",
+    detail: {
+      document: {
+        documentId: "document-a",
+        title: "Documento A Tardio",
+        updatedAt: "2026-07-24T13:00:00.000Z",
+      },
+      permissions: ["read", "update_metadata"],
+    },
+    actions: { open: true, edit: true },
+  });
+
+  assert.equal(
+    context.calls.some(([name]) => name === "view.detail"),
+    false,
+  );
+  assert.equal(
+    context.calls.some(
+      ([name, documentId]) =>
+        name === "recent.record" && documentId === "document-a",
+    ),
+    false,
+  );
 });
 
 test("pagehide ignora qualquer estado tardio do upload anterior", async () => {

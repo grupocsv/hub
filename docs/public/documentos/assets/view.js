@@ -236,6 +236,7 @@ export function createDocumentosView(options = {}) {
     ? options.features
     : Object.freeze({});
   const favoritesEnabled = features.favorites === true;
+  const searchEnabled = features.search === true;
   const onActionError =
     options.onActionError ??
     (() =>
@@ -276,6 +277,7 @@ export function createDocumentosView(options = {}) {
   const filtersForm = documentRef.querySelector(".docs-filters__form");
   const searchForm = documentRef.querySelector(".docs-search");
   const searchInput = documentRef.querySelector("#docs-search");
+  const searchSubmit = searchForm?.querySelector(".docs-search__submit");
   const uploadButton = documentRef.querySelector("#docs-upload");
   const uploadRoot = documentRef.querySelector("#docs-upload-dialog");
   const uploadPanel = uploadRoot?.querySelector(".docs-upload__panel");
@@ -325,6 +327,9 @@ export function createDocumentosView(options = {}) {
     !versionList
   ) {
     throw new TypeError("Shell de apresentação incompleto.");
+  }
+  if (searchEnabled && (!searchForm || !searchInput || !searchSubmit)) {
+    throw new TypeError("Shell da busca incompleto.");
   }
   if (
     features.viewer === true &&
@@ -411,6 +416,16 @@ export function createDocumentosView(options = {}) {
   }
 
   function syncFeatureControls() {
+    if (searchForm) {
+      const enabled =
+        searchEnabled &&
+        typeof boundHandlers?.search === "function" &&
+        typeof boundHandlers?.navigate === "function";
+      searchForm.hidden = !enabled;
+      searchForm.dataset.featureDisabled = String(!enabled);
+      if (searchInput) searchInput.disabled = !enabled;
+      if (searchSubmit) searchSubmit.disabled = !enabled;
+    }
     if (uploadButton) {
       const enabled =
         features.upload === true &&
@@ -1464,6 +1479,7 @@ export function createDocumentosView(options = {}) {
 
     listen(searchForm, "submit", (event) => {
       event.preventDefault();
+      if (!searchEnabled) return;
       pendingCatalogFocus = null;
       const query = searchInput?.value?.trim();
       selectNavigation("documentos");

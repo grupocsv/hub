@@ -112,7 +112,7 @@ function normalizePatch(patch) {
   return body;
 }
 
-function normalizeVersions(payload) {
+function normalizeVersions(payload, expectedDocumentId) {
   if (!plainObject(payload) || !Array.isArray(payload.items)) {
     throw new TypeError('Resposta de versões inválida.');
   }
@@ -125,7 +125,13 @@ function normalizeVersions(payload) {
       ) {
         throw new TypeError('Resposta de versões inválida.');
       }
-      return Object.freeze({ ...item });
+      if (
+        Object.hasOwn(item, 'documentId') &&
+        item.documentId !== expectedDocumentId
+      ) {
+        throw new TypeError('Resposta de versões inválida.');
+      }
+      return Object.freeze({ ...item, documentId: expectedDocumentId });
     }),
   );
 }
@@ -152,6 +158,7 @@ export function createDocumentDetailController(options = {}) {
   let activeDetailRequest = null;
   let activeVersionRequest = null;
   let activeMutation = null;
+  const pendingFavoriteDocuments = new Set();
 
   function documentTarget(documentId, suffix = '') {
     return `/v1/documents/${encodeURIComponent(identifier(documentId, 'Documento'))}${suffix}`;
@@ -192,9 +199,15 @@ export function createDocumentDetailController(options = {}) {
   }
 
   function emit(status, extra = {}) {
+    const stateDocumentId =
+      typeof extra.documentId === 'string'
+        ? extra.documentId
+        : current?.document?.documentId ?? null;
     onState(
       Object.freeze({
         status,
+        documentId: stateDocumentId,
+        generation,
         detail: current,
         favorite,
         actions: current
@@ -244,6 +257,7 @@ export function createDocumentDetailController(options = {}) {
   }
 
   async function load(documentId, loadOptions = {}) {
+    if (destroyed) throw new TypeError('Detalhe documental encerrado.');
     const normalizedId = identifier(documentId, 'Documento');
     generation += 1;
     const requestGeneration = generation;
@@ -253,7 +267,7 @@ export function createDocumentDetailController(options = {}) {
     const controller = new AbortController();
     const operation = { controller, generation: requestGeneration, documentId: normalizedId };
     activeDetailRequest = operation;
-    emit('loading');
+    emit('loading', { documentId: normalizedId });
     try {
       const response = await client.request(
         documentTarget(normalizedId),
@@ -273,7 +287,7 @@ export function createDocumentDetailController(options = {}) {
       ) {
         return null;
       }
-      emit('error', { error });
+      emit('error', { error, documentId: normalizedId });
       throw error;
     } finally {
       if (activeDetailRequest === operation) activeDetailRequest = null;
@@ -345,20 +359,30 @@ export function createDocumentDetailController(options = {}) {
 
   async function setFavorite(value) {
     if (typeof value !== 'boolean') throw new TypeError('Favorito inválido.');
-    return runMutation(
-      'favorite',
-      (context) => ({
-        target: documentTarget(context.documentId, '/favorite'),
-        options: {
-          method: value ? 'POST' : 'DELETE',
-          ...(value ? { body: {} } : {}),
+    const context = contextForCurrent();
+    assertAction(context.detail, 'favorite');
+    if (pendingFavoriteDocuments.has(context.documentId)) {
+      throw new TypeError('Já existe uma operação em andamento.');
+    }
+    pendingFavoriteDocuments.add(context.documentId);
+    try {
+      return await runMutation(
+        'favorite',
+        (activeContext) => ({
+          target: documentTarget(activeContext.documentId, '/favorite'),
+          options: {
+            method: value ? 'POST' : 'DELETE',
+            ...(value ? { body: {} } : {}),
+          },
+        }),
+        () => {
+          favorite = value;
+          return { value: favorite };
         },
-      }),
-      () => {
-        favorite = value;
-        return { value: favorite };
-      },
-    );
+      );
+    } finally {
+      pendingFavoriteDocuments.delete(context.documentId);
+    }
   }
 
   async function transition(action) {
@@ -427,7 +451,7 @@ export function createDocumentDetailController(options = {}) {
         signal: operation.controller.signal,
       });
       if (!contextIsActive(context)) return null;
-      return normalizeVersions(response.data);
+      return normalizeVersions(response.data, context.documentId);
     } catch (error) {
       if (
         !contextIsActive(context) ||
@@ -453,12 +477,21 @@ export function createDocumentDetailController(options = {}) {
         ),
         options: { method: 'POST', body: {} },
       }),
-      (response) => {
+      (response, context) => {
         const version = response.data?.version;
         if (!plainObject(version) || typeof version.publicationStatus !== 'string') {
           throw new TypeError('Resposta de promoção inválida.');
         }
-        const promotedVersion = Object.freeze({ ...version });
+        if (
+          Object.hasOwn(version, 'documentId') &&
+          version.documentId !== context.documentId
+        ) {
+          throw new TypeError('Resposta de promoção inválida.');
+        }
+        const promotedVersion = Object.freeze({
+          ...version,
+          documentId: context.documentId,
+        });
         return {
           value: promotedVersion,
           extra: { promotedVersion },

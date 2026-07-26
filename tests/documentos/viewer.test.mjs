@@ -357,6 +357,16 @@ test("seleciona somente versão pronta e prefere a versão vigente do documento"
     ),
     null,
   );
+  assert.equal(
+    selectViewerVersion(
+      { documentId: "document-a", currentVersionId: "version-1" },
+      versions.map((version) => ({
+        ...version,
+        documentId: "document-b",
+      })),
+    ),
+    null,
+  );
 });
 
 test("classifica somente MIME permitido para renderização inline", () => {

@@ -160,6 +160,30 @@ test("gera runtime config e shell com SRI SHA-384 e CSP coerentes", async () => 
   });
 });
 
+test("features.search é opcional com default seguro e preserva true quando declarado", async () => {
+  await withFixture({}, async (root) => {
+    const result = runGenerator(root);
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    const generated = parseRuntimeConfig((await readGeneratedSet(root)).runtime);
+    assert.equal(Object.hasOwn(generated.features, "search"), false);
+  });
+
+  await withFixture(
+    {
+      config: {
+        ...VALID_CONFIG,
+        features: { ...VALID_CONFIG.features, search: true },
+      },
+    },
+    async (root) => {
+      const result = runGenerator(root);
+      assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+      const generated = parseRuntimeConfig((await readGeneratedSet(root)).runtime);
+      assert.equal(generated.features.search, true);
+    },
+  );
+});
+
 test("CSP habilitada permite somente API documental e origem pública do Hub Auth", async () => {
   const config = {
     ...VALID_CONFIG,

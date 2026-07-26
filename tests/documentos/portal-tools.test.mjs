@@ -390,6 +390,7 @@ test("gera exatamente um card marcado por tenant habilitado e nenhum nos demais"
     enabled: true,
     apiBaseUrl: "https://hub.grupocsv.com",
     enabledPortals: ["unimed"],
+    features: { ...DISABLED_CONFIG.features, search: false },
   };
 
   await withFixture({ config, registry, withBaseline: true }, async (root) => {

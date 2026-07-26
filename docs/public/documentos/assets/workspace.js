@@ -33,6 +33,7 @@ export function createDocumentosWorkspace(options = {}) {
   const lifecycleFactory = options.bindLifecycle ?? bindCatalogLifecycle;
   const lifecycleTarget = options.lifecycleTarget ?? globalThis.window;
   const favoritesEnabled = options.features?.favorites === true;
+  const searchEnabled = options.features?.search === true;
   const viewerEnabled = options.features?.viewer === true;
   const uploadEnabled = options.features?.upload === true;
   const viewerFactory =
@@ -77,6 +78,7 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   let destroyed = false;
+  let callbacksEnabled = true;
   let started = false;
   let startPromise = null;
   let unbindView = null;
@@ -88,6 +90,8 @@ export function createDocumentosWorkspace(options = {}) {
   let activeView = "documentos";
   let activeFilters = Object.freeze({});
   let activeDocumentId = null;
+  let pendingDetailDocumentId = null;
+  let activeDetailControllerGeneration = null;
   let activeDetail = null;
   let activeVersions = Object.freeze([]);
   let activeVersionsRequest = null;
@@ -97,7 +101,43 @@ export function createDocumentosWorkspace(options = {}) {
   let silentDetailGeneration = null;
   let uploadPresentationActive = false;
   const catalogSnapshots = new Map();
+  const pendingCardFavorites = new Set();
   const recent = recentFactory({ portal });
+
+  function acceptsCallbacks() {
+    return !destroyed && callbacksEnabled;
+  }
+
+  function neutralDetailState(status, documentId, error = null) {
+    return Object.freeze({
+      status,
+      documentId,
+      detail: null,
+      favorite: null,
+      actions: Object.freeze({}),
+      ...(error ? { error } : {}),
+    });
+  }
+
+  function versionsForDocument(items, documentId) {
+    if (!Array.isArray(items)) {
+      throw new TypeError("Histórico de versões inválido.");
+    }
+    return Object.freeze(
+      items.map((item) => {
+        if (
+          !item ||
+          typeof item !== "object" ||
+          Array.isArray(item) ||
+          (Object.hasOwn(item, "documentId") &&
+            item.documentId !== documentId)
+        ) {
+          throw new TypeError("Histórico de versões inválido.");
+        }
+        return Object.freeze({ ...item, documentId });
+      }),
+    );
+  }
 
   function rememberSnapshot(item) {
     if (typeof item?.documentId !== "string") return;
@@ -123,7 +163,7 @@ export function createDocumentosWorkspace(options = {}) {
   const catalog = catalogFactory({
     client,
     onState(state) {
-      if (destroyed) return;
+      if (!acceptsCallbacks()) return;
       for (const item of state.items ?? []) {
         if (item?.source !== "search") rememberSnapshot(item);
       }
@@ -134,11 +174,37 @@ export function createDocumentosWorkspace(options = {}) {
   const detail = detailFactory({
     client,
     onState(state) {
-      if (destroyed) return;
+      if (!acceptsCallbacks()) return;
+      const item = state.detail?.document;
+      const stateDocumentId =
+        typeof state.documentId === "string"
+          ? state.documentId
+          : typeof item?.documentId === "string"
+            ? item.documentId
+            : null;
+      if (
+        stateDocumentId === null ||
+        (stateDocumentId !== pendingDetailDocumentId &&
+          stateDocumentId !== activeDocumentId)
+      ) {
+        return;
+      }
+      if (state.status === "loading") {
+        activeDetailControllerGeneration = Number.isSafeInteger(
+          state.generation,
+        )
+          ? state.generation
+          : null;
+      } else if (
+        Number.isSafeInteger(state.generation) &&
+        Number.isSafeInteger(activeDetailControllerGeneration) &&
+        state.generation !== activeDetailControllerGeneration
+      ) {
+        return;
+      }
       if (silentDetailGeneration !== selectionGeneration) {
         view.renderDetail(state);
       }
-      const item = state.detail?.document;
       if (typeof item?.documentId === "string") {
         if (item.documentId === activeDocumentId || activeDocumentId === null) {
           activeDetail = state.detail;
@@ -152,7 +218,7 @@ export function createDocumentosWorkspace(options = {}) {
     ? viewerFactory({
         client,
         onState: (state) => {
-          if (!destroyed) view.renderViewer(state);
+          if (acceptsCallbacks()) view.renderViewer(state);
         },
         renderPdfPage: (value) => view.renderPdfPage(value),
       })
@@ -161,13 +227,15 @@ export function createDocumentosWorkspace(options = {}) {
     ? uploadFactory({
         client,
         onState: (state) => {
-          if (!destroyed && uploadPresentationActive) view.renderUpload(state);
+          if (acceptsCallbacks() && uploadPresentationActive)
+            view.renderUpload(state);
         },
       })
     : null;
   let viewerRoute = null;
 
   function cancelEffects() {
+    callbacksEnabled = false;
     uploadPresentationActive = false;
     catalog.cancelActive();
     detail.cancel();
@@ -176,15 +244,19 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   function clearSensitiveState(reason) {
+    callbacksEnabled = false;
     uploadPresentationActive = false;
     selectionGeneration += 1;
     silentDetailGeneration = null;
     activeDocumentId = null;
+    pendingDetailDocumentId = null;
+    activeDetailControllerGeneration = null;
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
     viewerOpeningGeneration += 1;
     activeViewerDocumentId = null;
+    pendingCardFavorites.clear();
     recent.clear();
     catalogSnapshots.clear();
     view.clearSensitiveState(reason);
@@ -192,7 +264,7 @@ export function createDocumentosWorkspace(options = {}) {
 
   async function loadInitialState() {
     const loadedMetadata = await catalog.loadMetadata();
-    if (destroyed || !loadedMetadata) return null;
+    if (!acceptsCallbacks() || !loadedMetadata) return null;
     metadata = loadedMetadata;
     view.setMetadata(metadata);
     activeView = "documentos";
@@ -207,7 +279,7 @@ export function createDocumentosWorkspace(options = {}) {
   });
 
   async function refreshCatalog() {
-    if (destroyed) return null;
+    if (!acceptsCallbacks()) return null;
     if (activeView === "favoritos") return catalog.loadList({ favorite: true });
     if (activeView === "documentos") return catalog.loadList(activeFilters);
     return null;
@@ -223,7 +295,7 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function navigate(target) {
-    if (destroyed) return null;
+    if (!acceptsCallbacks()) return null;
     if (target === "documentos") {
       activeView = target;
       activeFilters = Object.freeze({});
@@ -256,6 +328,7 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function applyFilters(filters) {
+    if (!acceptsCallbacks()) return null;
     activeView = "documentos";
     activeFilters = Object.freeze({ ...filters });
     view.setFilters(activeFilters);
@@ -263,18 +336,34 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function openDocument(documentId, openOptions = {}) {
+    if (!acceptsCallbacks()) return null;
     selectionGeneration += 1;
     const openingGeneration = selectionGeneration;
     silentDetailGeneration = null;
     activeDocumentId = null;
+    pendingDetailDocumentId = documentId;
+    activeDetailControllerGeneration = null;
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
+    view.renderDetail(neutralDetailState("loading", documentId));
     view.renderVersions([]);
-    const loaded = await detail.load(documentId, openOptions);
+    let loaded;
+    try {
+      loaded = await detail.load(documentId, openOptions);
+    } catch (error) {
+      if (
+        acceptsCallbacks() &&
+        openingGeneration === selectionGeneration &&
+        pendingDetailDocumentId === documentId
+      ) {
+        view.renderDetail(neutralDetailState("error", documentId, error));
+      }
+      throw error;
+    }
     if (
       !loaded ||
-      destroyed ||
+      !acceptsCallbacks() ||
       openingGeneration !== selectionGeneration ||
       loaded.document?.documentId !== documentId
     ) {
@@ -282,6 +371,7 @@ export function createDocumentosWorkspace(options = {}) {
     }
 
     activeDocumentId = loaded.document.documentId;
+    pendingDetailDocumentId = null;
     activeDetail = loaded;
     recent.record(activeDocumentId, loaded.document.updatedAt);
     const versionsRequest = Object.freeze({
@@ -291,19 +381,21 @@ export function createDocumentosWorkspace(options = {}) {
     });
     activeVersionsRequest = versionsRequest;
     try {
-      const versions = await versionsRequest.promise;
+      const versions = versionsForDocument(
+        await versionsRequest.promise,
+        versionsRequest.documentId,
+      );
       if (
-        Array.isArray(versions) &&
-        !destroyed &&
+        acceptsCallbacks() &&
         openingGeneration === selectionGeneration &&
         activeDocumentId === loaded.document.documentId
       ) {
-        activeVersions = Object.freeze([...versions]);
+        activeVersions = versions;
         view.renderVersions(versions);
       }
     } catch {
       if (
-        !destroyed &&
+        acceptsCallbacks() &&
         openingGeneration === selectionGeneration &&
         activeDocumentId === loaded.document.documentId
       ) {
@@ -318,9 +410,12 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   function closeDocument() {
+    if (!acceptsCallbacks()) return;
     selectionGeneration += 1;
     silentDetailGeneration = null;
     activeDocumentId = null;
+    pendingDetailDocumentId = null;
+    activeDetailControllerGeneration = null;
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
@@ -352,7 +447,7 @@ export function createDocumentosWorkspace(options = {}) {
     options = {},
   ) {
     if (
-      destroyed ||
+      !acceptsCallbacks() ||
       !activeDocumentId ||
       (expectedDocumentId && expectedDocumentId !== activeDocumentId)
     ) {
@@ -363,7 +458,7 @@ export function createDocumentosWorkspace(options = {}) {
     const result = await operation();
     if (
       result === null ||
-      destroyed ||
+      !acceptsCallbacks() ||
       mutationGeneration !== selectionGeneration ||
       mutationDocumentId !== activeDocumentId
     ) {
@@ -376,7 +471,7 @@ export function createDocumentosWorkspace(options = {}) {
         const refreshed = await detail.refresh();
         if (
           refreshed &&
-          !destroyed &&
+          acceptsCallbacks() &&
           mutationGeneration === selectionGeneration &&
           mutationDocumentId === activeDocumentId
         ) {
@@ -386,7 +481,7 @@ export function createDocumentosWorkspace(options = {}) {
         // A mutação foi confirmada; Recentes preserva a última ordem conhecida.
       }
       if (
-        destroyed ||
+        !acceptsCallbacks() ||
         mutationGeneration !== selectionGeneration ||
         mutationDocumentId !== activeDocumentId
       ) {
@@ -395,19 +490,21 @@ export function createDocumentosWorkspace(options = {}) {
     }
     if (options.refreshVersions === true) {
       try {
-        const versions = await detail.loadVersions();
+        const versions = versionsForDocument(
+          await detail.loadVersions(),
+          mutationDocumentId,
+        );
         if (
-          Array.isArray(versions) &&
-          !destroyed &&
+          acceptsCallbacks() &&
           mutationGeneration === selectionGeneration &&
           mutationDocumentId === activeDocumentId
         ) {
-          activeVersions = Object.freeze([...versions]);
+          activeVersions = versions;
           view.renderVersions(versions);
         }
       } catch {
         if (
-          !destroyed &&
+          acceptsCallbacks() &&
           mutationGeneration === selectionGeneration &&
           mutationDocumentId === activeDocumentId
         ) {
@@ -427,18 +524,29 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function toggleCardFavorite(value, documentId, openOptions = {}) {
-    if (destroyed || !favoritesEnabled || typeof documentId !== "string")
+    if (
+      !acceptsCallbacks() ||
+      !favoritesEnabled ||
+      typeof documentId !== "string" ||
+      pendingCardFavorites.has(documentId)
+    )
       return null;
+    pendingCardFavorites.add(documentId);
     selectionGeneration += 1;
     const toggleGeneration = selectionGeneration;
     silentDetailGeneration = toggleGeneration;
     activeDocumentId = null;
+    pendingDetailDocumentId = documentId;
+    activeDetailControllerGeneration = null;
+    activeDetail = null;
+    activeVersions = Object.freeze([]);
+    activeVersionsRequest = null;
 
     try {
       const loaded = await detail.load(documentId, openOptions);
       if (
         !loaded ||
-        destroyed ||
+        !acceptsCallbacks() ||
         toggleGeneration !== selectionGeneration ||
         loaded.document?.documentId !== documentId
       ) {
@@ -458,21 +566,27 @@ export function createDocumentosWorkspace(options = {}) {
     } finally {
       if (toggleGeneration === selectionGeneration) {
         activeDocumentId = null;
+        pendingDetailDocumentId = null;
+        activeDetailControllerGeneration = null;
+        activeDetail = null;
+        activeVersions = Object.freeze([]);
+        activeVersionsRequest = null;
         silentDetailGeneration = null;
         detail.cancel();
       }
+      pendingCardFavorites.delete(documentId);
     }
   }
 
   async function openViewerRoute(route) {
-    if (!viewerEnabled || destroyed) return null;
+    if (!viewerEnabled || !acceptsCallbacks()) return null;
     const openingGeneration = ++viewerOpeningGeneration;
     if (activeViewerDocumentId && activeViewerDocumentId !== route.documentId) {
       activeViewerDocumentId = null;
       void viewer.close("selection_changed").catch(() => {});
     }
     const isCurrent = () =>
-      !destroyed && openingGeneration === viewerOpeningGeneration;
+      acceptsCallbacks() && openingGeneration === viewerOpeningGeneration;
     const renderUnavailable = () => {
       if (!isCurrent()) return;
       view.renderViewer({
@@ -539,14 +653,14 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function closeViewerRoute() {
-    if (!viewerEnabled) return;
+    if (!viewerEnabled || !acceptsCallbacks()) return;
     viewerOpeningGeneration += 1;
     activeViewerDocumentId = null;
     await viewer.close("route_closed");
   }
 
   function openUpload(documentId = null) {
-    if (!uploadEnabled || destroyed) return null;
+    if (!uploadEnabled || !acceptsCallbacks()) return null;
     if (documentId === null || documentId === undefined) {
       if (!metadata.permissions?.includes("create")) return null;
       const configuration = Object.freeze({
@@ -575,7 +689,7 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function refreshAfterUpload(result) {
-    if (result?.status !== "succeeded" || destroyed) return result;
+    if (result?.status !== "succeeded" || !acceptsCallbacks()) return result;
     try {
       await refreshCatalog();
     } catch {
@@ -584,20 +698,31 @@ export function createDocumentosWorkspace(options = {}) {
     if (
       activeDocumentId &&
       result.documentId === activeDocumentId &&
-      !destroyed
+      acceptsCallbacks()
     ) {
+      const refreshGeneration = selectionGeneration;
+      const refreshDocumentId = activeDocumentId;
       try {
-        const versions = await detail.loadVersions();
+        const versions = versionsForDocument(
+          await detail.loadVersions(),
+          refreshDocumentId,
+        );
         if (
-          Array.isArray(versions) &&
           result.documentId === activeDocumentId &&
-          !destroyed
+          refreshDocumentId === activeDocumentId &&
+          refreshGeneration === selectionGeneration &&
+          acceptsCallbacks()
         ) {
-          activeVersions = Object.freeze([...versions]);
+          activeVersions = versions;
           view.renderVersions(versions);
         }
       } catch {
-        if (!destroyed && result.documentId === activeDocumentId) {
+        if (
+          acceptsCallbacks() &&
+          refreshGeneration === selectionGeneration &&
+          refreshDocumentId === activeDocumentId &&
+          result.documentId === activeDocumentId
+        ) {
           view.renderVersionsError();
         }
       }
@@ -606,7 +731,8 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function startUpload(input) {
-    if (!uploadEnabled || destroyed || !plainUploadInput(input)) return null;
+    if (!uploadEnabled || !acceptsCallbacks() || !plainUploadInput(input))
+      return null;
     const documentId =
       typeof input.documentId === "string" ? input.documentId : null;
     let permissions;
@@ -632,13 +758,13 @@ export function createDocumentosWorkspace(options = {}) {
   }
 
   async function retryUpload() {
-    if (!uploadEnabled || destroyed) return null;
+    if (!uploadEnabled || !acceptsCallbacks()) return null;
     uploadPresentationActive = true;
     return refreshAfterUpload(await upload.retry());
   }
 
   function cancelUpload() {
-    if (!uploadEnabled || destroyed) return null;
+    if (!uploadEnabled || !acceptsCallbacks()) return null;
     uploadPresentationActive = false;
     return upload.cancel();
   }
@@ -656,12 +782,14 @@ export function createDocumentosWorkspace(options = {}) {
   const handlers = Object.freeze({
     navigate,
     search(query) {
+      if (!searchEnabled || !acceptsCallbacks()) return null;
       activeView = "busca";
       view.setFilters({});
       return catalog.search(query);
     },
     applyFilters,
     loadNext: () =>
+      acceptsCallbacks() &&
       ["documentos", "favoritos", "busca"].includes(activeView)
         ? catalog.loadNext()
         : null,
@@ -695,15 +823,20 @@ export function createDocumentosWorkspace(options = {}) {
         refreshVersions: true,
       }),
     openViewer: (documentId, page = 1) =>
-      viewerEnabled ? viewerRoute.open(documentId, page) : null,
+      viewerEnabled && acceptsCallbacks()
+        ? viewerRoute.open(documentId, page)
+        : null,
     async viewerGoToPage(page) {
-      if (!viewerEnabled) return null;
+      if (!viewerEnabled || !acceptsCallbacks()) return null;
       const renderedPage = await viewer.goToPage(page);
-      if (Number.isSafeInteger(renderedPage)) viewerRoute.setPage(renderedPage);
+      if (acceptsCallbacks() && Number.isSafeInteger(renderedPage))
+        viewerRoute.setPage(renderedPage);
       return renderedPage;
     },
-    viewerDownload: () => (viewerEnabled ? viewer.download() : null),
-    closeViewer: () => (viewerEnabled ? viewerRoute.close() : null),
+    viewerDownload: () =>
+      viewerEnabled && acceptsCallbacks() ? viewer.download() : null,
+    closeViewer: () =>
+      viewerEnabled && acceptsCallbacks() ? viewerRoute.close() : null,
     openUpload,
     startUpload,
     retryUpload,
@@ -713,11 +846,12 @@ export function createDocumentosWorkspace(options = {}) {
   return Object.freeze({
     async start() {
       if (destroyed) throw new TypeError("Workspace encerrado.");
+      if (!callbacksEnabled) throw new TypeError("Workspace suspenso.");
       if (started) return startPromise;
       started = true;
       unbindView = view.bind(handlers);
       startPromise = loadInitialState().then(async (result) => {
-        if (viewerEnabled && !destroyed) await viewerRoute.start();
+        if (viewerEnabled && acceptsCallbacks()) await viewerRoute.start();
         return result;
       });
       return startPromise;
@@ -725,9 +859,9 @@ export function createDocumentosWorkspace(options = {}) {
     ...handlers,
     destroy(reason = "destroyed") {
       if (destroyed) return;
+      destroyed = true;
       cancelEffects();
       clearSensitiveState(reason);
-      destroyed = true;
       viewerRoute?.destroy();
       lifecycle.destroy();
       catalog.destroy();

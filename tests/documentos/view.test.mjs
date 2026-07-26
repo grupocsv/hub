@@ -307,6 +307,10 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(source, /createElement\(/);
   assert.match(source, /textContent\s*=/);
   assert.match(template, /id="docs-filters"/);
+  assert.match(
+    template,
+    /class="docs-search"[^>]*data-feature="search"[^>]*hidden|class="docs-search"[^>]*hidden[^>]*data-feature="search"/,
+  );
   assert.match(template, /id="docs-collection-filter"/);
   assert.match(template, /id="docs-tag-filter"/);
   assert.match(template, /id="docs-classification-filter"/);
@@ -346,6 +350,9 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(source, /data-action[^]*reload-detail|['"]reload-detail['"]/);
   assert.match(source, /aria-busy/);
   assert.match(source, /features\.favorites\s*===\s*true/);
+  assert.match(source, /features\.search\s*===\s*true/);
+  assert.match(source, /searchForm\.hidden\s*=\s*!enabled/);
+  assert.match(source, /searchInput\.disabled\s*=\s*!enabled/);
   assert.match(source, /data-view="favoritos"/);
   assert.match(source, /favoritesEnabled\s*&&\s*Boolean\(boundHandlers\)/);
   assert.match(source, /selectNavigation\(['"]documentos['"]\)/);
