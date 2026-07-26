@@ -1,0 +1,14 @@
+/.gitattributes text eol=lf
+/.github/workflows/deploy.yml text eol=lf
+/package.json text eol=lf
+/package-lock.json -text whitespace=cr-at-eol
+/docs/public/documentos/** text eol=lf
+/docs/public/documentos/vendor/** -text -diff
+/docs/public/scripts/hub-auth.js text eol=lf
+/docs/public/scripts/hub-auth.css text eol=lf
+/scripts/documentos-* text eol=lf
+/scripts/generate-documentos-config.mjs text eol=lf
+/scripts/hub-auth.js text eol=lf
+/scripts/hub-auth.css text eol=lf
+/tests/documentos/** text eol=lf
+/tests/hub-auth-corporate.test.mjs text eol=lf

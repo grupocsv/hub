@@ -7,15 +7,32 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'workflow_run' &&
+          (
+            github.event.workflow_run.event == 'push' ||
+            github.event.workflow_run.event == 'workflow_dispatch'
+          ) &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == github.repository
+        )
+      }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Generate portal tools.json
         run: python3 scripts/generate-portal-tools.py .
@@ -25,7 +42,23 @@ jobs:
 
       - name: Install rclone
         run: |
-          curl -fsSL https://rclone.org/install.sh | sudo bash
+          # Manifesto oficial: https://downloads.rclone.org/v1.74.4/SHA256SUMS
+          RCLONE_VERSION="1.74.4"
+          RCLONE_ARCHIVE="rclone-v${RCLONE_VERSION}-linux-amd64.zip"
+          RCLONE_SHA256="fe435e0c36228e7c2f116a8701f01127bb1f694005fc11d1f27186c8bca4115d"
+          RCLONE_DOWNLOAD="/tmp/${RCLONE_ARCHIVE}"
+          RCLONE_UNPACKED="/tmp/rclone-${RCLONE_VERSION}"
+          curl --proto '=https' --tlsv1.2 --fail --location --silent --show-error \
+            --output "${RCLONE_DOWNLOAD}" \
+            "https://downloads.rclone.org/v${RCLONE_VERSION}/${RCLONE_ARCHIVE}"
+          printf '%s  %s\n' "${RCLONE_SHA256}" "${RCLONE_DOWNLOAD}" \
+            | sha256sum --check --strict -
+          mkdir -p "${RCLONE_UNPACKED}"
+          unzip -q "${RCLONE_DOWNLOAD}" -d "${RCLONE_UNPACKED}"
+          sudo install -m 0755 \
+            "${RCLONE_UNPACKED}/rclone-v${RCLONE_VERSION}-linux-amd64/rclone" \
+            /usr/local/bin/rclone
+          rclone version | grep -F "rclone v${RCLONE_VERSION}"
 
       - name: Configure rclone for R2
         run: |

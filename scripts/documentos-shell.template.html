@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#1b1e24">
+    <meta http-equiv="Content-Security-Policy" content="__DOCUMENTOS_CSP__">
+    <title>Documentos | Grupo CSV</title>
+    <link rel="stylesheet" href="./assets/documentos.css">
+    <link id="hub-auth-styles" rel="stylesheet" href="/scripts/hub-auth.css">
+  </head>
+  <body class="docs-app" data-state="unavailable">
+    <a class="skip-link" href="#docs-main">Ir para o Conteúdo</a>
+
+    <header class="docs-topbar">
+      <div class="docs-topbar__inner">
+        <a class="docs-brand" href="/" aria-label="Hub Grupo CSV — Página Inicial">
+          <span class="docs-brand__mark" aria-hidden="true"></span>
+          <span class="docs-brand__name">Grupo CSV</span>
+          <span class="docs-brand__product">Documentos</span>
+        </a>
+
+        <nav class="docs-nav" aria-label="Navegação de Documentos">
+          <button class="docs-nav__item" type="button" data-view="documentos" aria-current="page">Documentos</button>
+          <button class="docs-nav__item" type="button" data-view="colecoes">Coleções</button>
+          <button class="docs-nav__item" type="button" data-view="favoritos" hidden disabled>Favoritos</button>
+          <button class="docs-nav__item" type="button" data-view="recentes">Recentes</button>
+        </nav>
+
+        <div class="docs-topbar__actions">
+          <button class="docs-button docs-button--primary" id="docs-upload" type="button" hidden disabled>Enviar Documento</button>
+      <div id="hub-auth-slot" role="group" aria-label="Sessão do Hub"></div>
+        </div>
+      </div>
+    </header>
+
+    <main id="docs-main" class="docs-main" tabindex="-1">
+      <section class="docs-hero" aria-labelledby="docs-title">
+        <div>
+          <p class="docs-eyebrow">Conhecimento Institucional</p>
+          <h1 id="docs-title">Documentos</h1>
+          <p class="docs-lead">Encontre, consulte e compartilhe o conhecimento autorizado da sua organização.</p>
+        </div>
+
+        <form class="docs-search" role="search" novalidate>
+          <label for="docs-search">Buscar Documentos</label>
+          <div class="docs-search__control">
+            <span class="docs-search__icon" aria-hidden="true"></span>
+            <input id="docs-search" name="query" type="search" inputmode="search" autocomplete="off" placeholder="Título, coleção ou conteúdo" disabled>
+            <button class="docs-search__submit" type="submit" disabled>Buscar</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="docs-filters" class="docs-filters" aria-label="Filtros do Catálogo">
+        <form class="docs-filters__form" novalidate>
+          <label>
+            <span>Coleção</span>
+            <select id="docs-collection-filter" name="collectionId" disabled>
+              <option value="">Todas as Coleções</option>
+            </select>
+          </label>
+          <label>
+            <span>Tag</span>
+            <select id="docs-tag-filter" name="tagId" disabled>
+              <option value="">Todas as Tags</option>
+            </select>
+          </label>
+          <label>
+            <span>Classificação</span>
+            <select id="docs-classification-filter" name="classification" disabled>
+              <option value="">Todas as Classificações</option>
+              <option value="public">Público</option>
+              <option value="internal">Interno</option>
+              <option value="restricted">Restrito</option>
+              <option value="confidential">Confidencial</option>
+            </select>
+          </label>
+          <label>
+            <span>Estado</span>
+            <select id="docs-lifecycle-filter" name="lifecycleStatus" disabled>
+              <option value="">Todos os Estados</option>
+              <option value="draft">Rascunho</option>
+              <option value="active">Ativo</option>
+              <option value="archived">Arquivado</option>
+              <option value="deletion_requested">Exclusão Solicitada</option>
+              <option value="deleting">Em Exclusão</option>
+            </select>
+          </label>
+          <div class="docs-filters__actions">
+            <button class="docs-button docs-button--secondary" type="reset" disabled>Limpar</button>
+            <button class="docs-button docs-button--primary" type="submit" disabled>Aplicar Filtros</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="docs-workspace" aria-labelledby="docs-content-title">
+        <h2 id="docs-content-title" class="sr-only">Catálogo de Documentos</h2>
+
+        <div id="docs-status" class="docs-state is-unavailable" role="status" aria-live="polite" aria-atomic="true" data-state="unavailable">
+          <span class="docs-state__indicator" aria-hidden="true"></span>
+          <div>
+            <strong>Catálogo Indisponível</strong>
+            <p>A configuração segura desta aplicação ainda não foi habilitada.</p>
+          </div>
+        </div>
+
+        <div id="docs-content" class="docs-content" hidden></div>
+        <button id="docs-load-more" class="docs-button docs-button--secondary docs-load-more" type="button" hidden disabled>Carregar Mais</button>
+      </section>
+    </main>
+
+    <div id="docs-detail" class="docs-dialog" role="dialog" aria-modal="true" aria-labelledby="docs-detail-title" hidden>
+      <div class="docs-dialog__backdrop" data-action="close-detail" aria-hidden="true"></div>
+      <section class="docs-dialog__panel" tabindex="-1">
+        <header class="docs-dialog__header">
+          <div>
+            <p class="docs-eyebrow">Detalhes do Documento</p>
+            <h2 id="docs-detail-title">Documento</h2>
+          </div>
+          <button class="docs-dialog__close" type="button" data-action="close-detail" aria-label="Fechar Detalhes">Fechar</button>
+        </header>
+        <div id="docs-detail-content" class="docs-detail-content"></div>
+        <div id="docs-detail-actions" class="docs-detail-actions" aria-label="Ações Autorizadas"></div>
+        <section class="docs-versions" aria-labelledby="docs-versions-title">
+          <h3 id="docs-versions-title">Versões</h3>
+          <div id="docs-version-list"></div>
+        </section>
+      </section>
+    </div>
+
+    <div id="docs-upload-dialog" class="docs-dialog docs-upload" role="dialog" aria-modal="true" aria-labelledby="docs-upload-title" hidden>
+      <div class="docs-dialog__backdrop" data-action="cancel-upload" aria-hidden="true"></div>
+      <section class="docs-dialog__panel docs-upload__panel" tabindex="-1">
+        <header class="docs-dialog__header">
+          <div>
+            <p class="docs-eyebrow">Envio Seguro</p>
+            <h2 id="docs-upload-title">Enviar Documento</h2>
+          </div>
+          <button class="docs-dialog__close" type="button" data-action="cancel-upload" aria-label="Cancelar Envio">Fechar</button>
+        </header>
+
+        <form id="docs-upload-form" class="docs-upload__form" novalidate>
+          <input id="docs-upload-document-id" name="documentId" type="hidden">
+          <fieldset id="docs-upload-metadata">
+            <legend>Dados do Documento</legend>
+            <label>
+              <span>Título</span>
+              <input id="docs-upload-document-title" name="title" type="text" maxlength="500" required>
+            </label>
+            <label>
+              <span>Descrição</span>
+              <textarea id="docs-upload-description" name="description" maxlength="4000" rows="3"></textarea>
+            </label>
+            <label>
+              <span>Coleção</span>
+              <select id="docs-upload-collection" name="collectionId">
+                <option value="">Sem Coleção</option>
+              </select>
+            </label>
+            <label>
+              <span>Classificação</span>
+              <select id="docs-upload-classification" name="classification" required>
+                <option value="internal">Interno</option>
+                <option value="public">Público</option>
+                <option value="restricted">Restrito</option>
+                <option value="confidential">Confidencial</option>
+              </select>
+            </label>
+            <label>
+              <span>Política de Indexação</span>
+              <select id="docs-upload-indexing" name="indexingPolicy" required>
+                <option value="metadata_only">Somente Metadados</option>
+                <option value="full_text">Texto Integral</option>
+                <option value="disabled">Desabilitada</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <label class="docs-upload__file">
+            <span>Arquivo</span>
+            <input id="docs-upload-file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md" required>
+            <small>PDF, PNG, JPG, JPEG, WEBP, TXT ou MD; até 50 MiB.</small>
+          </label>
+
+          <div id="docs-upload-status" class="docs-upload__status" role="status" aria-live="polite" aria-atomic="true"></div>
+          <dl id="docs-upload-processing" class="docs-upload__processing" hidden></dl>
+
+          <div class="docs-upload__actions">
+            <button class="docs-button docs-button--secondary" type="button" data-action="cancel-upload">Cancelar</button>
+            <button class="docs-button docs-button--secondary" type="button" data-action="retry-upload" hidden>Tentar Novamente</button>
+            <button class="docs-button docs-button--primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="docs-viewer" class="docs-viewer" role="region" aria-labelledby="docs-viewer-title" hidden>
+      <div class="docs-viewer__backdrop" data-action="close-viewer" aria-hidden="true"></div>
+      <section class="docs-viewer__panel" tabindex="-1">
+        <header class="docs-viewer__header">
+          <div class="docs-viewer__identity">
+            <p class="docs-eyebrow">Visualização Segura</p>
+            <h2 id="docs-viewer-title">Documento</h2>
+          </div>
+          <div class="docs-viewer__controls" aria-label="Controles do Visualizador">
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-previous" disabled>Página Anterior</button>
+            <span id="docs-viewer-page" class="docs-viewer__page" aria-live="polite">Página 1 de 1</span>
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-next" disabled>Próxima Página</button>
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-download" hidden disabled>Baixar Arquivo</button>
+            <button class="docs-dialog__close" type="button" data-action="close-viewer" aria-label="Fechar Visualizador">Fechar</button>
+          </div>
+        </header>
+
+        <div id="docs-viewer-status" class="docs-viewer__status" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div
+          id="docs-viewer-content"
+          class="docs-viewer__content"
+          role="region"
+          aria-label="Conteúdo do documento"
+          tabindex="0"
+        >
+          <canvas id="docs-viewer-canvas" class="docs-viewer__canvas" aria-label="Página do PDF" hidden></canvas>
+        </div>
+      </section>
+    </div>
+
+    <footer class="docs-footer">
+      <p><strong>Grupo CSV</strong> — Cuidados em Saúde com Valor.</p>
+      <a href="/">Voltar ao Hub</a>
+    </footer>
+
+    <script src="./assets/runtime-config.js" integrity="__DOCUMENTOS_RUNTIME_INTEGRITY__" crossorigin="anonymous"></script>
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>
