@@ -481,10 +481,12 @@
 <div class="ha-modal" tabindex="-1">\
   <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" class="ha-logo">\
   ' + ICON_LOCK + '\
-  <h2 class="ha-title" id="ha-dialog-title">' + (PORTAL_NAMES[PORTAL] || PORTAL) + '</h2>\
+  <h2 class="ha-title" id="ha-dialog-title"></h2>\
   <p class="ha-subtitle" role="status" aria-live="polite">Validando sua sessão...</p>\
   <div class="ha-footer">Hub Grupo CSV</div>\
 </div>';
+    var validationTitle = overlay.querySelector('#ha-dialog-title');
+    if (validationTitle) validationTitle.textContent = PORTAL_NAMES[PORTAL] || PORTAL;
 
     document.body.appendChild(overlay);
     configureDialog(overlay, 'ha-dialog-title', '.ha-modal');
@@ -508,11 +510,13 @@
 <div class="ha-modal">\
   <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" class="ha-logo">\
   ' + ICON_LOCK + '\
-  <h2 class="ha-title" id="ha-dialog-title">' + (PORTAL_NAMES[PORTAL] || PORTAL) + '</h2>\
+  <h2 class="ha-title" id="ha-dialog-title"></h2>\
   <p class="ha-subtitle">' + (IS_PARTNER ? 'Acesso restrito a usuários autorizados' : 'Acesso restrito') + '</p>\
   ' + bodyHTML + '\
   <div class="ha-footer">Hub Grupo CSV</div>\
 </div>';
+    var dialogTitle = overlay.querySelector('#ha-dialog-title');
+    if (dialogTitle) dialogTitle.textContent = PORTAL_NAMES[PORTAL] || PORTAL;
 
     document.body.appendChild(overlay);
     bindEvents(overlay);
