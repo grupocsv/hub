@@ -592,6 +592,67 @@ test('update, archive e promote tardios não substituem uma nova seleção', asy
   }
 });
 
+test('a geração impede respostas antigas de reaplicar estado ao reabrir o mesmo documento', async () => {
+  const pendingMutation = deferred();
+  const pendingVersions = deferred();
+  const states = [];
+  let detailLoads = 0;
+  const controller = createDocumentDetailController({
+    client: {
+      request(target, options = {}) {
+        if (target.endsWith('/versions')) return pendingVersions.promise;
+        if (options.method === 'PATCH') return pendingMutation.promise;
+        detailLoads += 1;
+        return Promise.resolve({
+          data: {
+            document: metadata({
+              title: detailLoads === 1 ? 'Primeira abertura' : 'Reabertura canônica',
+              metadataVersion: detailLoads,
+            }),
+            permissions: ['read', 'update_metadata'],
+          },
+          headers: responseHeaders(`W/"metadata-${detailLoads}"`),
+        });
+      },
+    },
+    onState: (state) => states.push(state),
+  });
+
+  await controller.load('document-a');
+  const oldVersions = controller.loadVersions();
+  const oldMutation = controller.updateMetadata({ title: 'Resposta antiga' });
+  await controller.load('document-a');
+  const statesAfterReopen = states.length;
+
+  pendingVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-old',
+          publicationStatus: 'eligible',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  pendingMutation.resolve({
+    data: {
+      document: metadata({
+        title: 'Resposta antiga',
+        metadataVersion: 99,
+      }),
+      permissions: ['read', 'update_metadata'],
+    },
+    headers: responseHeaders('W/"metadata-99"'),
+  });
+
+  assert.equal(await oldVersions, null);
+  assert.equal(await oldMutation, null);
+  assert.equal(controller.getDetail().document.title, 'Reabertura canônica');
+  assert.equal(controller.getDetail().etag, 'W/"metadata-2"');
+  assert.equal(states.length, statesAfterReopen);
+});
+
 test('trata IDs retornados pelo Worker como opacos de até 256 caracteres', async () => {
   const opaqueId = `documento-${'á'.repeat(246)}`;
   const calls = [];

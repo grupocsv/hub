@@ -92,6 +92,7 @@ test("constrói modelo de detalhe somente com ações autorizadas e versões pú
     },
     [
       {
+        documentId: "document-a",
         versionId: "version-a",
         versionNumber: 1,
         publicationStatus: "eligible",
@@ -110,6 +111,35 @@ test("constrói modelo de detalhe somente com ações autorizadas e versões pú
     model.actions.some(({ id }) => id === "requestDeletion"),
     false,
   );
+});
+
+test("rejeita versão sem vínculo ou vinculada a outro documento", () => {
+  const state = {
+    status: "ready",
+    favorite: false,
+    detail: {
+      document: catalogItem({ indexingPolicy: "metadata_only" }),
+      permissions: ["read", "publish"],
+    },
+    actions: {
+      open: true,
+      promoteVersion: true,
+    },
+  };
+
+  for (const version of [
+    { versionId: "version-a", publicationStatus: "eligible" },
+    {
+      documentId: "document-b",
+      versionId: "version-b",
+      publicationStatus: "eligible",
+    },
+  ]) {
+    assert.throws(
+      () => buildDetailViewModel(state, [version]),
+      /versão documental inválida/i,
+    );
+  }
 });
 
 test("favoritos permanecem ocultos quando o flag está desligado", () => {

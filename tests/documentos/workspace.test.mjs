@@ -790,6 +790,63 @@ test("favorito de cartão supersedido não atinge o documento que assumiu a sele
   assert.deepEqual(favoriteTargets, []);
 });
 
+test("favorito de cartão já enviado conserva a identidade original e não atualiza a seleção nova", async () => {
+  const pendingFavorite = deferred();
+  const favoriteTargets = [];
+  let controllerDocumentId = null;
+  let context;
+  context = fixture({
+    detail: {
+      async load(documentId) {
+        controllerDocumentId = documentId;
+        return {
+          document: {
+            documentId,
+            title: documentId,
+            description: "",
+            classification: "internal",
+            lifecycleStatus: "active",
+            indexingPolicy: "metadata_only",
+            updatedAt: `2026-07-24T${documentId === "document-a" ? "10" : "11"}:00:00.000Z`,
+          },
+          permissions: ["read"],
+        };
+      },
+      async loadVersions() {
+        return [];
+      },
+      setFavorite(value) {
+        favoriteTargets.push([controllerDocumentId, value]);
+        return pendingFavorite.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const toggle = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(favoriteTargets, [["document-a", true]]);
+
+  await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
+  pendingFavorite.resolve(true);
+
+  assert.equal(await toggle, null);
+  assert.equal(
+    context.calls.some(
+      ([name, value]) =>
+        (name === "catalog.list" && value?.favorite === true) ||
+        name === "view.recent",
+    ),
+    false,
+  );
+});
+
 test("bloqueia de forma determinística favoritos concorrentes do mesmo cartão", async () => {
   const pendingFavorite = deferred();
   let favoriteRequests = 0;
@@ -1064,6 +1121,25 @@ test("não aplica ação encadeada de um cartão quando outro documento já est�
   );
 });
 
+test("versão de outro documento não pode ser promovida após troca de seleção", async () => {
+  const context = fixture();
+  await context.workspace.start();
+  await context.workspace.openDocument("document-a");
+  await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
+
+  const result = await context.workspace.promoteVersion(
+    "version-a",
+    "document-a",
+  );
+
+  assert.equal(result, null);
+  assert.equal(
+    context.calls.some(([name]) => name === "detail.promote"),
+    false,
+  );
+});
+
 test("falha do histórico não invalida o detalhe nem impede ação contextual posterior", async () => {
   const context = fixture({
     detail: {
@@ -1186,6 +1262,45 @@ test("pagehide invalida callbacks tardios de catálogo e detalhe", async () => {
     context.calls
       .slice(clearIndex + 1)
       .some(([name]) => name === "view.catalog" || name === "view.detail"),
+    false,
+  );
+});
+
+test("pagehide invalida o encadeamento de uma mutação que já estava pendente", async () => {
+  const pendingFavorite = deferred();
+  let context;
+  context = fixture({
+    detail: {
+      setFavorite(value) {
+        context.calls.push(["detail.favorite", value]);
+        return pendingFavorite.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+  await context.workspace.openDocument("document-a", { favorite: false });
+  const mutation = context.workspace.setFavorite(true, "document-a");
+  await Promise.resolve();
+
+  const lifecycle = context.getLifecycleOptions();
+  lifecycle.cancelActive();
+  lifecycle.clearSensitiveState("pagehide");
+  const clearIndex = context.calls.findLastIndex(
+    ([name]) => name === "view.clear",
+  );
+  pendingFavorite.resolve(true);
+
+  assert.equal(await mutation, null);
+  assert.equal(
+    context.calls
+      .slice(clearIndex + 1)
+      .some(
+        ([name]) =>
+          name === "catalog.list" ||
+          name === "view.catalog" ||
+          name === "view.detail" ||
+          name === "view.recent",
+      ),
     false,
   );
 });
