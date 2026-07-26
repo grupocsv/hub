@@ -1113,6 +1113,154 @@ test("histórico supersedido do mesmo documento não sobrescreve o carregamento 
   assert.deepEqual(nonEmptyRenders, [["version-current"]]);
 });
 
+test("promoção confirmada invalida histórico antigo antes do refresh canônico tardio", async () => {
+  const staleVersions = deferred();
+  const canonicalDetail = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  const context = fixture({
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+      async promoteVersion() {
+        return {
+          documentId: "document-a",
+          versionId: "version-current",
+          publicationStatus: "current",
+        };
+      },
+      refresh() {
+        return canonicalDetail.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const promotion = context.workspace.promoteVersion(
+    "version-current",
+    "document-a",
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+  assert.equal(
+    context.calls.some(
+      ([name, versions]) =>
+        name === "view.versions" &&
+        versions.some?.(({ versionId }) => versionId === "version-stale"),
+    ),
+    false,
+  );
+
+  canonicalDetail.resolve({
+    document: {
+      documentId: "document-a",
+      title: "Documento A",
+      updatedAt: "2026-07-24T12:00:00.000Z",
+    },
+    permissions: ["read", "publish"],
+    etag: '"etag-promovido"',
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await promotion;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
+});
+
+test("upload confirmado invalida histórico antigo antes do catálogo tardio", async () => {
+  const staleVersions = deferred();
+  const catalogRefresh = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  let catalogRequest = 0;
+  const context = fixture({
+    features: { favorites: true, upload: true },
+    catalog: {
+      async loadList() {
+        catalogRequest += 1;
+        if (catalogRequest === 1) return { status: "ready", items: [] };
+        return catalogRefresh.promise;
+      },
+    },
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const upload = context.workspace.startUpload({
+    documentId: "document-a",
+    file: { name: "nova-versao.pdf" },
+    indexingPolicy: "metadata_only",
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+  assert.equal(
+    context.calls.some(
+      ([name, versions]) =>
+        name === "view.versions" &&
+        versions.some?.(({ versionId }) => versionId === "version-stale"),
+    ),
+    false,
+  );
+
+  catalogRefresh.resolve({ status: "ready", items: [] });
+  await Promise.resolve();
+  await Promise.resolve();
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await upload;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
+});
+
 test("rejeita histórico explicitamente identificado como pertencente a outro documento", async () => {
   const context = fixture({
     detail: {

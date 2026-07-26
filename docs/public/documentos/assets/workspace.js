@@ -473,6 +473,8 @@ export function createDocumentosWorkspace(options = {}) {
     ) {
       return null;
     }
+    const refreshVersionsGeneration =
+      options.refreshVersions === true ? ++versionsLoadGeneration : null;
     options.updateSnapshot?.(result, mutationDocumentId);
     recordConfirmedMutation(result, mutationDocumentId);
     if (options.refreshDocument === true) {
@@ -497,8 +499,10 @@ export function createDocumentosWorkspace(options = {}) {
         return null;
       }
     }
-    if (options.refreshVersions === true) {
-      const refreshVersionsGeneration = ++versionsLoadGeneration;
+    if (
+      options.refreshVersions === true &&
+      refreshVersionsGeneration === versionsLoadGeneration
+    ) {
       try {
         const loadedVersions = await detail.loadVersions();
         const versions =
@@ -702,31 +706,41 @@ export function createDocumentosWorkspace(options = {}) {
 
   async function refreshAfterUpload(result) {
     if (result?.status !== "succeeded" || !acceptsCallbacks()) return result;
+    const versionsRefresh =
+      activeDocumentId &&
+      result.documentId === activeDocumentId &&
+      acceptsCallbacks()
+        ? Object.freeze({
+            documentId: activeDocumentId,
+            selectionGeneration,
+            loadGeneration: ++versionsLoadGeneration,
+          })
+        : null;
     try {
       await refreshCatalog();
     } catch {
       // O upload foi concluído; a atualização do catálogo pode ser repetida depois.
     }
     if (
-      activeDocumentId &&
+      versionsRefresh &&
       result.documentId === activeDocumentId &&
+      versionsRefresh.documentId === activeDocumentId &&
+      versionsRefresh.selectionGeneration === selectionGeneration &&
+      versionsRefresh.loadGeneration === versionsLoadGeneration &&
       acceptsCallbacks()
     ) {
-      const refreshGeneration = selectionGeneration;
-      const refreshDocumentId = activeDocumentId;
-      const refreshVersionsGeneration = ++versionsLoadGeneration;
       try {
         const loadedVersions = await detail.loadVersions();
         const versions =
           loadedVersions === null
             ? null
-            : versionsForDocument(loadedVersions, refreshDocumentId);
+            : versionsForDocument(loadedVersions, versionsRefresh.documentId);
         if (
           versions !== null &&
           result.documentId === activeDocumentId &&
-          refreshDocumentId === activeDocumentId &&
-          refreshGeneration === selectionGeneration &&
-          refreshVersionsGeneration === versionsLoadGeneration &&
+          versionsRefresh.documentId === activeDocumentId &&
+          versionsRefresh.selectionGeneration === selectionGeneration &&
+          versionsRefresh.loadGeneration === versionsLoadGeneration &&
           acceptsCallbacks()
         ) {
           activeVersions = versions;
@@ -735,9 +749,9 @@ export function createDocumentosWorkspace(options = {}) {
       } catch {
         if (
           acceptsCallbacks() &&
-          refreshVersionsGeneration === versionsLoadGeneration &&
-          refreshGeneration === selectionGeneration &&
-          refreshDocumentId === activeDocumentId &&
+          versionsRefresh.loadGeneration === versionsLoadGeneration &&
+          versionsRefresh.selectionGeneration === selectionGeneration &&
+          versionsRefresh.documentId === activeDocumentId &&
           result.documentId === activeDocumentId
         ) {
           view.renderVersionsError();
