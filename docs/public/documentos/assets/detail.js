@@ -479,7 +479,11 @@ export function createDocumentDetailController(options = {}) {
       }),
       (response, context) => {
         const version = response.data?.version;
-        if (!plainObject(version) || typeof version.publicationStatus !== 'string') {
+        if (
+          !plainObject(version) ||
+          version.versionId !== normalizedId ||
+          typeof version.publicationStatus !== 'string'
+        ) {
           throw new TypeError('Resposta de promoção inválida.');
         }
         if (

@@ -404,6 +404,39 @@ test('rejeita versão identificada como pertencente a outro documento', async ()
   await assert.rejects(() => controller.loadVersions(), /resposta de versões inválida/i);
 });
 
+test('exige que a promoção responda com a versão solicitada', async () => {
+  for (const version of [
+    { publicationStatus: 'current' },
+    { versionId: 'version-b', publicationStatus: 'current' },
+  ]) {
+    const controller = createDocumentDetailController({
+      client: {
+        async request(target) {
+          if (target.endsWith('/promote')) {
+            return {
+              data: { version },
+              headers: new Headers(),
+            };
+          }
+          return {
+            data: {
+              document: metadata(),
+              permissions: ['read', 'publish'],
+            },
+            headers: responseHeaders(),
+          };
+        },
+      },
+    });
+
+    await controller.load('document-a');
+    await assert.rejects(
+      () => controller.promoteVersion('version-a'),
+      /resposta de promoção inválida/i,
+    );
+  }
+});
+
 test('loading e erro de uma nova seleção nunca conservam detalhe acionável anterior', async () => {
   const pending = deferred();
   const states = [];
