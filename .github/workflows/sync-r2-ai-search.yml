@@ -13,9 +13,14 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    environment:
+      name: hub-ai-search-production
     if: >-
       ${{
-        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main'
+        ) ||
         (
           github.event_name == 'workflow_run' &&
           (

@@ -128,7 +128,7 @@ test('falha fechado sem configuração válida e não inicia rede quando desabil
     deriveStartupState({
       schemaVersion: 1,
       enabled: true,
-      apiBaseUrl: 'https://hub.grupocsv.com',
+      apiBaseUrl: 'https://documentos-api.grupocsv.com',
       enabledPortals: [],
       features: {},
     }),
@@ -138,7 +138,7 @@ test('falha fechado sem configuração válida e não inicia rede quando desabil
     deriveStartupState({
       schemaVersion: 1,
       enabled: true,
-      apiBaseUrl: 'https://hub.grupocsv.com',
+      apiBaseUrl: 'https://documentos-api.grupocsv.com',
       enabledPortals: ['unimed'],
       features: {},
     }),

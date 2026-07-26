@@ -450,7 +450,13 @@ export function createDocumentDetailController(options = {}) {
       const response = await client.request(documentTarget(context.documentId, '/versions'), {
         signal: operation.controller.signal,
       });
-      if (!contextIsActive(context)) return null;
+      if (
+        operation.controller.signal.aborted ||
+        activeVersionRequest !== operation ||
+        !contextIsActive(context)
+      ) {
+        return null;
+      }
       return normalizeVersions(response.data, context.documentId);
     } catch (error) {
       if (
@@ -479,7 +485,11 @@ export function createDocumentDetailController(options = {}) {
       }),
       (response, context) => {
         const version = response.data?.version;
-        if (!plainObject(version) || typeof version.publicationStatus !== 'string') {
+        if (
+          !plainObject(version) ||
+          version.versionId !== normalizedId ||
+          typeof version.publicationStatus !== 'string'
+        ) {
           throw new TypeError('Resposta de promoção inválida.');
         }
         if (

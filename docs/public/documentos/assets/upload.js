@@ -133,7 +133,7 @@ function optionalText(value, name, maximum, allowEmpty = false) {
   return value;
 }
 
-function normalizeInput(input) {
+function normalizeInput(input, fullTextIndexingEnabled) {
   if (!plainObject(input))
     throw uploadError("invalid_upload", "Envio inválido.");
   const file = input.file;
@@ -175,6 +175,10 @@ function normalizeInput(input) {
   if (!INDEXING_POLICIES.has(input.indexingPolicy)) {
     throw uploadError("invalid_upload", "Política de indexação inválida.");
   }
+  const indexingPolicy =
+    input.indexingPolicy === "full_text" && !fullTextIndexingEnabled
+      ? "metadata_only"
+      : input.indexingPolicy;
   return Object.freeze({
     file,
     fileMetadata,
@@ -185,7 +189,7 @@ function normalizeInput(input) {
     description,
     collectionId,
     classification: input.classification,
-    indexingPolicy: input.indexingPolicy,
+    indexingPolicy,
   });
 }
 
@@ -348,6 +352,7 @@ export function createDocumentUploadController(options = {}) {
   const now = options.now ?? (() => Date.now());
   const maximumPollingMs =
     options.maximumPollingMs ?? DEFAULT_MAXIMUM_POLLING_MS;
+  const fullTextIndexingEnabled = options.fullTextIndexingEnabled === true;
 
   if (
     !client ||
@@ -566,7 +571,7 @@ export function createDocumentUploadController(options = {}) {
     }
     let normalized;
     try {
-      normalized = normalizeInput(input);
+      normalized = normalizeInput(input, fullTextIndexingEnabled);
     } catch (error) {
       const errorCode =
         typeof error?.code === "string" ? error.code : "unexpected_response";

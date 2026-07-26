@@ -70,7 +70,7 @@ const PDF_BYTES = makePdf();
 const RUNTIME_SOURCE = `globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(${JSON.stringify({
   schemaVersion: 1,
   enabled: true,
-  apiBaseUrl: 'https://hub.grupocsv.com',
+  apiBaseUrl: 'https://documentos-api.grupocsv.com',
   enabledPortals: ['unimed'],
   features: {
     favorites: true,
@@ -193,7 +193,9 @@ const BOOTSTRAP_SOURCE = `
 
   globalThis.fetch = async (input, init = {}) => {
     const url = new URL(typeof input === 'string' ? input : input.url);
-    if (url.origin !== 'https://hub.grupocsv.com') return originalFetch(input, init);
+    if (url.origin !== 'https://documentos-api.grupocsv.com') {
+      return originalFetch(input, init);
+    }
     const headers = new Headers(init.headers || {});
     const method = (init.method || 'GET').toUpperCase();
     globalThis.__DOCS_E2E_LOG.push(Object.freeze({

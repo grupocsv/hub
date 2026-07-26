@@ -92,6 +92,7 @@ test("constrói modelo de detalhe somente com ações autorizadas e versões pú
     },
     [
       {
+        documentId: "document-a",
         versionId: "version-a",
         versionNumber: 1,
         publicationStatus: "eligible",
@@ -110,6 +111,35 @@ test("constrói modelo de detalhe somente com ações autorizadas e versões pú
     model.actions.some(({ id }) => id === "requestDeletion"),
     false,
   );
+});
+
+test("rejeita versão sem vínculo ou vinculada a outro documento", () => {
+  const state = {
+    status: "ready",
+    favorite: false,
+    detail: {
+      document: catalogItem({ indexingPolicy: "metadata_only" }),
+      permissions: ["read", "publish"],
+    },
+    actions: {
+      open: true,
+      promoteVersion: true,
+    },
+  };
+
+  for (const version of [
+    { versionId: "version-a", publicationStatus: "eligible" },
+    {
+      documentId: "document-b",
+      versionId: "version-b",
+      publicationStatus: "eligible",
+    },
+  ]) {
+    assert.throws(
+      () => buildDetailViewModel(state, [version]),
+      /versão documental inválida/i,
+    );
+  }
 });
 
 test("favoritos permanecem ocultos quando o flag está desligado", () => {
@@ -329,6 +359,11 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(template, /id="docs-upload-form"/);
   assert.match(template, /id="docs-upload-file"[^>]*type="file"/);
   assert.match(template, /id="docs-upload-status"[^>]*aria-live="polite"/);
+  assert.match(
+    template,
+    /id="docs-upload-indexing"[\s\S]*value="metadata_only"/,
+  );
+  assert.doesNotMatch(template, /value="full_text"/);
   assert.match(template, /data-action="cancel-upload"/);
   assert.match(template, /accept="\.pdf,\.png,\.jpg,\.jpeg,\.webp,\.txt,\.md"/);
   assert.match(

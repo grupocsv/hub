@@ -6,7 +6,7 @@ import { bootstrapDocumentosApp } from '../../docs/public/documentos/assets/app.
 const READY_CONFIG = Object.freeze({
   schemaVersion: 1,
   enabled: true,
-  apiBaseUrl: 'https://hub.grupocsv.com',
+  apiBaseUrl: 'https://documentos-api.grupocsv.com',
   enabledPortals: ['unimed'],
   features: { favorites: true, upload: false, viewer: false, offline: false },
 });

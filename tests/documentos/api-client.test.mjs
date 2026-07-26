@@ -7,7 +7,7 @@ import {
   publicErrorState,
 } from "../../docs/public/documentos/assets/api-client.js";
 
-const API_BASE_URL = "https://hub.grupocsv.com";
+const API_BASE_URL = "https://documentos-api.grupocsv.com";
 const SESSION = Object.freeze({
   portal: "unimed",
   token: "token-super-secreto",
@@ -72,7 +72,10 @@ test("envia somente X-Auth-Token como credencial humana e não envia contexto de
 
   assert.deepEqual(result.data, { items: [], next_cursor: null });
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://hub.grupocsv.com/v1/documents?limit=20");
+  assert.equal(
+    calls[0].url,
+    "https://documentos-api.grupocsv.com/v1/documents?limit=20",
+  );
   const headers = new Headers(calls[0].init.headers);
   assert.equal(headers.get("X-Auth-Token"), SESSION.token);
   assert.equal(headers.get("Authorization"), null);

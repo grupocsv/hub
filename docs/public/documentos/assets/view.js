@@ -110,7 +110,10 @@ export function buildDetailViewModel(state, versions = [], capabilities = {}) {
   }
   const document = state.detail?.document ?? null;
   const actions = state.actions ?? {};
-  if (document !== null && !plainObject(document)) {
+  if (
+    document !== null &&
+    (!plainObject(document) || typeof document.documentId !== "string")
+  ) {
     throw new TypeError("Estado de detalhe inválido.");
   }
   const visibleActions = ACTIONS.filter((action) => {
@@ -137,7 +140,12 @@ export function buildDetailViewModel(state, versions = [], capabilities = {}) {
     }),
   );
   const normalizedVersions = versions.map((version) => {
-    if (!plainObject(version) || typeof version.versionId !== "string") {
+    if (
+      !plainObject(version) ||
+      typeof version.versionId !== "string" ||
+      document === null ||
+      version.documentId !== document.documentId
+    ) {
       throw new TypeError("Versão documental inválida.");
     }
     return Object.freeze({
@@ -709,6 +717,7 @@ export function createDocumentosView(options = {}) {
     detailRoot.inert = true;
     detailRoot.setAttribute("aria-hidden", "true");
     uploadForm.reset();
+    if (!searchEnabled) uploadIndexing.value = "metadata_only";
     uploadDocumentId.value =
       value.mode === "version" ? (value.documentId ?? "") : "";
     setUploadMetadataEnabled(value.mode === "create");
@@ -1254,7 +1263,7 @@ export function createDocumentosView(options = {}) {
         item.append(
           button(documentRef, "Promover", "promote-version", {
             versionId: version.versionId,
-            documentId: model?.document?.documentId,
+            documentId: version.documentId,
             disabled: model?.actionsDisabled === true,
             ariaLabel: `Promover versão ${version.versionNumber ?? version.versionId}`,
           }),
@@ -1713,7 +1722,10 @@ export function createDocumentosView(options = {}) {
                 description: uploadDescription.value,
                 collectionId: uploadCollection.value || null,
                 classification: uploadClassification.value,
-                indexingPolicy: uploadIndexing.value,
+                indexingPolicy:
+                  !searchEnabled && uploadIndexing.value === "full_text"
+                    ? "metadata_only"
+                    : uploadIndexing.value,
               }),
         }),
       );

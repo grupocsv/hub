@@ -37,7 +37,7 @@ PORTALS = ("unimed", "unihealth", "icds")
 DOCUMENTOS_ROUTE = "/documentos/"
 DOCUMENTOS_TITLE = "Documentos"
 DOCUMENTOS_MANAGER = "hub-documentos"
-ALLOWED_API_ORIGIN = "https://hub.grupocsv.com"
+ALLOWED_API_ORIGIN = "https://documentos-api.grupocsv.com"
 BASELINE_PURPOSE = (
     "Congela integralmente a base não gerenciada; a Fase 9.7 apenas "
     "reconcilia o card Documentos."
@@ -449,7 +449,7 @@ def validate_runtime_config(value: object, registry: dict[str, dict]) -> set[str
             fail("Base pública da API inválida.")
         if (
             parsed_api.scheme != "https"
-            or parsed_api.netloc != "hub.grupocsv.com"
+            or parsed_api.netloc != "documentos-api.grupocsv.com"
             or parsed_api.username
             or parsed_api.password
             or parsed_api.path not in ("", "/")

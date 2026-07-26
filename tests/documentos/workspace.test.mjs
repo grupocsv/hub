@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createDocumentosWorkspace } from "../../docs/public/documentos/assets/workspace.js";
@@ -253,6 +254,8 @@ function fixture(overrides = {}) {
       detailOptions = options;
       return detail;
     },
+    createCardDetailController:
+      overrides.createCardDetailController ?? (() => detail),
     createRecentStore() {
       return recent;
     },
@@ -329,6 +332,36 @@ test("condiciona upload a create ou create_version e atualiza o catálogo após 
   assert.deepEqual(
     context.calls.find(([name]) => name === "upload.start")?.[1].permissions,
     ["create"],
+  );
+  assert.equal(
+    context.calls.find(([name]) => name === "upload.start")?.[1]
+      .indexingPolicy,
+    "metadata_only",
+  );
+  assert.equal(context.getUploadOptions().fullTextIndexingEnabled, false);
+
+  await handlers.startUpload({
+    file: { name: "sem-indexacao.pdf" },
+    title: "Documento sem indexação",
+    indexingPolicy: "disabled",
+  });
+  assert.equal(
+    context.calls
+      .filter(([name]) => name === "upload.start")
+      .at(-1)[1].indexingPolicy,
+    "disabled",
+  );
+
+  await handlers.startUpload({
+    file: { name: "texto-integral.pdf" },
+    title: "Documento com política indisponível",
+    indexingPolicy: "full_text",
+  });
+  assert.equal(
+    context.calls
+      .filter(([name]) => name === "upload.start")
+      .at(-1)[1].indexingPolicy,
+    "metadata_only",
   );
 
   await handlers.openDocument("document-a");
@@ -450,6 +483,38 @@ test("busca falha fechado quando features.search está ausente", async () => {
   assert.equal(await context.getHandlers().search("oncologia"), null);
   assert.equal(
     context.calls.some(([name]) => name === "catalog.search"),
+    false,
+  );
+});
+
+test("artefato produtivo mantém busca desligada e não chama /v1/search", async () => {
+  const source = await readFile(
+    new URL(
+      "../../docs/public/documentos/assets/runtime-config.js",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const prefix = "globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(";
+  assert.ok(source.startsWith(prefix));
+  const config = JSON.parse(source.slice(prefix.length, -3));
+  assert.equal(config.features.search, false);
+
+  const context = fixture({
+    features: {
+      favorites: config.features.favorites,
+      search: config.features.search,
+    },
+  });
+  await context.workspace.start();
+  context.calls.length = 0;
+
+  assert.equal(await context.getHandlers().search("oncologia"), null);
+  assert.equal(
+    context.calls.some(
+      ([name, target]) =>
+        name === "catalog.search" || String(target).includes("/v1/search"),
+    ),
     false,
   );
 });
@@ -661,44 +726,31 @@ test("favorito do cartão valida o detalhe sem abrir o modal", async () => {
       ([name, value]) => name === "detail.favorite" && value === true,
     ),
   );
-  assert.ok(context.calls.some(([name]) => name === "detail.cancel"));
+  assert.ok(context.calls.some(([name]) => name === "detail.destroy"));
   assert.equal(
     context.calls.some(([name]) => name === "view.detail"),
     false,
   );
 });
 
-test("favorito de cartão supersedido não atinge o documento que assumiu a seleção", async () => {
+test("favorito de cartão em validação continua isolado quando outra seleção assume o detalhe", async () => {
   const pendingCardLoad = deferred();
-  let controllerDocumentId = null;
   const favoriteTargets = [];
-  let context;
-  context = fixture({
-    detail: {
-      async load(documentId) {
-        context.calls.push(["detail.load", documentId]);
-        controllerDocumentId = documentId;
-        if (documentId === "document-a") return pendingCardLoad.promise;
-        return {
-          document: {
-            documentId,
-            title: "Documento B",
-            description: "",
-            classification: "internal",
-            lifecycleStatus: "active",
-            indexingPolicy: "metadata_only",
-            updatedAt: "2026-07-24T12:00:00.000Z",
-          },
-          permissions: ["read"],
-        };
-      },
-      async loadVersions() {
-        return [];
-      },
-      async setFavorite(value) {
-        favoriteTargets.push([controllerDocumentId, value]);
-        return value;
-      },
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return pendingCardLoad.promise;
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return value;
+        },
+        cancel() {},
+        destroy() {},
+      };
     },
   });
   await context.workspace.start();
@@ -710,6 +762,7 @@ test("favorito de cartão supersedido não atinge o documento que assumiu a sele
   );
   await Promise.resolve();
   await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
   pendingCardLoad.resolve({
     document: {
       documentId: "document-a",
@@ -723,8 +776,77 @@ test("favorito de cartão supersedido não atinge o documento que assumiu a sele
     permissions: ["read"],
   });
 
-  assert.equal(await toggle, null);
-  assert.deepEqual(favoriteTargets, []);
+  assert.equal(await toggle, true);
+  assert.deepEqual(favoriteTargets, [["document-a", true]]);
+  assert.equal(
+    context.calls.some(
+      ([name, value]) =>
+        name === "view.detail" &&
+        value?.detail?.document?.documentId === "document-a",
+    ),
+    false,
+  );
+});
+
+test("favorito de cartão já enviado preserva a seleção nova e atualiza o catálogo", async () => {
+  const pendingFavorite = deferred();
+  const favoriteTargets = [];
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T10:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return pendingFavorite.promise;
+        },
+        cancel() {},
+        destroy() {},
+      };
+    },
+  });
+  await context.workspace.start();
+
+  const toggle = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(favoriteTargets, [["document-a", true]]);
+
+  await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
+  pendingFavorite.resolve(true);
+
+  assert.equal(await toggle, true);
+  assert.equal(
+    context.calls.some(
+      ([name, value]) =>
+        name === "view.detail" &&
+        value?.detail?.document?.documentId === "document-a",
+    ),
+    false,
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "catalog.list"),
+    true,
+  );
 });
 
 test("bloqueia de forma determinística favoritos concorrentes do mesmo cartão", async () => {
@@ -761,6 +883,65 @@ test("bloqueia de forma determinística favoritos concorrentes do mesmo cartão"
   pendingFavorite.resolve(true);
   assert.equal(await first, true);
   assert.equal(favoriteRequests, 1);
+});
+
+test("favoritos de cartões distintos preservam as duas intenções independentemente", async () => {
+  const pending = new Map([
+    ["document-a", deferred()],
+    ["document-b", deferred()],
+  ]);
+  const favoriteTargets = [];
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T11:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return pending.get(documentId).promise;
+        },
+        cancel() {},
+        destroy() {},
+      };
+    },
+  });
+  await context.workspace.start();
+
+  const favoriteA = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  const favoriteB = context.workspace.toggleCardFavorite(
+    true,
+    "document-b",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(favoriteTargets, [
+    ["document-a", true],
+    ["document-b", true],
+  ]);
+
+  pending.get("document-b").resolve(true);
+  pending.get("document-a").resolve(true);
+  assert.equal(await favoriteA, true);
+  assert.equal(await favoriteB, true);
 });
 
 test("resultado parcial de busca não contamina snapshot completo de Recentes", async () => {
@@ -883,6 +1064,203 @@ test("não renderiza versões tardias de A depois que B assume o detalhe", async
   );
 });
 
+test("histórico supersedido do mesmo documento não sobrescreve o carregamento mais novo", async () => {
+  const staleVersions = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  const context = fixture({
+    features: { favorites: true, upload: true },
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const upload = context.workspace.startUpload({
+    documentId: "document-a",
+    file: { name: "nova-versao.pdf" },
+    indexingPolicy: "metadata_only",
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await upload;
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
+});
+
+test("promoção confirmada invalida histórico antigo antes do refresh canônico tardio", async () => {
+  const staleVersions = deferred();
+  const canonicalDetail = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  const context = fixture({
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+      async promoteVersion() {
+        return {
+          documentId: "document-a",
+          versionId: "version-current",
+          publicationStatus: "current",
+        };
+      },
+      refresh() {
+        return canonicalDetail.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const promotion = context.workspace.promoteVersion(
+    "version-current",
+    "document-a",
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+  assert.equal(
+    context.calls.some(
+      ([name, versions]) =>
+        name === "view.versions" &&
+        versions.some?.(({ versionId }) => versionId === "version-stale"),
+    ),
+    false,
+  );
+
+  canonicalDetail.resolve({
+    document: {
+      documentId: "document-a",
+      title: "Documento A",
+      updatedAt: "2026-07-24T12:00:00.000Z",
+    },
+    permissions: ["read", "publish"],
+    etag: '"etag-promovido"',
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await promotion;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
+});
+
+test("upload confirmado invalida histórico antigo antes do catálogo tardio", async () => {
+  const staleVersions = deferred();
+  const catalogRefresh = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  let catalogRequest = 0;
+  const context = fixture({
+    features: { favorites: true, upload: true },
+    catalog: {
+      async loadList() {
+        catalogRequest += 1;
+        if (catalogRequest === 1) return { status: "ready", items: [] };
+        return catalogRefresh.promise;
+      },
+    },
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const upload = context.workspace.startUpload({
+    documentId: "document-a",
+    file: { name: "nova-versao.pdf" },
+    indexingPolicy: "metadata_only",
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+  assert.equal(
+    context.calls.some(
+      ([name, versions]) =>
+        name === "view.versions" &&
+        versions.some?.(({ versionId }) => versionId === "version-stale"),
+    ),
+    false,
+  );
+
+  catalogRefresh.resolve({ status: "ready", items: [] });
+  await Promise.resolve();
+  await Promise.resolve();
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await upload;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
+});
+
 test("rejeita histórico explicitamente identificado como pertencente a outro documento", async () => {
   const context = fixture({
     detail: {
@@ -997,6 +1375,25 @@ test("não aplica ação encadeada de um cartão quando outro documento já est�
   assert.equal(result, null);
   assert.equal(
     context.calls.some(([name]) => name === "detail.favorite"),
+    false,
+  );
+});
+
+test("versão de outro documento não pode ser promovida após troca de seleção", async () => {
+  const context = fixture();
+  await context.workspace.start();
+  await context.workspace.openDocument("document-a");
+  await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
+
+  const result = await context.workspace.promoteVersion(
+    "version-a",
+    "document-a",
+  );
+
+  assert.equal(result, null);
+  assert.equal(
+    context.calls.some(([name]) => name === "detail.promote"),
     false,
   );
 });
@@ -1123,6 +1520,107 @@ test("pagehide invalida callbacks tardios de catálogo e detalhe", async () => {
     context.calls
       .slice(clearIndex + 1)
       .some(([name]) => name === "view.catalog" || name === "view.detail"),
+    false,
+  );
+});
+
+test("pagehide invalida o encadeamento de uma mutação que já estava pendente", async () => {
+  const pendingFavorite = deferred();
+  let context;
+  context = fixture({
+    detail: {
+      setFavorite(value) {
+        context.calls.push(["detail.favorite", value]);
+        return pendingFavorite.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+  await context.workspace.openDocument("document-a", { favorite: false });
+  const mutation = context.workspace.setFavorite(true, "document-a");
+  await Promise.resolve();
+
+  const lifecycle = context.getLifecycleOptions();
+  lifecycle.cancelActive();
+  lifecycle.clearSensitiveState("pagehide");
+  const clearIndex = context.calls.findLastIndex(
+    ([name]) => name === "view.clear",
+  );
+  pendingFavorite.resolve(true);
+
+  assert.equal(await mutation, null);
+  assert.equal(
+    context.calls
+      .slice(clearIndex + 1)
+      .some(
+        ([name]) =>
+          name === "catalog.list" ||
+          name === "view.catalog" ||
+          name === "view.detail" ||
+          name === "view.recent",
+      ),
+    false,
+  );
+});
+
+test("pagehide cancela favoritos de cartão isolados e bloqueia atualização tardia", async () => {
+  const pendingFavorite = deferred();
+  let cancellations = 0;
+  const context = fixture({
+    createCardDetailController() {
+      return {
+        async load(documentId) {
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T11:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite() {
+          return pendingFavorite.promise;
+        },
+        cancel() {
+          cancellations += 1;
+        },
+        destroy() {},
+      };
+    },
+  });
+  await context.workspace.start();
+  const mutation = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+
+  const lifecycle = context.getLifecycleOptions();
+  lifecycle.cancelActive();
+  lifecycle.clearSensitiveState("pagehide");
+  const clearIndex = context.calls.findLastIndex(
+    ([name]) => name === "view.clear",
+  );
+  pendingFavorite.resolve(true);
+
+  assert.equal(await mutation, null);
+  assert.equal(cancellations, 1);
+  assert.equal(
+    context.calls
+      .slice(clearIndex + 1)
+      .some(
+        ([name]) =>
+          name === "catalog.list" ||
+          name === "view.catalog" ||
+          name === "view.recent",
+      ),
     false,
   );
 });

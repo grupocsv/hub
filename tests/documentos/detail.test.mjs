@@ -404,6 +404,39 @@ test('rejeita versão identificada como pertencente a outro documento', async ()
   await assert.rejects(() => controller.loadVersions(), /resposta de versões inválida/i);
 });
 
+test('exige que a promoção responda com a versão solicitada', async () => {
+  for (const version of [
+    { publicationStatus: 'current' },
+    { versionId: 'version-b', publicationStatus: 'current' },
+  ]) {
+    const controller = createDocumentDetailController({
+      client: {
+        async request(target) {
+          if (target.endsWith('/promote')) {
+            return {
+              data: { version },
+              headers: new Headers(),
+            };
+          }
+          return {
+            data: {
+              document: metadata(),
+              permissions: ['read', 'publish'],
+            },
+            headers: responseHeaders(),
+          };
+        },
+      },
+    });
+
+    await controller.load('document-a');
+    await assert.rejects(
+      () => controller.promoteVersion('version-a'),
+      /resposta de promoção inválida/i,
+    );
+  }
+});
+
 test('loading e erro de uma nova seleção nunca conservam detalhe acionável anterior', async () => {
   const pending = deferred();
   const states = [];
@@ -557,6 +590,128 @@ test('update, archive e promote tardios não substituem uma nova seleção', asy
     assert.equal(controller.getDetail().document.documentId, 'document-b');
     assert.equal(states.length, statesAfterSelection, scenario.name);
   }
+});
+
+test('a geração impede respostas antigas de reaplicar estado ao reabrir o mesmo documento', async () => {
+  const pendingMutation = deferred();
+  const pendingVersions = deferred();
+  const states = [];
+  let detailLoads = 0;
+  const controller = createDocumentDetailController({
+    client: {
+      request(target, options = {}) {
+        if (target.endsWith('/versions')) return pendingVersions.promise;
+        if (options.method === 'PATCH') return pendingMutation.promise;
+        detailLoads += 1;
+        return Promise.resolve({
+          data: {
+            document: metadata({
+              title: detailLoads === 1 ? 'Primeira abertura' : 'Reabertura canônica',
+              metadataVersion: detailLoads,
+            }),
+            permissions: ['read', 'update_metadata'],
+          },
+          headers: responseHeaders(`W/"metadata-${detailLoads}"`),
+        });
+      },
+    },
+    onState: (state) => states.push(state),
+  });
+
+  await controller.load('document-a');
+  const oldVersions = controller.loadVersions();
+  const oldMutation = controller.updateMetadata({ title: 'Resposta antiga' });
+  await controller.load('document-a');
+  const statesAfterReopen = states.length;
+
+  pendingVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-old',
+          publicationStatus: 'eligible',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  pendingMutation.resolve({
+    data: {
+      document: metadata({
+        title: 'Resposta antiga',
+        metadataVersion: 99,
+      }),
+      permissions: ['read', 'update_metadata'],
+    },
+    headers: responseHeaders('W/"metadata-99"'),
+  });
+
+  assert.equal(await oldVersions, null);
+  assert.equal(await oldMutation, null);
+  assert.equal(controller.getDetail().document.title, 'Reabertura canônica');
+  assert.equal(controller.getDetail().etag, 'W/"metadata-2"');
+  assert.equal(states.length, statesAfterReopen);
+});
+
+test('loadVersions supersedido no mesmo documento nunca devolve o histórico obsoleto', async () => {
+  const firstVersions = deferred();
+  const secondVersions = deferred();
+  const versionSignals = [];
+  let versionRequest = 0;
+  const controller = createDocumentDetailController({
+    client: {
+      request(target, options = {}) {
+        if (!target.endsWith('/versions')) {
+          return Promise.resolve({
+            data: {
+              document: metadata(),
+              permissions: ['read'],
+            },
+            headers: responseHeaders(),
+          });
+        }
+        versionSignals.push(options.signal);
+        versionRequest += 1;
+        return versionRequest === 1
+          ? firstVersions.promise
+          : secondVersions.promise;
+      },
+    },
+  });
+  await controller.load('document-a');
+
+  const stale = controller.loadVersions();
+  const current = controller.loadVersions();
+  assert.equal(versionSignals[0].aborted, true);
+
+  secondVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-current',
+          publicationStatus: 'current',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  assert.deepEqual(
+    (await current).map(({ versionId }) => versionId),
+    ['version-current'],
+  );
+
+  firstVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-stale',
+          publicationStatus: 'current',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  assert.equal(await stale, null);
 });
 
 test('trata IDs retornados pelo Worker como opacos de até 256 caracteres', async () => {

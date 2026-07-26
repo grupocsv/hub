@@ -1,8 +1,16 @@
 {
   "portal": "unihealth",
   "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-  "totalTools": 4,
+  "totalTools": 5,
   "tools": [
+    {
+      "file": "/documentos/?portal=unihealth",
+      "title": "Documentos",
+      "created": "2026-07-05T18:00:00.000000+00:00",
+      "lastModified": "2026-07-05T18:00:00.000000+00:00",
+      "external": true,
+      "managedBy": "hub-documentos"
+    },
     {
       "file": "calc-plantao.html",
       "title": "Calculadora Variabilidade Plantões",
