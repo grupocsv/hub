@@ -3,7 +3,7 @@ import { createSessionCoordinator, resolvePortalContext } from './session.js';
 import { createDocumentosView } from './view.js';
 import { createDocumentosWorkspace } from './workspace.js';
 
-const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
+const ALLOWED_API_ORIGINS = new Set(['https://documentos-api.grupocsv.com']);
 const VALID_STATES = new Set(['loading', 'unavailable', 'empty', 'error']);
 
 const STATE_COPY = Object.freeze({

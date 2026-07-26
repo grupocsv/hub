@@ -36,7 +36,7 @@ const REQUIRED_FEATURE_KEYS = Object.freeze([
 ]);
 const REGISTRY_KEYS = new Set(['schemaVersion', 'tenants']);
 const TENANT_KEYS = new Set(['portal', 'enabled', 'href']);
-const ALLOWED_API_ORIGINS = new Set(['https://hub.grupocsv.com']);
+const ALLOWED_API_ORIGINS = new Set(['https://documentos-api.grupocsv.com']);
 const HUB_AUTH_ORIGIN = 'https://csv-auth.guilherme-thom.workers.dev';
 const CANONICAL_PORTAL = /^[a-z0-9][a-z0-9-]{0,63}$/u;
 const DOCUMENTOS_ROUTE = '/documentos/';

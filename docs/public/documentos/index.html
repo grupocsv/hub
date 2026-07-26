@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <meta name="theme-color" content="#1b1e24">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha384-JIWqIW+TAgyPm1Fmf4Do+k3u29cGgEgtLOrCx6JGvkca+7qSTfX93tDSlOHVOyyv'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://csv-auth.guilherme-thom.workers.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha384-jS1ts5dtorw4rwnkLxwaillQR8VLuWntb7likMach9ywNdxRaVkhll02NgTpcfoQ'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://documentos-api.grupocsv.com https://csv-auth.guilherme-thom.workers.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
     <title>Documentos | Grupo CSV</title>
     <link rel="stylesheet" href="./assets/documentos.css">
     <link id="hub-auth-styles" rel="stylesheet" href="/scripts/hub-auth.css">
@@ -173,7 +173,6 @@
               <span>Política de Indexação</span>
               <select id="docs-upload-indexing" name="indexingPolicy" required>
                 <option value="metadata_only">Somente Metadados</option>
-                <option value="full_text">Texto Integral</option>
                 <option value="disabled">Desabilitada</option>
               </select>
             </label>
@@ -232,7 +231,7 @@
       <a href="/">Voltar ao Hub</a>
     </footer>
 
-    <script src="./assets/runtime-config.js" integrity="sha384-JIWqIW+TAgyPm1Fmf4Do+k3u29cGgEgtLOrCx6JGvkca+7qSTfX93tDSlOHVOyyv" crossorigin="anonymous"></script>
+    <script src="./assets/runtime-config.js" integrity="sha384-jS1ts5dtorw4rwnkLxwaillQR8VLuWntb7likMach9ywNdxRaVkhll02NgTpcfoQ" crossorigin="anonymous"></script>
     <script type="module" src="./assets/app.js"></script>
   </body>
 </html>

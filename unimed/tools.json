@@ -1,8 +1,16 @@
 {
   "portal": "unimed",
   "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-  "totalTools": 6,
+  "totalTools": 7,
   "tools": [
+    {
+      "file": "/documentos/?portal=unimed",
+      "title": "Documentos",
+      "created": "2026-07-05T18:00:00.000000+00:00",
+      "lastModified": "2026-07-05T18:00:00.000000+00:00",
+      "external": true,
+      "managedBy": "hub-documentos"
+    },
     {
       "file": "drg.html",
       "title": "DRG Brasil Analytics",

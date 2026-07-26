@@ -709,6 +709,7 @@ export function createDocumentosView(options = {}) {
     detailRoot.inert = true;
     detailRoot.setAttribute("aria-hidden", "true");
     uploadForm.reset();
+    if (!searchEnabled) uploadIndexing.value = "metadata_only";
     uploadDocumentId.value =
       value.mode === "version" ? (value.documentId ?? "") : "";
     setUploadMetadataEnabled(value.mode === "create");
@@ -1713,7 +1714,10 @@ export function createDocumentosView(options = {}) {
                 description: uploadDescription.value,
                 collectionId: uploadCollection.value || null,
                 classification: uploadClassification.value,
-                indexingPolicy: uploadIndexing.value,
+                indexingPolicy:
+                  !searchEnabled && uploadIndexing.value === "full_text"
+                    ? "metadata_only"
+                    : uploadIndexing.value,
               }),
         }),
       );

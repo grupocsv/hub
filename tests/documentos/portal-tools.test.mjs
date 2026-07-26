@@ -388,7 +388,7 @@ test("gera exatamente um card marcado por tenant habilitado e nenhum nos demais"
   const config = {
     ...DISABLED_CONFIG,
     enabled: true,
-    apiBaseUrl: "https://hub.grupocsv.com",
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
     enabledPortals: ["unimed"],
     features: { ...DISABLED_CONFIG.features, search: false },
   };
@@ -499,7 +499,7 @@ test("exige igualdade exata entre tenants habilitados e enabledPortals", async (
       const config = {
         ...DISABLED_CONFIG,
         enabled: true,
-        apiBaseUrl: "https://hub.grupocsv.com",
+        apiBaseUrl: "https://documentos-api.grupocsv.com",
         enabledPortals,
       };
       await withFixture(
@@ -900,7 +900,7 @@ test("falha injetada no meio da promoção restaura os três tools.json", async 
   const config = {
     ...DISABLED_CONFIG,
     enabled: true,
-    apiBaseUrl: "https://hub.grupocsv.com",
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
     enabledPortals: ["unimed"],
   };
   await withFixture({ config, registry, withBaseline: true }, async (root) => {
@@ -926,7 +926,7 @@ test("falha de rollback preserva backup e instruções de recuperação", async 
   const config = {
     ...DISABLED_CONFIG,
     enabled: true,
-    apiBaseUrl: "https://hub.grupocsv.com",
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
     enabledPortals: ["unimed"],
   };
   await withFixture({ config, registry, withBaseline: true }, async (root) => {
@@ -1012,7 +1012,7 @@ test("fontes e saída não dependem de datetime.now, mtime ou listagem não orde
   assert.match(source, /sorted\(/);
 });
 
-test("fontes versionadas reais mantêm zero tenant e zero card sem inferência", async () => {
+test("fontes versionadas reais mantêm exatamente três tenants e três cards gerenciados", async () => {
   const registry = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-tenants.json"),
@@ -1038,18 +1038,42 @@ test("fontes versionadas reais mantêm zero tenant e zero card sem inferência",
     ),
   );
 
-  assert.deepEqual(registry.tenants, []);
-  assert.equal(config.enabled, false);
-  assert.deepEqual(config.enabledPortals, []);
+  assert.deepEqual(
+    registry.tenants,
+    PORTALS.map((portal) => ({
+      portal,
+      enabled: true,
+      href: "/documentos/",
+    })),
+  );
+  assert.equal(config.enabled, true);
+  assert.equal(config.apiBaseUrl, "https://documentos-api.grupocsv.com");
+  assert.deepEqual(config.enabledPortals, PORTALS);
+  assert.deepEqual(config.features, {
+    favorites: true,
+    offline: false,
+    search: false,
+    upload: true,
+    viewer: true,
+  });
   for (const portal of PORTALS) {
     const output = JSON.parse(
       await readFile(join(REPO_ROOT, portal, "tools.json"), "utf8"),
     );
+    const managed = output.tools.filter(isDocumentosCandidate);
     assert.equal(
-      output.tools.filter(isDocumentosCandidate).length,
-      0,
-      `nenhum card Documentos deve existir em ${portal}`,
+      managed.length,
+      1,
+      `um único card Documentos deve existir em ${portal}`,
     );
+    assert.deepEqual(managed[0], {
+      file: `/documentos/?portal=${portal}`,
+      title: "Documentos",
+      created: output.generatedAt,
+      lastModified: output.generatedAt,
+      external: true,
+      managedBy: "hub-documentos",
+    });
   }
 
   const { manifestSha256, ...unsigned } = baseline;

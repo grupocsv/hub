@@ -226,6 +226,7 @@ export function createDocumentosWorkspace(options = {}) {
   const upload = uploadEnabled
     ? uploadFactory({
         client,
+        fullTextIndexingEnabled: searchEnabled,
         onState: (state) => {
           if (acceptsCallbacks() && uploadPresentationActive)
             view.renderUpload(state);
@@ -750,8 +751,18 @@ export function createDocumentosWorkspace(options = {}) {
       permissions = activeDetail.permissions;
     }
     uploadPresentationActive = true;
+    const requestedIndexingPolicy =
+      input.indexingPolicy ?? "metadata_only";
+    const safeIndexingPolicy =
+      !searchEnabled && requestedIndexingPolicy === "full_text"
+        ? "metadata_only"
+        : requestedIndexingPolicy;
+    const safeInput =
+      safeIndexingPolicy === input.indexingPolicy
+        ? input
+        : { ...input, indexingPolicy: safeIndexingPolicy };
     const result = await upload.start({
-      ...input,
+      ...safeInput,
       permissions: Object.freeze([...permissions]),
     });
     return refreshAfterUpload(result);

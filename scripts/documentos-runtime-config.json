@@ -1,12 +1,17 @@
 {
   "schemaVersion": 1,
-  "enabled": false,
-  "apiBaseUrl": null,
-  "enabledPortals": [],
+  "enabled": true,
+  "apiBaseUrl": "https://documentos-api.grupocsv.com",
+  "enabledPortals": [
+    "unimed",
+    "unihealth",
+    "icds"
+  ],
   "features": {
     "favorites": true,
     "offline": false,
-    "upload": false,
-    "viewer": false
+    "search": false,
+    "upload": true,
+    "viewer": true
   }
 }

@@ -1,8 +1,16 @@
 {
   "portal": "icds",
   "generatedAt": "2026-05-30T14:25:08.296026+00:00",
-  "totalTools": 2,
+  "totalTools": 3,
   "tools": [
+    {
+      "file": "/documentos/?portal=icds",
+      "title": "Documentos",
+      "created": "2026-05-30T14:25:08.296026+00:00",
+      "lastModified": "2026-05-30T14:25:08.296026+00:00",
+      "external": true,
+      "managedBy": "hub-documentos"
+    },
     {
       "file": "slides.html",
       "title": "Gerador de Apresentações",

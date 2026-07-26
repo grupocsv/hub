@@ -152,6 +152,7 @@ function controllerFixture(options = {}) {
     wait: options.wait ?? (async () => {}),
     now: options.now ?? (() => Date.parse("2026-07-25T00:00:00.000Z")),
     maximumPollingMs: options.maximumPollingMs ?? 60_000,
+    fullTextIndexingEnabled: options.fullTextIndexingEnabled,
   });
   return { controller, states };
 }
@@ -267,6 +268,28 @@ test("cria documento, calcula SHA-256, transmite bytes, conclui e acompanha esta
     publicationStatus: "eligible",
     jobStatus: "succeeded",
   });
+});
+
+test("coage full_text para metadata_only quando a busca integral está desabilitada", async () => {
+  const { client, calls } = successClient();
+  const identifiers = ["document-a", "request-2", "request-3", "request-4"];
+  const { controller } = controllerFixture({
+    client,
+    createRequestId: () => identifiers.shift(),
+  });
+
+  const result = await controller.start({
+    file: fileFixture(),
+    permissions: ["create"],
+    title: "Documento sem busca integral",
+    description: "",
+    collectionId: null,
+    classification: "internal",
+    indexingPolicy: "full_text",
+  });
+
+  assert.equal(result.status, "succeeded");
+  assert.equal(calls[0][1].body.indexing_policy, "metadata_only");
 });
 
 test("nova versão exige create_version e não cria outro documento", async () => {

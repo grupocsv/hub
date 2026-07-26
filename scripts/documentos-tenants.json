@@ -1,4 +1,20 @@
 {
   "schemaVersion": 1,
-  "tenants": []
+  "tenants": [
+    {
+      "portal": "unimed",
+      "enabled": true,
+      "href": "/documentos/"
+    },
+    {
+      "portal": "unihealth",
+      "enabled": true,
+      "href": "/documentos/"
+    },
+    {
+      "portal": "icds",
+      "enabled": true,
+      "href": "/documentos/"
+    }
+  ]
 }

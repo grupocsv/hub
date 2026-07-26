@@ -1,1 +1,1 @@
-globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze({"schemaVersion":1,"enabled":false,"apiBaseUrl":null,"enabledPortals":[],"features":{"favorites":true,"offline":false,"upload":false,"viewer":false}});
+globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze({"schemaVersion":1,"enabled":true,"apiBaseUrl":"https://documentos-api.grupocsv.com","enabledPortals":["unimed","unihealth","icds"],"features":{"favorites":true,"offline":false,"upload":true,"viewer":true,"search":false}});

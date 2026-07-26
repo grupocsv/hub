@@ -184,11 +184,48 @@ test("features.search é opcional com default seguro e preserva true quando decl
   );
 });
 
+test("fontes produtivas ativam somente os três portais e mantêm busca integral desligada", async () => {
+  const config = JSON.parse(
+    await readFile(
+      join(REPO_ROOT, "scripts", "documentos-runtime-config.json"),
+      "utf8",
+    ),
+  );
+  const registry = JSON.parse(
+    await readFile(
+      join(REPO_ROOT, "scripts", "documentos-tenants.json"),
+      "utf8",
+    ),
+  );
+
+  assert.deepEqual(config, {
+    schemaVersion: 1,
+    enabled: true,
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
+    enabledPortals: ["unimed", "unihealth", "icds"],
+    features: {
+      favorites: true,
+      offline: false,
+      search: false,
+      upload: true,
+      viewer: true,
+    },
+  });
+  assert.deepEqual(
+    registry.tenants,
+    ["unimed", "unihealth", "icds"].map((portal) => ({
+      portal,
+      enabled: true,
+      href: "/documentos/",
+    })),
+  );
+});
+
 test("CSP habilitada permite somente API documental e origem pública do Hub Auth", async () => {
   const config = {
     ...VALID_CONFIG,
     enabled: true,
-    apiBaseUrl: "https://hub.grupocsv.com",
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
     enabledPortals: ["unimed"],
   };
   const registry = {
@@ -212,7 +249,7 @@ test("CSP habilitada permite somente API documental e origem pública do Hub Aut
 
     assert.deepEqual(connectSources, [
       "'self'",
-      "https://hub.grupocsv.com",
+      "https://documentos-api.grupocsv.com",
       "https://csv-auth.guilherme-thom.workers.dev",
     ]);
     assert.doesNotMatch(
@@ -286,7 +323,7 @@ for (const [name, config, expected] of [
     {
       ...VALID_CONFIG,
       enabled: true,
-      apiBaseUrl: "https://usuario:senha@hub.grupocsv.com",
+      apiBaseUrl: "https://usuario:senha@documentos-api.grupocsv.com",
     },
     /URL pública inválida/i,
   ],
@@ -295,7 +332,7 @@ for (const [name, config, expected] of [
     {
       ...VALID_CONFIG,
       enabled: true,
-      apiBaseUrl: "https://hub.grupocsv.com?token=segredo",
+      apiBaseUrl: "https://documentos-api.grupocsv.com?token=segredo",
     },
     /URL pública inválida/i,
   ],
@@ -304,7 +341,7 @@ for (const [name, config, expected] of [
     {
       ...VALID_CONFIG,
       enabled: true,
-      apiBaseUrl: "https://hub.grupocsv.com/#segredo",
+      apiBaseUrl: "https://documentos-api.grupocsv.com/#segredo",
     },
     /URL pública inválida/i,
   ],

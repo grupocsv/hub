@@ -329,6 +329,11 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(template, /id="docs-upload-form"/);
   assert.match(template, /id="docs-upload-file"[^>]*type="file"/);
   assert.match(template, /id="docs-upload-status"[^>]*aria-live="polite"/);
+  assert.match(
+    template,
+    /id="docs-upload-indexing"[\s\S]*value="metadata_only"/,
+  );
+  assert.doesNotMatch(template, /value="full_text"/);
   assert.match(template, /data-action="cancel-upload"/);
   assert.match(template, /accept="\.pdf,\.png,\.jpg,\.jpeg,\.webp,\.txt,\.md"/);
   assert.match(

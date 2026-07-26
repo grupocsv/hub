@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createDocumentosWorkspace } from "../../docs/public/documentos/assets/workspace.js";
@@ -330,6 +331,36 @@ test("condiciona upload a create ou create_version e atualiza o catálogo após 
     context.calls.find(([name]) => name === "upload.start")?.[1].permissions,
     ["create"],
   );
+  assert.equal(
+    context.calls.find(([name]) => name === "upload.start")?.[1]
+      .indexingPolicy,
+    "metadata_only",
+  );
+  assert.equal(context.getUploadOptions().fullTextIndexingEnabled, false);
+
+  await handlers.startUpload({
+    file: { name: "sem-indexacao.pdf" },
+    title: "Documento sem indexação",
+    indexingPolicy: "disabled",
+  });
+  assert.equal(
+    context.calls
+      .filter(([name]) => name === "upload.start")
+      .at(-1)[1].indexingPolicy,
+    "disabled",
+  );
+
+  await handlers.startUpload({
+    file: { name: "texto-integral.pdf" },
+    title: "Documento com política indisponível",
+    indexingPolicy: "full_text",
+  });
+  assert.equal(
+    context.calls
+      .filter(([name]) => name === "upload.start")
+      .at(-1)[1].indexingPolicy,
+    "metadata_only",
+  );
 
   await handlers.openDocument("document-a");
   assert.deepEqual(handlers.openUpload("document-a"), {
@@ -450,6 +481,38 @@ test("busca falha fechado quando features.search está ausente", async () => {
   assert.equal(await context.getHandlers().search("oncologia"), null);
   assert.equal(
     context.calls.some(([name]) => name === "catalog.search"),
+    false,
+  );
+});
+
+test("artefato produtivo mantém busca desligada e não chama /v1/search", async () => {
+  const source = await readFile(
+    new URL(
+      "../../docs/public/documentos/assets/runtime-config.js",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const prefix = "globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(";
+  assert.ok(source.startsWith(prefix));
+  const config = JSON.parse(source.slice(prefix.length, -3));
+  assert.equal(config.features.search, false);
+
+  const context = fixture({
+    features: {
+      favorites: config.features.favorites,
+      search: config.features.search,
+    },
+  });
+  await context.workspace.start();
+  context.calls.length = 0;
+
+  assert.equal(await context.getHandlers().search("oncologia"), null);
+  assert.equal(
+    context.calls.some(
+      ([name, target]) =>
+        name === "catalog.search" || String(target).includes("/v1/search"),
+    ),
     false,
   );
 });
