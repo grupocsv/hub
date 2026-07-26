@@ -249,7 +249,9 @@ test('lista e promove versão elegível apenas com permissão publish', async ()
   const promoted = await controller.promoteVersion('version-a');
 
   assert.deepEqual(versions.map((item) => item.versionId), ['version-a']);
+  assert.deepEqual(versions.map((item) => item.documentId), ['document-a']);
   assert.equal(promoted.publicationStatus, 'current');
+  assert.equal(promoted.documentId, 'document-a');
   assert.deepEqual(calls.slice(1).map(({ target, options }) => [target, options.method]), [
     ['/v1/documents/document-a/versions', undefined],
     ['/v1/documents/document-a/versions/version-a/promote', 'POST'],
@@ -300,9 +302,13 @@ test('ignora versões e mutações tardias quando outro documento assume o detal
 test('serializa mutações do mesmo detalhe e emite saving também para favorito e exclusão', async () => {
   const pendingFavorite = deferred();
   const states = [];
+  let favoriteRequests = 0;
   const client = {
     request(target) {
-      if (target.endsWith('/favorite')) return pendingFavorite.promise;
+      if (target.endsWith('/favorite')) {
+        favoriteRequests += 1;
+        return pendingFavorite.promise;
+      }
       return Promise.resolve({
         data: {
           document: metadata(),
@@ -320,10 +326,237 @@ test('serializa mutações do mesmo detalhe e emite saving também para favorito
 
   const first = controller.setFavorite(true);
   assert.equal(states.at(-1).status, 'saving');
+  await assert.rejects(() => controller.setFavorite(false), /operação em andamento/i);
   await assert.rejects(() => controller.requestDeletion('Motivo válido'), /operação em andamento/i);
+  assert.equal(favoriteRequests, 1);
   pendingFavorite.resolve({ data: null, headers: new Headers() });
   await first;
   assert.equal(states.at(-1).status, 'ready');
+});
+
+test('mantém o bloqueio de favorito do documento até a resposta abortada encerrar', async () => {
+  const pendingFavorite = deferred();
+  let favoriteRequests = 0;
+  const controller = createDocumentDetailController({
+    client: {
+      request(target) {
+        if (target.endsWith('/favorite')) {
+          favoriteRequests += 1;
+          return pendingFavorite.promise;
+        }
+        return Promise.resolve({
+          data: {
+            document: metadata(),
+            permissions: ['read'],
+          },
+          headers: responseHeaders(),
+        });
+      },
+    },
+  });
+  await controller.load('document-a');
+
+  const first = controller.setFavorite(true);
+  controller.cancel();
+  await controller.load('document-a');
+  await assert.rejects(
+    () => controller.setFavorite(false),
+    /operação em andamento/i,
+  );
+  assert.equal(favoriteRequests, 1);
+
+  pendingFavorite.resolve({ data: null, headers: new Headers() });
+  assert.equal(await first, null);
+  assert.equal(await controller.setFavorite(false), false);
+  assert.equal(favoriteRequests, 2);
+});
+
+test('rejeita versão identificada como pertencente a outro documento', async () => {
+  const controller = createDocumentDetailController({
+    client: {
+      async request(target) {
+        if (target.endsWith('/versions')) {
+          return {
+            data: {
+              items: [
+                {
+                  documentId: 'document-b',
+                  versionId: 'version-b',
+                  publicationStatus: 'eligible',
+                },
+              ],
+            },
+            headers: new Headers(),
+          };
+        }
+        return {
+          data: {
+            document: metadata(),
+            permissions: ['read'],
+          },
+          headers: responseHeaders(),
+        };
+      },
+    },
+  });
+
+  await controller.load('document-a');
+  await assert.rejects(() => controller.loadVersions(), /resposta de versões inválida/i);
+});
+
+test('loading e erro de uma nova seleção nunca conservam detalhe acionável anterior', async () => {
+  const pending = deferred();
+  const states = [];
+  const controller = createDocumentDetailController({
+    client: {
+      request(target) {
+        if (target.endsWith('document-b')) return pending.promise;
+        return Promise.resolve({
+          data: {
+            document: metadata(),
+            permissions: ['read', 'update_metadata'],
+          },
+          headers: responseHeaders(),
+        });
+      },
+    },
+    onState: (state) => states.push(state),
+  });
+
+  await controller.load('document-a');
+  const opening = controller.load('document-b');
+  assert.equal(states.at(-1).status, 'loading');
+  assert.equal(states.at(-1).documentId, 'document-b');
+  assert.equal(states.at(-1).detail, null);
+  assert.equal(states.at(-1).actions.edit, false);
+
+  pending.reject(new Error('detalhe indisponível'));
+  await assert.rejects(() => opening, /detalhe indisponível/i);
+  assert.equal(states.at(-1).status, 'error');
+  assert.equal(states.at(-1).documentId, 'document-b');
+  assert.equal(states.at(-1).detail, null);
+  assert.equal(states.at(-1).actions.edit, false);
+});
+
+test('cancel e destroy invalidam respostas pendentes sem emitir estado tardio', async () => {
+  for (const boundary of ['cancel', 'destroy']) {
+    const pending = deferred();
+    const states = [];
+    let requests = 0;
+    const controller = createDocumentDetailController({
+      client: {
+        request() {
+          requests += 1;
+          return pending.promise;
+        },
+      },
+      onState: (state) => states.push(state),
+    });
+
+    const opening = controller.load('document-a');
+    assert.equal(states.at(-1).status, 'loading');
+    controller[boundary]();
+    const statesAtBoundary = states.length;
+    pending.resolve({
+      data: {
+        document: metadata(),
+        permissions: ['read'],
+      },
+      headers: responseHeaders(),
+    });
+
+    assert.equal(await opening, null);
+    assert.equal(states.length, statesAtBoundary);
+    assert.equal(controller.getDetail(), null);
+    if (boundary === 'destroy') {
+      await assert.rejects(() => controller.load('document-b'), /encerrado/i);
+      assert.equal(requests, 1);
+    }
+  }
+});
+
+test('update, archive e promote tardios não substituem uma nova seleção', async () => {
+  const cases = [
+    {
+      name: 'update',
+      path: '/v1/documents/document-a',
+      method: 'PATCH',
+      permissions: ['read', 'update_metadata'],
+      run: (controller) => controller.updateMetadata({ title: 'Novo título' }),
+      response: {
+        data: {
+          document: metadata({ title: 'Novo título' }),
+          permissions: ['read', 'update_metadata'],
+        },
+        headers: responseHeaders('"etag-update"'),
+      },
+    },
+    {
+      name: 'archive',
+      path: '/v1/documents/document-a/archive',
+      method: 'POST',
+      permissions: ['read', 'archive'],
+      run: (controller) => controller.archive(),
+      response: {
+        data: {
+          document: metadata({ lifecycleStatus: 'archived' }),
+          permissions: ['read', 'archive'],
+        },
+        headers: responseHeaders('"etag-archive"'),
+      },
+    },
+    {
+      name: 'promote',
+      path: '/v1/documents/document-a/versions/version-a/promote',
+      method: 'POST',
+      permissions: ['read', 'publish'],
+      run: (controller) => controller.promoteVersion('version-a'),
+      response: {
+        data: {
+          version: {
+            versionId: 'version-a',
+            publicationStatus: 'current',
+          },
+        },
+        headers: new Headers(),
+      },
+    },
+  ];
+
+  for (const scenario of cases) {
+    const pending = deferred();
+    const states = [];
+    const controller = createDocumentDetailController({
+      client: {
+        request(target, options = {}) {
+          if (target === scenario.path && options.method === scenario.method) {
+            return pending.promise;
+          }
+          const documentId = target.includes('document-b')
+            ? 'document-b'
+            : 'document-a';
+          return Promise.resolve({
+            data: {
+              document: metadata({ documentId, title: documentId }),
+              permissions: scenario.permissions,
+            },
+            headers: responseHeaders(),
+          });
+        },
+      },
+      onState: (state) => states.push(state),
+    });
+
+    await controller.load('document-a');
+    const mutation = scenario.run(controller);
+    await controller.load('document-b');
+    const statesAfterSelection = states.length;
+    pending.resolve(scenario.response);
+
+    assert.equal(await mutation, null, scenario.name);
+    assert.equal(controller.getDetail().document.documentId, 'document-b');
+    assert.equal(states.length, statesAfterSelection, scenario.name);
+  }
 });
 
 test('trata IDs retornados pelo Worker como opacos de até 256 caracteres', async () => {

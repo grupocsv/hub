@@ -75,6 +75,7 @@ const RUNTIME_SOURCE = `globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(${JSON.
   features: {
     favorites: true,
     offline: false,
+    search: true,
     upload: true,
     viewer: true,
   },

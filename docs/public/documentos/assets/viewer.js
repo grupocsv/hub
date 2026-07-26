@@ -265,7 +265,13 @@ function versionOrder(value) {
 
 export function selectViewerVersion(document, versions) {
   if (!plainObject(document) || !Array.isArray(versions)) return null;
-  const eligible = versions.filter(readyVersion);
+  const documentId =
+    typeof document.documentId === "string" ? document.documentId : null;
+  const eligible = versions.filter(
+    (version) =>
+      readyVersion(version) &&
+      (documentId === null || version.documentId === documentId),
+  );
   if (eligible.length === 0) return null;
   if (typeof document.currentVersionId === "string") {
     const current = eligible.find(

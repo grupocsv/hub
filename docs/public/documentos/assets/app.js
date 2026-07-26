@@ -84,8 +84,22 @@ function setControlsEnabled(enabled) {
     '[data-view]',
   ]) {
     for (const control of document.querySelectorAll(selector)) {
-      control.disabled = !enabled;
+      const featureDisabled = Boolean(
+        control.closest?.('[data-feature-disabled="true"]'),
+      );
+      control.disabled = !enabled || featureDisabled;
     }
+  }
+}
+
+function syncStaticFeatureControls(features = {}) {
+  const searchForm = document.querySelector('.docs-search');
+  if (!searchForm) return;
+  const enabled = features?.search === true;
+  searchForm.hidden = !enabled;
+  searchForm.dataset.featureDisabled = String(!enabled);
+  for (const control of searchForm.querySelectorAll('input, button')) {
+    control.disabled = !enabled;
   }
 }
 
@@ -155,9 +169,10 @@ function bindStaticForms() {
   });
 }
 
-function prepareDocumentosShell() {
+function prepareDocumentosShell(features = {}) {
   bindNavigation();
   bindStaticForms();
+  syncStaticFeatureControls(features);
 }
 
 function inertApplication(status, portal = null) {
@@ -173,7 +188,7 @@ function inertApplication(status, portal = null) {
 export function bootDocumentosShell(config = globalThis.HUB_DOCUMENTOS_CONFIG) {
   if (typeof document === 'undefined') return 'unavailable';
 
-  prepareDocumentosShell();
+  prepareDocumentosShell(config?.features);
   const startupState = deriveStartupState(config);
   renderShellState(startupState, undefined, {
     controlsEnabled: false,
@@ -199,7 +214,7 @@ export async function bootstrapDocumentosApp(
   const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
   const onReady = dependencies.onReady ?? (() => {});
 
-  prepareShell();
+  prepareShell(config?.features);
   if (!isTopLevelContext(windowRef)) {
     renderState('unavailable', 'A aplicação não pode ser aberta dentro de outra página.', {
       controlsEnabled: false,
