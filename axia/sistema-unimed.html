@@ -468,6 +468,16 @@
     .detail-facts dd { margin: 0; font-family: var(--font-ui); font-size: 0.92rem; font-weight: 800; overflow-wrap: anywhere; }
     .variants-heading { margin: 0 0 5px; font-family: var(--font-ui); font-size: 1.3rem; }
     .variants-intro { margin: 0 0 18px; color: var(--u-stone); }
+    .asset-notice {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--u-line);
+      border-radius: var(--radius-small);
+      background: var(--u-paper);
+    }
+    .asset-notice[data-kind="error"] { border-color: #ecd79a; background: var(--warning-soft); }
+    .asset-notice h4 { margin: 0 0 4px; font-family: var(--font-ui); font-size: 0.95rem; }
+    .asset-notice p { margin: 0; color: var(--u-stone); font-size: 0.88rem; }
     .variant-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .variant-card { min-width: 0; padding: 18px; border: 1px solid var(--u-line); border-radius: var(--radius-card); background: var(--u-white); }
     .variant-card h4 { margin: 0 0 12px; font-family: var(--font-ui); font-size: 1rem; }
@@ -902,7 +912,7 @@
           id: firstValue(source, ['id', 'entity_id', 'uuid']),
           code: canonicalCode(firstValue(source, ['codigo_sistema_unimed', 'code', 'codigo', 'nme', 'id'])),
           name: displayValue(firstValue(source, ['nome_atual', 'name', 'nome', 'razao_social']), 'Nome não informado'),
-          uf: displayValue(firstValue(source, ['uf', 'estado', 'state']), '—'),
+          uf: displayValue(firstValue(source, ['uf', 'estado', 'state']), 'Não informado'),
           type: displayValue(firstValue(source, ['institutional_type', 'tipo_institucional_atual', 'type', 'tipo'])),
           typePtu: displayValue(firstValue(source, ['type_ptu', 'tipo_ptu'])),
           role: displayValue(firstValue(source, ['papel_operacional', 'operational_role', 'role', 'papel'])),
@@ -912,15 +922,19 @@
         };
       }
 
-      function arrayFromEnvelope(body, keys) {
+      function findArrayInEnvelope(body, keys) {
         if (Array.isArray(body)) return body;
-        if (!body || typeof body !== 'object') return [];
+        if (!body || typeof body !== 'object') return null;
         if (Array.isArray(body.data)) return body.data;
         for (const key of keys) if (Array.isArray(body[key])) return body[key];
         if (body.data && typeof body.data === 'object') {
           for (const key of keys) if (Array.isArray(body.data[key])) return body.data[key];
         }
-        return [];
+        return null;
+      }
+
+      function arrayFromEnvelope(body, keys) {
+        return findArrayInEnvelope(body, keys) || [];
       }
 
       function extractEntities(body) {
@@ -967,25 +981,31 @@
         };
       }
 
-      function expandAssetItem(item) {
-        if (!item || typeof item !== 'object') return [];
-        const inheritedVariant = firstValue(item, ['variant', 'variante', 'variant_key', 'composition']);
-        const nested = firstValue(item, ['assets', 'files', 'arquivos']);
-        if (Array.isArray(nested)) return nested.map(asset => normalizeAsset(asset, inheritedVariant));
-        if (item.formats && typeof item.formats === 'object' && !Array.isArray(item.formats)) {
-          return Object.entries(item.formats).flatMap(([format, value]) => {
-            const values = Array.isArray(value) ? value : [value];
-            return values.map(entry => normalizeAsset(
-              entry && typeof entry === 'object' ? { ...entry, format: entry.format || format } : { format, download_url: entry },
-              inheritedVariant
-            ));
-          });
+      function extractAssets(body, expectedCode) {
+        const isObject = body && typeof body === 'object' && !Array.isArray(body);
+        const hasMeta = isObject && body.meta && typeof body.meta === 'object' && !Array.isArray(body.meta);
+        const hasLinks = isObject && body.links && typeof body.links === 'object' && !Array.isArray(body.links);
+        const assets = hasMeta && hasLinks && Array.isArray(body.data) ? body.data : null;
+        const canonicalExpectedCode = canonicalCode(expectedCode);
+        const canonicalMetaCode = hasMeta ? canonicalCode(body.meta.entity_code) : '—';
+        const validAsset = asset => {
+          if (!asset || typeof asset !== 'object' || Array.isArray(asset)) return false;
+          if (typeof asset.asset_id !== 'string' || canonicalCode(asset.entity_code) !== canonicalExpectedCode) return false;
+          if (!VARIANTS.some(variant => variant.key === asset.variant)) return false;
+          if (typeof asset.has_box !== 'boolean' || typeof asset.has_symbol !== 'boolean') return false;
+          if (!['ai', 'pdf', 'png', 'svg'].includes(asset.format)) return false;
+          if (typeof asset.original_filename !== 'string' || typeof asset.download_url !== 'string') return false;
+          return typeof asset.sha256 === 'string' && /^[a-f0-9]{64}$/i.test(asset.sha256);
+        };
+        if (
+          canonicalExpectedCode === '—'
+          || canonicalMetaCode !== canonicalExpectedCode
+          || !assets
+          || !assets.every(validAsset)
+        ) {
+          throw new ApiError(502, 'O serviço retornou um contrato de assets inválido.');
         }
-        return [normalizeAsset(item, inheritedVariant)];
-      }
-
-      function extractAssets(body) {
-        return arrayFromEnvelope(body, ['assets', 'items', 'results']).flatMap(expandAssetItem);
+        return assets.map(asset => normalizeAsset(asset));
       }
 
       function normalizeToken(value) {
@@ -1417,7 +1437,9 @@
           if (detailAbortController !== controller || controller.signal.aborted) return;
 
           const entity = entityResult.status === 'fulfilled' ? extractSingleEntity(entityResult.value, baseEntity) : baseEntity;
-          const assets = assetsResult.status === 'fulfilled' ? extractAssets(assetsResult.value) : [];
+          const assets = assetsResult.status === 'fulfilled'
+            ? extractAssets(assetsResult.value, entity.code)
+            : [];
 
           const rejected = [entityResult, assetsResult].find(result => result.status === 'rejected');
           if (rejected && rejected.reason instanceof ApiError && rejected.reason.status === 401) {
@@ -1432,26 +1454,45 @@
           dialogBody.replaceChildren();
           dialogBody.append(detailFactGrid(entity));
           dialogBody.append(create('h3', 'variants-heading', 'Identidade visual'));
-          dialogBody.append(create(
-            'p',
-            'variants-intro',
-            'Os quatro PNGs são o conjunto padrão. SVG, PDF e AI permanecem disponíveis como formatos secundários.'
-          ));
 
           const liveRegion = create('p', 'dialog-status');
           liveRegion.setAttribute('role', 'status');
           liveRegion.setAttribute('aria-live', 'polite');
-          const grid = create('div', 'variant-grid');
-          VARIANTS.forEach(variant => {
-            const variantAssets = assets.filter(asset => variantKey(asset) === variant.key);
-            grid.append(renderVariantCard(variant, variantAssets, entity, controller.signal, liveRegion));
-          });
-          dialogBody.append(grid, liveRegion);
+          if (assetsResult.status === 'rejected') {
+            const notice = create('div', 'asset-notice');
+            notice.dataset.kind = 'error';
+            notice.append(
+              create('h4', null, 'Falha temporária ao carregar os assets'),
+              create('p', null, 'Os dados cadastrais foram carregados, mas a consulta ao acervo não foi concluída. Tente novamente em instantes.')
+            );
+            dialogBody.append(notice);
+          } else if (!assets.length) {
+            const notice = create('div', 'asset-notice');
+            notice.dataset.kind = 'empty';
+            notice.append(
+              create('h4', null, 'Acervo oficial ainda não disponível'),
+              create('p', null, 'A entidade existe e seus dados cadastrais foram carregados. A consulta não retornou assets de logo ativos para esta entidade; nenhum arquivo de outra Unimed será usado como substituto.')
+            );
+            dialogBody.append(notice);
+          } else {
+            dialogBody.append(create(
+              'p',
+              'variants-intro',
+              'Os quatro PNGs são o conjunto padrão. SVG, PDF e AI permanecem disponíveis como formatos secundários.'
+            ));
+            const grid = create('div', 'variant-grid');
+            VARIANTS.forEach(variant => {
+              const variantAssets = assets.filter(asset => variantKey(asset) === variant.key);
+              grid.append(renderVariantCard(variant, variantAssets, entity, controller.signal, liveRegion));
+            });
+            dialogBody.append(grid);
+          }
+          dialogBody.append(liveRegion);
 
           const unclassified = assets.filter(asset => !variantKey(asset)).length;
           if (unclassified) liveRegion.textContent = `${unclassified} ${unclassified === 1 ? 'arquivo não pôde' : 'arquivos não puderam'} ser associado a uma das quatro composições.`;
           else if (assetsResult.status === 'rejected') liveRegion.textContent = 'Os dados da entidade foram carregados, mas os assets estão temporariamente indisponíveis.';
-          else if (!assets.length) liveRegion.textContent = 'A API não registrou assets para esta entidade.';
+          else if (!assets.length) liveRegion.textContent = 'Nenhum asset de logo ativo foi retornado para esta entidade na release atual.';
         } catch (error) {
           if (detailAbortController !== controller || controller.signal.aborted) return;
           if (error.name === 'AbortError') return;
