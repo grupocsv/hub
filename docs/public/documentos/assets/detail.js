@@ -81,6 +81,7 @@ export function deriveAllowedDetailActions(permissions) {
   return Object.freeze({
     open: granted.has('read'),
     favorite: granted.has('read'),
+    uploadVersion: granted.has('create_version'),
     edit: granted.has('update_metadata'),
     archive: granted.has('archive'),
     restore: granted.has('restore'),

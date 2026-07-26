@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 2,
+  "purpose": "Congela integralmente a base não gerenciada; a Fase 9.7 apenas reconcilia o card Documentos.",
+  "integrityAuthority": "Git e revisão obrigatória são a âncora de autoridade; manifestSha256 é apenas checksum de integridade.",
+  "portals": {
+    "unimed": {
+      "sourceSha256": "2837bc2f5f2b6e55468816fc27f830f8df3ee001e05dfefa4126eed7f4f9e12b",
+      "unmanagedOutput": {
+        "portal": "unimed",
+        "generatedAt": "2026-07-05T18:00:00.000000+00:00",
+        "totalTools": 6,
+        "tools": [
+          {
+            "file": "drg.html",
+            "title": "DRG Brasil Analytics",
+            "created": "2026-05-29T15:39:13+00:00",
+            "lastModified": "2026-05-30T13:01:27+00:00"
+          },
+          {
+            "file": "cuidadocoordenado.html",
+            "title": "Coordenação do Cuidado",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00",
+            "note": "Migrar para Open Page slug scg100"
+          },
+          {
+            "file": "gce.html",
+            "title": "Painel GCE | Gerenciamento de Casos Especiais 2025",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00"
+          },
+          {
+            "file": "ped-amb.html",
+            "title": "Pediatria Ambulatorial - Centro de Atendimento Integrado",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00",
+            "note": "Migrar para Open Page"
+          },
+          {
+            "file": "tea.html",
+            "title": "Painel Estratégico - Psicologia ABA",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-07-06T00:00:00+00:00",
+            "note": "Reconstruída em jul/2026: Plotly 3,4 MB → Chart.js CDN, design system Unimed, tabela e insights"
+          },
+          {
+            "file": "vivapleno.html",
+            "title": "#VivaPleno - Vertical de Cuidados ao Idoso",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00",
+            "note": "Migrar para Open Page"
+          }
+        ]
+      },
+      "unmanagedOutputSha256": "50a39983ac4768684a800ae4fa91c48d8063ac8cf1dbe197b896fdfb386e86bd"
+    },
+    "unihealth": {
+      "sourceSha256": "201905b87015e8ebc96862a299c3e3d7305ff6a51daf9a9c47ae5651dbfe7dd6",
+      "unmanagedOutput": {
+        "portal": "unihealth",
+        "generatedAt": "2026-07-05T18:00:00.000000+00:00",
+        "totalTools": 4,
+        "tools": [
+          {
+            "file": "calc-plantao.html",
+            "title": "Calculadora Variabilidade Plantões",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00"
+          },
+          {
+            "file": "opme.html",
+            "title": "Adequações no Fluxo de Utilização OPME - Corpo Clínico",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00"
+          },
+          {
+            "file": "repasse.html",
+            "title": "Repasse Médico",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00"
+          },
+          {
+            "file": "retornopa.html",
+            "title": "Análise Correlação Cirurgias e Atendimentos PS",
+            "created": "2026-01-24T03:24:45+00:00",
+            "lastModified": "2026-03-07T08:44:14-05:00"
+          }
+        ]
+      },
+      "unmanagedOutputSha256": "ac9e8c5a3a777eb8a8c517fc7450011610234087af2ba7a92df3481728fe3d23"
+    },
+    "icds": {
+      "sourceSha256": "1808bc88a50378097ed68a3651500101b5e4412251a48599a2b96ea7976a7f20",
+      "unmanagedOutput": {
+        "portal": "icds",
+        "generatedAt": "2026-05-30T14:25:08.296026+00:00",
+        "totalTools": 2,
+        "tools": [
+          {
+            "file": "slides.html",
+            "title": "Gerador de Apresentações",
+            "created": "2026-04-21T20:30:47-04:00",
+            "lastModified": "2026-05-11T21:45:23-04:00"
+          },
+          {
+            "file": "/p/tea-dataset/",
+            "title": "TEA: Data Set Indicadores",
+            "created": "2026-02-15T00:00:00+00:00",
+            "lastModified": "2026-02-15T00:00:00+00:00",
+            "external": true
+          }
+        ]
+      },
+      "unmanagedOutputSha256": "a73d58f020d832b7d8eeb5d9063e3e1a30bbf9bc16163d202d2b4958ff5c7f77"
+    }
+  },
+  "manifestSha256": "439fdcc3af7aee613d2c484812e626bc4bb32a59105c41289970db0537147574"
+}

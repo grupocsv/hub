@@ -165,7 +165,7 @@ test('não pagina o snapshot anterior enquanto uma nova listagem está carregand
   assert.equal(replaced.items[0].documentId, 'document-b');
 });
 
-test('carrega coleções e tags em requests separados e representa catálogo vazio', async () => {
+test('carrega coleções, tags e capacidades em requests separados e representa catálogo vazio', async () => {
   const calls = [];
   const states = [];
   const client = {
@@ -176,6 +176,9 @@ test('carrega coleções e tags em requests separados e representa catálogo vaz
       }
       if (target === '/v1/tags') {
         return { data: { items: [{ tagId: 'tag-a', name: 'Tag A', slug: 'tag-a' }] } };
+      }
+      if (target === '/v1/capabilities') {
+        return { data: { permissions: ['create'] } };
       }
       return { data: { items: [], next_cursor: null } };
     },
@@ -189,32 +192,40 @@ test('carrega coleções e tags em requests separados e representa catálogo vaz
   const metadata = await controller.loadMetadata();
   await controller.loadList({});
 
-  assert.deepEqual(calls.slice(0, 2), ['/v1/collections', '/v1/tags']);
+  assert.deepEqual(
+    calls.slice(0, 3),
+    ['/v1/collections', '/v1/tags', '/v1/capabilities'],
+  );
   assert.deepEqual(metadata.collections.map((item) => item.collectionId), ['collection-a']);
   assert.deepEqual(metadata.tags.map((item) => item.tagId), ['tag-a']);
+  assert.deepEqual(metadata.permissions, ['create']);
   assert.equal(states.at(-1).status, 'empty');
 });
 
 test('cancelamento interrompe também os metadados iniciais do catálogo', async () => {
   const collections = deferred();
   const tags = deferred();
+  const capabilities = deferred();
   const calls = [];
   const controller = createCatalogController({
     client: {
       request(target, options = {}) {
         calls.push({ target, options });
-        return target === '/v1/collections' ? collections.promise : tags.promise;
+        if (target === '/v1/collections') return collections.promise;
+        if (target === '/v1/tags') return tags.promise;
+        return capabilities.promise;
       },
     },
   });
 
   const loading = controller.loadMetadata();
   controller.cancelActive();
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
   assert.equal(calls.every(({ options }) => options.signal.aborted), true);
 
   collections.resolve({ data: { items: [] } });
   tags.resolve({ data: { items: [] } });
+  capabilities.resolve({ data: { permissions: [] } });
   assert.equal(await loading, null);
 });
 

@@ -7,8 +7,10 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "documentos:generate": "node scripts/generate-documentos-config.mjs",
-    "documentos:test": "node --test tests/documentos/*.test.mjs tests/hub-auth-corporate.test.mjs"
+    "documentos:vendor": "node scripts/vendor-documentos-pdfjs.mjs",
+    "documentos:generate": "npm run documentos:vendor && node scripts/generate-documentos-config.mjs",
+    "documentos:test": "npm run documentos:vendor && node --test tests/documentos/*.test.mjs tests/hub-auth-corporate.test.mjs",
+    "documentos:e2e": "playwright test --config=playwright.documentos.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -16,7 +18,13 @@
   },
   "author": "Grupo CSV",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.13.0 <25"
+  },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.62.0",
+    "pdfjs-dist": "6.1.200",
     "vitepress": "^1.6.4"
   }
 }

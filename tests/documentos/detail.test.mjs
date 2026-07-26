@@ -45,7 +45,7 @@ test('normaliza detalhe e deriva ações somente das permissões efetivas', () =
   const detail = normalizeDocumentDetail(
     {
       document: metadata(),
-      permissions: ['read', 'update_metadata', 'archive', 'publish'],
+      permissions: ['read', 'create_version', 'update_metadata', 'archive', 'publish'],
     },
     responseHeaders(),
   );
@@ -54,6 +54,7 @@ test('normaliza detalhe e deriva ações somente das permissões efetivas', () =
   assert.deepEqual(deriveAllowedDetailActions(detail.permissions), {
     open: true,
     favorite: true,
+    uploadVersion: true,
     edit: true,
     archive: true,
     restore: false,
@@ -63,6 +64,7 @@ test('normaliza detalhe e deriva ações somente das permissões efetivas', () =
   assert.deepEqual(deriveAllowedDetailActions(['read']), {
     open: true,
     favorite: true,
+    uploadVersion: false,
     edit: false,
     archive: false,
     restore: false,

@@ -197,13 +197,19 @@ function normalizeTag(item) {
   return Object.freeze({ ...item });
 }
 
-function normalizeMetadataPayload(collectionsPayload, tagsPayload) {
-  if (!Array.isArray(collectionsPayload?.items) || !Array.isArray(tagsPayload?.items)) {
+function normalizeMetadataPayload(collectionsPayload, tagsPayload, capabilitiesPayload) {
+  if (
+    !Array.isArray(collectionsPayload?.items) ||
+    !Array.isArray(tagsPayload?.items) ||
+    !Array.isArray(capabilitiesPayload?.permissions) ||
+    capabilitiesPayload.permissions.some((permission) => typeof permission !== 'string')
+  ) {
     throw new TypeError('Metadados do catálogo inválidos.');
   }
   return Object.freeze({
     collections: Object.freeze(collectionsPayload.items.map(normalizeCollection)),
     tags: Object.freeze(tagsPayload.items.map(normalizeTag)),
+    permissions: Object.freeze([...new Set(capabilitiesPayload.permissions)]),
   });
 }
 
@@ -349,12 +355,17 @@ export function createCatalogController(options = {}) {
     };
     activeMetadataRequest = request.controller;
     try {
-      const [collections, tags] = await Promise.all([
+      const [collections, tags, capabilities] = await Promise.all([
         client.request('/v1/collections', { signal: request.controller.signal }),
         client.request('/v1/tags', { signal: request.controller.signal }),
+        client.request('/v1/capabilities', { signal: request.controller.signal }),
       ]);
       if (isStale(request)) return null;
-      return normalizeMetadataPayload(collections.data, tags.data);
+      return normalizeMetadataPayload(
+        collections.data,
+        tags.data,
+        capabilities.data,
+      );
     } catch (error) {
       if (isStale(request) || error?.code === 'request_aborted') return null;
       throw error;

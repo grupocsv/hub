@@ -1,17 +1,17 @@
 name: Deploy VitePress site to Pages
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('hub-documentos-pr-{0}', github.event.pull_request.number) || 'pages' }}
   cancel-in-progress: false
 
 jobs:
@@ -51,10 +51,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.13.0
           cache: npm
 
       - name: Setup Pages
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/configure-pages@v4
 
       - name: Install dependencies
@@ -69,8 +70,37 @@ jobs:
       - name: Generate Hub Documentos runtime config
         run: npm run documentos:generate
 
+      - name: Reject generated artifact drift
+        run: |
+          git diff --exit-code -- \
+            docs/public/documentos \
+            unimed/tools.json \
+            unihealth/tools.json \
+            icds/tools.json
+          drift="$(git status --porcelain -- \
+            docs/public/documentos \
+            unimed/tools.json \
+            unihealth/tools.json \
+            icds/tools.json)"
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo "::error::artefatos gerados não versionados ou divergentes"
+            exit 1
+          fi
+
       - name: Build with VitePress
         run: npm run docs:build
+
+      - name: Validate published PDF.js manifest
+        run: node scripts/verify-documentos-pdfjs-manifest.mjs docs/.vitepress/dist
+
+      - name: Install pinned Chromium for Hub Documentos E2E
+        run: npm exec -- playwright install --with-deps chromium
+
+      - name: Test built Hub Documentos in Chromium
+        env:
+          DOCUMENTOS_E2E_PUBLIC_ROOT: docs/.vitepress/dist
+        run: npm run documentos:e2e
 
       - name: Regenerate manifest.json
         run: python3 scripts/generate-manifest.py .
@@ -140,8 +170,14 @@ jobs:
             documentos/assets/documentos.css \
             documentos/assets/runtime-config.js \
             documentos/assets/session.js \
+            documentos/assets/upload.js \
             documentos/assets/view.js \
+            documentos/assets/viewer.js \
             documentos/assets/workspace.js \
+            documentos/vendor/pdfjs/LICENSE \
+            documentos/vendor/pdfjs/manifest.json \
+            documentos/vendor/pdfjs/build/pdf.min.mjs \
+            documentos/vendor/pdfjs/build/pdf.worker.min.mjs \
             unimed/index.html unimed/tea.html \
             p/painel-tea/index.html \
             unihealth/index.html \
@@ -207,11 +243,17 @@ jobs:
         run: python3 scripts/check-tea-artifacts.py --root docs/.vitepress/dist
 
       - name: Upload artifact
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
 
   deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

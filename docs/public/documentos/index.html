@@ -31,7 +31,7 @@
 
         <div class="docs-topbar__actions">
           <button class="docs-button docs-button--primary" id="docs-upload" type="button" hidden disabled>Enviar Documento</button>
-          <div id="hub-auth-slot" aria-label="Sessão do Hub"></div>
+      <div id="hub-auth-slot" role="group" aria-label="Sessão do Hub"></div>
         </div>
       </div>
     </header>
@@ -128,6 +128,102 @@
           <h3 id="docs-versions-title">Versões</h3>
           <div id="docs-version-list"></div>
         </section>
+      </section>
+    </div>
+
+    <div id="docs-upload-dialog" class="docs-dialog docs-upload" role="dialog" aria-modal="true" aria-labelledby="docs-upload-title" hidden>
+      <div class="docs-dialog__backdrop" data-action="cancel-upload" aria-hidden="true"></div>
+      <section class="docs-dialog__panel docs-upload__panel" tabindex="-1">
+        <header class="docs-dialog__header">
+          <div>
+            <p class="docs-eyebrow">Envio Seguro</p>
+            <h2 id="docs-upload-title">Enviar Documento</h2>
+          </div>
+          <button class="docs-dialog__close" type="button" data-action="cancel-upload" aria-label="Cancelar Envio">Fechar</button>
+        </header>
+
+        <form id="docs-upload-form" class="docs-upload__form" novalidate>
+          <input id="docs-upload-document-id" name="documentId" type="hidden">
+          <fieldset id="docs-upload-metadata">
+            <legend>Dados do Documento</legend>
+            <label>
+              <span>Título</span>
+              <input id="docs-upload-document-title" name="title" type="text" maxlength="500" required>
+            </label>
+            <label>
+              <span>Descrição</span>
+              <textarea id="docs-upload-description" name="description" maxlength="4000" rows="3"></textarea>
+            </label>
+            <label>
+              <span>Coleção</span>
+              <select id="docs-upload-collection" name="collectionId">
+                <option value="">Sem Coleção</option>
+              </select>
+            </label>
+            <label>
+              <span>Classificação</span>
+              <select id="docs-upload-classification" name="classification" required>
+                <option value="internal">Interno</option>
+                <option value="public">Público</option>
+                <option value="restricted">Restrito</option>
+                <option value="confidential">Confidencial</option>
+              </select>
+            </label>
+            <label>
+              <span>Política de Indexação</span>
+              <select id="docs-upload-indexing" name="indexingPolicy" required>
+                <option value="metadata_only">Somente Metadados</option>
+                <option value="full_text">Texto Integral</option>
+                <option value="disabled">Desabilitada</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <label class="docs-upload__file">
+            <span>Arquivo</span>
+            <input id="docs-upload-file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md" required>
+            <small>PDF, PNG, JPG, JPEG, WEBP, TXT ou MD; até 50 MiB.</small>
+          </label>
+
+          <div id="docs-upload-status" class="docs-upload__status" role="status" aria-live="polite" aria-atomic="true"></div>
+          <dl id="docs-upload-processing" class="docs-upload__processing" hidden></dl>
+
+          <div class="docs-upload__actions">
+            <button class="docs-button docs-button--secondary" type="button" data-action="cancel-upload">Cancelar</button>
+            <button class="docs-button docs-button--secondary" type="button" data-action="retry-upload" hidden>Tentar Novamente</button>
+            <button class="docs-button docs-button--primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="docs-viewer" class="docs-viewer" role="region" aria-labelledby="docs-viewer-title" hidden>
+      <div class="docs-viewer__backdrop" data-action="close-viewer" aria-hidden="true"></div>
+      <section class="docs-viewer__panel" tabindex="-1">
+        <header class="docs-viewer__header">
+          <div class="docs-viewer__identity">
+            <p class="docs-eyebrow">Visualização Segura</p>
+            <h2 id="docs-viewer-title">Documento</h2>
+          </div>
+          <div class="docs-viewer__controls" aria-label="Controles do Visualizador">
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-previous" disabled>Página Anterior</button>
+            <span id="docs-viewer-page" class="docs-viewer__page" aria-live="polite">Página 1 de 1</span>
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-next" disabled>Próxima Página</button>
+            <button class="docs-button docs-button--secondary" type="button" data-action="viewer-download" hidden disabled>Baixar Arquivo</button>
+            <button class="docs-dialog__close" type="button" data-action="close-viewer" aria-label="Fechar Visualizador">Fechar</button>
+          </div>
+        </header>
+
+        <div id="docs-viewer-status" class="docs-viewer__status" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div
+          id="docs-viewer-content"
+          class="docs-viewer__content"
+          role="region"
+          aria-label="Conteúdo do documento"
+          tabindex="0"
+        >
+          <canvas id="docs-viewer-canvas" class="docs-viewer__canvas" aria-label="Página do PDF" hidden></canvas>
+        </div>
       </section>
     </div>
 

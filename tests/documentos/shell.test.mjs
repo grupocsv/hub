@@ -47,6 +47,27 @@ test('oferece navegação, busca, upload e região de estado com rótulos explí
   assert.match(template, /id="docs-content"/);
 });
 
+test('inclui viewer responsivo com região desktop e controles para modal mobile', async () => {
+  const { template, css } = await sources();
+
+  assert.match(template, /id="docs-viewer"[^>]+role="region"/);
+  assert.doesNotMatch(template, /id="docs-viewer"[^>]+aria-modal="true"/);
+  assert.match(template, /aria-labelledby="docs-viewer-title"/);
+  assert.match(template, /id="docs-viewer-status"[^>]+role="status"[^>]+aria-live="polite"/);
+  assert.match(template, /id="docs-viewer-canvas"[^>]+aria-label="Página do PDF"/);
+  assert.match(template, /data-action="viewer-previous"/);
+  assert.match(template, /data-action="viewer-next"/);
+  assert.match(template, /data-action="viewer-download"/);
+  assert.match(template, /data-action="close-viewer"/);
+  assert.match(css, /\.docs-viewer\s*\{/);
+  assert.match(css, /\.docs-viewer__panel/);
+  assert.match(css, /\.docs-viewer__canvas/);
+  assert.match(css, /body\.is-viewer-open\s*\{[^}]*padding-inline-end:\s*var\(--docs-viewer-width\)/);
+  assert.match(css, /height:\s*100dvh/);
+  assert.match(css, /html\.is-viewer-modal-open[^}]*overflow:\s*hidden/);
+  assert.match(css, /@media\s*\(max-width:\s*48rem\)[^]*\.docs-viewer__panel/);
+});
+
 test('mantém scripts externos, configuração antes da aplicação e nenhum handler inline', async () => {
   const { template, generated } = await sources();
 
