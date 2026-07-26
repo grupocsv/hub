@@ -29,6 +29,8 @@ export function createDocumentosWorkspace(options = {}) {
     options.createCatalogController ?? createCatalogController;
   const detailFactory =
     options.createDetailController ?? createDocumentDetailController;
+  const cardDetailFactory =
+    options.createCardDetailController ?? detailFactory;
   const recentFactory = options.createRecentStore ?? createRecentStore;
   const lifecycleFactory = options.bindLifecycle ?? bindCatalogLifecycle;
   const lifecycleTarget = options.lifecycleTarget ?? globalThis.window;
@@ -95,13 +97,14 @@ export function createDocumentosWorkspace(options = {}) {
   let activeDetail = null;
   let activeVersions = Object.freeze([]);
   let activeVersionsRequest = null;
+  let versionsLoadGeneration = 0;
   let selectionGeneration = 0;
   let viewerOpeningGeneration = 0;
   let activeViewerDocumentId = null;
-  let silentDetailGeneration = null;
   let uploadPresentationActive = false;
   const catalogSnapshots = new Map();
   const pendingCardFavorites = new Set();
+  const activeCardFavoriteControllers = new Map();
   const recent = recentFactory({ portal });
 
   function acceptsCallbacks() {
@@ -202,9 +205,7 @@ export function createDocumentosWorkspace(options = {}) {
       ) {
         return;
       }
-      if (silentDetailGeneration !== selectionGeneration) {
-        view.renderDetail(state);
-      }
+      view.renderDetail(state);
       if (typeof item?.documentId === "string") {
         if (item.documentId === activeDocumentId || activeDocumentId === null) {
           activeDetail = state.detail;
@@ -240,6 +241,9 @@ export function createDocumentosWorkspace(options = {}) {
     uploadPresentationActive = false;
     catalog.cancelActive();
     detail.cancel();
+    for (const controller of activeCardFavoriteControllers.values()) {
+      controller.cancel();
+    }
     void viewer?.destroy("cancelled");
     void upload?.cancel();
   }
@@ -248,16 +252,17 @@ export function createDocumentosWorkspace(options = {}) {
     callbacksEnabled = false;
     uploadPresentationActive = false;
     selectionGeneration += 1;
-    silentDetailGeneration = null;
     activeDocumentId = null;
     pendingDetailDocumentId = null;
     activeDetailControllerGeneration = null;
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
+    versionsLoadGeneration += 1;
     viewerOpeningGeneration += 1;
     activeViewerDocumentId = null;
     pendingCardFavorites.clear();
+    activeCardFavoriteControllers.clear();
     recent.clear();
     catalogSnapshots.clear();
     view.clearSensitiveState(reason);
@@ -340,7 +345,6 @@ export function createDocumentosWorkspace(options = {}) {
     if (!acceptsCallbacks()) return null;
     selectionGeneration += 1;
     const openingGeneration = selectionGeneration;
-    silentDetailGeneration = null;
     activeDocumentId = null;
     pendingDetailDocumentId = documentId;
     activeDetailControllerGeneration = null;
@@ -378,17 +382,21 @@ export function createDocumentosWorkspace(options = {}) {
     const versionsRequest = Object.freeze({
       documentId: activeDocumentId,
       generation: openingGeneration,
+      loadGeneration: ++versionsLoadGeneration,
       promise: Promise.resolve().then(() => detail.loadVersions()),
     });
     activeVersionsRequest = versionsRequest;
     try {
+      const loadedVersions = await versionsRequest.promise;
+      if (loadedVersions === null) return loaded;
       const versions = versionsForDocument(
-        await versionsRequest.promise,
+        loadedVersions,
         versionsRequest.documentId,
       );
       if (
         acceptsCallbacks() &&
         openingGeneration === selectionGeneration &&
+        versionsRequest.loadGeneration === versionsLoadGeneration &&
         activeDocumentId === loaded.document.documentId
       ) {
         activeVersions = versions;
@@ -398,6 +406,7 @@ export function createDocumentosWorkspace(options = {}) {
       if (
         acceptsCallbacks() &&
         openingGeneration === selectionGeneration &&
+        versionsRequest.loadGeneration === versionsLoadGeneration &&
         activeDocumentId === loaded.document.documentId
       ) {
         view.renderVersionsError();
@@ -413,7 +422,6 @@ export function createDocumentosWorkspace(options = {}) {
   function closeDocument() {
     if (!acceptsCallbacks()) return;
     selectionGeneration += 1;
-    silentDetailGeneration = null;
     activeDocumentId = null;
     pendingDetailDocumentId = null;
     activeDetailControllerGeneration = null;
@@ -490,13 +498,17 @@ export function createDocumentosWorkspace(options = {}) {
       }
     }
     if (options.refreshVersions === true) {
+      const refreshVersionsGeneration = ++versionsLoadGeneration;
       try {
-        const versions = versionsForDocument(
-          await detail.loadVersions(),
-          mutationDocumentId,
-        );
+        const loadedVersions = await detail.loadVersions();
+        const versions =
+          loadedVersions === null
+            ? null
+            : versionsForDocument(loadedVersions, mutationDocumentId);
         if (
+          versions !== null &&
           acceptsCallbacks() &&
+          refreshVersionsGeneration === versionsLoadGeneration &&
           mutationGeneration === selectionGeneration &&
           mutationDocumentId === activeDocumentId
         ) {
@@ -506,6 +518,7 @@ export function createDocumentosWorkspace(options = {}) {
       } catch {
         if (
           acceptsCallbacks() &&
+          refreshVersionsGeneration === versionsLoadGeneration &&
           mutationGeneration === selectionGeneration &&
           mutationDocumentId === activeDocumentId
         ) {
@@ -533,48 +546,45 @@ export function createDocumentosWorkspace(options = {}) {
     )
       return null;
     pendingCardFavorites.add(documentId);
-    selectionGeneration += 1;
-    const toggleGeneration = selectionGeneration;
-    silentDetailGeneration = toggleGeneration;
-    activeDocumentId = null;
-    pendingDetailDocumentId = documentId;
-    activeDetailControllerGeneration = null;
-    activeDetail = null;
-    activeVersions = Object.freeze([]);
-    activeVersionsRequest = null;
+    let cardDetail = null;
 
     try {
-      const loaded = await detail.load(documentId, openOptions);
+      cardDetail = cardDetailFactory({
+        client,
+        onState() {},
+      });
+      for (const method of ["load", "setFavorite", "cancel", "destroy"]) {
+        requiredMethod(cardDetail, method);
+      }
+      activeCardFavoriteControllers.set(documentId, cardDetail);
+      const loaded = await cardDetail.load(documentId, openOptions);
       if (
         !loaded ||
         !acceptsCallbacks() ||
-        toggleGeneration !== selectionGeneration ||
         loaded.document?.documentId !== documentId
       ) {
         return null;
       }
-      activeDocumentId = documentId;
-      return await mutate(() => detail.setFavorite(value), documentId, {
-        updateSnapshot(result, mutationDocumentId) {
-          if (typeof result === "boolean") {
-            rememberSnapshot({
-              documentId: mutationDocumentId,
-              favorite: result,
-            });
-          }
-        },
+      const result = await cardDetail.setFavorite(value);
+      if (typeof result !== "boolean" || !acceptsCallbacks()) return null;
+      rememberSnapshot({
+        documentId,
+        favorite: result,
       });
-    } finally {
-      if (toggleGeneration === selectionGeneration) {
-        activeDocumentId = null;
-        pendingDetailDocumentId = null;
-        activeDetailControllerGeneration = null;
-        activeDetail = null;
-        activeVersions = Object.freeze([]);
-        activeVersionsRequest = null;
-        silentDetailGeneration = null;
-        detail.cancel();
+      if (activeView === "recentes") {
+        view.renderRecent(recentItems());
       }
+      try {
+        await refreshCatalog();
+      } catch {
+        // A mutação foi confirmada; o catálogo pode ser atualizado depois.
+      }
+      return result;
+    } finally {
+      if (activeCardFavoriteControllers.get(documentId) === cardDetail) {
+        activeCardFavoriteControllers.delete(documentId);
+      }
+      cardDetail?.destroy();
       pendingCardFavorites.delete(documentId);
     }
   }
@@ -615,7 +625,8 @@ export function createDocumentosWorkspace(options = {}) {
       const pendingVersions = activeVersionsRequest;
       if (
         pendingVersions?.documentId === route.documentId &&
-        pendingVersions.generation === selectionGeneration
+        pendingVersions.generation === selectionGeneration &&
+        pendingVersions.loadGeneration === versionsLoadGeneration
       ) {
         try {
           await pendingVersions.promise;
@@ -703,15 +714,19 @@ export function createDocumentosWorkspace(options = {}) {
     ) {
       const refreshGeneration = selectionGeneration;
       const refreshDocumentId = activeDocumentId;
+      const refreshVersionsGeneration = ++versionsLoadGeneration;
       try {
-        const versions = versionsForDocument(
-          await detail.loadVersions(),
-          refreshDocumentId,
-        );
+        const loadedVersions = await detail.loadVersions();
+        const versions =
+          loadedVersions === null
+            ? null
+            : versionsForDocument(loadedVersions, refreshDocumentId);
         if (
+          versions !== null &&
           result.documentId === activeDocumentId &&
           refreshDocumentId === activeDocumentId &&
           refreshGeneration === selectionGeneration &&
+          refreshVersionsGeneration === versionsLoadGeneration &&
           acceptsCallbacks()
         ) {
           activeVersions = versions;
@@ -720,6 +735,7 @@ export function createDocumentosWorkspace(options = {}) {
       } catch {
         if (
           acceptsCallbacks() &&
+          refreshVersionsGeneration === versionsLoadGeneration &&
           refreshGeneration === selectionGeneration &&
           refreshDocumentId === activeDocumentId &&
           result.documentId === activeDocumentId

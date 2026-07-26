@@ -450,7 +450,13 @@ export function createDocumentDetailController(options = {}) {
       const response = await client.request(documentTarget(context.documentId, '/versions'), {
         signal: operation.controller.signal,
       });
-      if (!contextIsActive(context)) return null;
+      if (
+        operation.controller.signal.aborted ||
+        activeVersionRequest !== operation ||
+        !contextIsActive(context)
+      ) {
+        return null;
+      }
       return normalizeVersions(response.data, context.documentId);
     } catch (error) {
       if (

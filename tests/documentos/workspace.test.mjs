@@ -254,6 +254,8 @@ function fixture(overrides = {}) {
       detailOptions = options;
       return detail;
     },
+    createCardDetailController:
+      overrides.createCardDetailController ?? (() => detail),
     createRecentStore() {
       return recent;
     },
@@ -724,44 +726,31 @@ test("favorito do cartão valida o detalhe sem abrir o modal", async () => {
       ([name, value]) => name === "detail.favorite" && value === true,
     ),
   );
-  assert.ok(context.calls.some(([name]) => name === "detail.cancel"));
+  assert.ok(context.calls.some(([name]) => name === "detail.destroy"));
   assert.equal(
     context.calls.some(([name]) => name === "view.detail"),
     false,
   );
 });
 
-test("favorito de cartão supersedido não atinge o documento que assumiu a seleção", async () => {
+test("favorito de cartão em validação continua isolado quando outra seleção assume o detalhe", async () => {
   const pendingCardLoad = deferred();
-  let controllerDocumentId = null;
   const favoriteTargets = [];
-  let context;
-  context = fixture({
-    detail: {
-      async load(documentId) {
-        context.calls.push(["detail.load", documentId]);
-        controllerDocumentId = documentId;
-        if (documentId === "document-a") return pendingCardLoad.promise;
-        return {
-          document: {
-            documentId,
-            title: "Documento B",
-            description: "",
-            classification: "internal",
-            lifecycleStatus: "active",
-            indexingPolicy: "metadata_only",
-            updatedAt: "2026-07-24T12:00:00.000Z",
-          },
-          permissions: ["read"],
-        };
-      },
-      async loadVersions() {
-        return [];
-      },
-      async setFavorite(value) {
-        favoriteTargets.push([controllerDocumentId, value]);
-        return value;
-      },
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return pendingCardLoad.promise;
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return value;
+        },
+        cancel() {},
+        destroy() {},
+      };
     },
   });
   await context.workspace.start();
@@ -773,6 +762,7 @@ test("favorito de cartão supersedido não atinge o documento que assumiu a sele
   );
   await Promise.resolve();
   await context.workspace.openDocument("document-b");
+  context.calls.length = 0;
   pendingCardLoad.resolve({
     document: {
       documentId: "document-a",
@@ -786,39 +776,47 @@ test("favorito de cartão supersedido não atinge o documento que assumiu a sele
     permissions: ["read"],
   });
 
-  assert.equal(await toggle, null);
-  assert.deepEqual(favoriteTargets, []);
+  assert.equal(await toggle, true);
+  assert.deepEqual(favoriteTargets, [["document-a", true]]);
+  assert.equal(
+    context.calls.some(
+      ([name, value]) =>
+        name === "view.detail" &&
+        value?.detail?.document?.documentId === "document-a",
+    ),
+    false,
+  );
 });
 
-test("favorito de cartão já enviado conserva a identidade original e não atualiza a seleção nova", async () => {
+test("favorito de cartão já enviado preserva a seleção nova e atualiza o catálogo", async () => {
   const pendingFavorite = deferred();
   const favoriteTargets = [];
-  let controllerDocumentId = null;
-  let context;
-  context = fixture({
-    detail: {
-      async load(documentId) {
-        controllerDocumentId = documentId;
-        return {
-          document: {
-            documentId,
-            title: documentId,
-            description: "",
-            classification: "internal",
-            lifecycleStatus: "active",
-            indexingPolicy: "metadata_only",
-            updatedAt: `2026-07-24T${documentId === "document-a" ? "10" : "11"}:00:00.000Z`,
-          },
-          permissions: ["read"],
-        };
-      },
-      async loadVersions() {
-        return [];
-      },
-      setFavorite(value) {
-        favoriteTargets.push([controllerDocumentId, value]);
-        return pendingFavorite.promise;
-      },
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T10:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return pendingFavorite.promise;
+        },
+        cancel() {},
+        destroy() {},
+      };
     },
   });
   await context.workspace.start();
@@ -836,14 +834,18 @@ test("favorito de cartão já enviado conserva a identidade original e não atua
   context.calls.length = 0;
   pendingFavorite.resolve(true);
 
-  assert.equal(await toggle, null);
+  assert.equal(await toggle, true);
   assert.equal(
     context.calls.some(
       ([name, value]) =>
-        (name === "catalog.list" && value?.favorite === true) ||
-        name === "view.recent",
+        name === "view.detail" &&
+        value?.detail?.document?.documentId === "document-a",
     ),
     false,
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "catalog.list"),
+    true,
   );
 });
 
@@ -881,6 +883,65 @@ test("bloqueia de forma determinística favoritos concorrentes do mesmo cartão"
   pendingFavorite.resolve(true);
   assert.equal(await first, true);
   assert.equal(favoriteRequests, 1);
+});
+
+test("favoritos de cartões distintos preservam as duas intenções independentemente", async () => {
+  const pending = new Map([
+    ["document-a", deferred()],
+    ["document-b", deferred()],
+  ]);
+  const favoriteTargets = [];
+  const context = fixture({
+    createCardDetailController() {
+      let documentId = null;
+      return {
+        async load(nextDocumentId) {
+          documentId = nextDocumentId;
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T11:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite(value) {
+          favoriteTargets.push([documentId, value]);
+          return pending.get(documentId).promise;
+        },
+        cancel() {},
+        destroy() {},
+      };
+    },
+  });
+  await context.workspace.start();
+
+  const favoriteA = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  const favoriteB = context.workspace.toggleCardFavorite(
+    true,
+    "document-b",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(favoriteTargets, [
+    ["document-a", true],
+    ["document-b", true],
+  ]);
+
+  pending.get("document-b").resolve(true);
+  pending.get("document-a").resolve(true);
+  assert.equal(await favoriteA, true);
+  assert.equal(await favoriteB, true);
 });
 
 test("resultado parcial de busca não contamina snapshot completo de Recentes", async () => {
@@ -1001,6 +1062,55 @@ test("não renderiza versões tardias de A depois que B assume o detalhe", async
     rendered.filter((versionIds) => versionIds.length > 0),
     [["version-b"]],
   );
+});
+
+test("histórico supersedido do mesmo documento não sobrescreve o carregamento mais novo", async () => {
+  const staleVersions = deferred();
+  const currentVersions = deferred();
+  let versionsRequest = 0;
+  const context = fixture({
+    features: { favorites: true, upload: true },
+    detail: {
+      loadVersions() {
+        versionsRequest += 1;
+        return versionsRequest === 1
+          ? staleVersions.promise
+          : currentVersions.promise;
+      },
+    },
+  });
+  await context.workspace.start();
+
+  const opening = context.workspace.openDocument("document-a");
+  await Promise.resolve();
+  await Promise.resolve();
+  const upload = context.workspace.startUpload({
+    documentId: "document-a",
+    file: { name: "nova-versao.pdf" },
+    indexingPolicy: "metadata_only",
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  currentVersions.resolve([
+    {
+      versionId: "version-current",
+      publicationStatus: "current",
+    },
+  ]);
+  await upload;
+  staleVersions.resolve([
+    {
+      versionId: "version-stale",
+      publicationStatus: "current",
+    },
+  ]);
+  await opening;
+
+  const nonEmptyRenders = context.calls
+    .filter(([name, versions]) => name === "view.versions" && versions.length > 0)
+    .map(([, versions]) => versions.map(({ versionId }) => versionId));
+  assert.deepEqual(nonEmptyRenders, [["version-current"]]);
 });
 
 test("rejeita histórico explicitamente identificado como pertencente a outro documento", async () => {
@@ -1299,6 +1409,68 @@ test("pagehide invalida o encadeamento de uma mutação que já estava pendente"
           name === "catalog.list" ||
           name === "view.catalog" ||
           name === "view.detail" ||
+          name === "view.recent",
+      ),
+    false,
+  );
+});
+
+test("pagehide cancela favoritos de cartão isolados e bloqueia atualização tardia", async () => {
+  const pendingFavorite = deferred();
+  let cancellations = 0;
+  const context = fixture({
+    createCardDetailController() {
+      return {
+        async load(documentId) {
+          return {
+            document: {
+              documentId,
+              title: documentId,
+              description: "",
+              classification: "internal",
+              lifecycleStatus: "active",
+              indexingPolicy: "metadata_only",
+              updatedAt: "2026-07-24T11:00:00.000Z",
+            },
+            permissions: ["read"],
+          };
+        },
+        async setFavorite() {
+          return pendingFavorite.promise;
+        },
+        cancel() {
+          cancellations += 1;
+        },
+        destroy() {},
+      };
+    },
+  });
+  await context.workspace.start();
+  const mutation = context.workspace.toggleCardFavorite(
+    true,
+    "document-a",
+    { favorite: false },
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+
+  const lifecycle = context.getLifecycleOptions();
+  lifecycle.cancelActive();
+  lifecycle.clearSensitiveState("pagehide");
+  const clearIndex = context.calls.findLastIndex(
+    ([name]) => name === "view.clear",
+  );
+  pendingFavorite.resolve(true);
+
+  assert.equal(await mutation, null);
+  assert.equal(cancellations, 1);
+  assert.equal(
+    context.calls
+      .slice(clearIndex + 1)
+      .some(
+        ([name]) =>
+          name === "catalog.list" ||
+          name === "view.catalog" ||
           name === "view.recent",
       ),
     false,

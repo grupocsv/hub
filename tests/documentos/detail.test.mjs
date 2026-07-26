@@ -653,6 +653,67 @@ test('a geração impede respostas antigas de reaplicar estado ao reabrir o mesm
   assert.equal(states.length, statesAfterReopen);
 });
 
+test('loadVersions supersedido no mesmo documento nunca devolve o histórico obsoleto', async () => {
+  const firstVersions = deferred();
+  const secondVersions = deferred();
+  const versionSignals = [];
+  let versionRequest = 0;
+  const controller = createDocumentDetailController({
+    client: {
+      request(target, options = {}) {
+        if (!target.endsWith('/versions')) {
+          return Promise.resolve({
+            data: {
+              document: metadata(),
+              permissions: ['read'],
+            },
+            headers: responseHeaders(),
+          });
+        }
+        versionSignals.push(options.signal);
+        versionRequest += 1;
+        return versionRequest === 1
+          ? firstVersions.promise
+          : secondVersions.promise;
+      },
+    },
+  });
+  await controller.load('document-a');
+
+  const stale = controller.loadVersions();
+  const current = controller.loadVersions();
+  assert.equal(versionSignals[0].aborted, true);
+
+  secondVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-current',
+          publicationStatus: 'current',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  assert.deepEqual(
+    (await current).map(({ versionId }) => versionId),
+    ['version-current'],
+  );
+
+  firstVersions.resolve({
+    data: {
+      items: [
+        {
+          versionId: 'version-stale',
+          publicationStatus: 'current',
+        },
+      ],
+    },
+    headers: new Headers(),
+  });
+  assert.equal(await stale, null);
+});
+
 test('trata IDs retornados pelo Worker como opacos de até 256 caracteres', async () => {
   const opaqueId = `documento-${'á'.repeat(246)}`;
   const calls = [];
