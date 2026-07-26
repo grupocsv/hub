@@ -201,7 +201,7 @@ Copiar página
 <tr><td><strong>Compass™</strong></td><td>Publicações estratégicas (documentos técnicos)</td><td><a href="https://hub.grupocsv.com/compass/">hub.grupocsv.com/compass/</a></td><td>GitHub Pages (VitePress)</td></tr>
 <tr><td><strong>Signal™</strong></td><td>Boletim semanal de inteligência</td><td><a href="https://hub.grupocsv.com/signal/">hub.grupocsv.com/signal/</a></td><td>GitHub Pages (VitePress)</td></tr>
 <tr><td><strong>CMM</strong></td><td>Catálogo versionado de materiais e medicamentos</td><td><a href="https://cmm.grupocsv.com">cmm.grupocsv.com</a></td><td>Cloudflare Worker + Assets</td></tr>
-<tr><td><strong>Themis™</strong></td><td>Gestão médico-jurídica baseada em evidências</td><td><a href="https://themis.grupocsv.com">themis.grupocsv.com</a></td><td>Cloudflare Worker + Workflows + R2 + Supabase</td></tr>
+<tr><td><strong>Themis™</strong></td><td>Análise documental baseada em evidências</td><td><a href="https://themis.grupocsv.com">themis.grupocsv.com</a></td><td>Cloudflare Worker + Workflows + R2 + Supabase</td></tr>
 <tr><td><strong>Deck™</strong></td><td>Painel de contexto ativo</td><td><a href="https://deck.grupocsv.com">deck.grupocsv.com</a></td><td>Cloudflare Pages</td></tr>
 <tr><td><strong>Relay™</strong></td><td>Mensagens institucionais padronizadas</td><td><a href="https://relay.axcare.com.br">relay.axcare.com.br</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>RTAV™</strong></td><td>Referencial Técnico de Avaliação por Valor</td><td><a href="https://rtav.axcare.app">rtav.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
@@ -254,7 +254,7 @@ Copiar página
 <tr><td><code>deck-vision</code></td><td>deck-vision.guilherme-thom.workers.dev</td><td>Secret: OPENAI_API_KEY</td><td>Análise visual Deck (GPT-4o)</td></tr>
 <tr><td><code>decks-worker</code></td><td>decks.grupocsv.com/*</td><td>R2: decks</td><td>Geração e armazenamento de PPTX</td></tr>
 <tr><td><code>tnumm</code></td><td>cmm.grupocsv.com/*</td><td>D1: tnumm-control, R2: tnumm-evidence</td><td>WebApp, API e atualização governada do CMM</td></tr>
-<tr><td><code>themis</code></td><td>themis.grupocsv.com/*</td><td>Workflow: themis-processing, R2: themis-private, Supabase</td><td>WebApp médico-jurídico interno e processamento durável</td></tr>
+<tr><td><code>themis</code></td><td>themis.grupocsv.com/*</td><td>Workflow: themis-processing, R2: themis-private, Supabase</td><td>WebApp interno para análise documental e processamento durável</td></tr>
 <tr><td><code>tea-dataset-api</code></td><td>tea-dataset-api.guilherme-thom.workers.dev</td><td>D1: csv-hub, Secrets</td><td>Backend TEA (Data Set)</td></tr>
 <tr><td><code>thera-contact</code></td><td>api.thera.tech/*</td><td>Secrets</td><td>Formulário de contato Thera</td></tr>
 <tr><td><code>slides-worker</code></td><td>slides-worker.guilherme-thom.workers.dev</td><td>Secrets</td><td>Geração de slides (Slides CSV)</td></tr>
@@ -427,7 +427,7 @@ Copiar página
 <tr><td>assets.grupocsv.com</td><td>Worker csv-assets</td><td>Assets estáticos</td></tr>
 <tr><td>cmm.grupocsv.com</td><td>Worker tnumm</td><td>CMM — Catálogo de Materiais e Medicamentos</td></tr>
 <tr><td>tnumm.grupocsv.com</td><td>Worker tnumm</td><td>Compatibilidade técnica do CMM</td></tr>
-<tr><td>themis.grupocsv.com</td><td>Worker themis</td><td>Themis™ — gestão médico-jurídica baseada em evidências</td></tr>
+<tr><td>themis.grupocsv.com</td><td>Worker themis</td><td>Themis™ — Análise documental baseada em evidências</td></tr>
 <tr><td>deck.grupocsv.com</td><td>Cloudflare Pages</td><td>Deck™</td></tr>
 <tr><td>decks.grupocsv.com</td><td>Worker decks-worker</td><td>Geração de PPTX</td></tr>
 <tr><td>pay.grupocsv.com</td><td>Stripe</td><td>Checkout Criale</td></tr>
@@ -663,7 +663,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | Compass™ | Publicacoes estrategicas | hub.grupocsv.com/compass/ | GitHub Pages (VitePress) |
 | Signal™ | Boletim semanal de inteligencia | hub.grupocsv.com/signal/ | GitHub Pages (VitePress) |
 | CMM | Catalogo versionado de materiais e medicamentos | cmm.grupocsv.com | Cloudflare Worker + Assets |
-| Themis™ | Gestao medico-juridica baseada em evidencias | themis.grupocsv.com | Cloudflare Worker + Workflows + R2 + Supabase |
+| Themis™ | Análise documental baseada em evidências | themis.grupocsv.com | Cloudflare Worker + Workflows + R2 + Supabase |
 | Deck™ | Painel de contexto ativo | deck.grupocsv.com | Cloudflare Pages |
 | Relay™ | Mensagens institucionais padronizadas | relay.axcare.com.br | Manus (React + TS + Tailwind) |
 | RTAV™ | Referencial Tecnico de Avaliacao por Valor | rtav.axcare.app | Manus (React + TS + Tailwind) |
@@ -697,7 +697,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | deck-vision | deck-vision.guilherme-thom.workers.dev | Secret: OPENAI_API_KEY | Analise visual Deck (GPT-4o) |
 | decks-worker | decks.grupocsv.com/* | R2: decks | Geracao e armazenamento de PPTX |
 | tnumm | cmm.grupocsv.com/* | D1: tnumm-control, R2: tnumm-evidence | WebApp, API e atualizacao governada do CMM |
-| themis | themis.grupocsv.com/* | Workflow: themis-processing, R2: themis-private, Supabase | WebApp medico-juridico interno e processamento duravel |
+| themis | themis.grupocsv.com/* | Workflow: themis-processing, R2: themis-private, Supabase | WebApp interno para análise documental e processamento durável |
 | tea-dataset-api | tea-dataset-api.guilherme-thom.workers.dev | D1: csv-hub, Secrets | Backend TEA |
 | thera-contact | api.thera.tech/* | Secrets | Formulario de contato Thera |
 
@@ -795,7 +795,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | assets.grupocsv.com | Worker csv-assets | Assets estaticos |
 | cmm.grupocsv.com | Worker tnumm | CMM - Catalogo de Materiais e Medicamentos |
 | tnumm.grupocsv.com | Worker tnumm | Compatibilidade tecnica do CMM |
-| themis.grupocsv.com | Worker themis | Themis™ - gestao medico-juridica baseada em evidencias |
+| themis.grupocsv.com | Worker themis | Themis™ - Análise documental baseada em evidências |
 | deck.grupocsv.com | Cloudflare Pages | Deck |
 | decks.grupocsv.com | Worker decks-worker | Geracao de PPTX |
 | pay.grupocsv.com | Stripe | Checkout Criale |

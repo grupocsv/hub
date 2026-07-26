@@ -1,8 +1,8 @@
-# Themis™ — Gestão Médico-Jurídica Baseada em Evidências
+# Themis™ — Análise documental baseada em evidências
 
 ## Visão Geral
 
-Themis™ é a ferramenta interna do Grupo CSV para estruturar casos médico-jurídicos e produzir análises técnicas, relatórios e quesitos de defesa rastreáveis às evidências documentais. A implantação inicial é uma ferramenta interna dedicada à Unimed Governador Valadares.
+Themis™ organiza evidências documentais e apoia a elaboração de análises técnicas, relatórios e quesitos com rastreabilidade interna. A implantação inicial é uma ferramenta interna dedicada à Unimed Governador Valadares.
 
 | Campo | Valor |
 |---|---|
@@ -48,7 +48,7 @@ O acesso previsto utiliza Google Workspace por meio do Supabase Auth, com autori
 - RLS protege o acesso direto aos dados estruturados.
 - Arquivos permanecem em bucket privado.
 - Todas as rotas aplicam `noindex`, `nofollow` e `noarchive`.
-- Logs operacionais não devem armazenar conteúdo médico-jurídico.
+- Logs operacionais não devem armazenar conteúdo sensível dos casos.
 
 ## Processamento e Geração
 
