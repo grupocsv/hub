@@ -48,3 +48,11 @@
 .dark {
   --vp-c-gutter: transparent;
 }
+/* Garantir que o divider-line do VPNavBar também fique invisível (scoped CSS do VitePress
+   aplica background-color diretamente no .divider-line quando layout != home) */
+.VPNavBar .divider-line {
+  background-color: transparent !important;
+}
+.VPNavBar .divider {
+  background-color: transparent !important;
+}
