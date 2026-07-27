@@ -43,3 +43,8 @@
   max-width: 100%;
   overflow-x: auto;
 }
+
+/* Corrigir linha preta abaixo do navbar em dark mode */
+.dark {
+  --vp-c-gutter: transparent;
+}

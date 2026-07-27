@@ -4,6 +4,7 @@ export default defineConfig({
   title: "Hub Grupo CSV",
   description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, Thera®",
   lang: 'pt-BR',
+  appearance: 'dark',
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
