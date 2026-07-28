@@ -44,12 +44,28 @@
   overflow-x: auto;
 }
 
-/* Corrigir linha preta abaixo do navbar em dark mode */
+/* ==========================================================================
+   Eliminar a linha visível entre o navbar e o hero na homepage.
+   
+   Causa raiz: o VitePress aplica background-color opaco (#1b1b1f em dark mode)
+   ao .VPNavBar quando o layout não é 'home'. Como o Hub usa layout: page,
+   o navbar fica com fundo escuro opaco que contrasta com o gradiente do hero
+   (#0f2b46), criando uma borda visual de 1px.
+   
+   Solução: tornar o navbar e seus elementos internos transparentes,
+   incluindo o divider-line e o --vp-c-gutter.
+   ========================================================================== */
 .dark {
   --vp-c-gutter: transparent;
 }
-/* Garantir que o divider-line do VPNavBar também fique invisível (scoped CSS do VitePress
-   aplica background-color diretamente no .divider-line quando layout != home) */
+
+/* Navbar transparente — funde com o hero gradient */
+.VPNavBar {
+  background-color: transparent !important;
+}
+.VPNavBar .content-body {
+  background-color: transparent !important;
+}
 .VPNavBar .divider-line {
   background-color: transparent !important;
 }
