@@ -25,7 +25,7 @@ head:
       content: "https://hub.grupocsv.com/og/og_icds.png"
 ---
 
-<style scoped>
+<style>
 .VPPage { padding: 0 !important; }
 
 .icds-page {
@@ -50,6 +50,8 @@ head:
 .icds-header .logo-link { display: inline-block; transition: transform 0.3s; }
 .icds-header .logo-link:hover { transform: scale(1.05); }
 
+.icds-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2a6496; margin-bottom: 10px; }
+.dark .icds-header .eyebrow { color: #5da9e0; }
 .icds-header h1 { color: #1B3A5C; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
 .dark .icds-header h1 { color: #5da9e0; }
 .icds-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
@@ -84,10 +86,14 @@ head:
 }
 .icds-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
 
-.icds-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; line-height: 1.35; flex-grow: 1; }
+.icds-card .icds-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(27,58,92,0.08); color: #1B3A5C; margin-bottom: 16px; flex-shrink: 0; }
+.dark .icds-card .icds-icon { background: rgba(93,169,224,0.14); color: #5da9e0; }
+.icds-card .icds-icon svg { width: 22px; height: 22px; }
+
+.icds-title { color: #1a2b3c; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; line-height: 1.35; flex-grow: 1; }
 .dark .icds-card .icds-title { color: var(--vp-c-text-1); }
 
-.icds-date { color: var(--vp-c-text-2); font-size: 13px; font-weight: 500; margin-bottom: 20px; display: block; }
+.icds-date { color: var(--vp-c-text-2); font-size: 12.5px; font-weight: 500; margin: 0 0 18px; display: block; }
 
 .icds-link {
   display: block;
@@ -140,6 +146,7 @@ head:
     <a href="https://icds.org.br/" target="_blank" class="logo-link">
       <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" alt="ICDS Logo" class="logo">
     </a>
+    <p class="eyebrow">Hub de Ferramentas Profissionais</p>
     <h1>Hub ICDS</h1>
     <p class="subtitle">Entidade Filantrópica e Gestora Assistencial</p>
   </div>
@@ -186,6 +193,27 @@ onMounted(() => {
     document.body.appendChild(s)
   }
 
+  const ICONS = {
+    doc: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
+    presentation: '<path d="M2 3h20"/><path d="M3 3v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V3"/><path d="m8 21 4-4 4 4"/><line x1="12" y1="15" x2="12" y2="17"/>',
+    dataset: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+    bars: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'
+  }
+  function pickIcon(title) {
+    const t = title.toLowerCase()
+    if (t.includes('documento')) return ICONS.doc
+    if (t.includes('apresenta') || t.includes('slide') || t.includes('gerador')) return ICONS.presentation
+    if (t.includes('data set') || t.includes('dataset') || t.includes('indicador') || t.includes('tea')) return ICONS.dataset
+    if (t.includes('análise') || t.includes('analise') || t.includes('analytics')) return ICONS.bars
+    return ICONS.grid
+  }
+  function formatDate(iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    if (isNaN(d)) return ''
+    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
   fetch('/icds/tools.json')
     .then(r => r.json())
     .then(data => {
@@ -193,9 +221,12 @@ onMounted(() => {
       if (!grid || !data.tools || data.tools.length === 0) return
       grid.innerHTML = data.tools.map(tool => {
         const href = tool.external ? tool.file : `/icds/${tool.file}`
+        const updated = formatDate(tool.lastModified)
         return `
         <div class="icds-card">
+          <div class="icds-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pickIcon(tool.title)}</svg></div>
           <div class="icds-title">${tool.title}</div>
+          ${updated ? `<span class="icds-date">Atualizado em ${updated}</span>` : '<span class="icds-date">&nbsp;</span>'}
           <a target="_self" href="${href}" class="icds-link">Acessar</a>
         </div>
       `}).join('')
