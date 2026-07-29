@@ -70,6 +70,13 @@ head:
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.hub-hero .hero-subhead {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+  margin: 0;
+  letter-spacing: 0.005em;
+}
 .hub-hero .hero-actions { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .hub-hero .hero-btn {
   padding: 12px 28px;
@@ -470,6 +477,7 @@ head:
   .hub-hero .hero-rule { width: 36px; margin: 12px auto 10px; }
   .hub-hero .tagline { font-size: 0.78rem; margin-bottom: 24px; letter-spacing: 0.06em; word-wrap: break-word; overflow-wrap: break-word; }
   .hub-hero .hero-actions { gap: 16px; }
+  .hub-hero .hero-subhead { font-size: 1rem; }
   .hub-hero .hero-btn { width: 100%; max-width: 280px; text-align: center; padding: 12px 20px; font-size: 0.9rem; }
   .hub-hero .hero-groups { gap: 20px; }
   .hub-hero .hero-group-divider { display: none; }
@@ -549,7 +557,7 @@ head:
     <div class="hero-rule"></div>
     <p class="tagline">Cuidados em Saúde com Valor</p>
     <div class="hero-actions">
-      <a href="#produtos-do-grupo" class="hero-btn primary">Dashboards e Ferramentas</a>
+      <p class="hero-subhead">Dashboards e Ferramentas</p>
       <div class="hero-groups">
         <div class="hero-group products" id="produtos-do-grupo">
           <span class="hero-group-label">Produtos do Grupo CSV</span>

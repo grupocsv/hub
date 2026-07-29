@@ -44,7 +44,20 @@ export default defineConfig({
           { text: 'ICDS', link: '/icds/' },
         ]
       },
-      { text: 'Produtos', link: '/#produtos-do-grupo' },
+      {
+        text: 'Produtos',
+        items: [
+          { text: 'Compass™', link: '/compass/' },
+          { text: 'Signal™', link: '/signal/' },
+          { text: 'CMM', link: 'https://cmm.grupocsv.com' },
+          { text: 'Themis™', link: 'https://themis.grupocsv.com' },
+          { text: 'Deck™', link: 'https://deck.grupocsv.com' },
+          { text: 'Relay™', link: 'https://relay.axcare.com.br' },
+          { text: 'RTAV™', link: 'https://rtav.axcare.app' },
+          { text: 'Panta™', link: '/panta/' },
+          { text: 'Discovery™', link: 'https://discovery.axcare.app' },
+        ]
+      },
       {
         text: 'Governan\u00E7a',
         items: [
