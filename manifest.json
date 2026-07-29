@@ -723,7 +723,7 @@
     },
     {
       "id": "unimed-gce",
-      "title": "Painel GCE | Gerenciamento de Casos Especiais 2025",
+      "title": "Painel Gerenciamento Casos Especiais",
       "path": "/unimed/gce.html",
       "sha256": "4a6b8a0fb08ba5a59e3110c25cb28d30a9799f3b6860235a3599ff28d92cfcce",
       "category": "dashboard",
