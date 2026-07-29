@@ -94,8 +94,20 @@ def main() -> int:
     ):
         errors.append("a grade homogênea 3 × 3 no desktop e 1 × 9 no mobile não está declarada")
 
-    if "{ text: 'Produtos', link: '/#produtos-do-grupo' }" not in nav:
-        errors.append("a navegação principal não aponta diretamente para o catálogo")
+    # "Produtos" no header pode ser (a) link direto ao catálogo, ou (b) um menu
+    # suspenso que liste todos os produtos canônicos (a mesma primeira dobra).
+    # Em ambos os casos o catálogo e os produtos ficam acessíveis pelo nav; o
+    # âncora do catálogo na home (id="produtos-do-grupo") é validado acima.
+    nav_has_produtos = re.search(r"text:\s*'Produtos'", nav) is not None
+    direct_catalog_link = "{ text: 'Produtos', link: '/#produtos-do-grupo' }" in nav
+    if not nav_has_produtos:
+        errors.append("a navegação principal não tem o item Produtos")
+    elif not direct_catalog_link:
+        missing_in_nav = [product["id"] for product in products if product["url"] not in nav]
+        if missing_in_nav:
+            errors.append(
+                f"o menu Produtos não lista todos os produtos do catálogo: {missing_in_nav!r}"
+            )
     if "text: 'Ferramentas'" in nav:
         errors.append("o submenu superior redundante Ferramentas ainda existe")
     nav_links = re.findall(r"link:\s*['\"]([^'\"]+)['\"]", nav)
