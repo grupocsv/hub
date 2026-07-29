@@ -603,7 +603,7 @@ head:
       <a href="/thera/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #6B5B95, #7c3aed);"></div>
         <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="Thera" class="card-logo">
-        <div class="card-name">Thera</div>
+        <div class="card-name">Thera®</div>
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
       </a>
     </div>
