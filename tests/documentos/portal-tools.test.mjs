@@ -22,6 +22,7 @@ import test from "node:test";
 const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const GENERATOR = join(REPO_ROOT, "scripts", "generate-portal-tools.py");
 const PORTALS = Object.freeze(["unimed", "unihealth", "icds"]);
+const RUNTIME_PORTALS = Object.freeze(["grupo-csv", ...PORTALS]);
 const BASELINE_PURPOSE =
   "Congela integralmente a base não gerenciada; a Fase 9.7 apenas reconcilia o card Documentos.";
 const BASELINE_AUTHORITY =
@@ -481,6 +482,28 @@ test("rejeita tenant desconhecido e rota divergente", async (t) => {
       });
     });
   }
+});
+
+test("aceita tenant institucional sem exigir um catálogo de parceiro", async () => {
+  const registry = {
+    schemaVersion: 1,
+    tenants: [
+      { portal: "grupo-csv", enabled: true, href: "/documentos/" },
+    ],
+  };
+  const config = {
+    ...DISABLED_CONFIG,
+    enabled: true,
+    apiBaseUrl: "https://documentos-api.grupocsv.com",
+    enabledPortals: ["grupo-csv"],
+  };
+
+  await withFixture({ config, registry, withBaseline: true }, async (root) => {
+    const before = await readOutputs(root);
+    const result = runGenerator(root);
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(await readOutputs(root), before);
+  });
 });
 
 test("exige igualdade exata entre tenants habilitados e enabledPortals", async (t) => {
@@ -1012,7 +1035,7 @@ test("fontes e saída não dependem de datetime.now, mtime ou listagem não orde
   assert.match(source, /sorted\(/);
 });
 
-test("fontes versionadas reais mantêm exatamente três tenants e três cards gerenciados", async () => {
+test("fontes reais mantêm quatro tenants isolados e três cards gerenciados de parceiros", async () => {
   const registry = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-tenants.json"),
@@ -1040,7 +1063,7 @@ test("fontes versionadas reais mantêm exatamente três tenants e três cards ge
 
   assert.deepEqual(
     registry.tenants,
-    PORTALS.map((portal) => ({
+    RUNTIME_PORTALS.map((portal) => ({
       portal,
       enabled: true,
       href: "/documentos/",
@@ -1048,7 +1071,7 @@ test("fontes versionadas reais mantêm exatamente três tenants e três cards ge
   );
   assert.equal(config.enabled, true);
   assert.equal(config.apiBaseUrl, "https://documentos-api.grupocsv.com");
-  assert.deepEqual(config.enabledPortals, PORTALS);
+  assert.deepEqual(config.enabledPortals, RUNTIME_PORTALS);
   assert.deepEqual(config.features, {
     favorites: true,
     offline: false,

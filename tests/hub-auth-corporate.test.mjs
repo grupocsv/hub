@@ -75,4 +75,14 @@ for (const sourcePath of ['../scripts/hub-auth.js', '../docs/public/scripts/hub-
     assert.match(html, /id="ha-email"/);
     assert.match(html, /E-mail corporativo/i);
   });
+
+  test(`${sourcePath} trata o tenant Grupo CSV como autenticação individual`, async () => {
+    const html = await renderAuthForPortal('grupo-csv', sourcePath);
+
+    assert.match(html, /id="ha-email"/);
+    assert.match(html, /id="ha-password"/);
+    assert.match(html, /id="ha-login-btn"/);
+    assert.match(html, /id="ha-request-btn"/);
+    assert.doesNotMatch(html, /E-mail corporativo \(opcional\)/i);
+  });
 }

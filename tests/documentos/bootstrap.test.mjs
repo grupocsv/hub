@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { bootstrapDocumentosApp } from '../../docs/public/documentos/assets/app.js';
+import {
+  bootstrapDocumentosApp,
+  formatPortalIdentity,
+  resolvePortalLabel,
+} from '../../docs/public/documentos/assets/app.js';
 
 const READY_CONFIG = Object.freeze({
   schemaVersion: 1,
@@ -15,6 +19,24 @@ const SESSION = Object.freeze({
   portal: 'unimed',
   token: 'token-da-sessao',
   expires: '2026-07-24T13:00:00.000Z',
+});
+
+test('expõe um rótulo imutável para cada tenant documental conhecido', () => {
+  assert.deepEqual(
+    ['grupo-csv', 'unimed', 'unihealth', 'icds'].map((portal) => [
+      portal,
+      resolvePortalLabel(portal),
+    ]),
+    [
+      ['grupo-csv', 'Grupo CSV'],
+      ['unimed', 'Unimed Governador Valadares'],
+      ['unihealth', 'Unihealth Governador Valadares'],
+      ['icds', 'ICDS'],
+    ],
+  );
+  assert.equal(resolvePortalLabel('desconhecido'), null);
+  assert.equal(formatPortalIdentity('grupo-csv'), 'Ambiente: Grupo CSV');
+  assert.equal(formatPortalIdentity('desconhecido'), null);
 });
 
 function createLifecycleTarget() {

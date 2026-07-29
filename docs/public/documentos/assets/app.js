@@ -5,6 +5,12 @@ import { createDocumentosWorkspace } from './workspace.js';
 
 const ALLOWED_API_ORIGINS = new Set(['https://documentos-api.grupocsv.com']);
 const VALID_STATES = new Set(['loading', 'unavailable', 'empty', 'error']);
+const PORTAL_LABELS = Object.freeze({
+  'grupo-csv': 'Grupo CSV',
+  unimed: 'Unimed Governador Valadares',
+  unihealth: 'Unihealth Governador Valadares',
+  icds: 'ICDS',
+});
 
 const STATE_COPY = Object.freeze({
   loading: Object.freeze({
@@ -73,6 +79,24 @@ export function deriveStartupState(config) {
 
 export function shouldStartNetwork(config) {
   return deriveStartupState(config) === 'loading';
+}
+
+export function resolvePortalLabel(portal) {
+  return typeof portal === 'string' ? PORTAL_LABELS[portal] ?? null : null;
+}
+
+export function formatPortalIdentity(portal) {
+  const label = resolvePortalLabel(portal);
+  return label ? `Ambiente: ${label}` : null;
+}
+
+function renderDocumentosPortalIdentity(portal) {
+  if (typeof document === 'undefined') return;
+  const identity = formatPortalIdentity(portal);
+  const element = document.getElementById('docs-tenant-label');
+  if (!identity || !element) return;
+  element.textContent = identity;
+  element.hidden = false;
 }
 
 function setControlsEnabled(enabled) {
@@ -209,6 +233,8 @@ export async function bootstrapDocumentosApp(
   const createWorkspace =
     dependencies.createWorkspace ??
     (typeof document !== 'undefined' ? createDocumentosWorkspace : null);
+  const renderPortalIdentity =
+    dependencies.renderPortalIdentity ?? renderDocumentosPortalIdentity;
   const lifecycleTarget = dependencies.lifecycleTarget ?? globalThis.window;
   const windowRef = dependencies.windowRef ?? globalThis.window;
   const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
@@ -227,12 +253,13 @@ export async function bootstrapDocumentosApp(
   }
 
   const portal = resolvePortalContext(locationSearch, config.enabledPortals);
-  if (!portal) {
+  if (!portal || !resolvePortalLabel(portal)) {
     renderState('unavailable', 'O acesso deve ser iniciado por um portal habilitado.', {
       controlsEnabled: false,
     });
     return inertApplication('invalid_portal');
   }
+  renderPortalIdentity(portal);
 
   let activeSession = null;
   let client = null;
