@@ -70,6 +70,13 @@ head:
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.hub-hero .hero-subhead {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+  margin: 0;
+  letter-spacing: 0.005em;
+}
 .hub-hero .hero-actions { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .hub-hero .hero-btn {
   padding: 12px 28px;
@@ -589,6 +596,7 @@ head:
   .hub-hero .hero-rule { width: 36px; margin: 12px auto 10px; }
   .hub-hero .tagline { font-size: 0.78rem; margin-bottom: 24px; letter-spacing: 0.06em; word-wrap: break-word; overflow-wrap: break-word; }
   .hub-hero .hero-actions { gap: 16px; }
+  .hub-hero .hero-subhead { font-size: 1rem; }
   .hub-hero .hero-btn { width: 100%; max-width: 280px; text-align: center; padding: 12px 20px; font-size: 0.9rem; }
   .documents-gateway { flex-wrap: wrap; max-width: 360px; padding: 13px; }
   .documents-gateway__copy { flex: 1 1 180px; }
@@ -674,7 +682,7 @@ head:
     <div class="hero-rule"></div>
     <p class="tagline">Cuidados em Saúde com Valor</p>
     <div class="hero-actions">
-      <a href="#produtos-do-grupo" class="hero-btn primary">Dashboards e Ferramentas</a>
+      <p class="hero-subhead">Dashboards e Ferramentas</p>
       <section class="documents-gateway" aria-labelledby="documents-gateway-title">
         <span class="documents-gateway__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>
