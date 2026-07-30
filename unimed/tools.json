@@ -1,7 +1,7 @@
 {
   "portal": "unimed",
   "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-  "totalTools": 7,
+  "totalTools": 8,
   "tools": [
     {
       "file": "/documentos/?portal=unimed",
@@ -50,6 +50,14 @@
       "created": "2026-01-24T03:24:45+00:00",
       "lastModified": "2026-03-07T08:44:14-05:00",
       "note": "Migrar para Open Page"
+    },
+    {
+      "file": "auditor.html",
+      "title": "Auditor CSV",
+      "description": "Assistente de auditoria em saude. Analisa guias, pareceres e contestações com base no AJIUS, MANIN e MAME.",
+      "created": "2026-07-30T00:00:00+00:00",
+      "lastModified": "2026-07-30T00:00:00+00:00",
+      "featured": true
     }
   ]
 }

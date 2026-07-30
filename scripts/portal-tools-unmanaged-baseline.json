@@ -4,11 +4,11 @@
   "integrityAuthority": "Git e revisão obrigatória são a âncora de autoridade; manifestSha256 é apenas checksum de integridade.",
   "portals": {
     "unimed": {
-      "sourceSha256": "926fdaa8678f42bbde1607fe6fe49fa718319baa1f73e04b95ec3faff3051d6c",
+      "sourceSha256": "4c89e137dccb21eb68eee98568d96bb19c2beda20d9e84cab95fdf98bfb98a0c",
       "unmanagedOutput": {
         "portal": "unimed",
         "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-        "totalTools": 6,
+        "totalTools": 7,
         "tools": [
           {
             "file": "drg.html",
@@ -49,10 +49,18 @@
             "created": "2026-01-24T03:24:45+00:00",
             "lastModified": "2026-03-07T08:44:14-05:00",
             "note": "Migrar para Open Page"
+          },
+          {
+            "file": "auditor.html",
+            "title": "Auditor CSV",
+            "created": "2026-07-30T00:00:00+00:00",
+            "lastModified": "2026-07-30T00:00:00+00:00",
+            "description": "Assistente de auditoria em saude. Analisa guias, pareceres e contestações com base no AJIUS, MANIN e MAME.",
+            "featured": true
           }
         ]
       },
-      "unmanagedOutputSha256": "1b346f9f44cbf467cab44164626131040883d8b0d778825ece15821ec9b34a67"
+      "unmanagedOutputSha256": "9ba398b322ad3eed16d8fb8698cfa001095454e9b96c596c8df121eaab6d7f7c"
     },
     "unihealth": {
       "sourceSha256": "c685b0f68361b1a0fee913bdb72ce1875e5a2ba612c2703864f04b5409951692",
@@ -114,5 +122,5 @@
       "unmanagedOutputSha256": "a73d58f020d832b7d8eeb5d9063e3e1a30bbf9bc16163d202d2b4958ff5c7f77"
     }
   },
-  "manifestSha256": "de39d3fed6dd7bec5884eace37909a6318a533703684ce08f0685fc2ec698525"
+  "manifestSha256": "3f8731edf26c9fb9c0e5e1c9976d706fb5585f28689abd7183d728ce514d93fd"
 }
