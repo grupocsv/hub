@@ -13,7 +13,7 @@
     "note": "Migrar para Open Page"
   },
   "auditor.html": {
-    "note": "Assistente IA de auditoria em saude - chat com Hermes Agent profile auditor",
+    "note": "Redireciona para o micro-SaaS auditor.grupocsv.com (card externo em tools.json)",
     "featured": true
   }
 }
