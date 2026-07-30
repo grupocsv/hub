@@ -52,13 +52,13 @@
       "note": "Migrar para Open Page"
     },
     {
-      "file": "https://auditor.grupocsv.com",
+      "file": "auditor.html",
       "title": "Auditor CSV",
       "description": "Assistente de auditoria em saúde. Analisa guias, pareceres e contestações com base no AJIUS, MANIN e MAME.",
       "created": "2026-07-30T00:00:00+00:00",
       "lastModified": "2026-07-30T00:00:00+00:00",
       "featured": true,
-      "external": true
+      "note": "Redireciona para o micro-SaaS auditor.grupocsv.com"
     }
   ]
 }

@@ -51,17 +51,17 @@
             "note": "Migrar para Open Page"
           },
           {
-            "file": "https://auditor.grupocsv.com",
+            "file": "auditor.html",
             "title": "Auditor CSV",
             "description": "Assistente de auditoria em saúde. Analisa guias, pareceres e contestações com base no AJIUS, MANIN e MAME.",
             "created": "2026-07-30T00:00:00+00:00",
             "lastModified": "2026-07-30T00:00:00+00:00",
             "featured": true,
-            "external": true
+            "note": "Redireciona para o micro-SaaS auditor.grupocsv.com"
           }
         ]
       },
-      "unmanagedOutputSha256": "6211c5d04e5fac54bacd9e1e9e2595b250b5ed370ac86b017550ee924e5a9bab"
+      "unmanagedOutputSha256": "f32d4b3a3efb3cecb98431a7124b9ad9e224499612377603b30e9a02585ed67d"
     },
     "unihealth": {
       "sourceSha256": "c685b0f68361b1a0fee913bdb72ce1875e5a2ba612c2703864f04b5409951692",
@@ -123,5 +123,5 @@
       "unmanagedOutputSha256": "a73d58f020d832b7d8eeb5d9063e3e1a30bbf9bc16163d202d2b4958ff5c7f77"
     }
   },
-  "manifestSha256": "642aab8b814483c1f11322defd1379e5925fb0f2cbd86e5ad8001f0765bea09e"
+  "manifestSha256": "037b6eac556f922aa2d2b4ab6fd31b43b15ccda6d06e57603f85428d2665e7b5"
 }
