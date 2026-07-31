@@ -11,5 +11,9 @@
   },
   "vivapleno.html": {
     "note": "Migrar para Open Page"
+  },
+  "auditor.html": {
+    "note": "Assistente IA de auditoria em saude - chat com Hermes Agent profile auditor",
+    "featured": true
   }
 }
