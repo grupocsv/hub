@@ -5,6 +5,7 @@ import {
   bootstrapDocumentosApp,
   formatPortalIdentity,
   resolvePortalLabel,
+  resolvePortalLogo,
 } from '../../docs/public/documentos/assets/app.js';
 
 const READY_CONFIG = Object.freeze({
@@ -37,6 +38,12 @@ test('expõe um rótulo imutável para cada tenant documental conhecido', () => 
   assert.equal(resolvePortalLabel('desconhecido'), null);
   assert.equal(formatPortalIdentity('grupo-csv'), 'Ambiente: Grupo CSV');
   assert.equal(formatPortalIdentity('desconhecido'), null);
+  assert.equal(resolvePortalLogo('unimed'), '/img/prZGWXK.png');
+  assert.match(
+    resolvePortalLogo('grupo-csv'),
+    /grupo-csv_logo_horizontal_full-color_negative_transparent\.png$/,
+  );
+  assert.equal(resolvePortalLogo('desconhecido'), null);
 });
 
 function createLifecycleTarget() {
