@@ -92,7 +92,7 @@ head:
 .hub-hero .hero-btn.secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
 .documents-gateway {
   width: 100%;
-  max-width: 920px;
+  max-width: 680px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -118,7 +118,10 @@ head:
   border: 1px solid rgba(124,224,178,0.28);
 }
 .documents-gateway__icon svg { width: 22px; height: 22px; }
-.documents-gateway__copy { min-width: 180px; }
+.documents-gateway__copy {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
 .documents-gateway__title {
   display: block;
   color: white;
@@ -133,18 +136,14 @@ head:
   font-size: 0.72rem;
   line-height: 1.35;
 }
-.documents-gateway__contexts {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-left: auto;
-  min-width: min(100%, 560px);
-}
 .documents-gateway__link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  min-width: 164px;
   min-height: 38px;
+  margin-left: auto;
   padding: 8px 12px;
   border-radius: 9px;
   color: white !important;
@@ -599,9 +598,8 @@ head:
   .hub-hero .hero-subhead { font-size: 1rem; }
   .hub-hero .hero-btn { width: 100%; max-width: 280px; text-align: center; padding: 12px 20px; font-size: 0.9rem; }
   .documents-gateway { flex-wrap: wrap; max-width: 360px; padding: 13px; }
-  .documents-gateway__copy { flex: 1 1 180px; }
-  .documents-gateway__contexts { width: 100%; min-width: 0; margin-left: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .documents-gateway__link { padding: 8px 7px; font-size: 0.7rem; }
+  .documents-gateway__copy { flex: 1 1 180px; min-width: 0; }
+  .documents-gateway__link { width: 100%; min-width: 0; margin-left: 0; padding: 9px 12px; font-size: 0.74rem; }
   .hub-hero .hero-groups { gap: 20px; }
   .hub-hero .hero-group-divider { display: none; }
   .hub-hero .hero-group-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
@@ -689,14 +687,9 @@ head:
         </span>
         <span class="documents-gateway__copy">
           <strong class="documents-gateway__title" id="documents-gateway-title">Central de Documentos</strong>
-          <span class="documents-gateway__hint">Acesse o acervo do Grupo CSV ou selecione um cliente</span>
+          <span class="documents-gateway__hint">Acesse o acervo institucional do Grupo CSV</span>
         </span>
-        <span class="documents-gateway__contexts">
-          <a href="/documentos/?portal=grupo-csv" class="documents-gateway__link documents-gateway__link--primary" target="_self">Grupo CSV</a>
-          <a href="/documentos/?portal=unimed" class="documents-gateway__link" target="_self">Unimed GV</a>
-          <a href="/documentos/?portal=unihealth" class="documents-gateway__link" target="_self">Unihealth</a>
-          <a href="/documentos/?portal=icds" class="documents-gateway__link" target="_self">ICDS</a>
-        </span>
+        <a href="/documentos/?portal=grupo-csv" class="documents-gateway__link documents-gateway__link--primary" target="_self">Acessar Central</a>
       </section>
       <div class="hero-groups">
         <div class="hero-group products" id="produtos-do-grupo">

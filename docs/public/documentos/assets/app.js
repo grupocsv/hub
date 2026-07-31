@@ -11,6 +11,13 @@ const PORTAL_LABELS = Object.freeze({
   unihealth: 'Unihealth Governador Valadares',
   icds: 'ICDS',
 });
+const PORTAL_LOGOS = Object.freeze({
+  'grupo-csv':
+    '/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png',
+  unimed: '/img/prZGWXK.png',
+  unihealth: '/img/ac2rphe.png',
+  icds: '/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png',
+});
 
 const STATE_COPY = Object.freeze({
   loading: Object.freeze({
@@ -85,6 +92,10 @@ export function resolvePortalLabel(portal) {
   return typeof portal === 'string' ? PORTAL_LABELS[portal] ?? null : null;
 }
 
+export function resolvePortalLogo(portal) {
+  return typeof portal === 'string' ? PORTAL_LOGOS[portal] ?? null : null;
+}
+
 export function formatPortalIdentity(portal) {
   const label = resolvePortalLabel(portal);
   return label ? `Ambiente: ${label}` : null;
@@ -92,11 +103,15 @@ export function formatPortalIdentity(portal) {
 
 function renderDocumentosPortalIdentity(portal) {
   if (typeof document === 'undefined') return;
-  const identity = formatPortalIdentity(portal);
-  const element = document.getElementById('docs-tenant-label');
-  if (!identity || !element) return;
-  element.textContent = identity;
-  element.hidden = false;
+  const accessibleLabel = formatPortalIdentity(portal);
+  const logoSource = resolvePortalLogo(portal);
+  const container = document.getElementById('docs-tenant-identity');
+  const logo = document.getElementById('docs-tenant-logo');
+  const label = document.getElementById('docs-tenant-label');
+  if (!accessibleLabel || !logoSource || !container || !logo || !label) return;
+  logo.src = logoSource;
+  label.textContent = accessibleLabel;
+  container.hidden = false;
 }
 
 function setControlsEnabled(enabled) {

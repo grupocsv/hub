@@ -21,22 +21,27 @@ function partnerSection(home, portal, nextPortal) {
   return home.slice(start, end);
 }
 
-test('homepage oferece gateway próprio e CTAs de documentos antes dos toggles', async () => {
+test('homepage oferece acesso exclusivo do Grupo CSV e CTAs de parceiros antes dos toggles', async () => {
   const home = await source('docs/index.md');
-
-  assert.match(
-    home,
-    /<section class="documents-gateway" aria-labelledby="documents-gateway-title">/,
+  const gatewayStart = home.indexOf(
+    '<section class="documents-gateway" aria-labelledby="documents-gateway-title">',
   );
+  const gatewayEnd = home.indexOf('</section>', gatewayStart);
+  const gateway = home.slice(gatewayStart, gatewayEnd);
+
+  assert.notEqual(gatewayStart, -1, 'gateway documental deve existir');
+  assert.notEqual(gatewayEnd, -1, 'gateway documental deve ser fechado');
   assert.match(
-    home,
+    gateway,
     /href="\/documentos\/\?portal=grupo-csv" class="documents-gateway__link documents-gateway__link--primary"/,
   );
+  assert.match(gateway, />Acessar Central<\/a>/);
+  assert.match(gateway, /Acesse o acervo institucional do Grupo CSV/);
   for (const portal of PORTALS) {
-    assert.match(
-      home,
+    assert.doesNotMatch(
+      gateway,
       new RegExp(
-        `href="/documentos/\\?portal=${portal}" class="documents-gateway__link"`,
+        `href="/documentos/\\?portal=${portal}"`,
       ),
     );
   }
