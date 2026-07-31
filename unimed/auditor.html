@@ -5,494 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="hub-category" content="tool">
   <meta name="hub-entity" content="Unimed GV">
-  <meta name="description" content="Auditor CSV: assistente de auditoria em saude da Unimed Governador Valadares. Analisa guias, pareceres e regras do sistema Unimed.">
+  <meta name="description" content="Auditor CSV: assistente de auditoria em saúde da Unimed Governador Valadares. Agora em auditor.grupocsv.com.">
   <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="refresh" content="0; url=https://auditor.grupocsv.com">
   <title>Auditor CSV | Unimed | Grupo CSV</title>
   <link rel="icon" href="/favicons/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-  <meta property="og:title" content="Auditor CSV | Unimed GV">
-  <meta property="og:description" content="Assistente de auditoria em saude da Unimed Governador Valadares.">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="pt_BR">
-  <meta property="og:url" content="https://hub.grupocsv.com/unimed/auditor.html">
-  <meta property="og:site_name" content="Unimed GV | Grupo CSV">
-  <meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
       --u-green: #00995d;
-      --u-green-700: #007a4b;
-      --u-green-300: #7fcaa5;
-      --u-green-200: #cfe5bc;
-      --u-green-100: #eaf3df;
       --u-dark: #004e4c;
       --u-paper: #fafaf7;
-      --u-white: #ffffff;
-      --u-cloud: #f1f1ec;
-      --u-line: #e3e3dc;
-      --u-ash: #c9c9c0;
       --u-stone: #6b6f6c;
-      --u-coal: #2a2f2d;
-      --font-display: "Inter", "Helvetica Neue", Arial, sans-serif;
-      --font-body: "Source Serif 4", Georgia, serif;
-      --font-mono: "JetBrains Mono", "Fira Code", monospace;
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      --shadow-soft: 0 1px 2px rgba(0,78,76,0.04), 0 6px 24px rgba(0,78,76,0.06);
-      --ease-out: cubic-bezier(.2,.8,.2,1);
-      --footer-bg: #f8f5f0;
-      --footer-tag: #2d3445;
-      --footer-link: #196396;
-      --footer-sep: #cbd5e1;
-      --footer-copy: #94a3b8;
+      --u-line: #e3e3dc;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; }
     body {
-      font-family: var(--font-body);
-      font-size: 15px;
-      line-height: 1.55;
-      color: var(--u-dark);
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
       background: var(--u-paper);
+      color: var(--u-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
       -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      height: 100%;
     }
-    #app { min-height: 100vh; display: flex; flex-direction: column; }
-
-    /* Header */
-    .app-header {
-      background: var(--u-dark);
-      padding: 0 28px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .app-header__title {
-      font-family: var(--font-display);
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--u-white);
-      letter-spacing: -0.01em;
-    }
-    .app-header__badge {
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--u-green-300);
-      background: rgba(0,153,93,0.15);
-      padding: 3px 10px;
-      border-radius: 9999px;
-    }
-
-    /* Chat container */
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 860px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Messages area */
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .messages::-webkit-scrollbar { width: 6px; }
-    .messages::-webkit-scrollbar-track { background: transparent; }
-    .messages::-webkit-scrollbar-thumb { background: var(--u-ash); border-radius: 3px; }
-
-    /* Message bubbles */
-    .msg { display: flex; gap: 12px; max-width: 85%; animation: fadeIn 200ms var(--ease-out); }
-    .msg--user { align-self: flex-end; flex-direction: row-reverse; }
-    .msg--assistant { align-self: flex-start; }
-    .msg__avatar {
-      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 13px; font-weight: 600;
-    }
-    .msg--user .msg__avatar { background: var(--u-green); color: var(--u-white); }
-    .msg--assistant .msg__avatar { background: var(--u-dark); color: var(--u-green-300); }
-    .msg__bubble {
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      line-height: 1.6;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
-    .msg--user .msg__bubble {
-      background: var(--u-green);
-      color: var(--u-white);
-      border-bottom-right-radius: 4px;
-    }
-    .msg--assistant .msg__bubble {
-      background: var(--u-white);
-      color: var(--u-coal);
+    .card {
+      background: #ffffff;
       border: 1px solid var(--u-line);
-      border-bottom-left-radius: 4px;
-      box-shadow: var(--shadow-soft);
-    }
-    .msg--assistant .msg__bubble strong { color: var(--u-dark); }
-    .msg--assistant .msg__bubble code {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      background: var(--u-cloud);
-      padding: 1px 5px;
-      border-radius: 4px;
-    }
-
-    /* Typing indicator */
-    .typing { display: none; align-self: flex-start; gap: 12px; max-width: 85%; }
-    .typing.active { display: flex; }
-    .typing__dots {
-      padding: 14px 20px;
-      background: var(--u-white);
-      border: 1px solid var(--u-line);
-      border-radius: var(--radius-md);
-      border-bottom-left-radius: 4px;
-      display: flex; gap: 5px; align-items: center;
-    }
-    .typing__dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--u-ash);
-      animation: bounce 1.4s infinite ease-in-out;
-    }
-    .typing__dot:nth-child(2) { animation-delay: 0.16s; }
-    .typing__dot:nth-child(3) { animation-delay: 0.32s; }
-
-    /* Input area */
-    .input-area {
-      padding: 16px 0 24px;
-      flex-shrink: 0;
-      border-top: 1px solid var(--u-line);
-    }
-    .input-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-    .input-field {
-      flex: 1;
-      font-family: var(--font-body);
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 12px 16px;
-      border: 1px solid var(--u-line);
-      border-radius: var(--radius-md);
-      background: var(--u-white);
-      color: var(--u-coal);
-      resize: none;
-      min-height: 48px;
-      max-height: 160px;
-      outline: none;
-      transition: border-color 200ms var(--ease-out);
-    }
-    .input-field:focus { border-color: var(--u-green); }
-    .input-field::placeholder { color: var(--u-ash); }
-    .send-btn {
-      width: 48px; height: 48px;
-      border: none; border-radius: 50%;
-      background: var(--u-green);
-      color: var(--u-white);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 200ms var(--ease-out), transform 100ms;
-      flex-shrink: 0;
-    }
-    .send-btn:hover { background: var(--u-green-700); }
-    .send-btn:active { transform: scale(0.95); }
-    .send-btn:disabled { background: var(--u-ash); cursor: not-allowed; }
-    .send-btn svg { width: 20px; height: 20px; }
-
-    /* Welcome */
-    .welcome {
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,78,76,0.04), 0 6px 24px rgba(0,78,76,0.06);
+      padding: 40px 36px;
+      max-width: 420px;
       text-align: center;
-      padding: 60px 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
     }
-    .welcome__icon {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: var(--u-dark);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 8px;
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    p { font-size: 14px; color: var(--u-stone); line-height: 1.55; margin-bottom: 20px; }
+    a.botao {
+      display: inline-block;
+      background: var(--u-green);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: 10px;
     }
-    .welcome__icon svg { width: 32px; height: 32px; color: var(--u-green-300); }
-    .welcome__title {
-      font-family: var(--font-display);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--u-dark);
-    }
-    .welcome__desc {
-      font-size: 15px;
-      color: var(--u-stone);
-      max-width: 480px;
-      line-height: 1.6;
-    }
-    .welcome__hints {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 12px;
-    }
-    .welcome__hint {
-      font-family: var(--font-display);
-      font-size: 13px;
-      padding: 8px 16px;
-      background: var(--u-white);
-      border: 1px solid var(--u-line);
-      border-radius: 9999px;
-      color: var(--u-dark);
-      cursor: pointer;
-      transition: all 200ms var(--ease-out);
-    }
-    .welcome__hint:hover {
-      background: var(--u-green-100);
-      border-color: var(--u-green-300);
-    }
-
-    /* Error */
-    .msg--error .msg__bubble {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
-    }
-
-    /* Animations */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      .app-header { padding: 0 16px; }
-      .chat-container { padding: 0 12px; }
-      .msg { max-width: 92%; }
-      .welcome { padding: 40px 16px; }
-      .welcome__title { font-size: 18px; }
-    }
-
-    @media print { .app-header, .input-area { display: none !important; } }
+    a.botao:hover { background: #007a4b; }
   </style>
 </head>
 <body>
-<div id="app">
-  <!-- Header -->
-  <header class="app-header">
-    <span class="app-header__title">Auditor CSV</span>
-    <span class="app-header__badge">Unimed GV</span>
-  </header>
-
-  <!-- Chat -->
-  <div class="chat-container">
-    <div class="messages" id="messages">
-      <!-- Welcome screen -->
-      <div class="welcome" id="welcome">
-        <div class="welcome__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-            <rect x="9" y="3" width="6" height="4" rx="1"/>
-            <path d="M9 14l2 2 4-4"/>
-          </svg>
-        </div>
-        <h1 class="welcome__title">Auditor CSV</h1>
-        <p class="welcome__desc">Assistente de auditoria em saude da Unimed Governador Valadares. Analisa guias, pareceres e regras do sistema Unimed com base nos manuais AJIUS, MANIN e MAME.</p>
-        <div class="welcome__hints">
-          <button class="welcome__hint" onclick="sendHint(this)">Qual o prazo de contestacao no AJIUS?</button>
-          <button class="welcome__hint" onclick="sendHint(this)">Analise este parecer de auditoria</button>
-          <button class="welcome__hint" onclick="sendHint(this)">Regras de intercambio para exames</button>
-          <button class="welcome__hint" onclick="sendHint(this)">Criterios de glosa por falta de autorizacao</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Typing indicator -->
-    <div class="typing" id="typing">
-      <div class="msg__avatar" style="background:var(--u-dark);color:var(--u-green-300);">A</div>
-      <div class="typing__dots">
-        <div class="typing__dot"></div>
-        <div class="typing__dot"></div>
-        <div class="typing__dot"></div>
-      </div>
-    </div>
-
-    <!-- Input -->
-    <div class="input-area">
-      <div class="input-row">
-        <textarea class="input-field" id="input" placeholder="Descreva sua duvida ou cole o parecer de auditoria..." rows="1" onkeydown="handleKey(event)"></textarea>
-        <button class="send-btn" id="sendBtn" onclick="send()" title="Enviar">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+  <div class="card">
+    <h1>O Auditor CSV mudou de endereço</h1>
+    <p>A ferramenta agora é um aplicativo completo, com histórico de conversas e envio de anexos. Você será redirecionado automaticamente.</p>
+    <a class="botao" href="https://auditor.grupocsv.com">Ir para auditor.grupocsv.com</a>
   </div>
-
-  <!-- Footer AxiaCare -->
-  <div style="margin-top:0;padding:32px 20px;background:var(--footer-bg);text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:2px solid var(--footer-link);border-radius:0">
-    <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="width:140px;margin:0 auto 12px auto;display:block">
-    <div style="font-size:14px;font-weight:600;color:var(--footer-tag);margin-bottom:14px">Gestao e Consultoria em Saude</div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-      <a href="https://linktr.ee/gui.thome" style="color:var(--footer-link);text-decoration:none">Conheca nossas solucoes</a>
-      <span style="color:var(--footer-sep);font-size:11px">|</span>
-      <a href="https://www.axcare.com.br" target="_blank" style="color:var(--footer-link);text-decoration:none">axcare.com.br</a>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:6px">
-      <a href="https://grupocsv.com" target="_blank" style="color:var(--footer-link);text-decoration:none">grupocsv.com</a>
-      <span style="color:var(--footer-sep);font-size:11px">|</span>
-      <a href="https://www.medvalor.med.br" target="_blank" style="color:var(--footer-link);text-decoration:none">medvalor.med.br</a>
-      <span style="color:var(--footer-sep);font-size:11px">|</span>
-      <a href="https://thera.tech" target="_blank" style="color:var(--footer-link);text-decoration:none">thera.tech</a>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:13px;margin-bottom:14px">
-      <a href="https://guithome.com.br" target="_blank" style="color:var(--footer-link);text-decoration:none">guithome.com.br</a>
-      <span style="color:var(--footer-sep);font-size:11px">|</span>
-      <a href="https://linkedin.com/in/guithome" target="_blank" style="color:var(--footer-link);text-decoration:none">LinkedIn</a>
-      <span style="color:var(--footer-sep);font-size:11px">|</span>
-      <a href="https://www.instagram.com/gui.thome/" target="_blank" style="color:var(--footer-link);text-decoration:none">Instagram</a>
-    </div>
-    <div style="font-size:11px;color:var(--footer-copy)">Copyright &copy; 2026 AxiaCare | Todos os direitos reservados | Uma empresa do Grupo CSV</div>
-  </div>
-</div>
-
-<script>
-const API_URL = 'https://auditor-api.grupocsv.com/v1/chat/completions';
-const API_KEY = 'hms_f8e1973cb2bf50fc5f882502fb821a4d8b352e2ee8cdaa8d';
-const history = [];
-let busy = false;
-
-function $(id) { return document.getElementById(id); }
-
-function autoGrow(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
-}
-
-$('input').addEventListener('input', function() { autoGrow(this); });
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-}
-
-function sendHint(btn) {
-  $('input').value = btn.textContent;
-  send();
-}
-
-function addMsg(role, text) {
-  const welcome = $('welcome');
-  if (welcome) welcome.style.display = 'none';
-
-  const msgs = $('messages');
-  const div = document.createElement('div');
-  div.className = 'msg msg--' + role;
-
-  const avatar = document.createElement('div');
-  avatar.className = 'msg__avatar';
-  avatar.textContent = role === 'user' ? 'G' : 'A';
-
-  const bubble = document.createElement('div');
-  bubble.className = 'msg__bubble';
-  bubble.textContent = text;
-
-  div.appendChild(avatar);
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  return bubble;
-}
-
-function addError(text) {
-  const msgs = $('messages');
-  const div = document.createElement('div');
-  div.className = 'msg msg--assistant msg--error';
-  const avatar = document.createElement('div');
-  avatar.className = 'msg__avatar';
-  avatar.style.background = '#991b1b';
-  avatar.textContent = '!';
-  const bubble = document.createElement('div');
-  bubble.className = 'msg__bubble';
-  bubble.textContent = text;
-  div.appendChild(avatar);
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-async function send() {
-  if (busy) return;
-  const input = $('input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = '';
-  autoGrow(input);
-  addMsg('user', text);
-  history.push({ role: 'user', content: text });
-
-  busy = true;
-  $('sendBtn').disabled = true;
-  $('typing').classList.add('active');
-
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + API_KEY
-      },
-      body: JSON.stringify({
-        model: 'auditor',
-        messages: history,
-        max_tokens: 4096
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error('HTTP ' + res.status + ': ' + err);
-    }
-
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || 'Sem resposta.';
-    history.push({ role: 'assistant', content: reply });
-    addMsg('assistant', reply);
-  } catch (e) {
-    addError('Erro ao conectar com o Auditor: ' + e.message);
-  } finally {
-    busy = false;
-    $('sendBtn').disabled = false;
-    $('typing').classList.remove('active');
-    input.focus();
-  }
-}
-</script>
-<script src="/scripts/hub-auth.js" data-portal="unimed" defer></script>
+  <script>window.location.replace('https://auditor.grupocsv.com');</script>
 </body>
 </html>
