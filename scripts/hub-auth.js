@@ -16,8 +16,8 @@
  *   O slot tem precedência sobre os seletores automáticos; páginas sem slot
  *   continuam com o comportamento anterior (retrocompatível).
  *
- * Portais de Parceiros (autenticação individual):
- *   - unimed, unihealth, icds
+ * Portais com autenticação individual:
+ *   - grupo-csv, unimed, unihealth, icds
  *
  * Portais de Empresas (senha fixa compartilhada):
  *   - axiacare, thera, medvalor
@@ -50,7 +50,7 @@
   var authGeneration = 0;
   var activeAuthOperation = null;
 
-  var PARTNER_TENANTS = ['unimed', 'unihealth', 'icds'];
+  var PARTNER_TENANTS = ['grupo-csv', 'unimed', 'unihealth', 'icds'];
   var COMPANY_TENANTS = ['axiacare', 'thera', 'medvalor'];
 
   var IS_PARTNER = PARTNER_TENANTS.includes(PORTAL);
@@ -297,6 +297,7 @@
 
   // ===== Portal config =====
   var PORTAL_NAMES = {
+    'grupo-csv': 'Grupo CSV',
     unimed: 'Unimed Governador Valadares',
     unihealth: 'Unihealth Governador Valadares',
     icds: 'ICDS',

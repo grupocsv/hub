@@ -90,6 +90,88 @@ head:
 .hub-hero .hero-btn.primary:hover { background: #e8f4fc; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 .hub-hero .hero-btn.secondary { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
 .hub-hero .hero-btn.secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+.documents-gateway {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px 13px 16px;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-left: 4px solid #7ce0b2;
+  border-radius: 14px;
+  background: rgba(9,30,48,0.64);
+  box-shadow: 0 14px 36px rgba(4,20,34,0.22);
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+.documents-gateway__icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 11px;
+  color: #dff9ec;
+  background: rgba(124,224,178,0.14);
+  border: 1px solid rgba(124,224,178,0.28);
+}
+.documents-gateway__icon svg { width: 22px; height: 22px; }
+.documents-gateway__copy {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+.documents-gateway__title {
+  display: block;
+  color: white;
+  font-size: 0.96rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+.documents-gateway__hint {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+.documents-gateway__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 164px;
+  min-height: 38px;
+  margin-left: auto;
+  padding: 8px 12px;
+  border-radius: 9px;
+  color: white !important;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 0.76rem;
+  font-weight: 650;
+  text-decoration: none !important;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.documents-gateway__link:hover {
+  background: rgba(124,224,178,0.18);
+  border-color: rgba(124,224,178,0.5);
+  transform: translateY(-1px);
+}
+.documents-gateway__link--primary {
+  color: #092238 !important;
+  background: #7ce0b2;
+  border-color: #a7efd0;
+}
+.documents-gateway__link--primary:hover {
+  background: #9be9c5;
+  border-color: #d3f8e7;
+}
+.documents-gateway__link:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.78);
+  outline-offset: 2px;
+}
 .hub-hero .hero-groups {
   display: flex;
   flex-direction: column;
@@ -271,6 +353,37 @@ head:
   width: 13px;
   height: 13px;
 }
+.partner-header .p-documents-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 9px;
+  color: #ffffff !important;
+  background: #0f2b46;
+  border: 1px solid #244c6c;
+  box-shadow: inset 3px 0 0 #2DBF7F, 0 4px 12px rgba(15,43,70,0.15);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.partner-header .p-documents-btn:hover {
+  background: #163b5b;
+  box-shadow: inset 3px 0 0 #7ce0b2, 0 7px 18px rgba(15,43,70,0.24);
+  transform: translateY(-1px);
+}
+.partner-header .p-documents-btn:focus-visible {
+  outline: 3px solid rgba(45,191,127,0.3);
+  outline-offset: 2px;
+}
+.partner-header .p-documents-btn svg { width: 15px; height: 15px; }
+.dark .partner-header .p-documents-btn {
+  background: #173b5a;
+  border-color: #315a78;
+}
 .dark .partner-header .p-portal-btn {
   color: #5da9e0;
   background: rgba(93,169,224,0.1);
@@ -300,10 +413,15 @@ head:
   flex-shrink: 0;
   transition: all 0.2s ease;
   white-space: nowrap;
+  font-family: inherit;
 }
 .partner-header .p-toggle:hover {
   background: rgba(100,116,139,0.14);
   border-color: rgba(100,116,139,0.3);
+}
+.partner-header .p-toggle:focus-visible {
+  outline: 3px solid rgba(25,99,150,0.28);
+  outline-offset: 2px;
 }
 .dark .partner-header .p-toggle {
   color: #94a3b8;
@@ -479,6 +597,9 @@ head:
   .hub-hero .hero-actions { gap: 16px; }
   .hub-hero .hero-subhead { font-size: 1rem; }
   .hub-hero .hero-btn { width: 100%; max-width: 280px; text-align: center; padding: 12px 20px; font-size: 0.9rem; }
+  .documents-gateway { flex-wrap: wrap; max-width: 360px; padding: 13px; }
+  .documents-gateway__copy { flex: 1 1 180px; min-width: 0; }
+  .documents-gateway__link { width: 100%; min-width: 0; margin-left: 0; padding: 9px 12px; font-size: 0.74rem; }
   .hub-hero .hero-groups { gap: 20px; }
   .hub-hero .hero-group-divider { display: none; }
   .hub-hero .hero-group-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 320px; }
@@ -504,6 +625,8 @@ head:
   .partner-header .p-info { flex: 1 1 0; min-width: 120px; }
   .partner-header .p-name { font-size: 1rem; word-wrap: break-word; }
   .partner-header .p-sub { font-size: 0.78rem; }
+  .partner-header .p-documents-btn { padding: 7px 11px; font-size: 0.73rem; }
+  .partner-header .p-documents-btn svg { width: 13px; height: 13px; }
   .partner-header .p-portal-btn { padding: 7px 12px; font-size: 0.75rem; flex-shrink: 0; }
   .partner-header .p-portal-btn svg { width: 11px; height: 11px; }
   .partner-header .p-toggle { padding: 7px 12px; font-size: 0.75rem; flex-shrink: 0; }
@@ -558,6 +681,16 @@ head:
     <p class="tagline">Cuidados em Saúde com Valor</p>
     <div class="hero-actions">
       <p class="hero-subhead">Dashboards e Ferramentas</p>
+      <section class="documents-gateway" aria-labelledby="documents-gateway-title">
+        <span class="documents-gateway__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>
+        </span>
+        <span class="documents-gateway__copy">
+          <strong class="documents-gateway__title" id="documents-gateway-title">Central de Documentos</strong>
+          <span class="documents-gateway__hint">Acesse o acervo institucional do Grupo CSV</span>
+        </span>
+        <a href="/documentos/?portal=grupo-csv" class="documents-gateway__link documents-gateway__link--primary" target="_self">Acessar Central</a>
+      </section>
       <div class="hero-groups">
         <div class="hero-group products" id="produtos-do-grupo">
           <span class="hero-group-label">Produtos do Grupo CSV</span>
@@ -633,10 +766,11 @@ head:
           <div class="p-name">Unimed Governador Valadares</div>
           <div class="p-sub">Operadora de Planos de Saúde</div>
         </div>
-        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <a href="/documentos/?portal=unimed" class="p-documents-btn" target="_self"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>Central de Documentos</a>
+        <button type="button" class="p-toggle" aria-expanded="false" aria-controls="partner-tools-unimed"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <a href="/unimed/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
-      <div class="partner-tools-wrapper">
+      <div class="partner-tools-wrapper" id="partner-tools-unimed" aria-hidden="true" inert>
       <div class="partner-tools" id="tools-unimed">
         <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
@@ -650,10 +784,11 @@ head:
           <div class="p-name">Unihealth Governador Valadares</div>
           <div class="p-sub">Hospital de Média/Alta Complexidade</div>
         </div>
-        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <a href="/documentos/?portal=unihealth" class="p-documents-btn" target="_self"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>Central de Documentos</a>
+        <button type="button" class="p-toggle" aria-expanded="false" aria-controls="partner-tools-unihealth"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <a href="/unihealth/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
-      <div class="partner-tools-wrapper">
+      <div class="partner-tools-wrapper" id="partner-tools-unihealth" aria-hidden="true" inert>
       <div class="partner-tools" id="tools-unihealth">
         <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
@@ -667,10 +802,11 @@ head:
           <div class="p-name">ICDS</div>
           <div class="p-sub">Entidade Filantrópica e Gestora Assistencial</div>
         </div>
-        <span class="p-toggle"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <a href="/documentos/?portal=icds" class="p-documents-btn" target="_self"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>Central de Documentos</a>
+        <button type="button" class="p-toggle" aria-expanded="false" aria-controls="partner-tools-icds"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <a href="/icds/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
       </div>
-      <div class="partner-tools-wrapper">
+      <div class="partner-tools-wrapper" id="partner-tools-icds" aria-hidden="true" inert>
       <div class="partner-tools" id="tools-icds">
         <span class="tool-item disabled">Carregando ferramentas...</span>
       </div>
@@ -727,11 +863,18 @@ import { onMounted } from 'vue'
 
 onMounted(() => {
   // Toggle parceiros
-  document.querySelectorAll('.partner-header').forEach(header => {
-    header.addEventListener('click', (e) => {
-      if (e.target.closest('.p-logo-link') || e.target.closest('.p-portal-btn')) return;
-      const section = header.closest('.partner-section');
-      if (section) section.classList.toggle('collapsed');
+  document.querySelectorAll('.partner-header .p-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const section = toggle.closest('.partner-section');
+      const wrapperId = toggle.getAttribute('aria-controls');
+      const wrapper = wrapperId ? document.getElementById(wrapperId) : null;
+      if (!section || !wrapper) return;
+      section.classList.toggle('collapsed');
+      const expanded = !section.classList.contains('collapsed');
+      toggle.setAttribute('aria-expanded', String(expanded));
+      wrapper.setAttribute('aria-hidden', String(!expanded));
+      if (expanded) wrapper.removeAttribute('inert');
+      else wrapper.setAttribute('inert', '');
     });
   });
 
@@ -749,7 +892,10 @@ onMounted(() => {
     fetch(portal.basePath + 'tools.json')
       .then(r => r.json())
       .then(data => {
-        const tools = data.tools || [];
+        const tools = (data.tools || []).filter(tool =>
+          tool.managedBy !== 'hub-documentos' &&
+          !(typeof tool.file === 'string' && tool.file.startsWith('/documentos/'))
+        );
         if (tools.length === 0) {
           container.innerHTML = '<span class="tool-item disabled">Nenhuma ferramenta dispon\u00edvel</span>';
           return;

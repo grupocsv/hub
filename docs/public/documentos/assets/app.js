@@ -5,6 +5,19 @@ import { createDocumentosWorkspace } from './workspace.js';
 
 const ALLOWED_API_ORIGINS = new Set(['https://documentos-api.grupocsv.com']);
 const VALID_STATES = new Set(['loading', 'unavailable', 'empty', 'error']);
+const PORTAL_LABELS = Object.freeze({
+  'grupo-csv': 'Grupo CSV',
+  unimed: 'Unimed Governador Valadares',
+  unihealth: 'Unihealth Governador Valadares',
+  icds: 'ICDS',
+});
+const PORTAL_LOGOS = Object.freeze({
+  'grupo-csv':
+    '/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png',
+  unimed: '/img/prZGWXK.png',
+  unihealth: '/img/ac2rphe.png',
+  icds: '/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png',
+});
 
 const STATE_COPY = Object.freeze({
   loading: Object.freeze({
@@ -73,6 +86,32 @@ export function deriveStartupState(config) {
 
 export function shouldStartNetwork(config) {
   return deriveStartupState(config) === 'loading';
+}
+
+export function resolvePortalLabel(portal) {
+  return typeof portal === 'string' ? PORTAL_LABELS[portal] ?? null : null;
+}
+
+export function resolvePortalLogo(portal) {
+  return typeof portal === 'string' ? PORTAL_LOGOS[portal] ?? null : null;
+}
+
+export function formatPortalIdentity(portal) {
+  const label = resolvePortalLabel(portal);
+  return label ? `Ambiente: ${label}` : null;
+}
+
+function renderDocumentosPortalIdentity(portal) {
+  if (typeof document === 'undefined') return;
+  const accessibleLabel = formatPortalIdentity(portal);
+  const logoSource = resolvePortalLogo(portal);
+  const container = document.getElementById('docs-tenant-identity');
+  const logo = document.getElementById('docs-tenant-logo');
+  const label = document.getElementById('docs-tenant-label');
+  if (!accessibleLabel || !logoSource || !container || !logo || !label) return;
+  logo.src = logoSource;
+  label.textContent = accessibleLabel;
+  container.hidden = false;
 }
 
 function setControlsEnabled(enabled) {
@@ -209,6 +248,8 @@ export async function bootstrapDocumentosApp(
   const createWorkspace =
     dependencies.createWorkspace ??
     (typeof document !== 'undefined' ? createDocumentosWorkspace : null);
+  const renderPortalIdentity =
+    dependencies.renderPortalIdentity ?? renderDocumentosPortalIdentity;
   const lifecycleTarget = dependencies.lifecycleTarget ?? globalThis.window;
   const windowRef = dependencies.windowRef ?? globalThis.window;
   const locationSearch = dependencies.locationSearch ?? globalThis.location?.search ?? '';
@@ -227,12 +268,13 @@ export async function bootstrapDocumentosApp(
   }
 
   const portal = resolvePortalContext(locationSearch, config.enabledPortals);
-  if (!portal) {
+  if (!portal || !resolvePortalLabel(portal)) {
     renderState('unavailable', 'O acesso deve ser iniciado por um portal habilitado.', {
       controlsEnabled: false,
     });
     return inertApplication('invalid_portal');
   }
+  renderPortalIdentity(portal);
 
   let activeSession = null;
   let client = null;

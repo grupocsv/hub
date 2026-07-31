@@ -184,7 +184,7 @@ test("features.search é opcional com default seguro e preserva true quando decl
   );
 });
 
-test("fontes produtivas ativam somente os três portais e mantêm busca integral desligada", async () => {
+test("fontes produtivas ativam os quatro tenants isolados e mantêm busca integral desligada", async () => {
   const config = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-runtime-config.json"),
@@ -202,7 +202,7 @@ test("fontes produtivas ativam somente os três portais e mantêm busca integral
     schemaVersion: 1,
     enabled: true,
     apiBaseUrl: "https://documentos-api.grupocsv.com",
-    enabledPortals: ["unimed", "unihealth", "icds"],
+    enabledPortals: ["grupo-csv", "unimed", "unihealth", "icds"],
     features: {
       favorites: true,
       offline: false,
@@ -213,7 +213,7 @@ test("fontes produtivas ativam somente os três portais e mantêm busca integral
   });
   assert.deepEqual(
     registry.tenants,
-    ["unimed", "unihealth", "icds"].map((portal) => ({
+    ["grupo-csv", "unimed", "unihealth", "icds"].map((portal) => ({
       portal,
       enabled: true,
       href: "/documentos/",

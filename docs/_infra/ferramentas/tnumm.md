@@ -2,4 +2,4 @@
 
 TNUMM é a fonte oficial atualmente utilizada pelo CMM, não o nome do produto do Grupo CSV.
 
-A documentação canônica está em [CMM — Catálogo de Materiais e Medicamentos](/_infra/ferramentas/cmm).
+A documentação canônica está em [CMM — Catálogo de Materiais e Medicamentos](./cmm).

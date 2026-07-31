@@ -21,13 +21,29 @@ async function sources() {
 }
 
 test('expõe landmarks, salto de conteúdo e hierarquia única de título', async () => {
-  const { template } = await sources();
+  const { template, generated } = await sources();
 
   assert.match(template, /<a[^>]+class="skip-link"[^>]+href="#docs-main"/);
   assert.match(template, /<header[^>]+class="docs-topbar"/);
   assert.match(template, /<nav[^>]+aria-label="Navegação de Documentos"/);
   assert.match(template, /<main[^>]+id="docs-main"/);
   assert.match(template, /<footer[^>]+class="docs-footer"/);
+  assert.match(template, /<title>Central de Documentos \| Grupo CSV<\/title>/);
+  assert.match(template, /class="docs-brand__logo"[^>]+grupo-csv_logo_horizontal_full-color_negative_transparent\.png/);
+  assert.match(template, /class="docs-brand__product">Central de Documentos<\/span>/);
+  assert.match(template, /<p class="docs-eyebrow">Acervo Digital<\/p>/);
+  assert.match(template, /<h1 id="docs-title">Central de Documentos<\/h1>/);
+  assert.match(template, /id="docs-tenant-identity" hidden/);
+  assert.match(template, /id="docs-tenant-logo"/);
+  assert.match(template, /id="docs-tenant-label"/);
+  assert.match(generated, /<title>Central de Documentos \| Grupo CSV<\/title>/);
+  assert.match(generated, /class="docs-brand__logo"[^>]+grupo-csv_logo_horizontal_full-color_negative_transparent\.png/);
+  assert.match(generated, /class="docs-brand__product">Central de Documentos<\/span>/);
+  assert.match(generated, /<p class="docs-eyebrow">Acervo Digital<\/p>/);
+  assert.match(generated, /<h1 id="docs-title">Central de Documentos<\/h1>/);
+  assert.match(generated, /id="docs-tenant-identity" hidden/);
+  assert.match(generated, /id="docs-tenant-logo"/);
+  assert.match(generated, /id="docs-tenant-label"/);
   assert.equal((template.match(/<h1\b/g) || []).length, 1);
   assert.doesNotMatch(template, /<div[^>]+onclick=/i);
 });
