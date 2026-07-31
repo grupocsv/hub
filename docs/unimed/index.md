@@ -55,6 +55,46 @@ head:
 .page-header h1 { color: #00995d; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
 .dark .page-header h1 { color: #3dcc8e; }
 .page-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
+.documents-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: min(100%, 360px);
+  margin-top: 24px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #ffffff !important;
+  background: #0f2b46;
+  border: 1px solid #244c6c;
+  border-left: 4px solid #2DBF7F;
+  box-shadow: 0 12px 28px rgba(15,43,70,0.18);
+  text-align: left;
+  text-decoration: none !important;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.documents-entry:hover {
+  background: #163b5b;
+  box-shadow: 0 16px 34px rgba(15,43,70,0.26);
+  transform: translateY(-2px);
+}
+.documents-entry:focus-visible { outline: 3px solid rgba(45,191,127,0.36); outline-offset: 3px; }
+.documents-entry__icon {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  color: #dff9ec;
+  background: rgba(45,191,127,0.14);
+  border: 1px solid rgba(124,224,178,0.24);
+}
+.documents-entry__icon svg { width: 21px; height: 21px; }
+.documents-entry__copy { flex: 1; }
+.documents-entry__title { display: block; font-size: 0.92rem; font-weight: 750; line-height: 1.2; }
+.documents-entry__hint { display: block; margin-top: 3px; color: rgba(255,255,255,0.67); font-size: 0.72rem; line-height: 1.3; }
+.documents-entry__arrow { font-size: 1.15rem; opacity: .68; }
 
 .tools-grid {
   display: grid;
@@ -160,6 +200,11 @@ head:
     <p class="eyebrow">Hub de Ferramentas Profissionais</p>
     <h1>Hub Unimed Governador Valadares</h1>
     <p class="subtitle">Operadora de Planos de Saúde</p>
+    <a href="/documentos/?portal=unimed" class="documents-entry" target="_self">
+      <span class="documents-entry__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg></span>
+      <span class="documents-entry__copy"><strong class="documents-entry__title">Central de Documentos</strong><span class="documents-entry__hint">Acesse o acervo institucional da Unimed GV</span></span>
+      <span class="documents-entry__arrow" aria-hidden="true">→</span>
+    </a>
   </div>
 
   <div id="tools-grid-unimed" class="tools-grid">
@@ -234,12 +279,20 @@ onMounted(() => {
     .then(r => r.json())
     .then(data => {
       const grid = document.getElementById('tools-grid-unimed')
-      if (!grid || !data.tools || data.tools.length === 0) return
-      grid.innerHTML = data.tools.map((tool, i) => {
+      if (!grid) return
+      const tools = (data.tools || []).filter(tool =>
+        tool.managedBy !== 'hub-documentos' &&
+        !(typeof tool.file === 'string' && tool.file.startsWith('/documentos/'))
+      )
+      if (tools.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--vp-c-text-2);">Nenhuma ferramenta disponível.</div>'
+        return
+      }
+      grid.innerHTML = tools.map(tool => {
         const href = tool.external ? tool.file : `/unimed/${tool.file}`
         const updated = formatDate(tool.lastModified)
         return `
-        <div class="tool-card${i === 0 ? ' featured' : ''}">
+        <div class="tool-card${tool.featured === true ? ' featured' : ''}">
           <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pickIcon(tool.title)}</svg></div>
           <div class="tool-title">${tool.title}</div>
           ${updated ? `<span class="tool-meta">Atualizado em ${updated}</span>` : '<span class="tool-meta">&nbsp;</span>'}

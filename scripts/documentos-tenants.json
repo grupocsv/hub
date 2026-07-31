@@ -2,6 +2,11 @@
   "schemaVersion": 1,
   "tenants": [
     {
+      "portal": "grupo-csv",
+      "enabled": true,
+      "href": "/documentos/"
+    },
+    {
       "portal": "unimed",
       "enabled": true,
       "href": "/documentos/"

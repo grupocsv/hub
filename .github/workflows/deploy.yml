@@ -53,6 +53,10 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            _infra/package-lock.json
+            docs/_infra/package-lock.json
 
       - name: Setup Pages
         if: ${{ github.event_name != 'pull_request' }}
@@ -60,6 +64,23 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install auxiliary VitePress dependencies
+        run: |
+          npm --prefix _infra ci
+          npm --prefix docs/_infra ci
+
+      - name: Audit all VitePress dependency graphs
+        run: |
+          npm audit --audit-level=moderate
+          npm --prefix _infra audit --audit-level=moderate
+          npm --prefix docs/_infra audit --audit-level=moderate
+
+      - name: Validate all VitePress dependency trees
+        run: |
+          npm ls vitepress vite esbuild --all
+          npm --prefix _infra ls vitepress vite esbuild --all
+          npm --prefix docs/_infra ls vitepress vite esbuild --all
 
       - name: Generate portal tools.json
         run: python3 scripts/generate-portal-tools.py .

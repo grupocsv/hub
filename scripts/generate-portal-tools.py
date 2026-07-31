@@ -34,6 +34,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 
 PORTALS = ("unimed", "unihealth", "icds")
+RUNTIME_PORTALS = ("grupo-csv", *PORTALS)
 DOCUMENTOS_ROUTE = "/documentos/"
 DOCUMENTOS_TITLE = "Documentos"
 DOCUMENTOS_MANAGER = "hub-documentos"
@@ -419,7 +420,7 @@ def validate_registry(value: object) -> dict[str, dict]:
         portal = entry.get("portal")
         if not isinstance(portal, str) or not CANONICAL_PORTAL.fullmatch(portal):
             fail("Portal inválido no registro de tenants.")
-        if portal not in PORTALS:
+        if portal not in RUNTIME_PORTALS:
             fail(f"Tenant desconhecido no registro: {portal}.")
         if portal in registry:
             fail(f"Portal duplicado no registro: {portal}.")
@@ -476,7 +477,7 @@ def validate_runtime_config(value: object, registry: dict[str, dict]) -> set[str
         fail("Lista enabledPortals inválida.")
     enabled_portals: set[str] = set()
     for portal in enabled_portals_value:
-        if not isinstance(portal, str) or portal not in PORTALS:
+        if not isinstance(portal, str) or portal not in RUNTIME_PORTALS:
             fail(f"Portal inválido em enabledPortals: {portal}.")
         if portal in enabled_portals:
             fail(f"Portal duplicado em enabledPortals: {portal}.")
@@ -1180,7 +1181,10 @@ def generate(root: Path) -> tuple[int, bool]:
             candidates,
             current_sources,
         )
-        return len(enabled_portals), changed
+        managed_enabled_count = sum(
+            portal in enabled_portals for portal in PORTALS
+        )
+        return managed_enabled_count, changed
 
 
 def root_from_args(args: list[str]) -> Path:

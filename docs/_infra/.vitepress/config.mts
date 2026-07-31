@@ -1,9 +1,25 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath } from 'node:url'
+
+const sharedVisualIdentity = fileURLToPath(
+  new URL('../../public/visual-identity', import.meta.url),
+)
+
 export default defineConfig({
   title: "Grupo CSV | Hub",
   description: "Infraestrutura Cognitiva e Operacional",
   lang: 'pt-BR',
   cleanUrls: true,
+  vite: {
+    resolve: {
+      alias: [
+        {
+          find: /^\/visual-identity/,
+          replacement: sharedVisualIdentity,
+        },
+      ],
+    },
+  },
   
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],

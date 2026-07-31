@@ -275,6 +275,25 @@ input:disabled {
   text-transform: uppercase;
 }
 
+.docs-tenant {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin: 10px 0 0;
+  padding: 5px 10px;
+  border: 1px solid rgba(45, 191, 127, 0.42);
+  border-radius: 999px;
+  color: #dff9ec;
+  background: rgba(45, 191, 127, 0.12);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.docs-tenant[hidden] {
+  display: none;
+}
+
 .docs-hero h1 {
   margin: 0;
   color: var(--csv-text);
