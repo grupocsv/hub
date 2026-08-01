@@ -190,7 +190,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 
 - **Data Set TEA:** [p/tea-dataset/](https://hub.grupocsv.com/p/tea-dataset/) — Coleta de dados multi-tenant para TEA (ICDS)
 - **CMM:** [cmm.grupocsv.com](https://cmm.grupocsv.com) — catálogo versionado de materiais e medicamentos, com publicações TNUMM como fonte canônica atual
-- **Themis™:** [themis.grupocsv.com](https://themis.grupocsv.com) — Análise documental baseada em evidências
+- **Themis™:** [themis.grupocsv.com](https://themis.grupocsv.com) — Suporte técnico médico jurídico.
 
 ---
 
@@ -202,7 +202,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 | `csv-ai` | Assistente de IA contextual | D1, AI Gateway |
 | `csv-email` | Envio de e-mails e persistência de formulários | D1, Resend |
 | `tnumm` | WebApp, API e atualização governada do CMM | D1 `tnumm-control`, R2 `tnumm-evidence` |
-| `themis` | WebApp interno para análise documental e processamento durável | Workflow `themis-processing`, R2 `themis-private`, Supabase |
+| `themis` | WebApp interno para análise documental e processamento durável; piloto limitado a dados sintéticos | Workflow `themis-processing`, R2 `themis-private`, Supabase, Workers AI e AI Gateway `themis-generation` |
 
 ---
 

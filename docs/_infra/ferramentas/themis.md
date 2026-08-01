@@ -1,4 +1,4 @@
-# Themis™ — Análise documental baseada em evidências
+# Themis™ — Suporte técnico médico jurídico.
 
 ## Visão Geral
 
@@ -41,7 +41,7 @@ O frontend e a API operam no mesmo domínio. O navegador não recebe credenciais
 
 ## Acesso e Segurança
 
-O acesso previsto utiliza Google Workspace por meio do Supabase Auth, com autorização prévia e perfil ativo. Os domínios admitidos são `unimedgv.com.br`, `unimedgv.coop.br` e `grupocsv.com`; pertencer a um desses domínios não concede acesso automaticamente.
+O acesso utiliza convite individual, e-mail, senha e TOTP por meio do Supabase Auth, com autorização prévia e perfil ativo. Os domínios admitidos são `unimedgv.com.br`, `unimedgv.coop.br` e `grupocsv.com`; pertencer a um desses domínios não concede acesso automaticamente.
 
 - Admin visualiza todos os casos e atua como curador.
 - Usuário visualiza somente os casos atribuídos.
@@ -52,9 +52,11 @@ O acesso previsto utiliza Google Workspace por meio do Supabase Auth, com autori
 
 ## Processamento e Geração
 
-O contrato GenerationGateway permite trocar provedores sem alterar as regras de casos, evidências, curadoria e exportação. A geração externa permanece desabilitada em produção até a aprovação dos gates contratuais, de privacidade, retenção e benchmark do modelo.
+O contrato GenerationGateway permite trocar provedores sem alterar as regras de casos, evidências, curadoria e exportação. No piloto sintético, a Themis™ usa o adaptador `workers-ai-responses`, o modelo `@cf/openai/gpt-oss-120b` e o binding Workers AI do próprio Worker, com passagem pelo AI Gateway dedicado `themis-generation`.
 
-Quando promovida, a integração deverá operar por Cloudflare AI Gateway com BYOK, sem cache de resposta e sem logging de payload. Mudança de provedor exige nova execução registrada e não pode ocorrer por fallback silencioso.
+Esse piloto aceita exclusivamente casos classificados como `synthetic`. Casos `restricted` permanecem bloqueados por escopo antes do despacho e passam por nova verificação no Workflow; portanto, o piloto não autoriza o processamento de documentos reais, identificáveis ou pseudonimizados pelo Workers AI.
+
+As chamadas do piloto desabilitam cache de resposta e coleta de payload no gateway. Provedores externos permanecem inativos até a aprovação dos gates contratuais, de privacidade, retenção e avaliação do modelo. Mudança de provedor exige nova execução registrada e não pode ocorrer por fallback silencioso.
 
 ## Infraestrutura e Operação
 
@@ -72,4 +74,4 @@ O health check público retorna somente o estado mínimo da aplicação. Não ex
 
 ## Estado da Implantação
 
-Em 25 de julho de 2026, o frontend, a API, o Worker, o Workflow, o R2 privado, o schema Supabase, o domínio e o health check estavam implantados. A geração com provedores externos permanece desabilitada por política. O início do piloto depende da configuração dedicada do provedor Google Workspace e dos demais gates de produção registrados no PRD da Themis™.
+Em 1º de agosto de 2026, o frontend, a API, o Worker, o Workflow, o R2 privado, o schema Supabase, o domínio e o health check integravam a publicação controlada do MVP. O acesso ocorre por convite individual, e-mail, senha e TOTP. O escopo de geração e extração assistida do piloto é exclusivamente sintético, pelo Workers AI; casos `restricted` continuam bloqueados e dependem dos gates institucionais registrados no PRD da Themis™.
