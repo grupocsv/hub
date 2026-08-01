@@ -812,6 +812,24 @@ head:
       </div>
       </div>
     </div>
+    <!-- 2iM -->
+    <div class="partner-section collapsed" id="partner-2im">
+      <div class="partner-header">
+        <a href="/2im/" class="p-logo-link"><img src="/2im/assets/im2_icon_200.png" alt="2iM" class="p-logo" style="border-radius:8px;"></a>
+        <div class="p-info">
+          <div class="p-name">2iM Inteligência Médica</div>
+          <div class="p-sub">Healthtech</div>
+        </div>
+        <a href="/documentos/?portal=2im" class="p-documents-btn" target="_self"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg>Central de Documentos</a>
+        <button type="button" class="p-toggle" aria-expanded="false" aria-controls="partner-tools-2im"><span class="toggle-label-expand">Ver ferramentas</span><span class="toggle-label-collapse">Ocultar</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <a href="/2im/" class="p-portal-btn">Acessar portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
+      </div>
+      <div class="partner-tools-wrapper" id="partner-tools-2im" aria-hidden="true" inert>
+      <div class="partner-tools" id="tools-2im">
+        <span class="tool-item disabled">Carregando ferramentas...</span>
+      </div>
+      </div>
+    </div>
   </div>
 
   <div class="divider"></div>
@@ -883,6 +901,7 @@ onMounted(() => {
     { id: 'unimed', color: '#00995d', basePath: '/unimed/' },
     { id: 'unihealth', color: '#013d19', basePath: '/unihealth/' },
     { id: 'icds', color: '#1B3A5C', basePath: '/icds/' },
+    { id: '2im', color: '#1B2A4A', basePath: '/2im/' },
   ];
 
   portals.forEach(portal => {

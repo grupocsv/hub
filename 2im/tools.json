@@ -1,0 +1,15 @@
+{
+  "portal": "2im",
+  "generatedAt": "2026-08-01T18:00:00.000000+00:00",
+  "totalTools": 1,
+  "tools": [
+    {
+      "file": "/documentos/?portal=2im",
+      "title": "Documentos",
+      "created": "2026-08-01T18:00:00.000000+00:00",
+      "lastModified": "2026-08-01T18:00:00.000000+00:00",
+      "external": true,
+      "managedBy": "hub-documentos"
+    }
+  ]
+}
