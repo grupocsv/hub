@@ -24,7 +24,7 @@ const SESSION = Object.freeze({
 
 test('expõe um rótulo imutável para cada tenant documental conhecido', () => {
   assert.deepEqual(
-    ['grupo-csv', 'unimed', 'unihealth', 'icds'].map((portal) => [
+    ['grupo-csv', 'unimed', 'unihealth', 'icds', '2im'].map((portal) => [
       portal,
       resolvePortalLabel(portal),
     ]),
@@ -33,12 +33,14 @@ test('expõe um rótulo imutável para cada tenant documental conhecido', () => 
       ['unimed', 'Unimed Governador Valadares'],
       ['unihealth', 'Unihealth Governador Valadares'],
       ['icds', 'ICDS'],
+      ['2im', '2iM Inteligência Médica'],
     ],
   );
   assert.equal(resolvePortalLabel('desconhecido'), null);
   assert.equal(formatPortalIdentity('grupo-csv'), 'Ambiente: Grupo CSV');
   assert.equal(formatPortalIdentity('desconhecido'), null);
   assert.equal(resolvePortalLogo('unimed'), '/img/prZGWXK.png');
+  assert.equal(resolvePortalLogo('2im'), '/2im/assets/2im-logo-branca-4k.webp');
   assert.match(
     resolvePortalLogo('grupo-csv'),
     /grupo-csv_logo_horizontal_full-color_negative_transparent\.png$/,

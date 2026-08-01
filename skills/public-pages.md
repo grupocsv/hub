@@ -12,7 +12,7 @@
 
 ## Sincronização com o menu do portal (extras.json)
 
-Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente: a cada push, o CI (`.github/workflows/deploy.yml`) roda `scripts/generate-portal-tools.py`, que gera `{portal}/tools.json` a partir dos `<title>` dos arquivos `.html` do portal (exceto `index.html`; páginas com `<meta name="hub-menu" content="hidden">` ficam de fora).
+Os menus dos portais **Unimed, Unihealth, ICDS e 2iM** são gerados automaticamente: a cada push, o CI (`.github/workflows/deploy.yml`) roda `scripts/generate-portal-tools.py`, que gera `{portal}/tools.json` a partir dos `<title>` dos arquivos `.html` do portal (exceto `index.html`; páginas com `<meta name="hub-menu" content="hidden">` ficam de fora).
 
 Páginas públicas (Open Pages ou legado `/p/`) não são arquivos `.html` do portal, então entram no menu por **entrada manual em `{portal}/extras.json`**:
 
@@ -51,7 +51,7 @@ Ao criar páginas novas dentro de um portal autenticado (a página de origem de 
 
 ## Contexto
 
-O Hub possui portais protegidos por autenticacao via Worker `csv-auth`. Cada portal (`/unimed/`, `/unihealth/`, `/icds/`, `/axia/`, `/thera/`, `/medvalor/`) contem paginas HTML com ferramentas e relatorios.
+O Hub possui portais protegidos por autenticação via Worker `csv-auth`. Cada portal (`/unimed/`, `/unihealth/`, `/icds/`, `/2im/`, `/axia/`, `/thera/`, `/medvalor/`) contém páginas HTML com ferramentas e relatórios.
 
 A pasta `/p/` abriga copias publicas dessas paginas. Cada pagina publica fica em `/p/{slug}/index.html` e e catalogada em `/p/registry.json`.
 
@@ -162,7 +162,7 @@ Atualize tambem o campo `updated_at` na raiz do JSON.
 | slug | string | sim | Identificador unico, corresponde a subpasta em /p/ |
 | title | string | sim | Titulo legivel da pagina |
 | description | string | sim | Descricao curta |
-| origin_portal | string | sim | ID do portal de origem: unimed, unihealth, icds, axiacare, thera, medvalor |
+| origin_portal | string | sim | ID do portal de origem: unimed, unihealth, icds, 2im, axiacare, thera, medvalor |
 | origin_page | string | sim | Nome do arquivo HTML original no portal (ex: onco.html) |
 | public_url | string | sim | URL publica completa |
 | status | string | sim | "active" ou "inactive" |

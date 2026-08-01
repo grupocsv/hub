@@ -1,1 +1,1 @@
-globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze({"schemaVersion":1,"enabled":true,"apiBaseUrl":"https://documentos-api.grupocsv.com","enabledPortals":["grupo-csv","unimed","unihealth","icds"],"features":{"favorites":true,"offline":false,"upload":true,"viewer":true,"search":false}});
+globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze({"schemaVersion":1,"enabled":true,"apiBaseUrl":"https://documentos-api.grupocsv.com","enabledPortals":["grupo-csv","unimed","unihealth","icds","2im"],"features":{"favorites":true,"offline":false,"upload":true,"viewer":true,"search":false}});

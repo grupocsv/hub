@@ -17,7 +17,7 @@
  *   continuam com o comportamento anterior (retrocompatível).
  *
  * Portais com autenticação individual:
- *   - grupo-csv, unimed, unihealth, icds
+ *   - grupo-csv, unimed, unihealth, icds, 2im
  *
  * Portais de Empresas (senha fixa compartilhada):
  *   - axiacare, thera, medvalor
@@ -50,7 +50,7 @@
   var authGeneration = 0;
   var activeAuthOperation = null;
 
-  var PARTNER_TENANTS = ['grupo-csv', 'unimed', 'unihealth', 'icds'];
+  var PARTNER_TENANTS = ['grupo-csv', 'unimed', 'unihealth', 'icds', '2im'];
   var COMPANY_TENANTS = ['axiacare', 'thera', 'medvalor'];
 
   var IS_PARTNER = PARTNER_TENANTS.includes(PORTAL);
@@ -301,6 +301,7 @@
     unimed: 'Unimed Governador Valadares',
     unihealth: 'Unihealth Governador Valadares',
     icds: 'ICDS',
+    '2im': '2iM Intelig\u00eancia M\u00e9dica',
     axiacare: 'AxiaCare',
     thera: 'TheraTech',
     medvalor: 'MedValor',

@@ -4,7 +4,7 @@ check-portal-links.py
 Guard-rail de links mortos nos portais do Hub CSV.
 
 Verifica três coisas:
-1. Para cada portal (unimed, unihealth, icds, axia, medvalor, thera) que
+1. Para cada portal (unimed, unihealth, icds, 2im, axia, medvalor, thera) que
    tenha index.html na raiz, extrai todos os href de <a> locais terminando
    em .html — relativos (resolvidos contra o diretório do portal) e
    absolutos iniciando com "/" (resolvidos contra a raiz do repositório) —
@@ -32,7 +32,7 @@ from urllib.parse import unquote, urlsplit
 
 REPO_ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent)
 
-PORTALS = ["unimed", "unihealth", "icds", "axia", "medvalor", "thera"]
+PORTALS = ["unimed", "unihealth", "icds", "2im", "axia", "medvalor", "thera"]
 REGISTRY_PATH = REPO_ROOT / "p" / "registry.json"
 
 

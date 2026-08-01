@@ -314,7 +314,7 @@ test('Hub Auth mantém rolagem útil e contraste mínimo nos estados interativos
       /--ha-gradient:\s*linear-gradient\(135deg,\s*(#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)/gi,
     ),
   ];
-  assert.equal(gradients.length, 6);
+  assert.equal(gradients.length, 7);
   for (const [, start, end] of gradients) {
     assert.ok(contrast(start, '#ffffff') >= 4.5);
     assert.ok(contrast(end, '#ffffff') >= 4.5);

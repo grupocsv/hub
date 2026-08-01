@@ -135,7 +135,7 @@ As Open Pages suportam uma camada de proteção dinâmica chamada **Auth Gate**:
 
 ## Sincronização de Menus dos Portais
 
-Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente a cada push — não há lista manual de ferramentas nos índices.
+Os menus dos portais **Unimed, Unihealth, ICDS e 2iM** são gerados automaticamente a cada push — não há lista manual de ferramentas nos índices.
 
 ### Geração (CI)
 
@@ -147,7 +147,7 @@ Os menus dos portais **Unimed, Unihealth e ICDS** são gerados automaticamente a
 
 ### Consumo (runtime)
 
-- Os índices dos portais (`docs/unimed/index.md`, `docs/unihealth/index.md`, `docs/icds/index.md`) fazem `fetch` de `/{portal}/tools.json` e renderizam os cards dinamicamente.
+- Os índices VitePress de Unimed, Unihealth e ICDS, além do índice estático da 2iM (`2im/index.html`), fazem `fetch` de `/{portal}/tools.json` e renderizam os cards dinamicamente.
 - A home (`docs/index.md`) também busca o `tools.json` de cada portal para montar as listas de ferramentas; itens com `external: true` usam o `href` diretamente, os demais recebem o prefixo do portal.
 
 **Implicação para páginas públicas:** para que uma Open Page (ou página legada `/p/`) apareça no menu de um portal, adicione a entrada em `{portal}/extras.json` — ela passa a constar do `tools.json` no push seguinte.

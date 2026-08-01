@@ -184,7 +184,7 @@ test("features.search é opcional com default seguro e preserva true quando decl
   );
 });
 
-test("fontes produtivas ativam os quatro tenants isolados e mantêm busca integral desligada", async () => {
+test("fontes produtivas ativam os cinco tenants isolados e mantêm busca integral desligada", async () => {
   const config = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-runtime-config.json"),
@@ -202,7 +202,7 @@ test("fontes produtivas ativam os quatro tenants isolados e mantêm busca integr
     schemaVersion: 1,
     enabled: true,
     apiBaseUrl: "https://documentos-api.grupocsv.com",
-    enabledPortals: ["grupo-csv", "unimed", "unihealth", "icds"],
+    enabledPortals: ["grupo-csv", "unimed", "unihealth", "icds", "2im"],
     features: {
       favorites: true,
       offline: false,
@@ -213,7 +213,7 @@ test("fontes produtivas ativam os quatro tenants isolados e mantêm busca integr
   });
   assert.deepEqual(
     registry.tenants,
-    ["grupo-csv", "unimed", "unihealth", "icds"].map((portal) => ({
+    ["grupo-csv", "unimed", "unihealth", "icds", "2im"].map((portal) => ({
       portal,
       enabled: true,
       href: "/documentos/",
@@ -538,6 +538,12 @@ test("executa a geração versionada antes do build do Hub", async () => {
     "documentos/vendor/pdfjs/manifest.json",
     "documentos/vendor/pdfjs/build/pdf.min.mjs",
     "documentos/vendor/pdfjs/build/pdf.worker.min.mjs",
+    "2im/index.html",
+    "2im/tools.json",
+    "2im/assets/2iM.ico",
+    "2im/assets/im2_icon_200.png",
+    "2im/assets/2im-logo-azul-4k.png",
+    "2im/assets/2im-logo-branca-4k.webp",
   ]) {
     assert.match(workflow, new RegExp(criticalArtifact.replaceAll(".", "\\.")));
   }
@@ -548,6 +554,8 @@ test("executa a geração versionada antes do build do Hub", async () => {
   assert.match(workflow, /CSP ausente em documentos\/index\.html/);
   assert.match(workflow, /CSP permissiva em documentos\/index\.html/);
   assert.match(workflow, /bloqueio de contexto enquadrado ausente/);
+  assert.match(workflow, /meta noindex, nofollow ausente em 2im\/index\.html/);
+  assert.match(workflow, /gate 2iM ausente em 2im\/index\.html/);
   assert.match(attributes, /\/docs\/public\/documentos\/\*\* text eol=lf/);
   assert.match(attributes, /\/package-lock\.json -text whitespace=cr-at-eol/);
   assert.match(attributes, /\/scripts\/hub-auth\.js text eol=lf/);

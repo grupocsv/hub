@@ -8,6 +8,7 @@ User-agent: *
 Disallow: /unimed/
 Disallow: /unihealth/
 Disallow: /icds/
+Disallow: /2im/
 
 # Ferramentas AxiaCare com autenticação
 Disallow: /axia/nota-fiscal.html

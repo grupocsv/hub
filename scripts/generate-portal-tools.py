@@ -33,7 +33,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 
-PORTALS = ("unimed", "unihealth", "icds")
+PORTALS = ("unimed", "unihealth", "icds", "2im")
 RUNTIME_PORTALS = ("grupo-csv", *PORTALS)
 DOCUMENTOS_ROUTE = "/documentos/"
 DOCUMENTOS_TITLE = "Documentos"

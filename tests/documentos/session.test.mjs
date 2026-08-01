@@ -54,10 +54,11 @@ function deferred() {
 }
 
 test('aceita somente um portal habilitado e normaliza o alias canônico', () => {
-  const enabledPortals = ['unimed', 'axiacare'];
+  const enabledPortals = ['unimed', 'axiacare', '2im'];
 
   assert.equal(resolvePortalContext('?portal=unimed', enabledPortals), 'unimed');
   assert.equal(resolvePortalContext('?portal=axia', enabledPortals), 'axiacare');
+  assert.equal(resolvePortalContext('?portal=2im', enabledPortals), '2im');
   assert.equal(resolvePortalContext('', enabledPortals), null);
   assert.equal(resolvePortalContext('?portal=unimed&portal=axiacare', enabledPortals), null);
   assert.equal(resolvePortalContext('?portal=UNIMED', enabledPortals), null);

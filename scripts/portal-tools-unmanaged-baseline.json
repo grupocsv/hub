@@ -122,7 +122,17 @@
         ]
       },
       "unmanagedOutputSha256": "a73d58f020d832b7d8eeb5d9063e3e1a30bbf9bc16163d202d2b4958ff5c7f77"
+    },
+    "2im": {
+      "sourceSha256": "d71516149b34d314fdba49b0b985fecd411525cc827620e9a561e972a5be98aa",
+      "unmanagedOutput": {
+        "portal": "2im",
+        "generatedAt": "2026-08-01T18:00:00.000000+00:00",
+        "totalTools": 0,
+        "tools": []
+      },
+      "unmanagedOutputSha256": "ddbf0873cefa3926ad29d88d76c94267079762f9cef81ea790762af6fc74b725"
     }
   },
-  "manifestSha256": "0019c60bf453376e205e84bed7727e99155d649115b08f969a219737eb540da0"
+  "manifestSha256": "104c8f50f85e16f7bf1d5b94fce2873adb404e374b9a23003c7a5506f819f7b5"
 }

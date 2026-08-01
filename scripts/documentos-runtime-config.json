@@ -6,7 +6,8 @@
     "grupo-csv",
     "unimed",
     "unihealth",
-    "icds"
+    "icds",
+    "2im"
   ],
   "features": {
     "favorites": true,
