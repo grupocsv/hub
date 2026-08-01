@@ -59,6 +59,15 @@ def main() -> int:
     }
     admin = read("admin/index.html")
     admin_mirror = read("docs/public/admin/index.html")
+    themis_doc = read("docs/_infra/ferramentas/themis.md")
+
+    themis_descriptor = "Suporte técnico médico jurídico."
+    themis_product = next(
+        (product for product in products if product.get("id") == "themis"),
+        None,
+    )
+    if not themis_product or themis_product.get("descriptor") != themis_descriptor:
+        errors.append("o descritor canônico da Themis™ está ausente ou divergente")
 
     product_tags = re.findall(r'<a\b[^>]*\bdata-product-id="[^"]+"[^>]*>[^<]+</a>', home)
     if len(product_tags) != len(products):
@@ -136,6 +145,8 @@ def main() -> int:
         errors.append("o Admin não monitora o health do CMM")
     if 'id="svc-themis"' not in admin or "https://themis.grupocsv.com/api/health" not in admin:
         errors.append("o Admin não monitora o health da Themis™")
+    if f"Themis™ — {themis_descriptor}" not in admin:
+        errors.append("o Admin não usa o descritor canônico da Themis™")
     if admin != admin_mirror:
         errors.append("admin/index.html e docs/public/admin/index.html estão divergentes")
 
@@ -154,6 +165,7 @@ def main() -> int:
         "themis.grupocsv.com",
         "themis-processing",
         "themis-private",
+        "themis-generation",
         "hstoxemjhpdltzwrmbkf",
         "axiacare/themis",
     )
@@ -161,10 +173,26 @@ def main() -> int:
         if value not in infra:
             errors.append(f"Infra incompleta para a Themis™: {value}")
 
+    required_themis_doc = (
+        "convite individual, e-mail, senha e TOTP",
+        "`workers-ai-responses`",
+        "`@cf/openai/gpt-oss-120b`",
+        "`themis-generation`",
+        "casos `restricted`",
+    )
+    for value in required_themis_doc:
+        if value not in themis_doc:
+            errors.append(f"Ficha da Themis™ incompleta: {value}")
     if "https://cmm.grupocsv.com" not in readme or "| CMM |" not in readme:
         errors.append("README não registra o CMM e seu domínio canônico")
     if "https://themis.grupocsv.com" not in readme or "| Themis™ |" not in readme:
         errors.append("README não registra a Themis™ e seu domínio canônico")
+    if (
+        themis_descriptor not in readme
+        or themis_descriptor not in infra
+        or f"# Themis™ — {themis_descriptor}" not in themis_doc
+    ):
+        errors.append("o descritor canônico da Themis™ diverge entre README e Infra")
     if "| `themis.grupocsv.com` | **WebApp** |" not in taxonomy:
         errors.append("a taxonomia não classifica a Themis™ como WebApp")
     if re.search(r"\*\*TNUMM\*\*|\|\s*TNUMM\s*\|", readme):
