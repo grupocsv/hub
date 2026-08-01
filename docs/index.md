@@ -815,7 +815,7 @@ head:
     <!-- 2iM -->
     <div class="partner-section collapsed" id="partner-2im">
       <div class="partner-header">
-        <a href="/2im/" class="p-logo-link"><img src="/2im/assets/im2_icon_200.png" alt="2iM" class="p-logo" style="border-radius:8px;"></a>
+        <a href="/2im/" class="p-logo-link"><img src="/2im/assets/2im-logo-card.png" alt="2iM" class="p-logo" style="border-radius:8px;"></a>
         <div class="p-info">
           <div class="p-name">2iM Inteligência Médica</div>
           <div class="p-sub">Healthtech</div>
