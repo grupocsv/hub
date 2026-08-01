@@ -1,8 +1,8 @@
 {
   "manifestVersion": "2.0.0",
-  "lastUpdated": "2026-07-22T20:23:00Z",
-  "totalAssets": 47,
-  "totalProducts": 27,
+  "lastUpdated": "2026-08-01T18:35:51Z",
+  "totalAssets": 48,
+  "totalProducts": 29,
   "knowledgeAssets": [
     {
       "id": "llms",
@@ -379,11 +379,22 @@
       ]
     },
     {
+      "id": "ferramentas-themis",
+      "priority": 11,
+      "title": "Themis",
+      "path": "/_infra/ferramentas/themis.html",
+      "sha256": "9c63107ec94c6607c747f87b96a2d7a1a7046eb606ce2d5d8b364c0f4a1382e8",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
       "id": "ferramentas-tnumm",
       "priority": 11,
       "title": "Tnumm",
       "path": "/_infra/ferramentas/tnumm.html",
-      "sha256": "da6a1f98e4ab0552eeb519936e23db03cd8e9c1fbbebdb38aab97faee26f87df",
+      "sha256": "26faff328b7e480373f57c0f8e2e1edcb51c4c7b0d6b9d7a7a953d3a4434bff3",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -394,7 +405,7 @@
       "priority": 11,
       "title": "Index",
       "path": "/_infra/index.html",
-      "sha256": "e873617fada7e510fd885209eae65d223d8578f3e8111e43232c791fd5ef92d5",
+      "sha256": "479d6191321e48b9d271f192745ec2e1679253ac9f9e037b435955ee3b10fab3",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -471,7 +482,7 @@
       "priority": 11,
       "title": "Prd 2026 07 Sistema Unimed",
       "path": "/_infra/prd-2026-07-sistema-unimed.html",
-      "sha256": "25fd49d429d0c3d6d1dc9bcb4eb9ab2f7a882d64c8661707deee855012e28664",
+      "sha256": "74f160edc1c0882db51886b6f0f0465d6a1e2a0f0b6b12e7728bcd12d3e51f7e",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -482,7 +493,7 @@
       "priority": 11,
       "title": "Public Pages",
       "path": "/_infra/public-pages.html",
-      "sha256": "f003d48f5bee28d74a037469f64c8988c60d3078910093e8ead81c8c829f7fbe",
+      "sha256": "b2dc7b00cdf1c87ad2b5ffb6b1f08a2f5da171b7e8860292f7c7ab26e8ee1333",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -524,10 +535,19 @@
   ],
   "productAssets": [
     {
+      "id": "2im-index",
+      "title": "2iM Inteligência Médica - Hub de Ferramentas",
+      "path": "/2im/index.html",
+      "sha256": "5e21b2ea77f6e279b91186f1cc3f70b442effafc8bc7a62ff3ac0e61cb929b9d",
+      "category": "static",
+      "entity": "2iM Inteligência Médica",
+      "description": "Página estática com conteúdo informativo."
+    },
+    {
       "id": "admin-index",
       "title": "Painel Administrativo",
       "path": "/admin/index.html",
-      "sha256": "7064174ce287a98d4f5b77473cadabb0f9edd939fee0de0de8cace4c0d4fa070",
+      "sha256": "665d65db4e035510e5c122fc66dd1ee7f39d33dadb8421a71a3b84c906f21e49",
       "category": "tool",
       "entity": "Grupo CSV",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -572,7 +592,7 @@
       "id": "axia-sistema-unimed",
       "title": "Sistema Unimed",
       "path": "/axia/sistema-unimed.html",
-      "sha256": "3f9cdf4bd5ff9156efb9a7eb2eab74cc0dcedca25715a34a1fc533077afd4933",
+      "sha256": "e146c8e6b38c768d1fbc615271f624248138c8e3fa753cb0889d0709e71f1948",
       "category": "webapp",
       "entity": "AxiaCare",
       "description": "Aplicação web completa com autenticação, persistência e lógica de negócio."
@@ -599,7 +619,7 @@
       "id": "icds-index",
       "title": "ICDS (landing)",
       "path": "/icds/index.html",
-      "sha256": "23454de2fc58632c22735f5c9fb3848266c5b8bd4f2f0af9e6cf5d28b38ec9db",
+      "sha256": "b0b80e9b7d1a16fed42ef981fbfa3cdc16e80b63128e16fa2c60e42d606ea0af",
       "category": "static",
       "entity": "ICDS",
       "description": "Página estática com conteúdo informativo."
@@ -635,7 +655,7 @@
       "id": "p-painel-tea-index",
       "title": "Painel Terapias Especiais",
       "path": "/p/painel-tea/index.html",
-      "sha256": "71981b2d1c896dfc5e08b6dc5180c9d3b2ffba6d794176480b9b34747bed4abe",
+      "sha256": "df1f1e1275a9714be3964ef51c5ed4302f7bceb9889589493ce3c3a310676461",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -662,7 +682,7 @@
       "id": "unihealth-calc-plantao",
       "title": "Calculadora de Plantão",
       "path": "/unihealth/calc-plantao.html",
-      "sha256": "a38d048d8856a2b3599e51fd3628018958a15b4c5ed3f0e535e2afbf09ac37bd",
+      "sha256": "7f7a760144c2bc0520d538d996474bb119ee7c7d70fbc49b32868452c8f28e9f",
       "category": "tool",
       "entity": "Unihealth",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -671,7 +691,7 @@
       "id": "unihealth-index",
       "title": "Unihealth (landing)",
       "path": "/unihealth/index.html",
-      "sha256": "8ed564e95180fc489e9deb38ce8775fc56f3b07ebf771226fbbfe30dc17eb0eb",
+      "sha256": "c2bcdb186cf87dde589e040979feb11de0a148ad5d07b7ba16feac4e88a6d9a0",
       "category": "static",
       "entity": "Unihealth",
       "description": "Página estática com conteúdo informativo."
@@ -704,10 +724,19 @@
       "description": "Painel de visualização e análise de dados."
     },
     {
+      "id": "unimed-auditor",
+      "title": "Auditor CSV",
+      "path": "/unimed/auditor.html",
+      "sha256": "7720d31508e1489dc2093b24e08d42f7b8c2443bcd01073fb29984ee7a891784",
+      "category": "tool",
+      "entity": "Unimed GV",
+      "description": "Ferramenta focada em tarefa específica com escopo limitado."
+    },
+    {
       "id": "unimed-cuidadocoordenado",
       "title": "Coordenação do Cuidado",
       "path": "/unimed/cuidadocoordenado.html",
-      "sha256": "37d04d3fdd80096052d85fd3165a2ce6dcff6dfe1eaf12052d16e5e9194065a5",
+      "sha256": "6cd826b4398843731ccb8e892f6f018baf8fdfb17f61c20a1dea63b14ceb6028",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -723,7 +752,7 @@
     },
     {
       "id": "unimed-gce",
-      "title": "Painel Gerenciamento Casos Especiais",
+      "title": "Painel GCE | Gerenciamento de Casos Especiais 2025",
       "path": "/unimed/gce.html",
       "sha256": "4a6b8a0fb08ba5a59e3110c25cb28d30a9799f3b6860235a3599ff28d92cfcce",
       "category": "dashboard",
@@ -734,7 +763,7 @@
       "id": "unimed-index",
       "title": "Unimed GV (landing)",
       "path": "/unimed/index.html",
-      "sha256": "3ffd4a64bbb99b7144c4bed33607d14c6a4d87db6869e73a3abfc6c09b69c58a",
+      "sha256": "d9be25e9fe06ca60dcad62c1a46bfcea85309705008f06678aa4a94b6bc8bbc0",
       "category": "static",
       "entity": "Unimed GV",
       "description": "Página estática com conteúdo informativo."
@@ -752,7 +781,7 @@
       "id": "unimed-tea",
       "title": "Painel Terapias Especiais",
       "path": "/unimed/tea.html",
-      "sha256": "a51fce74980db376ef064c488005eeb5227c5b8ce0aabb93e9c1fded0253fb20",
+      "sha256": "ea5455bb3fa4db8d2e9861d818d4ac0fc4474cc2ed167bc44267ef645b18f684",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
