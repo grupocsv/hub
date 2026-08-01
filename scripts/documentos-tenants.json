@@ -20,6 +20,11 @@
       "portal": "icds",
       "enabled": true,
       "href": "/documentos/"
+    },
+    {
+      "portal": "2im",
+      "enabled": true,
+      "href": "/documentos/"
     }
   ]
 }
