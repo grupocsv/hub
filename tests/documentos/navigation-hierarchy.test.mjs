@@ -5,7 +5,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-const PORTALS = ['unimed', 'unihealth', 'icds'];
+const PORTALS = ['unimed', 'unihealth', 'icds', '2im'];
+const VITEPRESS_PORTALS = ['unimed', 'unihealth', 'icds'];
 
 async function source(relativePath) {
   return readFile(path.join(ROOT, relativePath), 'utf8');
@@ -79,7 +80,7 @@ test('homepage oferece acesso exclusivo do Grupo CSV e CTAs de parceiros antes d
 });
 
 test('portais VitePress destacam a Central e excluem o item gerenciado da grade', async () => {
-  for (const portal of PORTALS) {
+  for (const portal of VITEPRESS_PORTALS) {
     const page = await source(`docs/${portal}/index.md`);
     assert.match(
       page,

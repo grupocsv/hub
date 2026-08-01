@@ -538,7 +538,7 @@ Copiar página
 <thead><tr><th>Tipo</th><th>Portais</th><th>Método</th></tr></thead>
 <tbody>
 <tr><td>Senha fixa</td><td>AxiaCare, Thera, MedValor</td><td>Senha única por portal (armazenada no KV csv-config)</td></tr>
-<tr><td>Login individual</td><td>Unimed, Unihealth, ICDS</td><td>E-mail + senha, com fluxo de solicitação e aprovação</td></tr>
+<tr><td>Login individual</td><td>Unimed, Unihealth, ICDS, 2iM</td><td>E-mail + senha, com fluxo de solicitação e aprovação</td></tr>
 <tr><td>Login individual da aplicação</td><td>CMM</td><td>E-mail + senha, sessão e permissões geridas pelo próprio CMM</td></tr>
 <tr><td>Login individual da aplicação</td><td>Themis™</td><td>Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorização prévia</td></tr>
 <tr><td>PIN local</td><td>Deck™</td><td>PIN 4 dígitos (SHA-256 no localStorage)</td></tr>

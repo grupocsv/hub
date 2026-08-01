@@ -1,4 +1,4 @@
-const PORTAL_PATTERN = /^[a-z][a-z0-9-]{1,31}$/;
+const PORTAL_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/u;
 const PORTAL_ALIASES = Object.freeze({ axia: 'axiacare' });
 const STORAGE_PREFIX = 'hub_auth_';
 const DEFAULT_POLL_INTERVAL_MS = 250;

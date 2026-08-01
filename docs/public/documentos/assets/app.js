@@ -10,6 +10,7 @@ const PORTAL_LABELS = Object.freeze({
   unimed: 'Unimed Governador Valadares',
   unihealth: 'Unihealth Governador Valadares',
   icds: 'ICDS',
+  '2im': '2iM Inteligência Médica',
 });
 const PORTAL_LOGOS = Object.freeze({
   'grupo-csv':
@@ -17,6 +18,7 @@ const PORTAL_LOGOS = Object.freeze({
   unimed: '/img/prZGWXK.png',
   unihealth: '/img/ac2rphe.png',
   icds: '/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png',
+  '2im': '/2im/assets/2im-logo-branca-4k.webp',
 });
 
 const STATE_COPY = Object.freeze({

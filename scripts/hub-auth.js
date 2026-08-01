@@ -17,7 +17,7 @@
  *   continuam com o comportamento anterior (retrocompatível).
  *
  * Portais com autenticação individual:
- *   - grupo-csv, unimed, unihealth, icds
+ *   - grupo-csv, unimed, unihealth, icds, 2im
  *
  * Portais de Empresas (senha fixa compartilhada):
  *   - axiacare, thera, medvalor

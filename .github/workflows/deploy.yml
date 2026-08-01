@@ -97,12 +97,14 @@ jobs:
             docs/public/documentos \
             unimed/tools.json \
             unihealth/tools.json \
-            icds/tools.json
+            icds/tools.json \
+            2im/tools.json
           drift="$(git status --porcelain -- \
             docs/public/documentos \
             unimed/tools.json \
             unihealth/tools.json \
-            icds/tools.json)"
+            icds/tools.json \
+            2im/tools.json)"
           if [ -n "$drift" ]; then
             printf '%s\n' "$drift"
             echo "::error::artefatos gerados não versionados ou divergentes"
@@ -146,6 +148,7 @@ jobs:
           cp -r compliance "$DIST/" 2>/dev/null || true
           cp -r founder "$DIST/" 2>/dev/null || true
           cp -r icds "$DIST/" 2>/dev/null || true
+          cp -r 2im "$DIST/" 2>/dev/null || true
           # deck/ desativado — redirecionado para deck.grupocsv.com (Cloudflare Pages)
           mkdir -p "$DIST/deck"
           echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=https://deck.grupocsv.com"><title>Redirecionando...</title></head><body><p>Redirecionando para <a href="https://deck.grupocsv.com">deck.grupocsv.com</a></p></body></html>' > "$DIST/deck/index.html"
@@ -203,6 +206,11 @@ jobs:
             p/painel-tea/index.html \
             unihealth/index.html \
             icds/index.html \
+            2im/index.html 2im/tools.json \
+            2im/assets/2iM.ico \
+            2im/assets/im2_icon_200.png \
+            2im/assets/2im-logo-azul-4k.png \
+            2im/assets/2im-logo-branca-4k.webp \
             axia/nota-fiscal.html axia/sistema-unimed.html \
             compliance/privacidade.html; do
             if [ ! -f "$DIST/$f" ]; then
@@ -233,6 +241,14 @@ jobs:
           fi
           if [ -f "$DIST/axia/sistema-unimed.html" ] && ! grep -q '<script src="/scripts/hub-auth.js" data-portal="axia"></script>' "$DIST/axia/sistema-unimed.html"; then
             echo "::error::gate AxiaCare ausente em axia/sistema-unimed.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/2im/index.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/2im/index.html"; then
+            echo "::error::meta noindex, nofollow ausente em 2im/index.html apos o build"
+            fail=1
+          fi
+          if [ -f "$DIST/2im/index.html" ] && ! grep -q '<script src="/scripts/hub-auth.js" data-portal="2im"></script>' "$DIST/2im/index.html"; then
+            echo "::error::gate 2iM ausente em 2im/index.html apos o build"
             fail=1
           fi
           if [ -f "$DIST/documentos/index.html" ]; then

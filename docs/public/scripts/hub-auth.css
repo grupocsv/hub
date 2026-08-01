@@ -40,6 +40,12 @@ body.ha-scroll-locked {
   --ha-gradient: linear-gradient(135deg, #1b3a5c, #2a6496);
 }
 
+#hub-auth-overlay.ha-portal-2im {
+  --ha-accent: #007a72;
+  --ha-accent-soft: rgba(0, 168, 157, 0.12);
+  --ha-gradient: linear-gradient(135deg, #1b2a4a, #007a72);
+}
+
 #hub-auth-overlay.ha-portal-thera {
   --ha-accent: #6b5b95;
   --ha-accent-soft: rgba(107, 91, 149, 0.1);

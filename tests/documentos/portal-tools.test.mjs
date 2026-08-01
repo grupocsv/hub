@@ -21,7 +21,7 @@ import test from "node:test";
 
 const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const GENERATOR = join(REPO_ROOT, "scripts", "generate-portal-tools.py");
-const PORTALS = Object.freeze(["unimed", "unihealth", "icds"]);
+const PORTALS = Object.freeze(["unimed", "unihealth", "icds", "2im"]);
 const RUNTIME_PORTALS = Object.freeze(["grupo-csv", ...PORTALS]);
 const BASELINE_PURPOSE =
   "Congela integralmente a base não gerenciada; a Fase 9.7 apenas reconcilia o card Documentos.";
@@ -321,7 +321,7 @@ async function withFixture(options, callback) {
   }
 }
 
-test("estado canônico vazio valida as duas fontes e preserva os três tools.json byte a byte", async () => {
+test("estado canônico vazio valida as duas fontes e preserva os quatro tools.json byte a byte", async () => {
   await withFixture({ withBaseline: true }, async (root) => {
     const before = await readOutputs(root);
     const beforeStats = Object.fromEntries(
@@ -915,7 +915,7 @@ test("rejeita symlink, junction ou reparse point antes de ler portal", async (t)
   });
 });
 
-test("falha injetada no meio da promoção restaura os três tools.json", async () => {
+test("falha injetada no meio da promoção restaura os quatro tools.json", async () => {
   const registry = {
     schemaVersion: 1,
     tenants: [{ portal: "unimed", enabled: true, href: "/documentos/" }],
@@ -1035,7 +1035,7 @@ test("fontes e saída não dependem de datetime.now, mtime ou listagem não orde
   assert.match(source, /sorted\(/);
 });
 
-test("fontes reais mantêm quatro tenants isolados e três cards gerenciados de parceiros", async () => {
+test("fontes reais mantêm cinco tenants isolados e quatro cards gerenciados de parceiros", async () => {
   const registry = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-tenants.json"),

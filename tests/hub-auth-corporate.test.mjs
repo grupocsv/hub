@@ -85,4 +85,14 @@ for (const sourcePath of ['../scripts/hub-auth.js', '../docs/public/scripts/hub-
     assert.match(html, /id="ha-request-btn"/);
     assert.doesNotMatch(html, /E-mail corporativo \(opcional\)/i);
   });
+
+  test(`${sourcePath} trata o tenant 2iM como autenticação individual`, async () => {
+    const html = await renderAuthForPortal('2im', sourcePath);
+
+    assert.match(html, /id="ha-email"/);
+    assert.match(html, /id="ha-password"/);
+    assert.match(html, /id="ha-login-btn"/);
+    assert.match(html, /id="ha-request-btn"/);
+    assert.doesNotMatch(html, /E-mail corporativo \(opcional\)/i);
+  });
 }
