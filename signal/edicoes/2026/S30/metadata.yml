@@ -1,0 +1,10 @@
+edition: S30
+year: 2026
+period: "20 a 24 de julho de 2026"
+generated: "2026-08-07"
+dictionary_version: "v4.8"
+facts_count: 6
+new_terms: 11
+sources:
+  notion_pages: 5
+  gmail_messages: 72
