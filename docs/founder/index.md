@@ -200,10 +200,10 @@ head:
     <img src="/visual-identity/guilherme-thome/avatar/guilherme-thome_avatar_current.png" alt="Guilherme Thomé" class="profile-img">
     <div class="hero-text">
       <h1>Guilherme Thomé</h1>
-      <p class="role">Médico Executivo e Consultor em Saúde</p>
+      <p class="role">Médico Executivo e Consultor</p>
       <p class="subtitle">
         Atuo na interseção entre estratégia, governança clínica e inovação.
-        Superintendente Médico da Unimed Governador Valadares e da Unihealth GV (ICDS).
+        Superintendente Médico Unimed GV e Unihealth. Assessor Estratégico ICDS.
         Fundador do Grupo CSV — AxiaCare®, MedValor® e TheraTech®.
       </p>
     </div>
@@ -212,7 +212,7 @@ head:
   <div class="frame">
     <h2 class="section-title">Links</h2>
     <div class="links-grid">
-      <a href="https://hub.guithome.com.br/cv.html" class="link-card" target="_blank">
+      <a href="https://grupocsv.com/guilherme/cv" class="link-card" target="_blank">
         <div class="link-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
         <div class="link-info"><div class="link-name">Currículo Digital</div><div class="link-desc">CV interativo completo</div></div>
       </a>
@@ -220,11 +220,11 @@ head:
         <div class="link-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
         <div class="link-info"><div class="link-name">LinkedIn</div><div class="link-desc">Perfil profissional</div></div>
       </a>
-      <a href="https://guithome.com.br" class="link-card" target="_blank">
+      <a href="https://grupocsv.com/guilherme" class="link-card" target="_blank">
         <div class="link-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
         <div class="link-info"><div class="link-name">Site Oficial</div><div class="link-desc">guithome.com.br</div></div>
       </a>
-      <a href="https://blog.guithome.com.br" class="link-card" target="_blank">
+      <a href="https://grupocsv.com/blog" class="link-card" target="_blank">
         <div class="link-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
         <div class="link-info"><div class="link-name">Blog</div><div class="link-desc">Artigos e reflexões</div></div>
       </a>
