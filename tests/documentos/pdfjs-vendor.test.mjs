@@ -42,11 +42,11 @@ test('vendor PDF.js corresponde integralmente ao pacote fixado e ao manifesto', 
     readFile(path.join(VENDOR_ROOT, 'manifest.json'), 'utf8').then(JSON.parse),
   ]);
 
-  assert.equal(packageJson.version, '6.1.200');
+  assert.equal(packageJson.version, '6.2.108');
   assert.equal(packageJson.license, 'Apache-2.0');
   assert.equal(
     packageLock.packages['node_modules/pdfjs-dist'].version,
-    '6.1.200',
+    '6.2.108',
   );
   assert.deepEqual(
     {
@@ -57,7 +57,7 @@ test('vendor PDF.js corresponde integralmente ao pacote fixado e ao manifesto', 
     {
       schemaVersion: 1,
       package: 'pdfjs-dist',
-      version: '6.1.200',
+      version: '6.2.108',
     },
   );
 
@@ -120,5 +120,5 @@ test('verificador de publicação confere integralmente o manifesto PDF.js', () 
   );
 
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
-  assert.match(result.stdout, /203 arquivos, versão 6\.1\.200/u);
+  assert.match(result.stdout, /203 arquivos, versão 6\.2\.108/u);
 });
