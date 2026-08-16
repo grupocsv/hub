@@ -15,7 +15,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-const PDFJS_VERSION = '6.1.200';
+const PDFJS_VERSION = '6.2.108';
 const FILES = Object.freeze([
   'LICENSE',
   'build/pdf.min.mjs',
