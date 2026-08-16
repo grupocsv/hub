@@ -21,7 +21,7 @@
   "homepage": "https://github.com/grupocsv/hub#readme",
   "devDependencies": {
     "vitepress": "2.0.0-alpha.17",
-    "vue": "^3.5.27"
+    "vue": "^3.5.41"
   },
   "overrides": {
     "vite": "7.3.6"
