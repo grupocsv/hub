@@ -82,7 +82,7 @@ async function main() {
     !plainObject(manifest) ||
     manifest.schemaVersion !== 1 ||
     manifest.package !== 'pdfjs-dist' ||
-    manifest.version !== '6.1.200' ||
+    manifest.version !== '6.2.108' ||
     !Array.isArray(manifest.files)
   ) {
     fail('Manifesto PDF.js publicado é inválido.');
