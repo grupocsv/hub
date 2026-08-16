@@ -217,6 +217,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
     Cancelar
   </div>
+  <div class="tab" data-tab="adequacao">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Adequação
+  </div>
   <div class="tab" data-tab="instrucoes">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     Instruções
@@ -479,6 +483,100 @@
       <p>Ambos os modelos utilizam a mesma descrição padrão e dados bancários. Ao clicar no modelo, todos os campos são preenchidos automaticamente.</p>
       <h3 style="font-size:14px; margin:20px 0 8px;">Segurança</h3>
       <p>Os dados são processados localmente na VPS-CSV e transmitidos com criptografia TLS. A assinatura digital utiliza certificado A1 ICP-Brasil. Nenhum dado sensível é armazenado no navegador.</p>
+    </div>
+  </div>
+</div>
+<!-- TAB: ADEQUAÇÃO IBS/CBS -->
+<div id="tab-adequacao" class="container hidden">
+  <div style="max-width:680px; margin:0 auto; padding:16px 0;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+      <div style="background:#fff3e0; border-radius:8px; padding:8px; display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2" style="width:20px;height:20px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div>
+        <h2 style="font-size:16px; font-weight:600; margin:0;">Relatório de Adequação — Reforma Tributária (IBS/CBS)</h2>
+        <p style="font-size:12px; color:#64748b; margin:2px 0 0;">Análise técnica para migração futura</p>
+      </div>
+    </div>
+
+    <div style="background:#fffbeb; border:1px solid #fbbf24; border-radius:8px; padding:12px 16px; margin-bottom:20px;">
+      <p style="font-size:12px; font-weight:600; color:#92400e; margin:0 0 4px;">Status atual: SEM NECESSIDADE DE ALTERAÇÃO</p>
+      <p style="font-size:11px; color:#78350f; margin:0;">A AxiaCare não migrou para o modelo IBS/CBS. O sistema opera normalmente sem enviar esses campos. A SEFIN não rejeita notas sem IBS/CBS até 31/12/2026 (Ato Conjunto RFB/CGIBS nº 4/2026).</p>
+    </div>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">1. Contexto Regulatório</h3>
+    <p style="font-size:12px; line-height:1.6;">A Reforma Tributária do Consumo (EC 132/2023, regulamentada pela LC 214/2025) criou o IBS (Imposto sobre Bens e Serviços) e a CBS (Contribuição sobre Bens e Serviços), que substituirão ISS, PIS e COFINS. O período de transição vai de 2026 a 2033. Em 2026, aplica-se apenas a alíquota-teste de 1% (0,9% CBS + 0,1% IBS).</p>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">2. Cronograma de Obrigatoriedade (NFS-e)</h3>
+    <table style="font-size:12px; margin-bottom:16px;">
+      <thead><tr><th>Prazo</th><th>Quem é afetado</th><th>Impacto AxiaCare</th></tr></thead>
+      <tbody>
+        <tr><td>01/10/2026</td><td>Prestadores de serviço sujeitos ao ISS (LC 116/2003) — exceto subitens 1.03, 1.05, 1.09, 16.01</td><td style="color:#e65100; font-weight:600;">Aplicável</td></tr>
+        <tr><td>01/12/2026</td><td>Plataformas digitais, subitens específicos, locações, bens imateriais</td><td>Não aplicável</td></tr>
+        <tr><td>01/01/2027</td><td>Optantes do Simples Nacional</td><td>Não aplicável</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px; color:#64748b; margin-top:-8px;">Fonte: Ato Conjunto RFB/CGIBS nº 4/2026 + Orientação CGNFS-e de 07/08/2026.</p>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">3. Flexibilização Vigente</h3>
+    <p style="font-size:12px; line-height:1.6;">O CGIBS e a Receita Federal suspenderam as regras de validação que provocariam rejeição automática. Até 31/12/2026, a <strong>ausência dos campos IBS/CBS na NFS-e não acarretará rejeição</strong>. Contudo, após o prazo aplicável (01/10/2026), a desconformidade pode sujeitar o emitente a sanções administrativas.</p>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">4. Campos Novos (quando migrar)</h3>
+    <table style="font-size:12px; margin-bottom:16px;">
+      <thead><tr><th>Campo</th><th>Valor para AxiaCare</th><th>Onde no XML (DPS)</th></tr></thead>
+      <tbody>
+        <tr><td>Preencher IBS/CBS?</td><td>Sim (quando migrar)</td><td>Flag no buildDps()</td></tr>
+        <tr><td>Compras governamentais?</td><td>Não</td><td>indCompGov = 0</td></tr>
+        <tr><td>Destinatário = Adquirente?</td><td>Sim</td><td>indDestAdq = 1</td></tr>
+        <tr><td>Código de Tributação Nacional</td><td>17.12.01</td><td>cTribNac</td></tr>
+        <tr><td>Item NBS</td><td>1.1401.22.00</td><td>itemNBS</td></tr>
+        <tr><td>Código Indicador da Operação</td><td>100301</td><td>cIndOper</td></tr>
+        <tr><td>Código de Situação Tributária</td><td>000 (Tributação Integral)</td><td>CST</td></tr>
+        <tr><td>Código de Classificação Tributária</td><td>000001</td><td>cClassTrib</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">5. Impacto no Valor da Nota</h3>
+    <table style="font-size:12px; margin-bottom:16px;">
+      <thead><tr><th>Cenário</th><th>Alíquota IBS/CBS</th><th>Exemplo (R$ 10.000)</th></tr></thead>
+      <tbody>
+        <tr><td>Atual (sem IBS/CBS)</td><td>0%</td><td>Sem impacto — retenções atuais mantidas</td></tr>
+        <tr><td>Alíquota-teste 2026</td><td>1% (0,9% CBS + 0,1% IBS)</td><td>R$ 100,00 destacados (não cumulativo com ISS)</td></tr>
+        <tr><td>Alíquota plena (2027+)</td><td>A definir pelo Senado</td><td>Substituirá ISS gradualmente até 2033</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">6. Plano de Migração Técnica</h3>
+    <p style="font-size:12px; line-height:1.6;">Quando a decisão de migrar for tomada (contador + gestão), as seguintes alterações serão necessárias no sistema:</p>
+    <table style="font-size:12px; margin-bottom:16px;">
+      <thead><tr><th>Componente</th><th>Alteração</th><th>Esforço</th></tr></thead>
+      <tbody>
+        <tr><td>open-nfse (lib)</td><td>Atualizar de 0.9.1 para versão com suporte IBS/CBS</td><td>Baixo</td></tr>
+        <tr><td>emitter.mjs (VPS)</td><td>Adicionar nós IBS/CBS ao buildDps() condicionalmente</td><td>Médio</td></tr>
+        <tr><td>D1 (nf_modelos)</td><td>Adicionar coluna preencher_ibs_cbs BOOLEAN DEFAULT 0</td><td>Baixo</td></tr>
+        <tr><td>Frontend</td><td>Toggle IBS/CBS nos modelos + exibição no modal de confirmação</td><td>Médio</td></tr>
+        <tr><td>Worker (nfse-api)</td><td>Propagar flag IBS/CBS para o emitter</td><td>Baixo</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">7. Decisão Atual</h3>
+    <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:12px 16px;">
+      <p style="font-size:12px; margin:0; line-height:1.6;"><strong>Decisão (16/08/2026):</strong> A AxiaCare não migrará para o modelo IBS/CBS por enquanto. O sistema permanece inalterado. A SEFIN não rejeitará as notas. Quando houver decisão de migrar, esta aba servirá como referência técnica para a implementação.</p>
+    </div>
+
+    <h3 style="font-size:14px; margin:20px 0 8px;">8. Referências Normativas</h3>
+    <ul style="font-size:12px; line-height:1.8; padding-left:20px;">
+      <li>EC 132/2023 — Emenda Constitucional da Reforma Tributária</li>
+      <li>LC 214/2025 — Lei Complementar regulamentadora</li>
+      <li>Ato Conjunto RFB/CGIBS nº 4/2026 — Cronograma de documentos fiscais</li>
+      <li>Ato Técnico Conjunto RFB/CGIBS nº 1/2026 — Ratificação das NTs 008 e 009</li>
+      <li>Orientação CGNFS-e de 07/08/2026 — Flexibilização de validação</li>
+      <li>Nota Técnica CGNFS-e nº 008 — Especificações IBS/CBS na NFS-e</li>
+      <li>Nota Técnica CGNFS-e nº 009 — Modelo conceitual IBS/CBS</li>
+    </ul>
+
+    <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+      <p style="font-size:10px; color:#94a3b8; margin:0;">Relatório gerado em 16/08/2026 pela sessão Manus que implementou o sistema NFS-e AxiaCare (05-08/07/2026). Atualizado com base na orientação da contabilidade e na legislação vigente.</p>
     </div>
   </div>
 </div>
