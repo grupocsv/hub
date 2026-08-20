@@ -1008,6 +1008,31 @@
                         </table>
                     </div>
                 </div>
+                <!-- Catálogo Visual -->
+                <div class="table-card" id="asset-catalog-section" style="margin-top:24px;">
+                    <div class="tc-header">
+                        <h3>Catálogo Visual</h3>
+                        <span class="count" id="asset-catalog-count"></span>
+                    </div>
+                    <div style="padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                        <select id="asset-filter-brand" style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:white; color:var(--text); cursor:pointer;">
+                            <option value="">Todas as marcas</option>
+                        </select>
+                        <select id="asset-filter-category" style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:white; color:var(--text); cursor:pointer;">
+                            <option value="">Todas as categorias</option>
+                            <option value="logo">Logo</option>
+                            <option value="assinatura">Assinatura</option>
+                            <option value="avatar">Avatar</option>
+                            <option value="icone">Ícone</option>
+                            <option value="criativo">Criativo</option>
+                            <option value="email">E-mail</option>
+                            <option value="wallpaper">Wallpaper</option>
+                            <option value="institucional">Institucional</option>
+                        </select>
+                        <input type="text" id="asset-filter-search" placeholder="Buscar por nome ou tag..." style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; flex:1; min-width:180px; color:var(--text);">
+                    </div>
+                    <div id="asset-catalog-grid" style="padding:20px; display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; max-height:600px; overflow-y:auto;"></div>
+                </div>
                 <div style="margin-top:16px;">
                     <a href="https://assets.grupocsv.com" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Abrir Asset Bucket &rarr;</a>
                 </div>
@@ -2581,6 +2606,64 @@ function toggleAdminPw() {
                     </tr>`;
                 }).join('');
             }
+
+            // === Catálogo Visual ===
+            window._assetCatalogData = assets;
+            const brandSelect = document.getElementById('asset-filter-brand');
+            brandSelect.innerHTML = '<option value="">Todas as marcas</option>' +
+                brandKeys.map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
+
+            function renderCatalog() {
+                const fb = document.getElementById('asset-filter-brand').value;
+                const fc = document.getElementById('asset-filter-category').value;
+                const fs = document.getElementById('asset-filter-search').value.toLowerCase().trim();
+                let filtered = window._assetCatalogData;
+                if (fb) filtered = filtered.filter(a => a.brand === fb);
+                if (fc) filtered = filtered.filter(a => (a.category || '').toLowerCase() === fc);
+                if (fs) filtered = filtered.filter(a => {
+                    const haystack = [a.key, a.description, a.brand, a.category, ...(a.tags || [])].join(' ').toLowerCase();
+                    return haystack.includes(fs);
+                });
+                document.getElementById('asset-catalog-count').textContent = filtered.length + ' asset(s)';
+                const grid = document.getElementById('asset-catalog-grid');
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-secondary);font-size:14px;">Nenhum asset encontrado para os filtros selecionados.</div>';
+                    return;
+                }
+                grid.innerHTML = filtered.map(a => {
+                    const isImg = /\.(png|jpg|jpeg|webp|gif|svg)$/i.test(a.key);
+                    const fname = a.key.split('/').pop();
+                    const catLabel = (a.category || 'outro').charAt(0).toUpperCase() + (a.category || 'outro').slice(1);
+                    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s;cursor:default;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow='none'">
+                        <div style="height:120px;display:flex;align-items:center;justify-content:center;background:${
+                            isImg ? (a.transparent ? 'repeating-conic-gradient(#f0f0f0 0% 25%, #fff 0% 50%) 50% / 16px 16px' : '#f9fafb') : '#f3f4f6'
+                        };overflow:hidden;padding:12px;">
+                            ${isImg
+                                ? `<img src="${esc(a.url)}" alt="${esc(fname)}" style="max-width:100%;max-height:100%;object-fit:contain;" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=32 height=32 viewBox=\'0 0 24 24\' fill=none stroke=#9ca3af stroke-width=1.5><rect x=3 y=3 width=18 height=18 rx=2/><circle cx=8.5 cy=8.5 r=1.5/><path d=\'m21 15-5-5L5 21\'/></svg>';">`
+                                : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+                            }
+                        </div>
+                        <div style="padding:10px 12px;border-top:1px solid var(--border);">
+                            <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;" title="${esc(fname)}">${esc(fname)}</div>
+                            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">${esc(a.brand)} &middot; ${esc(catLabel)}</div>
+                            <div style="display:flex;gap:6px;">
+                                <button onclick="navigator.clipboard.writeText('${esc(a.url)}').then(()=>{this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar URL',1500)})" style="flex:1;padding:4px 8px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:white;color:var(--primary);cursor:pointer;transition:all .15s;" onmouseenter="this.style.background='#e8f4fd'" onmouseleave="this.style.background='white'">Copiar URL</button>
+                                <a href="${esc(a.url)}" target="_blank" style="padding:4px 8px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:white;color:var(--text-secondary);text-decoration:none;display:flex;align-items:center;transition:all .15s;" onmouseenter="this.style.background='#f3f4f6'" onmouseleave="this.style.background='white'">Abrir</a>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            document.getElementById('asset-filter-brand').addEventListener('change', renderCatalog);
+            document.getElementById('asset-filter-category').addEventListener('change', renderCatalog);
+            let _searchTimeout;
+            document.getElementById('asset-filter-search').addEventListener('input', () => {
+                clearTimeout(_searchTimeout);
+                _searchTimeout = setTimeout(renderCatalog, 300);
+            });
+            renderCatalog();
+
         } catch (err) {
             document.getElementById('asset-brands-tbody').innerHTML = '<tr><td colspan="10" class="empty-state">Erro ao carregar manifest.json</td></tr>';
             document.getElementById('asset-brands-count').textContent = 'Erro';
