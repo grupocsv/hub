@@ -90,20 +90,20 @@ td.green{color:var(--green);font-family:var(--display);font-weight:700;}
 .bonus td{font-family:var(--display);font-size:9pt;padding:3px 14px;}
 .bonus tr.total td{background:var(--blue);color:#fff;font-family:var(--display);font-weight:700;font-size:9.5pt;padding:4px 14px;}
 
-/* CGP matrices */
-.cgp{width:100%;border-collapse:collapse;margin-top:8px;page-break-inside:avoid;break-inside:avoid;}
-.cgp .title-row td{font-family:var(--display);font-weight:700;font-size:9pt;letter-spacing:1.2px;
+/* VPD matrices */
+.vpd{width:100%;border-collapse:collapse;margin-top:8px;page-break-inside:avoid;break-inside:avoid;}
+.vpd .title-row td{font-family:var(--display);font-weight:700;font-size:9pt;letter-spacing:1.2px;
   color:#fff;text-transform:uppercase;padding:5px 14px;}
-.cgp tbody td{padding:4px 14px;font-size:9.5pt;}
-.cgp .lbl{font-family:var(--body);color:#262626;}
-.cgp .formula{text-align:center;font-family:var(--display);font-size:8.5pt;color:#3a3a3a;}
-.cgp .res{text-align:right;font-family:var(--display);font-weight:700;font-size:10pt;color:#1f1f1f;}
-.cgp .total-row td{font-family:var(--display);font-weight:700;font-size:9pt;letter-spacing:0.4px;color:#fff;padding:6px 14px;}
-.cgp .total-row .res{text-align:right;color:#fff;}
-.cgp-2024 .title-row td,.cgp-2024 .total-row td{background:var(--orange);}
-.cgp-2025 .title-row td,.cgp-2025 .total-row td{background:var(--green);}
-.cgp-2024 tbody tr.calc.alt{background:#faf2ea;}
-.cgp-2025 tbody tr.calc.alt{background:#eef8f2;}
+.vpd tbody td{padding:4px 14px;font-size:9.5pt;}
+.vpd .lbl{font-family:var(--body);color:#262626;}
+.vpd .formula{text-align:center;font-family:var(--display);font-size:8.5pt;color:#3a3a3a;}
+.vpd .res{text-align:right;font-family:var(--display);font-weight:700;font-size:10pt;color:#1f1f1f;}
+.vpd .total-row td{font-family:var(--display);font-weight:700;font-size:9pt;letter-spacing:0.4px;color:#fff;padding:6px 14px;}
+.vpd .total-row .res{text-align:right;color:#fff;}
+.vpd-2024 .title-row td,.vpd-2024 .total-row td{background:var(--orange);}
+.vpd-2025 .title-row td,.vpd-2025 .total-row td{background:var(--green);}
+.vpd-2024 tbody tr.calc.alt{background:#faf2ea;}
+.vpd-2025 tbody tr.calc.alt{background:#eef8f2;}
 
 /* component cards */
 .card{border-radius:7px;overflow:hidden;margin-top:11px;page-break-inside:avoid;break-inside:avoid;}

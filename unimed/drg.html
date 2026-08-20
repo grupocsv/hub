@@ -158,12 +158,12 @@
       border-bottom-color: var(--u-green);
     }
     .drg-tabs__btn--settings {
-      color: var(--u-ash);
+      color: var(--u-stone);
       font-size: 11px;
     }
     .drg-tabs__btn--settings.drg-tabs__btn--active {
-      color: var(--u-stone);
-      border-bottom-color: var(--u-stone);
+      color: var(--u-dark);
+      border-bottom-color: var(--u-dark);
     }
 
     /* ═══ PERIOD BANNER ═══ */
@@ -451,7 +451,7 @@
       background: var(--u-white);
     }
 
-    /* ═══ COMP CARD (C1, C2, C3, CGP) ═══ */
+    /* ═══ COMP CARD (C1, C2, C3, VPD) ═══ */
     .comp-card {
       border: 1px solid var(--u-line);
       border-radius: var(--radius-lg);
@@ -1199,8 +1199,8 @@ function periodKeys(startKey, endKey) {
   return keys;
 }
 
-// ─── CGP ────────────────────────────────────────────────────────
-function calcCGP(params, totalLocal, totalIC) {
+// ─── VPD ────────────────────────────────────────────────────────
+function calcVPD(params, totalLocal, totalIC) {
   const { enfLocal,enfIC,aptLocal,aptIC,utiLocal,utiIC, leitosInstalados,leitosHD,leitosUTI,mixApt } = params;
   const tot = totalLocal + totalIC;
   // Se não há dados mensais de local/IC, usa proporção padrão (80% local / 20% IC)
@@ -1214,8 +1214,8 @@ function calcCGP(params, totalLocal, totalIC) {
   const aptP = aptLocal*pl + aptIC*pi;
   const enfP = enfLocal*pl + enfIC*pi;
   const convP = wApt*aptP + wEnf*enfP;
-  const cgp = wUTI*utiP + wConv*convP;
-  return { cgp, utiP, aptP, enfP, convP, pl, pi, wUTI, wConv, op };
+  const vpd = wUTI*utiP + wConv*convP;
+  return { vpd, utiP, aptP, enfP, convP, pl, pi, wUTI, wConv, op };
 }
 
 // ─── TABS ────────────────────────────────────────────────────────
@@ -1308,6 +1308,7 @@ function DRGPlugin() {
   const [copied, setCopied] = useState(null);
   const [supaStatus, setSupaStatus] = useState("idle");
   const [dataSource, setDataSource] = useState("local");
+  const [configLastSaved, setConfigLastSaved] = useState(() => { try { return localStorage.getItem('drg_config_last_saved') || null; } catch(e) { return null; } });
   const [pdfLoading, setPdfLoading] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState('guilherme');
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -1446,10 +1447,10 @@ function DRGPlugin() {
     return { totalAltas, totalReal, totalPrev, totalBonus, totalLocal, totalIC, diarExc, diarEvit, monthRows };
   }, [keys, bank]);
 
-  const cgpData = useMemo(() => calcCGP(params, agg.totalLocal, agg.totalIC), [params, agg.totalLocal, agg.totalIC]);
+  const vpdData = useMemo(() => calcVPD(params, agg.totalLocal, agg.totalIC), [params, agg.totalLocal, agg.totalIC]);
   const inef = agg.totalPrev > 0 ? (agg.totalReal / agg.totalPrev) * 100 : null;
-  const C1 = cgpData && agg.diarExc > 0 ? agg.diarExc * cgpData.cgp : null;
-  const C2 = cgpData && agg.diarEvit > 0 ? agg.diarEvit * cgpData.cgp : null;
+  const C1 = vpdData && agg.diarExc > 0 ? agg.diarExc * vpdData.vpd : null;
+  const C2 = vpdData && agg.diarEvit > 0 ? agg.diarEvit * vpdData.vpd : null;
   const C3 = agg.totalBonus > 0 ? agg.totalBonus : null;
   const TOTAL = (C1||0) + (C2||0) + (C3||0);
   const nMonths = keys.length;
@@ -1513,23 +1514,23 @@ function DRGPlugin() {
       dExc += Math.max(0,(d.realizado||0)-(d.previsto||0));
       dEvit += Math.max(0,(d.previsto||0)-(d.realizado||0));
     }
-    const cgp = calcCGP(params, tLocal, tIC);
-    const c1 = cgp && dExc > 0 ? dExc * cgp.cgp : 0;
-    const c2 = cgp && dEvit > 0 ? dEvit * cgp.cgp : 0;
+    const vpdCalc = calcVPD(params, tLocal, tIC);
+    const c1 = vpdCalc && dExc > 0 ? dExc * vpdCalc.vpd : 0;
+    const c2 = vpdCalc && dEvit > 0 ? dEvit * vpdCalc.vpd : 0;
     const c3 = tBonus;
     const total = c1 + c2 + c3;
     const inefPct = tPrev > 0 ? (tReal/tPrev)*100 : null;
     const nMonths = ks.length;
     const monthsWithData = ks.filter(k => bank[k]?.hasData).length;
-    return { altas:tAltas, realizado:tReal, previsto:tPrev, inef:inefPct, c1, c2, c3, total, cgp: cgp?.cgp||0, nMonths, monthsWithData };
+    return { altas:tAltas, realizado:tReal, previsto:tPrev, inef:inefPct, c1, c2, c3, total, vpd: vpdCalc?.vpd||0, nMonths, monthsWithData };
   };
 
   // ── M6: Simulador What-If ──
-  const [simParams, setSimParams] = useState({ ...PARAMS_DEFAULT });
+  const [simParams, setSimParams] = useState({ ...params });
   const [simMeta, setSimMeta] = useState(95);
-  const simCgpData = useMemo(() => calcCGP(simParams, agg.totalLocal, agg.totalIC), [simParams, agg.totalLocal, agg.totalIC]);
-  const simC1 = simCgpData && agg.diarExc > 0 ? agg.diarExc * simCgpData.cgp : null;
-  const simC2 = simCgpData && agg.diarEvit > 0 ? agg.diarEvit * simCgpData.cgp : null;
+  const simVpdData = useMemo(() => calcVPD(simParams, agg.totalLocal, agg.totalIC), [simParams, agg.totalLocal, agg.totalIC]);
+  const simC1 = simVpdData && agg.diarExc > 0 ? agg.diarExc * simVpdData.vpd : null;
+  const simC2 = simVpdData && agg.diarEvit > 0 ? agg.diarEvit * simVpdData.vpd : null;
   const simTOTAL = (simC1||0) + (simC2||0) + (C3||0);
 
   // ── M7: Supabase ──
@@ -1546,9 +1547,10 @@ function DRGPlugin() {
         const { error: mdErr } = await supabaseClient.from("drg_monthly_data").upsert(chunk, { onConflict: "config_id,month_key" });
         if (mdErr) throw mdErr;
       }
-      const { error: snapErr } = await supabaseClient.from("drg_snapshots").insert({ config_id: configId, period_start: startKey, period_end: endKey, n_months: nMonths, c1_value: C1||0, c2_value: C2||0, c3_value: C3||0, total_value: TOTAL, inef_pct: inef, cgp_value: cgpData?.cgp||0, params_snapshot: params, monthly_data_snapshot: bank });
+      const { error: snapErr } = await supabaseClient.from("drg_snapshots").insert({ config_id: configId, period_start: startKey, period_end: endKey, n_months: nMonths, c1_value: C1||0, c2_value: C2||0, c3_value: C3||0, total_value: TOTAL, inef_pct: inef, vpd_value: vpdData?.vpd||0, params_snapshot: params, monthly_data_snapshot: bank });
       if (snapErr) throw snapErr;
       setSupaStatus("saved"); setDataSource("supabase");
+      const ts = new Date().toISOString(); setConfigLastSaved(ts); try { localStorage.setItem('drg_config_last_saved', ts); } catch(e) {}
       setTimeout(() => setSupaStatus("idle"), 3000);
     } catch(e) { console.error("Erro Supabase:", e); setSupaStatus("error"); setTimeout(() => setSupaStatus("idle"), 5000); }
   };
@@ -1567,6 +1569,7 @@ function DRGPlugin() {
         setBank(newBank);
       }
       setDataSource("supabase"); setSupaStatus("saved");
+      if (cfg.updated_at) { setConfigLastSaved(cfg.updated_at); try { localStorage.setItem('drg_config_last_saved', cfg.updated_at); } catch(e) {} }
       setTimeout(() => setSupaStatus("idle"), 2000);
     } catch(e) { console.error("Erro Supabase:", e); setSupaStatus("error"); setTimeout(() => setSupaStatus("idle"), 5000); }
   };
@@ -1623,16 +1626,16 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     const months2026 = agg.monthRows.filter(r => r.key.startsWith("2026"));
     const calcCycle = (rows) => { let real=0,prev=0,altas=0,bonus=0; rows.forEach(r => { const d = bank[r.key]||{}; real += d.realizado||0; prev += d.previsto||0; altas += d.altas||0; bonus += d.bonus||0; }); return { real, prev, altas, bonus, inef: prev > 0 ? (real/prev)*100 : null }; };
     const c2024 = calcCycle(months2024), c2025 = calcCycle(months2025), c2026 = calcCycle(months2026);
-    const cgpParams = { ...params };
-    const cgp2024 = calcCGP(cgpParams, 817, 219);
-    const cgp2025 = calcCGP(cgpParams, 789, 198);
-    const cgp2026 = calcCGP(cgpParams, 789, 198);
+    const vpdParams = { ...params };
+    const vpd2024 = calcVPD(vpdParams, 817, 219);
+    const vpd2025 = calcVPD(vpdParams, 789, 198);
+    const vpd2026 = calcVPD(vpdParams, 789, 198);
     const diarExc2024 = Math.max(0, c2024.real - c2024.prev);
-    const C1_val = diarExc2024 * (cgp2024?.cgp||0);
+    const C1_val = diarExc2024 * (vpd2024?.vpd||0);
     const diarEvit2025 = Math.max(0, c2025.prev - c2025.real);
     const diarEvit2026 = Math.max(0, c2026.prev - c2026.real);
-    const C2_2025 = diarEvit2025 * (cgp2025?.cgp||0);
-    const C2_2026 = diarEvit2026 * (cgp2026?.cgp||0);
+    const C2_2025 = diarEvit2025 * (vpd2025?.vpd||0);
+    const C2_2026 = diarEvit2026 * (vpd2026?.vpd||0);
     const C2_total = C2_2025 + C2_2026;
     const C3_2025 = c2025.bonus, C3_2026 = c2026.bonus, C3_total = C3_2025 + C3_2026;
     const TOTAL_PDF = C1_val + C2_total + C3_total;
@@ -1654,9 +1657,9 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
       periodo: periodLabel,
       nMeses: nMonths,
       nMesesC3: nMonthsC3,
-      ciclo2024: { altas: c2024.altas, realizado: c2024.real, previsto: c2024.prev, inef: inef2024, excesso: diarExc2024, cgp: cgp2024?.cgp||0, valorC1: C1_val },
-      ciclo2025: { altas: c2025.altas, realizado: c2025.real, previsto: c2025.prev, inef: c2025.inef, economia: diarEvit2025, cgp: cgp2025?.cgp||0, valorC2: C2_2025, bonus: C3_2025 },
-      ciclo2026: { altas: c2026.altas, realizado: c2026.real, previsto: c2026.prev, inef: c2026.inef, economia: diarEvit2026, cgp: cgp2026?.cgp||0, valorC2: C2_2026, bonus: C3_2026 },
+      ciclo2024: { altas: c2024.altas, realizado: c2024.real, previsto: c2024.prev, inef: inef2024, excesso: diarExc2024, vpd: vpd2024?.vpd||0, valorC1: C1_val },
+      ciclo2025: { altas: c2025.altas, realizado: c2025.real, previsto: c2025.prev, inef: c2025.inef, economia: diarEvit2025, vpd: vpd2025?.vpd||0, valorC2: C2_2025, bonus: C3_2025 },
+      ciclo2026: { altas: c2026.altas, realizado: c2026.real, previsto: c2026.prev, inef: c2026.inef, economia: diarEvit2026, vpd: vpd2026?.vpd||0, valorC2: C2_2026, bonus: C3_2026 },
       totais: { C1: C1_val, C2: C2_total, C3: C3_total, total: TOTAL_PDF, deltaPP, inefInicial: inef2024, inefFinal },
       hospital: { leitosInstalados: 97, leitosOperacionais: 94, leitosUTI: 16, leitosConv: 78, mixApt: 0.40, mixEnf: 0.60 },
     };
@@ -1674,10 +1677,10 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
     const consul = CONSULTANTS[selectedConsultant];
     const consulFoot = `Resp. Técnico: ${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}${consul.rqe ? '&nbsp;&middot;&nbsp;'+consul.rqe : ''}`;
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${T.css}</style></head><body>
-<div class="page cover"><div class="cover-top"><img class="lg-uni" src="${IMG[0]}" alt="Unihealth"><img class="lg-evs" src="${IMG[1]}" alt="EVS"><img class="lg-umed" src="${IMG[2]}" alt="Unimed GV"></div><div class="cover-body"><div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div><div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div><div class="cov-divider"></div><div class="cov-cols"><div class="cov-col"><div class="cov-bar" style="background:var(--orange)"></div><div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div><div class="cov-col-v">${fmtV(C1_val)}</div><div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2024?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--green)"></div><div class="cov-col-eyebrow">C2 — Custo Evitado</div><div class="cov-col-v">${fmtV(C2_total)}</div><div class="cov-col-s">${fmtN(diarEvit2025+diarEvit2026)} diárias&nbsp;&middot;&nbsp;CGP R$${fmtN(cgp2025?.cgp||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--blue)"></div><div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div><div class="cov-col-v">${fmtV(C3_total)}</div><div class="cov-col-s">${nMonthsC3} meses consecutivos</div></div></div><div class="cov-total"><div class="cov-total-left"><div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div><div class="cov-total-v">${fmtV(TOTAL_PDF)}</div></div><div class="cov-total-right"><div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div><div class="cov-pp-s">em ${nMonths} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div></div></div></div><div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div><div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;${consulFoot}</div></div>
+<div class="page cover"><div class="cover-top"><img class="lg-uni" src="${IMG[0]}" alt="Unihealth"><img class="lg-evs" src="${IMG[1]}" alt="EVS"><img class="lg-umed" src="${IMG[2]}" alt="Unimed GV"></div><div class="cover-body"><div class="cov-eyebrow">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="cov-h1">Consolidado<br>Metodologia DRG<br>${periodDesc}</div><div class="cov-sub">Eficiência no Uso do Leito&nbsp;&nbsp;&middot;&nbsp;&nbsp;Unidade Hospitalar</div><div class="cov-divider"></div><div class="cov-cols"><div class="cov-col"><div class="cov-bar" style="background:var(--orange)"></div><div class="cov-col-eyebrow">C1 — Desperdício Eliminado</div><div class="cov-col-v">${fmtV(C1_val)}</div><div class="cov-col-s">${fmtN(diarExc2024)} diárias&nbsp;&middot;&nbsp;VPD R$${fmtN(vpd2024?.vpd||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--green)"></div><div class="cov-col-eyebrow">C2 — Custo Evitado</div><div class="cov-col-v">${fmtV(C2_total)}</div><div class="cov-col-s">${fmtN(diarEvit2025+diarEvit2026)} diárias&nbsp;&middot;&nbsp;VPD R$${fmtN(vpd2025?.vpd||0)}</div></div><div class="cov-col"><div class="cov-bar" style="background:var(--blue)"></div><div class="cov-col-eyebrow">C3 — Bônus MG Hosp</div><div class="cov-col-v">${fmtV(C3_total)}</div><div class="cov-col-s">${nMonthsC3} meses consecutivos</div></div></div><div class="cov-total"><div class="cov-total-left"><div class="cov-total-eyebrow">Impacto Financeiro Total Consolidado</div><div class="cov-total-v">${fmtV(TOTAL_PDF)}</div></div><div class="cov-total-right"><div class="cov-pp">&minus;${fmtN(deltaPP)} p.p.</div><div class="cov-pp-s">em ${nMonths} meses&nbsp;&middot;&nbsp;${fmtN(inef2024)}% &rarr; ${fmtN(inefFinal)}%</div></div></div></div><div class="cov-class">PUBLICADO EM ${pubDate}&nbsp;&nbsp;&nbsp;DOCUMENTO INTERNO&nbsp;&nbsp;&nbsp;USO RESTRITO</div><div class="cov-foot"><img src="${IMG[3]}" alt="AxiaCare">AxiaCare® — Gestão em Saúde&nbsp;&nbsp;|&nbsp;&nbsp;${consulFoot}</div></div>
 <div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="sec-title">1. Contexto e Escopo</div><p class="para">${N.contexto_escopo}</p><table><thead><tr><th>Parâmetro</th><th class="num">Valor</th></tr></thead><tbody><tr><td>Leitos instalados</td><td class="num">97</td></tr><tr><td>Leitos operacionais *</td><td class="num">94</td></tr><tr><td>Leitos UTI</td><td class="num">16 (17,02%)</td></tr><tr><td>Leitos internação convencional</td><td class="num">78 (82,98%)</td></tr><tr><td>Mix Apartamento / Enfermaria</td><td class="num">40% / 60%</td></tr></tbody></table><div class="footnote">* Excluídos 03 leitos de hospital dia.</div><div class="sec-title mt">2. Componentes do Impacto Financeiro</div><div class="card card-orange"><div class="card-head"><span class="card-eyebrow">Componente 1 — Redução de Despesa</span> <span class="card-title">Eliminação do Desperdício Operacional (2024)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c1}</p><div class="pills"><div class="pill"><div class="pill-v">${fmtN(inef2024)}%</div><div class="pill-l">(In)Eficiência 2024</div></div><div class="pill"><div class="pill-v">+${fmtN(diarExc2024)}</div><div class="pill-l">Diárias excedidas</div></div><div class="pill money"><div class="pill-v">${fmtV(C1_val)}</div><div class="pill-l">Despesa eliminada</div></div></div></div></div><div class="card card-green"><div class="card-head"><span class="card-eyebrow">Componente 2 — Redução de Despesa</span> <span class="card-title">Custo Evitado (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c2}</p><div class="pills"><div class="pill"><div class="pill-v">${c2026.inef?fmtN(c2026.inef):"82,8"}%</div><div class="pill-l">(In)Eficiência 1Q 2026</div></div><div class="pill"><div class="pill-v">&minus;${fmtN(diarEvit2025+diarEvit2026)}</div><div class="pill-l">Diárias evitadas</div></div><div class="pill money"><div class="pill-v">${fmtV(C2_total)}</div><div class="pill-l">Custo evitado</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[4]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
 <div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Consolidado DRG<br>${periodDesc}</div></div><div class="pbody"><div class="card card-blue"><div class="card-head"><span class="card-eyebrow">Componente 3 — Geração de Receita</span> <span class="card-title">Bônus DRG — Programa MG Hosp (2025 + 1Q/2026)</span></div><div class="card-body"><p class="card-text">${N.narrativa_c3}</p></div></div><table class="bonus"><thead><tr><th>Mês</th><th class="num">Bônus DRG</th></tr></thead><tbody>${fullBonusBody}</tbody></table><div class="consol"><div class="consol-eyebrow">Impacto Financeiro Consolidado — ${cyclesDesc}</div><div class="consol-row"><div class="subcard"><div class="subcard-l">Desperdício Eliminado</div><div class="subcard-v">${fmtV(C1_val)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Custo Evitado</div><div class="subcard-v">${fmtV(C2_total)}</div><div class="subcard-s">Redução de Despesa</div></div><div class="plus">+</div><div class="subcard"><div class="subcard-l">Bônus MG Hosp</div><div class="subcard-v">${fmtV(C3_total)}</div><div class="subcard-s">Geração de Receita</div></div></div><div class="total-block"><div class="total-block-l">Total Consolidado</div><div class="total-block-v">${fmtV(TOTAL_PDF)}</div><div class="total-block-s">Ganho de ${fmtN(deltaPP)} p.p. em ${nMonths} meses</div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[5]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
-<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div><div class="pbody"><div class="sec-title">3. Custo Global Ponderado da Diária (CGP)</div><p class="para">O CGP aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário.</p><div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div><table><thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead><tbody><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Local</td><td class="num">R$ 495,51</td></tr><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num">R$ 755,73</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Local</td><td class="num">R$ 744,17</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num">R$ 1.134,97</td></tr><tr><td>UTI</td><td>—</td><td>Local</td><td class="num">R$ 1.522,57</td></tr><tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num">R$ 2.322,15</td></tr></tbody></table><div class="eyebrow-blk">Matrizes de Cálculo</div><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2024</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(cgp2024?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2024?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2024 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2024?.cgp||0)}</td></tr></tbody></table><table class="cgp"><tbody><tr class="title-row"><td colspan="3">CGP 2025 / 1Q 2026</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(cgp2025?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(cgp2025?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">CGP 2025 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(cgp2025?.cgp||0)}</td></tr></tbody></table></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
+<div class="page"><div class="phead"><div class="phead-l">UNIMED + UNIHEALTH&nbsp;&nbsp;|&nbsp;&nbsp;GOVERNADOR VALADARES</div><div class="phead-r">Anexo Metodológico</div></div><div class="pbody"><div class="sec-title">3. Valor Ponderado da Diária Faturada (VPD)</div><p class="para">O VPD aplica ponderação simultânea por tipo de internação, acomodação e origem do beneficiário.</p><div class="eyebrow-blk">Tarifas Reais — 6 Modalidades</div><table><thead><tr><th>Modalidade</th><th>Acomodação</th><th>Origem</th><th class="num">Tarifa</th></tr></thead><tbody><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Local</td><td class="num">R$ 495,51</td></tr><tr><td>Int. Convencional</td><td>Enfermaria</td><td>Intercâmbio</td><td class="num">R$ 755,73</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Local</td><td class="num">R$ 744,17</td></tr><tr><td>Int. Convencional</td><td>Apartamento</td><td>Intercâmbio</td><td class="num">R$ 1.134,97</td></tr><tr><td>UTI</td><td>—</td><td>Local</td><td class="num">R$ 1.522,57</td></tr><tr><td>UTI</td><td>—</td><td>Intercâmbio</td><td class="num">R$ 2.322,15</td></tr></tbody></table><div class="eyebrow-blk">Matrizes de Cálculo</div><table class="vpd"><tbody><tr class="title-row"><td colspan="3">VPD 2024</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7886 + 2.322,15×0,2114</td><td class="res">R$ ${fmtN(vpd2024?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(vpd2024?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">VPD 2024 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(vpd2024?.vpd||0)}</td></tr></tbody></table><table class="vpd"><tbody><tr class="title-row"><td colspan="3">VPD 2025 / 1Q 2026</td></tr><tr class="calc"><td class="lbl">UTI ponderada</td><td class="formula">1.522,57×0,7994 + 2.322,15×0,2006</td><td class="res">R$ ${fmtN(vpd2025?.utiP||0)}</td></tr><tr class="calc"><td class="lbl">Conv ponderada</td><td class="formula">0,40×Apt + 0,60×Enf</td><td class="res">R$ ${fmtN(vpd2025?.convP||0)}</td></tr><tr class="total-row"><td colspan="2">VPD 2025 = 0,17021×UTI + 0,82979×Conv</td><td class="res">R$ ${fmtN(vpd2025?.vpd||0)}</td></tr></tbody></table></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[6]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
 <div class="page"><div class="pbody cont" style="padding-top:14mm;"><div class="cta"><div class="cta-head"><h3>Esta análise foi útil para você?</h3><p>Ficou com alguma dúvida sobre a metodologia, os números ou os próximos passos?</p></div><div class="cta-body"><div class="cta-top"><img class="cta-avatar" src="${consul.avatar}" alt="${consul.nome}"><div class="cta-text">Estou à disposição para aprofundar qualquer ponto desta análise!<br>Abraços,</div></div><div class="cta-bottom"><div class="cta-sig"><img src="${consul.assinatura}" alt="Assinatura"></div><div class="cta-btn"><div class="b1">Entrar em contato</div><div class="b2">${consul.email}</div></div></div></div></div></div><div class="pfoot"><div class="pfoot-l">Unimed + Unihealth | GV&nbsp;&middot;&nbsp;${pubDate}&nbsp;&middot;&nbsp;Uso Restrito</div><div class="pfoot-r"><img src="${IMG[9]}">AxiaCare®&nbsp;&middot;&nbsp;${consul.nome}&nbsp;&middot;&nbsp;${consul.registro}</div></div></div>
 </body></html>`;
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -1697,8 +1700,8 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
 
   const trendFinConfig = useMemo(() => {
     const labels = agg.monthRows.map(r => keyToLabel(r.key));
-    const c1Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const exc = Math.max(0,(d.realizado||0)-(d.previsto||0)); const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0); return cgpM && exc > 0 ? exc * cgpM.cgp : 0; });
-    const c2Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const evit = Math.max(0,(d.previsto||0)-(d.realizado||0)); const cgpM = calcCGP(params, d.localAbs||0, d.icAbs||0); return cgpM && evit > 0 ? evit * cgpM.cgp : 0; });
+    const c1Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const exc = Math.max(0,(d.realizado||0)-(d.previsto||0)); const vpdM = calcVPD(params, d.localAbs||0, d.icAbs||0); return vpdM && exc > 0 ? exc * vpdM.vpd : 0; });
+    const c2Data = agg.monthRows.map(r => { const d = bank[r.key]||{}; const evit = Math.max(0,(d.previsto||0)-(d.realizado||0)); const vpdM = calcVPD(params, d.localAbs||0, d.icAbs||0); return vpdM && evit > 0 ? evit * vpdM.vpd : 0; });
     const c3Data = agg.monthRows.map(r => r.bonus || 0);
     return { type:"bar", data:{ labels, datasets:[ {label:"C1 — Desperdício Eliminado",data:c1Data,backgroundColor:C.orange+"cc",stack:"s0"}, {label:"C2 — Custo Evitado",data:c2Data,backgroundColor:C.green+"cc",stack:"s0"}, {label:"C3 — Bônus MG Hosp",data:c3Data,backgroundColor:C.blue+"cc",stack:"s0"} ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:"bottom",labels:{font:{size:10}}}, tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtV(ctx.parsed.y)}`}} }, scales:{ y:{stacked:true,title:{display:true,text:"Valor (R$)",font:{size:10}},ticks:{callback:v=>"R$ "+(v/1000).toFixed(0)+"k"}}, x:{stacked:true,ticks:{font:{size:8},maxRotation:45}} } } };
   }, [agg.monthRows, bank, params]);
@@ -1988,8 +1991,8 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
         {tab === 1 && (
           <div>
             <div className="kpi-grid">
-              <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Quanto o hospital gastou além do necessário em 2024 por manter pacientes internados mais tempo que o previsto pelo DRG."/>
-              <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × CGP ${fmtV(cgpData?.cgp||0)}` : null} tip="Economia gerada por operar abaixo do baseline DRG — diárias que seriam gastas mas não foram."/>
+              <Pill label="C1 — Desperdício Eliminado" value={C1 ? fmtV(C1) : NA} color={C.orange} sub={C1 ? `${fmtN(agg.diarExc)} diárias × VPD ${fmtV(vpdData?.vpd||0)}` : null} tip="Quanto o hospital gastou além do necessário em 2024 por manter pacientes internados mais tempo que o previsto pelo DRG."/>
+              <Pill label="C2 — Custo Evitado" value={C2 ? fmtV(C2) : NA} color={C.green} sub={C2 ? `${fmtN(agg.diarEvit)} diárias × VPD ${fmtV(vpdData?.vpd||0)}` : null} tip="Economia gerada por operar abaixo do baseline DRG — diárias que seriam gastas mas não foram."/>
               <Pill label="C3 — Bônus MG Hosp" value={C3 ? fmtV(C3) : NA} color={C.blue} sub={C3 ? `${nMonths} meses acumulados` : null} tip="Receita adicional paga pela Federação Minas como reconhecimento da performance DRG do hospital."/>
               <Pill label="Total Consolidado" value={fmtV(TOTAL)} color={C.ink} tip="Soma dos três componentes: desperdício eliminado + custo evitado + bônus recebido."/>
             </div>
@@ -2109,7 +2112,7 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                     <tr><td>Diárias Realizadas</td><td data-label={lbl1}>{fmtN(m1.realizado)}</td><td data-label={lbl2}>{fmtN(m2.realizado)}</td><td data-label="Delta">{fmtN(delta(m1.realizado,m2.realizado))}</td><td data-label="%">{deltaPct(m1.realizado,m2.realizado)!==null?fmtN(deltaPct(m1.realizado,m2.realizado))+"%":NA}</td></tr>
                     <tr><td>Diárias Previstas</td><td data-label={lbl1}>{fmtN(m1.previsto)}</td><td data-label={lbl2}>{fmtN(m2.previsto)}</td><td data-label="Delta">{fmtN(delta(m1.previsto,m2.previsto))}</td><td data-label="%">{deltaPct(m1.previsto,m2.previsto)!==null?fmtN(deltaPct(m1.previsto,m2.previsto))+"%":NA}</td></tr>
                     <tr><td>(In)Eficiência</td><td data-label={lbl1}>{m1.inef?pct(m1.inef):NA}</td><td data-label={lbl2}>{m2.inef?pct(m2.inef):NA}</td><td data-label="Delta" style={{color:m2.inef&&m1.inef&&m2.inef<m1.inef?C.green:C.red}}>{m1.inef&&m2.inef?fmtN(m2.inef-m1.inef)+" p.p.":NA}</td><td data-label="%">{"—"}</td></tr>
-                    <tr><td>CGP</td><td data-label={lbl1}>{fmtV(m1.cgp)}</td><td data-label={lbl2}>{fmtV(m2.cgp)}</td><td data-label="Delta">{fmtV(delta(m1.cgp,m2.cgp))}</td><td data-label="%">{deltaPct(m1.cgp,m2.cgp)!==null?fmtN(deltaPct(m1.cgp,m2.cgp))+"%":NA}</td></tr>
+                    <tr><td>VPD</td><td data-label={lbl1}>{fmtV(m1.vpd)}</td><td data-label={lbl2}>{fmtV(m2.vpd)}</td><td data-label="Delta">{fmtV(delta(m1.vpd,m2.vpd))}</td><td data-label="%">{deltaPct(m1.vpd,m2.vpd)!==null?fmtN(deltaPct(m1.vpd,m2.vpd))+"%":NA}</td></tr>
                     <tr><td>C1 — Desperdício</td><td data-label={lbl1}>{fmtV(m1.c1)}</td><td data-label={lbl2}>{fmtV(m2.c1)}</td><td data-label="Delta">{fmtV(delta(m1.c1,m2.c1))}</td><td data-label="%">{"—"}</td></tr>
                     <tr><td>C2 — Custo Evitado</td><td data-label={lbl1}>{fmtV(m1.c2)}</td><td data-label={lbl2}>{fmtV(m2.c2)}</td><td data-label="Delta">{fmtV(delta(m1.c2,m2.c2))}</td><td data-label="%">{"—"}</td></tr>
                     <tr><td>C3 — Bônus</td><td data-label={lbl1}>{fmtV(m1.c3)}</td><td data-label={lbl2}>{fmtV(m2.c3)}</td><td data-label="Delta">{fmtV(delta(m1.c3,m2.c3))}</td><td data-label="%">{deltaPct(m1.c3,m2.c3)!==null?fmtN(deltaPct(m1.c3,m2.c3))+"%":NA}</td></tr>
@@ -2125,7 +2128,11 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
         {tab === 3 && (
           <div>
             <div className="card">
-              <SecTitle>Parâmetros do Cenário</SecTitle>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                <SecTitle style={{margin:0}}>Parâmetros do Cenário</SecTitle>
+                <button className="btn btn--ghost btn--sm" style={{fontSize:11}} onClick={() => setSimParams({...params})}>Carregar valores atuais</button>
+              </div>
+              <div style={{fontSize:11,color:'var(--u-stone)',marginBottom:16,lineHeight:1.5}}>Altere os valores abaixo para simular cenários hipotéticos. O resultado é comparado com o cenário real (Configuração).</div>
               <TwoCol>
                 <div>
                   <FieldN label="Enfermaria — Local" value={simParams.enfLocal} onChange={v => setSimParams(p=>({...p,enfLocal:v}))} mono/>
@@ -2148,12 +2155,12 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
             <div className="card">
               <SecTitle>Resultado do Cenário</SecTitle>
               <div className="kpi-grid">
-                <Pill label="CGP Simulado" value={simCgpData ? fmtV(simCgpData.cgp) : NA} color={C.green}/>
+                <Pill label="VPD Simulado" value={simVpdData ? fmtV(simVpdData.vpd) : NA} color={C.green}/>
                 <Pill label="C1 Simulado" value={simC1 ? fmtV(simC1) : NA} color={C.orange}/>
                 <Pill label="C2 Simulado" value={simC2 ? fmtV(simC2) : NA} color={C.green}/>
                 <Pill label="Total Simulado" value={fmtV(simTOTAL)} color={C.ink}/>
               </div>
-              {cgpData && simCgpData && (
+              {vpdData && simVpdData && (
                 <div className="card card--compact" style={{background:"var(--u-cloud)",border:"none",marginTop:12}}>
                   <div style={{fontFamily:"var(--font-display)",fontSize:12,color:"var(--u-stone)"}}>
                     <strong>Delta vs. Real:</strong>{" "}
@@ -2192,27 +2199,27 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
               </TwoCol>
             </div>
 
-            {/* CGP Detalhado */}
-            {cgpData && (
+            {/* VPD Detalhado */}
+            {vpdData && (
               <div className="card">
-                <SecTitle>Custo Global Ponderado da Diária (CGP)</SecTitle>
+                <SecTitle>Valor Ponderado da Diária Faturada (VPD)</SecTitle>
                 <div className="kpi-grid">
-                  <Pill label="CGP Final" value={fmtV(cgpData.cgp)} color={C.green}/>
-                  <Pill label="UTI Ponderada" value={fmtV(cgpData.utiP)} color={C.blue}/>
-                  <Pill label="Apt Ponderada" value={fmtV(cgpData.aptP)} color={C.deep}/>
-                  <Pill label="Enf Ponderada" value={fmtV(cgpData.enfP)} color={C.deep}/>
-                  <Pill label="Conv Ponderada" value={fmtV(cgpData.convP)} color={C.deep}/>
-                  <Pill label="% Local" value={pct(cgpData.pl*100)} color={C.green}/>
-                  <Pill label="% Intercâmbio" value={pct(cgpData.pi*100)} color={C.orange}/>
-                  <Pill label="Leitos Operacionais" value={String(cgpData.op)} color={C.ink}/>
+                  <Pill label="VPD Final" value={fmtV(vpdData.vpd)} color={C.green}/>
+                  <Pill label="UTI Ponderada" value={fmtV(vpdData.utiP)} color={C.blue}/>
+                  <Pill label="Apt Ponderada" value={fmtV(vpdData.aptP)} color={C.deep}/>
+                  <Pill label="Enf Ponderada" value={fmtV(vpdData.enfP)} color={C.deep}/>
+                  <Pill label="Conv Ponderada" value={fmtV(vpdData.convP)} color={C.deep}/>
+                  <Pill label="% Local" value={pct(vpdData.pl*100)} color={C.green}/>
+                  <Pill label="% Intercâmbio" value={pct(vpdData.pi*100)} color={C.orange}/>
+                  <Pill label="Leitos Operacionais" value={String(vpdData.op)} color={C.ink}/>
                 </div>
                 <div style={{marginTop:16,padding:'16px 20px',background:'var(--u-cloud)',borderRadius:10}}>
                   <div style={{fontFamily:"monospace",fontSize:12,lineHeight:1.8,color:C.ink}}>
-                    <div>UTI_pond = {fmtV(params.utiLocal)} x {(cgpData.pl).toFixed(4)} + {fmtV(params.utiIC)} x {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.utiP)}</strong></div>
-                    <div>Apt_pond = {fmtV(params.aptLocal)} x {(cgpData.pl).toFixed(4)} + {fmtV(params.aptIC)} x {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.aptP)}</strong></div>
-                    <div>Enf_pond = {fmtV(params.enfLocal)} x {(cgpData.pl).toFixed(4)} + {fmtV(params.enfIC)} x {(cgpData.pi).toFixed(4)} = <strong>{fmtV(cgpData.enfP)}</strong></div>
-                    <div>Conv_pond = {(params.mixApt/100).toFixed(2).replace(".",",")} x Apt + {((100-params.mixApt)/100).toFixed(2).replace(".",",")} x Enf = <strong>{fmtV(cgpData.convP)}</strong></div>
-                    <div style={{marginTop:8,fontWeight:700}}>CGP = {(cgpData.wUTI).toFixed(5)} x UTI + {(1-cgpData.wUTI).toFixed(5)} x Conv = <strong style={{color:C.green}}>{fmtV(cgpData.cgp)}</strong></div>
+                    <div>UTI_pond = {fmtV(params.utiLocal)} x {(vpdData.pl).toFixed(4)} + {fmtV(params.utiIC)} x {(vpdData.pi).toFixed(4)} = <strong>{fmtV(vpdData.utiP)}</strong></div>
+                    <div>Apt_pond = {fmtV(params.aptLocal)} x {(vpdData.pl).toFixed(4)} + {fmtV(params.aptIC)} x {(vpdData.pi).toFixed(4)} = <strong>{fmtV(vpdData.aptP)}</strong></div>
+                    <div>Enf_pond = {fmtV(params.enfLocal)} x {(vpdData.pl).toFixed(4)} + {fmtV(params.enfIC)} x {(vpdData.pi).toFixed(4)} = <strong>{fmtV(vpdData.enfP)}</strong></div>
+                    <div>Conv_pond = {(params.mixApt/100).toFixed(2).replace(".",",")} x Apt + {((100-params.mixApt)/100).toFixed(2).replace(".",",")} x Enf = <strong>{fmtV(vpdData.convP)}</strong></div>
+                    <div style={{marginTop:8,fontWeight:700}}>VPD = {(vpdData.wUTI).toFixed(5)} x UTI + {(1-vpdData.wUTI).toFixed(5)} x Conv = <strong style={{color:C.green}}>{fmtV(vpdData.vpd)}</strong></div>
                   </div>
                 </div>
               </div>
@@ -2231,6 +2238,11 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
                 <button className="btn btn--danger btn--sm" onClick={resetToDefaults}>Resetar para defaults</button>
               </div>
               {dataSource === "supabase" && <div className="badge badge--info" style={{marginTop:10}}>Dados sincronizados com Supabase</div>}
+              {configLastSaved && (
+                <div style={{marginTop:12,fontSize:11,color:'var(--u-stone)',fontFamily:'var(--font-display)'}}>
+                  Configuração salva em: <strong>{new Date(configLastSaved).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</strong>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2269,12 +2281,12 @@ RETORNE um JSON com exatamente estas 4 chaves (strings):
             <div className="drg-glossary__def">Metodologia internacional que classifica internações hospitalares em grupos de complexidade semelhante, permitindo prever o tempo de permanência adequado para cada caso.</div>
           </div>
           <div className="drg-glossary__item">
-            <div className="drg-glossary__term">CGP (Custo Global da Permanência)</div>
-            <div className="drg-glossary__def">Valor médio diário de uma internação, calculado a partir das tarifas de UTI, enfermaria, apartamento e convencional, ponderadas pela ocupação real de cada setor.</div>
+            <div className="drg-glossary__term">VPD (Valor Ponderado da Diária Faturada)</div>
+            <div className="drg-glossary__def">Valor médio ponderado da diária faturada por internação, calculado a partir das tarifas de UTI, enfermaria, apartamento e convencional, ponderadas pela proporção real de beneficiários locais e de intercâmbio e pelo mix de acomodações.</div>
           </div>
           <div className="drg-glossary__item">
             <div className="drg-glossary__term">C1 — Desperdício Eliminado</div>
-            <div className="drg-glossary__def">Diárias que excederam o previsto pelo DRG, multiplicadas pelo CGP. Representa o custo da ineficiência que pode ser reduzido com gestão ativa.</div>
+            <div className="drg-glossary__def">Diárias que excederam o previsto pelo DRG, multiplicadas pelo VPD. Representa o custo da ineficiência que pode ser reduzido com gestão ativa.</div>
           </div>
           <div className="drg-glossary__item">
             <div className="drg-glossary__term">C2 — Custo Evitado</div>
