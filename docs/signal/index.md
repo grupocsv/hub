@@ -68,6 +68,7 @@ O objetivo é fornecer à alta gestão uma visão panorâmica, curada e de alta 
 
 | Edição | Período | Fatos | Status |
 |--------|---------|-------|--------|
+| [S31/2026](edicoes/2026/S31/) | 27 a 31 de julho | 6 | Publicado |
 | [S30/2026](edicoes/2026/S30/) | 20 a 24 de julho | 6 | Publicado |
 | [S29/2026](edicoes/2026/S29/) | 13 a 17 de julho | 6 | Publicado |
 | [S28/2026](edicoes/2026/S28/) | 06 a 10 de julho | 6 | Publicado |
