@@ -122,7 +122,7 @@ onMounted(() => {
 **Infraestrutura Cognitiva e Operacional do Grupo CSV**
 
 ## 1. O Conceito
-O **Hub Central** (`hub.grupocsv.com`) não é apenas um site de documentação. É a **Fonte Única da Verdade (SSOT)** para todo o ecossistema do Grupo CSV.
+O **Hub Central** (`hub.grupocsv.com`) não é apenas um site de documentação. Ele é o índice canônico do conhecimento institucional e da infraestrutura documentada do Grupo CSV; código, configuração publicada e runtime verificado continuam sendo as fontes primárias de cada componente.
 
 Ele serve a dois mestres simultaneamente:
 1.  **Humanos:** Executivos, colaboradores e parceiros que precisam acessar políticas, assets e diretrizes de forma rápida e visual.

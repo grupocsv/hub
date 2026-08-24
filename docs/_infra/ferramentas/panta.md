@@ -4,6 +4,10 @@
 
 O Panta™ (do grego Πάντα, "tudo") é o motor de busca federada do ecossistema Grupo CSV. Não é um banco de dados nem um CRM. É um serviço de infraestrutura que consulta múltiplas fontes em uma única requisição, retornando resultados ranqueados por relevância. Funciona como a camada de busca que conecta documentos, pessoas, memórias, assets e conhecimento acumulado.
 
+::: warning Relação com a Central de Documentos
+Esta página descreve o Panta v1 federado. Ele é independente da Central de Documentos e não pode autorizar acesso, decidir lifecycle nem expor bytes documentais. O Panta v2 tenant-aware existe no código do backend, mas não foi promovido. O frontend da Central permanece com busca desabilitada. Consulte [Central de Documentos — Relação com o Panta](/_infra/central-documentos#relação-com-o-panta).
+:::
+
 | Campo | Valor |
 |---|---|
 | Marca | Panta™ |

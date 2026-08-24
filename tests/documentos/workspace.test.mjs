@@ -60,6 +60,15 @@ function fixture(overrides = {}) {
     renderVersionsError() {
       calls.push(["view.versions.error"]);
     },
+    renderPublicLinks(value) {
+      calls.push(["view.public-links", value]);
+    },
+    renderPublicLinksAdmin(value) {
+      calls.push(["view.public-links-admin", value]);
+    },
+    renderDeletionRequests(value) {
+      calls.push(["view.deletion-requests", value]);
+    },
     renderRecent(value) {
       calls.push(["view.recent", value]);
     },
@@ -94,7 +103,7 @@ function fixture(overrides = {}) {
       return {
         collections: [{ collectionId: "collection-a", name: "Coleção A" }],
         tags: [{ tagId: "tag-a", name: "Tag A" }],
-        permissions: ["create"],
+        permissions: overrides.metadataPermissions ?? ["create"],
       };
     },
     async loadList(filters) {
@@ -127,15 +136,17 @@ function fixture(overrides = {}) {
           classification: "internal",
           lifecycleStatus: "active",
           indexingPolicy: "metadata_only",
+          currentVersionId: "version-a",
           updatedAt: "2026-07-24T11:00:00.000Z",
         },
-        permissions: [
-          "read",
-          "create_version",
-          "update_metadata",
-          "archive",
-          "publish",
-        ],
+        permissions:
+          overrides.detailPermissions ?? [
+            "read",
+            "create_version",
+            "update_metadata",
+            "archive",
+            "publish",
+          ],
       };
       detailOptions.onState({ status: "ready", detail: loaded });
       return loaded;
@@ -227,6 +238,44 @@ function fixture(overrides = {}) {
     },
   };
   Object.assign(upload, overrides.upload);
+  const publicLinks = {
+    async list(documentId) {
+      calls.push(["public-links.list", documentId]);
+      return [];
+    },
+    async create(documentId, input) {
+      calls.push(["public-links.create", documentId, input]);
+      return { linkId: "link-a", documentId, status: "active" };
+    },
+    async listAll() {
+      calls.push(["public-links.list-all"]);
+      return [];
+    },
+    async update(documentId, linkId, patch) {
+      calls.push(["public-links.update", documentId, linkId, patch]);
+      return { linkId, documentId, ...patch };
+    },
+  };
+  Object.assign(publicLinks, overrides.publicLinks);
+  const deletionAdmin = {
+    async list() {
+      calls.push(["deletion-admin.list"]);
+      return [];
+    },
+    async decide(requestId, action) {
+      calls.push(["deletion-admin.decide", requestId, action]);
+      return {
+        requestId,
+        documentId: "document-a",
+        documentTitle: "Documento A",
+        reason: "Prazo encerrado",
+        status: action === "approve" ? "approved" : `${action}ed`,
+        requestedAt: "2026-08-24T10:00:00.000Z",
+        requestedBy: "user-a",
+      };
+    },
+  };
+  Object.assign(deletionAdmin, overrides.deletionAdmin);
   const recentEntries = [];
   const recent = {
     record(documentId, updatedAt) {
@@ -267,6 +316,12 @@ function fixture(overrides = {}) {
     createUploadController(options) {
       uploadOptions = options;
       return upload;
+    },
+    createPublicLinksController() {
+      return publicLinks;
+    },
+    createDeletionAdminController() {
+      return deletionAdmin;
     },
     locationRef: overrides.locationRef,
     historyRef: overrides.historyRef,
@@ -310,6 +365,182 @@ test("inicia metadados e primeira página e liga a view uma única vez", async (
   assert.equal(
     context.calls.filter(([name]) => name === "view.bind").length,
     1,
+  );
+});
+
+test("integra links públicos no detalhe apenas com permissões explícitas", async () => {
+  const context = fixture({
+    metadataPermissions: ["create", "manage_public_links"],
+    detailPermissions: ["read", "manage_public_links"],
+    publicLinks: {
+      async list(documentId) {
+        context.calls.push(["public-links.list", documentId]);
+        return [{
+          linkId: "link-a",
+          documentId,
+          slug: "manual",
+          publicUrl: "https://documentos-api.grupocsv.com/s/manual",
+          status: "active",
+          expiresAt: null,
+          allowDownload: false,
+          createdAt: "2026-08-24T10:00:00.000Z",
+        }];
+      },
+    },
+  });
+  await context.workspace.start();
+  const handlers = context.getHandlers();
+  await handlers.openDocument("document-a");
+  await handlers.createPublicLink(
+    { slug: "manual", expiresAt: null, allowDownload: false },
+    "document-a",
+  );
+  await handlers.updatePublicLink(
+    "link-a",
+    { status: "inactive" },
+    "document-a",
+  );
+
+  assert.equal(
+    context.calls.filter(([name]) => name === "public-links.list").length,
+    3,
+  );
+  assert.deepEqual(
+    context.calls.find(([name]) => name === "public-links.create")?.slice(1),
+    [
+      "document-a",
+      {
+        slug: "manual",
+        expiresAt: null,
+        allowDownload: false,
+        versionId: "version-a",
+      },
+    ],
+  );
+  assert.deepEqual(
+    context.calls.find(([name]) => name === "public-links.update")?.slice(1),
+    ["document-a", "link-a", { status: "inactive" }],
+  );
+});
+
+test("não usa capability global para contornar permissão resource-level de links", async () => {
+  const context = fixture({
+    metadataPermissions: ["create", "manage_public_links"],
+    detailPermissions: ["read"],
+  });
+  await context.workspace.start();
+  const handlers = context.getHandlers();
+  await handlers.openDocument("document-a");
+  await handlers.createPublicLink(
+    { slug: "manual", expiresAt: null, allowDownload: false },
+    "document-a",
+  );
+  await handlers.updatePublicLink(
+    "link-a",
+    { status: "inactive" },
+    "document-a",
+  );
+
+  assert.equal(
+    context.calls.some(([name]) => name === "public-links.list"),
+    false,
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "public-links.create"),
+    false,
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "public-links.update"),
+    false,
+  );
+  const hidden = context.calls
+    .filter(([name]) => name === "view.public-links")
+    .at(-1)?.[1];
+  assert.equal(hidden.status, "hidden");
+  assert.equal(hidden.capabilities.read, false);
+});
+
+test("painel tenant-wide lista tudo e administra status sem abrir documento", async () => {
+  const tenantLink = {
+    linkId: "link-a",
+    documentId: "document-a",
+    versionId: "version-a",
+    documentTitle: "Documento A",
+    tenantId: "tenant-a",
+    slug: "manual-seguro",
+    publicUrl: "https://documentos-api.grupocsv.com/s/manual-seguro",
+    status: "active",
+    expiresAt: null,
+    allowDownload: false,
+    createdAt: "2026-08-24T10:00:00.000Z",
+  };
+  const context = fixture({
+    metadataPermissions: ["create", "manage_public_links"],
+    publicLinks: {
+      async listAll() {
+        context.calls.push(["public-links.list-all"]);
+        return [tenantLink];
+      },
+    },
+  });
+  await context.workspace.start();
+  const handlers = context.getHandlers();
+  await handlers.navigate("links-publicos");
+  await handlers.updateTenantPublicLink(
+    "document-a",
+    "link-a",
+    { status: "inactive" },
+  );
+
+  assert.equal(
+    context.calls.filter(([name]) => name === "public-links.list-all").length,
+    2,
+  );
+  assert.deepEqual(
+    context.calls.find(([name]) => name === "public-links.update")?.slice(1),
+    ["document-a", "link-a", { status: "inactive" }],
+  );
+  assert.equal(
+    context.calls.some(([name]) => name === "detail.load"),
+    false,
+  );
+});
+
+test("expõe fila de exclusão somente por capability e decide sem hard delete", async () => {
+  const request = {
+    requestId: "request-a",
+    documentId: "document-a",
+    documentTitle: "Documento A",
+    reason: "Prazo encerrado",
+    status: "requested",
+    requestedAt: "2026-08-24T10:00:00.000Z",
+    requestedBy: "user-a",
+  };
+  const context = fixture({
+    metadataPermissions: ["create", "manage_deletion_requests"],
+    deletionAdmin: {
+      async list() {
+        context.calls.push(["deletion-admin.list"]);
+        return [request];
+      },
+    },
+  });
+  await context.workspace.start();
+  const handlers = context.getHandlers();
+  await handlers.navigate("exclusoes");
+  await handlers.decideDeletionRequest("request-a", "approve");
+
+  assert.deepEqual(
+    context.calls.find(([name]) => name === "deletion-admin.decide")?.slice(1),
+    ["request-a", "approve"],
+  );
+  assert.equal(
+    context.calls.filter(([name]) => name === "deletion-admin.list").length,
+    2,
+  );
+  assert.equal(
+    JSON.stringify(context.calls).includes("hard-delete"),
+    false,
   );
 });
 

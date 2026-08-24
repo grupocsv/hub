@@ -36,6 +36,26 @@ const PROCESSING_LABELS = Object.freeze({
   publicationStatus: "Publicação",
   jobStatus: "Processamento",
 });
+const PUBLIC_LINK_STATUS_LABELS = Object.freeze({
+  active: "Ativo",
+  inactive: "Inativo",
+});
+const RESERVED_PUBLIC_SLUGS = new Set([
+  "admin",
+  "api",
+  "docs",
+  "health",
+  "login",
+  "openapi",
+]);
+const DELETION_STATUS_LABELS = Object.freeze({
+  requested: "Aguardando Análise",
+  pending: "Aguardando Análise",
+  approved: "Exclusão Lógica Aprovada",
+  executed: "Excluído Logicamente",
+  rejected: "Rejeitada",
+  cancelled: "Cancelada",
+});
 const ACTIONS = Object.freeze([
   Object.freeze({ id: "open", label: "Abrir Documento" }),
   Object.freeze({ id: "favorite", label: "Favoritar" }),
@@ -181,6 +201,117 @@ export function buildDetailViewModel(state, versions = [], capabilities = {}) {
   });
 }
 
+export function buildPublicLinksViewModel(state) {
+  if (
+    !plainObject(state) ||
+    !["hidden", "loading", "ready", "saving", "error"].includes(state.status)
+  ) {
+    throw new TypeError("Estado de links públicos inválido.");
+  }
+  const capabilities = plainObject(state.capabilities)
+    ? state.capabilities
+    : Object.freeze({});
+  const items = Array.isArray(state.items) ? state.items : [];
+  for (const item of items) {
+    if (
+      !plainObject(item) ||
+      typeof item.linkId !== "string" ||
+      typeof item.documentId !== "string" ||
+      typeof item.slug !== "string" ||
+      typeof item.publicUrl !== "string" ||
+      !Object.hasOwn(PUBLIC_LINK_STATUS_LABELS, item.status) ||
+      typeof item.allowDownload !== "boolean"
+    ) {
+      throw new TypeError("Estado de links públicos inválido.");
+    }
+  }
+  return Object.freeze({
+    status: state.status,
+    items: Object.freeze(items.map((item) => Object.freeze({ ...item }))),
+    capabilities: Object.freeze({
+      read: capabilities.read === true,
+      create: capabilities.create === true,
+      update: capabilities.update === true,
+    }),
+    message:
+      state.status === "error"
+        ? state.error?.message || "Não foi possível carregar os links públicos."
+        : null,
+  });
+}
+
+export function buildPublicLinksAdminViewModel(state) {
+  const model = buildPublicLinksViewModel(state);
+  for (const item of model.items) {
+    if (
+      (item.documentTitle !== null &&
+        item.documentTitle !== undefined &&
+        typeof item.documentTitle !== "string") ||
+      (item.tenantId !== null &&
+        item.tenantId !== undefined &&
+        typeof item.tenantId !== "string")
+    ) {
+      throw new TypeError("Estado do painel de links públicos inválido.");
+    }
+  }
+  const filters = plainObject(state.filters) ? state.filters : {};
+  if (
+    (filters.status !== undefined &&
+      !["", "active", "inactive"].includes(filters.status)) ||
+    (filters.slug !== undefined && typeof filters.slug !== "string") ||
+    (filters.documentId !== undefined &&
+      typeof filters.documentId !== "string")
+  ) {
+    throw new TypeError("Filtros do painel de links públicos inválidos.");
+  }
+  return Object.freeze({
+    ...model,
+    filters: Object.freeze({
+      status: filters.status ?? "",
+      slug: filters.slug ?? "",
+      documentId: filters.documentId ?? "",
+    }),
+  });
+}
+
+export function buildDeletionRequestsViewModel(state) {
+  if (
+    !plainObject(state) ||
+    !["loading", "ready", "saving", "error"].includes(state.status)
+  ) {
+    throw new TypeError("Estado de solicitações de exclusão inválido.");
+  }
+  const capabilities = plainObject(state.capabilities)
+    ? state.capabilities
+    : Object.freeze({});
+  const items = Array.isArray(state.items) ? state.items : [];
+  for (const item of items) {
+    if (
+      !plainObject(item) ||
+      typeof item.requestId !== "string" ||
+      typeof item.documentId !== "string" ||
+      typeof item.reason !== "string" ||
+      !Object.hasOwn(DELETION_STATUS_LABELS, item.status)
+    ) {
+      throw new TypeError("Estado de solicitações de exclusão inválido.");
+    }
+  }
+  return Object.freeze({
+    status: state.status,
+    items: Object.freeze(items.map((item) => Object.freeze({ ...item }))),
+    capabilities: Object.freeze({
+      read: capabilities.read === true,
+      review: capabilities.review === true,
+      cancel: capabilities.cancel === true,
+    }),
+    busy: state.status === "loading" || state.status === "saving",
+    message:
+      state.status === "error"
+        ? state.error?.message || "Não foi possível carregar as solicitações de exclusão."
+        : null,
+  });
+}
+
 function appendTextElement(documentRef, parent, tagName, className, text) {
   const element = documentRef.createElement(tagName);
   if (className) element.className = className;
@@ -264,6 +395,14 @@ export function createDocumentosView(options = {}) {
   const detailTitle = documentRef.querySelector("#docs-detail-title");
   const detailContent = documentRef.querySelector("#docs-detail-content");
   const detailActions = documentRef.querySelector("#docs-detail-actions");
+  const publicLinksRoot = documentRef.querySelector("#docs-public-links");
+  const publicLinksStatus = documentRef.querySelector(
+    "#docs-public-links-status",
+  );
+  const publicLinksList = documentRef.querySelector("#docs-public-links-list");
+  const publicLinkCreate = documentRef.querySelector(
+    "#docs-public-link-create",
+  );
   const versionList = documentRef.querySelector("#docs-version-list");
   const viewerRoot = documentRef.querySelector("#docs-viewer");
   const viewerPanel = viewerRoot?.querySelector(".docs-viewer__panel");
@@ -314,6 +453,12 @@ export function createDocumentosView(options = {}) {
   const favoritesNavigation = documentRef.querySelector(
     '[data-view="favoritos"]',
   );
+  const deletionAdminNavigation = documentRef.querySelector(
+    '[data-view="exclusoes"]',
+  );
+  const publicLinksAdminNavigation = documentRef.querySelector(
+    '[data-view="links-publicos"]',
+  );
   const collectionFilter = documentRef.querySelector("#docs-collection-filter");
   const tagFilter = documentRef.querySelector("#docs-tag-filter");
   const classificationFilter = documentRef.querySelector(
@@ -332,6 +477,10 @@ export function createDocumentosView(options = {}) {
     !detailPanel ||
     !detailContent ||
     !detailActions ||
+    !publicLinksRoot ||
+    !publicLinksStatus ||
+    !publicLinksList ||
+    !publicLinkCreate ||
     !versionList
   ) {
     throw new TypeError("Shell de apresentação incompleto.");
@@ -394,6 +543,17 @@ export function createDocumentosView(options = {}) {
   let uploadPreviousFocus = null;
   let uploadOpenedFromDetail = false;
   let lastUploadState = null;
+  let lastPublicLinksState = null;
+  const confirmAction =
+    options.confirmAction ?? ((message) => windowRef?.confirm?.(message) === true);
+  const copyText =
+    options.copyText ??
+    ((value) => {
+      if (typeof windowRef?.navigator?.clipboard?.writeText !== "function") {
+        throw new TypeError("A cópia não está disponível neste navegador.");
+      }
+      return windowRef.navigator.clipboard.writeText(value);
+    });
   const viewerModeQuery =
     options.viewerModeQuery ??
     windowRef?.matchMedia?.("(max-width: 48rem)") ??
@@ -446,6 +606,24 @@ export function createDocumentosView(options = {}) {
       const enabled = favoritesEnabled && Boolean(boundHandlers);
       favoritesNavigation.hidden = !enabled;
       favoritesNavigation.disabled = !enabled;
+    }
+    if (deletionAdminNavigation) {
+      const canRead =
+        catalogPermissions.has("manage_deletion_requests") ||
+        catalogPermissions.has("review_deletion_requests") ||
+        catalogPermissions.has("cancel_deletion_request") ||
+        catalogPermissions.has("read_deletion_requests");
+      const enabled = canRead && typeof boundHandlers?.navigate === "function";
+      deletionAdminNavigation.hidden = !enabled;
+      deletionAdminNavigation.disabled = !enabled;
+    }
+    if (publicLinksAdminNavigation) {
+      const canRead =
+        catalogPermissions.has("manage_public_links") ||
+        catalogPermissions.has("read_public_links");
+      const enabled = canRead && typeof boundHandlers?.navigate === "function";
+      publicLinksAdminNavigation.hidden = !enabled;
+      publicLinksAdminNavigation.disabled = !enabled;
     }
   }
 
@@ -1287,6 +1465,484 @@ export function createDocumentosView(options = {}) {
     message.setAttribute("role", "alert");
   }
 
+  function renderPublicLinkForm() {
+    publicLinksRoot.querySelector("#docs-public-link-form")?.remove();
+    const form = documentRef.createElement("form");
+    form.id = "docs-public-link-form";
+    form.className = "docs-inline-form";
+
+    const slugLabel = appendTextElement(
+      documentRef,
+      form,
+      "label",
+      "",
+      "Endereço Curto",
+    );
+    const slug = documentRef.createElement("input");
+    slug.name = "slug";
+    slug.type = "text";
+    slug.required = true;
+    slug.minLength = 3;
+    slug.maxLength = 48;
+    slug.pattern = "[a-z0-9]+(?:-[a-z0-9]+)*";
+    slug.autocomplete = "off";
+    slug.placeholder = "manual-institucional";
+    slug.addEventListener("input", () => slug.setCustomValidity(""));
+    slug.setAttribute(
+      "aria-describedby",
+      "docs-public-link-slug-help",
+    );
+    slugLabel.append(slug);
+    appendTextElement(
+      documentRef,
+      slugLabel,
+      "small",
+      "docs-muted",
+      "Use de 3 a 48 caracteres: letras minúsculas, números e hífens simples entre termos.",
+    ).id = "docs-public-link-slug-help";
+
+    const expirationLabel = appendTextElement(
+      documentRef,
+      form,
+      "label",
+      "",
+      "Expiração Opcional",
+    );
+    const expiration = documentRef.createElement("input");
+    expiration.name = "expiresAt";
+    expiration.type = "datetime-local";
+    expirationLabel.append(expiration);
+
+    const downloadLabel = documentRef.createElement("label");
+    downloadLabel.className = "docs-checkbox";
+    const allowDownload = documentRef.createElement("input");
+    allowDownload.name = "allowDownload";
+    allowDownload.type = "checkbox";
+    downloadLabel.append(allowDownload);
+    downloadLabel.append(documentRef.createTextNode(" Forçar download ao abrir"));
+    form.append(downloadLabel);
+
+    const actions = documentRef.createElement("div");
+    actions.className = "docs-public-link__actions";
+    actions.append(
+      button(documentRef, "Cancelar", "cancel-public-link-form"),
+      button(documentRef, "Criar Link Público", "create-public-link", {
+        type: "submit",
+        className: "docs-button docs-button--primary",
+      }),
+    );
+    form.append(actions);
+    publicLinksRoot.insertBefore(form, publicLinksList);
+    slug.focus();
+  }
+
+  function renderPublicLinks(state) {
+    const model = buildPublicLinksViewModel(state);
+    lastPublicLinksState = model;
+    publicLinksRoot.querySelector("#docs-public-link-form")?.remove();
+    publicLinksRoot.hidden = model.status === "hidden" || !model.capabilities.read;
+    publicLinkCreate.hidden = !model.capabilities.create;
+    publicLinkCreate.disabled =
+      !model.capabilities.create ||
+      model.status === "loading" ||
+      model.status === "saving";
+    publicLinksStatus.className = `docs-inline-status${model.status === "error" ? " is-error" : ""}`;
+    publicLinksStatus.textContent =
+      model.status === "loading"
+        ? "Carregando links públicos."
+        : model.status === "saving"
+          ? "Salvando alteração do link público."
+          : model.message || "";
+    publicLinksList.replaceChildren();
+    if (publicLinksRoot.hidden || ["loading", "saving", "error"].includes(model.status)) {
+      return;
+    }
+    if (model.items.length === 0) {
+      appendTextElement(
+        documentRef,
+        publicLinksList,
+        "p",
+        "docs-muted",
+        "Nenhum link público foi criado para este documento.",
+      );
+      return;
+    }
+    const list = documentRef.createElement("ul");
+    list.className = "docs-public-link-list";
+    for (const link of model.items) {
+      const item = documentRef.createElement("li");
+      item.className = "docs-public-link";
+      const header = documentRef.createElement("div");
+      header.className = "docs-public-link__header";
+      appendTextElement(documentRef, header, "strong", "", `/${link.slug}`);
+      appendTextElement(
+        documentRef,
+        header,
+        "span",
+        "docs-card__status",
+        PUBLIC_LINK_STATUS_LABELS[link.status],
+      );
+      const url = documentRef.createElement("a");
+      url.className = "docs-public-link__url";
+      url.href = link.publicUrl;
+      url.target = "_blank";
+      url.rel = "noopener noreferrer";
+      url.textContent = link.publicUrl;
+      const meta = appendTextElement(
+        documentRef,
+        item,
+        "p",
+        "docs-public-link__meta",
+        `${link.allowDownload ? "Forçar download" : "Abrir no navegador"} · ${
+          link.expiresAt ? `expira em ${formatDate(link.expiresAt)}` : "sem expiração"
+        }`,
+      );
+      const actions = documentRef.createElement("div");
+      actions.className = "docs-public-link__actions";
+      actions.append(
+        button(documentRef, "Copiar URL", "copy-public-link", {
+          ariaLabel: `Copiar URL do link /${link.slug}`,
+        }),
+      );
+      actions.lastElementChild.dataset.publicUrl = link.publicUrl;
+      if (model.capabilities.update) {
+        const nextStatus = link.status === "active" ? "inactive" : "active";
+        const toggle = button(
+          documentRef,
+          link.status === "active" ? "Inativar" : "Ativar",
+          "toggle-public-link",
+          {
+            ariaLabel: `${link.status === "active" ? "Inativar" : "Ativar"} link /${link.slug}`,
+          },
+        );
+        toggle.dataset.linkId = link.linkId;
+        toggle.dataset.status = nextStatus;
+        actions.append(toggle);
+      }
+      item.prepend(header, url);
+      item.append(meta, actions);
+      list.append(item);
+    }
+    publicLinksList.append(list);
+  }
+
+  function renderPublicLinksAdmin(state) {
+    const model = buildPublicLinksAdminViewModel(state);
+    loadMore.hidden = true;
+    loadMore.disabled = true;
+    showContent();
+    content.replaceChildren();
+    const heading = appendTextElement(
+      documentRef,
+      content,
+      "h2",
+      "",
+      "Links Públicos",
+    );
+    heading.tabIndex = -1;
+    appendTextElement(
+      documentRef,
+      content,
+      "p",
+      "docs-public-links-admin__intro",
+      "Links explicitamente publicados no tenant atual. A opção de download define apenas se o navegador abre o arquivo ou força seu download.",
+    );
+    const filters = documentRef.createElement("form");
+    filters.id = "docs-public-links-admin-filters";
+    filters.className = "docs-public-links-admin__filters";
+    const statusLabel = appendTextElement(
+      documentRef,
+      filters,
+      "label",
+      "",
+      "Estado",
+    );
+    const status = documentRef.createElement("select");
+    status.name = "status";
+    for (const [value, label] of [
+      ["", "Todos os Estados"],
+      ["active", "Ativos"],
+      ["inactive", "Inativos"],
+    ]) {
+      const option = documentRef.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      status.append(option);
+    }
+    status.value = model.filters.status;
+    statusLabel.append(status);
+    const slugLabel = appendTextElement(
+      documentRef,
+      filters,
+      "label",
+      "",
+      "Slug",
+    );
+    const slug = documentRef.createElement("input");
+    slug.name = "slug";
+    slug.type = "text";
+    slug.minLength = 3;
+    slug.maxLength = 48;
+    slug.pattern = "[a-z0-9]+(?:-[a-z0-9]+)*";
+    slug.autocomplete = "off";
+    slug.placeholder = "manual-institucional";
+    slug.value = model.filters.slug;
+    slugLabel.append(slug);
+    const documentLabel = appendTextElement(
+      documentRef,
+      filters,
+      "label",
+      "",
+      "ID do Documento",
+    );
+    const documentId = documentRef.createElement("input");
+    documentId.name = "documentId";
+    documentId.type = "text";
+    documentId.maxLength = 256;
+    documentId.autocomplete = "off";
+    documentId.value = model.filters.documentId;
+    documentLabel.append(documentId);
+    const filterActions = documentRef.createElement("div");
+    filterActions.className = "docs-public-links-admin__filter-actions";
+    filterActions.append(
+      button(documentRef, "Limpar", "clear-public-link-filters"),
+      button(documentRef, "Aplicar Filtros", "apply-public-link-filters", {
+        type: "submit",
+        className: "docs-button docs-button--primary",
+      }),
+    );
+    filters.append(filterActions);
+    for (const control of filters.querySelectorAll("input, select, button")) {
+      control.disabled = model.status === "loading" || model.status === "saving";
+    }
+    content.append(filters);
+    const panelStatus = appendTextElement(
+      documentRef,
+      content,
+      "p",
+      "docs-inline-status",
+      model.status === "saving" ? "Salvando alteração do link público." : "",
+    );
+    panelStatus.id = "docs-public-links-admin-status";
+    panelStatus.setAttribute("role", "status");
+    panelStatus.setAttribute("aria-live", "polite");
+    if (model.status === "loading") {
+      appendTextElement(
+        documentRef,
+        content,
+        "p",
+        "docs-muted",
+        "Carregando todos os links públicos.",
+      );
+      return;
+    }
+    if (model.status === "error") {
+      const error = appendTextElement(
+        documentRef,
+        content,
+        "p",
+        "docs-detail-message is-error",
+        model.message,
+      );
+      error.setAttribute("role", "alert");
+      return;
+    }
+    if (model.items.length === 0) {
+      appendTextElement(
+        documentRef,
+        content,
+        "p",
+        "docs-muted",
+        "Nenhum link público está cadastrado neste tenant.",
+      );
+      heading.focus();
+      return;
+    }
+    const list = documentRef.createElement("ul");
+    list.className = "docs-public-link-list docs-public-link-list--admin";
+    for (const link of model.items) {
+      const item = documentRef.createElement("li");
+      item.className = "docs-public-link docs-public-link--admin";
+      const header = documentRef.createElement("div");
+      header.className = "docs-public-link__header";
+      appendTextElement(
+        documentRef,
+        header,
+        "strong",
+        "",
+        link.documentTitle || `Documento ${link.documentId}`,
+      );
+      appendTextElement(
+        documentRef,
+        header,
+        "span",
+        "docs-card__status",
+        PUBLIC_LINK_STATUS_LABELS[link.status],
+      );
+      const url = documentRef.createElement("a");
+      url.className = "docs-public-link__url";
+      url.href = link.publicUrl;
+      url.target = "_blank";
+      url.rel = "noopener noreferrer";
+      url.textContent = link.publicUrl;
+      const identity = appendTextElement(
+        documentRef,
+        item,
+        "p",
+        "docs-public-link__meta",
+        `Slug: /${link.slug} · Documento: ${link.documentId} · Central: contexto autenticado atual`,
+      );
+      const policy = appendTextElement(
+        documentRef,
+        item,
+        "p",
+        "docs-public-link__meta",
+        `${link.allowDownload ? "Forçar download" : "Abrir no navegador"} · ${
+          link.expiresAt
+            ? `expira em ${formatDate(link.expiresAt)}`
+            : "sem expiração"
+        }`,
+      );
+      const actions = documentRef.createElement("div");
+      actions.className = "docs-public-link__actions";
+      const copy = button(
+        documentRef,
+        "Copiar URL",
+        "copy-public-link-admin",
+        { ariaLabel: `Copiar URL do link /${link.slug}` },
+      );
+      copy.dataset.publicUrl = link.publicUrl;
+      actions.append(copy);
+      if (model.capabilities.update) {
+        const nextStatus = link.status === "active" ? "inactive" : "active";
+        const toggle = button(
+          documentRef,
+          link.status === "active" ? "Inativar" : "Ativar",
+          "toggle-public-link-admin",
+          {
+            ariaLabel: `${
+              link.status === "active" ? "Inativar" : "Ativar"
+            } link /${link.slug}`,
+            disabled: model.status === "saving",
+          },
+        );
+        toggle.dataset.documentId = link.documentId;
+        toggle.dataset.linkId = link.linkId;
+        toggle.dataset.status = nextStatus;
+        actions.append(toggle);
+      }
+      item.prepend(header, url);
+      item.append(identity, policy, actions);
+      list.append(item);
+    }
+    content.append(list);
+    if (model.status === "ready") heading.focus();
+  }
+
+  function renderDeletionRequests(state) {
+    const model = buildDeletionRequestsViewModel(state);
+    loadMore.hidden = true;
+    loadMore.disabled = true;
+    showContent();
+    content.replaceChildren();
+    const heading = appendTextElement(
+      documentRef,
+      content,
+      "h2",
+      "",
+      "Solicitações de Exclusão",
+    );
+    heading.tabIndex = -1;
+    appendTextElement(
+      documentRef,
+      content,
+      "p",
+      "docs-deletion-intro",
+      "A aprovação realiza exclusão lógica: o documento fica indisponível no Hub, mas os bytes físicos não são apagados por esta ação.",
+    );
+    if (model.status === "loading") {
+      appendTextElement(documentRef, content, "p", "docs-muted", "Carregando solicitações.");
+      return;
+    }
+    if (model.status === "error") {
+      const error = appendTextElement(
+        documentRef,
+        content,
+        "p",
+        "docs-detail-message is-error",
+        model.message,
+      );
+      error.setAttribute("role", "alert");
+      return;
+    }
+    if (model.items.length === 0) {
+      appendTextElement(
+        documentRef,
+        content,
+        "p",
+        "docs-muted",
+        "Não há solicitações de exclusão para analisar.",
+      );
+      heading.focus();
+      return;
+    }
+    const list = documentRef.createElement("ul");
+    list.className = "docs-deletion-list";
+    for (const request of model.items) {
+      const item = documentRef.createElement("li");
+      item.className = "docs-deletion-card";
+      const header = documentRef.createElement("div");
+      header.className = "docs-deletion-card__header";
+      appendTextElement(documentRef, header, "h3", "", request.documentTitle);
+      appendTextElement(
+        documentRef,
+        header,
+        "span",
+        "docs-card__status",
+        DELETION_STATUS_LABELS[request.status],
+      );
+      item.append(header);
+      appendTextElement(documentRef, item, "p", "", request.reason);
+      appendTextElement(
+        documentRef,
+        item,
+        "p",
+        "docs-deletion-card__meta",
+        `Solicitada em ${formatDate(request.requestedAt)}${
+          request.requestedBy ? ` por ${request.requestedBy}` : ""
+        }`,
+      );
+      if (["requested", "pending"].includes(request.status)) {
+        const actions = documentRef.createElement("div");
+        actions.className = "docs-deletion-card__actions";
+        if (model.capabilities.review) {
+          for (const [action, label, className] of [
+            ["approve-deletion", "Aprovar Exclusão Lógica", "docs-button docs-button--danger"],
+            ["reject-deletion", "Rejeitar", "docs-button docs-button--secondary"],
+          ]) {
+            const control = button(documentRef, label, action, {
+              disabled: model.busy,
+              className,
+            });
+            control.dataset.requestId = request.requestId;
+            actions.append(control);
+          }
+        }
+        if (model.capabilities.cancel) {
+          const cancel = button(documentRef, "Cancelar Solicitação", "cancel-deletion-request", {
+            disabled: model.busy,
+          });
+          cancel.dataset.requestId = request.requestId;
+          actions.append(cancel);
+        }
+        item.append(actions);
+      }
+      list.append(item);
+    }
+    content.append(list);
+    if (model.status === "ready") heading.focus();
+  }
+
   function renderDetail(state) {
     const wasOpen = !detailRoot.hidden;
     const activeAction =
@@ -1296,6 +1952,11 @@ export function createDocumentosView(options = {}) {
     if (state.status === "loading") {
       versions = Object.freeze([]);
       renderVersions([]);
+      renderPublicLinks({
+        status: "hidden",
+        items: [],
+        capabilities: {},
+      });
     }
     lastDetailState = state;
     const model = buildDetailViewModel(state, versions, {
@@ -1588,6 +2249,72 @@ export function createDocumentosView(options = {}) {
           handlers.applyFilters({ collectionId: target.dataset.collectionId }),
         );
       }
+      if (target.dataset.action === "copy-public-link-admin") {
+        dispatch(async () => {
+          await copyText(target.dataset.publicUrl);
+          const status = documentRef.querySelector(
+            "#docs-public-links-admin-status",
+          );
+          if (status) status.textContent = "URL pública copiada.";
+        });
+      }
+      if (target.dataset.action === "toggle-public-link-admin") {
+        const nextStatus = target.dataset.status;
+        if (
+          nextStatus === "inactive" &&
+          !confirmAction(
+            "Inativar este link? O acesso público será interrompido imediatamente.",
+          )
+        ) {
+          return;
+        }
+        dispatch(() =>
+          handlers.updateTenantPublicLink?.(
+            target.dataset.documentId,
+            target.dataset.linkId,
+            { status: nextStatus },
+          ),
+        );
+      }
+      if (target.dataset.action === "clear-public-link-filters") {
+        dispatch(() => handlers.applyPublicLinkFilters?.({}));
+      }
+      const deletionAction = {
+        "approve-deletion": "approve",
+        "reject-deletion": "reject",
+        "cancel-deletion-request": "cancel",
+      }[target.dataset.action];
+      if (deletionAction) {
+        const messages = {
+          approve:
+            "Aprovar a exclusão lógica? O documento ficará indisponível no Hub, mas os bytes físicos não serão apagados.",
+          reject: "Rejeitar esta solicitação de exclusão?",
+          cancel: "Cancelar esta solicitação de exclusão?",
+        };
+        if (!confirmAction(messages[deletionAction])) return;
+        dispatch(() =>
+          handlers.decideDeletionRequest?.(
+            target.dataset.requestId,
+            deletionAction,
+          ),
+        );
+      }
+    });
+    listen(content, "submit", (event) => {
+      if (event.target.id !== "docs-public-links-admin-filters") return;
+      event.preventDefault();
+      if (!event.target.checkValidity()) {
+        event.target.reportValidity();
+        return;
+      }
+      const data = new FormData(event.target);
+      dispatch(() =>
+        handlers.applyPublicLinkFilters?.({
+          status: String(data.get("status") ?? ""),
+          slug: String(data.get("slug") ?? "").trim().toLowerCase(),
+          documentId: String(data.get("documentId") ?? "").trim(),
+        }),
+      );
     });
     listen(detailRoot, "click", (event) => {
       const target = event.target.closest?.("[data-action]");
@@ -1637,6 +2364,35 @@ export function createDocumentosView(options = {}) {
         dispatch(() => handlers.restore(documentId));
       }
       if (action === "requestDeletion") renderDeletionForm();
+      if (action === "open-public-link-form") renderPublicLinkForm();
+      if (action === "cancel-public-link-form") {
+        detailRoot.querySelector("#docs-public-link-form")?.remove();
+        publicLinkCreate.focus();
+      }
+      if (action === "copy-public-link") {
+        dispatch(async () => {
+          await copyText(target.dataset.publicUrl);
+          publicLinksStatus.textContent = "URL copiada.";
+        });
+      }
+      if (action === "toggle-public-link") {
+        const nextStatus = target.dataset.status;
+        if (
+          nextStatus === "inactive" &&
+          !confirmAction(
+            "Inativar este link? O acesso público será interrompido imediatamente.",
+          )
+        ) {
+          return;
+        }
+        dispatch(() =>
+          handlers.updatePublicLink?.(
+            target.dataset.linkId,
+            { status: nextStatus },
+            documentId,
+          ),
+        );
+      }
       if (action === "promote-version") {
         pendingActionFocus = action;
         dispatch(() =>
@@ -1668,6 +2424,36 @@ export function createDocumentosView(options = {}) {
         dispatch(() =>
           handlers.requestDeletion(
             String(data.get("reason") ?? ""),
+            documentId,
+          ),
+        );
+      }
+      if (event.target.id === "docs-public-link-form") {
+        const slugControl = event.target.elements?.namedItem?.("slug");
+        slugControl?.setCustomValidity?.("");
+        const slugValue = String(data.get("slug") ?? "")
+          .trim()
+          .toLowerCase();
+        if (RESERVED_PUBLIC_SLUGS.has(slugValue)) {
+          slugControl?.setCustomValidity?.(
+            `O endereço curto “${slugValue}” é reservado. Escolha outro slug.`,
+          );
+          slugControl?.reportValidity?.();
+          return;
+        }
+        if (!event.target.checkValidity()) {
+          event.target.reportValidity();
+          return;
+        }
+        const documentId =
+          lastDetailState?.detail?.document?.documentId ?? null;
+        dispatch(() =>
+          handlers.createPublicLink?.(
+            {
+              slug: slugValue,
+              expiresAt: String(data.get("expiresAt") ?? "") || null,
+              allowDownload: data.get("allowDownload") === "on",
+            },
             documentId,
           ),
         );
@@ -1853,6 +2639,12 @@ export function createDocumentosView(options = {}) {
     pendingCatalogFocus = null;
     lastViewerState = null;
     lastUploadState = null;
+    lastPublicLinksState = null;
+    renderPublicLinks({
+      status: "hidden",
+      items: [],
+      capabilities: {},
+    });
     catalogPermissions = new Set();
     syncFeatureControls();
   }
@@ -1865,6 +2657,9 @@ export function createDocumentosView(options = {}) {
     renderDetail,
     renderVersions,
     renderVersionsError,
+    renderPublicLinks,
+    renderPublicLinksAdmin,
+    renderDeletionRequests,
     renderRecent,
     renderCollections,
     renderViewer,

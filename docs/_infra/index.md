@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Infraestrutura — Fonte Única da Verdade
+title: Infraestrutura — Índice Canônico
 ---
 
 <style scoped>
@@ -177,11 +177,11 @@ title: Infraestrutura — Fonte Única da Verdade
 <div class="frame hero-section">
 <h1>Infraestrutura do Ecossistema Grupo CSV</h1>
 <p class="subtitle">
-<strong>Fonte Única da Verdade (SSOT)</strong> de 100% da infraestrutura digital do Grupo CSV.
-      Cobre produtos, backend serverless, bancos de dados, storage, domínios, DNS, agentes de IA,
-      automações, APIs externas, comunicação e assets. Projetada para consumo por humanos e agentes.
+<strong>Índice canônico da infraestrutura documentada</strong> do Grupo CSV.
+      Consolida os componentes verificados e aponta para as páginas técnicas que registram contratos,
+      estado de entrega e fontes primárias. Não substitui a verificação do runtime antes de uma operação.
 </p>
-<p class="version" id="page-version">Atualizada em 25 de julho de 2026</p>
+<p class="version" id="page-version">Atualizada em 24 de agosto de 2026</p>
 </div>
 
 <div class="copy-bar">
@@ -206,6 +206,7 @@ Copiar página
 <tr><td><strong>Relay™</strong></td><td>Mensagens institucionais padronizadas</td><td><a href="https://relay.axcare.com.br">relay.axcare.com.br</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>RTAV™</strong></td><td>Referencial Técnico de Avaliação por Valor</td><td><a href="https://rtav.axcare.app">rtav.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>Panta™</strong></td><td>Omnisearch federado (busca unificada)</td><td><a href="https://panta.grupocsv.com">panta.grupocsv.com</a></td><td>VPS-CSV (FastAPI + Cloudflare Tunnel)</td></tr>
+<tr><td><strong>Central de Documentos</strong></td><td>Catálogo documental privado e multi-tenant</td><td><a href="https://hub.grupocsv.com/documentos/?portal=grupo-csv">hub.grupocsv.com/documentos/</a></td><td>GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue</td></tr>
 <tr><td><strong>Discovery™</strong></td><td>Diagnóstico estratégico para OPSS</td><td><a href="https://discovery.axcare.app">discovery.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 </tbody>
 </table>
@@ -218,6 +219,7 @@ Copiar página
 <a class="resource-btn axia" href="/_infra/ferramentas/relay">Relay™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/rtav">RTAV™</a>
 <a class="resource-btn" href="/_infra/ferramentas/panta">Panta™</a>
+<a class="resource-btn dark-btn" href="/_infra/central-documentos">Central de Documentos</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
 </div>
@@ -225,7 +227,7 @@ Copiar página
 <!-- 2. BACKEND SERVERLESS -->
 <div class="frame">
 <h2 class="section-title">2. Backend Serverless (Cloudflare Workers)</h2>
-<p class="section-desc">Todos os Workers ativos no ecossistema, com rotas, bindings e função.</p>
+<p class="section-desc">Workers registrados nesta documentação, com rotas, bindings e função.</p>
 
 <h3 class="subsection-title">Workers do Hub CSV</h3>
 <table class="infra-table">
@@ -244,6 +246,8 @@ Copiar página
 <tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle e auth gate</td></tr>
 <tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages (Auth Gate)</td></tr>
 <tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com/*</td><td>KV: hub-unimedgv-kv, R2: hub-unimedgv</td><td>Páginas públicas exclusivas Unimed GV</td></tr>
+<tr><td><code>csv-documents</code></td><td>documentos-api.grupocsv.com</td><td>Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue</td><td>Control plane privado e multi-tenant da Central de Documentos</td></tr>
+<tr><td><code>csv-documents-monitor</code></td><td>Cron Trigger; sem rota pública</td><td>D1: csv-documents, APIs de observabilidade e notificação</td><td>Monitor independente do Worker, Queue, DLQ, processador e ClamAV</td></tr>
 </tbody>
 </table>
 
@@ -266,7 +270,7 @@ Copiar página
 <thead><tr><th>Worker</th><th>Rota / Domínio</th><th>Bindings</th><th>Função</th></tr></thead>
 <tbody>
 <tr><td><code>whatsapp-webhook</code></td><td>webhook.grupocsv.com/*</td><td>D1: whatsapp-brain</td><td>Webhook WhatsApp (WABA)</td></tr>
-<tr><td><code>extensio-mcp</code></td><td>extensio-mcp.guilherme-thom.workers.dev</td><td>D1: csv-hub, D1: whatsapp-brain, Secrets</td><td>MCP Server Extensio</td></tr>
+<tr><td><code>extensio-mcp</code></td><td>extensio-mcp.guilherme-thom.workers.dev</td><td>D1: csv-hub, D1: whatsapp-brain, Service Binding: csv-documents, Secrets</td><td>MCP Server Extensio, incluindo operação tenant-aware da Central de Documentos</td></tr>
 <tr><td><code>extensio-daily-pipeline</code></td><td>extensio-daily-pipeline.guilherme-thom.workers.dev</td><td>Secrets</td><td>Pipeline diário Extensio</td></tr>
 <tr><td><code>agent-context-bridge</code></td><td>agent-context-bridge.guilherme-thom.workers.dev</td><td>Secrets: SUPABASE_URL, SUPABASE_KEY</td><td>MCP de contexto entre agentes (ACB)</td></tr>
 <tr><td><code>manus-webhook</code></td><td>manus-webhook.guilherme-thom.workers.dev</td><td>Secrets</td><td>Receptor de webhooks do Manus</td></tr>
@@ -319,6 +323,7 @@ Copiar página
 <tr><td><code>whatsapp-brain</code></td><td><code>db907899-3b4d-43b3-b2d4-f429bad2a88a</code></td><td>98 MB</td><td>4</td><td>Cérebro do WhatsApp (Extensio)</td></tr>
 <tr><td><code>ccrt</code></td><td><code>8adfc2da-379f-4983-a19c-4d089b5e0fdc</code></td><td>52 KB</td><td>-</td><td>CRT</td></tr>
 <tr><td><code>tnumm-control</code></td><td><code>a42b50a8-0665-43f6-a243-f77c01e7fe2c</code></td><td>—</td><td>—</td><td>Controle operacional, sessões e auditoria do CMM</td></tr>
+<tr><td><code>csv-documents</code></td><td><code>2e36c57f-1ab0-457b-ae1e-442168435b34</code></td><td>—</td><td>—</td><td>Fonte de verdade da Central: tenants, papéis, ACL, documentos, versões, jobs e auditoria</td></tr>
 </tbody>
 </table>
 
@@ -372,7 +377,7 @@ Copiar página
 </tbody>
 </table>
 
-<h3 class="subsection-title">R2 Buckets (14)</h3>
+<h3 class="subsection-title">R2 Buckets</h3>
 <table class="infra-table">
 <thead><tr><th>Bucket</th><th>Domínio Público</th><th>Uso</th></tr></thead>
 <tbody>
@@ -390,6 +395,16 @@ Copiar página
 <tr><td><code>axiacare-methods</code></td><td>-</td><td>Arquivos do Methods Registry AxiaCare</td></tr>
 <tr><td><code>tnumm-evidence</code></td><td>Privado</td><td>Arquivos oficiais, manifestos e evidências de processamento do CMM</td></tr>
 <tr><td><code>themis-private</code></td><td>Privado</td><td>Documentos originais, intermediários e exportações da Themis™</td></tr>
+<tr><td><code>csv-documents-private</code></td><td>Privado</td><td>Originais e derivados da Central; acesso somente pelo control plane autorizado</td></tr>
+</tbody>
+</table>
+
+<h3 class="subsection-title">Queues da Central de Documentos</h3>
+<table class="infra-table">
+<thead><tr><th>Recurso</th><th>Função</th></tr></thead>
+<tbody>
+<tr><td><code>csv-documents-jobs</code></td><td>Transporte assíncrono de jobs com IDs opacos</td></tr>
+<tr><td><code>csv-documents-jobs-dlq</code></td><td>Dead-letter queue para falhas esgotadas e recuperação auditada</td></tr>
 </tbody>
 </table>
 </div>
@@ -425,6 +440,8 @@ Copiar página
 <tr><td>webhook.grupocsv.com</td><td>Worker whatsapp-webhook</td><td>Webhook WhatsApp</td></tr>
 <tr><td>open.grupocsv.com</td><td>Worker csv-open-pages</td><td>Páginas públicas</td></tr>
 <tr><td>assets.grupocsv.com</td><td>Worker csv-assets</td><td>Assets estáticos</td></tr>
+<tr><td>documentos-api.grupocsv.com</td><td>Worker csv-documents</td><td>API privada da Central de Documentos</td></tr>
+<tr><td>documentos-processor.grupocsv.com</td><td>Processador isolado</td><td>Validação, antivírus, extração e derivados documentais</td></tr>
 <tr><td>cmm.grupocsv.com</td><td>Worker tnumm</td><td>CMM — Catálogo de Materiais e Medicamentos</td></tr>
 <tr><td>tnumm.grupocsv.com</td><td>Worker tnumm</td><td>Compatibilidade técnica do CMM</td></tr>
 <tr><td>themis.grupocsv.com</td><td>Worker themis</td><td>Themis™ — Suporte técnico médico jurídico.</td></tr>
@@ -457,7 +474,7 @@ Copiar página
 <tr><td><strong>Manus</strong></td><td>Agente principal: tarefas complexas, desenvolvimento, deploy, pesquisa</td><td>Sandbox isolado (Manus Cloud)</td><td>API Manus, Webhook, MCP</td></tr>
 <tr><td><strong>OpenClaw</strong></td><td>Agente autônomo 24/7: WhatsApp (Extensio), heartbeat, cron jobs</td><td>VPS Hostinger (extensio-vps)</td><td>WhatsApp (WABA), API Manus</td></tr>
 <tr><td><strong>Claude</strong></td><td>Agente de desenvolvimento: coding sessions locais</td><td>Claude Code (local)</td><td>Terminal, GitHub</td></tr>
-<tr><td><strong>Hermes</strong></td><td>Agente auxiliar: execução de tarefas delegadas</td><td>VPS Hostinger (Docker, Claude Haiku 4.5)</td><td>MCPs (Extensio, ACB, Deck), 15 tools nativas</td></tr>
+<tr><td><strong>Hermes</strong></td><td>Agente auxiliar: execução de tarefas delegadas</td><td>VPS Hostinger (Docker, Claude Haiku 4.5)</td><td>MCPs (Extensio, ACB, Deck) e ferramentas nativas</td></tr>
 </tbody>
 </table>
 
@@ -465,7 +482,7 @@ Copiar página
 <p class="section-desc">A comunicação entre agentes é feita via Agent Context Bridge (ACB) no Supabase do OpenClaw. O Worker <code>agent-context-bridge</code> expõe ferramentas MCP: <code>log_activity</code>, <code>log_file</code>, <code>log_decision</code>, <code>get_recent_activities</code>, <code>get_project_context</code>, <code>search_activities</code>.</p>
 
 <h3 class="subsection-title">Extensio (MCP Server)</h3>
-<p class="section-desc">O Worker <code>extensio-mcp</code> é o servidor MCP do Extensio, com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI e Gemini. O <code>extensio-daily-pipeline</code> executa o pipeline diário com envio de e-mail via csv-mail.</p>
+<p class="section-desc">O Worker <code>extensio-mcp</code> é o servidor MCP do Extensio, com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e à Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explícito e credencial de serviço revogável; a API revalida os escopos. O <code>extensio-daily-pipeline</code> executa o pipeline diário com envio de e-mail via csv-mail.</p>
 </div>
 
 <!-- 7. AI SEARCH -->
@@ -554,7 +571,7 @@ Copiar página
 <thead><tr><th>Repositório</th><th>Conteúdo</th><th>Deploy</th></tr></thead>
 <tbody>
 <tr><td><code>grupocsv/hub</code></td><td>Frontend: VitePress + HTML + portais + compliance + admin + deck</td><td>GitHub Pages (Actions)</td></tr>
-<tr><td><code>grupocsv/backend</code></td><td>Workers: csv-auth, csv-gateway, csv-data, csv-email, csv-propostas, tea-dataset-api</td><td>Wrangler (manual)</td></tr>
+<tr><td><code>grupocsv/backend</code></td><td>Workers e serviços do backend, incluindo csv-documents, processador, monitor, D1, R2 e filas documentais</td><td>Workflows protegidos + Wrangler e deploy do processador</td></tr>
 <tr><td><code>grupocsv/csv-open-pages</code></td><td>Worker + admin do Open Pages</td><td>Wrangler (manual)</td></tr>
 <tr><td><code>grupocsv/tnumm</code></td><td>CMM: WebApp, API, pipeline de ingestão e documentação</td><td>GitHub Actions + Wrangler</td></tr>
 <tr><td><code>axiacare/themis</code></td><td>Themis™: WebApp, Worker, Workflow, schema e documentação</td><td>GitHub Actions + Wrangler</td></tr>
@@ -651,9 +668,9 @@ onMounted(() => {
   const btn = document.getElementById('copy-md-btn')
   if (!btn) return
   btn.addEventListener('click', () => {
-  const md = `# Infraestrutura do Ecossistema Grupo CSV — SSOT
+  const md = `# Infraestrutura do Ecossistema Grupo CSV
 
-Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. Atualizada em 25 de julho de 2026.
+Indice canonico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primarias; nao substitui a verificacao do runtime. Atualizada em 24 de agosto de 2026.
 
 ---
 
@@ -669,6 +686,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | Relay™ | Mensagens institucionais padronizadas | relay.axcare.com.br | Manus (React + TS + Tailwind) |
 | RTAV™ | Referencial Tecnico de Avaliacao por Valor | rtav.axcare.app | Manus (React + TS + Tailwind) |
 | Panta™ | Omnisearch federado | panta.grupocsv.com | VPS-CSV (FastAPI + Cloudflare Tunnel) |
+| Central de Documentos | Catalogo documental privado e multi-tenant | hub.grupocsv.com/documentos/ | GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue |
 | Discovery™ | Diagnostico estrategico para OPSS | discovery.axcare.app | Manus (React + TS + Tailwind) |
 
 ---
@@ -690,6 +708,8 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | csv-propostas | csv-propostas.guilherme-thom.workers.dev | R2: csv-propostas, Secret | Propostas comerciais |
 | csv-assets | assets.grupocsv.com/* | R2: csv-open-pages | Servico de assets estaticos |
 | csv-open-pages | open.grupocsv.com/* | KV: csv-open-pages, R2: csv-open-pages | Paginas publicas com toggle |
+| csv-documents | documentos-api.grupocsv.com | Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue | Control plane privado e multi-tenant da Central de Documentos |
+| csv-documents-monitor | Cron Trigger; sem rota publica | D1: csv-documents, APIs de observabilidade e notificacao | Monitor independente do Worker, Queue, DLQ, processador e ClamAV |
 
 ### Workers de Produtos
 
@@ -707,7 +727,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | Worker | Rota / Dominio | Bindings | Funcao |
 |---|---|---|---|
 | whatsapp-webhook | webhook.grupocsv.com/* | D1: whatsapp-brain | Webhook WhatsApp (WABA) |
-| extensio-mcp | extensio-mcp.guilherme-thom.workers.dev | D1: csv-hub, D1: whatsapp-brain, Secrets | MCP Server Extensio |
+| extensio-mcp | extensio-mcp.guilherme-thom.workers.dev | D1: csv-hub, D1: whatsapp-brain, Service Binding: csv-documents, Secrets | MCP Server Extensio, incluindo operação tenant-aware da Central de Documentos |
 | extensio-daily-pipeline | extensio-daily-pipeline.guilherme-thom.workers.dev | Secrets | Pipeline diario Extensio |
 | agent-context-bridge | agent-context-bridge.guilherme-thom.workers.dev | Secrets: SUPABASE_URL, SUPABASE_KEY | MCP de contexto entre agentes (ACB) |
 | manus-webhook | manus-webhook.guilherme-thom.workers.dev | Secrets | Receptor de webhooks do Manus |
@@ -735,6 +755,7 @@ Fonte Unica da Verdade (SSOT) de 100% da infraestrutura digital do Grupo CSV. At
 | whatsapp-brain | db907899-3b4d-43b3-b2d4-f429bad2a88a | 98 MB | 4 | Cerebro do WhatsApp (Extensio) |
 | ccrt | 8adfc2da-379f-4983-a19c-4d089b5e0fdc | 52 KB | - | CRT |
 | tnumm-control | a42b50a8-0665-43f6-a243-f77c01e7fe2c | - | - | Controle operacional, sessoes e auditoria do CMM |
+| csv-documents | 2e36c57f-1ab0-457b-ae1e-442168435b34 | - | - | Fonte de verdade da Central de Documentos |
 
 ### Supabase Postgres
 
@@ -775,6 +796,14 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 | vps-csv-backups | - | Backups criptografados da VPS-CSV (Restic) |
 | tnumm-evidence | Privado | Arquivos oficiais, manifestos e evidencias de processamento do CMM |
 | themis-private | Privado | Documentos originais, intermediarios e exportacoes da Themis™ |
+| csv-documents-private | Privado | Originais e derivados da Central; acesso somente pelo control plane autorizado |
+
+### Queues da Central de Documentos
+
+| Recurso | Funcao |
+|---|---|
+| csv-documents-jobs | Transporte assincrono de jobs com IDs opacos |
+| csv-documents-jobs-dlq | Falhas esgotadas e recuperacao auditada |
 
 ---
 
@@ -794,6 +823,8 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | webhook.grupocsv.com | Worker whatsapp-webhook | Webhook WhatsApp |
 | open.grupocsv.com | Worker csv-open-pages | Paginas publicas |
 | assets.grupocsv.com | Worker csv-assets | Assets estaticos |
+| documentos-api.grupocsv.com | Worker csv-documents | API privada da Central de Documentos |
+| documentos-processor.grupocsv.com | Processador isolado | Validacao, antivirus, extracao e derivados documentais |
 | cmm.grupocsv.com | Worker tnumm | CMM - Catalogo de Materiais e Medicamentos |
 | tnumm.grupocsv.com | Worker tnumm | Compatibilidade tecnica do CMM |
 | themis.grupocsv.com | Worker themis | Themis™ - Suporte técnico médico jurídico. |
@@ -822,11 +853,11 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | Manus | Agente principal: tarefas complexas, desenvolvimento, deploy, pesquisa | Sandbox isolado (Manus Cloud) | API Manus, Webhook, MCP |
 | OpenClaw | Agente autonomo 24/7: WhatsApp (Extensio), heartbeat, cron jobs | VPS Hostinger (extensio-vps) | WhatsApp (WABA), API Manus |
 | Claude | Agente de desenvolvimento: coding sessions locais | Claude Code (local) | Terminal, GitHub |
-| Hermes | Agente auxiliar: execucao de tarefas delegadas | VPS Hostinger (Docker, Claude Haiku 4.5) | MCPs (Extensio, ACB, Deck), 15 tools nativas |
+| Hermes | Agente auxiliar: execucao de tarefas delegadas | VPS Hostinger (Docker, Claude Haiku 4.5) | MCPs (Extensio, ACB, Deck) e ferramentas nativas |
 
 Ponte de contexto (ACB): Worker agent-context-bridge com ferramentas MCP (log_activity, log_file, log_decision, get_recent_activities, get_project_context, search_activities).
 
-Extensio MCP Server: Worker extensio-mcp com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI e Gemini. Pipeline diario via extensio-daily-pipeline.
+Extensio MCP Server: Worker extensio-mcp com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e a Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explicito e credencial de servico revogavel; a API revalida os escopos. Pipeline diario via extensio-daily-pipeline.
 <h3 class="subsection-title">Memória de Longo Prazo (Hindsight Cloud)</h3>
 <p class="section-desc">Vectorize.io Memory Bank (<code>hindsight_extensio</code>). 27 ferramentas MCP: retain, recall, reflect, mental models, directives, entities, documentos. Endpoint: <code>https://api.hindsight.vectorize.io/mcp/hindsight_extensio/</code>.</p>
 <h3 class="subsection-title">VPS-CSV (Infraestrutura de Orquestração)</h3>
@@ -882,7 +913,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 | Tipo | Portais | Metodo |
 |---|---|---|
 | Senha fixa | AxiaCare, Thera, MedValor | Senha unica por portal (KV csv-config) |
-| Login individual | Unimed, Unihealth, ICDS | E-mail + senha, com fluxo de solicitacao e aprovacao |
+| Login individual | Unimed, Unihealth, ICDS, 2iM | E-mail + senha, com fluxo de solicitacao e aprovacao |
 | Login individual da aplicacao | CMM | E-mail + senha, sessao e permissoes geridas pelo proprio CMM |
 | Login individual da aplicacao | Themis™ | Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorizacao previa |
 | PIN local | Deck | PIN 4 digitos (SHA-256 no localStorage) |
@@ -896,7 +927,7 @@ Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de lo
 | Repositorio | Conteudo | Deploy |
 |---|---|---|
 | grupocsv/hub | Frontend: VitePress + HTML + portais + compliance + admin + deck | GitHub Pages (Actions) |
-| grupocsv/backend | Workers: csv-auth, csv-gateway, csv-data, csv-email, csv-propostas, tea-dataset-api | Wrangler (manual) |
+| grupocsv/backend | Workers e servicos, incluindo csv-documents, processador, monitor, D1, R2 e filas documentais | Workflows protegidos + Wrangler e deploy do processador |
 | grupocsv/csv-open-pages | Worker + admin do Open Pages | Wrangler (manual) |
 | grupocsv/tnumm | CMM: WebApp, API, pipeline de ingestao e documentacao | GitHub Actions + Wrangler |
 | axiacare/themis | Themis™: WebApp, Worker, Workflow, schema e documentacao | GitHub Actions + Wrangler |

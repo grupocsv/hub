@@ -297,15 +297,16 @@ Copiar página
 <div class="tech-page">
 <div class="frame hero-section">
 <h1>Infraestrutura Técnica</h1>
-<p class="version">Versão 1.1 — Atualizado em 14/03/2026</p>
+<p class="version">Versão 1.2 — Atualizado em 24/08/2026</p>
 <p class="subtitle">
-Documentação completa da arquitetura de backend do ecossistema <strong>Grupo CSV</strong>.
-Descreve todos os microserviços (Workers), banco de dados, armazenamento, rotas de API,
+Visão consolidada da arquitetura de backend documentada do ecossistema <strong>Grupo CSV</strong>.
+Descreve os principais microserviços, bancos de dados, armazenamentos, rotas de API,
 fluxos de autenticação e tarefas agendadas que sustentam o Hub e seus portais.
 </p>
 <p class="subtitle">
-Este documento serve como <strong>referência técnica definitiva</strong> para desenvolvedores,
-agentes de IA e qualquer pessoa que precise compreender o funcionamento interno do sistema.
+Este documento serve como <strong>índice técnico da arquitetura documentada</strong> para desenvolvedores,
+agentes e qualquer pessoa que precise compreender o funcionamento interno do sistema. O estado de
+produção deve ser revalidado antes de operação ou mudança de infraestrutura.
 </p>
 <div class="security-note">
 <strong>Nota sobre segurança:</strong> Este documento descreve a arquitetura e o funcionamento dos componentes.
@@ -381,11 +382,40 @@ com responsabilidade única, que se comunica com os demais através do API Gatew
 </tr>
 <tr>
 <td><code>grupocsv/backend</code></td>
-<td>Workers Cloudflare: csv-auth, csv-gateway, csv-data, csv-email, csv-mail, csv-ai, csv-cron, csv-propostas, csv-webhook, thera-contact</td>
-<td>Cloudflare Workers</td>
+<td>Workers e serviços de backend, incluindo <code>csv-documents</code>, processador e monitor documentais</td>
+<td>Cloudflare Workers + processador isolado</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="frame">
+<h2 class="section-title">1.1. Central de Documentos</h2>
+<p class="section-desc">
+A Central de Documentos é um domínio privado e multi-tenant separado do gateway geral. O frontend compartilhado
+em <code>/documentos/</code> chama diretamente o control plane <code>csv-documents</code> no domínio
+<code>documentos-api.grupocsv.com</code>. O Worker valida a sessão pelo Service Binding do <code>csv-auth</code>
+e mantém autorização documental no D1 dedicado.
+</p>
+<table class="tech-table">
+<thead><tr><th>Componente</th><th>Recurso</th><th>Responsabilidade</th></tr></thead>
+<tbody>
+<tr><td>Control plane</td><td><code>csv-documents</code></td><td>Autenticação, RBAC, ACL, lifecycle, versões, auditoria e idempotência</td></tr>
+<tr><td>Estado</td><td>D1 <code>csv-documents</code></td><td>Fonte de verdade tenant-first do domínio documental</td></tr>
+<tr><td>Objetos</td><td>R2 <code>csv-documents-private</code></td><td>Originais e derivados privados, sem URL pública direta</td></tr>
+<tr><td>Transporte</td><td><code>csv-documents-jobs</code> e <code>csv-documents-jobs-dlq</code></td><td>Jobs assíncronos e falhas esgotadas</td></tr>
+<tr><td>Processamento</td><td><code>documentos-processor.grupocsv.com</code></td><td>Checksum, MIME, validação estrutural, ClamAV, extração e derivados</td></tr>
+<tr><td>Monitor</td><td><code>csv-documents-monitor</code></td><td>Worker, Queue, DLQ, D1, processador e ClamAV; sem rota pública</td></tr>
+<tr><td>Links públicos</td><td><code>documentos-api.grupocsv.com/s/{slug}</code></td><td>Entrega mediada, revogável e limitada; o bucket R2 continua privado</td></tr>
+<tr><td>Operação por agentes</td><td><code>extensio-mcp</code> via Service Binding</td><td>Ferramentas tenant-aware com credencial de serviço, escopos e idempotência</td></tr>
+</tbody>
+</table>
+<p class="section-desc">
+Os tenants publicados são <code>grupo-csv</code>, <code>unimed</code>, <code>unihealth</code>, <code>icds</code>
+e <code>2im</code>. A busca permanece desabilitada no frontend publicado. Panta v1 é independente; Panta v2
+documental está implementado no código, mas não foi promovido. Consulte a
+<a href="/_infra/central-documentos">documentação canônica da Central de Documentos</a> para lifecycle,
+agentes, OpenAPI, links públicos e estado de entrega.
+</p>
 </div>
 <div class="frame">
 <h2 class="section-title">2. API Gateway (<code>csv-gateway</code>)</h2>
@@ -724,6 +754,7 @@ Banco de dados SQL relacional (SQLite na edge). Principal fonte de verdade para 
 <tr><td><code>spectra-db</code></td><td>a1f87c99-d990-4a06-897e-4c033bcd684c</td><td>Banco de dados do Spectra AI</td></tr>
 <tr><td><code>rd-icds</code></td><td>d4c3391a-2b4d-4bc0-8979-f572727ccaf7</td><td>Relatório de Desempenho ICDS</td></tr>
 <tr><td><code>axiacare-methods</code></td><td>abdf6e4e-6d63-44a9-ae22-b69400c79af8</td><td>Methods Registry AxiaCare</td></tr>
+<tr><td><code>csv-documents</code></td><td>2e36c57f-1ab0-457b-ae1e-442168435b34</td><td>Estado canônico da Central de Documentos</td></tr>
 </tbody>
 </table>
 <h3 class="subsection-title">5.3. Cloudflare KV (9 namespaces)</h3>
@@ -744,7 +775,7 @@ Armazenamento de chave-valor de baixa latência distribuído globalmente.
 <tr><td><code>cooperados-api-keys</code></td><td>Chaves de API para a página de cooperados</td></tr>
 </tbody>
 </table>
-<h3 class="subsection-title">5.4. Cloudflare R2 (12 buckets)</h3>
+<h3 class="subsection-title">5.4. Cloudflare R2</h3>
 <p class="section-desc">
 Armazenamento de objetos compatível com S3, distribuído globalmente.
 </p>
@@ -763,6 +794,7 @@ Armazenamento de objetos compatível com S3, distribuído globalmente.
 <tr><td><code>gabi-assets</code></td><td>Assets de projetos associados</td></tr>
 <tr><td><code>rd-icds-uploads</code></td><td>Uploads do Relatório de Desempenho ICDS</td></tr>
 <tr><td><code>axiacare-methods</code></td><td>Arquivos do Methods Registry AxiaCare</td></tr>
+<tr><td><code>csv-documents-private</code></td><td>Originais e derivados privados da Central de Documentos</td></tr>
 </tbody>
 </table>
 </div>
@@ -917,7 +949,7 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 </tr>
 <tr>
 <td><strong>Links Públicos</strong></td>
-<td>Páginas em <code>/p/</code> são registradas no <code>registry.json</code>. A revogação/restauração é feita via commit automático no GitHub usando a API.</td>
+<td>Open Pages e páginas legadas <code>/p/</code> são independentes da Central. Links públicos documentais nativos pertencem ao control plane <code>csv-documents</code> e, nesta entrega, ainda dependem de merge, deploy e canário antes de serem considerados produtivos.</td>
 </tr>
 </tbody>
 </table>
