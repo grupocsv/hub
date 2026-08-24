@@ -949,7 +949,7 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 </tr>
 <tr>
 <td><strong>Links Públicos</strong></td>
-<td>Open Pages e páginas legadas <code>/p/</code> são independentes da Central. Links públicos documentais nativos pertencem ao control plane <code>csv-documents</code> e, nesta entrega, ainda dependem de merge, deploy e canário antes de serem considerados produtivos.</td>
+<td>Open Pages e páginas legadas <code>/p/</code> são independentes da Central. Links públicos documentais nativos pertencem ao control plane <code>csv-documents</code>, estão produtivos e mantêm o R2 privado; criação, expiração e revogação são mediadas pela API.</td>
 </tr>
 </tbody>
 </table>

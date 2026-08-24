@@ -15,7 +15,7 @@ Esta página separa três estados que não devem ser confundidos:
 |---|---|
 | Produção verificada | Componente publicado e confirmado na verificação de 24/08/2026 |
 | Implementado no código | Contrato presente nas fontes canônicas, mas sem afirmação de promoção produtiva |
-| Incluído nesta entrega | Alteração em desenvolvimento que ainda depende de merge, deploy, configuração e canário produtivo |
+| Não promovido | Componente presente no código, mas deliberadamente fora do runtime publicado |
 
 ## Acesso e tenants
 
@@ -46,8 +46,8 @@ O frontend de produção está habilitado para os cinco identificadores acima. U
 | Processamento | `documentos-processor.grupocsv.com` | Validação, detecção de MIME, checksum, antivírus, extração e derivados | Produção verificada |
 | Monitoramento | Worker `csv-documents-monitor` | Avalia Worker, Queue, DLQ, D1, processador e ClamAV; não possui rota pública | Implementado no código e operado por agenda própria |
 | Busca documental | Panta v2 | Índice tenant-aware derivado, sem autoridade de acesso | Implementado no código; não promovido |
-| Links públicos nativos | Control plane documental | Compartilhamento explícito de uma versão por slug, com ativação e revogação | Incluído nesta entrega; não presumir produção |
-| Operação por agentes | Extensio MCP + credencial de serviço | Publicar, consultar, buscar e gerenciar dentro do tenant e dos escopos concedidos | Incluído nesta entrega; não presumir produção |
+| Links públicos nativos | Control plane documental | Compartilhamento explícito de uma versão por slug, com ativação e revogação | Produção verificada |
+| Operação por agentes | Extensio MCP + credencial de serviço | Publicar, consultar, buscar e gerenciar dentro do tenant e dos escopos concedidos | Produção verificada |
 
 O Worker possui cron de reconciliação. Queue, DLQ, processador e Panta transportam ou derivam dados, mas não autorizam acesso nem decidem qual versão é vigente. O D1 documental permanece a fonte de verdade do domínio.
 
@@ -80,7 +80,7 @@ Agentes usam credenciais de serviço próprias. Nunca reutilizam cookie, sessão
 | `documents:write` | Criar documento, nova versão e atualizar metadados permitidos |
 | `documents:publish` | Promover versão elegível |
 | `documents:manage` | Arquivar, restaurar, solicitar exclusão, gerenciar links públicos e executar gestões autorizadas |
-| `documents:admin` | Revisar pedidos de exclusão; escopo incluído nesta entrega e ainda dependente de promoção |
+| `documents:admin` | Revisar pedidos de exclusão lógica dentro dos tenants concedidos |
 
 Credencial associada a mais de um tenant precisa informar `X-Tenant-Id`; o backend rejeita tenant fora da allowlist. Mutações idempotentes devem repetir a mesma `Idempotency-Key` durante retry.
 
@@ -93,11 +93,11 @@ Estado de entrega:
 | Interface | Estado |
 |---|---|
 | API `/v1/*` | Produção verificada; exige autenticação e autorização por operação |
-| OpenAPI versionada no repositório | Implementada no código |
-| `GET /docs/openapi.json` | Incluído nesta entrega; só considerar ativo depois de merge, deploy e teste no domínio produtivo |
-| CLI documental | Incluído em `workers/csv-documents/scripts/documents-cli.mjs`; usa token de serviço, tenant explícito e a API publicada |
+| OpenAPI versionada no repositório | Publicada e validada em produção |
+| `GET /docs/openapi.json` | Produção verificada em `documentos-api.grupocsv.com` |
+| CLI documental | Versionado em `workers/csv-documents/scripts/documents-cli.mjs`; usa token de serviço, tenant explícito e a API publicada |
 | SDK documental dedicado | Não incluído; integrações usam o MCP do Extensio, o CLI ou a API descrita pelo OpenAPI |
-| Ferramentas MCP do Extensio | Incluídas nesta entrega para publicar, consultar, buscar e gerenciar; dependem de merge, deploy, Service Binding e credencial de serviço |
+| Ferramentas MCP do Extensio | Publicadas com Service Binding `DOCUMENTS`, secret próprio e credencial revogável para os cinco tenants |
 
 Ferramentas MCP definidas nesta entrega:
 
@@ -119,7 +119,7 @@ O transporte MCP limita cada publicação e cada resposta de download a 8 MiB pa
 
 O CLI aceita listagem, consulta, busca, status, promoção de versão, archive/restore, solicitação e decisão de exclusão, links públicos e download para arquivo. Ele lê `DOCUMENTS_API_URL`, `DOCUMENTS_API_TOKEN` e `DOCUMENTS_TENANT_ID` do ambiente; mutações exigem chave idempotente. Criação e upload de bytes são feitos pelo MCP ou diretamente pela API, não pelo CLI atual.
 
-Uma integração só está pronta quando o contrato publicado, a credencial revogável, o tenant, os escopos, a idempotência e um canário real estiverem validados. A mera existência do schema ou da ferramenta não comprova acesso produtivo.
+Uma integração só está pronta quando o contrato publicado, a credencial revogável, o tenant, os escopos, a idempotência e um canário real estiverem validados. Em 24/08/2026, o canário produtivo autorizou os cinco tenants, rejeitou acesso cruzado e tenant inexistente, confirmou bytes de upload e download, link público, `HEAD`, `GET`, `Range`, revogação e exclusão lógica. As nove ferramentas `documents_*` foram descobertas no MCP publicado, e `documents_list` respondeu 200 por meio do Extensio nos cinco tenants. A mera existência do schema ou da ferramenta não comprova acesso produtivo.
 
 ## Ciclo documental e exclusão
 
@@ -134,7 +134,7 @@ Uma integração só está pronta quando o contrato publicado, a credencial revo
 
 No contrato produtivo verificado, hard delete permanece desabilitado. A interface confirma o pedido de exclusão; ela não confirma destruição física dos bytes. Arquivamento e restauração são operações próprias e não equivalem a exclusão.
 
-Nesta entrega, o backend adiciona uma decisão administrativa de exclusão lógica. Ela ainda depende de merge, deploy e canário e não deve ser apresentada como disponível em produção:
+O backend produtivo oferece decisão administrativa de exclusão lógica pelos contratos abaixo:
 
 | Operação | Contrato incluído nesta entrega | Autorização |
 |---|---|---|
@@ -151,7 +151,7 @@ A documentação não deve apresentar `deletion_requested` como arquivo apagado 
 
 Links públicos documentais são uma capacidade diferente de Open Pages. Open Pages publica HTML e assets no domínio `open.grupocsv.com`; um link documental referencia uma versão autorizada que continua armazenada no R2 privado e é entregue pelo control plane.
 
-A capacidade incluída nesta entrega usa estes contratos autenticados:
+A capacidade produtiva usa estes contratos autenticados:
 
 | Operação | Rota |
 |---|---|
@@ -181,7 +181,7 @@ Os invariantes são:
 
 Papéis `manager`, `tenant_admin` e `super_admin` gerenciam links; clientes de serviço usam `documents:manage`.
 
-Até o backend, o frontend e os testes desta entrega serem promovidos e verificados, a classificação `Público` de um documento continua significando somente acesso autenticado conforme as regras do tenant. Ela não cria link anônimo.
+A classificação `Público` continua significando somente acesso autenticado conforme as regras do tenant. Ela não cria link anônimo: o compartilhamento exige criação explícita de um link, que pode ser inativado ou ter validade definida.
 
 ## Relação com o Panta
 
@@ -213,7 +213,7 @@ O frontend publicado declara `features.search = false`. O endpoint interno e os 
 | Processador | `grupocsv/backend`: `services/csv-documents-processor/` |
 | Monitor | `grupocsv/backend`: `workers/csv-documents-monitor/` |
 | Panta v2 | `grupocsv/backend`: `services/panta-v2/` e `docs/hub-documents/PANTA-INTEGRATION.md` |
-| Ferramentas de agentes | branch desta entrega no `grupocsv/extensio` |
+| Ferramentas de agentes | `grupocsv/extensio`: `packages/mcp/` |
 
 Verificações externas úteis:
 
@@ -221,7 +221,7 @@ Verificações externas úteis:
 - [Readiness do processador e ClamAV](https://documentos-processor.grupocsv.com/readyz)
 - [Configuração pública do frontend](https://hub.grupocsv.com/documentos/assets/runtime-config.js)
 
-Health check prova disponibilidade pontual; não prova permissões, integridade de todos os documentos, operação por agentes, links públicos ou busca. Para essas capacidades, use um canário autenticado no tenant correto.
+Health check prova disponibilidade pontual; não prova permissões, integridade de todos os documentos, operação por agentes, links públicos ou busca. Para essas capacidades, use um canário autenticado no tenant correto. O canário de 24/08/2026 foi encerrado por tombstone lógico, preservando a versão e a referência privada do objeto; não restaram pedidos de exclusão pendentes.
 
 ## Relação com outras páginas da infraestrutura
 
