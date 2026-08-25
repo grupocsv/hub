@@ -134,7 +134,8 @@ export default defineConfig({
         {
           text: 'Infraestrutura',
           items: [
-            { text: 'Vis\u00e3o Geral (SSOT)', link: '/_infra/' },
+            { text: 'Vis\u00e3o Geral', link: '/_infra/' },
+            { text: 'Central de Documentos', link: '/_infra/central-documentos' },
             { text: 'Arquitetura T\u00e9cnica', link: '/_infra/technical-architecture' },
             { text: 'AI Search', link: '/_infra/ai-search' },
             { text: 'P\u00e1ginas P\u00fablicas', link: '/_infra/public-pages' },

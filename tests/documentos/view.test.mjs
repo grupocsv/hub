@@ -6,7 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import {
   buildCatalogViewModel,
+  buildDeletionRequestsViewModel,
   buildDetailViewModel,
+  buildPublicLinksAdminViewModel,
+  buildPublicLinksViewModel,
   resolveCatalogFocusIntent,
   shouldRestoreCatalogFocus,
 } from "../../docs/public/documentos/assets/view.js";
@@ -111,6 +114,52 @@ test("constrói modelo de detalhe somente com ações autorizadas e versões pú
     model.actions.some(({ id }) => id === "requestDeletion"),
     false,
   );
+});
+
+test("modela links públicos e fila de exclusão sem inferir permissões", () => {
+  const links = buildPublicLinksViewModel({
+    status: "ready",
+    capabilities: { read: true, create: true, update: false },
+    items: [{
+      linkId: "link-a",
+      documentId: "document-a",
+      slug: "manual",
+      publicUrl: "https://documentos-api.grupocsv.com/s/manual",
+      status: "active",
+      allowDownload: false,
+    }],
+  });
+  assert.equal(links.items.length, 1);
+  assert.deepEqual(links.capabilities, {
+    read: true,
+    create: true,
+    update: false,
+  });
+
+  const linksAdmin = buildPublicLinksAdminViewModel({
+    status: "ready",
+    capabilities: { read: true, create: true, update: true },
+    items: [{
+      ...links.items[0],
+      documentTitle: "Manual",
+      tenantId: "unimed",
+    }],
+  });
+  assert.equal(linksAdmin.items[0].tenantId, "unimed");
+
+  const deletions = buildDeletionRequestsViewModel({
+    status: "ready",
+    capabilities: { read: true, review: true, cancel: false },
+    items: [{
+      requestId: "request-a",
+      documentId: "document-a",
+      reason: "Prazo encerrado",
+      status: "requested",
+    }],
+  });
+  assert.equal(deletions.capabilities.review, true);
+  assert.equal(deletions.capabilities.cancel, false);
+  assert.equal(deletions.busy, false);
 });
 
 test("rejeita versão sem vínculo ou vinculada a outro documento", () => {
@@ -347,6 +396,9 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(template, /id="docs-detail"[^>]*role="dialog"/);
   assert.match(template, /aria-modal="true"/);
   assert.match(template, /id="docs-detail-title"/);
+  assert.match(template, /id="docs-public-links"/);
+  assert.match(template, /id="docs-public-links-admin-nav"[^>]*data-view="links-publicos"/);
+  assert.match(template, /id="docs-deletion-admin-nav"[^>]*hidden[^>]*disabled|id="docs-deletion-admin-nav"[^>]*disabled[^>]*hidden/);
   assert.match(template, /id="docs-load-more"/);
   assert.match(
     template,

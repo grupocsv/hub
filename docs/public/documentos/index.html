@@ -26,6 +26,8 @@
           <button class="docs-nav__item" type="button" data-view="colecoes">Coleções</button>
           <button class="docs-nav__item" type="button" data-view="favoritos" hidden disabled>Favoritos</button>
           <button class="docs-nav__item" type="button" data-view="recentes">Recentes</button>
+          <button class="docs-nav__item" id="docs-public-links-admin-nav" type="button" data-view="links-publicos" hidden disabled>Links Públicos</button>
+          <button class="docs-nav__item" id="docs-deletion-admin-nav" type="button" data-view="exclusoes" hidden disabled>Exclusões</button>
         </nav>
 
         <div class="docs-topbar__actions">
@@ -127,6 +129,18 @@
         </header>
         <div id="docs-detail-content" class="docs-detail-content"></div>
         <div id="docs-detail-actions" class="docs-detail-actions" aria-label="Ações Autorizadas"></div>
+        <section id="docs-public-links" class="docs-public-links" aria-labelledby="docs-public-links-title" hidden>
+          <header class="docs-section-header">
+            <div>
+              <p class="docs-eyebrow">Compartilhamento Externo</p>
+              <h3 id="docs-public-links-title">Links Públicos</h3>
+            </div>
+            <button class="docs-button docs-button--secondary" id="docs-public-link-create" type="button" data-action="open-public-link-form" hidden disabled>Criar Link</button>
+          </header>
+          <p class="docs-muted">Somente links ativados podem ser acessados sem uma sessão do Hub. A classificação do documento não cria um link público.</p>
+          <div id="docs-public-links-status" class="docs-inline-status" role="status" aria-live="polite" aria-atomic="true"></div>
+          <div id="docs-public-links-list"></div>
+        </section>
         <section class="docs-versions" aria-labelledby="docs-versions-title">
           <h3 id="docs-versions-title">Versões</h3>
           <div id="docs-version-list"></div>

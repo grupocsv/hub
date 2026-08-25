@@ -1,6 +1,6 @@
 # Grupo CSV | Hub Central de Conhecimento e Governança
 
-Este repositório atua como a **Fonte Única da Verdade (Single Source of Truth)** para a infraestrutura cognitiva, operacional e de governança do Grupo CSV.
+Este repositório mantém o **índice canônico da infraestrutura documentada** do Grupo CSV. O código, a configuração publicada e o estado verificado do runtime permanecem as fontes primárias para decisões operacionais.
 
 ## Estrutura do Repositório
 

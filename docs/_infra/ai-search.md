@@ -40,6 +40,10 @@ Copiar página
 
 ::: tip Ponto Neural
 O Hub CSV agora possui uma API de busca semântica que indexa automaticamente todo o conteúdo do repositório. Qualquer agente, automação ou SaaS pode consultar o arsenal completo do Hub em linguagem natural.
+
+::: warning Escopo desta busca
+AI Search indexa conteúdo estático do repositório do Hub. Não é o catálogo privado da [Central de Documentos](/_infra/central-documentos), não substitui seu RBAC/ACL e não deve receber originais do R2 `csv-documents-private`. A busca documental permanece desabilitada no frontend até a promoção separada do Panta v2.
+:::
 :::
 
 ## O que é

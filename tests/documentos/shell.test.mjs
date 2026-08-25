@@ -49,7 +49,7 @@ test('expõe landmarks, salto de conteúdo e hierarquia única de título', asyn
 });
 
 test('oferece navegação, busca, upload e região de estado com rótulos explícitos', async () => {
-  const { template } = await sources();
+  const { template, generated } = await sources();
 
   for (const label of ['Documentos', 'Coleções', 'Favoritos', 'Recentes']) {
     assert.match(template, new RegExp(`>${label}<`));
@@ -61,6 +61,12 @@ test('oferece navegação, busca, upload e região de estado com rótulos explí
   assert.match(template, /data-view="favoritos"[^>]+hidden[^>]+disabled|data-view="favoritos"[^>]+disabled[^>]+hidden/);
   assert.match(template, /id="docs-status"[^>]+role="status"[^>]+aria-live="polite"/);
   assert.match(template, /id="docs-content"/);
+  for (const source of [template, generated]) {
+    assert.match(
+      source,
+      /id="docs-public-links-admin-nav"[^>]*data-view="links-publicos"[^>]*hidden[^>]*disabled|id="docs-public-links-admin-nav"[^>]*data-view="links-publicos"[^>]*disabled[^>]*hidden/,
+    );
+  }
 });
 
 test('inclui viewer responsivo com região desktop e controles para modal mobile', async () => {

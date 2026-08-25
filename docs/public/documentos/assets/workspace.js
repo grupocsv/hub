@@ -5,6 +5,14 @@ import {
 } from "./catalog.js";
 import { createDocumentDetailController } from "./detail.js";
 import {
+  createPublicLinksController,
+  derivePublicLinkCapabilities,
+} from "./public-links.js";
+import {
+  createDeletionAdminController,
+  deriveDeletionAdminCapabilities,
+} from "./deletion-admin.js";
+import {
   createDocumentViewerController,
   createViewerRouteController,
   selectViewerVersion,
@@ -44,6 +52,10 @@ export function createDocumentosWorkspace(options = {}) {
     options.createViewerRouteController ?? createViewerRouteController;
   const uploadFactory =
     options.createUploadController ?? createDocumentUploadController;
+  const publicLinksFactory =
+    options.createPublicLinksController ?? createPublicLinksController;
+  const deletionAdminFactory =
+    options.createDeletionAdminController ?? createDeletionAdminController;
 
   if (
     !client ||
@@ -62,6 +74,9 @@ export function createDocumentosWorkspace(options = {}) {
     "renderDetail",
     "renderVersions",
     "renderVersionsError",
+    "renderPublicLinks",
+    "renderPublicLinksAdmin",
+    "renderDeletionRequests",
     "renderRecent",
     "renderCollections",
     "clearSensitiveState",
@@ -102,6 +117,30 @@ export function createDocumentosWorkspace(options = {}) {
   let viewerOpeningGeneration = 0;
   let activeViewerDocumentId = null;
   let uploadPresentationActive = false;
+  let activePublicLinks = Object.freeze([]);
+  let publicLinkCapabilities = Object.freeze({
+    read: false,
+    create: false,
+    update: false,
+  });
+  let activePublicLinksRequest = null;
+  let activePublicLinksMutation = null;
+  let tenantPublicLinks = Object.freeze([]);
+  let activeTenantPublicLinkFilters = Object.freeze({});
+  let tenantPublicLinkCapabilities = Object.freeze({
+    read: false,
+    create: false,
+    update: false,
+  });
+  let activeTenantPublicLinksRequest = null;
+  let activeTenantPublicLinksMutation = null;
+  let activeDeletionRequests = Object.freeze([]);
+  let deletionAdminCapabilities = Object.freeze({
+    read: false,
+    review: false,
+    cancel: false,
+  });
+  let activeDeletionRequest = null;
   const catalogSnapshots = new Map();
   const pendingCardFavorites = new Set();
   const activeCardFavoriteControllers = new Map();
@@ -214,6 +253,8 @@ export function createDocumentosWorkspace(options = {}) {
       }
     },
   });
+  const publicLinks = publicLinksFactory({ client });
+  const deletionAdmin = deletionAdminFactory({ client });
 
   const viewer = viewerEnabled
     ? viewerFactory({
@@ -241,6 +282,16 @@ export function createDocumentosWorkspace(options = {}) {
     uploadPresentationActive = false;
     catalog.cancelActive();
     detail.cancel();
+    activePublicLinksRequest?.controller?.abort();
+    activePublicLinksMutation?.abort();
+    activeTenantPublicLinksRequest?.abort();
+    activeTenantPublicLinksMutation?.abort();
+    activeDeletionRequest?.abort();
+    activePublicLinksRequest = null;
+    activePublicLinksMutation = null;
+    activeTenantPublicLinksRequest = null;
+    activeTenantPublicLinksMutation = null;
+    activeDeletionRequest = null;
     for (const controller of activeCardFavoriteControllers.values()) {
       controller.cancel();
     }
@@ -259,6 +310,25 @@ export function createDocumentosWorkspace(options = {}) {
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
     versionsLoadGeneration += 1;
+    activePublicLinks = Object.freeze([]);
+    publicLinkCapabilities = Object.freeze({
+      read: false,
+      create: false,
+      update: false,
+    });
+    tenantPublicLinks = Object.freeze([]);
+    activeTenantPublicLinkFilters = Object.freeze({});
+    tenantPublicLinkCapabilities = Object.freeze({
+      read: false,
+      create: false,
+      update: false,
+    });
+    activeDeletionRequests = Object.freeze([]);
+    deletionAdminCapabilities = Object.freeze({
+      read: false,
+      review: false,
+      cancel: false,
+    });
     viewerOpeningGeneration += 1;
     activeViewerDocumentId = null;
     pendingCardFavorites.clear();
@@ -272,6 +342,12 @@ export function createDocumentosWorkspace(options = {}) {
     const loadedMetadata = await catalog.loadMetadata();
     if (!acceptsCallbacks() || !loadedMetadata) return null;
     metadata = loadedMetadata;
+    deletionAdminCapabilities = deriveDeletionAdminCapabilities(
+      metadata.permissions,
+    );
+    tenantPublicLinkCapabilities = derivePublicLinkCapabilities(
+      metadata.permissions,
+    );
     view.setMetadata(metadata);
     activeView = "documentos";
     activeFilters = Object.freeze({});
@@ -300,8 +376,119 @@ export function createDocumentosWorkspace(options = {}) {
     );
   }
 
+  async function loadDeletionRequests() {
+    if (!acceptsCallbacks() || !deletionAdminCapabilities.read) return null;
+    activeDeletionRequest?.abort();
+    const controller = new AbortController();
+    activeDeletionRequest = controller;
+    view.renderDeletionRequests({
+      status: "loading",
+      items: activeDeletionRequests,
+      capabilities: deletionAdminCapabilities,
+    });
+    try {
+      const items = await deletionAdmin.list({ signal: controller.signal });
+      if (
+        controller.signal.aborted ||
+        activeDeletionRequest !== controller ||
+        !acceptsCallbacks() ||
+        activeView !== "exclusoes"
+      ) {
+        return null;
+      }
+      activeDeletionRequests = items;
+      view.renderDeletionRequests({
+        status: "ready",
+        items,
+        capabilities: deletionAdminCapabilities,
+      });
+      return items;
+    } catch (error) {
+      if (controller.signal.aborted || error?.code === "request_aborted") {
+        return null;
+      }
+      if (acceptsCallbacks() && activeView === "exclusoes") {
+        view.renderDeletionRequests({
+          status: "error",
+          items: activeDeletionRequests,
+          capabilities: deletionAdminCapabilities,
+          error,
+        });
+      }
+      return null;
+    } finally {
+      if (activeDeletionRequest === controller) activeDeletionRequest = null;
+    }
+  }
+
+  async function loadTenantPublicLinks(
+    filters = activeTenantPublicLinkFilters,
+  ) {
+    if (!acceptsCallbacks() || !tenantPublicLinkCapabilities.read) return null;
+    activeTenantPublicLinkFilters = Object.freeze({ ...filters });
+    activeTenantPublicLinksRequest?.abort();
+    const controller = new AbortController();
+    activeTenantPublicLinksRequest = controller;
+    view.renderPublicLinksAdmin({
+      status: "loading",
+      items: tenantPublicLinks,
+      capabilities: tenantPublicLinkCapabilities,
+      filters: activeTenantPublicLinkFilters,
+    });
+    try {
+      const items = await publicLinks.listAll(
+        activeTenantPublicLinkFilters,
+        { signal: controller.signal },
+      );
+      if (
+        controller.signal.aborted ||
+        activeTenantPublicLinksRequest !== controller ||
+        !acceptsCallbacks() ||
+        activeView !== "links-publicos"
+      ) {
+        return null;
+      }
+      tenantPublicLinks = items;
+      view.renderPublicLinksAdmin({
+        status: "ready",
+        items,
+        capabilities: tenantPublicLinkCapabilities,
+        filters: activeTenantPublicLinkFilters,
+      });
+      return items;
+    } catch (error) {
+      if (controller.signal.aborted || error?.code === "request_aborted") {
+        return null;
+      }
+      if (acceptsCallbacks() && activeView === "links-publicos") {
+        view.renderPublicLinksAdmin({
+          status: "error",
+          items: tenantPublicLinks,
+          capabilities: tenantPublicLinkCapabilities,
+          filters: activeTenantPublicLinkFilters,
+          error,
+        });
+      }
+      return null;
+    } finally {
+      if (activeTenantPublicLinksRequest === controller) {
+        activeTenantPublicLinksRequest = null;
+      }
+    }
+  }
+
   async function navigate(target) {
     if (!acceptsCallbacks()) return null;
+    if (target !== "exclusoes") {
+      activeDeletionRequest?.abort();
+      activeDeletionRequest = null;
+    }
+    if (target !== "links-publicos") {
+      activeTenantPublicLinksRequest?.abort();
+      activeTenantPublicLinksMutation?.abort();
+      activeTenantPublicLinksRequest = null;
+      activeTenantPublicLinksMutation = null;
+    }
     if (target === "documentos") {
       activeView = target;
       activeFilters = Object.freeze({});
@@ -330,6 +517,21 @@ export function createDocumentosWorkspace(options = {}) {
       view.renderCollections(metadata.collections);
       return metadata.collections;
     }
+    if (target === "exclusoes") {
+      if (!deletionAdminCapabilities.read) return null;
+      activeView = target;
+      catalog.cancelActive();
+      view.setFilters({});
+      return loadDeletionRequests();
+    }
+    if (target === "links-publicos") {
+      if (!tenantPublicLinkCapabilities.read) return null;
+      activeView = target;
+      catalog.cancelActive();
+      view.setFilters({});
+      activeTenantPublicLinkFilters = Object.freeze({});
+      return loadTenantPublicLinks(activeTenantPublicLinkFilters);
+    }
     throw new TypeError("Visualização inválida.");
   }
 
@@ -339,6 +541,75 @@ export function createDocumentosWorkspace(options = {}) {
     activeFilters = Object.freeze({ ...filters });
     view.setFilters(activeFilters);
     return catalog.loadList(activeFilters);
+  }
+
+  async function loadPublicLinks(documentId, expectedGeneration) {
+    activePublicLinksRequest?.controller?.abort();
+    if (!publicLinkCapabilities.read) {
+      activePublicLinks = Object.freeze([]);
+      view.renderPublicLinks({
+        status: "hidden",
+        items: [],
+        capabilities: publicLinkCapabilities,
+      });
+      return activePublicLinks;
+    }
+    const operation = {
+      controller: new AbortController(),
+      documentId,
+      generation: expectedGeneration,
+    };
+    activePublicLinksRequest = operation;
+    view.renderPublicLinks({
+      status: "loading",
+      items: activePublicLinks,
+      capabilities: publicLinkCapabilities,
+    });
+    try {
+      const items = await publicLinks.list(documentId, {
+        signal: operation.controller.signal,
+      });
+      if (
+        operation.controller.signal.aborted ||
+        activePublicLinksRequest !== operation ||
+        !acceptsCallbacks() ||
+        selectionGeneration !== expectedGeneration ||
+        activeDocumentId !== documentId
+      ) {
+        return null;
+      }
+      activePublicLinks = items;
+      view.renderPublicLinks({
+        status: "ready",
+        items,
+        capabilities: publicLinkCapabilities,
+      });
+      return items;
+    } catch (error) {
+      if (
+        operation.controller.signal.aborted ||
+        error?.code === "request_aborted"
+      ) {
+        return null;
+      }
+      if (
+        acceptsCallbacks() &&
+        selectionGeneration === expectedGeneration &&
+        activeDocumentId === documentId
+      ) {
+        view.renderPublicLinks({
+          status: "error",
+          items: activePublicLinks,
+          capabilities: publicLinkCapabilities,
+          error,
+        });
+      }
+      return null;
+    } finally {
+      if (activePublicLinksRequest === operation) {
+        activePublicLinksRequest = null;
+      }
+    }
   }
 
   async function openDocument(documentId, openOptions = {}) {
@@ -351,6 +622,16 @@ export function createDocumentosWorkspace(options = {}) {
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
+    activePublicLinksRequest?.controller?.abort();
+    activePublicLinksRequest = null;
+    activePublicLinksMutation?.abort();
+    activePublicLinksMutation = null;
+    activePublicLinks = Object.freeze([]);
+    publicLinkCapabilities = Object.freeze({
+      read: false,
+      create: false,
+      update: false,
+    });
     view.renderDetail(neutralDetailState("loading", documentId));
     view.renderVersions([]);
     let loaded;
@@ -378,7 +659,28 @@ export function createDocumentosWorkspace(options = {}) {
     activeDocumentId = loaded.document.documentId;
     pendingDetailDocumentId = null;
     activeDetail = loaded;
+    const resourcePublicLinkCapabilities = derivePublicLinkCapabilities(
+      loaded.permissions,
+    );
+    const canReadPublicLinks =
+      tenantPublicLinkCapabilities.read &&
+      resourcePublicLinkCapabilities.read;
+    publicLinkCapabilities = Object.freeze({
+      read: canReadPublicLinks,
+      create:
+        canReadPublicLinks &&
+        tenantPublicLinkCapabilities.create &&
+        resourcePublicLinkCapabilities.create,
+      update:
+        canReadPublicLinks &&
+        tenantPublicLinkCapabilities.update &&
+        resourcePublicLinkCapabilities.update,
+    });
     recent.record(activeDocumentId, loaded.document.updatedAt);
+    const publicLinksPromise = loadPublicLinks(
+      activeDocumentId,
+      openingGeneration,
+    );
     const versionsRequest = Object.freeze({
       documentId: activeDocumentId,
       generation: openingGeneration,
@@ -416,6 +718,7 @@ export function createDocumentosWorkspace(options = {}) {
         activeVersionsRequest = null;
       }
     }
+    await publicLinksPromise;
     return loaded;
   }
 
@@ -428,8 +731,23 @@ export function createDocumentosWorkspace(options = {}) {
     activeDetail = null;
     activeVersions = Object.freeze([]);
     activeVersionsRequest = null;
+    activePublicLinksRequest?.controller?.abort();
+    activePublicLinksRequest = null;
+    activePublicLinksMutation?.abort();
+    activePublicLinksMutation = null;
+    activePublicLinks = Object.freeze([]);
+    publicLinkCapabilities = Object.freeze({
+      read: false,
+      create: false,
+      update: false,
+    });
     detail.cancel();
     view.renderVersions([]);
+    view.renderPublicLinks({
+      status: "hidden",
+      items: [],
+      capabilities: publicLinkCapabilities,
+    });
   }
 
   function recordConfirmedMutation(result, documentId) {
@@ -539,6 +857,178 @@ export function createDocumentosWorkspace(options = {}) {
       // A mutação já foi confirmada; o controlador do catálogo representa a falha de atualização.
     }
     return result;
+  }
+
+  async function mutatePublicLink(operation, requiredCapability, documentId) {
+    if (
+      !acceptsCallbacks() ||
+      !activeDocumentId ||
+      documentId !== activeDocumentId ||
+      publicLinkCapabilities[requiredCapability] !== true ||
+      activePublicLinksMutation
+    ) {
+      return null;
+    }
+    const mutationGeneration = selectionGeneration;
+    const controller = new AbortController();
+    activePublicLinksMutation = controller;
+    view.renderPublicLinks({
+      status: "saving",
+      items: activePublicLinks,
+      capabilities: publicLinkCapabilities,
+    });
+    try {
+      const result = await operation(controller.signal);
+      if (
+        controller.signal.aborted ||
+        !acceptsCallbacks() ||
+        selectionGeneration !== mutationGeneration ||
+        activeDocumentId !== documentId
+      ) {
+        return null;
+      }
+      return await loadPublicLinks(documentId, mutationGeneration) ?? result;
+    } catch (error) {
+      if (controller.signal.aborted || error?.code === "request_aborted") {
+        return null;
+      }
+      if (
+        acceptsCallbacks() &&
+        selectionGeneration === mutationGeneration &&
+        activeDocumentId === documentId
+      ) {
+        view.renderPublicLinks({
+          status: "error",
+          items: activePublicLinks,
+          capabilities: publicLinkCapabilities,
+          error,
+        });
+      }
+      throw error;
+    } finally {
+      if (activePublicLinksMutation === controller) {
+        activePublicLinksMutation = null;
+      }
+    }
+  }
+
+  async function decideDeletionRequest(requestId, action) {
+    const allowed =
+      action === "cancel"
+        ? deletionAdminCapabilities.cancel
+        : ["approve", "reject"].includes(action) &&
+          deletionAdminCapabilities.review;
+    if (
+      !acceptsCallbacks() ||
+      activeView !== "exclusoes" ||
+      !allowed ||
+      activeDeletionRequest
+    ) {
+      return null;
+    }
+    const controller = new AbortController();
+    activeDeletionRequest = controller;
+    view.renderDeletionRequests({
+      status: "saving",
+      items: activeDeletionRequests,
+      capabilities: deletionAdminCapabilities,
+    });
+    try {
+      const updated = await deletionAdmin.decide(requestId, action, {
+        signal: controller.signal,
+      });
+      if (
+        controller.signal.aborted ||
+        activeDeletionRequest !== controller ||
+        !acceptsCallbacks() ||
+        activeView !== "exclusoes"
+      ) {
+        return null;
+      }
+      activeDeletionRequests = Object.freeze(
+        activeDeletionRequests.map((item) =>
+          item.requestId === updated.requestId ? updated : item,
+        ),
+      );
+      activeDeletionRequest = null;
+      return await loadDeletionRequests();
+    } catch (error) {
+      if (controller.signal.aborted || error?.code === "request_aborted") {
+        return null;
+      }
+      if (acceptsCallbacks() && activeView === "exclusoes") {
+        view.renderDeletionRequests({
+          status: "error",
+          items: activeDeletionRequests,
+          capabilities: deletionAdminCapabilities,
+          error,
+        });
+      }
+      throw error;
+    } finally {
+      if (activeDeletionRequest === controller) activeDeletionRequest = null;
+    }
+  }
+
+  async function updateTenantPublicLink(documentId, linkId, patch) {
+    if (
+      !acceptsCallbacks() ||
+      activeView !== "links-publicos" ||
+      !tenantPublicLinkCapabilities.update ||
+      activeTenantPublicLinksRequest ||
+      activeTenantPublicLinksMutation
+    ) {
+      return null;
+    }
+    const controller = new AbortController();
+    activeTenantPublicLinksMutation = controller;
+    view.renderPublicLinksAdmin({
+      status: "saving",
+      items: tenantPublicLinks,
+      capabilities: tenantPublicLinkCapabilities,
+      filters: activeTenantPublicLinkFilters,
+    });
+    try {
+      const updated = await publicLinks.update(
+        documentId,
+        linkId,
+        patch,
+        { signal: controller.signal },
+      );
+      if (
+        controller.signal.aborted ||
+        activeTenantPublicLinksMutation !== controller ||
+        !acceptsCallbacks() ||
+        activeView !== "links-publicos"
+      ) {
+        return null;
+      }
+      tenantPublicLinks = Object.freeze(
+        tenantPublicLinks.map((item) =>
+          item.linkId === updated.linkId ? updated : item,
+        ),
+      );
+      activeTenantPublicLinksMutation = null;
+      return (await loadTenantPublicLinks()) ?? updated;
+    } catch (error) {
+      if (controller.signal.aborted || error?.code === "request_aborted") {
+        return null;
+      }
+      if (acceptsCallbacks() && activeView === "links-publicos") {
+        view.renderPublicLinksAdmin({
+          status: "error",
+          items: tenantPublicLinks,
+          capabilities: tenantPublicLinkCapabilities,
+          filters: activeTenantPublicLinkFilters,
+          error,
+        });
+      }
+      throw error;
+    } finally {
+      if (activeTenantPublicLinksMutation === controller) {
+        activeTenantPublicLinksMutation = null;
+      }
+    }
   }
 
   async function toggleCardFavorite(value, documentId, openOptions = {}) {
@@ -829,6 +1319,16 @@ export function createDocumentosWorkspace(options = {}) {
       return catalog.search(query);
     },
     applyFilters,
+    applyPublicLinkFilters(filters) {
+      if (
+        !acceptsCallbacks() ||
+        activeView !== "links-publicos" ||
+        !tenantPublicLinkCapabilities.read
+      ) {
+        return null;
+      }
+      return loadTenantPublicLinks(filters);
+    },
     loadNext: () =>
       acceptsCallbacks() &&
       ["documentos", "favoritos", "busca"].includes(activeView)
@@ -858,6 +1358,28 @@ export function createDocumentosWorkspace(options = {}) {
       mutate(() => detail.requestDeletion(reason), documentId, {
         refreshDocument: true,
       }),
+    createPublicLink: (input, documentId) =>
+      mutatePublicLink(
+        (signal) =>
+          publicLinks.create(
+            documentId,
+            {
+              ...input,
+              versionId: activeDetail?.document?.currentVersionId,
+            },
+            { signal },
+          ),
+        "create",
+        documentId,
+      ),
+    updatePublicLink: (linkId, patch, documentId) =>
+      mutatePublicLink(
+        (signal) => publicLinks.update(documentId, linkId, patch, { signal }),
+        "update",
+        documentId,
+      ),
+    updateTenantPublicLink,
+    decideDeletionRequest,
     promoteVersion: (versionId, documentId) =>
       mutate(() => detail.promoteVersion(versionId), documentId, {
         refreshDocument: true,

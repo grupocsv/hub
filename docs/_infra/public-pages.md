@@ -39,6 +39,10 @@ Copiar página
 
 Documentação da infraestrutura de publicação de páginas públicas do Hub Grupo CSV.
 
+::: warning Escopo desta página
+Open Pages publica páginas HTML e assets; não publica documentos da Central de Documentos. Links públicos documentais nativos pertencem ao control plane `csv-documents` e, nesta entrega, ainda dependem de merge, deploy, configuração e canário produtivo. Consulte [Central de Documentos](/_infra/central-documentos#links-publicos-nativos).
+:::
+
 ---
 
 ## Visão Geral

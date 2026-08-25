@@ -126,6 +126,47 @@ const BOOTSTRAP_SOURCE = `
     },
   ];
   const favoriteDocumentIds = new Set(['document-privacy']);
+  const publicLinks = [
+    {
+      link_id: 'link-global-active',
+      document_id: 'document-privacy',
+      version_id: 'version-privacy',
+      slug: 'politica-publica',
+      public_url: 'https://documentos-api.grupocsv.com/s/politica-publica',
+      status: 'active',
+      expires_at: null,
+      allow_download: false,
+      created_at: '2026-08-24T09:00:00.000Z',
+    },
+    {
+      link_id: 'link-global-inactive',
+      document_id: 'document-archive',
+      version_id: 'version-archive',
+      slug: 'norma-arquivada',
+      public_url: 'https://documentos-api.grupocsv.com/s/norma-arquivada',
+      status: 'inactive',
+      expires_at: '2026-12-31T23:59:59.000Z',
+      allow_download: true,
+      created_at: '2026-08-24T08:00:00.000Z',
+    },
+  ];
+  const deletionRequests = [{
+    request_id: 'deletion-e2e',
+    document_id: 'document-archive',
+    document_title: 'Norma Arquivada',
+    reason: 'Prazo institucional encerrado.',
+    status: 'requested',
+    created_at: '2026-08-24T10:00:00.000Z',
+    requested_by: { type: 'user', id: 'gestor@example.invalid' },
+  }, {
+    request_id: 'deletion-e2e-executed',
+    document_id: 'document-privacy',
+    document_title: 'Política de Privacidade',
+    reason: 'Solicitação já concluída.',
+    status: 'executed',
+    created_at: '2026-08-23T10:00:00.000Z',
+    requested_by: { type: 'user', id: 'gestor@example.invalid' },
+  }];
   let uploadedDocumentId = null;
   let uploadedFile = null;
   let uploadBytesReceived = false;
@@ -200,11 +241,14 @@ const BOOTSTRAP_SOURCE = `
     const method = (init.method || 'GET').toUpperCase();
     globalThis.__DOCS_E2E_LOG.push(Object.freeze({
       path: url.pathname,
+      search: url.search,
       method,
       range: headers.get('range'),
       hasSession: headers.has('x-auth-token'),
       hasViewerTicket: headers.has('x-viewer-ticket'),
       hasContentSha256: headers.has('x-content-sha256'),
+      idempotencyKey: headers.get('idempotency-key'),
+      body: requestBody(init),
     }));
     document.documentElement.dataset.e2eRequests =
       JSON.stringify(globalThis.__DOCS_E2E_LOG);
@@ -226,7 +270,14 @@ const BOOTSTRAP_SOURCE = `
       });
     }
     if (url.pathname === '/v1/capabilities') {
-      return json({ permissions: ['read', 'create'] });
+      return json({
+        permissions: [
+          'read',
+          'create',
+          'manage_public_links',
+          'manage_deletion_requests',
+        ],
+      });
     }
     if (url.pathname === '/v1/search' && method === 'POST') {
       const query = String(requestBody(init).query || '').toLocaleLowerCase('pt-BR');
@@ -420,6 +471,124 @@ const BOOTSTRAP_SOURCE = `
       });
     }
 
+    if (url.pathname === '/v1/deletion-requests' && method === 'GET') {
+      const cursor = url.searchParams.get('cursor');
+      if (cursor === null) {
+        return json({ items: [deletionRequests[0]], next_cursor: 'deletion-page-2' });
+      }
+      if (cursor === 'deletion-page-2') {
+        return json({ items: deletionRequests.slice(1), next_cursor: null });
+      }
+      return json({ error: { code: 'invalid_request' } }, 422);
+    }
+
+    if (url.pathname === '/v1/public-links' && method === 'GET') {
+      const cursor = url.searchParams.get('cursor');
+      if (url.searchParams.get('limit') !== '100') {
+        return json({ error: { code: 'invalid_request' } }, 422);
+      }
+      let items = [...publicLinks];
+      const status = url.searchParams.get('status');
+      const slug = url.searchParams.get('slug');
+      const documentId = url.searchParams.get('document_id');
+      if (status) items = items.filter((item) => item.status === status);
+      if (slug) items = items.filter((item) => item.slug === slug);
+      if (documentId) {
+        items = items.filter((item) => item.document_id === documentId);
+      }
+      if (cursor !== null && cursor !== 'links-page-2') {
+        return json({ error: { code: 'invalid_request' } }, 422);
+      }
+      const offset = cursor === 'links-page-2' ? 1 : 0;
+      return json({
+        items: items.slice(offset, offset + 1),
+        next_cursor: items.length > offset + 1 ? 'links-page-2' : null,
+      });
+    }
+    const deletionDecisionMatch =
+      /^\\/v1\\/deletion-requests\\/([^/]+)\\/(approve|reject|cancel)$/u.exec(url.pathname);
+    if (deletionDecisionMatch && method === 'POST') {
+      if (!headers.has('idempotency-key')) {
+        return json({ error: { code: 'invalid_request' } }, 422);
+      }
+      const requestId = decodeURIComponent(deletionDecisionMatch[1]);
+      const request = deletionRequests.find((item) => item.request_id === requestId);
+      if (!request) return json({ error: { code: 'not_found' } }, 404);
+      request.status = deletionDecisionMatch[2] === 'approve'
+        ? 'executed'
+        : deletionDecisionMatch[2] === 'reject'
+          ? 'rejected'
+          : 'cancelled';
+      return json({ request });
+    }
+
+    const publicLinksMatch =
+      /^\\/v1\\/documents\\/([^/]+)\\/public-links$/u.exec(url.pathname);
+    if (publicLinksMatch) {
+      const documentId = decodeURIComponent(publicLinksMatch[1]);
+      if (method === 'GET') {
+        if (url.searchParams.get('limit') !== '100') {
+          return json({ error: { code: 'invalid_request' } }, 422);
+        }
+        const cursor = url.searchParams.get('cursor');
+        const items = publicLinks.filter(
+          (item) => item.document_id === documentId,
+        );
+        const offset = cursor === 'document-links-page-2' ? 1 : 0;
+        return json({
+          items: items.slice(offset, offset + 1),
+          next_cursor:
+            items.length > offset + 1 ? 'document-links-page-2' : null,
+        });
+      }
+      if (method === 'POST') {
+        if (!headers.has('idempotency-key')) {
+          return json({ error: { code: 'invalid_request' } }, 422);
+        }
+        const body = requestBody(init);
+        if (
+          body.version_id !== 'version-pdf' ||
+          typeof body.slug !== 'string' ||
+          typeof body.allow_download !== 'boolean'
+        ) {
+          return json({ error: { code: 'invalid_request' } }, 422);
+        }
+        const link = {
+          link_id: 'link-e2e-created',
+          document_id: documentId,
+          version_id: body.version_id,
+          slug: body.slug,
+          public_url: 'https://documentos-api.grupocsv.com/s/' + body.slug,
+          status: 'active',
+          expires_at: body.expires_at,
+          allow_download: body.allow_download,
+          created_at: '2026-08-24T10:00:00.000Z',
+        };
+        publicLinks.push(link);
+        return json({ public_link: link }, 201);
+      }
+    }
+    const publicLinkMatch =
+      /^\\/v1\\/documents\\/([^/]+)\\/public-links\\/([^/]+)$/u.exec(url.pathname);
+    if (publicLinkMatch && method === 'PATCH') {
+      if (!headers.has('idempotency-key')) {
+        return json({ error: { code: 'invalid_request' } }, 422);
+      }
+      const documentId = decodeURIComponent(publicLinkMatch[1]);
+      const linkId = decodeURIComponent(publicLinkMatch[2]);
+      const link = publicLinks.find(
+        (item) => item.document_id === documentId && item.link_id === linkId,
+      );
+      if (!link) return json({ error: { code: 'not_found' } }, 404);
+      const body = requestBody(init);
+      if (Object.hasOwn(body, 'status')) link.status = body.status;
+      if (Object.hasOwn(body, 'expires_at')) link.expires_at = body.expires_at;
+      if (Object.hasOwn(body, 'allow_download')) {
+        link.allow_download = body.allow_download;
+      }
+      return json({ public_link: link });
+    }
+
     const versionsMatch =
       /^\\/v1\\/documents\\/([^/]+)\\/versions$/u.exec(url.pathname);
     if (versionsMatch && decodeURIComponent(versionsMatch[1]) === uploadedDocumentId) {
@@ -446,7 +615,7 @@ const BOOTSTRAP_SOURCE = `
           },
           permissions:
             documentId === 'document-pdf'
-              ? ['read', 'create_version']
+              ? ['read', 'create_version', 'manage_public_links']
               : ['read'],
         },
         200,
@@ -522,6 +691,23 @@ const AUTH_SOURCE = `
 (() => {
   const script = document.currentScript;
   const portal = script?.dataset?.portal || 'unimed';
+  const slot = document.getElementById('hub-auth-slot');
+  if (slot) {
+    const widget = document.createElement('div');
+    widget.id = 'hub-auth-logout';
+    widget.className = 'ha-in-slot ha-dark';
+    const user = document.createElement('span');
+    user.className = 'ha-user-badge';
+    const identity = document.createElement('span');
+    identity.textContent = 'teste.local@example.invalid';
+    user.append(identity);
+    const exit = document.createElement('a');
+    exit.className = 'ha-logout-btn';
+    exit.href = '#';
+    exit.textContent = 'Sair';
+    widget.append(user, exit);
+    slot.append(widget);
+  }
   globalThis.HUB_AUTH_READY = Promise.resolve({ status: 'valid', portal });
 })();
 `;

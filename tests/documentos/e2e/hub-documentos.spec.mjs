@@ -235,6 +235,256 @@ test("viewer usa PDF Range autenticado, rota sem segredo e teclado coerente", as
   ).toBeFocused();
 });
 
+test("cabeçalho em viewer split reflui marca, ações, sessão e navegação sem sobreposição", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop-1440x900");
+  await openCatalog(page);
+  await page
+    .getByRole("button", { name: "Ver detalhes de Manual Seguro em PDF" })
+    .click();
+  await page.getByRole("button", { name: "Abrir Documento" }).click();
+  await expect(page.locator("#docs-viewer")).toBeVisible();
+
+  for (const width of [800, 1024, 1280, 1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.evaluate(() => {
+      const selectors = [
+        ".docs-brand",
+        ".docs-topbar__actions",
+        ".docs-nav",
+      ];
+      const rectangle = (element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          bottom: rect.bottom,
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+        };
+      };
+      const sections = selectors.map((selector) => ({
+        selector,
+        ...rectangle(document.querySelector(selector)),
+      }));
+      const actionChildren = [
+        ...document.querySelectorAll(".docs-topbar__actions > *"),
+      ]
+        .filter((element) => element.getClientRects().length > 0)
+        .map((element) => rectangle(element));
+      const nav = document.querySelector(".docs-nav");
+      const navChildren = [...nav.children]
+        .filter((element) => element.getClientRects().length > 0)
+        .map((element) => rectangle(element));
+      return {
+        sections,
+        actionChildren,
+        navChildren,
+        navFitsWithoutScroll: nav.scrollWidth <= nav.clientWidth,
+        viewerLeft: document
+          .querySelector("#docs-viewer")
+          .getBoundingClientRect().left,
+      };
+    });
+    for (const section of geometry.sections) {
+      expect(section.left, `${width}px: ${section.selector}`).toBeGreaterThanOrEqual(-0.5);
+      expect(section.right, `${width}px: ${section.selector}`).toBeLessThanOrEqual(
+        geometry.viewerLeft + 0.5,
+      );
+    }
+    for (let index = 1; index < geometry.sections.length; index += 1) {
+      expect(
+        geometry.sections[index].top,
+        `${width}px: as linhas do cabeçalho não podem se sobrepor`,
+      ).toBeGreaterThanOrEqual(geometry.sections[index - 1].bottom - 0.5);
+    }
+    for (const child of geometry.actionChildren) {
+      expect(child.right, `${width}px: ação ou sessão fora da área útil`).toBeLessThanOrEqual(
+        geometry.viewerLeft + 0.5,
+      );
+    }
+    for (const child of geometry.navChildren) {
+      expect(child.right, `${width}px: item de navegação cortado`).toBeLessThanOrEqual(
+        geometry.viewerLeft + 0.5,
+      );
+    }
+    expect(
+      geometry.navFitsWithoutScroll,
+      `${width}px: a navegação deve refluir sem rolagem horizontal`,
+    ).toBe(true);
+    await expectNoHorizontalOverflow(page);
+  }
+});
+
+test("detalhe cria, lista e inativa link público preso à versão atual", async ({
+  page,
+}) => {
+  await openCatalog(page);
+  await page
+    .getByRole("button", { name: "Ver detalhes de Manual Seguro em PDF" })
+    .click();
+  const publicLinks = page.locator("#docs-public-links");
+  await expect(publicLinks).toBeVisible();
+  await expect(publicLinks).toContainText(
+    "A classificação do documento não cria um link público.",
+  );
+  await page.getByRole("button", { name: "Criar Link", exact: true }).click();
+  const slug = page.getByLabel("Endereço Curto");
+  await slug.fill("admin");
+  await page.getByRole("button", { name: "Criar Link Público" }).click();
+  await expect
+    .poll(() => slug.evaluate((element) => element.validationMessage))
+    .toContain("reservado");
+  await slug.fill("manual-publico-e2e");
+  await page.getByLabel("Forçar download ao abrir").check();
+  await page.getByRole("button", { name: "Criar Link Público" }).click();
+  await expect(publicLinks).toContainText("/manual-publico-e2e");
+  await expect(publicLinks).toContainText("Ativo");
+  await expect(publicLinks).toContainText("Forçar download");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Inativar link /manual-publico-e2e" }).click();
+  await expect(publicLinks).toContainText("Inativo");
+
+  const log = await requestLog(page);
+  const creation = log.find(
+    (entry) =>
+      entry.path === "/v1/documents/document-pdf/public-links" &&
+      entry.method === "POST",
+  );
+  expect(creation.body).toEqual({
+    version_id: "version-pdf",
+    slug: "manual-publico-e2e",
+    expires_at: null,
+    allow_download: true,
+  });
+  expect(creation.idempotencyKey).toBeTruthy();
+  expect(
+    log.some(
+      (entry) =>
+        entry.path.endsWith("/public-links/link-e2e-created") &&
+        entry.method === "PATCH" &&
+        Boolean(entry.idempotencyKey) &&
+        entry.body.status === "inactive",
+    ),
+  ).toBe(true);
+  await expectNoWcagViolations(page, "#docs-detail");
+});
+
+test("painel tenant-wide percorre cursores e administra links públicos", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:4180",
+  });
+  await openCatalog(page);
+  const navigation = page.getByRole("button", {
+    name: "Links Públicos",
+    exact: true,
+  });
+  await expect(navigation).toBeVisible();
+  await navigation.click();
+  await expect(page.locator("#docs-load-more")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Links Públicos" })).toBeVisible();
+  await expect(page.locator(".docs-public-link--admin")).toHaveCount(2);
+  await expect(page.locator("#docs-content")).toContainText("Documento document-privacy");
+  await expect(page.locator("#docs-content")).toContainText(
+    "Central: contexto autenticado atual",
+  );
+  await expect(page.locator("#docs-content")).toContainText("Abrir no navegador");
+  await expect(page.locator("#docs-content")).toContainText("Forçar download");
+  await expect(page.locator("#docs-content")).not.toContainText("Somente visualização");
+
+  const filters = page.locator("#docs-public-links-admin-filters");
+  await filters.locator("select[name=status]").selectOption("active");
+  await filters.getByRole("button", { name: "Aplicar Filtros" }).click();
+  await expect(page.locator(".docs-public-link--admin")).toHaveCount(1);
+  await filters.getByRole("button", { name: "Limpar", exact: true }).click();
+  await expect(page.locator(".docs-public-link--admin")).toHaveCount(2);
+
+  await page.getByRole("button", { name: "Copiar URL do link /politica-publica" }).click();
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe("https://documentos-api.grupocsv.com/s/politica-publica");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Inativar link /politica-publica" }).click();
+  await expect(
+    page.locator(".docs-public-link--admin").filter({ hasText: "politica-publica" }),
+  ).toContainText("Inativo");
+
+  const log = await requestLog(page);
+  expect(
+    log.some(
+      (entry) =>
+        entry.path === "/v1/public-links" &&
+        entry.search === "?limit=100&cursor=links-page-2",
+    ),
+  ).toBe(true);
+  expect(
+    log.some(
+      (entry) =>
+        entry.path === "/v1/public-links" &&
+        entry.search === "?limit=100&status=active",
+    ),
+  ).toBe(true);
+  expect(
+    log.some(
+      (entry) =>
+        entry.path.endsWith("/public-links/link-global-active") &&
+        entry.method === "PATCH" &&
+        entry.body.status === "inactive" &&
+        Boolean(entry.idempotencyKey),
+    ),
+  ).toBe(true);
+  await expectNoHorizontalOverflow(page);
+  await expectNoWcagViolations(page);
+});
+
+test("administração aprova somente exclusão lógica e mantém linguagem explícita", async ({
+  page,
+}) => {
+  await openCatalog(page);
+  const navigation = page.getByRole("button", { name: "Exclusões", exact: true });
+  await expect(navigation).toBeVisible();
+  await navigation.click();
+  await expect(page.locator("#docs-load-more")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Solicitações de Exclusão" })).toBeVisible();
+  await expect(page.locator(".docs-deletion-intro")).toContainText(
+    "os bytes físicos não são apagados",
+  );
+  await expect(page.getByRole("heading", { name: "Norma Arquivada" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Política de Privacidade" })).toBeVisible();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Aprovar Exclusão Lógica" }).click();
+  await expect(
+    page.locator(".docs-deletion-card").filter({ hasText: "Norma Arquivada" }),
+  ).toContainText(
+    "Excluído Logicamente",
+  );
+  const log = await requestLog(page);
+  expect(
+    log.some(
+      (entry) =>
+        entry.path === "/v1/deletion-requests" &&
+        entry.search === "?cursor=deletion-page-2",
+    ),
+  ).toBe(true);
+  expect(
+    log.some(
+      (entry) =>
+        entry.path === "/v1/deletion-requests/deletion-e2e/approve" &&
+        entry.method === "POST" &&
+        Boolean(entry.idempotencyKey),
+    ),
+  ).toBe(true);
+  expect(log.some((entry) => /hard-delete|\/delete$/u.test(entry.path))).toBe(false);
+  await expectNoHorizontalOverflow(page);
+  await expectNoWcagViolations(page);
+});
+
 test("catálogo e diálogo de upload cumprem axe, overflow e navegação por teclado", async ({
   page,
 }) => {
