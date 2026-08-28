@@ -19,6 +19,17 @@
   }
 }
 
+/* Logos institucionais com polaridade adequada ao tema do VitePress. */
+.theme-logo--dark {
+  display: none !important;
+}
+.dark .theme-logo--light {
+  display: none !important;
+}
+.dark .theme-logo--dark {
+  display: block !important;
+}
+
 /* ==========================================================================
    Responsividade — páginas com layout:page (.VPPage)
    Essas páginas renderizam FORA do container .vp-doc, que é o que normalmente

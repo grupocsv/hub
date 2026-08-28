@@ -146,7 +146,6 @@ body.csv a{color:var(--csv-axia)}
   background:var(--csv-surface-2); border:1px solid var(--csv-line);
 }
 .csv-footer img{width:132px; margin:0 auto 12px; display:block}
-@media (prefers-color-scheme:dark){ .csv-footer img{filter:brightness(0) invert(1) opacity(.92)} }
 .csv-footer .tag{font-size:14px; font-weight:600; color:var(--csv-ink); margin-bottom:14px}
 .csv-footer .links{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; font-size:13px; margin-bottom:8px}
 .csv-footer a{color:var(--csv-axia); text-decoration:none}

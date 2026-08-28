@@ -675,7 +675,7 @@ head:
 
 <div class="hub-hero">
   <div class="inner">
-    <img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png" alt="Grupo CSV" class="logo">
+    <img src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-negativo-transparente.png" alt="Grupo CSV" class="logo">
     <h1>Hub Grupo CSV</h1>
     <div class="hero-rule"></div>
     <p class="tagline">Cuidados em Saúde com Valor</p>
@@ -731,19 +731,22 @@ head:
     <div class="empresas-grid">
       <a href="/axia/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #196396, #2DBF7F);"></div>
-        <img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" class="card-logo">
+        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare" class="card-logo theme-logo--light">
+        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" alt="AxiaCare" class="card-logo theme-logo--dark">
         <div class="card-name">AxiaCare®</div>
         <div class="card-desc">Consultoria estratégica, governança clínica e operações de saúde.</div>
       </a>
       <a href="/medvalor/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #ea580c, #f97316);"></div>
-        <img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" class="card-logo">
+        <img src="https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg" alt="MedValor" class="card-logo theme-logo--light">
+        <img src="https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-laranja.svg" alt="MedValor" class="card-logo theme-logo--dark">
         <div class="card-name">MedValor®</div>
         <div class="card-desc">Educação executiva e capacitação estratégica para líderes em saúde.</div>
       </a>
       <a href="/thera/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #6B5B95, #7c3aed);"></div>
-        <img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="Thera" class="card-logo">
+        <img src="https://assets.grupocsv.com/logos/thera/horizontal-positivo-roxo.svg" alt="Thera" class="card-logo theme-logo--light">
+        <img src="https://assets.grupocsv.com/logos/thera/horizontal-negativo-roxo.svg" alt="Thera" class="card-logo theme-logo--dark">
         <div class="card-name">Thera®</div>
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
       </a>
@@ -862,11 +865,11 @@ head:
   <!-- ═══ FOOTER ═══ -->
   <div class="hub-footer">
     <div class="footer-logos">
-      <a href="https://grupocsv.com" target="_blank" title="Grupo CSV"><img src="/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://grupocsv.com" target="_blank" title="Grupo CSV"><img src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV" class="theme-logo--light" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"><img src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-negativo-transparente.png" alt="Grupo CSV" class="theme-logo--dark" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
       <span class="logo-divider"></span>
-      <a href="https://axcare.com.br" target="_blank" title="AxiaCare®"><img src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png" alt="AxiaCare" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
-      <a href="https://medvalor.med.br" target="_blank" title="MedValor®"><img src="/visual-identity/medvalor/logo/png/medvalor_logo_horizontal_orange_positive.png" alt="MedValor" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
-      <a href="https://thera.tech" target="_blank" title="Thera"><img src="/visual-identity/thera/logo/png/thera_logo_horizontal_purple_positive.png" alt="Thera" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://axcare.com.br" target="_blank" title="AxiaCare®"><img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare" class="theme-logo--light" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"><img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" alt="AxiaCare" class="theme-logo--dark" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://medvalor.med.br" target="_blank" title="MedValor®"><img src="https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg" alt="MedValor" class="theme-logo--light" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"><img src="https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-laranja.svg" alt="MedValor" class="theme-logo--dark" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
+      <a href="https://thera.tech" target="_blank" title="Thera®"><img src="https://assets.grupocsv.com/logos/thera/horizontal-positivo-roxo.svg" alt="Thera" class="theme-logo--light" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"><img src="https://assets.grupocsv.com/logos/thera/horizontal-negativo-roxo.svg" alt="Thera" class="theme-logo--dark" style="height:36px;max-height:36px;width:auto;max-width:160px;object-fit:contain;"></a>
     </div>
     <div class="footer-contacts">
       <a href="mailto:contato@grupocsv.com">contato@grupocsv.com</a>

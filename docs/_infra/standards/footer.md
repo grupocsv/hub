@@ -127,7 +127,7 @@ Este documento define o footer padrão para todos os entregáveis da consultoria
 
 O footer é composto por quatro camadas visuais, nesta ordem:
 
-1. **Logo** -- AxiaCare horizontal positiva (full-color sobre fundo claro)
+1. **Logo** -- AxiaCare horizontal positiva no tema claro e negativa no tema escuro
 2. **Slogan** -- "Gestão e Consultoria em Saúde"
 3. **Links** -- organizados em três linhas hierárquicas
 4. **Copyright** -- linha única com ano, empresa e grupo
@@ -138,9 +138,12 @@ O footer é composto por quatro camadas visuais, nesta ordem:
 
 ### Logo
 
-Arquivo: `/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png`
+Arquivos oficiais:
 
-Largura: 140px (desktop), 120px (mobile). Centralizada.
+- Tema claro: `https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg`
+- Tema escuro: `https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg`
+
+Largura: 140px (desktop), 120px (mobile). Centralizada. Em páginas VitePress, usar as classes globais `theme-logo--light` e `theme-logo--dark`. Em páginas standalone, usar `<picture>` com `prefers-color-scheme` ou o mecanismo de tema já existente na página.
 
 ### Slogan
 
@@ -213,8 +216,11 @@ Os links usam `flex-wrap: wrap` para quebrar naturalmente em telas estreitas.
 
 ```html
 <div class="page-foot">
-  <img class="foot-logo"
-       src="/visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png"
+  <img class="foot-logo theme-logo--light"
+       src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg"
+       alt="AxiaCare">
+  <img class="foot-logo theme-logo--dark"
+       src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg"
        alt="AxiaCare">
   <div class="foot-slogan">Gestão e Consultoria em Saúde</div>
   <div class="foot-links">

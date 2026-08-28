@@ -23,7 +23,11 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png',
+    logo: {
+      light: 'https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png',
+      dark: 'https://assets.grupocsv.com/logos/grupo-csv/horizontal-negativo-transparente.png',
+      alt: 'Grupo CSV',
+    },
     siteTitle: 'Hub Grupo CSV',
 
     nav: [
