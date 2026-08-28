@@ -46,9 +46,28 @@ head:
 }
 .dark .icds-header { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 
-.icds-header .logo { width: 280px; max-width: 90%; margin: 0 auto 20px; display: block; }
-.icds-header .logo-link { display: inline-block; transition: transform 0.3s; }
+.icds-header .logo-link {
+  width: min(100%, 320px);
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: transform 0.3s;
+}
 .icds-header .logo-link:hover { transform: scale(1.05); }
+.icds-header .logo {
+  width: 280px;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+.icds-header .logo--dark { display: none; }
+.dark .icds-header .logo--light { display: none; }
+.dark .icds-header .logo--dark { display: block; }
 
 .icds-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2a6496; margin-bottom: 10px; }
 .dark .icds-header .eyebrow { color: #5da9e0; }
@@ -178,13 +197,14 @@ head:
   .icds-foot .foot-links { font-size: 12px; gap: 4px; }
 }
 
-@media (max-width: 768px) { .icds-grid { grid-template-columns: 1fr; } .icds-header h1 { font-size: 28px; } .icds-header .logo { width: 220px; } }
+@media (max-width: 768px) { .icds-grid { grid-template-columns: 1fr; } .icds-header h1 { font-size: 28px; } .icds-header .logo-link { width: min(100%, 260px); } .icds-header .logo { width: 220px; } }
 </style>
 
 <div class="icds-page">
   <div class="icds-header">
-    <a href="https://icds.org.br/" target="_blank" class="logo-link">
-      <img src="/visual-identity/icds/logo/png/icds_horizontal_sem_fundo_positivo.png" alt="ICDS Logo" class="logo">
+    <a href="https://icds.org.br/" target="_blank" rel="noopener noreferrer" class="logo-link" aria-label="Acessar o site do ICDS">
+      <img src="https://assets.grupocsv.com/logos/icds/horizontal-positivo.png" alt="" class="logo logo--light" width="500" height="178" loading="eager" fetchpriority="high" aria-hidden="true">
+      <img src="https://assets.grupocsv.com/logos/icds/horizontal-negativo.png" alt="" class="logo logo--dark" width="600" height="214" loading="eager" fetchpriority="high" aria-hidden="true">
     </a>
     <p class="eyebrow">Hub de Ferramentas Profissionais</p>
     <h1>Hub ICDS</h1>
