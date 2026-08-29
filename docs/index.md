@@ -297,9 +297,7 @@ head:
 .dark .empresa-card { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 .empresa-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
 .empresa-card .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-.empresa-card .card-logo { height: 48px; margin-bottom: 16px; object-fit: contain; }
-.empresa-card .card-name { font-size: 1.15rem; font-weight: 700; margin: 0 0 8px; color: #1a2b3c; }
-.dark .empresa-card .card-name { color: var(--vp-c-text-1); }
+.empresa-card .card-logo { height: 64px; max-width: 220px; margin-bottom: 20px; object-fit: contain; }
 .empresa-card .card-desc { font-size: 0.88rem; color: #5b6470; line-height: 1.5; margin: 0; flex-grow: 1; }
 
 /* ── Partner Sections ── */
@@ -616,7 +614,8 @@ head:
 
   /* Empresas */
   .empresas-grid { grid-template-columns: 1fr; gap: 14px; }
-  .empresa-card { padding: 22px 18px; }
+  .empresa-card { padding: 24px 18px; }
+  .empresa-card .card-logo { height: 58px; max-width: 200px; margin-bottom: 18px; }
 
   /* Parceiros */
   .partner-header { padding: 16px; gap: 10px; flex-wrap: wrap; }
@@ -731,23 +730,19 @@ head:
     <div class="empresas-grid">
       <a href="/axia/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #196396, #2DBF7F);"></div>
-        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare" class="card-logo theme-logo--light">
-        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" alt="AxiaCare" class="card-logo theme-logo--dark">
-        <div class="card-name">AxiaCare®</div>
+        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare®" class="card-logo theme-logo--light">
+        <img src="https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.svg" alt="AxiaCare®" class="card-logo theme-logo--dark">
         <div class="card-desc">Consultoria estratégica, governança clínica e operações de saúde.</div>
       </a>
       <a href="/medvalor/" class="empresa-card">
-        <div class="top-bar" style="background: linear-gradient(90deg, #ea580c, #f97316);"></div>
-        <img src="https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg" alt="MedValor" class="card-logo theme-logo--light">
-        <img src="https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-laranja.svg" alt="MedValor" class="card-logo theme-logo--dark">
-        <div class="card-name">MedValor®</div>
+        <div class="top-bar" style="background: linear-gradient(90deg, #b5d8be, #f7901e);"></div>
+        <img src="https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg" alt="MedValor®" class="card-logo">
         <div class="card-desc">Educação executiva e capacitação estratégica para líderes em saúde.</div>
       </a>
       <a href="/thera/" class="empresa-card">
         <div class="top-bar" style="background: linear-gradient(90deg, #6B5B95, #7c3aed);"></div>
-        <img src="https://assets.grupocsv.com/logos/thera/horizontal-positivo-roxo.svg" alt="Thera" class="card-logo theme-logo--light">
-        <img src="https://assets.grupocsv.com/logos/thera/horizontal-negativo-roxo.svg" alt="Thera" class="card-logo theme-logo--dark">
-        <div class="card-name">Thera®</div>
+        <img src="https://assets.grupocsv.com/logos/thera/horizontal-positivo-roxo.svg" alt="Thera®" class="card-logo theme-logo--light">
+        <img src="https://assets.grupocsv.com/logos/thera/horizontal-negativo-roxo.svg" alt="Thera®" class="card-logo theme-logo--dark">
         <div class="card-desc">Desenvolvimento de software, IA e plataformas SaaS para saúde.</div>
       </a>
     </div>
