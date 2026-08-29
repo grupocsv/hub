@@ -332,8 +332,17 @@ Copiar página
 
   <div class="frame">
     <h2 class="section-title">Logotipos (SVG)</h2>
-    <p class="format-note">Vetor escalavel. Uso preferencial para web e impressao.</p>
+    <p class="format-note">Vetor escalável. Uso preferencial para web e impressão.</p>
+    <p class="format-note"><strong>Padrão canônico para fundo escuro:</strong> usar as variantes verde-laranja abaixo. Elas preservam o símbolo bicolor e alteram somente o nome para branco.</p>
 <div class="file-list">
+  <a href="https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-verde-laranja.svg" download class="file-item">
+    <span class="file-ext">SVG</span>
+    <span class="file-name">horizontal-negativo-verde-laranja.svg — canônico para tema escuro</span>
+  </a>
+  <a href="https://assets.grupocsv.com/logos/medvalor/vertical-negativo-verde-laranja.svg" download class="file-item">
+    <span class="file-ext">SVG</span>
+    <span class="file-name">vertical-negativo-verde-laranja.svg — canônico para tema escuro</span>
+  </a>
   <a href="/visual-identity/medvalor/logo/svg/medvalor_logo_horizontal_blue_negative.svg" download class="file-item">
     <span class="file-ext">SVG</span>
     <span class="file-name">medvalor_logo_horizontal_blue_negative.svg</span>
