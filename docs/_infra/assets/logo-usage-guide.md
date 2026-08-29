@@ -220,14 +220,16 @@ Cor primária: azul (#196396). Símbolo: estrela estilizada com gradiente azul-v
 
 ### MedValor
 
-Cor primária: laranja (#ea580c / #c2410c). Variante secundária: azul.
+Cor primária: laranja (`#f7901e`). O símbolo institucional é bicolor, com gradientes entre verde-claro (`#b5d8be`) e laranja.
 
-| Tipo | Arquivo principal (positive) | Dimensões |
-|------|------------------------------|-----------|
-| Horizontal orange | `medvalor_logo_horizontal_orange_positive.png` | 4098x1357 |
-| Horizontal blue | `medvalor_logo_horizontal_blue_positive.png` | 4098x1357 |
-| Vertical orange | `medvalor_logo_vertical_orange_positive.png` | 2738x1413 |
-| Vertical blue | `medvalor_logo_vertical_blue_positive.png` | 2738x1413 |
+| Tema / fundo | Orientação | Asset canônico |
+|---|---|---|
+| Claro | Horizontal | `https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg` |
+| Escuro | Horizontal | `https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-verde-laranja.svg` |
+| Claro | Vertical | `https://assets.grupocsv.com/logos/medvalor/vertical-positivo-laranja.svg` |
+| Escuro | Vertical | `https://assets.grupocsv.com/logos/medvalor/vertical-negativo-verde-laranja.svg` |
+
+> **Regra canônica para fundos escuros:** preservar integralmente o símbolo verde-laranja e alterar somente o lettering “MedValor” e o símbolo de marca registrada para branco. Não usar `horizontal-negativo-laranja.svg` ou `vertical-negativo-laranja.svg` quando a composição bicolor institucional for necessária, pois essas variantes antigas não preservam o componente laranja do símbolo.
 
 ### TheraTech
 
