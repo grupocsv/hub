@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T21:49:10.687Z",
-  "sourceHash": "2f854a8ba462ed1fc2c94faa77fa3c7438de4cc759f9f41962e21e425b71548a",
+  "generatedAt": "2026-08-31T22:36:57.614Z",
+  "sourceHash": "8b7ee24775e857826e2813f39d3cf55eb500ddba22b70bec6c4172f3a4022ebb",
   "total": 8,
   "editions": [
     {
@@ -378,7 +378,10 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "ce0230b6e327ec3f18aac322df04d6b1421d49a13755e3aee611b5f8a615a90c",
+        "originalPdfSha256": "d2c53ce09aa8b265a93f2310af5addaa20066afe45bebfdcd2901f798828d7ed",
+        "originalPdfBytes": 504599
       }
     },
     {
@@ -473,7 +476,10 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "f569243a1033b466db5833e82fc985221b41eb2d7041df8b6e451fae4fb364cc",
+        "originalPdfSha256": "7a9ea11beb371dcbcfc4201bc8594c25ca99750fd08d30b1a6d744c3b0e78b42",
+        "originalPdfBytes": 1412287
       }
     },
     {
@@ -573,7 +579,10 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "1890f2b2066fc5738dace0d5fb8369b4d395d6f6e267394d3fa45392c5c70baf",
+        "originalPdfSha256": "69fcd62e2decfdea10123a9cc0a9c3b77b1de5b6306f46eaa88e4de37c84c52c",
+        "originalPdfBytes": 476815
       }
     },
     {
@@ -650,7 +659,10 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "6b9280b5a2f9f12feb7ef9008c40e5d08c4ee0123fd64d74192f5bbe3e6f6c2c",
+        "originalPdfSha256": "499602c385e8b1ecb6c578fb14c35bdc13eb782a2bdf2c144da97a3dd2ad49c9",
+        "originalPdfBytes": 465461
       }
     }
   ]

@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { createMarkdownRenderer } from 'vitepress';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 import { normalizeEditionMetadata, validateEditionMetadata } from './schema.mjs';
@@ -16,12 +17,39 @@ function escapeRegExp(value) {
 }
 
 function extractBlocks(source, className) {
-  const classPattern = escapeRegExp(className);
-  const expression = new RegExp(
-    `<div\\s+class=["']${classPattern}["']\\s*>([\\s\\S]*?)<\\/div>`,
-    'giu',
-  );
-  return [...String(source).matchAll(expression)].map((match) => match[1].trim());
+  const html = String(source);
+  const blocks = [];
+  const openingExpression = /<div\b[^>]*>/giu;
+  let opening;
+
+  while ((opening = openingExpression.exec(html)) !== null) {
+    const classAttribute = opening[0].match(/\bclass=["']([^"']+)["']/iu)?.[1] ?? '';
+    if (!classAttribute.split(/\s+/u).includes(className)) continue;
+
+    const contentStart = openingExpression.lastIndex;
+    const nestedExpression = /<\/?div\b[^>]*>/giu;
+    nestedExpression.lastIndex = contentStart;
+    let depth = 1;
+    let nested;
+    let contentEnd = -1;
+
+    while ((nested = nestedExpression.exec(html)) !== null) {
+      if (/^<\/div\b/iu.test(nested[0])) depth -= 1;
+      else depth += 1;
+      if (depth === 0) {
+        contentEnd = nested.index;
+        openingExpression.lastIndex = nestedExpression.lastIndex;
+        break;
+      }
+    }
+
+    if (contentEnd < 0) {
+      throw new Error(`Bloco legado não balanceado: ${className}.`);
+    }
+    blocks.push(html.slice(contentStart, contentEnd).trim());
+  }
+
+  return blocks;
 }
 
 function extractSingleBlock(source, className) {
@@ -36,7 +64,7 @@ function extractLegacyNav(source) {
 function extractLegacyDownload(source, { editionSlug, year }) {
   const block = extractSingleBlock(source, 'compass-download');
   if (!block) {
-    return `<a class="compass-download" href="/compass/edicoes/${year}/${editionSlug}/compass_${editionSlug}_${year}.pdf" download>Baixar PDF</a>`;
+    return `<div class="compass-download">\n<a href="/compass/edicoes/${year}/${editionSlug}/compass_${editionSlug}_${year}.pdf" download>Baixar PDF</a>\n</div>`;
   }
   return `<div class="compass-download">\n${block}\n</div>`;
 }
@@ -48,20 +76,83 @@ function normalizeReferenceLinks(section) {
   );
 }
 
-export function buildLegacyEditionContent({ legacyMarkdown, editionSlug, year }) {
-  const sections = extractBlocks(legacyMarkdown, 'compass-section').map(normalizeReferenceLinks);
+function normalizeReferenceTableLayout(section) {
+  return String(section).replace(
+    /<table\s+class=["']ref-table["'](?=\s*>\s*<thead>\s*<tr>\s*<th>\s*#\s*<\/th>)/giu,
+    '<table class="ref-table ref-table--indexed"',
+  );
+}
+
+function normalizeFigureSources(section) {
+  return String(section).replace(
+    /<div\s+class=["']compass-figure["'][^>]*>[\s\S]*?<\/div>/giu,
+    (figure) => {
+      if (figure.includes('compass-figure__source')) return figure;
+      const image = figure.match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/iu)?.[0];
+      if (!image) return figure;
+      const src = image.match(/\bsrc=["']([^"']+)["']/iu)?.[1];
+      const alt = image.match(/\balt=["']([^"']*)["']/iu)?.[1] || 'imagem';
+      if (!src) return figure;
+      const linked = `<a class="compass-figure__source" href="${src}" target="_blank" rel="noreferrer" aria-label="Abrir ${alt} em tamanho original">${image}</a>`;
+      return figure.replace(image, linked);
+    },
+  );
+}
+
+function normalizeLegacyAssetPaths(source, { editionSlug, year }) {
+  const publicPrefix = `/compass/edicoes/${year}/${editionSlug}/`;
+  return String(source)
+    .replaceAll(`src="${publicPrefix}`, 'src="./assets/')
+    .replaceAll(`src='${publicPrefix}`, "src='./assets/")
+    .replace(/\]\((?:\.\/)?assets\//gu, '](./assets/');
+}
+
+function makeScrollableRegionsFocusable(source) {
+  return String(source).replace(/<pre(?![^>]*\btabindex=)([^>]*)>/giu, '<pre tabindex="0"$1>');
+}
+
+function stripMarkdownPreamble(source) {
+  const firstSection = String(source).search(/^##\s+/mu);
+  if (firstSection < 0) return '';
+  return String(source)
+    .slice(firstSection)
+    .replace(/\n---\s*\n+\[Voltar para a Central Compass(?:&trade;|™)\]\([^\n]+\)\s*$/u, '')
+    .trim();
+}
+
+async function buildMarkdownSections(source, sourceDir) {
+  const body = stripMarkdownPreamble(source);
+  const matches = [...body.matchAll(/^##\s+(.+)\n([\s\S]*?)(?=^##\s+|$(?![\s\S]))/gmu)];
+  if (matches.length === 0) return [];
+  const renderer = await createMarkdownRenderer(sourceDir);
+  return Promise.all(matches.map(async (match) => {
+    const heading = renderer.renderInline(match[1].trim());
+    const content = makeScrollableRegionsFocusable(renderer.render(match[2].trim()));
+    return `<h2>${heading}</h2>\n${content.trim()}`;
+  }));
+}
+
+export async function buildLegacyEditionContent({ legacyMarkdown, editionSlug, year, sourceDir = process.cwd() }) {
+  const normalizedSource = normalizeLegacyAssetPaths(legacyMarkdown, { editionSlug, year });
+  let sections = extractBlocks(normalizedSource, 'compass-section')
+    .map(normalizeReferenceLinks)
+    .map(normalizeReferenceTableLayout)
+    .map(normalizeFigureSources);
+  if (sections.length === 0) sections = await buildMarkdownSections(normalizedSource, sourceDir);
   if (sections.length === 0) throw new Error('Nenhuma seção editorial legada foi encontrada.');
 
-  const scope = extractSingleBlock(legacyMarkdown, 'compass-scope');
+  const scope = extractSingleBlock(normalizedSource, 'compass-scope');
   const content = sections
     .map((section) => `<section class="compass-section">\n${section}\n</section>`)
     .join('\n\n');
   const scopeBlock = scope
     ? `<aside class="compass-scope" aria-label="Nota de escopo">\n${scope}\n</aside>`
     : '';
+  const nav = extractLegacyNav(normalizedSource)
+    || '<nav class="compass-nav" aria-label="Navegação entre edições">\n<a class="nav-secondary" href="/compass/">Central Compass™</a>\n</nav>';
   const actions = [
-    extractLegacyDownload(legacyMarkdown, { editionSlug, year }),
-    extractLegacyNav(legacyMarkdown),
+    extractLegacyDownload(normalizedSource, { editionSlug, year }),
+    nav,
   ].filter(Boolean).join('\n\n');
 
   return `<template>\n${content}\n\n${scopeBlock}\n\n<div class="compass-download-actions">\n${actions}\n</div>\n</template>\n`;
@@ -243,8 +334,26 @@ export function buildLegacyEditionCss() {
   white-space: normal;
 }
 
-.compass-v2 .ref-table td:last-child {
+.compass-v2 .ref-table:not(.ref-table--indexed) td:last-child {
   width: 5.5rem;
+}
+
+.compass-v2 .compass-figure__source {
+  display: block;
+  border-radius: 8px;
+}
+
+.compass-v2 .compass-figure__source:focus-visible {
+  outline: 3px solid var(--compass-cyan);
+  outline-offset: 4px;
+}
+
+.compass-v2 .compass-figure__source::after {
+  display: block;
+  margin-top: 0.4rem;
+  content: "Abrir imagem em tamanho original";
+  font-size: 0.78rem;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -271,19 +380,31 @@ export function buildLegacyEditionCss() {
     white-space: normal;
   }
 
-  .compass-v2 .ref-table th:first-child,
-  .compass-v2 .ref-table td:first-child {
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:first-child,
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:first-child {
     min-width: 18rem;
   }
 
-  .compass-v2 .ref-table th:nth-child(2),
-  .compass-v2 .ref-table td:nth-child(2) {
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:nth-child(2),
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:nth-child(2) {
     min-width: 16rem;
   }
 
-  .compass-v2 .ref-table th:last-child,
-  .compass-v2 .ref-table td:last-child {
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:last-child,
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:last-child {
     min-width: 5rem;
+  }
+
+  .compass-v2 .ref-table--indexed th:first-child,
+  .compass-v2 .ref-table--indexed td:first-child {
+    width: 3.5rem;
+    min-width: 3.5rem;
+    max-width: 3.5rem;
+  }
+
+  .compass-v2 .ref-table--indexed th:nth-child(2),
+  .compass-v2 .ref-table--indexed td:nth-child(2) {
+    min-width: 28rem;
   }
 }
 
@@ -335,6 +456,10 @@ export function buildLegacyEditionCss() {
   .compass-v2 .ref-table tr {
     break-inside: avoid;
   }
+
+  .compass-v2:not(.compass-v2--paged) .compass-figure__source::after {
+    display: none !important;
+  }
 }
 `;
 }
@@ -353,12 +478,23 @@ export async function importLegacyEdition({ inputDir, outputDir }) {
   const componentName = `Compass${metadata.slug}Content.vue`;
 
   await mkdir(outputDir, { recursive: true });
+  const inputAssets = path.join(inputDir, 'assets');
+  const outputAssets = path.join(outputDir, 'assets');
+  const hasAssets = await stat(inputAssets).then((item) => item.isDirectory()).catch(() => false);
+  if (hasAssets && path.resolve(inputAssets) !== path.resolve(outputAssets)) {
+    await cp(inputAssets, outputAssets, { recursive: true });
+  }
   await Promise.all([
     writeFile(path.join(outputDir, 'metadata.yml'), stringifyYaml(metadata), 'utf8'),
     writeFile(path.join(outputDir, 'compass.md'), buildLegacyEditionMarkdown(metadata), 'utf8'),
     writeFile(
       path.join(outputDir, componentName),
-      buildLegacyEditionContent({ legacyMarkdown, editionSlug: metadata.slug, year: metadata.year }),
+      await buildLegacyEditionContent({
+        legacyMarkdown,
+        editionSlug: metadata.slug,
+        year: metadata.year,
+        sourceDir: inputDir,
+      }),
       'utf8',
     ),
     writeFile(path.join(outputDir, 'edition.css'), buildLegacyEditionCss(), 'utf8'),

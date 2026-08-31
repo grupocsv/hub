@@ -90,8 +90,17 @@ test('bloqueia tabelas de referência mobile com colunas excessivamente comprimi
   assert.deepEqual(blocked.offenders, [{ selector: 'table.ref-table', columnWidths: [24, 152, 48] }]);
   assert.match(blocked.violations[0], /coluna inferior a 72px/u);
 
+  const misallocated = quality.evaluateTableLegibility({
+    tables: [{ selector: 'table.ref-table', headers: ['#', 'Referência'], columnWidths: [288, 80] }],
+  });
+  assert.equal(misallocated.ok, false);
+  assert.match(misallocated.violations[0], /coluna numérica|conteúdo bibliográfico/u);
+
   const approved = quality.evaluateTableLegibility({
-    tables: [{ selector: 'table.ref-table', columnWidths: [288, 256, 80] }],
+    tables: [
+      { selector: 'table.ref-table', headers: ['Notas', 'Fonte', 'URL'], columnWidths: [288, 256, 80] },
+      { selector: 'table.ref-table', headers: ['#', 'Referência'], columnWidths: [64, 320] },
+    ],
   });
   assert.equal(approved.ok, true);
   assert.deepEqual(approved.offenders, []);

@@ -177,7 +177,7 @@ Documentação técnica pensada para:
 
 **Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®**. AxiaCare® permanece identificada na elaboração e na aplicação prática das edições utilizadas em consultorias e assessorias.
 
-O motor v2 mantém a fonte em `compass/edicoes/`, deriva a publicação VitePress e o catálogo `docs/compass/catalog.json`, e gera PDF A4 determinístico em runtime Chromium isolado. A edição 008 é nativa v2; as edições 001–007 permanecem publicadas e serão migradas por marcos, preservando URLs e downloads.
+O motor v2 mantém a fonte em `compass/edicoes/`, deriva a publicação VitePress e o catálogo `docs/compass/catalog.json`, e gera PDF A4 determinístico em runtime Chromium isolado. A edição 008 é nativa v2; as edições 001–007 foram migradas nos marcos M6–M8, com preservação das URLs, dos downloads históricos e dos checksums de proveniência. O acervo 001–008 aguarda o release controlado.
 
 - **Central Compass:** [compass/README.md](compass/README.md)
 - **Arquitetura e Operação:** [docs/_infra/ferramentas/compass.md](docs/_infra/ferramentas/compass.md)

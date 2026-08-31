@@ -31,10 +31,10 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 
 | Edição | Título | Estado de Transição |
 |---|---|---|
-| [001/2026](edicoes/2026/001/compass.md) | Metas quantitativas de produção em contratos ACO com orçamento global | Publicada no modelo legado; migração prevista no M8 |
-| [002/2026](edicoes/2026/002/compass.md) | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira | Publicada no modelo legado; migração prevista no M8 |
-| [003/2026](edicoes/2026/003/compass.md) | Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil | Publicada no modelo legado; migração prevista no M8 |
-| [004/2026](edicoes/2026/004/compass.md) | Implantação Estratégica e Operacional de NATS na Saúde Suplementar Brasileira | Publicada no modelo legado; migração prevista no M8 |
+| [001/2026](edicoes/2026/001/compass.md) | Metas quantitativas de produção em contratos ACO com orçamento global | Migrada para v2 no M8; release controlado pendente |
+| [002/2026](edicoes/2026/002/compass.md) | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira | Migrada para v2 no M8; release controlado pendente |
+| [003/2026](edicoes/2026/003/compass.md) | Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil | Migrada para v2 no M8; assets históricos preservados e release controlado pendente |
+| [004/2026](edicoes/2026/004/compass.md) | Implantação Estratégica e Operacional de NATS na Saúde Suplementar Brasileira | Migrada para v2 no M8; release controlado pendente |
 | [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
 | [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
 | [007/2026](edicoes/2026/007/compass.md) | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | Migrada para v2 no M6; release controlado pendente |
@@ -53,9 +53,9 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 
 ## PDF e Qualidade
 
-O renderizador `render-pdf.mjs` usa Playwright e Chromium em container efêmero fixado por digest. O host não recebe bibliotecas do navegador. O gate `quality-gates.mjs` verifica paridade de conteúdo, marcas obrigatórias, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo de 4 MB, checksums, overflow documental e largura mínima das colunas de referências no mobile.
+O renderizador `render-pdf.mjs` usa Playwright e Chromium em container efêmero fixado por digest. O host não recebe bibliotecas do navegador. O gate `quality-gates.mjs` verifica paridade de conteúdo, marcas obrigatórias, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo de 4 MB, checksums, overflow documental e distribuição legível das colunas de referências no mobile.
 
-O gerador FPDF permanece como fallback temporário para as edições 001–004, ainda não migradas. Ele não é a fonte dos PDFs v2 das edições 005–008.
+As edições 001–008 usam o motor v2 como caminho ativo. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
 
 ## Backend e Downloads
 

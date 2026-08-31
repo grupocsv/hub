@@ -66,7 +66,8 @@ test('contém tabelas de edições paginadas na viewport mobile', async () => {
 test('mantém títulos longos dentro da capa mobile', async () => {
   const css = await readOrNull(cssPath);
   assert.notEqual(css, null, 'compass-v2.css ainda não existe');
-  assert.match(css, /@media\s*\(max-width:\s*768px\)[\s\S]*\.compass-cover\s+h1\s*\{[^}]*max-width:\s*100%[^}]*min-width:\s*0[^}]*overflow-wrap:\s*anywhere/si);
+  assert.match(css, /@media\s*\(max-width:\s*768px\)[\s\S]*\.compass-cover\s+h1\s*\{[^}]*max-width:\s*100%[^}]*min-width:\s*0[^}]*overflow-wrap:\s*break-word[^}]*word-break:\s*normal[^}]*hyphens:\s*auto/si);
+  assert.doesNotMatch(css, /\.compass-cover\s+h1\s*\{[^}]*overflow-wrap:\s*anywhere/si);
 });
 
 test('mantém o crédito principal legível no rodapé do modo escuro', async () => {

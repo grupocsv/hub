@@ -1,16 +1,41 @@
-id: "NNN/AAAA"
-linha_editorial: "Compass™ | Base de Conhecimento Corporativa do Grupo CSV"
-titulo: "[Título fiel ao conteúdo da fonte primária]"
-ano: AAAA
-edicao: N
-temas:
-  - "[Apenas termos que apareçam explicitamente na fonte primária]"
+schemaVersion: 2
+id: NNN-AAAA
+number: 0
+year: 0
+slug: NNN
+title: Título Fiel à Fonte Primária
+subtitle: null
+publishedAt: null
+status: Minuta para revisão
+topics:
+  - Tema presente na fonte primária
 tags:
-  - "[Apenas termos que apareçam explicitamente na fonte primária]"
-fontes:
-  - "Fonte primária (conteúdo integral preservado)"
-arquivos:
-  - "compass.md"
-assets:
-  - "assets/compass_header.png"
-  - "assets/compass_letterhead.pdf"
+  - termo presente na fonte primária
+summary: null
+sources: []
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - AxiaCare®
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/AAAA/NNN/compass
+  pdf: /compass/edicoes/AAAA/NNN/compass_NNN_AAAA.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_NNN_AAAA.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: false
+  checksum: null
+  publishedAt: null
+migration:
+  state: native-v2
+  sourceSchema: 2

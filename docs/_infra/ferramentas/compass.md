@@ -131,8 +131,8 @@ O Compass™ é a linha editorial estratégica do Grupo CSV para análises técn
 | PDF | A4 determinístico por Playwright/Chromium em runtime Docker isolado |
 | Catálogo | `docs/compass/catalog.json`, derivado dos metadados de cada edição |
 | Edição Nativa v2 | 008/2026, integrada e validada localmente na branch de transição |
-| Edições Migradas | 005–007, migradas e validadas localmente nos marcos M6 e M7 |
-| Edições Legadas | 001–004, com migração prevista no M8 |
+| Edições Migradas | 001–007, migradas e validadas localmente nos marcos M6–M8 |
+| Acervo no Motor v2 | 001–008, com release controlado ainda pendente |
 | Backend | Extensão do `csv-documents` implementada e testada localmente; migration e deploy ainda não aplicados |
 | n8n | Fora do caminho crítico; nenhuma alteração realizada |
 
@@ -154,7 +154,7 @@ O comando `npm run compass:publish` sincroniza apenas edições com schema v2 pa
 
 O componente global `CompassEdition.vue` aplica a moldura editorial comum. A edição 008 usa o modo `paged`, com CSS global namespaceado, para preservar integralmente as 23 páginas editoriais sem duplicar capa ou contracapa. O modo de leitura web permanece responsivo; as regras A4 são ativadas somente na mídia de impressão.
 
-O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo, checksums, overflow documental e largura mínima das colunas de referências no mobile.
+O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo, checksums, overflow documental e distribuição legível das colunas de referências no mobile.
 
 | Comando | Resultado |
 |---|---|
@@ -182,9 +182,9 @@ As mutações de publicação permanecem indisponíveis no Admin enquanto migrat
 
 ## Compatibilidade e Migração Histórica
 
-As edições 005–007 foram migradas e validadas localmente nos marcos M6 e M7. As edições 001–004 permanecem legadas até o M8. Cada marco preserva o conteúdo, a URL histórica e o download existente, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos.
+As edições 001–007 foram migradas e validadas localmente nos marcos M6–M8; a edição 008 é nativa v2. Cada marco preservou o conteúdo, a URL histórica e o PDF original na proveniência, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos. Os assets históricos da edição 003 também foram incorporados à fonte canônica e permanecem acessíveis na experiência web.
 
-O gerador FPDF permanece como fallback temporário apenas para as edições 001–004. Ele deixa de ser o motor principal após a migração completa e a validação das oito edições.
+O motor v2 é o caminho ativo para as edições 001–008. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
 
 ## CI, AI Search e Sistemas Relacionados
 

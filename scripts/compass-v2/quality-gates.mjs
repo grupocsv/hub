@@ -55,12 +55,28 @@ export function evaluateViewportConstraints({ viewportWidth, documentWidth, offe
 
 export function evaluateTableLegibility({ tables = [] }) {
   const minimumColumnWidth = 72;
-  const offenders = tables.filter(({ columnWidths = [] }) => columnWidths.some((width) => (
-    Number.isFinite(width) && width > 0 && width < minimumColumnWidth
-  )));
-  const violations = offenders.length > 0
-    ? [`Há tabela de referência mobile com coluna inferior a ${minimumColumnWidth}px.`]
-    : [];
+  const compressed = tables.filter(({ headers = [], columnWidths = [] }) => {
+    const indexedReference = headers.length === 2 && headers[0]?.trim() === '#';
+    return columnWidths.some((width, index) => (
+      Number.isFinite(width)
+      && width > 0
+      && width < minimumColumnWidth
+      && !(indexedReference && index === 0 && width >= 48)
+    ));
+  });
+  const misallocated = tables.filter(({ headers = [], columnWidths = [] }) => (
+    headers.length === 2
+    && headers[0]?.trim() === '#'
+    && (columnWidths[0] > 96 || columnWidths[1] < 240)
+  ));
+  const offenders = [...new Set([...compressed, ...misallocated])];
+  const violations = [];
+  if (compressed.length > 0) {
+    violations.push(`Há tabela de referência mobile com coluna inferior a ${minimumColumnWidth}px.`);
+  }
+  if (misallocated.length > 0) {
+    violations.push('Há tabela de referência mobile com coluna numérica superdimensionada ou conteúdo bibliográfico inferior a 240px.');
+  }
   return {
     ok: violations.length === 0,
     minimumColumnWidth,
@@ -287,6 +303,7 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
         const row = table.querySelector('thead tr') ?? table.querySelector('tr');
         return {
           selector: `table.ref-table[data-qa-index="${index}"]`,
+          headers: row ? [...row.children].map((cell) => cell.textContent?.trim() ?? '') : [],
           columnWidths: row
             ? [...row.children].map((cell) => Number(cell.getBoundingClientRect().width.toFixed(2)))
             : [],
