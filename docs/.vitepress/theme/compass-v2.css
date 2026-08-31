@@ -1,0 +1,466 @@
+.compass-v2 {
+  --compass-navy: #0d264c;
+  --compass-blue: #196396;
+  --compass-cyan: #2ab7ca;
+  --compass-cream: #f6f4ef;
+  --compass-paper: #ffffff;
+  --compass-ink: #14213d;
+  --compass-muted: #56657a;
+  --compass-line: rgba(13, 38, 76, 0.14);
+  --compass-orange: #f7901e;
+  --compass-green: #4caf77;
+  --compass-radius: 18px;
+  --compass-shadow: 0 22px 70px rgba(13, 38, 76, 0.12);
+  width: min(100%, 1040px);
+  margin: 0 auto 3rem;
+  color: var(--compass-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.dark .compass-v2 {
+  --compass-paper: #171b27;
+  --compass-cream: #101521;
+  --compass-ink: #f7f8fb;
+  --compass-muted: #b8c2d2;
+  --compass-line: rgba(255, 255, 255, 0.12);
+  --compass-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.compass-cover {
+  position: relative;
+  display: grid;
+  align-content: end;
+  min-height: clamp(420px, 62vh, 680px);
+  padding: clamp(2rem, 7vw, 5rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--compass-radius);
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(42, 183, 202, 0.38), transparent 32%),
+    linear-gradient(145deg, var(--compass-navy) 0%, #154f79 56%, #138f8c 100%);
+  box-shadow: var(--compass-shadow);
+  isolation: isolate;
+}
+
+.compass-cover::before,
+.compass-cover::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.compass-cover::before {
+  inset: -30% auto auto -12%;
+  width: min(48vw, 520px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 0 0 54px rgba(255, 255, 255, 0.035), 0 0 0 108px rgba(255, 255, 255, 0.025);
+}
+
+.compass-cover::after {
+  right: -10%;
+  bottom: -34%;
+  width: min(46vw, 500px);
+  aspect-ratio: 1;
+  background: rgba(247, 144, 30, 0.12);
+  filter: blur(2px);
+}
+
+.compass-cover__brand {
+  position: absolute;
+  top: clamp(1.5rem, 4vw, 3rem);
+  left: clamp(1.5rem, 5vw, 4rem);
+  width: clamp(150px, 22vw, 230px);
+}
+
+.compass-cover__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.compass-cover__logo--light {
+  display: none;
+}
+
+.compass-cover__logo--dark {
+  display: block;
+}
+
+.compass-cover__eyebrow {
+  margin: 0 0 0.9rem;
+  color: #8be8ee;
+  font-size: clamp(0.72rem, 1.4vw, 0.9rem);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.compass-cover h1 {
+  max-width: 16ch;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.35rem, 6.4vw, 5.3rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.compass-cover__subtitle {
+  max-width: 62ch;
+  margin: 1.4rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  line-height: 1.55;
+}
+
+.compass-cover__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.15rem;
+  margin-top: 2rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.82rem;
+}
+
+.compass-cover__meta span:not(:last-child)::after {
+  margin-left: 1.15rem;
+  color: rgba(255, 255, 255, 0.36);
+  content: "•";
+}
+
+.compass-cover__status {
+  position: absolute;
+  top: clamp(1.5rem, 4vw, 3rem);
+  right: clamp(1.5rem, 5vw, 4rem);
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(13, 38, 76, 0.28);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(10px);
+}
+
+.compass-v2__content {
+  margin-top: 1.5rem;
+  padding: clamp(1.5rem, 5vw, 4.5rem);
+  border: 1px solid var(--compass-line);
+  border-radius: var(--compass-radius);
+  background: var(--compass-paper);
+  box-shadow: var(--compass-shadow);
+}
+
+.compass-v2__content > :first-child {
+  margin-top: 0;
+}
+
+.compass-v2__content h2 {
+  margin: 3.6rem 0 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--compass-line);
+  color: var(--compass-navy);
+  font-size: clamp(1.65rem, 3.2vw, 2.5rem);
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.dark .compass-v2__content h2,
+.dark .compass-v2__content h3,
+.dark .compass-v2__content strong {
+  color: #ffffff;
+}
+
+.compass-v2__content h3 {
+  margin: 2.25rem 0 0.75rem;
+  color: var(--compass-blue);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+}
+
+.compass-v2__content p,
+.compass-v2__content li {
+  color: var(--compass-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.compass-v2__content a {
+  color: var(--compass-blue);
+  font-weight: 650;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.dark .compass-v2__content a {
+  color: #72dce5;
+}
+
+.compass-v2__content blockquote,
+.compass-callout,
+.compass-key-point {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.4rem;
+  border: 0;
+  border-left: 4px solid var(--compass-cyan);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb, var(--compass-cyan) 10%, transparent);
+}
+
+.compass-key-point {
+  border-left-color: var(--compass-orange);
+  background: color-mix(in srgb, var(--compass-orange) 10%, transparent);
+}
+
+.compass-callout > :first-child,
+.compass-key-point > :first-child,
+.compass-v2__content blockquote > :first-child {
+  margin-top: 0;
+}
+
+.compass-callout > :last-child,
+.compass-key-point > :last-child,
+.compass-v2__content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.compass-timeline {
+  display: grid;
+  gap: 0;
+  margin: 1.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compass-timeline > li {
+  position: relative;
+  margin: 0;
+  padding: 0.25rem 0 1.5rem 2rem;
+  border-left: 2px solid color-mix(in srgb, var(--compass-cyan) 55%, transparent);
+}
+
+.compass-timeline > li::before {
+  position: absolute;
+  top: 0.42rem;
+  left: -0.48rem;
+  width: 0.82rem;
+  height: 0.82rem;
+  border: 3px solid var(--compass-paper);
+  border-radius: 50%;
+  background: var(--compass-cyan);
+  content: "";
+}
+
+.compass-data-table,
+.compass-v2__content table {
+  display: table;
+  width: 100%;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--compass-line);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  font-size: 0.88rem;
+}
+
+.compass-data-table th,
+.compass-v2__content table th {
+  padding: 0.85rem 0.9rem;
+  color: #ffffff;
+  background: var(--compass-navy);
+  font-weight: 750;
+  text-align: left;
+}
+
+.compass-data-table td,
+.compass-v2__content table td {
+  padding: 0.8rem 0.9rem;
+  border-top: 1px solid var(--compass-line);
+  color: var(--compass-muted);
+  vertical-align: top;
+}
+
+.compass-data-table tbody tr:nth-child(even),
+.compass-v2__content table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--compass-cyan) 5%, transparent);
+}
+
+.compass-v2__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 1.2rem;
+  margin-top: 1.5rem;
+  padding: 1.35rem;
+  border: 1px solid var(--compass-line);
+  border-radius: 14px;
+  color: var(--compass-muted);
+  background: var(--compass-paper);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.compass-v2__footer strong {
+  color: var(--compass-navy);
+}
+
+@media (max-width: 768px) {
+  .compass-v2 {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .compass-cover {
+    min-height: 520px;
+    padding: 7rem 1.35rem 2rem;
+    border-radius: 14px;
+  }
+
+  .compass-cover__brand {
+    top: 1.35rem;
+    left: 1.35rem;
+    width: 145px;
+  }
+
+  .compass-cover__status {
+    top: 1.35rem;
+    right: 1.35rem;
+    max-width: 42%;
+    text-align: right;
+  }
+
+  .compass-cover h1 {
+    font-size: clamp(2.2rem, 12vw, 3.5rem);
+  }
+
+  .compass-cover__meta {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .compass-cover__meta span::after {
+    display: none;
+  }
+
+  .compass-v2__content {
+    padding: 1.35rem;
+    border-radius: 14px;
+  }
+
+  .compass-v2__content h2 {
+    margin-top: 2.8rem;
+  }
+
+  .compass-data-table,
+  .compass-v2__content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm 18mm;
+  }
+
+  html,
+  body {
+    color: #14213d !important;
+    background: #ffffff !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .VPNav,
+  .VPSidebar,
+  .VPDocAside,
+  .VPDocFooter,
+  .VPLocalNav,
+  .compass-download-actions {
+    display: none !important;
+  }
+
+  .VPContent,
+  .VPDoc,
+  .VPDoc .container,
+  .VPDoc .content,
+  .VPDoc .content-container {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .compass-v2 {
+    width: 210mm;
+    max-width: none;
+    margin: 0;
+    color: #14213d;
+  }
+
+  .compass-cover {
+    width: 182mm;
+    min-height: 255mm;
+    margin: 0;
+    padding: 24mm 18mm 18mm;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    break-after: page;
+  }
+
+  .compass-v2__content {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .compass-v2__content h2 {
+    color: #0d264c !important;
+    break-after: avoid;
+  }
+
+  .compass-v2__content h3,
+  .compass-v2__content p,
+  .compass-v2__content li,
+  .compass-v2__content td,
+  .compass-v2__content strong {
+    color: #14213d !important;
+  }
+
+  .compass-callout,
+  .compass-key-point,
+  .compass-timeline > li,
+  .compass-data-table,
+  .compass-v2__content blockquote,
+  .compass-v2__content table,
+  .compass-v2__content figure,
+  .compass-v2__content img {
+    break-inside: avoid;
+  }
+
+  .compass-v2__footer {
+    margin-top: 12mm;
+    border: 0;
+    border-top: 1px solid #d8dee8;
+    border-radius: 0;
+    color: #56657a;
+    background: #ffffff;
+    box-shadow: none;
+  }
+}

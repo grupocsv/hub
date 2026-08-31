@@ -1,10 +1,14 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import './custom.css'
+import './compass-v2.css'
+import CompassEdition from './components/CompassEdition.vue'
 
 export default {
   extends: DefaultTheme,
-  enhanceApp() {
+  enhanceApp({ app }) {
+    app.component('CompassEdition', CompassEdition)
+
     // Mitigação de chunk obsoleto pós-deploy (mitigação oficial do Vite:
     // https://vite.dev/guide/troubleshooting — "Failed to fetch dynamically
     // imported module"). O site faz vários deploys por dia e todos os assets

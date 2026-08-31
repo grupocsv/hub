@@ -1,4 +1,17 @@
 import { defineConfig } from 'vitepress'
+import compassCatalog from '../compass/catalog.json'
+
+function compassSidebarLabel(edition: { slug: string; title: string }) {
+  const title = edition.title.replace(/\s+/g, ' ').trim()
+  const conciseTitle = title.length > 58 ? `${title.slice(0, 55).trimEnd()}…` : title
+  return `${edition.slug} — ${conciseTitle}`
+}
+
+const compassEditions = compassCatalog.editions.map((edition) => ({
+  year: edition.year,
+  text: compassSidebarLabel(edition),
+  link: edition.routes.web,
+}))
 
 export default defineConfig({
   title: "Hub Grupo CSV",
@@ -81,15 +94,9 @@ export default defineConfig({
             {
               text: '2026',
               collapsed: false,
-              items: [
-                { text: '001 — Metas ACO', link: '/compass/edicoes/2026/001/compass' },
-                { text: '002 — Prostatectomia Rob\u00f3tica', link: '/compass/edicoes/2026/002/compass' },
-                { text: '003 — Fototerapia Neonatal', link: '/compass/edicoes/2026/003/compass' },
-                { text: '004 — NATS na Sa\u00fade Suplementar', link: '/compass/edicoes/2026/004/compass' },
-                { text: '005 — Saving Cirúrgico Estrutural', link: '/compass/edicoes/2026/005/compass' },
-                { text: '006 — Oftalmologia na Saúde Suplementar', link: '/compass/edicoes/2026/006/compass' },
-                { text: '007 — Desperdício na Saúde Suplementar', link: '/compass/edicoes/2026/007/compass' },
-              ]
+              items: compassEditions
+                .filter((edition) => edition.year === 2026)
+                .map(({ text, link }) => ({ text, link }))
             },
           ]
         }

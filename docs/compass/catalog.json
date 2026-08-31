@@ -1,0 +1,580 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T17:57:33.483Z",
+  "sourceHash": "078988e7accba9854b381f360ff02733a3a5ae5dda20fa13b66b4a0b0f599af3",
+  "total": 7,
+  "editions": [
+    {
+      "schemaVersion": 2,
+      "id": "007-2026",
+      "number": 7,
+      "year": 2026,
+      "slug": "007",
+      "title": "Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira: Uma Análise Estrutural dos Desperdícios, Fraudes e os Caminhos da Coordenação de Cuidados em 2026",
+      "subtitle": null,
+      "publishedAt": "2026-06-07",
+      "status": "Publicado",
+      "summary": "Análise estrutural das principais fontes de desperdício na saúde suplementar brasileira em 2026, incluindo fragmentação do cuidado, sobreutilização clínica, fraudes administrativas, abusos em OPME e insegurança assistencial. Apresenta dados quantitativos atualizados, comparações internacionais e recomendações estratégicas para a transição de modelos de remuneração baseados em valor.",
+      "topics": [],
+      "tags": [
+        "desperdício",
+        "saúde suplementar",
+        "VBHC",
+        "coordenação do cuidado",
+        "fraudes",
+        "telemedicina",
+        "APS",
+        "OPME",
+        "sustentabilidade"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/007/compass",
+        "pdf": "/compass/edicoes/2026/007/compass_007_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_007_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": "2026-06-07"
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "006-2026",
+      "number": 6,
+      "year": 2026,
+      "slug": "006",
+      "title": "Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Saúde Suplementar",
+        "Oftalmologia",
+        "Mercado Pay-Per-Use",
+        "Transição Demográfica"
+      ],
+      "tags": [
+        "Cirurgia de Catarata",
+        "Rol ANS",
+        "Desembolso Direto",
+        "Envelhecimento Populacional",
+        "Consolidação de Mercado"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/006/compass",
+        "pdf": "/compass/edicoes/2026/006/compass_006_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_006_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "005-2026",
+      "number": 5,
+      "year": 2026,
+      "slug": "005",
+      "title": "Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Eficiência Estrutural",
+        "Precificação de Protocolos",
+        "Custos Assistenciais",
+        "Gestão Hospitalar"
+      ],
+      "tags": [
+        "Saving Cirúrgico",
+        "OPME",
+        "Fee for Service",
+        "Pacotes Cirúrgicos",
+        "Anahp"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/005/compass",
+        "pdf": "/compass/edicoes/2026/005/compass_005_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_005_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "004-2026",
+      "number": 4,
+      "year": 2026,
+      "slug": "004",
+      "title": "Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Avaliação de Tecnologias em Saúde",
+        "NATS",
+        "Saúde suplementar",
+        "Governança clínica",
+        "Incorporação tecnológica",
+        "Auditoria concorrente",
+        "OPME",
+        "Engenharia clínica",
+        "Economia da saúde",
+        "Custo-efetividade",
+        "Impacto orçamentário",
+        "Regimento interno",
+        "Comissão de Farmácia e Terapêutica",
+        "Padronização de materiais",
+        "Rastreabilidade de dispositivos médicos",
+        "Retorno sobre investimento",
+        "Sinistralidade",
+        "Judicialização da saúde",
+        "Value-Based Procurement"
+      ],
+      "tags": [
+        "ATS",
+        "NATS",
+        "saúde suplementar",
+        "REBRATS",
+        "ANS",
+        "CONITEC",
+        "OPME",
+        "auditoria concorrente",
+        "Parecer Técnico-Científico",
+        "PTC",
+        "NTRR",
+        "revisão sistemática",
+        "metanálise",
+        "custo-efetividade",
+        "QALY",
+        "AVAQ",
+        "impacto orçamentário",
+        "AIO",
+        "sinistralidade",
+        "VCMH",
+        "PICO",
+        "GRADE",
+        "NICE",
+        "CADTH",
+        "PBAC",
+        "Hospital Sírio-Libanês",
+        "Albert Einstein",
+        "PROADI-SUS",
+        "AVALIA-ANS",
+        "e-NATJUS",
+        "NatJus",
+        "CFT",
+        "CTP-NATS",
+        "DMI",
+        "rastreabilidade",
+        "engenharia clínica",
+        "ROI",
+        "15:1",
+        "R$ 15 milhões",
+        "CAPEX",
+        "OPEX",
+        "Value-Based Procurement",
+        "Ebserh",
+        "Anahp",
+        "Markov",
+        "árvore de decisão",
+        "RevMan",
+        "Cochrane",
+        "PubMed",
+        "MEDLINE",
+        "Embase",
+        "LILACS",
+        "glosas",
+        "faturamento",
+        "desinvestimento"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/004/compass",
+        "pdf": "/compass/edicoes/2026/004/compass_004_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_004_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "003-2026",
+      "number": 3,
+      "year": 2026,
+      "slug": "003",
+      "title": "Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil: análise por idade gestacional e via de parto",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Fototerapia neonatal",
+        "Hiperbilirrubinemia neonatal",
+        "Icterícia neonatal",
+        "Idade gestacional",
+        "Termo precoce",
+        "Via de parto",
+        "Cesariana eletiva",
+        "Kernicterus",
+        "Metabolismo da bilirrubina",
+        "Circulação entero-hepática",
+        "Nomogramas de intervenção",
+        "Modelagem preditiva",
+        "Alojamento conjunto",
+        "Aleitamento materno",
+        "Hipocalcemia"
+      ],
+      "tags": [
+        "fototerapia",
+        "hiperbilirrubinemia",
+        "icterícia neonatal",
+        "bilirrubina",
+        "kernicterus",
+        "termo precoce",
+        "early-term",
+        "idade gestacional",
+        "cesariana",
+        "parto vaginal",
+        "UGT1A1",
+        "circulação entero-hepática",
+        "albumina",
+        "nomograma AAP",
+        "bilirrubina transcutânea",
+        "Nascer no Brasil",
+        "FIOCRUZ",
+        "Maria do Carmo Leal",
+        "UNESP Botucatu",
+        "alojamento conjunto",
+        "incompatibilidade ABO",
+        "incompatibilidade Rh",
+        "G6PD",
+        "mecônio",
+        "lactogênese",
+        "Hospital Amigo da Criança",
+        "hipocalcemia",
+        "SBP",
+        "ANS",
+        "saúde suplementar"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/003/compass",
+        "pdf": "/compass/edicoes/2026/003/compass_003_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_003_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "002-2026",
+      "number": 2,
+      "year": 2026,
+      "slug": "002",
+      "title": "O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira (2025-2026)",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Prostatectomia radical assistida por robô",
+        "Cirurgia robótica",
+        "Saúde suplementar",
+        "Câncer de próstata",
+        "Regulação ANS",
+        "RN 654/2025",
+        "DUT 173",
+        "CBHPM",
+        "Modelagem atuarial",
+        "Custo Total de Propriedade (TCO)",
+        "Custo-offset",
+        "Desfechos clínicos",
+        "Value-Based Healthcare (VBHC)",
+        "DRG",
+        "Pacotes globais",
+        "Network steering",
+        "Demanda induzida",
+        "Auditoria em saúde"
+      ],
+      "tags": [
+        "prostatectomia robótica",
+        "cirurgia robótica",
+        "câncer de próstata",
+        "saúde suplementar",
+        "ANS",
+        "RN 654/2025",
+        "DUT 173",
+        "CBHPM",
+        "TCO",
+        "CAPEX",
+        "OPEX",
+        "Da Vinci Xi",
+        "Intuitive Surgical",
+        "INCA",
+        "epidemiologia",
+        "atuarial",
+        "sinistralidade",
+        "custo-offset",
+        "VBHC",
+        "DRG",
+        "pacote global",
+        "bundled payment",
+        "network steering",
+        "demanda induzida",
+        "overuse",
+        "auxiliar robótico",
+        "SBU",
+        "AMB",
+        "TUSS",
+        "Conitec",
+        "STJ",
+        "RAIR"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/002/compass",
+        "pdf": "/compass/edicoes/2026/002/compass_002_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_002_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "001-2026",
+      "number": 1,
+      "year": 2026,
+      "slug": "001",
+      "title": "Metas quantitativas de produção em contratos ACO com orçamento global",
+      "subtitle": null,
+      "publishedAt": null,
+      "status": "Publicado",
+      "summary": null,
+      "topics": [
+        "Accountable Care Organization (ACO)",
+        "orçamento global (global budget)",
+        "metas quantitativas de produção",
+        "fee-for-service (FFS)",
+        "guardrails de acesso",
+        "payment reform",
+        "contratos incompletos",
+        "custos fixos e variáveis",
+        "governança conjunta",
+        "reequilíbrio econômico-financeiro"
+      ],
+      "tags": [
+        "ACO",
+        "orçamento global",
+        "global budget",
+        "metas quantitativas",
+        "fee-for-service",
+        "guardrails",
+        "suboferta",
+        "stinting",
+        "payment reform",
+        "custos fixos",
+        "reopener clause",
+        "case-mix",
+        "auditoria clínica",
+        "Maryland",
+        "Alternative Quality Contract",
+        "Oliver Hart",
+        "contratos incompletos"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/001/compass",
+        "pdf": "/compass/edicoes/2026/001/compass_001_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_001_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": true,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "adapted-legacy",
+        "sourceSchema": 1
+      }
+    }
+  ]
+}
