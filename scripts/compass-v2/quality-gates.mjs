@@ -53,6 +53,23 @@ export function evaluateViewportConstraints({ viewportWidth, documentWidth, offe
   };
 }
 
+export function evaluateTableLegibility({ tables = [] }) {
+  const minimumColumnWidth = 72;
+  const offenders = tables.filter(({ columnWidths = [] }) => columnWidths.some((width) => (
+    Number.isFinite(width) && width > 0 && width < minimumColumnWidth
+  )));
+  const violations = offenders.length > 0
+    ? [`Há tabela de referência mobile com coluna inferior a ${minimumColumnWidth}px.`]
+    : [];
+  return {
+    ok: violations.length === 0,
+    minimumColumnWidth,
+    tables,
+    offenders,
+    violations,
+  };
+}
+
 function parseRgb(value) {
   const match = String(value ?? '').match(/rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i);
   return match ? match.slice(1, 4).map(Number) : null;
@@ -169,6 +186,7 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     documentWidth: 0,
     offenders: [],
   };
+  let tableMetrics = { tables: [] };
   const desktopScreenshot = path.join(outputDir, 'desktop.png');
   const mobileScreenshot = path.join(outputDir, 'mobile.png');
 
@@ -264,6 +282,17 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
         .slice(0, 24);
       return { viewportWidth, documentWidth, offenders };
     });
+    tableMetrics = await page.evaluate(() => ({
+      tables: [...document.querySelectorAll('.compass-v2 .ref-table')].map((table, index) => {
+        const row = table.querySelector('thead tr') ?? table.querySelector('tr');
+        return {
+          selector: `table.ref-table[data-qa-index="${index}"]`,
+          columnWidths: row
+            ? [...row.children].map((cell) => Number(cell.getBoundingClientRect().width.toFixed(2)))
+            : [],
+        };
+      }),
+    }));
     await page.screenshot({ path: mobileScreenshot, fullPage: true });
   } finally {
     await browser.close();
@@ -275,6 +304,7 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
   const blockingAccessibility = accessibility.violations.filter((item) => ['critical', 'serious'].includes(item.impact));
   const visualValidation = evaluateVisualTokens(visualTokens);
   const viewportValidation = evaluateViewportConstraints(viewportMetrics);
+  const tableLegibility = evaluateTableLegibility(tableMetrics);
   const report = {
     generatedAt: new Date().toISOString(),
     url,
@@ -287,12 +317,14 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
       tokens: visualTokens,
       validation: visualValidation,
       viewport: viewportValidation,
+      tableLegibility,
     },
     ok: parity.ok
       && pdfConstraints.ok
       && blockingAccessibility.length === 0
       && visualValidation.ok
-      && viewportValidation.ok,
+      && viewportValidation.ok
+      && tableLegibility.ok,
   };
   await writeFile(path.join(outputDir, 'quality-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   return report;

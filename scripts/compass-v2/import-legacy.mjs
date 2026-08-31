@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 import { normalizeEditionMetadata, validateEditionMetadata } from './schema.mjs';
@@ -40,8 +41,15 @@ function extractLegacyDownload(source, { editionSlug, year }) {
   return `<div class="compass-download">\n${block}\n</div>`;
 }
 
+function normalizeReferenceLinks(section) {
+  return String(section).replace(
+    /<a([^>]*\bhref=["']https?:\/\/[^"']+["'][^>]*)>\s*https?:\/\/[^<]+\s*<\/a>/giu,
+    '<a$1>Link</a>',
+  );
+}
+
 export function buildLegacyEditionContent({ legacyMarkdown, editionSlug, year }) {
-  const sections = extractBlocks(legacyMarkdown, 'compass-section');
+  const sections = extractBlocks(legacyMarkdown, 'compass-section').map(normalizeReferenceLinks);
   if (sections.length === 0) throw new Error('Nenhuma seção editorial legada foi encontrada.');
 
   const scope = extractSingleBlock(legacyMarkdown, 'compass-scope');
@@ -59,12 +67,47 @@ export function buildLegacyEditionContent({ legacyMarkdown, editionSlug, year })
   return `<template>\n${content}\n\n${scopeBlock}\n\n<div class="compass-download-actions">\n${actions}\n</div>\n</template>\n`;
 }
 
-export function buildLegacyEditionMetadata({ legacyMetadata, legacyMarkdown, legacyPdf }) {
+export async function extractLegacyPdfText(legacyPdf) {
+  const document = await getDocument({ data: new Uint8Array(legacyPdf) }).promise;
+  try {
+    const pages = [];
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent();
+      pages.push(content.items.map((item) => ('str' in item ? item.str : '')).join(' '));
+    }
+    return pages.join('\n');
+  } finally {
+    if (typeof document.cleanup === 'function') await document.cleanup();
+  }
+}
+
+export function detectLegacyPdfEditionLabel(legacyPdfText) {
+  const labels = [...String(legacyPdfText ?? '').matchAll(/E\s*d\s*i\s*ç\s*ã\s*o\s+(\d\s*\d\s*\d)\s*\/\s*(\d\s*\d\s*\d\s*\d)/giu)]
+    .map((match) => `${match[1].replaceAll(/\s/gu, '')}/${match[2].replaceAll(/\s/gu, '')}`);
+  const uniqueLabels = [...new Set(labels)];
+  if (uniqueLabels.length > 1) {
+    throw new Error(`PDF legado com numeração ambígua: ${uniqueLabels.join(', ')}.`);
+  }
+  return uniqueLabels[0] ?? null;
+}
+
+export function buildLegacyEditionMetadata({ legacyMetadata, legacyMarkdown, legacyPdf, legacyPdfText = '' }) {
   const metadata = normalizeEditionMetadata(legacyMetadata);
   const validation = validateEditionMetadata(metadata);
   if (!validation.valid) {
     throw new Error(`Metadados Compass™ inválidos: ${validation.errors.map((item) => item.path).join(', ')}.`);
   }
+
+  const canonicalLabel = `${metadata.slug}/${metadata.year}`;
+  const legacyPdfDisplayedLabel = detectLegacyPdfEditionLabel(legacyPdfText);
+  const numberingCorrection = legacyPdfDisplayedLabel && legacyPdfDisplayedLabel !== canonicalLabel
+    ? {
+        state: 'corrected-crossed-label',
+        canonicalLabel,
+        legacyPdfDisplayedLabel,
+      }
+    : null;
 
   return {
     ...metadata,
@@ -73,6 +116,7 @@ export function buildLegacyEditionMetadata({ legacyMetadata, legacyMarkdown, leg
       sourceSha256: sha256(legacyMarkdown),
       originalPdfSha256: sha256(legacyPdf),
       originalPdfBytes: legacyPdf.length,
+      ...(numberingCorrection ? { numberingCorrection } : {}),
     },
   };
 }
@@ -86,6 +130,8 @@ function buildFrontmatter(metadata) {
     outline: false,
     editLink: false,
     lastUpdated: false,
+    prev: false,
+    next: false,
     head: [
       ['meta', { property: 'og:title', content: `Compass™ ${metadata.slug}/${metadata.year} — ${metadata.title}` }],
       ['meta', { property: 'og:description', content: metadata.summary ?? metadata.title }],
@@ -208,30 +254,36 @@ export function buildLegacyEditionCss() {
   }
 
   .compass-v2 .ref-table {
-    display: table;
+    display: block;
     width: 100%;
     max-width: 100%;
-    table-layout: fixed;
+    overflow-x: auto;
+    table-layout: auto;
     font-size: 0.78rem;
     white-space: normal;
   }
 
   .compass-v2 .ref-table th,
   .compass-v2 .ref-table td {
-    min-width: 0;
-    padding: 0.55rem 0.35rem;
-    overflow-wrap: anywhere;
+    padding: 0.55rem 0.5rem;
+    overflow-wrap: normal;
+    word-break: normal;
     white-space: normal;
   }
 
   .compass-v2 .ref-table th:first-child,
   .compass-v2 .ref-table td:first-child {
-    width: 2.3rem;
+    min-width: 18rem;
+  }
+
+  .compass-v2 .ref-table th:nth-child(2),
+  .compass-v2 .ref-table td:nth-child(2) {
+    min-width: 16rem;
   }
 
   .compass-v2 .ref-table th:last-child,
   .compass-v2 .ref-table td:last-child {
-    width: 2.75rem;
+    min-width: 5rem;
   }
 }
 
@@ -296,7 +348,8 @@ export async function importLegacyEdition({ inputDir, outputDir }) {
   const identity = normalizeEditionMetadata(legacyMetadata);
   const pdfName = `compass_${identity.slug}_${identity.year}.pdf`;
   const legacyPdf = await readFile(path.join(inputDir, pdfName));
-  const metadata = buildLegacyEditionMetadata({ legacyMetadata, legacyMarkdown, legacyPdf });
+  const legacyPdfText = await extractLegacyPdfText(legacyPdf);
+  const metadata = buildLegacyEditionMetadata({ legacyMetadata, legacyMarkdown, legacyPdf, legacyPdfText });
   const componentName = `Compass${metadata.slug}Content.vue`;
 
   await mkdir(outputDir, { recursive: true });

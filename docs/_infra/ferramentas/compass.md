@@ -123,7 +123,7 @@ onMounted(() => {
 
 O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica é **“Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®”**. AxiaCare® permanece visível como responsável pela elaboração e pela aplicação prática nas consultorias e assessorias, conforme o contexto de cada edição.
 
-| Campo | Estado Verificado no Marco M5 |
+| Campo | Estado Verificado na Transição Local |
 |---|---|
 | URL Pública | [hub.grupocsv.com/compass/](https://hub.grupocsv.com/compass/) |
 | Fonte Canônica | `compass/edicoes/<ano>/<número>/` no repositório `grupocsv/hub` |
@@ -131,7 +131,8 @@ O Compass™ é a linha editorial estratégica do Grupo CSV para análises técn
 | PDF | A4 determinístico por Playwright/Chromium em runtime Docker isolado |
 | Catálogo | `docs/compass/catalog.json`, derivado dos metadados de cada edição |
 | Edição Nativa v2 | 008/2026, integrada e validada localmente na branch de transição |
-| Edições 001–007 | Permanecem no fluxo legado até migração individual nos marcos M6–M8 |
+| Edições Migradas | 005–007, migradas e validadas localmente nos marcos M6 e M7 |
+| Edições Legadas | 001–004, com migração prevista no M8 |
 | Backend | Extensão do `csv-documents` implementada e testada localmente; migration e deploy ainda não aplicados |
 | n8n | Fora do caminho crítico; nenhuma alteração realizada |
 
@@ -139,7 +140,7 @@ O Compass™ é a linha editorial estratégica do Grupo CSV para análises técn
 
 A fonte editorial de uma edição v2 fica em `compass/edicoes/<ano>/<número>/`. O arquivo `metadata.yml` identifica a edição, as marcas, o status e os artefatos. O conteúdo semântico fica em `compass.md` ou em componente Vue namespaceado quando o layout editorial exige estrutura paginada completa. PDF e `release.json` integram a mesma árvore versionada.
 
-O comando `npm run compass:publish` sincroniza apenas edições nativas v2 para `docs/compass/`. Em seguida, `npm run compass:catalog` deriva o catálogo público. A sidebar é construída a partir desse catálogo; não existe uma segunda lista manual de edições.
+O comando `npm run compass:publish` sincroniza apenas edições com schema v2 para `docs/compass/`. Em seguida, `npm run compass:catalog` deriva o catálogo público. A sidebar é construída a partir desse catálogo; não existe uma segunda lista manual de edições.
 
 | Artefato | Origem | Função |
 |---|---|---|
@@ -153,7 +154,7 @@ O comando `npm run compass:publish` sincroniza apenas edições nativas v2 para 
 
 O componente global `CompassEdition.vue` aplica a moldura editorial comum. A edição 008 usa o modo `paged`, com CSS global namespaceado, para preservar integralmente as 23 páginas editoriais sem duplicar capa ou contracapa. O modo de leitura web permanece responsivo; as regras A4 são ativadas somente na mídia de impressão.
 
-O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo e checksums.
+O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo, checksums, overflow documental e largura mínima das colunas de referências no mobile.
 
 | Comando | Resultado |
 |---|---|
@@ -181,9 +182,9 @@ As mutações de publicação permanecem indisponíveis no Admin enquanto migrat
 
 ## Compatibilidade e Migração Histórica
 
-As edições 001–007 serão migradas individualmente. Cada marco deve preservar o conteúdo, a URL histórica e o download existente, além de produzir metadados e checksums no contrato v2. A numeração divergente entre as edições 005 e 006 exige correção explícita e registro de procedência no marco correspondente.
+As edições 005–007 foram migradas e validadas localmente nos marcos M6 e M7. As edições 001–004 permanecem legadas até o M8. Cada marco preserva o conteúdo, a URL histórica e o download existente, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos.
 
-O gerador FPDF permanece como fallback temporário durante a transição. Ele deixa de ser o motor principal após a migração completa e a validação das oito edições.
+O gerador FPDF permanece como fallback temporário apenas para as edições 001–004. Ele deixa de ser o motor principal após a migração completa e a validação das oito edições.
 
 ## CI, AI Search e Sistemas Relacionados
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T20:52:25.247Z",
-  "sourceHash": "9e826f92595bcca6cb7050e1f49780a2d1659324955d622ac1fd7806a6d9619f",
+  "generatedAt": "2026-08-31T21:49:10.687Z",
+  "sourceHash": "2f854a8ba462ed1fc2c94faa77fa3c7438de4cc759f9f41962e21e425b71548a",
   "total": 8,
   "editions": [
     {
@@ -179,7 +179,15 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "19fd67a59cf44bc7b4d87e69d58f94aaef1906302a93d726cbe80aa33a6d18a1",
+        "originalPdfSha256": "81cb3495c751ebe9ff98f33d4a807f0f805568d6abd4f259cd7974ec9605264a",
+        "originalPdfBytes": 445956,
+        "numberingCorrection": {
+          "state": "corrected-crossed-label",
+          "canonicalLabel": "006/2026",
+          "legacyPdfDisplayedLabel": "005/2026"
+        }
       }
     },
     {
@@ -238,7 +246,15 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "eb57e43cd3fb997884924032e84dcb6c6895f54fe7d68d73aef65e4f97a27615",
+        "originalPdfSha256": "a8fff1b3118ad34ebd32a6bb8f2200aa79d733c4c4f6bff3abceb058644e08da",
+        "originalPdfBytes": 483057,
+        "numberingCorrection": {
+          "state": "corrected-crossed-label",
+          "canonicalLabel": "005/2026",
+          "legacyPdfDisplayedLabel": "006/2026"
+        }
       }
     },
     {

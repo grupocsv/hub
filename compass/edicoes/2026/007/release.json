@@ -3,7 +3,7 @@
   "editionId": "007-2026",
   "editionSlug": "007",
   "year": 2026,
-  "generatedAt": "2026-08-31T21:30:50.036Z",
+  "generatedAt": "2026-08-31T22:16:36.703Z",
   "engine": {
     "name": "compass-v2",
     "renderer": "playwright-chromium"
@@ -11,7 +11,7 @@
   "sourceHash": "cc409135e2c67a9b06063c3e85e3bda4b20018921e2efd1c57b5262c40ff2179",
   "pdf": {
     "filename": "compass_007_2026.pdf",
-    "sha256": "d6237b86540aae0c702550534bd3597b6b4991e188228aa4e46c9684876fa6c4",
-    "bytes": 394457
+    "sha256": "849c519049c533c933e1d686f2b2ed0960faf304b819181999ec625a31dd9a5a",
+    "bytes": 393367
   }
 }

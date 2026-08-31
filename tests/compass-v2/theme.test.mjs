@@ -75,6 +75,13 @@ test('mantém o crédito principal legível no rodapé do modo escuro', async ()
   assert.match(css, /\.dark\s+\.compass-v2__footer\s+strong\s*\{[^}]*color:\s*#(?:fff|ffffff)/si);
 });
 
+test('oculta no PDF flow o rodapé redundante cujos créditos já constam na capa', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  const printCss = css.split(/@media\s+print/)[1] ?? '';
+  assert.match(printCss, /\.compass-v2:not\(\.compass-v2--paged\)\s*>\s*\.compass-v2__footer\s*\{[^}]*display:\s*none\s*!important/si);
+});
+
 test('preserva títulos claros nas contracapas escuras durante a impressão', async () => {
   const css = await readOrNull(cssPath);
   assert.notEqual(css, null, 'compass-v2.css ainda não existe');

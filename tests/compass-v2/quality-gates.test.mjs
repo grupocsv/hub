@@ -78,6 +78,25 @@ test('bloqueia overflow horizontal na viewport mobile e identifica ofensores', a
   assert.match(blocked.violations[0], /overflow horizontal/u);
 });
 
+test('bloqueia tabelas de referência mobile com colunas excessivamente comprimidas', async () => {
+  const quality = await loadQuality();
+  assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
+
+  const blocked = quality.evaluateTableLegibility({
+    tables: [{ selector: 'table.ref-table', columnWidths: [24, 152, 48] }],
+  });
+  assert.equal(blocked.ok, false);
+  assert.equal(blocked.minimumColumnWidth, 72);
+  assert.deepEqual(blocked.offenders, [{ selector: 'table.ref-table', columnWidths: [24, 152, 48] }]);
+  assert.match(blocked.violations[0], /coluna inferior a 72px/u);
+
+  const approved = quality.evaluateTableLegibility({
+    tables: [{ selector: 'table.ref-table', columnWidths: [288, 256, 80] }],
+  });
+  assert.equal(approved.ok, true);
+  assert.deepEqual(approved.offenders, []);
+});
+
 test('bloqueia baixo contraste do corpo no PDF de edições em modo flow', async () => {
   const quality = await loadQuality();
   assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
@@ -158,4 +177,5 @@ test('o auditor usa PDF.js, axe-core e gera screenshots desktop e mobile', async
   assert.match(source, /assertLocalRenderUrl/);
   assert.match(source, /evaluateVisualTokens/);
   assert.match(source, /evaluateViewportConstraints/);
+  assert.match(source, /evaluateTableLegibility/);
 });

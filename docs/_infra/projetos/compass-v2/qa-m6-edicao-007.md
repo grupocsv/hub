@@ -82,3 +82,7 @@ Foi adicionada uma regressão automatizada e uma regra global específica para t
 | 008 | 1.179.294 bytes | 23 | 0 | 0 px | Aprovada |
 
 A edição 008 manteve a paridade textual e os contrastes de 17,96:1 na contracapa, tanto em tela quanto no PDF. Seu artefato PDF não foi regenerado, pois a correção está restrita ao comportamento web em viewport de até 768 px.
+
+## 8. Atualização Após o Marco M7
+
+O Marco M7 removeu do PDF em modo `flow` o rodapé de créditos redundante, mantendo os mesmos créditos na capa. Como essa regra é global para as edições migradas, o PDF 007 foi regenerado e novamente submetido aos gates completos. O artefato permanece com 12 páginas, passou a 393.367 bytes e recebeu o SHA-256 `849c519049c533c933e1d686f2b2ed0960faf304b819181999ec625a31dd9a5a`. A paridade web/PDF, os contrastes, a acessibilidade e o overflow mobile permaneceram aprovados. Os valores das seções anteriores deste documento registram o estado aprovado no fechamento original do M6; este adendo registra o artefato vigente na branch após o M7.

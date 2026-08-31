@@ -35,9 +35,9 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 | [002/2026](edicoes/2026/002/compass.md) | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira | Publicada no modelo legado; migração prevista no M8 |
 | [003/2026](edicoes/2026/003/compass.md) | Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil | Publicada no modelo legado; migração prevista no M8 |
 | [004/2026](edicoes/2026/004/compass.md) | Implantação Estratégica e Operacional de NATS na Saúde Suplementar Brasileira | Publicada no modelo legado; migração prevista no M8 |
-| [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica | Publicada no modelo legado; migração e correção de numeração previstas no M7 |
-| [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar | Publicada no modelo legado; migração e correção de numeração previstas no M7 |
-| [007/2026](edicoes/2026/007/compass.md) | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | Publicada no modelo legado; piloto de migração previsto no M6 |
+| [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
+| [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
+| [007/2026](edicoes/2026/007/compass.md) | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | Migrada para v2 no M6; release controlado pendente |
 | [008/2026](edicoes/2026/008/compass.md) | Modelo editorial completo da edição 008 | Nativa v2; release controlado pendente |
 
 ## Comandos Oficiais
@@ -53,9 +53,9 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 
 ## PDF e Qualidade
 
-O renderizador `render-pdf.mjs` usa Playwright e Chromium em container efêmero fixado por digest. O host não recebe bibliotecas do navegador. O gate `quality-gates.mjs` verifica paridade de conteúdo, marcas obrigatórias, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo de 4 MB e checksums.
+O renderizador `render-pdf.mjs` usa Playwright e Chromium em container efêmero fixado por digest. O host não recebe bibliotecas do navegador. O gate `quality-gates.mjs` verifica paridade de conteúdo, marcas obrigatórias, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo de 4 MB, checksums, overflow documental e largura mínima das colunas de referências no mobile.
 
-O gerador FPDF permanece como fallback temporário para as edições ainda não migradas. Ele não é a fonte do PDF da edição 008.
+O gerador FPDF permanece como fallback temporário para as edições 001–004, ainda não migradas. Ele não é a fonte dos PDFs v2 das edições 005–008.
 
 ## Backend e Downloads
 

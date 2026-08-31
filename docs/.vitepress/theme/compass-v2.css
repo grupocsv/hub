@@ -473,6 +473,10 @@
     break-inside: avoid;
   }
 
+  .compass-v2:not(.compass-v2--paged) > .compass-v2__footer {
+    display: none !important;
+  }
+
   .compass-v2__footer {
     margin-top: 12mm;
     border: 0;
