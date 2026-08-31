@@ -13,6 +13,10 @@ test('expõe comandos oficiais do Compass™ v2', () => {
   assert.match(packageJson.scripts['compass:test'] ?? '', /tests\/compass-v2/);
   assert.match(packageJson.scripts['compass:build'] ?? '', /compass:catalog/);
   assert.match(packageJson.scripts['compass:build'] ?? '', /docs:build/);
+  assert.match(packageJson.scripts['compass:pdf'] ?? '', /render-pdf\.mjs/);
+  assert.match(packageJson.scripts['compass:quality'] ?? '', /quality-gates\.mjs/);
+  assert.match(packageJson.scripts['compass:test:pdf'] ?? '', /compass:pdf:runtime/);
+  assert.match(packageJson.scripts['compass:verify'] ?? '', /compass:test:pdf/);
 });
 
 test('o build geral atualiza o catálogo antes do VitePress', () => {
