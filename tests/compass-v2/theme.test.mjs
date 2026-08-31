@@ -32,6 +32,13 @@ test('possui um componente global que lê metadados da página e envolve o conte
   assert.match(component, /v-if="mode !== 'paged'"/);
 });
 
+test('não aplica nome acessível proibido a um contêiner genérico da marca', async () => {
+  const component = await readOrNull(componentPath);
+  assert.notEqual(component, null, 'CompassEdition.vue ainda não existe');
+  assert.doesNotMatch(component, /<div[^>]*class="compass-cover__brand"[^>]*aria-label=/u);
+  assert.match(component, /alt="Grupo CSV"/u);
+});
+
 test('registra o componente e o CSS do Compass™ v2 no tema do Hub', async () => {
   const theme = await readFile(themePath, 'utf8');
   assert.match(theme, /CompassEdition/);
@@ -48,6 +55,24 @@ test('separa o comportamento responsivo da paginação A4', async () => {
   assert.match(css, /@page\s*\{/);
   assert.match(css, /size:\s*A4/);
   assert.match(css, /break-inside:\s*avoid/);
+});
+
+test('contém tabelas de edições paginadas na viewport mobile', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  assert.match(css, /@media\s*\(max-width:\s*768px\)[\s\S]*\.compass-v2--paged\s+\.compass-v2__content\s+table\s*\{[^}]*display:\s*block\s*!important[^}]*max-width:\s*100%\s*!important[^}]*overflow-x:\s*auto\s*!important/si);
+});
+
+test('mantém títulos longos dentro da capa mobile', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  assert.match(css, /@media\s*\(max-width:\s*768px\)[\s\S]*\.compass-cover\s+h1\s*\{[^}]*max-width:\s*100%[^}]*min-width:\s*0[^}]*overflow-wrap:\s*anywhere/si);
+});
+
+test('mantém o crédito principal legível no rodapé do modo escuro', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  assert.match(css, /\.dark\s+\.compass-v2__footer\s+strong\s*\{[^}]*color:\s*#(?:fff|ffffff)/si);
 });
 
 test('preserva títulos claros nas contracapas escuras durante a impressão', async () => {

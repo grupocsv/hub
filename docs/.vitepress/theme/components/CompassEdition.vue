@@ -21,7 +21,7 @@ const credits = Object.freeze({
 <template>
   <article class="compass-v2" :class="{ 'compass-v2--paged': mode === 'paged' }" itemscope itemtype="https://schema.org/Report">
     <header v-if="mode !== 'paged'" class="compass-cover">
-      <div class="compass-cover__brand" aria-label="Grupo CSV">
+      <div class="compass-cover__brand">
         <img
           class="compass-cover__logo compass-cover__logo--light"
           src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png"

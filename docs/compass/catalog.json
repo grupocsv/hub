@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T18:25:11.898Z",
-  "sourceHash": "e8a64c242d0960264ad4ca213b9ab32b67e6eafd4b6636a5d6ca970ed013e397",
+  "generatedAt": "2026-08-31T20:52:25.247Z",
+  "sourceHash": "9e826f92595bcca6cb7050e1f49780a2d1659324955d622ac1fd7806a6d9619f",
   "total": 8,
   "editions": [
     {
@@ -117,7 +117,10 @@
       },
       "migration": {
         "state": "adapted-legacy",
-        "sourceSchema": 1
+        "sourceSchema": 1,
+        "sourceSha256": "a2764829806b0c673b2e9bae3674153c50fd9b8f74230ae0ca21746216c6602f",
+        "originalPdfSha256": "ed5b7b5e90d39e60c744c72188617c94234460f376af991f360718221b5ec90d",
+        "originalPdfBytes": 471124
       }
     },
     {

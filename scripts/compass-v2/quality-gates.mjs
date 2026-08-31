@@ -35,6 +35,24 @@ export function evaluatePdfConstraints({ bytes, pages }) {
   return { ok: violations.length === 0, maxBytes, bytes, pages, violations };
 }
 
+export function evaluateViewportConstraints({ viewportWidth, documentWidth, offenders = [] }) {
+  if (!Number.isFinite(viewportWidth) || !Number.isFinite(documentWidth)) {
+    throw new TypeError('As larguras da viewport e do documento devem ser numéricas.');
+  }
+  const overflowPixels = Math.max(0, Math.ceil(documentWidth - viewportWidth));
+  const violations = overflowPixels > 1
+    ? [`A página apresenta overflow horizontal de ${overflowPixels}px na viewport mobile.`]
+    : [];
+  return {
+    ok: violations.length === 0,
+    viewportWidth,
+    documentWidth,
+    overflowPixels,
+    offenders: violations.length > 0 ? offenders : [],
+    violations,
+  };
+}
+
 function parseRgb(value) {
   const match = String(value ?? '').match(/rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i);
   return match ? match.slice(1, 4).map(Number) : null;
@@ -63,9 +81,18 @@ export function evaluateVisualTokens({
   backBackgroundColor,
   printBackTitleColor,
   printBackBackgroundColor,
+  printFlowTextColor,
+  printFlowBackgroundColor,
+  printTableTextColor,
+  printTableBackgroundColor,
+  printScopeTextColor,
+  printScopeBackgroundColor,
 }) {
   const backTitleContrast = contrastRatio(backTitleColor, backBackgroundColor);
   const printBackTitleContrast = contrastRatio(printBackTitleColor, printBackBackgroundColor);
+  const printFlowTextContrast = contrastRatio(printFlowTextColor, printFlowBackgroundColor);
+  const printTableContrast = contrastRatio(printTableTextColor, printTableBackgroundColor);
+  const printScopeContrast = contrastRatio(printScopeTextColor, printScopeBackgroundColor);
   const violations = [];
   if (backTitleContrast !== null && backTitleContrast < 4.5) {
     violations.push('O título da contracapa na tela não atende ao contraste mínimo de 4,5:1.');
@@ -73,10 +100,22 @@ export function evaluateVisualTokens({
   if (printBackTitleContrast !== null && printBackTitleContrast < 4.5) {
     violations.push('O título da contracapa no PDF não atende ao contraste mínimo de 4,5:1.');
   }
+  if (printFlowTextContrast !== null && printFlowTextContrast < 4.5) {
+    violations.push('O corpo da edição em modo flow no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printTableContrast !== null && printTableContrast < 4.5) {
+    violations.push('A tabela da edição em modo flow no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printScopeContrast !== null && printScopeContrast < 4.5) {
+    violations.push('A nota de escopo no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
   return {
     ok: violations.length === 0,
     backTitleContrast,
     printBackTitleContrast,
+    printFlowTextContrast,
+    printTableContrast,
+    printScopeContrast,
     violations,
   };
 }
@@ -118,6 +157,17 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     backBackgroundColor: null,
     printBackTitleColor: null,
     printBackBackgroundColor: null,
+    printFlowTextColor: null,
+    printFlowBackgroundColor: null,
+    printTableTextColor: null,
+    printTableBackgroundColor: null,
+    printScopeTextColor: null,
+    printScopeBackgroundColor: null,
+  };
+  let viewportMetrics = {
+    viewportWidth: 0,
+    documentWidth: 0,
+    offenders: [],
   };
   const desktopScreenshot = path.join(outputDir, 'desktop.png');
   const mobileScreenshot = path.join(outputDir, 'mobile.png');
@@ -143,9 +193,29 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     const printVisualTokens = await page.evaluate(() => {
       const title = document.querySelector('.compass-page--back .mi .t');
       const back = document.querySelector('.compass-page--back');
+      const flowText = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content p');
+      const flowSurface = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content');
+      const flowTableCell = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content table tbody tr:nth-child(2) td')
+        ?? document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content table td');
+      const flowScope = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-scope');
+      const effectiveBackground = (element) => {
+        let current = element;
+        while (current) {
+          const background = getComputedStyle(current).backgroundColor;
+          if (background && background !== 'transparent' && !background.endsWith(', 0)')) return background;
+          current = current.parentElement;
+        }
+        return null;
+      };
       return {
         printBackTitleColor: title ? getComputedStyle(title).color : null,
         printBackBackgroundColor: back ? getComputedStyle(back).backgroundColor : null,
+        printFlowTextColor: flowText ? getComputedStyle(flowText).color : null,
+        printFlowBackgroundColor: flowSurface ? effectiveBackground(flowSurface) : null,
+        printTableTextColor: flowTableCell ? getComputedStyle(flowTableCell).color : null,
+        printTableBackgroundColor: flowTableCell ? effectiveBackground(flowTableCell) : null,
+        printScopeTextColor: flowScope ? getComputedStyle(flowScope).color : null,
+        printScopeBackgroundColor: flowScope ? effectiveBackground(flowScope) : null,
       };
     });
     visualTokens = { ...visualTokens, ...printVisualTokens };
@@ -166,6 +236,34 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     };
     await page.screenshot({ path: desktopScreenshot, fullPage: true });
     await page.setViewportSize({ width: 375, height: 812 });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    viewportMetrics = await page.evaluate(() => {
+      const viewportWidth = document.documentElement.clientWidth;
+      const documentWidth = Math.max(
+        document.documentElement.scrollWidth,
+        document.body?.scrollWidth ?? 0,
+      );
+      const describe = (element) => {
+        const id = element.id ? `#${element.id}` : '';
+        const classes = [...element.classList].slice(0, 3).map((name) => `.${name}`).join('');
+        return `${element.tagName.toLowerCase()}${id}${classes}`;
+      };
+      const offenders = [...document.querySelectorAll('body *')]
+        .map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            selector: describe(element),
+            left: Number(rect.left.toFixed(2)),
+            right: Number(rect.right.toFixed(2)),
+            width: Number(rect.width.toFixed(2)),
+          };
+        })
+        .filter(({ left, right }) => left < -1 || right > viewportWidth + 1)
+        .sort((left, right) => Math.max(right.right - viewportWidth, -right.left)
+          - Math.max(left.right - viewportWidth, -left.left))
+        .slice(0, 24);
+      return { viewportWidth, documentWidth, offenders };
+    });
     await page.screenshot({ path: mobileScreenshot, fullPage: true });
   } finally {
     await browser.close();
@@ -176,6 +274,7 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
   const pdfConstraints = evaluatePdfConstraints({ bytes: pdf.bytes.length, pages: pdf.pages });
   const blockingAccessibility = accessibility.violations.filter((item) => ['critical', 'serious'].includes(item.impact));
   const visualValidation = evaluateVisualTokens(visualTokens);
+  const viewportValidation = evaluateViewportConstraints(viewportMetrics);
   const report = {
     generatedAt: new Date().toISOString(),
     url,
@@ -187,8 +286,13 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
       mobile: path.basename(mobileScreenshot),
       tokens: visualTokens,
       validation: visualValidation,
+      viewport: viewportValidation,
     },
-    ok: parity.ok && pdfConstraints.ok && blockingAccessibility.length === 0 && visualValidation.ok,
+    ok: parity.ok
+      && pdfConstraints.ok
+      && blockingAccessibility.length === 0
+      && visualValidation.ok
+      && viewportValidation.ok,
   };
   await writeFile(path.join(outputDir, 'quality-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   return report;

@@ -313,6 +313,10 @@
   color: var(--compass-navy);
 }
 
+.dark .compass-v2__footer strong {
+  color: #ffffff;
+}
+
 @media (max-width: 768px) {
   .compass-v2 {
     width: 100%;
@@ -339,7 +343,11 @@
   }
 
   .compass-cover h1 {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     font-size: clamp(2.2rem, 12vw, 3.5rem);
+    overflow-wrap: anywhere;
   }
 
   .compass-cover__meta {
@@ -366,6 +374,13 @@
     max-width: 100%;
     overflow-x: auto;
     white-space: nowrap;
+  }
+
+  .compass-v2--paged .compass-v2__content table {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
   }
 }
 

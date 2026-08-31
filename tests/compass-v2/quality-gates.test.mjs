@@ -55,6 +55,76 @@ test('aplica limites operacionais ao PDF', async () => {
   assert.match(oversized.violations[0], /4.000.000/);
 });
 
+test('bloqueia overflow horizontal na viewport mobile e identifica ofensores', async () => {
+  const quality = await loadQuality();
+  assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
+  assert.deepEqual(
+    quality.evaluateViewportConstraints({
+      viewportWidth: 375,
+      documentWidth: 375,
+      offenders: [{ selector: 'td', right: 900, width: 500 }],
+    }),
+    { ok: true, viewportWidth: 375, documentWidth: 375, overflowPixels: 0, offenders: [], violations: [] },
+  );
+
+  const blocked = quality.evaluateViewportConstraints({
+    viewportWidth: 375,
+    documentWidth: 442,
+    offenders: [{ selector: '.comparison-table', right: 442, width: 410 }],
+  });
+  assert.equal(blocked.ok, false);
+  assert.equal(blocked.overflowPixels, 67);
+  assert.deepEqual(blocked.offenders, [{ selector: '.comparison-table', right: 442, width: 410 }]);
+  assert.match(blocked.violations[0], /overflow horizontal/u);
+});
+
+test('bloqueia baixo contraste do corpo no PDF de edições em modo flow', async () => {
+  const quality = await loadQuality();
+  assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
+
+  const blocked = quality.evaluateVisualTokens({
+    printFlowTextColor: 'rgb(20, 33, 61)',
+    printFlowBackgroundColor: 'rgb(23, 27, 39)',
+  });
+  assert.equal(blocked.ok, false);
+  assert.ok(blocked.printFlowTextContrast < 4.5);
+  assert.match(blocked.violations[0], /corpo da edição em modo flow/u);
+
+  const approved = quality.evaluateVisualTokens({
+    printFlowTextColor: 'rgb(20, 33, 61)',
+    printFlowBackgroundColor: 'rgb(255, 255, 255)',
+  });
+  assert.equal(approved.ok, true);
+  assert.ok(approved.printFlowTextContrast >= 4.5);
+});
+
+test('bloqueia tabela e nota de escopo sem contraste no PDF em modo flow', async () => {
+  const quality = await loadQuality();
+  assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
+
+  const blocked = quality.evaluateVisualTokens({
+    printTableTextColor: 'rgb(20, 33, 61)',
+    printTableBackgroundColor: 'rgb(23, 27, 39)',
+    printScopeTextColor: 'rgb(211, 215, 222)',
+    printScopeBackgroundColor: 'rgb(255, 248, 237)',
+  });
+  assert.equal(blocked.ok, false);
+  assert.ok(blocked.printTableContrast < 4.5);
+  assert.ok(blocked.printScopeContrast < 4.5);
+  assert.ok(blocked.violations.some((item) => /tabela da edição em modo flow/u.test(item)));
+  assert.ok(blocked.violations.some((item) => /nota de escopo no PDF/u.test(item)));
+
+  const approved = quality.evaluateVisualTokens({
+    printTableTextColor: 'rgb(20, 33, 61)',
+    printTableBackgroundColor: 'rgb(255, 255, 255)',
+    printScopeTextColor: 'rgb(51, 65, 85)',
+    printScopeBackgroundColor: 'rgb(255, 248, 237)',
+  });
+  assert.equal(approved.ok, true);
+  assert.ok(approved.printTableContrast >= 4.5);
+  assert.ok(approved.printScopeContrast >= 4.5);
+});
+
 test('bloqueia título escuro na mídia de impressão mesmo quando a tela e o axe-core estão corretos', async () => {
   const quality = await loadQuality();
   assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
@@ -87,4 +157,5 @@ test('o auditor usa PDF.js, axe-core e gera screenshots desktop e mobile', async
   assert.match(source, /1440/);
   assert.match(source, /assertLocalRenderUrl/);
   assert.match(source, /evaluateVisualTokens/);
+  assert.match(source, /evaluateViewportConstraints/);
 });
