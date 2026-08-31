@@ -55,6 +55,29 @@ test('aplica limites operacionais ao PDF', async () => {
   assert.match(oversized.violations[0], /4.000.000/);
 });
 
+test('bloqueia título escuro na mídia de impressão mesmo quando a tela e o axe-core estão corretos', async () => {
+  const quality = await loadQuality();
+  assert.notEqual(quality, null, 'quality-gates.mjs ainda não existe');
+  const blocked = quality.evaluateVisualTokens({
+    backTitleColor: 'rgb(255, 255, 255)',
+    backBackgroundColor: 'rgb(20, 23, 28)',
+    printBackTitleColor: 'rgb(22, 59, 99)',
+    printBackBackgroundColor: 'rgb(20, 23, 28)',
+  });
+  assert.equal(blocked.ok, false);
+  assert.ok(blocked.backTitleContrast >= 4.5);
+  assert.ok(blocked.printBackTitleContrast < 4.5);
+  assert.deepEqual(blocked.violations, ['O título da contracapa no PDF não atende ao contraste mínimo de 4,5:1.']);
+
+  const approved = quality.evaluateVisualTokens({
+    backTitleColor: 'rgb(255, 255, 255)',
+    backBackgroundColor: 'rgb(20, 23, 28)',
+    printBackTitleColor: 'rgb(255, 255, 255)',
+    printBackBackgroundColor: 'rgb(20, 23, 28)',
+  });
+  assert.equal(approved.ok, true);
+});
+
 test('o auditor usa PDF.js, axe-core e gera screenshots desktop e mobile', async () => {
   const source = await readFile(qualityPath, 'utf8').catch(() => '');
   assert.match(source, /pdfjs-dist/);
@@ -63,4 +86,5 @@ test('o auditor usa PDF.js, axe-core e gera screenshots desktop e mobile', async
   assert.match(source, /375/);
   assert.match(source, /1440/);
   assert.match(source, /assertLocalRenderUrl/);
+  assert.match(source, /evaluateVisualTokens/);
 });

@@ -435,6 +435,10 @@
     break-after: avoid;
   }
 
+  .compass-v2--paged .compass-page--back .mi h2 {
+    color: #fff !important;
+  }
+
   .compass-v2__content h3,
   .compass-v2__content p,
   .compass-v2__content li,

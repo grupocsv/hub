@@ -35,6 +35,52 @@ export function evaluatePdfConstraints({ bytes, pages }) {
   return { ok: violations.length === 0, maxBytes, bytes, pages, violations };
 }
 
+function parseRgb(value) {
+  const match = String(value ?? '').match(/rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i);
+  return match ? match.slice(1, 4).map(Number) : null;
+}
+
+function relativeLuminance(rgb) {
+  const channels = rgb.map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+}
+
+function contrastRatio(foreground, background) {
+  const title = parseRgb(foreground);
+  const surface = parseRgb(background);
+  if (!title || !surface) return null;
+  const titleLuminance = relativeLuminance(title);
+  const surfaceLuminance = relativeLuminance(surface);
+  return Number(((Math.max(titleLuminance, surfaceLuminance) + 0.05)
+    / (Math.min(titleLuminance, surfaceLuminance) + 0.05)).toFixed(2));
+}
+
+export function evaluateVisualTokens({
+  backTitleColor,
+  backBackgroundColor,
+  printBackTitleColor,
+  printBackBackgroundColor,
+}) {
+  const backTitleContrast = contrastRatio(backTitleColor, backBackgroundColor);
+  const printBackTitleContrast = contrastRatio(printBackTitleColor, printBackBackgroundColor);
+  const violations = [];
+  if (backTitleContrast !== null && backTitleContrast < 4.5) {
+    violations.push('O título da contracapa na tela não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printBackTitleContrast !== null && printBackTitleContrast < 4.5) {
+    violations.push('O título da contracapa no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  return {
+    ok: violations.length === 0,
+    backTitleContrast,
+    printBackTitleContrast,
+    violations,
+  };
+}
+
 async function extractPdfText(pdfPath) {
   const bytes = await readFile(pdfPath);
   const document = await getDocument({ data: new Uint8Array(bytes) }).promise;
@@ -67,6 +113,12 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
   const browser = await chromium.launch({ headless: true });
   let webText = '';
   let accessibility = { violations: [], passes: 0 };
+  let visualTokens = {
+    backTitleColor: null,
+    backBackgroundColor: null,
+    printBackTitleColor: null,
+    printBackBackgroundColor: null,
+  };
   const desktopScreenshot = path.join(outputDir, 'desktop.png');
   const mobileScreenshot = path.join(outputDir, 'mobile.png');
 
@@ -78,9 +130,38 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     await page.waitForSelector('.compass-v2', { state: 'visible' });
     await page.evaluate(() => document.fonts.ready);
     webText = await page.locator('.compass-v2').innerText();
+    visualTokens = await page.evaluate(() => {
+      const title = document.querySelector('.compass-page--back .mi .t');
+      const back = document.querySelector('.compass-page--back');
+      return {
+        backTitleColor: title ? getComputedStyle(title).color : null,
+        backBackgroundColor: back ? getComputedStyle(back).backgroundColor : null,
+      };
+    });
     const axeResults = await new AxeBuilder({ page }).include('.compass-v2').analyze();
+    await page.emulateMedia({ media: 'print' });
+    const printVisualTokens = await page.evaluate(() => {
+      const title = document.querySelector('.compass-page--back .mi .t');
+      const back = document.querySelector('.compass-page--back');
+      return {
+        printBackTitleColor: title ? getComputedStyle(title).color : null,
+        printBackBackgroundColor: back ? getComputedStyle(back).backgroundColor : null,
+      };
+    });
+    visualTokens = { ...visualTokens, ...printVisualTokens };
+    await page.emulateMedia({ media: 'screen' });
     accessibility = {
-      violations: axeResults.violations.map(({ id, impact, help, nodes }) => ({ id, impact, help, nodes: nodes.length })),
+      violations: axeResults.violations.map(({ id, impact, help, nodes }) => ({
+        id,
+        impact,
+        help,
+        nodes: nodes.length,
+        samples: nodes.slice(0, 24).map((node) => ({
+          target: node.target,
+          html: node.html,
+          failureSummary: node.failureSummary,
+        })),
+      })),
       passes: axeResults.passes.length,
     };
     await page.screenshot({ path: desktopScreenshot, fullPage: true });
@@ -94,6 +175,7 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
   const parity = evaluateParity({ webText, pdfText: pdf.text, requiredTexts });
   const pdfConstraints = evaluatePdfConstraints({ bytes: pdf.bytes.length, pages: pdf.pages });
   const blockingAccessibility = accessibility.violations.filter((item) => ['critical', 'serious'].includes(item.impact));
+  const visualValidation = evaluateVisualTokens(visualTokens);
   const report = {
     generatedAt: new Date().toISOString(),
     url,
@@ -103,8 +185,10 @@ export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
     visual: {
       desktop: path.basename(desktopScreenshot),
       mobile: path.basename(mobileScreenshot),
+      tokens: visualTokens,
+      validation: visualValidation,
     },
-    ok: parity.ok && pdfConstraints.ok && blockingAccessibility.length === 0,
+    ok: parity.ok && pdfConstraints.ok && blockingAccessibility.length === 0 && visualValidation.ok,
   };
   await writeFile(path.join(outputDir, 'quality-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   return report;

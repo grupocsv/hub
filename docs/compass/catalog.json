@@ -1,9 +1,67 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T17:57:33.483Z",
-  "sourceHash": "078988e7accba9854b381f360ff02733a3a5ae5dda20fa13b66b4a0b0f599af3",
-  "total": 7,
+  "generatedAt": "2026-08-31T18:25:11.898Z",
+  "sourceHash": "e8a64c242d0960264ad4ca213b9ab32b67e6eafd4b6636a5d6ca970ed013e397",
+  "total": 8,
   "editions": [
+    {
+      "schemaVersion": 2,
+      "id": "008-2026",
+      "number": 8,
+      "year": 2026,
+      "slug": "008",
+      "title": "Marcos temporais do processo de alta e da substituição do leito",
+      "subtitle": "O que medir, quem responde por cada etapa e por onde começar.",
+      "publishedAt": "2026-08-31",
+      "status": "Minuta para revisão",
+      "summary": "Manual executivo sobre os marcos temporais entre a decisão de alta e a chegada do próximo paciente ao leito, com definições, responsabilidades e indicadores.",
+      "topics": [
+        "alta hospitalar",
+        "gestão de leitos",
+        "fluxo hospitalar",
+        "substituição do leito"
+      ],
+      "tags": [
+        "alta",
+        "gestão de leitos",
+        "marcos temporais",
+        "substituição do leito"
+      ],
+      "product": {
+        "name": "Compass™",
+        "owner": "Grupo CSV"
+      },
+      "editorial": {
+        "responsible": "MedValor®"
+      },
+      "elaboration": [
+        "AxiaCare®"
+      ],
+      "engine": {
+        "name": "compass-v2",
+        "version": "2.0.0",
+        "templateVersion": "2.0.0"
+      },
+      "routes": {
+        "web": "/compass/edicoes/2026/008/compass",
+        "pdf": "/compass/edicoes/2026/008/compass_008_2026.pdf"
+      },
+      "artifacts": {
+        "source": "compass.md",
+        "pdf": "compass_008_2026.pdf",
+        "manifest": "release.json"
+      },
+      "release": {
+        "version": 1,
+        "active": false,
+        "checksum": null,
+        "publishedAt": null
+      },
+      "migration": {
+        "state": "native-v2",
+        "sourceSchema": 2
+      }
+    },
     {
       "schemaVersion": 2,
       "id": "007-2026",

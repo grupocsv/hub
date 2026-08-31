@@ -27,6 +27,9 @@ test('possui um componente global que lê metadados da página e envolve o conte
   assert.match(component, /Compass™ — um produto do Grupo CSV/);
   assert.match(component, /Responsabilidade editorial: MedValor®/);
   assert.match(component, /Elaboração: AxiaCare®/);
+  assert.match(component, /metadata\.value\.mode/);
+  assert.match(component, /compass-v2--paged/);
+  assert.match(component, /v-if="mode !== 'paged'"/);
 });
 
 test('registra o componente e o CSS do Compass™ v2 no tema do Hub', async () => {
@@ -45,6 +48,13 @@ test('separa o comportamento responsivo da paginação A4', async () => {
   assert.match(css, /@page\s*\{/);
   assert.match(css, /size:\s*A4/);
   assert.match(css, /break-inside:\s*avoid/);
+});
+
+test('preserva títulos claros nas contracapas escuras durante a impressão', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  const printCss = css.split(/@media\s+print/)[1] ?? '';
+  assert.match(printCss, /\.compass-v2--paged\s+\.compass-page--back[^}]*h2[^}]*\{[^}]*color:\s*#fff\s*!important/si);
 });
 
 test('não fixa largura A4 no modo de leitura web', async () => {

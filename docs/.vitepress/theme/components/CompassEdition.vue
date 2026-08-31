@@ -9,6 +9,7 @@ const subtitle = computed(() => metadata.value.subtitle ?? '')
 const edition = computed(() => metadata.value.edition ?? metadata.value.number ?? '')
 const year = computed(() => metadata.value.year ?? '')
 const status = computed(() => metadata.value.status ?? 'Publicado')
+const mode = computed(() => metadata.value.mode ?? 'flow')
 
 const credits = Object.freeze({
   product: 'Compass™ — um produto do Grupo CSV',
@@ -18,8 +19,8 @@ const credits = Object.freeze({
 </script>
 
 <template>
-  <article class="compass-v2" itemscope itemtype="https://schema.org/Report">
-    <header class="compass-cover">
+  <article class="compass-v2" :class="{ 'compass-v2--paged': mode === 'paged' }" itemscope itemtype="https://schema.org/Report">
+    <header v-if="mode !== 'paged'" class="compass-cover">
       <div class="compass-cover__brand" aria-label="Grupo CSV">
         <img
           class="compass-cover__logo compass-cover__logo--light"
@@ -51,7 +52,7 @@ const credits = Object.freeze({
       <slot />
     </div>
 
-    <footer class="compass-v2__footer">
+    <footer v-if="mode !== 'paged'" class="compass-v2__footer">
       <strong>{{ credits.product }}</strong>
       <span>{{ credits.editorialResponsibility }}</span>
       <span>{{ credits.elaboration }}</span>
