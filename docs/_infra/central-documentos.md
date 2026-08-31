@@ -121,7 +121,21 @@ O CLI aceita listagem, consulta, busca, status, promoção de versão, archive/r
 
 Uma integração só está pronta quando o contrato publicado, a credencial revogável, o tenant, os escopos, a idempotência e um canário real estiverem validados. Em 24/08/2026, o canário produtivo autorizou os cinco tenants, rejeitou acesso cruzado e tenant inexistente, confirmou bytes de upload e download, link público, `HEAD`, `GET`, `Range`, revogação e exclusão lógica. As nove ferramentas `documents_*` foram descobertas no MCP publicado, e `documents_list` respondeu 200 por meio do Extensio nos cinco tenants. A mera existência do schema ou da ferramenta não comprova acesso produtivo.
 
-## Ciclo documental e exclusão
+### Extensão Compass™ em Preparação
+
+O contrato OpenAPI 0.12.0 e as rotas `/v1/compass/*` foram implementados e testados localmente no `csv-documents`. Eles reutilizam `documents`, `document_versions` e `document_public_links`; não criam bytes duplicados nem expõem chaves do R2.
+
+| Operação | Contrato Preparado | Estado |
+|---|---|---|
+| Listar ou registrar edições | `GET/POST /v1/compass/editions` | Somente código local |
+| Consultar edição | `GET /v1/compass/editions/{editionId}` | Somente código local |
+| Listar ou preparar releases | `GET/POST /v1/compass/editions/{editionId}/releases` | Somente código local |
+| Ativar ou restaurar release | `POST /v1/compass/editions/{editionId}/releases/{releaseId}/activate` | Somente código local |
+| Servir o PDF | `GET/HEAD /s/{slug}` | Capacidade produtiva existente; vínculo Compass ainda não criado |
+
+A migration `0021_create_compass_catalog.sql` permanece não aplicada. Nenhuma tool MCP Compass, rota de gateway, binding, Queue, RLS ou alteração de produção foi introduzida. A aba Compass™ do Admin está preparada em modo somente leitura e utiliza a sessão humana existente. O n8n não integra o caminho crítico e não foi alterado.
+
+## Ciclo Documental e Exclusão
 
 | Estado | Significado | Ações usuais |
 |---|---|---|

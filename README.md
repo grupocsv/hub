@@ -1,6 +1,6 @@
 # Hub Grupo CSV
 
-Portal central do ecossistema **Grupo CSV** - Cuidados em Saúde com Valor.
+Portal central do ecossistema **Grupo CSV** — Cuidados em Saúde com Valor.
 
 **URL:** [hub.grupocsv.com](https://hub.grupocsv.com)
 
@@ -10,7 +10,7 @@ Portal central do ecossistema **Grupo CSV** - Cuidados em Saúde com Valor.
 
 Este repositório contém o Hub Central do Grupo CSV, construído com [VitePress](https://vitepress.dev/), servindo como ponto de entrada unificado para:
 
-- **Empresas do Grupo** - AxiaCare®, MedValor®, Thera
+- **Empresas do Grupo** — AxiaCare®, MedValor®, Thera®
 - **Instituições Parceiras** - Entregáveis para Unimed GV e Unihealth
 - **Governança e Compliance** - Políticas, termos e documentação de integridade
 - **Fundador** - Informações sobre Guilherme Thomé
@@ -63,7 +63,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | Fundador | `founder/` | **Página Estática** | Grupo CSV | Ativo |
 | Deck Institucional | `deck/` | **Página Estática** | Grupo CSV | Ativo |
 | Admin | `admin/` | **Ferramenta** | Grupo CSV | Ativo |
-| Compass™ | `compass/` | **Página Estática** | Grupo CSV | Ativo |
+| Compass™ | `compass/` | **Página Estática** | Grupo CSV, com responsabilidade editorial da MedValor® | Transição v2 |
 | Signal™ | `signal/` | **Página Estática** | Grupo CSV | Ativo |
 | CMM | [cmm.grupocsv.com](https://cmm.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
 | Themis™ | [themis.grupocsv.com](https://themis.grupocsv.com) | **WebApp** | Grupo CSV | Ativo |
@@ -173,11 +173,15 @@ Documentação técnica pensada para:
 - Agentes de IA
 - Integração contínua
 
-### Módulo 6 - Compass™
-Linha editorial estratégica do Grupo CSV. Documentos técnico-estratégicos para tomada de decisão em organizações de saúde.
+### Módulo 6 — Compass™
+
+**Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®**. AxiaCare® permanece identificada na elaboração e na aplicação prática das edições utilizadas em consultorias e assessorias.
+
+O motor v2 mantém a fonte em `compass/edicoes/`, deriva a publicação VitePress e o catálogo `docs/compass/catalog.json`, e gera PDF A4 determinístico em runtime Chromium isolado. A edição 008 é nativa v2; as edições 001–007 permanecem publicadas e serão migradas por marcos, preservando URLs e downloads.
 
 - **Central Compass:** [compass/README.md](compass/README.md)
-- **Edição 001/2026:** [Metas quantitativas de produção em contratos ACO com orçamento global](compass/edicoes/2026/001/compass.md)
+- **Arquitetura e Operação:** [docs/_infra/ferramentas/compass.md](docs/_infra/ferramentas/compass.md)
+- **Edição 008/2026:** [Marcos temporais do processo de alta e da substituição do leito](compass/edicoes/2026/008/compass.md)
 
 ### Módulo 7 - Signal™
 Resumo semanal de inteligência estratégica do Grupo CSV. Sintetiza os 5 a 7 fatos mais relevantes da semana, extraídos da varredura contínua de fontes internas.
@@ -201,6 +205,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 | `csv-auth` | Autenticação e sessões | D1, Resend |
 | `csv-ai` | Assistente de IA contextual | D1, AI Gateway |
 | `csv-email` | Envio de e-mails e persistência de formulários | D1, Resend |
+| `csv-documents` | Control plane documental, versões, links públicos e catálogo Compass™ | D1, R2 privado, Queue/DLQ, `csv-auth` |
 | `tnumm` | WebApp, API e atualização governada do CMM | D1 `tnumm-control`, R2 `tnumm-evidence` |
 | `themis` | WebApp interno para análise documental e processamento durável; piloto limitado a dados sintéticos | Workflow `themis-processing`, R2 `themis-private`, Supabase, Workers AI e AI Gateway `themis-generation` |
 
@@ -215,8 +220,14 @@ npm install
 # Servidor de desenvolvimento
 npm run docs:dev
 
-# Build para produção
+# Testes do motor Compass™ v2
+npm run compass:test
+
+# Build para produção — publica fontes v2 e regenera o catálogo
 npm run docs:build
+
+# Integração PDF em runtime isolado
+npm run compass:test:pdf
 
 # Preview do build
 npm run docs:preview
@@ -228,10 +239,9 @@ npm run docs:preview
 
 O deploy é automático via GitHub Actions quando há push na branch `main`.
 
-O workflow:
-1. Faz build do VitePress
-2. Copia módulos estáticos (axia, medvalor, compliance, etc.)
-3. Deploy para GitHub Pages
+O workflow testa os contratos do Compass™ e da Central de Documentos, publica as fontes v2, regenera o catálogo, rejeita deriva dos artefatos, compila o VitePress, copia os módulos estáticos e executa smoke test antes do deploy para GitHub Pages. O workflow pós-deploy sincroniza conteúdo indexável, incluindo PDFs de até 4 MB, e dispara a reindexação.
+
+A extensão Compass™ do `csv-documents` possui release independente e protegido no repositório backend. A migration D1 e o Worker não devem ser aplicados ou publicados sem autorização explícita. O n8n não integra o caminho crítico e não foi alterado.
 
 ---
 
@@ -267,6 +277,7 @@ O workflow:
 | 06/03/2026 | Adoção formal da Taxonomia de Produtos Digitais |
 | 06/03/2026 | Mapeamento completo dos ativos digitais do ecossistema |
 | 06/03/2026 | Documentação dos Workers (csv-auth, csv-ai, csv-email) |
+| 31/08/2026 | Implementação local do motor Compass™ v2, edição 008, catálogo, Admin e extensão preparada do `csv-documents` |
 
 ---
 
@@ -282,7 +293,7 @@ O workflow:
 
 © 2026 Grupo CSV. Todos os direitos reservados.
 
-**AxiaCare®**, **MedValor®** e **Thera** integram o portfólio de marcas do Grupo CSV.
+**AxiaCare®**, **MedValor®** e **Thera®** integram o portfólio de marcas do Grupo CSV.
 
 ---
 

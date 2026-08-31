@@ -88,6 +88,9 @@ jobs:
       - name: Test Hub Documentos contracts
         run: npm run documentos:test
 
+      - name: Test Compass v2 contracts
+        run: npm run compass:test
+
       - name: Generate Hub Documentos runtime config
         run: npm run documentos:generate
 
@@ -113,6 +116,16 @@ jobs:
 
       - name: Build with VitePress
         run: npm run docs:build
+
+      - name: Reject Compass generated artifact drift
+        run: |
+          git diff --exit-code -- docs/compass
+          drift="$(git status --porcelain -- docs/compass)"
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo "::error::artefatos Compass gerados não versionados ou divergentes"
+            exit 1
+          fi
 
       - name: Validate published PDF.js manifest
         run: node scripts/verify-documentos-pdfjs-manifest.mjs docs/.vitepress/dist
@@ -160,6 +173,10 @@ jobs:
             [ -f "/tmp/vp_${dir}.html" ] && cp "/tmp/vp_${dir}.html" "$DIST/$dir/index.html"
           done
 
+          # Publicar o catálogo Compass como JSON estável para integrações e auditoria.
+          mkdir -p "$DIST/compass"
+          cp docs/compass/catalog.json "$DIST/compass/catalog.json"
+
           # Note: _infra is NOT copied here because VitePress builds it from docs/_infra/
 
           # Copy assets
@@ -186,6 +203,10 @@ jobs:
             manifest.json \
             scripts/hub-auth.js \
             scripts/hub-auth.css \
+            admin/index.html \
+            compass/index.html \
+            compass/catalog.json \
+            compass/edicoes/2026/008/compass.html \
             documentos/index.html \
             documentos/assets/api-client.js \
             documentos/assets/app.js \
@@ -218,6 +239,14 @@ jobs:
               fail=1
             fi
           done
+          if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="compass"' "$DIST/admin/index.html"; then
+            echo "::error::aba Compass ausente no Admin publicado"
+            fail=1
+          fi
+          if [ -f "$DIST/compass/catalog.json" ] && ! grep -q '"number": 8' "$DIST/compass/catalog.json"; then
+            echo "::error::edição 008 ausente no catálogo Compass publicado"
+            fail=1
+          fi
           # O meta noindex deve sobreviver nas sub-páginas restritas standalone.
           if [ -f "$DIST/unimed/tea.html" ] && ! grep -q '<meta name="robots" content="noindex, nofollow">' "$DIST/unimed/tea.html"; then
             echo "::error::meta noindex, nofollow ausente em unimed/tea.html apos o build"

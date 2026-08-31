@@ -24,6 +24,12 @@ head:
       content: "https://hub.grupocsv.com/og/og_compass.png"
 ---
 
+<script setup>
+import catalog from './catalog.json'
+
+const editions = catalog.editions || []
+</script>
+
 <style>
 .compass-header {
   text-align: center;
@@ -106,6 +112,10 @@ head:
   background: #dcfce7;
   color: #166534;
 }
+.status-badge.draft {
+  background: #fef3c7;
+  color: #92400e;
+}
 .doc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -180,9 +190,9 @@ head:
 </div>
 
 <div class="compass-intro">
-  <h1>Compass&trade; - Base de Conhecimento Corporativa do Grupo CSV</h1>
-  <p>O Compass&trade; é a base de conhecimento corporativa e de educação continuada do Grupo CSV. Cada edição consolida análise técnica sobre um tema relevante para a gestão em saúde, com base em fontes primárias verificáveis, preservando integralmente texto e referências.</p>
-  <p>O objetivo é apoiar a formação contínua dos integrantes do Grupo CSV e oferecer orientação clara, tecnicamente fundamentada e construtiva para tomada de decisão.</p>
+  <h1>Compass&trade; — Publicações Estratégicas do Grupo CSV</h1>
+  <p><strong>Compass&trade; — um produto do Grupo CSV | Responsabilidade editorial: MedValor&reg;</strong></p>
+  <p>Cada edição consolida análise técnica sobre um tema relevante para a gestão em saúde, com base em fontes primárias verificáveis, preservando integralmente texto e referências. AxiaCare&reg; permanece identificada na elaboração e na aplicação prática das publicações utilizadas em consultorias e assessorias.</p>
 </div>
 
 <div class="compass-section">
@@ -201,40 +211,10 @@ head:
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><a href="/compass/edicoes/2026/001/compass">001/2026</a></td>
-        <td>Metas quantitativas de produção em contratos ACO com orçamento global</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/002/compass">002/2026</a></td>
-        <td>O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira (2025-2026)</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/003/compass">003/2026</a></td>
-        <td>Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil: análise por idade gestacional e via de parto</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/004/compass">004/2026</a></td>
-        <td>Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/005/compass">005/2026</a></td>
-        <td>Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/006/compass">006/2026</a></td>
-        <td>Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões</td>
-        <td><span class="status-badge">Publicado</span></td>
-      </tr>
-      <tr>
-        <td><a href="/compass/edicoes/2026/007/compass">007/2026</a></td>
-        <td>Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira: Uma Análise Estrutural dos Desperdícios, Fraudes e os Caminhos da Coordenação de Cuidados em 2026</td>
-        <td><span class="status-badge">Publicado</span></td>
+      <tr v-for="edition in editions" :key="edition.id">
+        <td><a :href="edition.routes.web">{{ String(edition.number).padStart(3, '0') }}/{{ edition.year }}</a></td>
+        <td>{{ edition.title }}</td>
+        <td><span class="status-badge" :class="{ draft: edition.status !== 'Publicado' }">{{ edition.status }}</span></td>
       </tr>
     </tbody>
   </table>
@@ -267,5 +247,5 @@ head:
 </div>
 
 <div class="compass-footer">
-  Compass&trade; &mdash; Grupo CSV &middot; Cuidados em Saúde com Valor
+  Compass&trade; &mdash; um produto do Grupo CSV | Responsabilidade editorial: MedValor&reg;
 </div>

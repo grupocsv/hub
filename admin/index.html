@@ -518,6 +518,10 @@
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Conte&uacute;do</div>
+                <button class="sidebar-item" data-tab="compass">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z"/></svg>
+                    Compass™
+                </button>
                 <button class="sidebar-item" data-tab="blog-admin">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Blog grupocsv.com
@@ -1138,7 +1142,65 @@
                 </div>
             </div>
 
-            <!-- TAB: Services -->
+            <!-- TAB: Compass -->
+            <div class="admin-tab-content" data-tab="compass">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;">
+                    <h3 class="section-header" style="margin-bottom:0;flex:1;">Compass™ — Catálogo Editorial</h3>
+                    <button id="compass-refresh" type="button" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Atualizar</button>
+                </div>
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
+                    Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®
+                </p>
+                <p style="font-size:12px;color:var(--text-secondary);margin-bottom:20px;">
+                    AxiaCare® permanece identificada na elaboração e aplicação prática das consultorias e assessorias.
+                </p>
+                <div id="compass-error" role="alert" aria-live="polite" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:8px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;font-size:13px;"></div>
+                <div class="summary-grid">
+                    <div class="summary-card accent">
+                        <div class="sc-label">Publicadas</div>
+                        <div class="sc-value" id="compass-summary-released">-</div>
+                        <div class="sc-sub">Com release ativo</div>
+                    </div>
+                    <div class="summary-card warn">
+                        <div class="sc-label">Em preparação</div>
+                        <div class="sc-value" id="compass-summary-draft">-</div>
+                        <div class="sc-sub">Sem release ativo</div>
+                    </div>
+                    <div class="summary-card info">
+                        <div class="sc-label">Downloads</div>
+                        <div class="sc-value" id="compass-summary-downloads">-</div>
+                        <div class="sc-sub">Links públicos ativos</div>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-header">
+                        <h3>Edições, versões e checksums</h3>
+                        <span class="count" id="compass-count">Carregando...</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Edição</th>
+                                    <th>Status</th>
+                                    <th>Release ativo</th>
+                                    <th>Checksums</th>
+                                    <th>Downloads</th>
+                                    <th>Versões</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compass-tbody">
+                                <tr><td colspan="6" class="empty-state">Selecione a aba para carregar.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+                    Operações de publicação permanecem indisponíveis neste painel até aplicação autorizada da migration, deploy protegido do Worker e validação do fluxo de rollback. O navegador utiliza apenas a sessão humana existente; nenhuma credencial de serviço é exposta.
+                </p>
+            </div>
+
+            <!-- TAB: Blog -->
             <div class="admin-tab-content" data-tab="blog-admin">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
                     <h3 class="section-header" style="margin-bottom:0;">Blog &mdash; grupocsv.com</h3>
@@ -1664,6 +1726,7 @@ function toggleAdminPw() {
 
     const AUTH_API = 'https://csv-auth.guilherme-thom.workers.dev';
     const DATA_API = 'https://csv-data.guilherme-thom.workers.dev';
+    const DOCUMENTS_API = 'https://documentos-api.grupocsv.com';
     const TOKEN_KEY = 'hub_auth_admin_token';
     const EMAIL_KEY = 'hub_auth_admin_email';
     const EXPIRES_KEY = 'hub_auth_admin_expires';
@@ -1716,6 +1779,37 @@ function toggleAdminPw() {
         return resp.json();
     }
 
+    async function documentsApiCall(path, options = {}) {
+        const token = getToken();
+        if (!token) { showAuth(); return null; }
+        try {
+            const resp = await fetch(DOCUMENTS_API + path, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token, ...(options.headers || {}) },
+            });
+            let body = null;
+            try { body = await resp.json(); } catch (e) { body = null; }
+            if (resp.status === 401) {
+                clearAuth();
+                showAuth();
+                return { ok: false, status: 401, message: 'Sua sessão expirou. Entre novamente.' };
+            }
+            if (resp.status === 403) {
+                return { ok: false, status: 403, message: 'Seu perfil não tem permissão para consultar o catálogo Compass™.' };
+            }
+            if (resp.status === 503) {
+                return { ok: false, status: 503, message: 'O catálogo Compass™ está temporariamente indisponível.' };
+            }
+            if (!resp.ok) {
+                const message = body && body.error && body.error.message ? body.error.message : 'Não foi possível carregar o catálogo Compass™.';
+                return { ok: false, status: resp.status, message };
+            }
+            return { ok: true, status: resp.status, data: body };
+        } catch (e) {
+            return { ok: false, status: 0, message: 'Não foi possível conectar ao serviço documental.' };
+        }
+    }
+
     // ===== Sidebar navigation =====
     const sidebarItems = document.querySelectorAll('.sidebar-item[data-tab]');
     const tabContents = document.querySelectorAll('.admin-tab-content[data-tab]');
@@ -1740,6 +1834,7 @@ function toggleAdminPw() {
             if (tabName === 'deck-api') loadDeckApi();
             if (tabName === 'admins') loadAdmins();
             if (tabName === 'asset-bucket') loadAssetBucket();
+            if (tabName === 'compass') loadCompass();
             if (tabName === 'waba') loadWaba();
             if (tabName === 'cooperados-ugv') loadCooperadosUGV();
             if (tabName === 'panta') loadPanta();
@@ -2342,6 +2437,10 @@ function toggleAdminPw() {
         return d.innerHTML;
     }
 
+    function escAttr(str) {
+        return esc(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     // ===== Helpers =====
     function formatDate(val) {
         if (!val) return '-';
@@ -2355,6 +2454,113 @@ function toggleAdminPw() {
             return d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
         } catch (e) { return val; }
     }
+
+    // ===== Compass =====
+    function compassShortHash(value) {
+        return typeof value === 'string' && value.length >= 12 ? value.slice(0, 12) : '-';
+    }
+
+    function compassStatusBadge(status) {
+        if (status === 'released' || status === 'active') return 'active';
+        if (status === 'draft' || status === 'prepared') return 'pending';
+        return 'inactive';
+    }
+
+    function compassReleaseHistory(releases) {
+        if (!Array.isArray(releases) || releases.length === 0) return '-';
+        return '<details><summary style="cursor:pointer;font-weight:600;">' + releases.length + ' versão(ões)</summary>' +
+            '<div style="margin-top:8px;display:grid;gap:8px;min-width:210px;">' + releases.map(release => {
+                const pdf = release.pdf || {};
+                return '<div style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:11px;line-height:1.5;">' +
+                    '<strong>r' + esc(String(release.release_number || '-')) + '</strong> ' +
+                    '<span class="badge ' + compassStatusBadge(release.status) + '">' + esc(release.status || '-') + '</span><br>' +
+                    'PDF ' + esc(compassShortHash(pdf.sha256)) + '<br>' +
+                    'Web ' + esc(compassShortHash(release.web && release.web.sha256)) + '<br>' +
+                    'Catálogo ' + esc(compassShortHash(release.catalog_sha256)) +
+                '</div>';
+            }).join('') + '</div></details>';
+    }
+
+    function compassEditionRow(edition, releases) {
+        const active = edition.active_release;
+        const pdf = active && active.pdf ? active.pdf : null;
+        const download = active && active.download ? active.download : null;
+        const route = typeof edition.web_route === 'string' && /^\/compass\/edicoes\/[a-z0-9-]+\/[a-z0-9-]+\/$/.test(edition.web_route)
+            ? edition.web_route
+            : null;
+        const downloadUrl = download && typeof download.public_url === 'string' && download.public_url.indexOf(DOCUMENTS_API + '/s/') === 0
+            ? download.public_url
+            : null;
+        const releaseCell = active
+            ? '<strong>r' + esc(String(active.release_number)) + '</strong><br><span style="font-size:11px;color:var(--text-secondary);">' +
+                esc(active.engine_version) + ' · ' + esc(active.template_version) + (pdf ? '<br>' + esc(String(pdf.page_count)) + ' págs. · ' + esc(String(pdf.size_bytes)) + ' bytes' : '') + '</span>'
+            : '-';
+        const checksumCell = active
+            ? '<code title="' + escAttr(pdf && pdf.sha256) + '">PDF ' + esc(compassShortHash(pdf && pdf.sha256)) + '</code><br>' +
+                '<code title="' + escAttr(active.web && active.web.sha256) + '">Web ' + esc(compassShortHash(active.web && active.web.sha256)) + '</code><br>' +
+                '<code title="' + escAttr(active.catalog_sha256) + '">Cat. ' + esc(compassShortHash(active.catalog_sha256)) + '</code>'
+            : '-';
+        const downloadCell = downloadUrl
+            ? '<a href="' + escAttr(downloadUrl) + '" target="_blank" rel="noopener" style="font-weight:600;color:var(--primary);">Abrir PDF</a><br>' +
+                '<span style="font-size:11px;color:var(--text-secondary);">' + (download.allow_download ? 'Download habilitado' : 'Visualização em linha') + '</span>'
+            : '<span style="font-size:12px;color:var(--text-secondary);">Sem link ativo</span>';
+        return '<tr>' +
+            '<td><strong>' + esc(edition.edition_number) + '</strong> · ' + esc(String(edition.publication_year)) +
+                (route ? '<br><a href="' + escAttr(route) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--primary);">Abrir edição</a>' : '') + '</td>' +
+            '<td><span class="badge ' + compassStatusBadge(edition.status) + '">' + esc(edition.status || '-') + '</span></td>' +
+            '<td>' + releaseCell + '</td>' +
+            '<td style="font-size:11px;line-height:1.6;">' + checksumCell + '</td>' +
+            '<td>' + downloadCell + '</td>' +
+            '<td>' + compassReleaseHistory(releases) + '</td>' +
+        '</tr>';
+    }
+
+    function setCompassError(message) {
+        const error = document.getElementById('compass-error');
+        error.textContent = message || '';
+        error.style.display = message ? 'block' : 'none';
+    }
+
+    async function loadCompass() {
+        const refresh = document.getElementById('compass-refresh');
+        const tbody = document.getElementById('compass-tbody');
+        refresh.disabled = true;
+        refresh.textContent = 'Atualizando...';
+        setCompassError('');
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Carregando catálogo...</td></tr>';
+        try {
+            const result = await documentsApiCall('/v1/compass/editions');
+            if (!result) return;
+            if (!result.ok) {
+                setCompassError(result.message);
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Catálogo indisponível</td></tr>';
+                document.getElementById('compass-count').textContent = 'Erro ' + result.status;
+                return;
+            }
+            const editions = result.data && Array.isArray(result.data.items) ? result.data.items : [];
+            const releasesByEdition = await Promise.all(editions.map(async edition => {
+                const releasesResult = await documentsApiCall('/v1/compass/editions/' + encodeURIComponent(edition.edition_id) + '/releases');
+                return releasesResult && releasesResult.ok && releasesResult.data && Array.isArray(releasesResult.data.items)
+                    ? releasesResult.data.items
+                    : [];
+            }));
+            const released = editions.filter(edition => edition.status === 'released' && edition.active_release).length;
+            const drafts = editions.filter(edition => edition.status === 'draft' || !edition.active_release).length;
+            const downloads = editions.filter(edition => edition.active_release && edition.active_release.download && edition.active_release.download.status === 'active').length;
+            document.getElementById('compass-summary-released').textContent = String(released);
+            document.getElementById('compass-summary-draft').textContent = String(drafts);
+            document.getElementById('compass-summary-downloads').textContent = String(downloads);
+            document.getElementById('compass-count').textContent = editions.length + ' edição(ões)';
+            tbody.innerHTML = editions.length
+                ? editions.map((edition, index) => compassEditionRow(edition, releasesByEdition[index])).join('')
+                : '<tr><td colspan="6" class="empty-state">Nenhuma edição cadastrada.</td></tr>';
+        } finally {
+            refresh.disabled = false;
+            refresh.textContent = 'Atualizar';
+        }
+    }
+
+    document.getElementById('compass-refresh').addEventListener('click', loadCompass);
 
     // ===== Deck Users =====
     async function loadDeckUsers() {
