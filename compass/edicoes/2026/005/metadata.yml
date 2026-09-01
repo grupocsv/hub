@@ -1,23 +1,59 @@
-id: "005/2026"
-linha_editorial: "Compass™ | Base de Conhecimento Corporativa do Grupo CSV"
-titulo: "Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos na Saúde Suplementar"
-ano: 2026
-edicao: 5
-temas:
-  - "Eficiência Estrutural"
-  - "Precificação de Protocolos"
-  - "Custos Assistenciais"
-  - "Gestão Hospitalar"
+schemaVersion: 2
+id: 005-2026
+number: 5
+year: 2026
+slug: "005"
+title: "Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em
+  4.800 Protocolos na Saúde Suplementar"
+subtitle: null
+publishedAt: null
+status: Publicado
+topics:
+  - Eficiência Estrutural
+  - Precificação de Protocolos
+  - Custos Assistenciais
+  - Gestão Hospitalar
 tags:
-  - "Saving Cirúrgico"
-  - "OPME"
-  - "Fee for Service"
-  - "Pacotes Cirúrgicos"
-  - "Anahp"
-fontes:
-  - "Evodux Intelligence (07/06/2026) - Saving Cirúrgico Estrutural: O que 4.800 protocolos cirúrgicos precificados revelam sobre eficiência de custo para operadoras e prestadores"
-arquivos:
-  - "compass.md"
-assets:
-  - "assets/compass_header.png"
-  - "assets/compass_letterhead.pdf"
+  - Saving Cirúrgico
+  - OPME
+  - Fee for Service
+  - Pacotes Cirúrgicos
+  - Anahp
+summary: null
+sources:
+  - "Evodux Intelligence (07/06/2026) - Saving Cirúrgico Estrutural: O que 4.800
+    protocolos cirúrgicos precificados revelam sobre eficiência de custo para
+    operadoras e prestadores"
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - AxiaCare®
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/2026/005/compass
+  pdf: /compass/edicoes/2026/005/compass_005_2026.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_005_2026.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: true
+  checksum: null
+  publishedAt: null
+migration:
+  state: adapted-legacy
+  sourceSchema: 1
+  sourceSha256: eb57e43cd3fb997884924032e84dcb6c6895f54fe7d68d73aef65e4f97a27615
+  originalPdfSha256: a8fff1b3118ad34ebd32a6bb8f2200aa79d733c4c4f6bff3abceb058644e08da
+  originalPdfBytes: 483057
+  numberingCorrection:
+    state: corrected-crossed-label
+    canonicalLabel: 005/2026
+    legacyPdfDisplayedLabel: 006/2026

@@ -1,0 +1,415 @@
+/* =========================================================
+   Grupo CSV — Nota metodológica A4 · perfil editorial
+   Tipografia e fios; sem cantos arredondados, sem fundos
+   de componente. Cor como exceção.
+   ========================================================= */
+
+@font-face { font-family:"Inter"; src:url("/compass/edicoes/2026/008/assets/inter-latin-400-normal.woff2") format("woff2"); font-weight:400; font-style:normal; }
+@font-face { font-family:"Inter"; src:url("/compass/edicoes/2026/008/assets/inter-latin-400-italic.woff2") format("woff2"); font-weight:400; font-style:italic; }
+@font-face { font-family:"Inter"; src:url("/compass/edicoes/2026/008/assets/inter-latin-500-normal.woff2") format("woff2"); font-weight:500; font-style:normal; }
+@font-face { font-family:"Inter"; src:url("/compass/edicoes/2026/008/assets/inter-latin-600-normal.woff2") format("woff2"); font-weight:600; font-style:normal; }
+@font-face { font-family:"Inter"; src:url("/compass/edicoes/2026/008/assets/inter-latin-700-normal.woff2") format("woff2"); font-weight:700; font-style:normal; }
+@font-face { font-family:"JetBrains Mono"; src:url("/compass/edicoes/2026/008/assets/jetbrains-mono-latin-500-normal.woff2") format("woff2"); font-weight:500; font-style:normal; }
+@font-face { font-family:"Grifter"; src:url("/compass/edicoes/2026/008/assets/GrifterBold.otf") format("opentype"); font-weight:700; font-style:normal; }
+
+.compass-v2--paged {
+  --azul:#196396;
+  --verde:#2DBF7F;
+  --verde-esc:#1E8A5C;
+  --tinta:#1b1e24;
+  --cinza:#4A5260;
+  --cinza-2:#6B7480;
+  --cinza-3:#8A919A;
+  --tijolo:#B4491E;
+  --fio-forte:rgba(27,30,36,0.9);
+  --fio:rgba(27,30,36,0.32);
+  --fio-leve:rgba(27,30,36,0.14);
+  --dark:#14171C;
+  --f-disp:"Grifter","Arial Black",sans-serif;
+  --f-txt:"Inter",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",monospace;
+}
+
+*{box-sizing:border-box;}
+
+
+
+@page{ size:A4; margin:0; }
+.compass-page{
+  position:relative; width:210mm; height:297mm; background:#fff;
+  overflow:hidden; page-break-after:always; break-after:page;
+}
+.compass-page:last-child{page-break-after:auto;}
+@media screen{ .compass-page{ margin:0 auto 8mm; box-shadow:0 5px 24px rgba(0,0,0,.4);} }
+
+.pad{ position:absolute; left:20mm; right:18mm; top:21mm; bottom:18mm; }
+.pad--cap{ top:16mm; }
+
+/* ---------- cabeçalho e rodapé correntes ---------- */
+.rh{
+  position:absolute; left:20mm; right:18mm; top:10.5mm;
+  display:flex; justify-content:space-between; align-items:baseline;
+  border-bottom:.3pt solid var(--fio-leve); padding-bottom:2.2mm;
+}
+.rh .l{ font-style:italic; font-size:7.5pt; color:var(--cinza-2); }
+.rh .r{ font-family:var(--f-mono); font-size:6.5pt; color:var(--cinza-3); letter-spacing:.04em; }
+
+.ft{
+  position:absolute; left:20mm; right:18mm; bottom:10mm;
+  display:flex; justify-content:space-between; align-items:baseline;
+  border-top:.3pt solid var(--fio-leve); padding-top:2.2mm;
+}
+.ft .c{ font-size:7pt; color:var(--cinza-3); }
+.ft .n{ font-family:var(--f-txt); font-weight:600; font-size:9pt; color:var(--tinta); }
+
+/* ---------- tipografia ---------- */
+.kick{
+  font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--azul);
+}
+h1,h2,h3,h4{ margin:0; text-wrap:balance; }
+.h-cap{
+  font-family:var(--f-disp); font-size:19pt; line-height:1.06;
+  letter-spacing:-.012em; color:var(--tinta); margin:2.2mm 0 0;
+}
+.h-sec{
+  font-size:11.2pt; font-weight:700; letter-spacing:-.008em;
+  color:var(--tinta); margin:5mm 0 2mm;
+}
+.h-sec:first-child{ margin-top:0; }
+.h-sub{ font-size:9.4pt; font-weight:700; color:var(--tinta); margin:3.2mm 0 1.2mm; }
+
+p{ margin:0; text-indent:4.5mm; text-align:justify; hyphens:auto; text-wrap:pretty; }
+p.ni, h2+p, h3+p, h4+p, .kick+p, figure+p, table+p, .destaque+p, .verbete+p, .ld+p, .tn+p, div+p.ni{ text-indent:0; }
+p.lede{ font-size:10.6pt; line-height:1.52; text-indent:0; margin-bottom:3mm; text-align:left; }
+strong{ font-weight:700; }
+em{ font-style:italic; }
+.mut{ color:var(--cinza); }
+
+/* nota run-in: <p class="nota"><strong>Rótulo —</strong> texto</p> */
+p.nota{ text-indent:0; margin:2.6mm 0; }
+p.nota strong{ font-weight:700; }
+
+/* destaque entre fios */
+.destaque{
+  border-top:.75pt solid var(--fio-forte);
+  border-bottom:.3pt solid var(--fio);
+  padding:3mm 0 3mm 8mm; margin:4mm 0;
+  break-inside:avoid;
+}
+.destaque p{ text-indent:0; }
+
+/* ---------- linha de dados ---------- */
+.ld{
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  border-top:.75pt solid var(--fio-forte);
+  border-bottom:.3pt solid var(--fio);
+  margin:4.5mm 0;
+}
+.ld > div{ padding:3mm 4mm 3mm 0; }
+.ld > div + div{ border-left:.3pt solid var(--fio); padding-left:4mm; }
+.ld .r{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--cinza-2); }
+.ld .v{ font-family:var(--f-disp); font-size:19pt; line-height:1.05; color:var(--tinta); margin:1.6mm 0 1.2mm; letter-spacing:-.015em; }
+.ld .v .seta{ font-family:var(--f-txt); font-weight:600; font-size:13pt; padding:0 .8mm; color:var(--cinza-2); }
+.ld .v.destq{ color:var(--verde-esc); }
+.ld .f{ font-size:7.5pt; line-height:1.4; color:var(--cinza-2); }
+
+/* ---------- tabelas ---------- */
+.qcap{ font-size:8pt; margin:0 0 1.6mm; text-indent:0; }
+.qcap b{ font-weight:700; }
+.qcap i{ font-style:italic; color:var(--cinza); }
+table{ width:100%; border-collapse:collapse; font-size:8.3pt; line-height:1.4;
+  font-feature-settings:"tnum"; }
+thead th{
+  text-align:left; font-weight:600; font-size:8.3pt; color:var(--tinta);
+  border-top:1pt solid var(--fio-forte); border-bottom:.5pt solid var(--fio-forte);
+  padding:1.8mm 2.2mm 1.8mm 0; vertical-align:bottom;
+}
+tbody td{
+  padding:1.9mm 2.2mm 1.9mm 0; border-bottom:.3pt solid var(--fio-leve);
+  vertical-align:top;
+}
+tbody tr:last-child td{ border-bottom:.5pt solid var(--fio); }
+td.k{ font-weight:700; }
+td.mono, th.mono{ font-family:var(--f-mono); font-size:7.6pt; color:var(--azul); white-space:nowrap; }
+.tn{ font-size:7.4pt; color:var(--cinza-2); margin:1.6mm 0 0; text-indent:0; line-height:1.45; }
+
+/* ---------- verbete (ficha tipográfica) ---------- */
+.verbete{ border-top:.75pt solid var(--fio-forte); margin:3.6mm 0 4.5mm; break-inside:avoid; }
+.verbete .vh{ display:flex; align-items:baseline; gap:3mm; padding:2.2mm 0 1.8mm; border-bottom:.3pt solid var(--fio-leve); }
+.verbete .vh .cod{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
+.verbete .vh .tt{ font-size:9.6pt; font-weight:700; }
+.verbete .vr{ display:grid; grid-template-columns:24mm 1fr; gap:3mm; padding:1.6mm 0; border-bottom:.3pt solid var(--fio-leve); }
+.verbete .vr:last-child{ border-bottom:.5pt solid var(--fio); }
+.verbete .vr .l{ font-size:7pt; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--cinza-2); padding-top:.4mm; }
+.verbete .vr .v{ font-size:8.4pt; line-height:1.45; }
+
+/* ---------- listas ---------- */
+ul.li{ margin:1.6mm 0 2.6mm; padding-left:4.8mm; list-style:none; }
+ul.li li{ position:relative; margin-bottom:1.4mm; }
+ul.li li::before{ content:"—"; position:absolute; left:-4.8mm; color:var(--cinza-3); }
+ol.li{ margin:1.6mm 0 2.6mm; padding-left:5mm; }
+ol.li li{ margin-bottom:1.4mm; padding-left:.8mm; }
+ol.li li::marker{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
+
+/* ---------- figuras ---------- */
+figure{ margin:3.6mm 0 4mm; }
+figure svg{ display:block; width:100%; height:auto; }
+figcaption{ font-size:8pt; margin-top:2mm; padding-top:1.6mm; border-top:.3pt solid var(--fio-leve); text-indent:0; }
+figcaption b{ font-weight:700; }
+figcaption i{ font-style:italic; color:var(--cinza); }
+.fnote{ font-size:7.4pt; color:var(--cinza-2); line-height:1.45; border-top:.3pt solid var(--fio-leve); padding-top:1.4mm; margin-top:2mm; }
+.fnote sup{ font-size:6pt; }
+
+/* ---------- abridor de capítulo ---------- */
+.cap-open{
+  background:var(--dark); color:#fff;
+  margin:0 -18mm 6mm -20mm; padding:9mm 18mm 8mm 20mm;
+  position:relative;
+}
+.cap-open .num{
+  position:absolute; right:18mm; top:7mm;
+  font-family:var(--f-disp); font-size:34pt; line-height:1; color:var(--verde);
+  letter-spacing:-.02em;
+}
+.cap-open .k{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.55); }
+.cap-open .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.08; letter-spacing:-.014em; color:#fff; margin:2mm 0 0; max-width:128mm; }
+.cap-open .d{ font-size:9pt; line-height:1.5; color:#B9C0C9; margin:2.8mm 0 0; max-width:120mm; padding-top:2.6mm; border-top:.5pt solid rgba(255,255,255,.18); }
+
+/* ---------- capa ---------- */
+.compass-page--cover{ background:var(--dark); color:#fff; }
+.compass-page--cover .logo{ position:absolute; left:20mm; top:18mm; height:10.5mm; }
+.compass-page--cover .cod{ position:absolute; right:18mm; top:20mm; font-family:var(--f-mono); font-size:7.2pt; color:rgba(255,255,255,.45); letter-spacing:.05em; }
+.compass-page--cover .bloco{ position:absolute; left:20mm; right:24mm; bottom:66mm; }
+.compass-page--cover .k{ font-size:7.4pt; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--verde); }
+.compass-page--cover .t{ font-family:var(--f-disp); font-size:29pt; line-height:1.08; letter-spacing:-.016em; margin:5mm 0 0; color:#fff; }
+.compass-page--cover .s{ font-size:10.5pt; line-height:1.55; color:rgba(255,255,255,.68); margin:6mm 0 0; max-width:138mm; text-indent:0; text-align:left; }
+.compass-page--cover .base{
+  position:absolute; left:20mm; right:18mm; bottom:16mm;
+  border-top:.5pt solid rgba(255,255,255,.16); padding-top:4.6mm;
+  display:flex; justify-content:space-between; align-items:flex-end;
+}
+.compass-page--cover .base .l1{ font-size:7pt; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:1.6mm; }
+.compass-page--cover .base .l2{ font-size:8.4pt; color:rgba(255,255,255,.78); line-height:1.5; }
+
+/* ---------- sumário ---------- */
+.toc{ margin-top:3mm; }
+.toc .it{ display:grid; grid-template-columns:9mm 1fr 10mm; align-items:baseline; padding:2.7mm 0; border-bottom:.3pt solid var(--fio-leve); }
+.toc .no{ font-family:var(--f-mono); font-size:8pt; color:var(--azul); }
+.toc .tt{ font-size:9.5pt; font-weight:600; }
+.toc .tt span{ display:block; font-size:8pt; font-weight:400; color:var(--cinza-2); margin-top:.6mm; }
+.toc .pg{ font-family:var(--f-mono); font-size:8pt; color:var(--cinza-2); text-align:right; }
+
+/* ---------- grade dupla ---------- */
+.g2{ display:grid; grid-template-columns:1fr 1fr; gap:6mm; }
+
+/* ---------- encerramento ---------- */
+.compass-page--back{ background:var(--dark); color:#fff; }
+.compass-page--back .mi{ position:absolute; left:20mm; right:18mm; top:34mm; }
+.compass-page--back .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.1; color:#fff; letter-spacing:-.014em; margin:4mm 0 6mm; }
+.compass-page--back p{ color:rgba(255,255,255,.72); font-size:9.4pt; line-height:1.6; text-indent:0; text-align:left; max-width:132mm; margin-bottom:3mm; }
+.assin{ position:absolute; left:20mm; right:18mm; bottom:44mm; display:flex; align-items:center; gap:8mm; border-top:.5pt solid rgba(255,255,255,.16); padding-top:8mm; }
+.assin img.av{ width:26mm; height:26mm; border-radius:50%; object-fit:cover; }
+.assin .sig{ height:13mm; display:block; margin-bottom:2.4mm; opacity:.92; }
+.assin .nm{ font-size:11pt; font-weight:700; color:#fff; }
+.assin .cg{ font-size:8pt; color:rgba(255,255,255,.55); margin-top:.8mm; }
+.assin .ct{ font-family:var(--f-mono); font-size:7.6pt; color:#8FD9B8; margin-top:2.2mm; letter-spacing:.03em; }
+.compass-page--back .base{
+  position:absolute; left:20mm; right:18mm; bottom:14mm;
+  border-top:.5pt solid rgba(255,255,255,.16); padding-top:4.6mm;
+  display:flex; justify-content:space-between; align-items:flex-end;
+}
+.compass-page--back .base img.csv{ height:8.6mm; opacity:.92; }
+.compass-page--back .base img.axia{ height:7.8mm; opacity:.85; }
+.compass-page--back .base .cop{ font-size:7pt; color:rgba(255,255,255,.42); }
+
+/* ---------- referências ---------- */
+.refs{ font-size:8.4pt; line-height:1.55; }
+.refs .r{ display:grid; grid-template-columns:7mm 1fr; gap:2.4mm; padding:2.8mm 0; border-bottom:.3pt solid var(--fio-leve); }
+.refs .r .n{ font-family:var(--f-mono); font-size:7.2pt; color:var(--azul); }
+.refs .r em{ font-style:italic; }
+
+
+/* Adaptação responsiva Compass™ v2; as regras A4 originais permanecem canônicas para impressão. */
+.compass-v2--paged .compass-v2__content {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.compass-brand-credits {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.8rem;
+  color: rgba(255,255,255,.78);
+  font-family: var(--f-txt);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+/* O documento editorial é sempre papel claro; o tema do Hub não recolore seu conteúdo. */
+.dark .compass-v2.compass-v2--paged {
+  --compass-paper: #ffffff;
+  --compass-cream: #ffffff;
+  --compass-ink: #1b1e24;
+  --compass-muted: #4a5260;
+  --compass-line: rgba(27,30,36,.14);
+  --cinza-3: #5f6670;
+}
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) p,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) li,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) td {
+  color: var(--cinza);
+}
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) h2,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) h3,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) h4,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) strong,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) b {
+  color: var(--tinta);
+}
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) .cap-open,
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) .cap-open .t {
+  color: #ffffff !important;
+}
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) .cap-open .k { color: rgba(255,255,255,.72) !important; }
+.dark .compass-v2--paged .compass-page:not(.compass-page--cover):not(.compass-page--back) .cap-open .d { color: #d0d5dc !important; }
+.compass-v2--paged .compass-page--cover [style*="rgba(255,255,255,.42)"],
+.compass-v2--paged .compass-page--cover .base .l1,
+.compass-v2--paged .compass-page--back [style*="rgba(255,255,255,.42)"],
+.compass-v2--paged .compass-page--back .base .l1 {
+  color: rgba(255,255,255,.68) !important;
+}
+.compass-v2--paged .compass-page--back .cop,
+.compass-v2--paged .compass-page--back .mi p {
+  color: rgba(255,255,255,.72) !important;
+}
+.compass-v2--paged .compass-v2__content table {
+  display: table;
+  overflow: visible;
+  border: 0;
+  border-collapse: collapse;
+  border-radius: 0;
+  background: transparent;
+  font-size: 8.3pt;
+}
+.compass-v2--paged .compass-v2__content table th {
+  padding: 1.8mm 2.2mm 1.8mm 0;
+  color: var(--tinta);
+  background: transparent;
+}
+.compass-v2--paged .compass-v2__content table td {
+  padding: 1.9mm 2.2mm 1.9mm 0;
+  color: var(--cinza);
+  background: transparent;
+}
+.compass-v2--paged .compass-v2__content table,
+.compass-v2--paged .compass-v2__content table thead,
+.compass-v2--paged .compass-v2__content table tbody,
+.compass-v2--paged .compass-v2__content table tr,
+.compass-v2--paged .compass-v2__content table th,
+.compass-v2--paged .compass-v2__content table td {
+  background: #ffffff !important;
+}
+.compass-v2--paged .compass-v2__content table tbody tr:nth-child(even) { background: #ffffff !important; }
+.compass-v2--paged .compass-v2__content table .mono { color: var(--azul) !important; }
+@media screen {
+  .compass-v2--paged .compass-page {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0 0 1.5rem;
+    overflow: visible;
+    border: 1px solid rgba(27,30,36,.12);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 54px rgba(13,38,76,.12);
+  }
+  .compass-v2--paged .pad,
+  .compass-v2--paged .pad--cap {
+    position: relative;
+    inset: auto;
+    padding: clamp(1.5rem, 5vw, 4rem);
+  }
+  .compass-v2--paged .rh,
+  .compass-v2--paged .ft {
+    position: relative;
+    inset: auto;
+    margin: 0 clamp(1.5rem, 5vw, 4rem);
+    padding: 1.1rem 0 0.75rem;
+  }
+  .compass-v2--paged .ft { padding: 0.75rem 0 1.1rem; }
+  .compass-v2--paged .compass-page--cover,
+  .compass-v2--paged .compass-page--back {
+    display: grid;
+    align-content: center;
+    min-height: min(820px, calc(100vh - 7rem));
+    padding: clamp(2rem, 6vw, 5rem);
+    color: #fff;
+    background: var(--dark);
+  }
+  .compass-v2--paged .compass-page--cover .logo {
+    position: absolute;
+    top: clamp(1.5rem, 4vw, 3rem);
+    left: clamp(1.5rem, 5vw, 4rem);
+    height: clamp(34px, 6vw, 52px);
+  }
+  .compass-v2--paged .compass-page--cover > div[style*="position:absolute"] {
+    top: clamp(1.5rem, 4vw, 3rem) !important;
+    right: clamp(1.5rem, 5vw, 4rem) !important;
+  }
+  .compass-v2--paged .compass-page--cover > svg {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    margin: 5rem 0 2rem;
+  }
+  .compass-v2--paged .compass-page--cover .bloco,
+  .compass-v2--paged .compass-page--cover .base,
+  .compass-v2--paged .compass-page--back .mi,
+  .compass-v2--paged .compass-page--back .assin,
+  .compass-v2--paged .compass-page--back .base {
+    position: relative;
+    inset: auto;
+  }
+  .compass-v2--paged .compass-page--cover .bloco { margin-top: 1rem; }
+  .compass-v2--paged .compass-page--cover .base,
+  .compass-v2--paged .compass-page--back .base { margin-top: 3rem; }
+  .compass-v2--paged .compass-page--back .assin { margin-top: 3rem; }
+  .compass-v2--paged .compass-paged-download {
+    display: inline-flex;
+    justify-self: start;
+    margin-top: 1.5rem;
+    padding: 0.72rem 1rem;
+    border: 1px solid rgba(255,255,255,.34);
+    border-radius: 999px;
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .compass-v2--paged .compass-paged-download:hover { background: rgba(255,255,255,.12); }
+  .compass-v2--paged .cap-open { margin: 0 0 2rem; padding: clamp(1.5rem, 5vw, 3rem); }
+  .compass-v2--paged table { max-width: 100%; }
+}
+@media screen and (max-width: 768px) {
+  .compass-v2--paged .compass-page--cover,
+  .compass-v2--paged .compass-page--back { min-height: 620px; padding: 1.35rem; }
+  .compass-v2--paged .compass-page--cover > div[style*="position:absolute"] { position: relative !important; inset: auto !important; margin: 4.5rem 0 0; text-align: left !important; }
+  .compass-v2--paged .compass-page--cover > svg { margin: 2rem 0 1rem; }
+  .compass-v2--paged .compass-page--cover .t { font-size: clamp(2rem, 11vw, 3.1rem); }
+  .compass-v2--paged .ld,
+  .compass-v2--paged .g2 { grid-template-columns: 1fr; }
+  .compass-v2--paged .ld > div + div { border-left: 0; border-top: .3pt solid var(--fio); padding-left: 0; }
+  .compass-v2--paged table { display: block; overflow-x: auto; white-space: normal; }
+  .compass-v2--paged figure svg { min-width: 620px; }
+  .compass-v2--paged figure { max-width: 100%; overflow-x: auto; }
+  .compass-v2--paged .assin { align-items: flex-start; flex-direction: column; }
+}
+@media print {
+  @page { size: A4; margin: 0; }
+  .compass-v2--paged { width: 210mm; max-width: none; margin: 0; }
+  .compass-v2--paged .compass-page { width: 210mm; height: 297mm; margin: 0; overflow: hidden; break-after: page; page-break-after: always; }
+  .compass-v2--paged .compass-page:last-child { break-after: auto; page-break-after: auto; }
+  .compass-brand-credits { font-size: 6.2pt; }
+  .compass-v2--paged .compass-paged-download { display: none !important; }
+}

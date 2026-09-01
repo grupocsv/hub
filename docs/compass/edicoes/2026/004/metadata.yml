@@ -1,88 +1,118 @@
-id: "004/2026"
-linha_editorial: "Compass™ | Base de Conhecimento Corporativa do Grupo CSV"
-titulo: "Implantação Estratégica e Operacional de Núcleos de Avaliação de Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira"
-ano: 2026
-edicao: 4
-temas:
-  - "Avaliação de Tecnologias em Saúde"
-  - "NATS"
-  - "Saúde suplementar"
-  - "Governança clínica"
-  - "Incorporação tecnológica"
-  - "Auditoria concorrente"
-  - "OPME"
-  - "Engenharia clínica"
-  - "Economia da saúde"
-  - "Custo-efetividade"
-  - "Impacto orçamentário"
-  - "Regimento interno"
-  - "Comissão de Farmácia e Terapêutica"
-  - "Padronização de materiais"
-  - "Rastreabilidade de dispositivos médicos"
-  - "Retorno sobre investimento"
-  - "Sinistralidade"
-  - "Judicialização da saúde"
-  - "Value-Based Procurement"
+schemaVersion: 2
+id: 004-2026
+number: 4
+year: 2026
+slug: "004"
+title: Implantação Estratégica e Operacional de Núcleos de Avaliação de
+  Tecnologias em Saúde (NATS) na Saúde Suplementar Brasileira
+subtitle: null
+publishedAt: null
+status: Publicado
+topics:
+  - Avaliação de Tecnologias em Saúde
+  - NATS
+  - Saúde suplementar
+  - Governança clínica
+  - Incorporação tecnológica
+  - Auditoria concorrente
+  - OPME
+  - Engenharia clínica
+  - Economia da saúde
+  - Custo-efetividade
+  - Impacto orçamentário
+  - Regimento interno
+  - Comissão de Farmácia e Terapêutica
+  - Padronização de materiais
+  - Rastreabilidade de dispositivos médicos
+  - Retorno sobre investimento
+  - Sinistralidade
+  - Judicialização da saúde
+  - Value-Based Procurement
 tags:
-  - "ATS"
-  - "NATS"
-  - "saúde suplementar"
-  - "REBRATS"
-  - "ANS"
-  - "CONITEC"
-  - "OPME"
-  - "auditoria concorrente"
-  - "Parecer Técnico-Científico"
-  - "PTC"
-  - "NTRR"
-  - "revisão sistemática"
-  - "metanálise"
-  - "custo-efetividade"
-  - "QALY"
-  - "AVAQ"
-  - "impacto orçamentário"
-  - "AIO"
-  - "sinistralidade"
-  - "VCMH"
-  - "PICO"
-  - "GRADE"
-  - "NICE"
-  - "CADTH"
-  - "PBAC"
-  - "Hospital Sírio-Libanês"
-  - "Albert Einstein"
-  - "PROADI-SUS"
-  - "AVALIA-ANS"
-  - "e-NATJUS"
-  - "NatJus"
-  - "CFT"
-  - "CTP-NATS"
-  - "DMI"
-  - "rastreabilidade"
-  - "engenharia clínica"
-  - "ROI"
-  - "15:1"
-  - "R$ 15 milhões"
-  - "CAPEX"
-  - "OPEX"
-  - "Value-Based Procurement"
-  - "Ebserh"
-  - "Anahp"
-  - "Markov"
-  - "árvore de decisão"
-  - "RevMan"
-  - "Cochrane"
-  - "PubMed"
-  - "MEDLINE"
-  - "Embase"
-  - "LILACS"
-  - "glosas"
-  - "faturamento"
-  - "desinvestimento"
-fontes:
-  - "Fonte primária (conteúdo integral preservado)"
-arquivos:
-  - "compass.md"
-assets:
-  - "assets/compass_header.png"
-  - "assets/compass_letterhead.pdf"
+  - ATS
+  - NATS
+  - saúde suplementar
+  - REBRATS
+  - ANS
+  - CONITEC
+  - OPME
+  - auditoria concorrente
+  - Parecer Técnico-Científico
+  - PTC
+  - NTRR
+  - revisão sistemática
+  - metanálise
+  - custo-efetividade
+  - QALY
+  - AVAQ
+  - impacto orçamentário
+  - AIO
+  - sinistralidade
+  - VCMH
+  - PICO
+  - GRADE
+  - NICE
+  - CADTH
+  - PBAC
+  - Hospital Sírio-Libanês
+  - Albert Einstein
+  - PROADI-SUS
+  - AVALIA-ANS
+  - e-NATJUS
+  - NatJus
+  - CFT
+  - CTP-NATS
+  - DMI
+  - rastreabilidade
+  - engenharia clínica
+  - ROI
+  - 15:1
+  - R$ 15 milhões
+  - CAPEX
+  - OPEX
+  - Value-Based Procurement
+  - Ebserh
+  - Anahp
+  - Markov
+  - árvore de decisão
+  - RevMan
+  - Cochrane
+  - PubMed
+  - MEDLINE
+  - Embase
+  - LILACS
+  - glosas
+  - faturamento
+  - desinvestimento
+summary: null
+sources:
+  - Fonte primária (conteúdo integral preservado)
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - AxiaCare®
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/2026/004/compass
+  pdf: /compass/edicoes/2026/004/compass_004_2026.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_004_2026.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: true
+  checksum: null
+  publishedAt: null
+migration:
+  state: adapted-legacy
+  sourceSchema: 1
+  sourceSha256: ce0230b6e327ec3f18aac322df04d6b1421d49a13755e3aee611b5f8a615a90c
+  originalPdfSha256: d2c53ce09aa8b265a93f2310af5addaa20066afe45bebfdcd2901f798828d7ed
+  originalPdfBytes: 504599

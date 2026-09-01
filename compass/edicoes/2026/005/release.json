@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "editionId": "005-2026",
+  "editionSlug": "005",
+  "year": 2026,
+  "generatedAt": "2026-08-31T22:16:29.708Z",
+  "engine": {
+    "name": "compass-v2",
+    "renderer": "playwright-chromium"
+  },
+  "sourceHash": "1347a298a179295f1402feac18038e89d247d98abcbd2990c84dfc72fd134617",
+  "pdf": {
+    "filename": "compass_005_2026.pdf",
+    "sha256": "319b4940a76e8a2d4fdf8f4c5125c7fe887579ac2e0692bddebd209e95188845",
+    "bytes": 529546,
+    "pages": 18
+  }
+}

@@ -121,55 +121,89 @@ onMounted(() => {
 
 ## Visão Geral
 
-O Compass™ é a linha editorial estratégica do Grupo CSV. Produz documentos técnico-estratégicos de alta densidade para tomada de decisão em saúde suplementar, combinando evidência científica, análise de dados e contexto regulatório brasileiro.
+O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica é **“Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®”**. AxiaCare® permanece visível como responsável pela elaboração e pela aplicação prática nas consultorias e assessorias, conforme o contexto de cada edição.
 
-| Campo | Valor |
+| Campo | Estado Verificado na Transição Local |
 |---|---|
-| Marca | Compass™ |
-| URL | [hub.grupocsv.com/compass/](https://hub.grupocsv.com/compass/) |
-| Hospedagem | GitHub Pages (VitePress) |
-| Repositório | `grupocsv/hub` — `docs/compass/` |
-| Formato | Markdown (VitePress) + PDF timbrado |
-| Proprietário | Grupo CSV |
+| URL Pública | [hub.grupocsv.com/compass/](https://hub.grupocsv.com/compass/) |
+| Fonte Canônica | `compass/edicoes/<ano>/<número>/` no repositório `grupocsv/hub` |
+| Publicação Web | VitePress, derivada automaticamente em `docs/compass/` |
+| PDF | A4 determinístico por Playwright/Chromium em runtime Docker isolado |
+| Catálogo | `docs/compass/catalog.json`, derivado dos metadados de cada edição |
+| Edição Nativa v2 | 008/2026, integrada e validada localmente na branch de transição |
+| Edições Migradas | 001–007, migradas e validadas localmente nos marcos M6–M8 |
+| Acervo no Motor v2 | 001–008, com release controlado ainda pendente |
+| Backend | Extensão do `csv-documents` implementada e testada localmente; migration e deploy ainda não aplicados |
+| n8n | Fora do caminho crítico; nenhuma alteração realizada |
 
-## Estrutura de Diretórios
+## Fonte Única e Artefatos Derivados
 
-```
-compass/
-  index.md                    Central Compass (índice de edições)
-  edicoes/
-    2026/
-      001/compass.md           Edição 001 — Metas ACO
-      001/assets/              PDF e recursos da edição
-      002/compass.md           Edição 002 — Prostatectomia Robótica
-      003/compass.md           Edição 003 — Fototerapia Neonatal
-      004/compass.md           Edição 004 — NATS na Saúde Suplementar
-      005/compass.md           Edição 005 — Precificação da Jornada Cirúrgica
-      006/compass.md           Edição 006 — Transição Demográfica e Oftalmologia
-      007/compass.md           Edição 007 — Crise de Sustentabilidade e Eficiência
-  policies/                    Políticas editoriais
-  skills/                      Guias operacionais
-  templates/                   Templates de edição
-```
+A fonte editorial de uma edição v2 fica em `compass/edicoes/<ano>/<número>/`. O arquivo `metadata.yml` identifica a edição, as marcas, o status e os artefatos. O conteúdo semântico fica em `compass.md` ou em componente Vue namespaceado quando o layout editorial exige estrutura paginada completa. PDF e `release.json` integram a mesma árvore versionada.
 
-## Edições Publicadas
+O comando `npm run compass:publish` sincroniza apenas edições com schema v2 para `docs/compass/`. Em seguida, `npm run compass:catalog` deriva o catálogo público. A sidebar é construída a partir desse catálogo; não existe uma segunda lista manual de edições.
 
-| Edição | Título | Período |
+| Artefato | Origem | Função |
 |---|---|---|
-| 001/2026 | Metas quantitativas de produção em contratos ACO com orçamento global | 2026 |
-| 002/2026 | O impacto da prostatectomia radical assistida por robô na saúde suplementar brasileira | 2025–2026 |
-| 003/2026 | Fototerapia Neonatal | 2026 |
-| 004/2026 | Implantação Estratégica e Operacional de NATS na Saúde Suplementar Brasileira | 2026 |
-| 005/2026 | Precificação Estruturada da Jornada Cirúrgica: Evidências de Saving em 4.800 Protocolos | 2026 |
-| 006/2026 | Transição Demográfica e Oftalmologia na Saúde Suplementar | 2026 |
-| 007/2026 | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | 2026 |
+| `metadata.yml` | Fonte Git | Contrato editorial e identidade imutável da edição |
+| `compass.md` ou componente Vue | Fonte Git | Conteúdo semântico e apresentação web |
+| `compass_<número>_<ano>.pdf` | Render determinístico | Download A4 da edição |
+| `release.json` | Gate de release | Checksums, versões do motor e procedência |
+| `docs/compass/catalog.json` | Derivado | Navegação, Admin e integração do Hub |
 
-## Pipeline de Publicação
+## Motor Web e PDF
 
-O pipeline completo envolve sete etapas: extração integral do texto-fonte, criação da estrutura de diretórios, redação do Markdown, geração do PDF timbrado via script Python (`tools/compass-pdf/compass-pdf-gen.py`), atualização da sidebar no `config.mts`, atualização do índice em `docs/compass/index.md`, e commit seguido de push na branch `main`.
+O componente global `CompassEdition.vue` aplica a moldura editorial comum. A edição 008 usa o modo `paged`, com CSS global namespaceado, para preservar integralmente as 23 páginas editoriais sem duplicar capa ou contracapa. O modo de leitura web permanece responsivo; as regras A4 são ativadas somente na mídia de impressão.
 
-O PDF é gerado com o pacote `fpdf2` (versão 2.x), utiliza fontes DejaVu e inclui cabeçalho institucional (`docs/public/compass_header.png`) e logo do Grupo CSV.
+O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo, checksums, overflow documental e distribuição legível das colunas de referências no mobile.
 
-## Integração no Ecossistema
+| Comando | Resultado |
+|---|---|
+| `npm run compass:publish` | Publica a árvore derivada das fontes v2 |
+| `npm run compass:catalog` | Regenera o catálogo determinístico |
+| `npm run compass:test` | Executa contratos de schema, catálogo, Admin, runtime e tema |
+| `npm run compass:test:pdf` | Executa a integração PDF no runtime isolado |
+| `npm run compass:release-plan` | Valida baseline, candidatos e rollback e gera um plano offline sem mutações remotas |
+| `npm run docs:build` | Publica fontes, atualiza catálogo e compila o Hub |
 
-O Compass™ é indexado automaticamente pelo AI Search (Cloudflare AutoRAG) após cada deploy, tornando seu conteúdo consultável via API semântica por agentes e automações.
+## Backend e Downloads
+
+O Compass™ estende o Worker documental existente; não cria Worker paralelo. A migration aditiva `0021_create_compass_catalog.sql` introduz as tabelas tenant-first `compass_editions`, `compass_releases` e `compass_release_activations`. Uma edição referencia um documento PDF de `documents`; cada release referencia uma versão imutável de `document_versions`. Os bytes continuam no R2 privado do `csv-documents`, sem duplicação.
+
+A publicação é bifásica. A preparação valida a versão PDF e registra checksums sem mover ponteiros. A ativação atualiza atomicamente `compass_editions.active_release_id` e `documents.current_version_id`, com precondição otimista, idempotência, auditoria, outbox e histórico append-only. O rollback reativa um release anterior pelo mesmo mecanismo.
+
+Os downloads reutilizam `document_public_links` e `GET/HEAD /s/{slug}`. Range, revogação, rate limit, `no-store`, `noindex` e `Content-Disposition` continuam sob o contrato documental. A API Compass™ não retorna `object_key`, token de storage ou credencial de serviço.
+
+> Estado operacional: A migration 0021 não foi aplicada e o Worker não foi publicado. A implementação permanece somente em branches locais até autorização explícita, plano de rollback e execução do workflow protegido.
+
+## Admin do Hub
+
+A aba **Compass™** do Admin lista edições, status, release ativo, versões, checksums e links públicos. O navegador usa somente a sessão humana existente em `csv-auth` para consultar `/v1/compass/*`. Respostas 401, 403, 503 e falhas de rede possuem estados distintos; uma negativa de permissão não encerra uma sessão válida.
+
+As mutações de publicação permanecem indisponíveis no Admin enquanto migration e Worker não estiverem ativos em produção. Nenhuma chave de serviço é enviada ao navegador.
+
+## Compatibilidade e Migração Histórica
+
+As edições 001–007 foram migradas e validadas localmente nos marcos M6–M8; a edição 008 é nativa v2. Cada marco preservou o conteúdo, a URL histórica e o PDF original na proveniência, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos. Os assets históricos da edição 003 também foram incorporados à fonte canônica e permanecem acessíveis na experiência web.
+
+O motor v2 é o caminho ativo para as edições 001–008. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
+
+## CI, AI Search e Sistemas Relacionados
+
+O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–008, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF e aplica o mesmo limite; o smoke do Hub impede que um arquivo acima do teto seja silenciosamente omitido da indexação.
+
+Open Pages permanece dedicado à publicação de HTML e assets independentes. O `csv-gateway` não é necessário para o primeiro release porque o `csv-documents` possui domínio próprio e autenticação existente. A Queue e a DLQ documentais não recebem jobs Compass™ no M5, pois não existe etapa assíncrona necessária. O n8n não integra o caminho crítico e não foi alterado.
+
+## Segurança e Operação
+
+Nenhuma migration, binding, bucket, Queue, rota de gateway, RLS ou dado produtivo deve ser alterado sem autorização explícita. O release do Worker ocorre somente pelo workflow manual e protegido do repositório backend; `wrangler deploy` direto é proibido. O release do Hub ocorre pelo workflow do repositório após revisão dupla e preservação dos caminhos públicos.
+
+## Referências Técnicas
+
+| Documento | Escopo |
+|---|---|
+| [Central Compass™](/compass/) | Índice público derivado do catálogo e acesso às edições |
+| [`docs/_infra/projetos/compass-v2/prd.md`](../projetos/compass-v2/prd.md) | Critérios e marcos M0–M10 |
+| [`docs/_infra/projetos/compass-v2/baseline.md`](../projetos/compass-v2/baseline.md) | URLs, hashes e renders históricos congelados |
+| [`docs/_infra/projetos/compass-v2/runbook-release-rollback.md`](../projetos/compass-v2/runbook-release-rollback.md) | Autorização, release bifásico, validação pós-deploy e rollback |
+| [`docs/_infra/central-documentos.md`](../central-documentos.md) | Control plane documental e links públicos |
+| `grupocsv/backend/workers/csv-documents/README.md` | API, schema, release e limites operacionais do Worker |

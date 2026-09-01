@@ -1,23 +1,58 @@
-id: "006/2026"
-linha_editorial: "Compass™ | Base de Conhecimento Corporativa do Grupo CSV"
-titulo: "Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões"
-ano: 2026
-edicao: 6
-temas:
-  - "Saúde Suplementar"
-  - "Oftalmologia"
-  - "Mercado Pay-Per-Use"
-  - "Transição Demográfica"
+schemaVersion: 2
+id: 006-2026
+number: 6
+year: 2026
+slug: "006"
+title: "Transição Demográfica e Oftalmologia na Saúde Suplementar: Pressão de
+  Demanda, Custos e Reorganização de um Mercado de R$ 10 Bilhões"
+subtitle: null
+publishedAt: null
+status: Publicado
+topics:
+  - Saúde Suplementar
+  - Oftalmologia
+  - Mercado Pay-Per-Use
+  - Transição Demográfica
 tags:
-  - "Cirurgia de Catarata"
-  - "Rol ANS"
-  - "Desembolso Direto"
-  - "Envelhecimento Populacional"
-  - "Consolidação de Mercado"
-fontes:
-  - "Evodux Intelligence (31/05/2026) - Oftalmologia no Brasil: o mercado de R$10 bilhões que o envelhecimento vai reorganizar"
-arquivos:
-  - "compass.md"
-assets:
-  - "assets/compass_header.png"
-  - "assets/compass_letterhead.pdf"
+  - Cirurgia de Catarata
+  - Rol ANS
+  - Desembolso Direto
+  - Envelhecimento Populacional
+  - Consolidação de Mercado
+summary: null
+sources:
+  - "Evodux Intelligence (31/05/2026) - Oftalmologia no Brasil: o mercado de
+    R$10 bilhões que o envelhecimento vai reorganizar"
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - AxiaCare®
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/2026/006/compass
+  pdf: /compass/edicoes/2026/006/compass_006_2026.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_006_2026.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: true
+  checksum: null
+  publishedAt: null
+migration:
+  state: adapted-legacy
+  sourceSchema: 1
+  sourceSha256: 19fd67a59cf44bc7b4d87e69d58f94aaef1906302a93d726cbe80aa33a6d18a1
+  originalPdfSha256: 81cb3495c751ebe9ff98f33d4a807f0f805568d6abd4f259cd7974ec9605264a
+  originalPdfBytes: 445956
+  numberingCorrection:
+    state: corrected-crossed-label
+    canonicalLabel: 006/2026
+    legacyPdfDisplayedLabel: 005/2026

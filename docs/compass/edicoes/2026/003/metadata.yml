@@ -1,59 +1,89 @@
-id: "003/2026"
-linha_editorial: "Compass™ | Base de Conhecimento Corporativa do Grupo CSV"
-titulo: "Incidência e fatores determinantes da necessidade de fototerapia neonatal no Brasil: análise por idade gestacional e via de parto"
-ano: 2026
-edicao: 3
-temas:
-  - "Fototerapia neonatal"
-  - "Hiperbilirrubinemia neonatal"
-  - "Icterícia neonatal"
-  - "Idade gestacional"
-  - "Termo precoce"
-  - "Via de parto"
-  - "Cesariana eletiva"
-  - "Kernicterus"
-  - "Metabolismo da bilirrubina"
-  - "Circulação entero-hepática"
-  - "Nomogramas de intervenção"
-  - "Modelagem preditiva"
-  - "Alojamento conjunto"
-  - "Aleitamento materno"
-  - "Hipocalcemia"
+schemaVersion: 2
+id: 003-2026
+number: 3
+year: 2026
+slug: "003"
+title: "Incidência e fatores determinantes da necessidade de fototerapia
+  neonatal no Brasil: análise por idade gestacional e via de parto"
+subtitle: null
+publishedAt: null
+status: Publicado
+topics:
+  - Fototerapia neonatal
+  - Hiperbilirrubinemia neonatal
+  - Icterícia neonatal
+  - Idade gestacional
+  - Termo precoce
+  - Via de parto
+  - Cesariana eletiva
+  - Kernicterus
+  - Metabolismo da bilirrubina
+  - Circulação entero-hepática
+  - Nomogramas de intervenção
+  - Modelagem preditiva
+  - Alojamento conjunto
+  - Aleitamento materno
+  - Hipocalcemia
 tags:
-  - "fototerapia"
-  - "hiperbilirrubinemia"
-  - "icterícia neonatal"
-  - "bilirrubina"
-  - "kernicterus"
-  - "termo precoce"
-  - "early-term"
-  - "idade gestacional"
-  - "cesariana"
-  - "parto vaginal"
-  - "UGT1A1"
-  - "circulação entero-hepática"
-  - "albumina"
-  - "nomograma AAP"
-  - "bilirrubina transcutânea"
-  - "Nascer no Brasil"
-  - "FIOCRUZ"
-  - "Maria do Carmo Leal"
-  - "UNESP Botucatu"
-  - "alojamento conjunto"
-  - "incompatibilidade ABO"
-  - "incompatibilidade Rh"
-  - "G6PD"
-  - "mecônio"
-  - "lactogênese"
-  - "Hospital Amigo da Criança"
-  - "hipocalcemia"
-  - "SBP"
-  - "ANS"
-  - "saúde suplementar"
-fontes:
-  - "Fonte primária (conteúdo integral preservado)"
-arquivos:
-  - "compass.md"
-assets:
-  - "assets/compass_header.png"
-  - "assets/compass_letterhead.pdf"
+  - fototerapia
+  - hiperbilirrubinemia
+  - icterícia neonatal
+  - bilirrubina
+  - kernicterus
+  - termo precoce
+  - early-term
+  - idade gestacional
+  - cesariana
+  - parto vaginal
+  - UGT1A1
+  - circulação entero-hepática
+  - albumina
+  - nomograma AAP
+  - bilirrubina transcutânea
+  - Nascer no Brasil
+  - FIOCRUZ
+  - Maria do Carmo Leal
+  - UNESP Botucatu
+  - alojamento conjunto
+  - incompatibilidade ABO
+  - incompatibilidade Rh
+  - G6PD
+  - mecônio
+  - lactogênese
+  - Hospital Amigo da Criança
+  - hipocalcemia
+  - SBP
+  - ANS
+  - saúde suplementar
+summary: null
+sources:
+  - Fonte primária (conteúdo integral preservado)
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - AxiaCare®
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/2026/003/compass
+  pdf: /compass/edicoes/2026/003/compass_003_2026.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_003_2026.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: true
+  checksum: null
+  publishedAt: null
+migration:
+  state: adapted-legacy
+  sourceSchema: 1
+  sourceSha256: f569243a1033b466db5833e82fc985221b41eb2d7041df8b6e451fae4fb364cc
+  originalPdfSha256: 7a9ea11beb371dcbcfc4201bc8594c25ca99750fd08d30b1a6d744c3b0e78b42
+  originalPdfBytes: 1412287

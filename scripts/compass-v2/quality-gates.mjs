@@ -1,0 +1,381 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import AxeBuilder from '@axe-core/playwright';
+import { chromium } from '@playwright/test';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+import { assertLocalRenderUrl } from './render-pdf.mjs';
+
+function normalizeText(value) {
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[—–-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLocaleLowerCase('pt-BR');
+}
+
+export function evaluateParity({ webText, pdfText, requiredTexts }) {
+  const normalizedWeb = normalizeText(webText);
+  const normalizedPdf = normalizeText(pdfText);
+  const missingInWeb = requiredTexts.filter((text) => !normalizedWeb.includes(normalizeText(text)));
+  const missingInPdf = requiredTexts.filter((text) => !normalizedPdf.includes(normalizeText(text)));
+  return {
+    ok: missingInWeb.length === 0 && missingInPdf.length === 0,
+    missingInWeb,
+    missingInPdf,
+  };
+}
+
+export function evaluatePdfConstraints({ bytes, pages }) {
+  const maxBytes = 4_000_000;
+  const violations = [];
+  if (!Number.isInteger(pages) || pages < 1) violations.push('O PDF deve conter ao menos uma página.');
+  if (bytes > maxBytes) violations.push('O PDF excede o limite operacional de 4.000.000 bytes.');
+  return { ok: violations.length === 0, maxBytes, bytes, pages, violations };
+}
+
+export function evaluateViewportConstraints({ viewportWidth, documentWidth, offenders = [] }) {
+  if (!Number.isFinite(viewportWidth) || !Number.isFinite(documentWidth)) {
+    throw new TypeError('As larguras da viewport e do documento devem ser numéricas.');
+  }
+  const overflowPixels = Math.max(0, Math.ceil(documentWidth - viewportWidth));
+  const violations = overflowPixels > 1
+    ? [`A página apresenta overflow horizontal de ${overflowPixels}px na viewport mobile.`]
+    : [];
+  return {
+    ok: violations.length === 0,
+    viewportWidth,
+    documentWidth,
+    overflowPixels,
+    offenders: violations.length > 0 ? offenders : [],
+    violations,
+  };
+}
+
+export function evaluateTableLegibility({ tables = [] }) {
+  const minimumColumnWidth = 72;
+  const compressed = tables.filter(({ headers = [], columnWidths = [] }) => {
+    const indexedReference = headers.length === 2 && headers[0]?.trim() === '#';
+    return columnWidths.some((width, index) => (
+      Number.isFinite(width)
+      && width > 0
+      && width < minimumColumnWidth
+      && !(indexedReference && index === 0 && width >= 48)
+    ));
+  });
+  const misallocated = tables.filter(({ headers = [], columnWidths = [] }) => (
+    headers.length === 2
+    && headers[0]?.trim() === '#'
+    && (columnWidths[0] > 96 || columnWidths[1] < 240)
+  ));
+  const offenders = [...new Set([...compressed, ...misallocated])];
+  const violations = [];
+  if (compressed.length > 0) {
+    violations.push(`Há tabela de referência mobile com coluna inferior a ${minimumColumnWidth}px.`);
+  }
+  if (misallocated.length > 0) {
+    violations.push('Há tabela de referência mobile com coluna numérica superdimensionada ou conteúdo bibliográfico inferior a 240px.');
+  }
+  return {
+    ok: violations.length === 0,
+    minimumColumnWidth,
+    tables,
+    offenders,
+    violations,
+  };
+}
+
+function parseRgb(value) {
+  const match = String(value ?? '').match(/rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i);
+  return match ? match.slice(1, 4).map(Number) : null;
+}
+
+function relativeLuminance(rgb) {
+  const channels = rgb.map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+}
+
+function contrastRatio(foreground, background) {
+  const title = parseRgb(foreground);
+  const surface = parseRgb(background);
+  if (!title || !surface) return null;
+  const titleLuminance = relativeLuminance(title);
+  const surfaceLuminance = relativeLuminance(surface);
+  return Number(((Math.max(titleLuminance, surfaceLuminance) + 0.05)
+    / (Math.min(titleLuminance, surfaceLuminance) + 0.05)).toFixed(2));
+}
+
+export function evaluateVisualTokens({
+  backTitleColor,
+  backBackgroundColor,
+  printBackTitleColor,
+  printBackBackgroundColor,
+  printFlowTextColor,
+  printFlowBackgroundColor,
+  printTableTextColor,
+  printTableBackgroundColor,
+  printScopeTextColor,
+  printScopeBackgroundColor,
+}) {
+  const backTitleContrast = contrastRatio(backTitleColor, backBackgroundColor);
+  const printBackTitleContrast = contrastRatio(printBackTitleColor, printBackBackgroundColor);
+  const printFlowTextContrast = contrastRatio(printFlowTextColor, printFlowBackgroundColor);
+  const printTableContrast = contrastRatio(printTableTextColor, printTableBackgroundColor);
+  const printScopeContrast = contrastRatio(printScopeTextColor, printScopeBackgroundColor);
+  const violations = [];
+  if (backTitleContrast !== null && backTitleContrast < 4.5) {
+    violations.push('O título da contracapa na tela não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printBackTitleContrast !== null && printBackTitleContrast < 4.5) {
+    violations.push('O título da contracapa no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printFlowTextContrast !== null && printFlowTextContrast < 4.5) {
+    violations.push('O corpo da edição em modo flow no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printTableContrast !== null && printTableContrast < 4.5) {
+    violations.push('A tabela da edição em modo flow no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  if (printScopeContrast !== null && printScopeContrast < 4.5) {
+    violations.push('A nota de escopo no PDF não atende ao contraste mínimo de 4,5:1.');
+  }
+  return {
+    ok: violations.length === 0,
+    backTitleContrast,
+    printBackTitleContrast,
+    printFlowTextContrast,
+    printTableContrast,
+    printScopeContrast,
+    violations,
+  };
+}
+
+async function extractPdfText(pdfPath) {
+  const bytes = await readFile(pdfPath);
+  const document = await getDocument({ data: new Uint8Array(bytes) }).promise;
+  const pages = [];
+  for (let index = 1; index <= document.numPages; index += 1) {
+    const page = await document.getPage(index);
+    const content = await page.getTextContent();
+    pages.push(content.items.map((item) => item.str).join(' '));
+  }
+  return { bytes, pages: document.numPages, text: pages.join('\n') };
+}
+
+async function revealLocalContent(page) {
+  await page.evaluate(() => {
+    document.querySelector('#hub-auth-overlay')?.remove();
+    document.body.classList.remove('ha-scroll-locked');
+    for (const element of document.querySelectorAll('.VPContent, .VPDoc, main')) {
+      if (element instanceof HTMLElement) {
+        element.hidden = false;
+        element.style.removeProperty('display');
+        element.style.removeProperty('visibility');
+      }
+    }
+  });
+}
+
+export async function auditEdition({ url, pdfPath, outputDir, requiredTexts }) {
+  assertLocalRenderUrl(url);
+  await mkdir(outputDir, { recursive: true });
+  const browser = await chromium.launch({ headless: true });
+  let webText = '';
+  let accessibility = { violations: [], passes: 0 };
+  let visualTokens = {
+    backTitleColor: null,
+    backBackgroundColor: null,
+    printBackTitleColor: null,
+    printBackBackgroundColor: null,
+    printFlowTextColor: null,
+    printFlowBackgroundColor: null,
+    printTableTextColor: null,
+    printTableBackgroundColor: null,
+    printScopeTextColor: null,
+    printScopeBackgroundColor: null,
+  };
+  let viewportMetrics = {
+    viewportWidth: 0,
+    documentWidth: 0,
+    offenders: [],
+  };
+  let tableMetrics = { tables: [] };
+  const desktopScreenshot = path.join(outputDir, 'desktop.png');
+  const mobileScreenshot = path.join(outputDir, 'mobile.png');
+
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    const page = await context.newPage();
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await revealLocalContent(page);
+    await page.waitForSelector('.compass-v2', { state: 'visible' });
+    await page.evaluate(() => document.fonts.ready);
+    webText = await page.locator('.compass-v2').innerText();
+    visualTokens = await page.evaluate(() => {
+      const title = document.querySelector('.compass-page--back .mi .t');
+      const back = document.querySelector('.compass-page--back');
+      return {
+        backTitleColor: title ? getComputedStyle(title).color : null,
+        backBackgroundColor: back ? getComputedStyle(back).backgroundColor : null,
+      };
+    });
+    const axeResults = await new AxeBuilder({ page }).include('.compass-v2').analyze();
+    await page.emulateMedia({ media: 'print' });
+    const printVisualTokens = await page.evaluate(() => {
+      const title = document.querySelector('.compass-page--back .mi .t');
+      const back = document.querySelector('.compass-page--back');
+      const flowText = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content p');
+      const flowSurface = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content');
+      const flowTableCell = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content table tbody tr:nth-child(2) td')
+        ?? document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-v2__content table td');
+      const flowScope = document.querySelector('.compass-v2:not(.compass-v2--paged) .compass-scope');
+      const effectiveBackground = (element) => {
+        let current = element;
+        while (current) {
+          const background = getComputedStyle(current).backgroundColor;
+          if (background && background !== 'transparent' && !background.endsWith(', 0)')) return background;
+          current = current.parentElement;
+        }
+        return null;
+      };
+      return {
+        printBackTitleColor: title ? getComputedStyle(title).color : null,
+        printBackBackgroundColor: back ? getComputedStyle(back).backgroundColor : null,
+        printFlowTextColor: flowText ? getComputedStyle(flowText).color : null,
+        printFlowBackgroundColor: flowSurface ? effectiveBackground(flowSurface) : null,
+        printTableTextColor: flowTableCell ? getComputedStyle(flowTableCell).color : null,
+        printTableBackgroundColor: flowTableCell ? effectiveBackground(flowTableCell) : null,
+        printScopeTextColor: flowScope ? getComputedStyle(flowScope).color : null,
+        printScopeBackgroundColor: flowScope ? effectiveBackground(flowScope) : null,
+      };
+    });
+    visualTokens = { ...visualTokens, ...printVisualTokens };
+    await page.emulateMedia({ media: 'screen' });
+    accessibility = {
+      violations: axeResults.violations.map(({ id, impact, help, nodes }) => ({
+        id,
+        impact,
+        help,
+        nodes: nodes.length,
+        samples: nodes.slice(0, 24).map((node) => ({
+          target: node.target,
+          html: node.html,
+          failureSummary: node.failureSummary,
+        })),
+      })),
+      passes: axeResults.passes.length,
+    };
+    await page.screenshot({ path: desktopScreenshot, fullPage: true });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    viewportMetrics = await page.evaluate(() => {
+      const viewportWidth = document.documentElement.clientWidth;
+      const documentWidth = Math.max(
+        document.documentElement.scrollWidth,
+        document.body?.scrollWidth ?? 0,
+      );
+      const describe = (element) => {
+        const id = element.id ? `#${element.id}` : '';
+        const classes = [...element.classList].slice(0, 3).map((name) => `.${name}`).join('');
+        return `${element.tagName.toLowerCase()}${id}${classes}`;
+      };
+      const offenders = [...document.querySelectorAll('body *')]
+        .map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            selector: describe(element),
+            left: Number(rect.left.toFixed(2)),
+            right: Number(rect.right.toFixed(2)),
+            width: Number(rect.width.toFixed(2)),
+          };
+        })
+        .filter(({ left, right }) => left < -1 || right > viewportWidth + 1)
+        .sort((left, right) => Math.max(right.right - viewportWidth, -right.left)
+          - Math.max(left.right - viewportWidth, -left.left))
+        .slice(0, 24);
+      return { viewportWidth, documentWidth, offenders };
+    });
+    tableMetrics = await page.evaluate(() => ({
+      tables: [...document.querySelectorAll('.compass-v2 .ref-table')].map((table, index) => {
+        const row = table.querySelector('thead tr') ?? table.querySelector('tr');
+        return {
+          selector: `table.ref-table[data-qa-index="${index}"]`,
+          headers: row ? [...row.children].map((cell) => cell.textContent?.trim() ?? '') : [],
+          columnWidths: row
+            ? [...row.children].map((cell) => Number(cell.getBoundingClientRect().width.toFixed(2)))
+            : [],
+        };
+      }),
+    }));
+    await page.screenshot({ path: mobileScreenshot, fullPage: true });
+  } finally {
+    await browser.close();
+  }
+
+  const pdf = await extractPdfText(pdfPath);
+  const parity = evaluateParity({ webText, pdfText: pdf.text, requiredTexts });
+  const pdfConstraints = evaluatePdfConstraints({ bytes: pdf.bytes.length, pages: pdf.pages });
+  const blockingAccessibility = accessibility.violations.filter((item) => ['critical', 'serious'].includes(item.impact));
+  const visualValidation = evaluateVisualTokens(visualTokens);
+  const viewportValidation = evaluateViewportConstraints(viewportMetrics);
+  const tableLegibility = evaluateTableLegibility(tableMetrics);
+  const report = {
+    generatedAt: new Date().toISOString(),
+    url,
+    parity,
+    pdf: pdfConstraints,
+    accessibility: { ...accessibility, blocking: blockingAccessibility.length },
+    visual: {
+      desktop: path.basename(desktopScreenshot),
+      mobile: path.basename(mobileScreenshot),
+      tokens: visualTokens,
+      validation: visualValidation,
+      viewport: viewportValidation,
+      tableLegibility,
+    },
+    ok: parity.ok
+      && pdfConstraints.ok
+      && blockingAccessibility.length === 0
+      && visualValidation.ok
+      && viewportValidation.ok
+      && tableLegibility.ok,
+  };
+  await writeFile(path.join(outputDir, 'quality-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  return report;
+}
+
+function parseArgs(argv) {
+  const get = (name) => {
+    const index = argv.indexOf(name);
+    return index >= 0 ? argv[index + 1] : null;
+  };
+  const values = {
+    url: get('--url'),
+    pdfPath: get('--pdf'),
+    outputDir: get('--output-dir'),
+    requiredTexts: (get('--required') ?? 'Compass™|Grupo CSV|MedValor®|AxiaCare®').split('|'),
+  };
+  if (!values.url || !values.pdfPath || !values.outputDir) {
+    throw new Error('Uso: node quality-gates.mjs --url <localhost> --pdf <arquivo> --output-dir <diretório> [--required <texto|texto>]');
+  }
+  return values;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
+  const args = parseArgs(process.argv.slice(2));
+  auditEdition({
+    url: args.url,
+    pdfPath: path.resolve(args.pdfPath),
+    outputDir: path.resolve(args.outputDir),
+    requiredTexts: args.requiredTexts,
+  }).then((report) => {
+    console.log(JSON.stringify(report, null, 2));
+    if (!report.ok) process.exitCode = 1;
+  }).catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}

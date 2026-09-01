@@ -5,8 +5,18 @@
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs:build": "npm run compass:publish && npm run compass:catalog && vitepress build docs",
     "docs:preview": "vitepress preview docs",
+    "compass:publish": "node scripts/compass-v2/publish-editions.mjs --source compass/edicoes/2026 --output docs/compass/edicoes/2026",
+    "compass:catalog": "node scripts/compass-v2/catalog.mjs --source compass/edicoes/2026 --output docs/compass/catalog.json",
+    "compass:test": "node --test tests/compass-v2/*.test.mjs",
+    "compass:build": "npm run compass:catalog && npm run compass:test && npm run docs:build",
+    "compass:pdf": "node scripts/compass-v2/render-pdf.mjs",
+    "compass:quality": "node scripts/compass-v2/quality-gates.mjs",
+    "compass:release-plan": "node scripts/compass-v2/release-plan.mjs",
+    "compass:pdf:runtime": "bash scripts/compass-v2/pdf-runtime.sh",
+    "compass:test:pdf": "npm run compass:pdf:runtime -- node --test tests/compass-v2/pdf.integration.mjs",
+    "compass:verify": "npm run compass:test && npm run compass:test:pdf",
     "documentos:vendor": "node scripts/vendor-documentos-pdfjs.mjs",
     "documentos:generate": "npm run documentos:vendor && node scripts/generate-documentos-config.mjs",
     "documentos:test": "npm run documentos:vendor && node --test tests/documentos/*.test.mjs tests/hub-auth-corporate.test.mjs",
@@ -25,7 +35,8 @@
     "@axe-core/playwright": "4.12.1",
     "@playwright/test": "1.62.0",
     "pdfjs-dist": "6.2.108",
-    "vitepress": "2.0.0-alpha.17"
+    "vitepress": "2.0.0-alpha.17",
+    "yaml": "^2.8.3"
   },
   "overrides": {
     "vite": "7.3.6"

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "008-2026",
+  "number": 8,
+  "year": 2026,
+  "slug": "008",
+  "title": "Marcos temporais para alta e substituição do leito",
+  "subtitle": "Referências assistenciais e operacionais para transições seguras",
+  "publishedAt": "2026-08-31",
+  "status": "Minuta para revisão",
+  "topics": ["alta hospitalar", "gestão de leitos"],
+  "tags": ["alta", "substituição do leito"],
+  "summary": "Análise dos marcos temporais da alta e da substituição do leito.",
+  "product": {
+    "name": "Compass™",
+    "owner": "Grupo CSV"
+  },
+  "editorial": {
+    "responsible": "MedValor®"
+  },
+  "elaboration": ["AxiaCare®"],
+  "engine": {
+    "name": "compass-v2",
+    "version": "2.0.0",
+    "templateVersion": "2.0.0"
+  },
+  "routes": {
+    "web": "/compass/edicoes/2026/008/compass",
+    "pdf": "/compass/edicoes/2026/008/compass_008_2026.pdf"
+  },
+  "artifacts": {
+    "source": "compass.md",
+    "pdf": "compass_008_2026.pdf",
+    "manifest": "release.json"
+  },
+  "release": {
+    "version": 1,
+    "active": false,
+    "checksum": null,
+    "publishedAt": null
+  },
+  "migration": {
+    "state": "native-v2",
+    "sourceSchema": 2
+  }
+}

@@ -1,0 +1,206 @@
+.compass-v2:not(.compass-v2--paged) .compass-section {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.compass-v2 .compass-section + .compass-section {
+  margin-top: 3.5rem;
+}
+
+.compass-v2 .compass-section:first-child h2 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.compass-v2 .compass-scope {
+  margin-top: 3rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--compass-line);
+  border-left: 4px solid var(--compass-orange);
+  border-radius: 0 12px 12px 0;
+  color: var(--compass-muted);
+  background: color-mix(in srgb, var(--compass-orange) 8%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.compass-v2 .compass-download-actions {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.compass-v2 .compass-download a,
+.compass-v2 .compass-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.72rem 1.2rem;
+  border: 1px solid var(--compass-line);
+  border-radius: 10px;
+  color: #ffffff;
+  background: var(--compass-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.compass-v2 .compass-download svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+.compass-v2 .compass-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.compass-v2 .compass-nav .nav-secondary {
+  color: var(--compass-ink);
+  background: var(--compass-cream);
+}
+
+.dark .compass-v2 .compass-download a,
+.dark .compass-v2 .compass-nav .nav-primary {
+  color: #ffffff;
+}
+
+.compass-v2 .ref-table {
+  white-space: normal;
+}
+
+.compass-v2 .ref-table:not(.ref-table--indexed) td:last-child {
+  width: 5.5rem;
+}
+
+.compass-v2 .compass-figure__source {
+  display: block;
+  border-radius: 8px;
+}
+
+.compass-v2 .compass-figure__source:focus-visible {
+  outline: 3px solid var(--compass-cyan);
+  outline-offset: 4px;
+}
+
+.compass-v2 .compass-figure__source::after {
+  display: block;
+  margin-top: 0.4rem;
+  content: "Abrir imagem em tamanho original";
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .compass-v2 .comparison-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .compass-v2 .ref-table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    table-layout: auto;
+    font-size: 0.78rem;
+    white-space: normal;
+  }
+
+  .compass-v2 .ref-table th,
+  .compass-v2 .ref-table td {
+    padding: 0.55rem 0.5rem;
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: normal;
+  }
+
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:first-child,
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:first-child {
+    min-width: 18rem;
+  }
+
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:nth-child(2),
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:nth-child(2) {
+    min-width: 16rem;
+  }
+
+  .compass-v2 .ref-table:not(.ref-table--indexed) th:last-child,
+  .compass-v2 .ref-table:not(.ref-table--indexed) td:last-child {
+    min-width: 5rem;
+  }
+
+  .compass-v2 .ref-table--indexed th:first-child,
+  .compass-v2 .ref-table--indexed td:first-child {
+    width: 3.5rem;
+    min-width: 3.5rem;
+    max-width: 3.5rem;
+  }
+
+  .compass-v2 .ref-table--indexed th:nth-child(2),
+  .compass-v2 .ref-table--indexed td:nth-child(2) {
+    min-width: 28rem;
+  }
+}
+
+@media print {
+  .dark .compass-v2:not(.compass-v2--paged) .compass-section,
+  .compass-v2:not(.compass-v2--paged) .compass-section {
+    background: #ffffff !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table,
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table thead,
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table tbody,
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table tr,
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table td {
+    background: #ffffff !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .compass-v2__content table th {
+    color: #ffffff !important;
+    background: #0d264c !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .compass-scope {
+    color: #334155 !important;
+    background: #fff8ed !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .compass-scope strong {
+    color: #0d264c !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .comparison-table {
+    break-inside: auto !important;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .comparison-table tr {
+    break-inside: avoid;
+  }
+
+  .compass-v2 .compass-section + .compass-section {
+    margin-top: 10mm;
+  }
+
+  .compass-v2 .ref-table {
+    break-inside: auto;
+    font-size: 7.2pt;
+  }
+
+  .compass-v2 .ref-table tr {
+    break-inside: avoid;
+  }
+
+  .compass-v2:not(.compass-v2--paged) .compass-figure__source::after {
+    display: none !important;
+  }
+}
