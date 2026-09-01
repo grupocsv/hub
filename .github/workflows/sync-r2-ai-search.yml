@@ -100,21 +100,78 @@ jobs:
             --checkers 20 \
             --verbose
 
-      - name: Trigger AI Search re-index
+      - name: Trigger and await AI Search sync job
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_AI_SEARCH_TOKEN: ${{ secrets.CF_AI_SEARCH_TOKEN }}
         run: |
-          # Novo endpoint AI Search (pos-migracao jun/2026)
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/ai-search/instances/hub-csv" \
-            -H "Authorization: Bearer ${{ secrets.CF_AI_SEARCH_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"enable": true}')
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          echo "AI Search sync triggered (HTTP $HTTP_CODE)"
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "Aviso: Resposta inesperada. Tentando endpoint legado..."
-            curl -s -X POST \
-              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/autorag/hub-csv/reindex" \
-              -H "Authorization: Bearer ${{ secrets.CF_AI_SEARCH_TOKEN }}" \
-              -H "Content-Type: application/json" || true
+          set -euo pipefail
+          BASE_URL="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai-search/instances/hub-csv"
+          RESPONSE_FILE="$(mktemp)"
+          COMPLETED=false
+          trap 'rm -f "${RESPONSE_FILE}"' EXIT
+
+          HTTP_CODE=$(curl --silent --show-error \
+            --output "${RESPONSE_FILE}" \
+            --write-out '%{http_code}' \
+            --request POST \
+            "${BASE_URL}/jobs" \
+            --header "Authorization: Bearer ${CF_AI_SEARCH_TOKEN}" \
+            --header 'Content-Type: application/json')
+          if [[ ! "${HTTP_CODE}" =~ ^2[0-9][0-9]$ ]]; then
+            echo "Falha ao criar job de sincronização do AI Search (HTTP ${HTTP_CODE})." >&2
+            exit 1
           fi
-          echo "Re-index concluido."
+          JOB_ID=$(jq --exit-status --raw-output '.result.id' "${RESPONSE_FILE}")
+          if [[ -z "${JOB_ID}" || "${JOB_ID}" == "null" ]]; then
+            echo 'A API não retornou o identificador do job do AI Search.' >&2
+            exit 1
+          fi
+          echo "Job do AI Search criado; aguardando conclusão."
+
+          for ATTEMPT in $(seq 1 90); do
+            HTTP_CODE=$(curl --silent --show-error \
+              --output "${RESPONSE_FILE}" \
+              --write-out '%{http_code}' \
+              "${BASE_URL}/jobs/${JOB_ID}" \
+              --header "Authorization: Bearer ${CF_AI_SEARCH_TOKEN}")
+            if [[ "${HTTP_CODE}" != "200" ]]; then
+              echo "Falha ao consultar job do AI Search (HTTP ${HTTP_CODE})." >&2
+              exit 1
+            fi
+            ENDED_AT=$(jq --raw-output '.result.ended_at // empty' "${RESPONSE_FILE}")
+            END_REASON=$(jq --raw-output '.result.end_reason // empty' "${RESPONSE_FILE}")
+            if [[ -n "${ENDED_AT}" ]]; then
+              if [[ -n "${END_REASON}" ]]; then
+                echo "Job do AI Search terminou com falha: ${END_REASON}." >&2
+                exit 1
+              fi
+              COMPLETED=true
+              echo "Job do AI Search concluído após ${ATTEMPT} consulta(s)."
+              break
+            fi
+            sleep 10
+          done
+
+          if [[ "${COMPLETED}" != "true" ]]; then
+            echo 'Timeout ao aguardar a conclusão do job do AI Search.' >&2
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl --silent --show-error \
+            --output "${RESPONSE_FILE}" \
+            --write-out '%{http_code}' \
+            "${BASE_URL}/stats" \
+            --header "Authorization: Bearer ${CF_AI_SEARCH_TOKEN}")
+          if [[ "${HTTP_CODE}" != "200" ]]; then
+            echo "Falha ao consultar estatísticas do AI Search (HTTP ${HTTP_CODE})." >&2
+            exit 1
+          fi
+          jq --exit-status '
+            .success == true and
+            .result.queued == 0 and
+            .result.running == 0 and
+            .result.error == 0 and
+            .result.outdated == 0
+          ' "${RESPONSE_FILE}" >/dev/null
+          echo 'Sincronização e validação do AI Search concluídas.'
