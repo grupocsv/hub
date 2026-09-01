@@ -158,20 +158,38 @@ jobs:
             exit 1
           fi
 
-          HTTP_CODE=$(curl --silent --show-error \
-            --output "${RESPONSE_FILE}" \
-            --write-out '%{http_code}' \
-            "${BASE_URL}/stats" \
-            --header "Authorization: Bearer ${CF_AI_SEARCH_TOKEN}")
-          if [[ "${HTTP_CODE}" != "200" ]]; then
-            echo "Falha ao consultar estatísticas do AI Search (HTTP ${HTTP_CODE})." >&2
+          STATS_READY=false
+          for STATS_ATTEMPT in $(seq 1 90); do
+            HTTP_CODE=$(curl --silent --show-error \
+              --output "${RESPONSE_FILE}" \
+              --write-out '%{http_code}' \
+              "${BASE_URL}/stats" \
+              --header "Authorization: Bearer ${CF_AI_SEARCH_TOKEN}")
+            if [[ "${HTTP_CODE}" != "200" ]]; then
+              echo "Falha ao consultar estatísticas do AI Search (HTTP ${HTTP_CODE})." >&2
+              exit 1
+            fi
+            if ! jq --exit-status '
+              .success == true and
+              .result.error == 0 and
+              .result.outdated == 0
+            ' "${RESPONSE_FILE}" >/dev/null; then
+              echo 'As estatísticas do AI Search registraram erro ou item desatualizado.' >&2
+              exit 1
+            fi
+            if jq --exit-status '
+              .result.queued == 0 and
+              .result.running == 0
+            ' "${RESPONSE_FILE}" >/dev/null; then
+              STATS_READY=true
+              echo "Estatísticas do AI Search estabilizadas após ${STATS_ATTEMPT} consulta(s)."
+              break
+            fi
+            sleep 10
+          done
+
+          if [[ "${STATS_READY}" != "true" ]]; then
+            echo 'Timeout ao aguardar a estabilização das estatísticas do AI Search.' >&2
             exit 1
           fi
-          jq --exit-status '
-            .success == true and
-            .result.queued == 0 and
-            .result.running == 0 and
-            .result.error == 0 and
-            .result.outdated == 0
-          ' "${RESPONSE_FILE}" >/dev/null
           echo 'Sincronização e validação do AI Search concluídas.'

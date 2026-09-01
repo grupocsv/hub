@@ -63,8 +63,8 @@ Hub CSV (GitHub) → GitHub Actions → R2 (hub-csv-knowledge) → AI Search (hu
 | Componente | Recurso | Detalhes |
 |---|---|---|
 | Repositório | GitHub `grupocsv/hub` | Fonte primária de todo o conteúdo |
-| Armazenamento | R2 `hub-csv-knowledge` | 477 objetos observados pela instância em 1º de setembro de 2026 |
-| Instância AI Search | `hub-csv` | 383 arquivos concluídos, 854 vetores, zero erro e zero item desatualizado após o release Compass™ v2 |
+| Armazenamento | R2 `hub-csv-knowledge` | Fonte externa sincronizada; contagens atuais devem ser consultadas em `GET /stats` |
+| Instância AI Search | `hub-csv` | O gate de publicação exige zero erro e zero item desatualizado após cada job |
 | Embedding | `qwen3-embedding-0.6b` | 2048 tokens por chunk, 10% overlap |
 | AI Gateway | `default` | Valor retornado pela API da instância em 1º de setembro de 2026 |
 | Índice vetorial | Gerenciado pelo AI Search | 1.024 dimensões, conforme `GET /stats` |
@@ -157,7 +157,7 @@ O fluxo de atualização é totalmente automatizado:
 Push em main → deploy.yml → GitHub Pages → sync-r2-ai-search.yml → R2 → POST /jobs → polling do job → GET /stats
 ```
 
-O workflow `sync-r2-ai-search.yml` roda automaticamente após cada deploy bem-sucedido. Também pode ser disparado manualmente via `workflow_dispatch`. Depois do `rclone sync`, o workflow cria um job real com `POST /ai-search/instances/hub-csv/jobs`, consulta `GET /jobs/{JOB_ID}` até `ended_at` e falha se houver `end_reason`, timeout, erro HTTP ou estatísticas finais com itens em fila, execução, erro ou estado desatualizado.
+O workflow `sync-r2-ai-search.yml` roda automaticamente após cada deploy bem-sucedido. Também pode ser disparado manualmente via `workflow_dispatch`. Depois do `rclone sync`, o workflow cria um job real com `POST /ai-search/instances/hub-csv/jobs`, consulta `GET /jobs/{JOB_ID}` até `ended_at` e, como a finalização dos arquivos pode continuar após o encerramento formal do job, consulta `GET /stats` até `queued=0` e `running=0`. O gate falha diante de `end_reason`, timeout, erro HTTP, `error>0` ou `outdated>0`.
 
 **Arquivos sincronizados:** `.md`, `.html`, `.json`, `.csv`, `.txt`, `.pdf` (até 4 MB cada).
 
