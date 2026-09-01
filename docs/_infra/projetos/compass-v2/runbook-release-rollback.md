@@ -172,7 +172,7 @@ Ativar o candidato com `expected_active_release_id` igual ao release baseline. S
 
 ## 7. Release do Hub
 
-Integrar o PR do Hub em `main`. O `deploy.yml` será executado no push e deve aprovar o build antes de publicar no GitHub Pages. Após o deploy, o workflow `sync-r2-ai-search.yml` sincroniza conteúdo estático, incluindo PDFs de até 4 MB, para o bucket de conhecimento e solicita a reindexação.
+Integrar o PR do Hub em `main`. O `deploy.yml` será executado no push e deve aprovar o build antes de publicar no GitHub Pages. Após o deploy, o workflow `sync-r2-ai-search.yml` sincroniza conteúdo estático, incluindo PDFs de até 4 MB, para o bucket de conhecimento. Em seguida, cria um job real com `POST /ai-search/instances/hub-csv/jobs`, consulta `GET /jobs/{JOB_ID}` até `ended_at` e exige estatísticas finais sem itens em fila, execução, erro ou estado desatualizado.
 
 O release do Hub deve ocorrer somente depois que o backend estiver saudável e os candidatos estiverem preparados. A ativação dos candidatos pode ocorrer imediatamente antes ou depois do deploy do Hub, desde que as verificações cruzadas sejam concluídas e o intervalo seja tratado como janela controlada.
 
@@ -204,7 +204,7 @@ Para cada edição:
 
 ### 8.3 AI Search
 
-Aguardar a conclusão do workflow de sincronização e validar busca por termos distintos de ao menos três edições, incluindo 008 e uma edição histórica. A resposta deve citar arquivos Compass™ atuais. Se a reindexação ou a recuperação falhar, não remover o conteúdo anterior; registrar o incidente e executar o rollback do Hub conforme a seção seguinte.
+Aguardar a conclusão do workflow de sincronização, confirmar pela API oficial que o job terminou sem `end_reason` e validar `GET /stats` com `queued=0`, `running=0`, `error=0` e `outdated=0`. Depois, validar busca por termos distintos de ao menos três edições, incluindo 008 e uma edição histórica. A resposta deve recuperar arquivos Compass™ atuais. Se o job ou a recuperação falhar, não remover o conteúdo anterior; registrar o incidente e executar o rollback do Hub conforme a seção seguinte.
 
 ## 9. Rollback
 

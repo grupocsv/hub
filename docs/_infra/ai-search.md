@@ -63,20 +63,22 @@ Hub CSV (GitHub) → GitHub Actions → R2 (hub-csv-knowledge) → AI Search (hu
 | Componente | Recurso | Detalhes |
 |---|---|---|
 | Repositório | GitHub `grupocsv/hub` | Fonte primária de todo o conteúdo |
-| Armazenamento | R2 `hub-csv-knowledge` | 191 objetos sincronizados |
-| Instância AI Search | `hub-csv` | 189 arquivos indexados, 384 vetores |
+| Armazenamento | R2 `hub-csv-knowledge` | 477 objetos observados pela instância em 1º de setembro de 2026 |
+| Instância AI Search | `hub-csv` | 383 arquivos concluídos, 854 vetores, zero erro e zero item desatualizado após o release Compass™ v2 |
 | Embedding | `qwen3-embedding-0.6b` | 2048 tokens por chunk, 10% overlap |
-| AI Gateway | `csv_ai_gateway` | Roteamento e observabilidade |
-| Vectorize | `ai-search-hub-csv` | Banco vetorial Cloudflare |
+| AI Gateway | `default` | Valor retornado pela API da instância em 1º de setembro de 2026 |
+| Índice vetorial | Gerenciado pelo AI Search | 1.024 dimensões, conforme `GET /stats` |
 
 ## Endpoints
 
-### Endpoint 1 — AI Search (busca + geração)
+A API AutoRAG anterior não é mais recomendada pela Cloudflare. Os consumidores novos devem usar a API `ai-search/instances` com mensagens no formato compatível com a API da OpenAI.
 
-Recebe uma pergunta em linguagem natural, busca nos vetores, e retorna uma resposta gerada com citações das fontes.
+### Endpoint 1 — Search
+
+Retorna os trechos mais relevantes, sem geração de texto. É o endpoint preferencial para agentes que fazem a própria síntese.
 
 ```http
-POST /client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/autorag/rags/hub-csv/ai-search
+POST /client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/ai-search/instances/hub-csv/search
 Host: api.cloudflare.com
 Authorization: Bearer SEU_AI_SEARCH_TOKEN
 Content-Type: application/json
@@ -86,21 +88,23 @@ Content-Type: application/json
 
 ```json
 {
-  "query": "Qual o mandato da AxiaCare?",
-  "stream": false,
-  "rewrite_query": true,
-  "max_num_results": 10
+  "messages": [
+    {
+      "role": "user",
+      "content": "Qual o mandato da AxiaCare®?"
+    }
+  ]
 }
 ```
 
-**Resposta:** JSON com `response` (texto gerado), `search_results` (documentos fonte com score e filename).
+**Resposta:** JSON com os trechos recuperados, scores e metadados dos itens de origem.
 
-### Endpoint 2 — Search (busca vetorial pura)
+### Endpoint 2 — Chat completions
 
-Retorna apenas os documentos mais relevantes, sem geração de texto. Ideal para alimentar agentes que fazem sua própria síntese.
+Recupera o contexto e gera uma resposta em uma única chamada.
 
 ```http
-POST /client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/autorag/rags/hub-csv/search
+POST /client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/ai-search/instances/hub-csv/chat/completions
 Host: api.cloudflare.com
 Authorization: Bearer SEU_AI_SEARCH_TOKEN
 Content-Type: application/json
@@ -110,24 +114,30 @@ Content-Type: application/json
 
 ```json
 {
-  "query": "Signal edição mais recente",
-  "max_num_results": 5
+  "messages": [
+    {
+      "role": "system",
+      "content": "Responda em Português do Brasil e cite as fontes recuperadas."
+    },
+    {
+      "role": "user",
+      "content": "O que é o Signal™?"
+    }
+  ]
 }
 ```
 
-### Parâmetros
+### Parâmetros principais
 
 | Parâmetro | Tipo | Descrição |
 |---|---|---|
-| `query` | string | Pergunta em linguagem natural |
-| `stream` | boolean | Streaming da resposta (SSE) |
-| `rewrite_query` | boolean | Reescrever a query para melhorar busca |
-| `max_num_results` | integer | Máximo de documentos retornados (1-20) |
-| `system_prompt` | string | Prompt de sistema para contextualizar |
+| `messages` | array | Mensagens de sistema e usuário em formato compatível com a API da OpenAI |
+| `stream` | boolean | Streaming da resposta por SSE no endpoint de chat |
+| `ai_search_options` | object | Opções específicas de recuperação quando suportadas pelo endpoint |
 
 ## System Prompt Recomendado
 
-Ao usar o endpoint `ai-search`, inclua este `system_prompt` no body para contextualizar as respostas:
+Ao usar `chat/completions`, inclua este texto como mensagem de sistema para contextualizar as respostas:
 
 ```text
 Você é o assistente do Hub CSV, a base de conhecimento pessoal
@@ -144,10 +154,10 @@ com precisão e citando as fontes quando disponíveis.
 O fluxo de atualização é totalmente automatizado:
 
 ```
-Push no main → deploy.yml (VitePress + Pages) → sync-r2-ai-search.yml → R2 → Re-index
+Push em main → deploy.yml → GitHub Pages → sync-r2-ai-search.yml → R2 → POST /jobs → polling do job → GET /stats
 ```
 
-O workflow `sync-r2-ai-search.yml` roda automaticamente após cada deploy bem-sucedido. Também pode ser disparado manualmente via `workflow_dispatch`.
+O workflow `sync-r2-ai-search.yml` roda automaticamente após cada deploy bem-sucedido. Também pode ser disparado manualmente via `workflow_dispatch`. Depois do `rclone sync`, o workflow cria um job real com `POST /ai-search/instances/hub-csv/jobs`, consulta `GET /jobs/{JOB_ID}` até `ended_at` e falha se houver `end_reason`, timeout, erro HTTP ou estatísticas finais com itens em fila, execução, erro ou estado desatualizado.
 
 **Arquivos sincronizados:** `.md`, `.html`, `.json`, `.csv`, `.txt`, `.pdf` (até 4 MB cada).
 
@@ -178,43 +188,43 @@ import requests
 ACCOUNT_ID = "da0c29123f448f3c3892f784cd9f7cac"
 TOKEN = "SEU_AI_SEARCH_TOKEN"
 
-def ask_hub(query: str) -> dict:
-    url = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/autorag/rags/hub-csv/ai-search"
+def search_hub(query: str) -> dict:
+    url = (
+        "https://api.cloudflare.com/client/v4/accounts/"
+        f"{ACCOUNT_ID}/ai-search/instances/hub-csv/search"
+    )
     headers = {
         "Authorization": f"Bearer {TOKEN}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
-    body = {
-        "query": query,
-        "stream": False,
-        "rewrite_query": True
-    }
-    r = requests.post(url, json=body, headers=headers, timeout=30)
-    return r.json()
+    body = {"messages": [{"role": "user", "content": query}]}
+    response = requests.post(url, json=body, headers=headers, timeout=30)
+    response.raise_for_status()
+    return response.json()
 
-resultado = ask_hub("Quais são os portais do Hub CSV?")
-print(resultado["result"]["response"])
+resultado = search_hub("Quais são os portais do Hub CSV?")
+print(resultado)
 ```
 
 ## Exemplo de Integração (cURL)
 
 ```bash
-curl -X POST \
-  "https://api.cloudflare.com/client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/autorag/rags/hub-csv/ai-search" \
-  -H "Authorization: Bearer SEU_AI_SEARCH_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "O que é o Signal?", "stream": false, "rewrite_query": true}'
+curl --request POST \
+  "https://api.cloudflare.com/client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/ai-search/instances/hub-csv/search" \
+  --header "Authorization: Bearer SEU_AI_SEARCH_TOKEN" \
+  --header "Content-Type: application/json" \
+  --data '{"messages":[{"role":"user","content":"O que é o Signal™?"}]}'
 ```
 
 ## Exemplo de Integração (Make)
 
 Para conectar no Make, use o módulo **HTTP > Make a request**:
 
-- **URL:** `https://api.cloudflare.com/client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/autorag/rags/hub-csv/ai-search`
+- **URL:** `https://api.cloudflare.com/client/v4/accounts/da0c29123f448f3c3892f784cd9f7cac/ai-search/instances/hub-csv/search`
 - **Method:** POST
 - **Headers:** `Authorization: Bearer SEU_TOKEN` e `Content-Type: application/json`
 - **Body type:** Raw (JSON)
-- **Body:** conforme exemplos acima
+- **Body:** `{"messages":[{"role":"user","content":"SUA_PERGUNTA"}]}`
 
 ## Infraestrutura e Credenciais
 
@@ -223,17 +233,17 @@ Para conectar no Make, use o módulo **HTTP > Make a request**:
 | Account ID | `da0c29123f448f3c3892f784cd9f7cac` |
 | Instância | `hub-csv` |
 | Bucket R2 | `hub-csv-knowledge` |
-| AI Gateway | `csv_ai_gateway` |
-| Token API | Armazenado no Notion (Guia Técnico) e GitHub Secrets |
-| Endpoint base | `https://api.cloudflare.com/client/v4/accounts/.../autorag/rags/hub-csv/` |
+| AI Gateway | `default` |
+| Token API | Armazenado no Arsenal Técnico e em GitHub Secrets |
+| Endpoint base | `https://api.cloudflare.com/client/v4/accounts/.../ai-search/instances/hub-csv/` |
 
 ## Testes Realizados
 
 | Query | Qualidade | Observação |
 |---|---|---|
-| Quais são os portais do Hub CSV? | Boa | Listou corretamente os 6 portais com URLs |
-| Qual o mandato da AxiaCare? | Excelente | Resposta completa com missão, valores e escopo |
-| O que é o Signal? | Boa | Identificou como boletim estratégico do Grupo CSV |
+| Marcos temporais T0, Tp, T1, Td, T2, T3 e T4 no processo de alta | Excelente | Recuperou a edição 008 e o PDF v2 após o job de 1º de setembro de 2026 |
+| Fototerapia neonatal, idade gestacional e via de parto | Excelente | Recuperou a edição histórica 003 e seus artefatos atuais |
+| Metas quantitativas, ACO e orçamento global | Excelente | Recuperou a edição histórica 001 e seus artefatos atuais |
 | Neurodesenvolvimento | Ruim | Termo ambíguo, sem contexto suficiente |
 
 ## Ciclo Virtuoso
