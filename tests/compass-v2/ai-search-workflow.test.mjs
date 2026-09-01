@@ -25,6 +25,13 @@ test('acompanha o job até ended_at e falha diante de end_reason', async () => {
   assert.match(source, /exit 1/);
 });
 
+test('aguarda a estabilização assíncrona das estatísticas após o job', async () => {
+  const source = await readFile(workflowPath, 'utf8').catch(() => '');
+  assert.match(source, /for STATS_ATTEMPT in \$\(seq 1 90\)/);
+  assert.match(source, /STATS_READY=true/);
+  assert.match(source, /Timeout ao aguardar a estabilização das estatísticas do AI Search/);
+});
+
 test('usa segredo dedicado e nunca imprime a resposta autenticada completa', async () => {
   const source = await readFile(workflowPath, 'utf8').catch(() => '');
   assert.match(source, /secrets\.CF_AI_SEARCH_TOKEN/);
