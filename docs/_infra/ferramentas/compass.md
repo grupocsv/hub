@@ -123,17 +123,18 @@ onMounted(() => {
 
 O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica é **“Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®”**. AxiaCare® permanece visível como responsável pela elaboração e pela aplicação prática nas consultorias e assessorias, conforme o contexto de cada edição.
 
-| Campo | Estado Verificado na Transição Local |
+| Campo | Estado Verificado em Produção |
 |---|---|
 | URL Pública | [hub.grupocsv.com/compass/](https://hub.grupocsv.com/compass/) |
 | Fonte Canônica | `compass/edicoes/<ano>/<número>/` no repositório `grupocsv/hub` |
 | Publicação Web | VitePress, derivada automaticamente em `docs/compass/` |
 | PDF | A4 determinístico por Playwright/Chromium em runtime Docker isolado |
 | Catálogo | `docs/compass/catalog.json`, derivado dos metadados de cada edição |
-| Edição Nativa v2 | 008/2026, integrada e validada localmente na branch de transição |
-| Edições Migradas | 001–007, migradas e validadas localmente nos marcos M6–M8 |
-| Acervo no Motor v2 | 001–008, com release controlado ainda pendente |
-| Backend | Extensão do `csv-documents` implementada e testada localmente; migration e deploy ainda não aplicados |
+| Edição Nativa v2 | 008/2026, publicada e ativa no motor v2 |
+| Edições Migradas | 001–007, publicadas e ativas após os marcos M6–M8 |
+| Acervo no Motor v2 | 001–008, com oito releases v2 ativos e oito baselines preservadas |
+| Backend | `csv-documents` publicado; migration 0021 aplicada; catálogo e releases tenant-first ativos |
+| Admin | Consulta somente leitura pela sessão humana; mutações restritas ao workflow protegido |
 | n8n | Fora do caminho crítico; nenhuma alteração realizada |
 
 ## Fonte Única e Artefatos Derivados
@@ -173,29 +174,29 @@ A publicação é bifásica. A preparação valida a versão PDF e registra chec
 
 Os downloads reutilizam `document_public_links` e `GET/HEAD /s/{slug}`. Range, revogação, rate limit, `no-store`, `noindex` e `Content-Disposition` continuam sob o contrato documental. A API Compass™ não retorna `object_key`, token de storage ou credencial de serviço.
 
-> Estado operacional: A migration 0021 não foi aplicada e o Worker não foi publicado. A implementação permanece somente em branches locais até autorização explícita, plano de rollback e execução do workflow protegido.
+> Estado operacional: A migration 0021 foi aplicada e o Worker foi publicado pelo workflow protegido. O D1 mantém oito releases v2 ativos, oito baselines `superseded` e 16 links públicos versionados preservados. A WAF de release está desabilitada, com definição canônica íntegra; a Queue documental está ativa e sem backlog.
 
 ## Admin do Hub
 
 A aba **Compass™** do Admin lista edições, status, release ativo, versões, checksums e links públicos. O navegador usa somente a sessão humana existente em `csv-auth` para consultar `/v1/compass/*`. Respostas 401, 403, 503 e falhas de rede possuem estados distintos; uma negativa de permissão não encerra uma sessão válida.
 
-As mutações de publicação permanecem indisponíveis no Admin enquanto migration e Worker não estiverem ativos em produção. Nenhuma chave de serviço é enviada ao navegador.
+O painel Compass™ permanece somente leitura por desenho operacional. Publicações e ativações são executadas exclusivamente pelo workflow protegido e pelo runbook de rollback. Nenhuma chave de serviço é enviada ao navegador.
 
 ## Compatibilidade e Migração Histórica
 
-As edições 001–007 foram migradas e validadas localmente nos marcos M6–M8; a edição 008 é nativa v2. Cada marco preservou o conteúdo, a URL histórica e o PDF original na proveniência, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos. Os assets históricos da edição 003 também foram incorporados à fonte canônica e permanecem acessíveis na experiência web.
+As edições 001–007 foram migradas e validadas nos marcos M6–M8; a edição 008 é nativa v2. As oito edições estão publicadas e ativas. Cada marco preservou o conteúdo, a URL histórica e o PDF original na proveniência, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos. Os assets históricos da edição 003 também foram incorporados à fonte canônica e permanecem acessíveis na experiência web.
 
 O motor v2 é o caminho ativo para as edições 001–008. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
 
 ## CI, AI Search e Sistemas Relacionados
 
-O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–008, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF e aplica o mesmo limite; o smoke do Hub impede que um arquivo acima do teto seja silenciosamente omitido da indexação.
+O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–008, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF, aplica o mesmo limite, cria um job oficial em `/ai-search/instances/hub-csv/jobs` e acompanha sua conclusão. Depois de `ended_at`, o gate aguarda `queued=0` e `running=0` e exige `error=0` e `outdated=0`.
 
 Open Pages permanece dedicado à publicação de HTML e assets independentes. O `csv-gateway` não é necessário para o primeiro release porque o `csv-documents` possui domínio próprio e autenticação existente. A Queue e a DLQ documentais não recebem jobs Compass™ no M5, pois não existe etapa assíncrona necessária. O n8n não integra o caminho crítico e não foi alterado.
 
 ## Segurança e Operação
 
-Nenhuma migration, binding, bucket, Queue, rota de gateway, RLS ou dado produtivo deve ser alterado sem autorização explícita. O release do Worker ocorre somente pelo workflow manual e protegido do repositório backend; `wrangler deploy` direto é proibido. O release do Hub ocorre pelo workflow do repositório após revisão dupla e preservação dos caminhos públicos.
+Nenhuma migration, binding, bucket, Queue, rota de gateway, RLS ou dado produtivo deve ser alterado sem autorização explícita. O release do Worker ocorre somente pelo workflow manual e protegido do repositório backend; `wrangler deploy` direto é proibido. O release do Hub ocorre pelo workflow do repositório após revisão dupla e preservação dos caminhos públicos. A credencial temporária usada na ingestão inicial foi revogada e não integra o runtime.
 
 ## Referências Técnicas
 
@@ -205,5 +206,6 @@ Nenhuma migration, binding, bucket, Queue, rota de gateway, RLS ou dado produtiv
 | [`docs/_infra/projetos/compass-v2/prd.md`](../projetos/compass-v2/prd.md) | Critérios e marcos M0–M10 |
 | [`docs/_infra/projetos/compass-v2/baseline.md`](../projetos/compass-v2/baseline.md) | URLs, hashes e renders históricos congelados |
 | [`docs/_infra/projetos/compass-v2/runbook-release-rollback.md`](../projetos/compass-v2/runbook-release-rollback.md) | Autorização, release bifásico, validação pós-deploy e rollback |
+| [`docs/_infra/projetos/compass-v2/qa-m9-release-production.md`](../projetos/compass-v2/qa-m9-release-production.md) | Evidência sanitizada do release e da estabilização em produção |
 | [`docs/_infra/central-documentos.md`](../central-documentos.md) | Control plane documental e links públicos |
 | `grupocsv/backend/workers/csv-documents/README.md` | API, schema, release e limites operacionais do Worker |
