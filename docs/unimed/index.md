@@ -36,6 +36,9 @@ head:
 }
 
 .page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   padding: 50px 20px;
   background: linear-gradient(135deg, rgba(0,153,93,0.04) 0%, rgba(0,153,93,0.02) 100%);
@@ -46,15 +49,15 @@ head:
 }
 .dark .page-header { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 
-.page-header .logo { width: 280px; max-width: 90%; margin: 0 auto 20px; display: block; }
-.page-header .logo-link { display: inline-block; transition: transform 0.3s; }
+.page-header .logo { width: 280px; max-width: 90%; height: auto; margin: 0 auto; display: block; }
+.page-header .logo-link { display: block; margin: 0 auto 20px; line-height: 0; transition: transform 0.3s; }
 .page-header .logo-link:hover { transform: scale(1.05); }
 
-.page-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6f8f14; margin-bottom: 10px; }
+.page-header .eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6f8f14; margin: 0 auto 10px; text-align: center; }
 .dark .page-header .eyebrow { color: #a8d15a; }
-.page-header h1 { color: #00995d; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
+.page-header h1 { color: #00995d; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; text-align: center; }
 .dark .page-header h1 { color: #3dcc8e; }
-.page-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
+.page-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; margin: 0; text-align: center; }
 .documents-entry {
   display: inline-flex;
   align-items: center;
@@ -189,7 +192,14 @@ head:
   .page-foot .foot-links { font-size: 12px; gap: 4px; }
 }
 
-@media (max-width: 768px) { .tools-grid { grid-template-columns: 1fr; } .page-header h1 { font-size: 28px; } .page-header .logo { width: 220px; } }
+@media (max-width: 768px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .page-header { padding: 30px 16px; }
+  .page-header h1 { font-size: 28px; }
+  .page-header .logo { width: 220px; max-width: 100%; }
+  .page-header .subtitle { font-size: 14px; }
+  .documents-entry { width: min(100%, 360px); min-width: 0; }
+}
 </style>
 
 <div class="unimed-page">

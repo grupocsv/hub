@@ -36,6 +36,9 @@ head:
 }
 
 .uh-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   padding: 50px 20px;
   background: linear-gradient(135deg, rgba(1,61,25,0.04) 0%, rgba(1,61,25,0.02) 100%);
@@ -46,15 +49,15 @@ head:
 }
 .dark .uh-header { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 
-.uh-header .logo { width: 280px; max-width: 90%; margin: 0 auto 20px; display: block; }
-.uh-header .logo-link { display: inline-block; transition: transform 0.3s; }
+.uh-header .logo { width: 280px; max-width: 90%; height: auto; margin: 0 auto; display: block; }
+.uh-header .logo-link { display: block; margin: 0 auto 20px; line-height: 0; transition: transform 0.3s; }
 .uh-header .logo-link:hover { transform: scale(1.05); }
 
-.uh-header .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #c85c00; margin-bottom: 10px; }
+.uh-header .eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #c85c00; margin: 0 auto 10px; text-align: center; }
 .dark .uh-header .eyebrow { color: #f0894a; }
-.uh-header h1 { color: #013d19; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; }
+.uh-header h1 { color: #013d19; font-size: 36px; font-weight: 700; margin: 0 0 12px; border: none; letter-spacing: -0.3px; text-align: center; }
 .dark .uh-header h1 { color: #3dcc8e; }
-.uh-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; }
+.uh-header .subtitle { color: var(--vp-c-text-2); font-size: 16px; margin: 0; text-align: center; }
 .documents-entry {
   display: inline-flex;
   align-items: center;
@@ -178,7 +181,14 @@ head:
   .uh-foot .foot-links { font-size: 12px; gap: 4px; }
 }
 
-@media (max-width: 768px) { .uh-grid { grid-template-columns: 1fr; } .uh-header h1 { font-size: 28px; } .uh-header .logo { width: 220px; } }
+@media (max-width: 768px) {
+  .uh-grid { grid-template-columns: 1fr; }
+  .uh-header { padding: 30px 16px; }
+  .uh-header h1 { font-size: 28px; }
+  .uh-header .logo { width: 220px; max-width: 100%; }
+  .uh-header .subtitle { font-size: 14px; }
+  .documents-entry { width: min(100%, 360px); min-width: 0; }
+}
 </style>
 
 <div class="uh-page">
