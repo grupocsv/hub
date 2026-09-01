@@ -90,9 +90,13 @@ test("bloqueia deploy com contratos ou artefatos Compass™ divergentes", () => 
   assert.match(deployWorkflow, /data-tab="compass"/u);
 });
 
-test("mantém PDF no AI Search sob limite de 4 MB e documenta n8n fora do caminho crítico", () => {
+test("documenta o AI Search e o estado produtivo sem reintroduzir premissas pré-release", () => {
   assert.match(syncWorkflow, /--include "\*\.pdf"/u);
   assert.match(syncWorkflow, /--max-size 4M/u);
+  assert.match(syncWorkflow, /\/ai-search\/instances\/hub-csv/u);
+  assert.match(syncWorkflow, /\$\{BASE_URL\}\/jobs/u);
+  assert.match(infraCompass, /A migration 0021 foi aplicada/u);
+  assert.match(infraCompass, /oito releases v2 ativos/u);
   assert.match(infraCompass, /O n8n não integra o caminho crítico e não foi alterado\./u);
-  assert.match(infraCompass, /migration 0021 não foi aplicada/u);
+  assert.doesNotMatch(infraCompass, /migration 0021 não foi aplicada/u);
 });
