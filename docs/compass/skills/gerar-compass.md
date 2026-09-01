@@ -147,11 +147,13 @@ A revisão mínima combina dois métodos independentes:
 | Determinístico | Testes, catálogo, checksums, paridade, build, links e varredura de segredos |
 | Visual e Adversarial | Desktop, mobile, todas as páginas do PDF, contraste, cortes, tabelas, figuras e encerramento |
 
-Faça commit atômico em branch de trabalho. Não faça push, merge, deploy, upload ou ativação de ponteiro antes da aprovação do release correspondente.
+Faça commit atômico em branch de trabalho. Gere o plano offline com `npm run compass:release-plan`, usando a baseline congelada e os SHAs completos das revisões candidatas. O plano deve manter `remoteMutationAllowed: false`, exigir autorização explícita e validar as oito edições por checksum, bytes, páginas, rotas e limite de 4 MB.
+
+Não faça push, merge, deploy, upload ou ativação de ponteiro antes da aprovação do release correspondente. A sequência completa, os checkpoints, as condições de interrupção e o rollback estão no [Runbook de Release e Rollback do Compass™ v2](/_infra/projetos/compass-v2/runbook-release-rollback).
 
 ## 11. Backend e Download Público
 
-O ciclo administrativo do Compass™ reutiliza o Worker `csv-documents`. A preparação registra a versão e os checksums sem alterar o ponteiro público; a ativação ocorre somente depois da aprovação técnica e move o release ativo de forma atômica. Downloads reutilizam `document_public_links` e `/s/{slug}`.
+O ciclo administrativo do Compass™ reutiliza o Worker `csv-documents`. Cada edição usa um `document_id` determinístico para o PDF. O golden master é ingerido por serviço publicador com `source_type: migration` e `source_ref` imutável; o candidato v2 entra como nova versão do mesmo documento. A preparação registra a versão e os checksums sem alterar o ponteiro público; a ativação ocorre somente depois da aprovação técnica e move o release ativo de forma atômica. Downloads reutilizam `document_public_links` e `/s/{slug}`, com slugs versionados imutáveis para baseline e candidato.
 
 A migration `0021_create_compass_catalog.sql` e as rotas `/v1/compass/*` não devem ser aplicadas ou publicadas fora do workflow protegido e da autorização explícita. O n8n não participa do caminho crítico do Compass™.
 

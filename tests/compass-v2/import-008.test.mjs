@@ -72,5 +72,7 @@ test('a fonte canônica real preserva as 23 páginas em um componente Vue nativo
   assert.match(component, /Compass™ — um produto do Grupo CSV/);
   assert.match(component, /Responsabilidade editorial: MedValor®/);
   assert.match(component, /Elaboração: AxiaCare®/);
+  assert.match(component, /href=["']\.\/compass_008_2026\.pdf["'][^>]*\bdownload\b/);
+  assert.match(component, /Baixar PDF da edição 008/);
   assert.doesNotMatch(component, /<\/body>|<\/html>/i);
 });

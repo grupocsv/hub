@@ -162,6 +162,7 @@ O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-run
 | `npm run compass:catalog` | Regenera o catálogo determinístico |
 | `npm run compass:test` | Executa contratos de schema, catálogo, Admin, runtime e tema |
 | `npm run compass:test:pdf` | Executa a integração PDF no runtime isolado |
+| `npm run compass:release-plan` | Valida baseline, candidatos e rollback e gera um plano offline sem mutações remotas |
 | `npm run docs:build` | Publica fontes, atualiza catálogo e compila o Hub |
 
 ## Backend e Downloads
@@ -188,7 +189,7 @@ O motor v2 é o caminho ativo para as edições 001–008. O gerador FPDF v1 per
 
 ## CI, AI Search e Sistemas Relacionados
 
-O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença do catálogo, da edição 008 e da aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` já inclui arquivos PDF e aplica limite de 4 MB; portanto, não requer alteração específica no M5. O gate local do Compass™ reprova PDFs acima desse limite antes do release.
+O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–008, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF e aplica o mesmo limite; o smoke do Hub impede que um arquivo acima do teto seja silenciosamente omitido da indexação.
 
 Open Pages permanece dedicado à publicação de HTML e assets independentes. O `csv-gateway` não é necessário para o primeiro release porque o `csv-documents` possui domínio próprio e autenticação existente. A Queue e a DLQ documentais não recebem jobs Compass™ no M5, pois não existe etapa assíncrona necessária. O n8n não integra o caminho crítico e não foi alterado.
 
@@ -203,5 +204,6 @@ Nenhuma migration, binding, bucket, Queue, rota de gateway, RLS ou dado produtiv
 | [Central Compass™](/compass/) | Índice público derivado do catálogo e acesso às edições |
 | [`docs/_infra/projetos/compass-v2/prd.md`](../projetos/compass-v2/prd.md) | Critérios e marcos M0–M10 |
 | [`docs/_infra/projetos/compass-v2/baseline.md`](../projetos/compass-v2/baseline.md) | URLs, hashes e renders históricos congelados |
+| [`docs/_infra/projetos/compass-v2/runbook-release-rollback.md`](../projetos/compass-v2/runbook-release-rollback.md) | Autorização, release bifásico, validação pós-deploy e rollback |
 | [`docs/_infra/central-documentos.md`](../central-documentos.md) | Control plane documental e links públicos |
 | `grupocsv/backend/workers/csv-documents/README.md` | API, schema, release e limites operacionais do Worker |

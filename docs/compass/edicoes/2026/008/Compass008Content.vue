@@ -1086,5 +1086,6 @@
     </div>
     <div class="cop">© 2026 Grupo CSV &nbsp;·&nbsp; Compass&#8482; 008/2026</div>
   </div>
+  <a class="compass-paged-download" href="./compass_008_2026.pdf" download>Baixar PDF da edição 008</a>
 </section>
 </template>

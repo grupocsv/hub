@@ -13,6 +13,7 @@
     "compass:build": "npm run compass:catalog && npm run compass:test && npm run docs:build",
     "compass:pdf": "node scripts/compass-v2/render-pdf.mjs",
     "compass:quality": "node scripts/compass-v2/quality-gates.mjs",
+    "compass:release-plan": "node scripts/compass-v2/release-plan.mjs",
     "compass:pdf:runtime": "bash scripts/compass-v2/pdf-runtime.sh",
     "compass:test:pdf": "npm run compass:pdf:runtime -- node --test tests/compass-v2/pdf.integration.mjs",
     "compass:verify": "npm run compass:test && npm run compass:test:pdf",

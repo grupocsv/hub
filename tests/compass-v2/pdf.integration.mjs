@@ -60,6 +60,7 @@ test('renderiza um PDF A4 real e produz manifesto verificável', { timeout: 60_0
 
     const document = await getDocument({ data: new Uint8Array(bytes) }).promise;
     assert.equal(document.numPages, 2);
+    assert.equal(manifest.pdf.pages, document.numPages);
 
     const qualityDir = path.join(directory, 'quality');
     const report = await auditEdition({

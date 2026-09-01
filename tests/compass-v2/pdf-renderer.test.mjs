@@ -60,6 +60,18 @@ test('calcula checksum SHA-256 real do artefato', async () => {
   assert.equal(await renderer.sha256File(file), '2416fec304f292c7c7d068882d2aca69e8449d1060477de9fe3e7172b2efeeb8');
 });
 
+test('limpa documentos PDF.js pela API disponível sem exigir destroy', async () => {
+  const renderer = await loadRenderer();
+  assert.notEqual(renderer, null, 'renderizador ausente');
+  let cleanupCalls = 0;
+  await renderer.cleanupPdfDocument({
+    cleanup: async () => {
+      cleanupCalls += 1;
+    },
+  });
+  assert.equal(cleanupCalls, 1);
+});
+
 test('cria manifesto de release sem caminhos absolutos', async () => {
   const renderer = await loadRenderer();
   assert.notEqual(renderer, null, 'renderizador ausente');
@@ -68,6 +80,7 @@ test('cria manifesto de release sem caminhos absolutos', async () => {
     sourceHash: 'a'.repeat(64),
     pdfHash: 'b'.repeat(64),
     pdfBytes: 12345,
+    pdfPages: 23,
     generatedAt: '2026-08-31T18:00:00.000Z',
   });
   assert.deepEqual(manifest, {
@@ -78,7 +91,12 @@ test('cria manifesto de release sem caminhos absolutos', async () => {
     generatedAt: '2026-08-31T18:00:00.000Z',
     engine: { name: 'compass-v2', renderer: 'playwright-chromium' },
     sourceHash: 'a'.repeat(64),
-    pdf: { filename: 'compass_008_2026.pdf', sha256: 'b'.repeat(64), bytes: 12345 },
+    pdf: {
+      filename: 'compass_008_2026.pdf',
+      sha256: 'b'.repeat(64),
+      bytes: 12345,
+      pages: 23,
+    },
   });
   assert.ok(!JSON.stringify(manifest).includes('/tmp/'));
 });

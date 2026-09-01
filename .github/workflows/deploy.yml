@@ -173,9 +173,14 @@ jobs:
             [ -f "/tmp/vp_${dir}.html" ] && cp "/tmp/vp_${dir}.html" "$DIST/$dir/index.html"
           done
 
-          # Publicar o catálogo Compass como JSON estável para integrações e auditoria.
+          # Publicar o catálogo e os PDFs Compass como artefatos estáveis.
           mkdir -p "$DIST/compass"
           cp docs/compass/catalog.json "$DIST/compass/catalog.json"
+          for edition in 001 002 003 004 005 006 007 008; do
+            mkdir -p "$DIST/compass/edicoes/2026/$edition"
+            cp "docs/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf" \
+              "$DIST/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"
+          done
 
           # Note: _infra is NOT copied here because VitePress builds it from docs/_infra/
 
@@ -206,7 +211,6 @@ jobs:
             admin/index.html \
             compass/index.html \
             compass/catalog.json \
-            compass/edicoes/2026/008/compass.html \
             documentos/index.html \
             documentos/assets/api-client.js \
             documentos/assets/app.js \
@@ -239,12 +243,45 @@ jobs:
               fail=1
             fi
           done
-          if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="compass"' "$DIST/admin/index.html"; then
-            echo "::error::aba Compass ausente no Admin publicado"
+          for edition in 001 002 003 004 005 006 007 008; do
+            for f in \
+              "compass/edicoes/2026/$edition/compass.html" \
+              "compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"; do
+              if [ ! -f "$DIST/$f" ]; then
+                echo "::error::artefato Compass ausente no build: $f"
+                fail=1
+              fi
+            done
+            pdf_file="$DIST/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"
+            if [ -f "$pdf_file" ]; then
+              pdf_bytes="$(stat -c '%s' "$pdf_file")"
+              if [ "$pdf_bytes" -gt 4194304 ]; then
+                echo "::error::PDF Compass $edition excede 4 MB: $pdf_bytes bytes"
+                fail=1
+              fi
+            fi
+          done
+          if ! node - "$DIST/compass/catalog.json" <<'NODE'
+          const { readFileSync } = require('node:fs');
+          const catalog = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+          const numbers = catalog.editions
+            .map((edition) => String(edition.number).padStart(3, '0'))
+            .sort();
+          const expected = ['001', '002', '003', '004', '005', '006', '007', '008'];
+          if (
+            catalog.schemaVersion !== 2 ||
+            catalog.total !== 8 ||
+            JSON.stringify(numbers) !== JSON.stringify(expected)
+          ) {
+            process.exit(1);
+          }
+          NODE
+          then
+            echo "::error::catálogo Compass não contém exatamente as edições 001–008"
             fail=1
           fi
-          if [ -f "$DIST/compass/catalog.json" ] && ! grep -q '"number": 8' "$DIST/compass/catalog.json"; then
-            echo "::error::edição 008 ausente no catálogo Compass publicado"
+          if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="compass"' "$DIST/admin/index.html"; then
+            echo "::error::aba Compass ausente no Admin publicado"
             fail=1
           fi
           # O meta noindex deve sobreviver nas sub-páginas restritas standalone.

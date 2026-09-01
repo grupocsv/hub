@@ -3,6 +3,7 @@ import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 export function buildPdfOptions(output) {
   return {
@@ -29,7 +30,18 @@ export async function sha256File(file) {
   return createHash('sha256').update(content).digest('hex');
 }
 
-export function createReleaseManifest({ edition, sourceHash, pdfHash, pdfBytes, generatedAt }) {
+export async function cleanupPdfDocument(document) {
+  if (typeof document.cleanup === 'function') {
+    await document.cleanup();
+    return;
+  }
+  if (typeof document.destroy === 'function') await document.destroy();
+}
+
+export function createReleaseManifest({ edition, sourceHash, pdfHash, pdfBytes, pdfPages, generatedAt }) {
+  if (!Number.isSafeInteger(pdfPages) || pdfPages <= 0) {
+    throw new TypeError('Contagem de páginas do PDF inválida.');
+  }
   return {
     schemaVersion: 1,
     editionId: edition.id,
@@ -42,6 +54,7 @@ export function createReleaseManifest({ edition, sourceHash, pdfHash, pdfBytes, 
       filename: `compass_${edition.slug}_${edition.year}.pdf`,
       sha256: pdfHash,
       bytes: pdfBytes,
+      pages: pdfPages,
     },
   };
 }
@@ -79,8 +92,11 @@ export async function renderPdf({ url, output, edition, sourceFile, manifestOutp
   const generatedAt = new Date().toISOString();
   const pdfHash = await sha256File(output);
   const pdfBytes = (await stat(output)).size;
+  const pdfDocument = await getDocument({ data: new Uint8Array(await readFile(output)) }).promise;
+  const pdfPages = pdfDocument.numPages;
+  await cleanupPdfDocument(pdfDocument);
   const sourceHash = sourceFile ? await sha256File(sourceFile) : createHash('sha256').update(url).digest('hex');
-  const manifest = createReleaseManifest({ edition, sourceHash, pdfHash, pdfBytes, generatedAt });
+  const manifest = createReleaseManifest({ edition, sourceHash, pdfHash, pdfBytes, pdfPages, generatedAt });
 
   if (manifestOutput) {
     await mkdir(path.dirname(manifestOutput), { recursive: true });

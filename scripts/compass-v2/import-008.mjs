@@ -29,6 +29,12 @@ function rewriteAssetPaths(source) {
   return source.replace(/src="assets\/([^"]+)"/g, `src="${ROUTE_ROOT}/assets/$1"`);
 }
 
+function appendDownloadAction(section) {
+  if (section.includes('class="compass-paged-download"')) return section;
+  const action = '  <a class="compass-paged-download" href="./compass_008_2026.pdf" download>Baixar PDF da edição 008</a>';
+  return section.replace(/\n?<\/section>\s*$/u, `\n${action}\n</section>`);
+}
+
 export function canonicalizeBrandCredits(source) {
   let result = String(source)
     .replace(/Compass\s*<span[^>]*>\s*TM\s*<\/span>/gi, 'Compass™')
@@ -102,7 +108,9 @@ function preparePages(html) {
   const pages = extractPageSections(html).map((page) => rewriteAssetPaths(renamePageClass(page)));
   if (pages.length !== 23) throw new Error(`A edição 008 deve conter 23 páginas; encontradas: ${pages.length}.`);
   pages[0] = canonicalizeBrandCredits(pages[0]);
-  pages[pages.length - 1] = canonicalizeBrandCredits(pages[pages.length - 1]);
+  pages[pages.length - 1] = appendDownloadAction(
+    canonicalizeBrandCredits(pages[pages.length - 1]),
+  );
   return pages;
 }
 
@@ -273,6 +281,18 @@ export function buildEditionCss(sourceCss) {
   .compass-v2--paged .compass-page--cover .base,
   .compass-v2--paged .compass-page--back .base { margin-top: 3rem; }
   .compass-v2--paged .compass-page--back .assin { margin-top: 3rem; }
+  .compass-v2--paged .compass-paged-download {
+    display: inline-flex;
+    justify-self: start;
+    margin-top: 1.5rem;
+    padding: 0.72rem 1rem;
+    border: 1px solid rgba(255,255,255,.34);
+    border-radius: 999px;
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .compass-v2--paged .compass-paged-download:hover { background: rgba(255,255,255,.12); }
   .compass-v2--paged .cap-open { margin: 0 0 2rem; padding: clamp(1.5rem, 5vw, 3rem); }
   .compass-v2--paged table { max-width: 100%; }
 }
@@ -296,6 +316,7 @@ export function buildEditionCss(sourceCss) {
   .compass-v2--paged .compass-page { width: 210mm; height: 297mm; margin: 0; overflow: hidden; break-after: page; page-break-after: always; }
   .compass-v2--paged .compass-page:last-child { break-after: auto; page-break-after: auto; }
   .compass-brand-credits { font-size: 6.2pt; }
+  .compass-v2--paged .compass-paged-download { display: none !important; }
 }
 `;
   return css;
