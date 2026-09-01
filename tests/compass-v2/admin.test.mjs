@@ -43,12 +43,13 @@ test("consome o domínio confirmado do csv-documents com a sessão humana existe
   assert.doesNotMatch(admin, /documents:publish[^<\n]*Bearer/u);
 });
 
-test("carrega o catálogo sob demanda e mantém mutações indisponíveis sem autorização explícita", () => {
+test("carrega o catálogo sob demanda e mantém o painel explicitamente somente leitura", () => {
   assert.match(admin, /if \(tabName === 'compass'\) loadCompass\(\);/u);
   assert.match(admin, /async function loadCompass\(\)/u);
   assert.match(admin, /documentsApiCall\('\/v1\/compass\/editions'\)/u);
   assert.match(admin, /id="compass-refresh"/u);
-  assert.match(admin, /Operações de publicação permanecem indisponíveis/u);
+  assert.match(admin, /O painel Compass™ permanece somente leitura por desenho operacional/u);
+  assert.doesNotMatch(admin, /até aplicação autorizada da migration/u);
   assert.doesNotMatch(admin, /documentsApiCall\([^)]*method:\s*'POST'/u);
 });
 
