@@ -1,0 +1,10 @@
+edition: S35
+year: 2026
+period: "24 a 28 de agosto de 2026"
+generated: "2026-09-04"
+dictionary_version: "v4.10"
+facts_count: 6
+new_terms: 8
+sources:
+  notion_pages: 3
+  gmail_messages: 126
