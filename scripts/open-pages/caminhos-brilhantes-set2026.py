@@ -9,13 +9,18 @@ produz sempre a mesma saida, verificada por SHA-256.
 Uso:
     python3 build_publish.py            # grava index-novo.html e imprime os hashes
 
-Criterios de aceite:
-  - SHA-256 da pagina viva de entrada (versao de maio de 2026, 124.055 bytes):
-    ad44fe8f691da1f1c1c310c94bdee6c0379148fa46d4aa1c38f52f9418b94cf0
+Criterio de aceite (unico que vale):
   - SHA-256 do index-novo.html gerado (140.664 bytes):
     f91244926bd8565256ea1fec9c0c9d19a225e82e6ef8584de4715ae0b42fc838
-  Se a entrada tiver mudado, o hash de saida sera outro: NAO publicar e reportar.
-  O script aborta sozinho se qualquer trecho esperado nao for encontrado.
+  Se esse hash nao bater, NAO publicar e reportar.
+
+O hash da entrada NAO e criterio de aceite: o Worker injeta no <head> os metadados
+guardados no KV (titulo, descricao, og_image), entao a pagina viva muda de tamanho
+sempre que esses metadados mudam. O script remove esse bloco antes de editar, e por
+isso a saida se mantem estavel. Hashes de entrada ja observados:
+  ad44fe8f691da1f1c1c310c94bdee6c0379148fa46d4aa1c38f52f9418b94cf0  124.055 bytes
+  5b718fae2453fa9aa7c3adf5f50f2a2bd226d94ddbeb8daea82b7a0813d4c681  124.093 bytes
+O script aborta sozinho se qualquer trecho esperado nao for encontrado.
 """
 import hashlib
 import re
