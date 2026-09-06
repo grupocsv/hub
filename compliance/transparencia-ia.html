@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Transparência em Inteligência Artificial – Grupo CSV</title>
+  <meta name="description" content="Declaração de transparência em inteligência artificial do Grupo CSV: onde a IA é usada, o que ela não faz, revisão humana e responsabilidade, como o uso é declarado, dados de clientes, governança e contato.">
+  <meta name="author" content="Grupo CSV">
+  <link rel="canonical" href="/compliance/transparencia-ia.html">
+  <meta name="theme-color" content="#196396">
+  <meta property="og:title" content="Transparência em Inteligência Artificial – Grupo CSV">
+  <meta property="og:description" content="Como o Grupo CSV usa inteligência artificial, quem revisa e responde pelo conteúdo e como o uso é declarado nos entregáveis.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://hub.grupocsv.com/og/og_compliance.png">
+  <meta property="og:site_name" content="Grupo CSV">
+  <meta property="og:url" content="https://hub.grupocsv.com/compliance/transparencia-ia.html">
+  <meta property="og:locale" content="pt_BR">
+
+  <style>
+    :root{
+      --brand-primary:#196396; --brand-accent:#2DBF7F; --brand-dark:#2d3445; --brand-off:#f8f5f0; --white:#ffffff;
+      --text:#1b1e24; --muted:#5b6470;
+      --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.08);
+      --maxw:960px; --pad:24px; --focus:0 0 0 3px rgba(25,99,150,.25);
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";font-size:16px;line-height:1.6;color:var(--text);background:linear-gradient(180deg,#fff 0%,var(--brand-off) 100%);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+    img{max-width:100%;height:auto;display:block}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Header padronizado com chip em mobile */
+    header{
+      background:rgba(255,255,255,.85);border-bottom:1px solid rgba(0,0,0,.06);
+      position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);
+      padding-top:env(safe-area-inset-top)
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:56px;width:auto}
+    .badge{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:.875rem;color:#fff;background:#196396;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);text-decoration:none}
+    .badge:hover{background:#16537d}
+    @media (max-width:480px){
+      .badge{background:transparent;color:#196396;border:1px solid #d5e6f6;padding:6px 10px;font-size:.85rem;box-shadow:none}
+      .wrap{gap:10px}.brand img{height:46px}
+    }
+
+    main{max-width:var(--maxw);margin:32px auto;padding:0 var(--pad)}
+    .hero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(20px,4vw,32px);box-shadow:var(--shadow)}
+    .hero h1{margin:0 0 8px 0;font-size:clamp(1.5rem,2.2vw + 1rem,1.875rem);color:var(--brand-primary)}
+    .hero p{margin:0;color:var(--muted);font-size:clamp(.95rem,1vw,1rem)}
+
+    section.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:clamp(16px,3.2vw,24px);margin:18px 0;box-shadow:var(--shadow)}
+    h2{font-size:clamp(1.15rem,1.4vw + .8rem,1.375rem);margin:0 0 8px 0;color:var(--brand-dark)}
+    h3{font-size:1rem;margin:12px 0 6px 0;color:var(--brand-dark)}
+    p{margin:0 0 10px} ul{margin:0 0 10px 18px} li{margin:6px 0}
+
+    a{color:var(--brand-primary);text-decoration:none}
+    a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:2px}
+
+    footer{margin:42px 0 24px;text-align:center}
+    .footer{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;align-items:center;padding:16px}
+    .footer .brand-mini{display:flex;align-items:center;gap:10px}
+    .footer .brand-mini img{height:22px}
+    .footer .links{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem}
+    .footer .links a{color:var(--brand-primary)}
+    .footer .links a:hover{color:var(--brand-accent);text-decoration:underline;text-underline-offset:2px}
+    .small{font-size:.85rem;color:var(--muted)}
+
+    @media print{header,.btn-top{display:none !important}body{background:#fff}.hero,section.card{box-shadow:none;border-color:#ddd}a{color:#000;text-decoration:underline}}
+    .btn-top{position:fixed;right:16px;bottom:16px;background:var(--brand-primary);color:#fff;border:none;border-radius:999px;padding:12px 16px;box-shadow:var(--shadow);display:none}
+    .btn-top:focus{outline:none;box-shadow:var(--focus)}
+    @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+    @media (max-width:420px){.brand img{height:50px}}
+
+/* Hub CSV Back Button */
+.hub-back-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#fff;color:#196396;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;line-height:1;border-bottom:1px solid rgba(0,0,0,0.06)}
+.hub-back-btn:hover{color:#0d4a73;text-decoration:none}
+@media print{.hub-back-btn{display:none!important}}
+
+    /* Blocos desta página */
+    .nota{margin:12px 0;padding:12px 16px;border:1px solid rgba(0,0,0,.08);border-radius:10px;background:#fbfbfc;font-size:.96rem}
+    .nota .rot{display:block;font-size:.75rem;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+    .nota img{display:inline-block;height:18px;vertical-align:-4px;margin-right:6px}
+    .colofao{font-size:.8rem;color:var(--muted);max-width:720px;line-height:1.5}
+    footer{margin-bottom:96px}
+    @media print{h2{page-break-after:avoid}li,p{page-break-inside:avoid}@page{size:A4;margin:16mm}}
+</style>
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Transparência em Inteligência Artificial – Grupo CSV",
+   "about":{"@type":"Thing","name":"Declaração de transparência em inteligência artificial"},
+   "publisher":{"@type":"Organization","name":"Grupo CSV","url":"https://grupocsv.com"},
+   "inLanguage":"pt-BR","dateModified":"2026-09-05"}
+  </script>
+  <link rel="icon" href="/favicons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+</head>
+<body>
+<a href="/compliance/" target="_self" class="hub-back-btn" title="Voltar à Central de Compliance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Compliance</a>
+
+<header id="topo">
+  <div class="wrap">
+    <a class="brand" href="https://grupocsv.com" aria-label="Grupo CSV"><img src="/assets/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV" decoding="async" fetchpriority="high"><span class="sr-only">Grupo CSV</span></a>
+    <a class="badge" href="mailto:compliance@grupocsv.com" title="Canal de Compliance">Canal de Compliance</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero" role="banner">
+    <h1>Transparência em Inteligência Artificial</h1>
+    <p>Última atualização: 09/2026</p>
+    <p class="small">Esta declaração explica como o Grupo CSV usa inteligência artificial no trabalho que entrega a clientes e parceiros, o que a inteligência artificial não faz, quem revisa e responde pelo conteúdo, como o uso é declarado em cada entregável e como tirar dúvidas.</p>
+  </div>
+
+  <section class="card" aria-labelledby="escopo">
+    <h2 id="escopo">1. Finalidade e escopo</h2>
+    <p>A declaração aplica-se ao Grupo CSV (Cuidados em Saúde com Valor) e às suas empresas AxiaCare®, MedValor® e TheraTech®, em todo trabalho produzido para clientes, parceiros e público: relatórios, pareceres, propostas, materiais de ensino, e-mails, apresentações, páginas e imagens. Produtos digitais desenvolvidos para clientes recebem documentação própria sobre o uso de inteligência artificial, entregue com o produto.</p>
+    <p>A declaração complementa o <a href="/compliance/codigo-de-conduta.html">Código de Ética e Conduta</a> e a <a href="/compliance/privacidade.html">Política de Privacidade</a>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="compromisso">
+    <h2 id="compromisso">2. Compromisso</h2>
+    <p>O Grupo CSV usa inteligência artificial como ferramenta de apoio ao trabalho de seus profissionais e declara esse uso em seus entregáveis. Todo conteúdo passa por revisão humana antes de circular, e a responsabilidade pelo resultado é de uma pessoa nomeada. Decisões, recomendações e assinaturas são humanas.</p>
+  </section>
+
+  <section class="card" aria-labelledby="uso">
+    <h2 id="uso">3. Onde a inteligência artificial é usada</h2>
+    <p>Modelos de linguagem e de geração de imagem, de mais de um provedor, apoiam as seguintes etapas do trabalho:</p>
+    <ul>
+      <li>Pesquisa, leitura e síntese de fontes, normas e literatura.</li>
+      <li>Estruturação e redação de minutas de documentos, e-mails e apresentações.</li>
+      <li>Organização, tabulação e análise de dados fornecidos pelo cliente, com métodos definidos pela equipe.</li>
+      <li>Tradução, revisão de texto e adaptação de formato.</li>
+      <li>Produção de ilustrações, diagramas e capas.</li>
+      <li>Automações de uso interno.</li>
+    </ul>
+    <p>Os profissionais definem o problema, fornecem os dados e as fontes, conduzem a análise, decidem o que entra no entregável e assinam o resultado.</p>
+  </section>
+
+  <section class="card" aria-labelledby="limites">
+    <h2 id="limites">4. O que a inteligência artificial não faz</h2>
+    <p>Ficam fora do uso de inteligência artificial no Grupo CSV:</p>
+    <ul>
+      <li>Tomar decisões, formular recomendações finais ou emitir julgamentos clínicos e técnicos.</li>
+      <li>Assinar conteúdo, responder por ele ou ser citada como autora ou fonte.</li>
+      <li>Publicar ou enviar qualquer conteúdo sem revisão humana.</li>
+      <li>Produzir imagens fotorrealistas de pessoas, lugares ou produtos reais que possam ser tomadas por registro fotográfico.</li>
+      <li>Reproduzir a voz de pessoa real sem autorização expressa dela.</li>
+      <li>Processar dados pessoais ou informações confidenciais fora das ferramentas e condições aprovadas (seção 7).</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="revisao">
+    <h2 id="revisao">5. Revisão humana e responsabilidade</h2>
+    <p>A revisão humana examina o conteúdo em substância: fatos e afirmações, números conferidos por dois métodos, existência e acesso de cada referência, adequação ao destinatário, confidencialidade e dados pessoais. Referências sugeridas pela inteligência artificial que a equipe não consegue localizar ficam fora do entregável. Alterações substantivas feitas com inteligência artificial depois da revisão reabrem a revisão.</p>
+    <p>A pessoa que assina o entregável responde integralmente pelo conteúdo. Nos atos médicos, vale a mesma lógica da Resolução CFM 2.454/2026: a inteligência artificial é apoio, e a decisão final é do médico.</p>
+  </section>
+
+  <section class="card" aria-labelledby="nota">
+    <h2 id="nota">6. Como o uso é declarado</h2>
+    <p>Cada tipo de entregável traz uma frase fixa, sempre a mesma, em posição fixa: no colofão dos documentos, junto ao símbolo © e ao bloco de assinatura; no rodapé dos e-mails, abaixo da assinatura; no slide de encerramento das apresentações; no rodapé das páginas. Imagens recebem apenas o símbolo. Em documentos, apresentações e e-mails, quem assina é quem revisa e responde.</p>
+    <div class="nota">
+      <span class="rot">Documentos e relatórios</span>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MiIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDUyIDI0IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkludGVsaWfDqm5jaWEgYXJ0aWZpY2lhbCBjb20gcGVzc29hIG5vIGNpcmN1aXRvIGRlIHJldmlzw6NvIj4KICA8dGl0bGU+UGVzc29hIG5vIGNpcmN1aXRvPC90aXRsZT4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICAgPHBhdGggZD0iTTE4LjYgOC4wIEMyMS41IDIuNiAzMC41IDIuNiAzMy40IDguMCIvPgogICAgPHBhdGggZD0iTTMzLjU3IDUuNDEgTDMzLjQwIDguMDAgTDMxLjE0IDYuNzEiLz4KICAgIDxwYXRoIGQ9Ik0zMy40IDE2LjAgQzMwLjUgMjEuNCAyMS41IDIxLjQgMTguNiAxNi4wIi8+CiAgICA8cGF0aCBkPSJNMTguNDMgMTguNTkgTDE4LjYwIDE2LjAwIEwyMC44NiAxNy4yOSIvPgogIDwvZz4KICA8ZyBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTcgMy42IFY2IE0xMCAzLjYgVjYgTTEzIDMuNiBWNiBNNyAxOCBWMjAuNCBNMTAgMTggVjIwLjQgTTEzIDE4IFYyMC40IE0xLjYgOSBINCBNMS42IDEyIEg0IE0xLjYgMTUgSDQgTTE2IDkgSDE4LjQgTTE2IDEyIEgxOC40IE0xNiAxNSBIMTguNCIvPgogIDwvZz4KICA8cmVjdCB4PSI0IiB5PSI2IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHJ4PSIyLjIiIGZpbGw9IiMxOTYzOTYiLz4KICA8cmVjdCB4PSI3LjQiIHk9IjkuNCIgd2lkdGg9IjUuMiIgaGVpZ2h0PSI1LjIiIHJ4PSIxIiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iNDIiIGN5PSI3LjkiIHI9IjMuMSIgZmlsbD0iIzJEQkY3RiIvPgogIDxwYXRoIGQ9Ik0zNS4yIDIwLjIgYTYuOCA2LjggMCAwIDEgMTMuNiAwIHoiIGZpbGw9IiMyREJGN0YiLz4KPC9zdmc+" alt="Símbolo: pessoa no circuito">Este documento foi produzido com apoio de modelos de linguagem (inteligência artificial) e revisado por quem o assina, que responde pelo conteúdo. Política de transparência em IA: grupocsv.com/ia
+    </div>
+    <div class="nota">
+      <span class="rot">Apresentações</span>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MiIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDUyIDI0IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkludGVsaWfDqm5jaWEgYXJ0aWZpY2lhbCBjb20gcGVzc29hIG5vIGNpcmN1aXRvIGRlIHJldmlzw6NvIj4KICA8dGl0bGU+UGVzc29hIG5vIGNpcmN1aXRvPC90aXRsZT4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICAgPHBhdGggZD0iTTE4LjYgOC4wIEMyMS41IDIuNiAzMC41IDIuNiAzMy40IDguMCIvPgogICAgPHBhdGggZD0iTTMzLjU3IDUuNDEgTDMzLjQwIDguMDAgTDMxLjE0IDYuNzEiLz4KICAgIDxwYXRoIGQ9Ik0zMy40IDE2LjAgQzMwLjUgMjEuNCAyMS41IDIxLjQgMTguNiAxNi4wIi8+CiAgICA8cGF0aCBkPSJNMTguNDMgMTguNTkgTDE4LjYwIDE2LjAwIEwyMC44NiAxNy4yOSIvPgogIDwvZz4KICA8ZyBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTcgMy42IFY2IE0xMCAzLjYgVjYgTTEzIDMuNiBWNiBNNyAxOCBWMjAuNCBNMTAgMTggVjIwLjQgTTEzIDE4IFYyMC40IE0xLjYgOSBINCBNMS42IDEyIEg0IE0xLjYgMTUgSDQgTTE2IDkgSDE4LjQgTTE2IDEyIEgxOC40IE0xNiAxNSBIMTguNCIvPgogIDwvZz4KICA8cmVjdCB4PSI0IiB5PSI2IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHJ4PSIyLjIiIGZpbGw9IiMxOTYzOTYiLz4KICA8cmVjdCB4PSI3LjQiIHk9IjkuNCIgd2lkdGg9IjUuMiIgaGVpZ2h0PSI1LjIiIHJ4PSIxIiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iNDIiIGN5PSI3LjkiIHI9IjMuMSIgZmlsbD0iIzJEQkY3RiIvPgogIDxwYXRoIGQ9Ik0zNS4yIDIwLjIgYTYuOCA2LjggMCAwIDEgMTMuNiAwIHoiIGZpbGw9IiMyREJGN0YiLz4KPC9zdmc+" alt="Símbolo: pessoa no circuito">Esta apresentação foi produzida com apoio de modelos de linguagem (inteligência artificial) e revisada por quem a assina, que responde pelo conteúdo. Política de transparência em IA: grupocsv.com/ia
+    </div>
+    <div class="nota">
+      <span class="rot">E-mails</span>
+      Esta mensagem foi redigida com apoio de modelos de linguagem (inteligência artificial) e revisada por quem a assina, que responde pelo conteúdo. Política de transparência em IA: grupocsv.com/ia
+    </div>
+    <div class="nota">
+      <span class="rot">Sites e páginas</span>
+      Conteúdo produzido com apoio de modelos de linguagem (inteligência artificial) e revisado pelo Grupo CSV, que responde pelo conteúdo. Política de transparência em IA: grupocsv.com/ia
+    </div>
+    <div class="nota">
+      <span class="rot">Imagens</span>
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MiIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDUyIDI0IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkludGVsaWfDqm5jaWEgYXJ0aWZpY2lhbCBjb20gcGVzc29hIG5vIGNpcmN1aXRvIGRlIHJldmlzw6NvIj4KICA8dGl0bGU+UGVzc29hIG5vIGNpcmN1aXRvPC90aXRsZT4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICAgPHBhdGggZD0iTTE4LjYgOC4wIEMyMS41IDIuNiAzMC41IDIuNiAzMy40IDguMCIvPgogICAgPHBhdGggZD0iTTMzLjU3IDUuNDEgTDMzLjQwIDguMDAgTDMxLjE0IDYuNzEiLz4KICAgIDxwYXRoIGQ9Ik0zMy40IDE2LjAgQzMwLjUgMjEuNCAyMS41IDIxLjQgMTguNiAxNi4wIi8+CiAgICA8cGF0aCBkPSJNMTguNDMgMTguNTkgTDE4LjYwIDE2LjAwIEwyMC44NiAxNy4yOSIvPgogIDwvZz4KICA8ZyBzdHJva2U9IiMxOTYzOTYiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTcgMy42IFY2IE0xMCAzLjYgVjYgTTEzIDMuNiBWNiBNNyAxOCBWMjAuNCBNMTAgMTggVjIwLjQgTTEzIDE4IFYyMC40IE0xLjYgOSBINCBNMS42IDEyIEg0IE0xLjYgMTUgSDQgTTE2IDkgSDE4LjQgTTE2IDEyIEgxOC40IE0xNiAxNSBIMTguNCIvPgogIDwvZz4KICA8cmVjdCB4PSI0IiB5PSI2IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHJ4PSIyLjIiIGZpbGw9IiMxOTYzOTYiLz4KICA8cmVjdCB4PSI3LjQiIHk9IjkuNCIgd2lkdGg9IjUuMiIgaGVpZ2h0PSI1LjIiIHJ4PSIxIiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iNDIiIGN5PSI3LjkiIHI9IjMuMSIgZmlsbD0iIzJEQkY3RiIvPgogIDxwYXRoIGQ9Ik0zNS4yIDIwLjIgYTYuOCA2LjggMCAwIDEgMTMuNiAwIHoiIGZpbGw9IiMyREJGN0YiLz4KPC9zdmc+" alt="Símbolo: pessoa no circuito">Somente o símbolo, no canto inferior direito da imagem ou junto à legenda. O símbolo remete a esta página.
+    </div>
+    <p>Correções ortográficas, formatação, conversão de formato, transcrição de fala do próprio autor e mensagens curtas de coordenação dispensam a nota.</p>
+  </section>
+
+  <section class="card" aria-labelledby="dados">
+    <h2 id="dados">7. Informações de clientes e dados pessoais</h2>
+    <p>Informações de clientes são tratadas sob as regras de confidencialidade dos contratos que as regem e conforme a Política de Privacidade do Grupo CSV. O tratamento de dados pessoais segue a Lei 13.709/2018 (LGPD): dados pessoais só entram em ferramentas de inteligência artificial quando há base legal e finalidade definida, e apenas em ferramentas aprovadas pelo Grupo CSV para esse fim.</p>
+  </section>
+
+  <section class="card" aria-labelledby="direitos">
+    <h2 id="direitos">8. O que o cliente pode pedir</h2>
+    <ul>
+      <li>Saber, a qualquer momento, se e como a inteligência artificial foi usada em determinado trabalho, com a indicação das etapas apoiadas por ela.</li>
+      <li>Solicitar que determinado trabalho seja produzido sem apoio de inteligência artificial generativa; a solicitação é atendida e registrada.</li>
+      <li>Falar com uma pessoa da equipe sobre qualquer conteúdo recebido.</li>
+    </ul>
+    <p>Pedidos e dúvidas são recebidos pelo canal de compliance (seção 11).</p>
+  </section>
+
+  <section class="card" aria-labelledby="governanca">
+    <h2 id="governanca">9. Governança</h2>
+    <p>Ferramentas de inteligência artificial são aprovadas antes do uso e registradas em inventário interno, com finalidade permitida e condições de uso. Cada entregável tem registro de data, etapas com apoio de inteligência artificial, responsável pela revisão e verificações executadas, mantido em trilha de auditoria separada das ferramentas de geração. Os profissionais recebem orientação sobre limites, riscos e boas práticas, revista quando mudam as ferramentas. Incidentes, erros e dúvidas são tratados pelo canal de compliance.</p>
+    <p>São referências desta declaração a Lei 13.709/2018 (LGPD), a Resolução CFM 2.454/2026, a Recomendação 001/2024 do Conselho Federal da OAB, o art. 50 do Regulamento (UE) 2024/1689 para material que circule na União Europeia e a norma ABNT NBR ISO/IEC 42001:2024 sobre sistemas de gestão de inteligência artificial.</p>
+  </section>
+
+  <section class="card" aria-labelledby="verificacao">
+    <h2 id="verificacao">10. Marcas técnicas e verificação</h2>
+    <p>Os provedores de modelos embutem marcas d'água e credenciais de conteúdo no que geram. O Grupo CSV preserva essas marcas nos arquivos entregues e, quando o formato permite, acrescenta metadados que registram o apoio de inteligência artificial e a revisão humana. Um arquivo recebido pode ser verificado com ferramentas públicas, como o <a href="https://contentcredentials.org/verify" rel="noopener">Content Credentials Verify</a>; orientações de verificação são fornecidas pelo canal de compliance.</p>
+  </section>
+
+  <section class="card" aria-labelledby="contato">
+    <h2 id="contato">11. Responsável e contato</h2>
+    <p>Responsável por esta declaração: a direção do Grupo CSV. Pelo conteúdo de cada entregável responde quem o assina. Dúvidas, solicitações e comunicações formais: <a href="mailto:compliance@grupocsv.com">compliance@grupocsv.com</a>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="atualizacoes">
+    <h2 id="atualizacoes">12. Atualizações</h2>
+    <p>Esta declaração é revista ao menos uma vez por ano e sempre que mudarem as ferramentas, o processo ou as normas aplicáveis. Última revisão: setembro de 2026. Próxima revisão prevista: setembro de 2027. A versão vigente é a publicada nesta página.</p>
+  </section>
+
+  <footer>
+    <div class="footer">
+      <div class="brand-mini"><img src="/assets/visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png" alt="Grupo CSV"><strong>Grupo CSV</strong></div>
+      <div class="links"><a href="https://grupocsv.com" rel="noopener">Site</a><span>•</span><a href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Topo</a><span>•</span><a href="mailto:compliance@grupocsv.com">Compliance</a></div>
+      <div class="small">© 2026 Grupo CSV. Todos os direitos reservados.</div>
+      <div class="colofao">Conteúdo produzido com apoio de modelos de linguagem (inteligência artificial) e revisado pelo Grupo CSV, que responde pelo conteúdo. Política de transparência em IA: grupocsv.com/ia</div>
+    </div>
+  </footer>
+</main>
+
+<button class="btn-top" id="btnTop" aria-label="Voltar ao topo">Topo</button>
+<script>
+  const btn=document.getElementById('btnTop');
+  const foot=document.querySelector('footer');
+  let footVisible=false;
+  const onScroll=()=>{btn.style.display=(window.scrollY>320&&!footVisible)?'block':'none';};
+  if('IntersectionObserver' in window&&foot){new IntersectionObserver(e=>{footVisible=e[0].isIntersecting;onScroll();}).observe(foot);}
+  window.addEventListener('scroll',onScroll);
+  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>
