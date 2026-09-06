@@ -47,6 +47,29 @@ O arquivo gerado substitui o objeto `index.html` da slug `caminhos-brilhantes`
 no bucket R2 `csv-open-pages`. Os demais arquivos da slug
 (`apresentacao.pdf`, `relatorio.pdf`, `og.png`) devem ser preservados.
 
+Três caminhos, em ordem de preferência:
+
+1. **Painel** `open.grupocsv.com/_admin/` — subir o `index-novo.html` renomeado
+   para `index.html` na slug existente.
+2. **Endpoint de upload** — atenção: substitui o conjunto de arquivos da slug,
+   então os quatro arquivos vão juntos.
+
+   ```sh
+   curl -X POST https://open.grupocsv.com/api/upload \
+     -H "Authorization: Bearer $OPEN_PAGES_ADMIN_TOKEN" \
+     -F slug=caminhos-brilhantes \
+     -F "files=@index.html;type=text/html" \
+     -F "files=@apresentacao.pdf;type=application/pdf" \
+     -F "files=@relatorio.pdf;type=application/pdf" \
+     -F "files=@og.png;type=image/png"
+   ```
+
+   O token fica no KV do próprio Worker, em `config:admin_token`.
+3. **API do R2** — gravar só o objeto do index, o que não toca nos demais
+   arquivos. É o caminho mais seguro quando só o HTML muda.
+
+Guardar uma cópia do objeto atual antes de sobrescrever.
+
 Após publicar, conferir no KV `csv-open-pages` (`page:caminhos-brilhantes`) que
 `og_image` aponta para `https://open.grupocsv.com/caminhos-brilhantes/og.png` —
 sem essa chave o Worker injeta a imagem genérica do Grupo CSV nos
