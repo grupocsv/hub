@@ -148,7 +148,7 @@ head:
 <div class="compliance-page">
   <div class="frame hero-section">
     <h1>Central de Compliance</h1>
-    <p class="date">Última atualização: 05/2026</p>
+    <p class="date">Última atualização: 09/2026</p>
     <p class="subtitle">Documentos institucionais do <strong>Grupo CSV</strong> e suas empresas sobre privacidade, termos e integridade.</p>
   </div>
 
@@ -160,6 +160,7 @@ head:
       <a class="policy-btn" target="_self" href="/compliance/termos.html">Termos de Uso</a>
       <a class="policy-btn" target="_self" href="/compliance/cookies.html">Política de Cookies</a>
       <a class="policy-btn" target="_self" href="/compliance/autorizacao-parceria.html">Autorização de Parceria – Uso de Marca</a>
+      <a class="policy-btn" target="_self" href="/compliance/transparencia-ia.html">Transparência em Inteligência Artificial</a>
     </div>
   </div>
 
