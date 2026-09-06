@@ -12,15 +12,20 @@ O que muda:
      nomenclaturas — mesma decisao aplicada na landing page Caminhos Brilhantes.
   2. O rodape das duas paginas do painel passa de maio para setembro de 2026.
 
-Os rotulos do diagrama sao curtos porque o SVG tem largura fixa. Larguras medidas
-no navegador com a fonte Inter real, para as duas caixas afetadas:
-  - caixa do AAD (x 1035-1305, 270 px, texto centrado em 1170, 11.5 px):
+So os rotulos do DIAGRAMA sao curtos, porque o SVG tem largura fixa e o texto nao
+quebra linha. A versao para telas estreitas usa as formas plenas: sao divs de fluxo
+normal, que quebram linha, e quem abre no telefone nunca ve o SVG. Larguras medidas
+no navegador com a fonte Inter real:
+  - caixa do AAD (x 1035-1305, texto centrado em 1170, 11.5 px):
       "Validacao do Cluster · Inclusao e Exclusao" ....... 232.8 px (linha irma)
-      "Plano Terapeutico Inicial · Direcionamento" ....... 231.3 px  ADOTADO
-      "Plano Terapeutico Inicial · Direcionamento a Rede"  272.1 px  estoura
-  - cabecalho da rede (texto ancorado em 1575, conteudo termina em 1770, 10.5 px):
-      "Plano Pactuado · Baseline QoLA" .................... 162.4 px  ADOTADO
-      "Plano Terapeutico Pactuado · Baseline QoLA" ....... 223.9 px  estoura
+      "Plano Terapeutico · Direcionamento a Rede" ........ 236.4 px  ADOTADO
+      "Plano Terapeutico Inicial · Direcionamento a Rede"  272.1 px  estoura por 2
+  - cabecalho da rede (ancorado em 1575, conteudo termina em 1770, 10.5 px):
+      "Plano Terapeutico Pactuado · QoLA" ................ 178.1 px  ADOTADO
+      "Plano Terapeutico Pactuado · Baseline QoLA" ....... 223.9 px  estoura por 29
+As duas linhas adotadas ficam com folga de 16.8 px de cada lado, praticamente igual
+a folga da linha irma. "Inicial" e "Baseline" saem so do diagrama: o apoio textual
+mantem "proposta inicial do plano terapeutico" e "colhe o baseline do QoLA".
 
 Uso:
     python3 jornada-tea-set2026.py    # grava jornada-novo.html e imprime os hashes
@@ -69,27 +74,40 @@ def rep(old, new, n=1):
     s = s.replace(old, new)
 
 
-# ---------- 1. diagrama (SVG) ----------
+# ---------- 1. diagrama (SVG), onde a largura manda ----------
 rep('>PTM Inicial · Direcionamento à Rede</text>',
-    '>Plano Terapêutico Inicial · Direcionamento</text>')
+    '>Plano Terapêutico · Direcionamento à Rede</text>')
 rep('>PTM-PF · Baseline QoLA</text>',
-    '>Plano Pactuado · Baseline QoLA</text>')
+    '>Plano Terapêutico Pactuado · QoLA</text>')
 
-# ---------- 2. versao para telas estreitas ----------
+# ---------- 2. versao para telas estreitas, que quebra linha e nao precisa encurtar ----------
+# os rotulos espelham o diagrama, sem encurtar nada: "Inicial" e "com a Família" ficam
+# de fora porque, em Title Case, grafariam por extenso as nomenclaturas em disputa
 rep('Validação do Cluster · Inclusão e Exclusão · PTM Inicial · Direcionamento à Rede',
-    'Validação do Cluster · Inclusão e Exclusão · Plano Terapêutico Inicial · Direcionamento')
+    'Validação do Cluster · Inclusão e Exclusão · Plano Terapêutico · Direcionamento à Rede')
 rep('<b style="color:#f47920">PTM-PF · Baseline QoLA</b>',
-    '<b style="color:#f47920">Plano Pactuado · Baseline QoLA</b>')
+    '<b style="color:#f47920">Plano Terapêutico Pactuado · Baseline QoLA</b>')
 
 # ---------- 3. apoio textual ----------
-rep('<strong>proposta inicial do PTM</strong>',
-    '<strong>proposta inicial do plano terapêutico</strong>')
+# a lista de quatro entregas passa a usar ponto e virgula: com o sintagma de duas
+# palavras, o "e" admitia leitura interna e a contagem so se sustentava pelo negrito
+rep('São quatro entregas: <strong>validação da clusterização</strong> (cluster 0 a 3), '
+    '<strong>critérios de inclusão e exclusão</strong>, <strong>proposta inicial do PTM</strong> '
+    'e <strong>direcionamento para a rede</strong>.',
+    'São quatro entregas: <strong>validação da clusterização</strong> (cluster 0 a 3); '
+    '<strong>critérios de inclusão e exclusão</strong>; <strong>proposta inicial do plano terapêutico</strong>; '
+    'e <strong>direcionamento para a rede</strong>.')
+# o titulo passa a nomear o ato, e nao o documento: batizar o artefato em Title Case
+# reinstalaria a nomenclatura que esta em disputa
 rep('<h2>PTM-PF · Pactuado com a Família</h2>',
-    '<h2>Plano Terapêutico Pactuado com a Família</h2>')
+    '<h2>Pactuação do Plano com a Família</h2>')
 rep('conforme o <strong>Plano Terapêutico Multidisciplinar Pactuado com a Família</strong>',
     'conforme o <strong>plano terapêutico pactuado com a família</strong>')
+rep('a pactuação com a família define o que é executável',
+    'a pactuação define o que é executável')
+# esta e a primeira mencao ao plano na ordem de leitura: sem a sigla, precisa de antecedente
 rep('Alça fechada com quem executa o Plano Terapêutico Multidisciplinar.',
-    'Alça fechada com quem executa o plano terapêutico.')
+    'Alça fechada com quem executa o plano terapêutico pactuado com a família.')
 
 # ---------- 4. rodape das duas paginas ----------
 rep('Unimed Governador Valadares — Maio · 2026 · Página 1 de 2',
@@ -101,8 +119,10 @@ rep('Unimed Governador Valadares — Maio · 2026 · Página 2 de 2',
 for termo in ['PTM', 'Multidisciplinar', 'Maio · 2026']:
     assert termo not in s, ('residuo: ' + termo)
 assert s.count('Setembro · 2026') == 2, 'rodape das duas paginas'
-for termo in ['Plano Terapêutico Inicial · Direcionamento', 'Plano Pactuado · Baseline QoLA',
-              'Plano Terapêutico Pactuado com a Família', 'plano terapêutico pactuado com a família']:
+assert 'Plano Terapêutico Inicial' not in s, 'Title Case grafaria a nomenclatura em disputa'
+assert s.count('Plano Terapêutico · Direcionamento à Rede') == 2, 'diagrama e versao estreita'
+for termo in ['Plano Terapêutico Pactuado · QoLA', 'Plano Terapêutico Pactuado · Baseline QoLA',
+              'Pactuação do Plano com a Família', 'plano terapêutico pactuado com a família']:
     assert termo in s, ('conteudo esperado ausente: ' + termo)
 
 open('jornada-novo.html', 'w', encoding='utf-8').write(s)
