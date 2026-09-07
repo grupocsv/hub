@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "partners": [
+    {
+      "id": "unimed",
+      "active": true,
+      "navLabel": "Unimed GV",
+      "link": "/unimed/",
+      "color": "#00995d"
+    },
+    {
+      "id": "unihealth",
+      "active": true,
+      "navLabel": "Unihealth GV",
+      "link": "/unihealth/",
+      "color": "#013d19"
+    },
+    {
+      "id": "icds",
+      "active": true,
+      "navLabel": "ICDS",
+      "link": "/icds/",
+      "color": "#1B3A5C"
+    },
+    {
+      "id": "2im",
+      "active": true,
+      "navLabel": "2iM",
+      "link": "/2im/",
+      "color": "#1B2A4A"
+    }
+  ]
+}

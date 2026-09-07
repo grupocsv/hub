@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import compassCatalog from '../compass/catalog.json'
+import partnerPortals from './data/partner-portals.json'
 
 function compassSidebarLabel(edition: { slug: string; title: string }) {
   const title = edition.title.replace(/\s+/g, ' ').trim()
@@ -12,6 +13,12 @@ const compassEditions = compassCatalog.editions.map((edition) => ({
   text: compassSidebarLabel(edition),
   link: edition.routes.web,
 }))
+const activePartnerNavItems = partnerPortals.partners
+  .filter((partner) => partner.active)
+  .map((partner) => ({
+    text: partner.navLabel,
+    link: partner.link,
+  }))
 
 export default defineConfig({
   title: "Hub Grupo CSV",
@@ -55,11 +62,7 @@ export default defineConfig({
       },
       {
         text: 'Parceiros',
-        items: [
-          { text: 'Unimed GV', link: '/unimed/' },
-          { text: 'Unihealth GV', link: '/unihealth/' },
-          { text: 'ICDS', link: '/icds/' },
-        ]
+        items: activePartnerNavItems
       },
       {
         text: 'Produtos',
