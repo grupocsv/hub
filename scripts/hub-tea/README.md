@@ -9,10 +9,19 @@ SHA-256 antes de publicar.
 
 A logomarca Trilha tem três aplicações na página, e só três:
 
-- **Herói.** O risco sob "Brilhantes" deixa de ser um traço laranja e passa a
-  ser a trilha da marca: seis pontos crescentes que sobem até a estrela. Os
-  raios, as cores e o desenho da estrela vêm do símbolo oficial
-  (`logos/caminhos-brilhantes/01-trilha/simbolo-positivo.svg`).
+- **Herói.** O título deixa de ser texto desenhado e passa a ser a **logomarca
+  oficial**, horizontal, em vetor (`marca-cb.svg`). A tentativa anterior — uma
+  trilha improvisada sob a palavra "Brilhantes" — cruzava com as hastes das
+  letras e obrigava a estrela a pousar num lugar que não era o dela. A marca
+  oficial já resolve: a trilha sobe pela esquerda e a estrela pousa no alto,
+  longe da palavra, porque foi desenhada assim.
+
+  O vetor entra **embutido no HTML**, e não como `<img>`, por um motivo só: os
+  seis pontos e a estrela continuam nascendo em sequência na abertura da
+  página, agora na geometria certa. `filme-heroi.js` congela a abertura num
+  instante e conta quantos já acenderam — 0 em 0,4s, 2 em 0,7s, 5 em 0,9s, 7 em
+  1,2s. Sendo vetor, a definição é a mesma no telefone e num monitor 5K, e a
+  largura é fluida: `clamp(300px, 52vw, 624px)`.
 - **Cartão 01, Estratégia.** A estrela caminha pela trilha e acende cada ponto
   por onde passa. O ponto aceso **fica** aceso, e os dois últimos, amarelos,
   brilham mais forte. A leitura é a da própria estratégia: o ganho da criança se
@@ -30,10 +39,21 @@ A logomarca Trilha tem três aplicações na página, e só três:
   `width:100%` explícito, senão usa a proporção intrínseca, fica mais largo que o
   cartão e o fim da trilha some no corte; e o pé do desenho fica acima do botão,
   para que nenhum ponto acenda por trás de palavra.
-- **Rodapé.** A logomarca horizontal assina a página.
+- **Rodapé.** A mesma logomarca assina a página, apontando para o mesmo
+  `marca-cb.svg` da slug. Antes ela ia embutida em base64 no rodapé; passar as
+  duas ocorrências para um arquivo só tirou 24 KB do HTML.
 
-O cabeçalho continua sendo o lockup institucional da Unimed. A marca da
-estratégia não disputa espaço com ele.
+O cabeçalho é só assinatura: o logotipo da Unimed à esquerda e o selo do
+Escritório de Valor em Saúde à direita (`marca-evs.webp`). A linha de texto que
+repetia os dois nomes por extenso saiu — com os dois logotipos no lugar, ela não
+dizia nada de novo. Pelo mesmo motivo saiu o sobretítulo "Hub TEA —
+Neurodesenvolvimento Infantil" do herói: a logomarca já é a apresentação.
+
+O selo do Escritório é compacto e fica opticamente menor que o logotipo da
+Unimed na mesma altura, então ele é desenhado um pouco mais alto (54px contra
+44px; 40px contra 32px no telefone). Ele só existe em bitmap no bucket: o
+original tem 2048px de largura e `montar_marcas.py` gera a cópia de 420px, larga
+o bastante para 3× a altura usada.
 
 ## As três peças
 
@@ -84,7 +104,10 @@ Fora do repositório, num diretório de trabalho com os ativos baixados do bucke
 os dois PDFs:
 
 ```sh
-# 0. rasterizador de PDF (ver o cabeçalho de render-pdf.js)
+# 0a. assinaturas: vetor limpo do Caminhos Brilhantes e cópia do selo do EVS
+python3 montar_marcas.py        # -> publicar/marca-cb.svg, publicar/marca-evs.webp
+
+# 0b. rasterizador de PDF (ver o cabeçalho de render-pdf.js)
 npm install pdfjs-dist
 printf '<!doctype html><meta charset="utf-8"><title>r</title>' > vazio.html
 npx http-server -p 8791 -s . &
@@ -107,6 +130,7 @@ node imagem.js painel-raw.png peca-painel.webp 1240 0 0 2388 1668 0.84
 python3 montar_hub.py                             # -> hub-novo.html
 node shot-hub.js hub-novo.html vista              # capturas 1440px e 390px
 node medir-pecas.js 1440 1100 900 700 390
+node filme-heroi.js 0.4 0.7 0.9 1.2               # a marca nascendo em sequência
 ```
 
 As três peças **não** entram embutidas como data URI: sobem como arquivos da
@@ -120,8 +144,8 @@ como arquivo ao lado delas.
 
 ## Publicação
 
-O endpoint substitui o conjunto de arquivos da slug, então os quinze arquivos vão
-juntos, e `title`, `description` e `og_image` precisam ser reenviados — sem eles
+O endpoint substitui o conjunto de arquivos da slug, então os dezessete arquivos
+vão juntos, e `title`, `description` e `og_image` precisam ser reenviados — sem eles
 o Worker passa a servir OpenGraph vazio.
 
 ```sh
@@ -130,7 +154,7 @@ curl -X POST https://hub.unimedgv.com/api/upload \
   -F slug=tea -F "title=..." -F "description=..." \
   -F "og_image=https://hub.unimedgv.com/tea/og.jpg" \
   -F "files=@index.html;type=text/html" \
-  -F "files=@peca-jornada.webp;type=image/webp" # ... e os demais treze arquivos
+  -F "files=@peca-jornada.webp;type=image/webp" # ... e os demais quinze arquivos
 ```
 
 O token fica no KV do Worker, em `config:admin_token`.
@@ -139,7 +163,7 @@ O token fica no KV do Worker, em `config:admin_token`.
 
 `verificar_pub.py` baixa a página publicada, remove o bloco de `<head>` que o
 Worker injeta e o beacon de analytics que a plataforma acrescenta, e compara o
-resto byte a byte com o arquivo aprovado. Depois confere os quatorze arquivos da
+resto byte a byte com o arquivo aprovado. Depois confere os dezesseis arquivos da
 slug — cada um por SHA-256 contra a cópia local — e os metadados servidos. As
 contagens de conteúdo saem do próprio arquivo aprovado, não de números fixos, para
 que a conferência não envelheça quando o desenho mudar.
