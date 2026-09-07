@@ -16,6 +16,8 @@ live = bruto.decode('utf-8')
 L = live.split('\n')
 assert '_assets/favicons/favicon.ico' in L[3]
 corte = next(i for i, l in enumerate(L) if l.startswith('<meta charset'))
+# a plataforma ainda acrescenta o beacon de analytics no fim do corpo
+L = [l for l in L if 'cloudflareinsights.com' not in l]
 corpo = '\n'.join(L[:3] + L[corte:])
 alvo = open('hub-novo.html', encoding='utf-8').read()
 h1 = hashlib.sha256(corpo.encode()).hexdigest()
@@ -29,15 +31,28 @@ for m in re.finditer(r'<meta property="og:(title|description|image)" content="([
     print('  og:%-11s %s' % (m.group(1), m.group(2)[:88]))
 
 print('\n-- conteúdo --')
-for t, esperado in [('Uma construção com', 1), ('uma construção com', 0), ('class="mock mock-j"', 1),
-                    ('class="mock mock-p"', 1), ('icone-rel', 5), ('andarilho', 5),
-                    ('class="fantasma"', 0), ('f-marca', 2)]:
-    c = live.count(t)
-    print('  %-24s %d (esperado %s) %s' % (t, c, esperado, 'ok' if c == esperado else '*** DIFERE ***'))
+# a contagem esperada vem do proprio arquivo aprovado, nao de um numero fixo:
+# assim a conferencia nao envelhece quando o desenho muda
+AUSENTES = ['uma construção com', 'class="fantasma"', 'class="janela"', 'class="mock', 'velado']
+PRESENTES = ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
+             'class="peca peca-l"', 'class="ampliar"', 'src="peca-jornada.webp"',
+             'src="peca-painel.webp"', 'src="peca-relatorio.webp"', 'andarilho',
+             'path class="feito"', 'f-marca', 'img class="im2"']
+for t in AUSENTES + PRESENTES:
+    c, e = live.count(t), alvo.count(t)
+    print('  %-26s %d (aprovado %d) %s' % (t, c, e, 'ok' if c == e else '*** DIFERE ***'))
 
 print('\n-- arquivos da slug --')
+import hashlib as _h
+import os
 for f in ['og.jpg', 'og.png', 'favicon.ico', 'apple-touch.png', 'email-hub.jpg', 'parceiro-evs.png',
           'parceiro-2im.png', 'parceiro-ibravs.webp', 'parceiro-unimed-femg.webp',
-          'parceiro-qualix.webp', 'parceiro-neurosteps.webp']:
-    s, b = pegar(BASE + f)
-    print('  %-28s %s  %d bytes' % (f, s, len(b)))
+          'parceiro-qualix.webp', 'parceiro-neurosteps.webp',
+          'peca-jornada.webp', 'peca-painel.webp', 'peca-relatorio.webp']:
+    st, b = pegar(BASE + f)
+    nota = ''
+    local = os.path.join('publicar', f)
+    if os.path.exists(local):
+        igual = _h.sha256(b).hexdigest() == _h.sha256(open(local, 'rb').read()).hexdigest()
+        nota = 'idêntico ao aprovado' if igual else '*** BYTES DIFEREM ***'
+    print('  %-24s %s  %8d bytes  %s' % (f, st, len(b), nota))

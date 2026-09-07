@@ -1,30 +1,34 @@
 # -*- coding: utf-8 -*-
-"""Hub TEA — identidade do Caminhos Brilhantes, janelas e trilha que acende.
+"""Hub TEA — identidade do Caminhos Brilhantes, pecas reais e trilha que acende.
 
 Parte da pagina publicada (hub.unimedgv.com/tea/) sem o bloco de <head> que o
 Worker injeta, e reconstroi os cartoes.
 
 O que muda nesta versao, depois da leitura do gestor:
 
-  1. A peca real deixa de dividir espaco com o texto. Cada mockup passa a ocupar
-     uma faixa propria no pe do cartao, encostada nas bordas, e o texto ganha
-     recuo equivalente. Nada de imagem por tras de palavra, nada de degrade
-     tapando frase. O cartao do Relatorio segue o mesmo ritmo: a faixa existe,
-     e nela mora so o icone.
-  2. A trilha do cartao da Estrategia passa a acender. A estrela caminha, e cada
-     ponto por onde ela passa se acende e FICA aceso; os dois ultimos, em amarelo,
-     acendem mais forte. E a leitura da estrategia: o ganho da crianca se acumula
-     ao longo do percurso, nao pisca e some. O traco tambem se preenche atras da
-     estrela, marcando o caminho ja andado.
+  1. Sai o mockup, entra o objeto. Cada cartao mostra a peca de verdade, e
+     fotografada como ela existe no mundo: a Jornada e a prancha impressa, com
+     a marca de ampliar; o Painel esta na tela de um tablet; o Relatorio e um
+     livro, so a capa. Nada de desfoque.
+  2. O objeto nunca cruza com o texto. No cartao 02, largo, a prancha fica na
+     coluna ao lado da explicacao — que foi o desenho pedido. Nos cartoes 03 e
+     04, estreitos, ele ocupa a faixa do pe e o texto recebe recuo igual.
+  3. As tres imagens sobem como arquivos da propria slug, com caminho relativo.
+     A publicacao troca o conjunto inteiro de uma vez, entao nao ha instante em
+     que o HTML novo conviva com imagem faltando, e nao ha endereco de fora que
+     possa quebrar.
 
-Segue valendo da versao anterior: a identidade oficial entra em tres lugares e
-so tres — a trilha no lugar do risco do herói, a estrela caminhando no cartao 01
-e a logomarca no rodape. O cabecalho continua sendo o lockup da Unimed.
+Segue valendo das versoes anteriores: a identidade oficial entra em tres lugares
+e so tres — a trilha no lugar do risco do herói, a estrela caminhando no cartao
+01 e a logomarca no rodape; e a trilha do cartao 01 acende cada ponto por onde a
+estrela passa, e o ponto aceso fica aceso. O cabecalho continua sendo o lockup
+da Unimed.
 
 Uso:  python3 montar_hub.py    # grava hub-novo.html
 """
 import base64
 import hashlib
+import os
 
 FONTE = 'tea-fonte.html'
 s = open(FONTE, encoding='utf-8').read()
@@ -178,75 +182,143 @@ rep('''  .caminho path.luz{animation:none}''',
   .caminho .andarilho .estrela{animation:none}''')
 
 # ---------------------------------------------------------------------------
-# 2. janelas: a peça real ganha faixa própria, sem dividir espaço com o texto
+# 2. peças reais: a jornada impressa, o painel num tablet e o relatório em livro
 # ---------------------------------------------------------------------------
+# Os arquivos sobem junto com o HTML na mesma slug, entao o caminho e relativo e
+# a publicacao e atomica: nao existe instante em que a pagina nova conviva com
+# imagem faltando, e nao ha endereco externo que possa quebrar.
+
 rep('''      <span class="fantasma" aria-hidden="true">02</span>
-      <span class="num">Nº 02</span>''', '''      <span class="num">Nº 02</span>''')
-rep('''      <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="num">Nº 02</span>
+      <h2>Jornada do Paciente</h2>
+      <p class="desc">O caminho da criança, da porta de entrada às Terapias Especiais.</p>
+      <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </a>''',
-    '''      <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      <span class="janela" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>
-    </a>''' % datauri('mock-jornada.webp', 'image/webp'))
+    '''      <span class="lado">
+        <span class="num">Nº 02</span>
+        <h2>Jornada do Paciente</h2>
+        <p class="desc">O caminho da criança, da porta de entrada às Terapias Especiais.</p>
+        <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </span>
+      <span class="peca peca-f">
+        <span class="folha">
+          <img src="peca-jornada.webp" width="1600" height="1130" alt="Prancha da Jornada do Paciente no Neurodesenvolvimento Infantil" loading="lazy" decoding="async">
+          <span class="ampliar"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8 21 21M11 8.4v5.2M8.4 11h5.2"/></svg>Ampliar</span>
+        </span>
+      </span>
+    </a>''')
 
 rep('''      <span class="fantasma" aria-hidden="true">03</span>
       <span class="restr">''', '''      <span class="restr">''')
 rep('''      <span class="cta">Entrar no painel <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </a>''',
     '''      <span class="cta">Entrar no painel <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      <span class="janela" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>
-    </a>''' % datauri('mock-painel.webp', 'image/webp'))
+      <span class="peca peca-t" aria-hidden="true">
+        <span class="tablet"><img src="peca-painel.webp" width="1240" height="866" alt="" loading="lazy" decoding="async"></span>
+      </span>
+    </a>''')
 
-# ---------------------------------------------------------------------------
-# 3. cartão 04: na mesma faixa, só o ícone do relatório
-# ---------------------------------------------------------------------------
-ICONE_REL = ('<span class="janela selo" aria-hidden="true">'
-             '<svg viewBox="0 0 64 74" fill="none">'
-             '<path d="M12 4h28l16 16v50a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4Z"/>'
-             '<path d="M40 4v12a4 4 0 0 0 4 4h12"/>'
-             '<path class="linhas" d="M19 32h18M19 41h26"/>'
-             '<path class="grafico" d="M20 60V51M30 60V43M40 60V47M50 60V38"/>'
-             '</svg></span>')
 rep('''      <span class="fantasma" aria-hidden="true">04</span>
       <span class="restr">''', '''      <span class="restr">''')
 rep('''      <span class="cta">Baixar o relatório <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6"/><path d="M5 21h14"/></svg></span>
     </a>''',
     '''      <span class="cta">Baixar o relatório <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6"/><path d="M5 21h14"/></svg></span>
-      %s
-    </a>''' % ICONE_REL)
+      <span class="peca peca-l" aria-hidden="true">
+        <span class="livro"><img src="peca-relatorio.webp" width="760" height="1075" alt="" loading="lazy" decoding="async"><i class="lombada"></i><i class="brilho"></i></span>
+      </span>
+    </a>''')
 
 rep('''.fantasma{position:absolute;right:14px;bottom:-24px;font-family:var(--fd);font-style:italic;font-weight:700;
   font-size:130px;line-height:1;pointer-events:none;user-select:none}''',
     '''.fantasma{position:absolute;right:14px;bottom:-24px;font-family:var(--fd);font-style:italic;font-weight:700;
   font-size:130px;line-height:1;pointer-events:none;user-select:none}
 
-/* janela: faixa propria da peca real, encostada nas bordas do cartao.
-   O texto tem recuo equivalente, entao imagem e palavra nunca se cruzam. */
-.janela{position:absolute;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;
-  border-top:1px solid var(--borda);border-radius:0 0 26px 26px;background:#FFFDF8}
-.janela img{display:block;width:100%;height:100%;object-fit:cover;object-position:left top;
-  transition:transform .7s cubic-bezier(.2,.8,.2,1)}
-.p2 .janela{height:122px}
-.p3 .janela{height:116px}
-.p2:hover .janela img{transform:scale(1.05)}
-.p3:hover .janela img{transform:scale(1.06)}
-.p2{padding-bottom:140px}
-.p3{padding-bottom:134px}
+/* ---------- peças reais ----------
+   Cada cartao mostra o objeto de verdade: a prancha impressa da jornada, o
+   painel na tela de um tablet e o relatorio como livro. O objeto nunca cruza
+   com o texto: no cartao 02 ele fica na coluna ao lado, e nos cartoes 03 e 04
+   ocupa a faixa do pe, com recuo equivalente no texto. O corte pela borda
+   arredondada do cartao e proposital — diz que ha mais peca do que cabe. */
+.peca{pointer-events:none;user-select:none}
+.peca img{display:block;width:100%;height:auto}
 
-/* o cartao do relatorio segue o mesmo ritmo, com o icone no lugar da peca */
-.p4 .janela.selo{height:116px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,rgba(232,128,26,.02),rgba(232,128,26,.05))}
-.p4{padding-bottom:134px}
-.janela.selo svg{width:54px;height:auto;stroke:var(--laranja);stroke-width:3;fill:none;
-  stroke-linecap:round;stroke-linejoin:round;opacity:.5;
-  transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
-.janela.selo .grafico{stroke:var(--bronze);stroke-width:4.6}
-.p4:hover .janela.selo svg{transform:translateY(-4px) scale(1.04);opacity:.72}''')
+/* 02 — a prancha, ao lado do texto */
+.p2{flex-direction:row;align-items:center;gap:clamp(18px,2.4vw,30px);padding-right:22px}
+.p2 .lado{display:flex;flex-direction:column;justify-content:center;flex:1 1 42%;min-width:0}
+.p2 .cta{margin-top:22px;padding-top:0}
+.p2 .peca-f{flex:1 1 58%;min-width:0}
+.p2 .folha{display:block;position:relative;background:#fff;padding:6px;border-radius:7px;
+  border:1px solid var(--borda);box-shadow:0 18px 36px rgba(84,66,28,.17);
+  transform:rotate(-1.1deg);transition:transform .6s cubic-bezier(.2,.8,.2,1),box-shadow .6s}
+.p2 .folha img{border-radius:3px}
+.p2:hover .folha{transform:rotate(0deg) scale(1.025);box-shadow:0 26px 52px rgba(84,66,28,.22)}
+.ampliar{position:absolute;right:11px;bottom:11px;display:inline-flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:9999px;background:rgba(255,253,248,.94);
+  border:1px solid var(--borda);color:var(--verde2);
+  font-size:10.5px;font-weight:700;letter-spacing:.6px;
+  box-shadow:0 4px 12px rgba(84,66,28,.12)}
+.ampliar svg{width:12px;height:12px;stroke:currentColor}
+
+/* 03 e 04 — o objeto fecha o cartao.
+   Ele fica no fluxo, como ultimo item da coluna, com margin-top:auto: assim
+   encosta no pe do cartao seja qual for a altura da linha, e nunca sobe por
+   cima da chamada. A margem negativa e que faz o objeto passar da borda e ser
+   cortado pelo arredondamento — e ela e percentual, entao o corte e o mesmo em
+   qualquer largura de tela. */
+.p3 .cta,.p4 .cta{margin-top:18px;padding-top:0}
+.p3 .peca-t,.p4 .peca-l{display:block;margin:auto -26px -26px}
+
+.p3 .peca-t{perspective:1200px}
+.p3 .tablet{display:block;width:78%;margin:0 auto -13%;border-radius:15px;padding:7px;
+  background:linear-gradient(160deg,#3a4744,#212c2a 62%,#161f1d);
+  box-shadow:0 -1px 0 rgba(255,255,255,.16) inset,0 18px 34px rgba(6,61,49,.26);
+  transform:rotateX(9deg) rotateZ(-1.4deg);transform-origin:50% 100%;
+  transition:transform .65s cubic-bezier(.2,.8,.2,1)}
+.p3 .tablet img{border-radius:8px}
+.p3:hover .tablet{transform:rotateX(5deg) rotateZ(-1.4deg) translateY(-3%)}
+
+.p4 .livro{display:block;position:relative;width:54%;margin:0 auto -16%;
+  transform:perspective(1000px) rotateY(-15deg) rotateZ(-1.2deg);
+  transform-origin:14% 62%;
+  box-shadow:16px 22px 38px rgba(84,66,28,.26);
+  transition:transform .65s cubic-bezier(.2,.8,.2,1),box-shadow .65s}
+.p4 .livro img{border-radius:2px 7px 7px 2px}
+.p4 .livro .lombada{position:absolute;left:0;top:0;bottom:0;width:11px;border-radius:2px 0 0 2px;
+  background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,.16) 55%,rgba(0,0,0,0))}
+.p4 .livro .brilho{position:absolute;inset:0;border-radius:2px 7px 7px 2px;
+  background:linear-gradient(104deg,rgba(255,255,255,.16),rgba(255,255,255,0) 38%)}
+.p4 .livro::after{content:"";position:absolute;right:-7px;top:6px;bottom:2px;width:7px;
+  border-radius:0 2px 2px 0;transform:skewY(-3.2deg);
+  background:linear-gradient(90deg,#f3f0e6,#d9d4c4)}
+.p4:hover .livro{transform:perspective(1000px) rotateY(-9deg) rotateZ(-1.2deg) translateY(-3%);
+  box-shadow:20px 28px 48px rgba(84,66,28,.3)}
+
+@media(max-width:1020px){
+  .p2 .lado{flex-basis:40%}
+  .p2 .peca-f{flex-basis:60%}
+}
+@media(max-width:600px){
+  /* no telefone o cartao 02 empilha: primeiro a palavra, depois a prancha */
+  .p2{flex-direction:column;align-items:stretch;gap:20px;padding-right:26px}
+  .p2 .lado,.p2 .peca-f{flex:0 0 auto}
+  .p2 .cta{margin-top:20px}
+  .p2 .folha{transform:rotate(-.7deg)}
+  /* cartao inteiro no telefone: o objeto pode ser menor e continuar legivel */
+  .p3 .tablet{width:68%;margin-bottom:-11%}
+  .p4 .livro{width:42%;margin-bottom:-13%}
+}''')
 
 rep('''.p2,.p3,.p4{min-height:204px;color:var(--tinta);background:var(--carta);''',
-    '''.p2,.p3,.p4{min-height:306px;color:var(--tinta);background:var(--carta);''')
+    '''.p2,.p3,.p4{min-height:@MIN@px;color:var(--tinta);background:var(--carta);''')
 rep('''.p1{grid-column:1/6;grid-row:1/3;min-height:432px;color:#fff;''',
-    '''.p1{grid-column:1/6;grid-row:1/3;min-height:628px;color:#fff;''')
+    '''.p1{grid-column:1/6;grid-row:1/3;min-height:@MIN1@px;color:#fff;''')
+rep('''@media(max-width:600px){.p3{grid-column:1/3}.p4{grid-column:1/3}.p2,.p3,.p4{min-height:172px}}''',
+    '''@media(max-width:600px){.p3{grid-column:1/3}.p4{grid-column:1/3}.p2{min-height:0}.p3,.p4{min-height:@MINM@px}}''')
 
+# medidas num lugar so: a faixa da peca e o recuo do texto sao o mesmo numero
+for chave, valor in [('@MIN@', 336), ('@MIN1@', 690), ('@MINM@', 300)]:
+    s = s.replace(chave, str(valor))
+assert '@MIN@' not in s, 'sobrou marcador de medida'
 # ---------------------------------------------------------------------------
 # 4a. "Uma construção com"
 # ---------------------------------------------------------------------------
@@ -282,13 +354,18 @@ rep('''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;b
 # ---------------------------------------------------------------------------
 for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
               'class="fantasma" aria-hidden="true">03', 'class="fantasma" aria-hidden="true">04',
-              'path.luz', 'M6 14 C 58 20', 'class="mock']:
+              'path.luz', 'M6 14 C 58 20', 'class="mock', 'class="janela"', 'velado']:
     assert termo not in s, ('residuo: ' + termo)
 assert s.count('@keyframes acende') == len(PONTOS_P1), 'quadros-chave dos pontos ausentes'
-for termo in ['Uma construção com', 'class="janela"', 'janela selo', 'andarilho', 'acende0', 'acende5',
+for termo in ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
+              'class="peca peca-l"', 'class="folha"', 'class="tablet"', 'class="livro"',
+              'class="ampliar"', 'andarilho', 'acende0', 'acende5',
               'path class="feito"', 'f-marca', 'img class="im2"']:
     assert termo in s, ('ausente: ' + termo)
-assert s.count('class="janela"') == 2, 'as duas janelas com peça real'
+# as tres pecas entram como arquivo da slug, nunca como data URI nem link de fora
+for arquivo in ['peca-jornada.webp', 'peca-painel.webp', 'peca-relatorio.webp']:
+    assert s.count('src="%s"' % arquivo) == 1, ('peça fora do lugar: ' + arquivo)
+    assert os.path.exists(arquivo), ('peça não gerada: ' + arquivo)
 
 open('hub-novo.html', 'w', encoding='utf-8').write(s)
 print('saida    %s  %d bytes  -> hub-novo.html'

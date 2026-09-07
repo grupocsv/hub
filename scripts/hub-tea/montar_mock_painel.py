@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Monta um mockup do Painel Terapias Especiais a partir da interface real.
+"""Monta a tela do Painel Terapias Especiais que vai dentro do tablet do cartao 03.
 
-Usa o HTML e o CSS verdadeiros do painel (p/painel-tea/index.html) para que o
-cromo — barra lateral, topo, tipografia, componentes — seja o do produto. O que
-NAO entra sao os dados: os numeros aparecem desfocados e os graficos nao trazem
-escala. O painel e de acesso restrito e seus agregados nao podem ir para uma
-pagina publica; o desfoque tambem evita inventar numero que alguem leia como
-verdadeiro.
+O cromo e o do produto: HTML, CSS, barra lateral, topo, tipografia e componentes
+sao lidos de p/painel-tea/index.html. Só o conteudo e injetado, porque o painel
+so monta com dados autenticados.
+
+Nada aqui e desfocado e nada aqui e inventado. A tela mostra a aba Terapias com
+o catalogo clinico — as 17 terapias, as 5 disciplinas, os 4 metodos
+estruturados —, que e informacao de catalogo e ja circula na Jornada publica.
+Numero de carteira nao entra: pagamento, sessoes, criancas, concentracao e
+custo ficam no documento restrito, atras do login que este mesmo cartao anuncia.
 """
 import os
 import re
@@ -57,6 +60,7 @@ def sem_scripts(texto):
         texto = texto[:inicio] + texto[fim:]
     return texto
 
+
 RAIZ = os.path.abspath('.')
 FONTE = '/home/user/hub/p/painel-tea/index.html'
 
@@ -88,19 +92,21 @@ if i != -1:
     j = s.find('</body>', i)
     s = s[:i] + s[j:]
 
-# 4. estado da interface: aba Visão Geral ativa
-s = s.replace('<button class="nav-item" data-view="visao">',
-              '<button class="nav-item active" data-view="visao">', 1)
-s = s.replace('<section class="view" id="view-visao"',
-              '<section class="view active" id="view-visao"', 1)
+# 4. estado da interface: aba Terapias ativa
+s = s.replace('<button class="nav-item" data-view="especialidades">',
+              '<button class="nav-item active" data-view="especialidades">', 1)
+s = s.replace('<h1 class="tb-title" id="tb_title">Visão Geral</h1>',
+              '<h1 class="tb-title" id="tb_title">Terapias</h1>', 1)
+s = s.replace('<div class="tb-sub" id="tb_sub">Síntese do período</div>',
+              '<div class="tb-sub" id="tb_sub">Desdobramento por tipo de terapia</div>', 1)
 s = s.replace('<span class="pc-datas" id="tb_datas" title="Início e fim do período selecionado">–</span>',
-              '<span class="pc-datas" id="tb_datas">jan/2024 — dez/2025</span>')
+              '<span class="pc-datas" id="tb_datas">jan/2025 — jun/2026</span>')
 s = s.replace('<button class="chip escopo" id="tb_escopo" type="button" aria-label="Escopo assistencial ativo; toque para alterar no Início">–</button>',
               '<button class="chip escopo" id="tb_escopo" type="button">Terapias Especiais</button>')
 s = s.replace('<span class="chip" id="tb_periodo">–</span>',
-              '<span class="chip" id="tb_periodo">24 competências</span>')
+              '<span class="chip" id="tb_periodo">18 competências</span>')
 s = s.replace('<span class="chip soft hide-m" id="tb_atualizado">–</span>',
-              '<span class="chip soft hide-m" id="tb_atualizado">Dados agregados</span>')
+              '<span class="chip soft hide-m" id="tb_atualizado">Catálogo clínico</span>')
 
 # 5. seletores de periodo, que o script preencheria
 s = s.replace('<select id="period_type" aria-label="Granularidade do período"></select>',
@@ -109,82 +115,93 @@ s = s.replace('<select id="period_value" aria-label="Recorte do período"></sele
               '<select id="period_value"><option>Período completo</option></select>')
 
 # ---------------------------------------------------------------- conteudo
-# numeros com .velado ficam desfocados: existe dado ali, mas ele nao e legivel
-VELADO = """
+# As 17 terapias do catalogo, com a disciplina e o metodo de cada uma.
+TERAPIAS = [
+    ('Terapia ABA — Psicologia', 'Psicologia', 'ABA'),
+    ('Terapia ABA — Fonoaudiologia', 'Fonoaudiologia', 'ABA'),
+    ('Terapia ABA — Terapia Ocupacional', 'Terapia Ocupacional', 'ABA'),
+    ('Psicopedagogia', 'Psicopedagogia', '—'),
+    ('Método Denver — Terapia Ocupacional', 'Terapia Ocupacional', 'Denver'),
+    ('Terapias especiais — centros de referência', 'Multidisciplinar', '—'),
+    ('Método Denver — Psicologia', 'Psicologia', 'Denver'),
+    ('Método Bobath — T.O. Neurológica', 'Terapia Ocupacional', 'Bobath'),
+    ('Método TEACCH — Psicologia', 'Psicologia', 'TEACCH'),
+    ('Integração Sensorial', 'Terapia Ocupacional', '—'),
+    ('Método TEACCH — Terapia Ocupacional', 'Terapia Ocupacional', 'TEACCH'),
+    ('Método TEACCH — Fonoaudiologia', 'Fonoaudiologia', 'TEACCH'),
+    ('Método Bobath — Fonoaudiologia', 'Fonoaudiologia', 'Bobath'),
+    ('Método Denver — Fonoaudiologia', 'Fonoaudiologia', 'Denver'),
+    ('Terapeuta Ocupacional — TGD', 'Terapia Ocupacional', '—'),
+    ('Psicólogo — TGD', 'Psicologia', '—'),
+    ('Fonoaudiólogo — TGD', 'Fonoaudiologia', '—'),
+]
+
+DISCIPLINAS = ['Terapia Ocupacional', 'Fonoaudiologia', 'Psicologia',
+               'Psicopedagogia', 'Multidisciplinar']
+contagem = [(d, sum(1 for t in TERAPIAS if t[1] == d)) for d in DISCIPLINAS]
+assert sum(n for _, n in contagem) == len(TERAPIAS) == 17, 'catálogo fora de 17'
+
+KPIS = [
+    ('Terapias clínicas', '17', 'catálogo com cobertura completa'),
+    ('Disciplinas assistenciais', '5', 'psicologia, fono, T.O. e mais'),
+    ('Métodos estruturados', '4', 'ABA, Denver, Bobath e TEACCH'),
+    ('Competências no período', '18', 'janeiro/2025 a junho/2026'),
+    ('Fases de clusterização', '3', 'M-CHAT-R, CARS e CBDF'),
+    ('Faixa do rastreio', '0–9<span class="unit"> anos</span>', 'protocolo na atenção primária'),
+]
+
+ESTILO = """
 <style>
-  .velado{filter:blur(5.5px);-webkit-filter:blur(5.5px);user-select:none}
-  .kpi-card .num.velado{letter-spacing:.5px}
-  .mk-bar{height:11px;border-radius:6px;background:var(--u-green)}
-  .mk-linha{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:12px;margin-bottom:11px}
-  .mk-linha span{font-size:12px;color:var(--ink-2)}
-  .mk-eixo{display:flex;justify-content:space-between;margin-top:14px;padding-top:9px;border-top:1px solid var(--line-soft);font-size:10.5px;color:var(--ink-4)}
+  .mk-linha{display:grid;grid-template-columns:172px 1fr 30px;align-items:center;
+    gap:14px;margin-bottom:13px}
+  .mk-linha span.nome{font-size:12.5px;color:var(--ink-2)}
+  .mk-linha span.qtd{font-size:12.5px;font-weight:650;color:var(--u-dark);text-align:right;
+    font-variant-numeric:tabular-nums}
+  .mk-bar{height:12px;border-radius:6px;background:var(--u-green)}
+  .mk-nota{margin-top:16px;padding-top:12px;border-top:1px solid var(--line-soft);
+    font-size:11.5px;color:var(--ink-4);font-family:var(--font-serif);font-style:italic}
+  td.met{color:var(--ink-3)}
 </style>
 """
 
+kpis = ''.join(
+    '<div class="kpi-card"><div class="label">%s</div><div class="num">%s</div>'
+    '<div class="sub">%s</div></div>' % k for k in KPIS)
 
-def kpi(rot, num, sub):
-    return ('<div class="kpi-card"><div class="label">%s</div>'
-            '<div class="num velado">%s</div><div class="sub">%s</div></div>' % (rot, num, sub))
+maior = max(n for _, n in contagem)
+barras = ''.join(
+    '<div class="mk-linha"><span class="nome">%s</span>'
+    '<div class="mk-bar" style="width:%.1f%%"></div>'
+    '<span class="qtd">%d</span></div>' % (d, 100.0 * n / maior, n)
+    for d, n in contagem)
 
+linhas = ''.join(
+    '<tr><td class="prest">%s</td><td>%s</td><td class="met">%s</td></tr>' % t
+    for t in TERAPIAS)
 
-def barra(nome, pct):
-    return ('<div class="mk-linha"><span>%s</span>'
-            '<div class="mk-bar" style="width:%s%%"></div></div>' % (nome, pct))
-
-
-# serie mensal desenhada como forma, sem escala nem rotulo de valor
-pontos = [58, 44, 66, 52, 74, 61, 83, 70, 92, 78, 96, 88]
-larg, alt = 520, 190
-passo = larg / (len(pontos) - 1)
-coords = [(i * passo, alt - (v / 100) * (alt - 26) - 13) for i, v in enumerate(pontos)]
-linha = ' '.join('%.1f,%.1f' % c for c in coords)
-area = 'M0,%d ' % alt + ' '.join('L%.1f,%.1f' % c for c in coords) + ' L%d,%d Z' % (larg, alt)
-
-CONTEUDO = VELADO + """
-<div class="kpi-grid">
-  %s%s%s%s%s%s
+CONTEUDO = ESTILO + """
+<div class="kpi-grid">%s</div>
+<div class="card">
+  <div class="card-hd"><div class="card-title">Terapias clínicas por disciplina</div>
+    <div class="card-sub">Composição do catálogo — 17 terapias</div></div>
+  %s
+  <p class="mk-nota">Contagem de terapias do catálogo, não de atendimentos.</p>
 </div>
-<div class="grid-2">
-  <div class="card">
-    <div class="card-hd"><div class="card-title">Evolução mensal</div>
-      <div class="card-sub">Sessões por competência</div></div>
-    <div class="chart-box short" style="height:auto">
-      <svg viewBox="0 0 %d %d" style="width:100%%;height:auto;display:block">
-        <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#00995d" stop-opacity=".26"/>
-          <stop offset="1" stop-color="#00995d" stop-opacity="0"/></linearGradient></defs>
-        <path d="%s" fill="url(#g1)"/>
-        <polyline points="%s" fill="none" stroke="#00995d" stroke-width="2.6"
-          stroke-linecap="round" stroke-linejoin="round"/>
-        %s
-      </svg>
-      <div class="mk-eixo"><span>jan/2024</span><span>dez/2025</span></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-hd"><div class="card-title">Distribuição por terapia</div>
-      <div class="card-sub">Participação no período</div></div>
-    %s
-  </div>
+<div class="sec-label">Catálogo clínico</div>
+<div class="t-wrap">
+  <table class="rank" aria-label="Terapias clínicas do catálogo">
+    <thead><tr><th>Terapia clínica</th><th>Disciplina</th><th>Método</th></tr></thead>
+    <tbody>%s</tbody>
+  </table>
 </div>
-""" % (
-    kpi('Crianças em terapia', '1.234', 'no período completo'),
-    kpi('Sessões realizadas', '123.456', 'todas as terapias'),
-    kpi('Terapias ativas', '17', 'catálogo consolidado'),
-    kpi('Prestadores', '123', 'rede e recurso próprio'),
-    kpi('Casa Unimed', '12.345', 'sessões em recurso próprio'),
-    kpi('Competências', '24', 'jan/2024 a dez/2025'),
-    larg, alt, area, linha,
-    ''.join('<circle cx="%.1f" cy="%.1f" r="3.1" fill="#fff" stroke="#00995d" stroke-width="2.2"/>' % c
-            for c in coords[::3]),
-    ''.join(barra(n, p) for n, p in [
-        ('Psicologia', 92), ('Fonoaudiologia', 78), ('Terapia Ocupacional', 66),
-        ('Fisioterapia', 41), ('Nutrição', 27), ('Musicoterapia', 18)]),
-)
+""" % (kpis, barras, linhas)
 
-s = s.replace('<section class="view active" id="view-visao" data-title="Visão Geral" data-sub="Síntese do período"></section>',
-              '<section class="view active" id="view-visao" data-title="Visão Geral" data-sub="Síntese do período">'
+ALVO = ('<section class="view" id="view-especialidades" data-title="Terapias" '
+        'data-sub="Desdobramento por tipo de terapia e combinações de cuidado"></section>')
+assert ALVO in s, 'seção Terapias não localizada no painel'
+s = s.replace(ALVO, ALVO[:-len('</section>')].replace('class="view"', 'class="view active"')
               + CONTEUDO + '</section>')
 
+assert 'velado' not in s, 'sobrou desfoque no mockup'
 open('mock-painel.html', 'w', encoding='utf-8').write(s)
-print('mock-painel.html', len(s), 'bytes')
+print('mock-painel.html', len(s), 'bytes ·', len(TERAPIAS), 'terapias')
