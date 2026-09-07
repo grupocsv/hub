@@ -117,3 +117,42 @@ test('fallbacks estáticos preservam noindex e o mesmo acesso documental', async
     );
   }
 });
+
+test('header e homepage compartilham o catálogo canônico de parceiros ativos', async () => {
+  let partnerCatalogSource = '';
+  try {
+    partnerCatalogSource = await source('docs/.vitepress/data/partner-portals.json');
+  } catch {
+    assert.fail('catálogo canônico de parceiros ausente');
+  }
+
+  const partnerCatalog = JSON.parse(partnerCatalogSource);
+  const activePartners = partnerCatalog.partners.filter((partner) => partner.active);
+  const activeIds = activePartners.map((partner) => partner.id);
+  const config = await source('docs/.vitepress/config.mts');
+  const home = await source('docs/index.md');
+  const tenantCatalog = JSON.parse(await source('scripts/documentos-tenants.json'));
+  const enabledTenantIds = tenantCatalog.tenants
+    .filter((tenant) => tenant.enabled && tenant.portal !== 'grupo-csv')
+    .map((tenant) => tenant.portal);
+  const homePartnerIds = [...home.matchAll(/class="partner-section[^"]*" id="partner-([^"]+)"/g)]
+    .map((match) => match[1]);
+
+  assert.deepEqual(activeIds, homePartnerIds, 'homepage deve refletir os parceiros ativos');
+  assert.deepEqual(activeIds, enabledTenantIds, 'tenants parceiros habilitados devem permanecer sincronizados');
+  assert.ok(activeIds.includes('2im'), '2iM deve constar entre os parceiros ativos');
+
+  assert.match(config, /import partnerPortals from '\.\/data\/partner-portals\.json'/);
+  assert.match(config, /const activePartnerNavItems = partnerPortals\.partners/);
+  assert.match(config, /items: activePartnerNavItems/);
+  assert.match(home, /import partnerPortals from '\.\/\.vitepress\/data\/partner-portals\.json'/);
+  assert.match(home, /const portals = partnerPortals\.partners/);
+
+  for (const partner of activePartners) {
+    assert.equal(typeof partner.navLabel, 'string');
+    assert.equal(typeof partner.link, 'string');
+    assert.equal(typeof partner.color, 'string');
+    assert.match(home, new RegExp(`id="partner-${partner.id}"`));
+    assert.match(home, new RegExp(`href="${partner.link.replaceAll('/', '\\/')}"`));
+  }
+});

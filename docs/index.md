@@ -877,6 +877,7 @@ head:
 
 <script setup>
 import { onMounted } from 'vue'
+import partnerPortals from './.vitepress/data/partner-portals.json'
 
 onMounted(() => {
   // Toggle parceiros
@@ -896,12 +897,13 @@ onMounted(() => {
   });
 
   // Carregar ferramentas dinamicamente
-  const portals = [
-    { id: 'unimed', color: '#00995d', basePath: '/unimed/' },
-    { id: 'unihealth', color: '#013d19', basePath: '/unihealth/' },
-    { id: 'icds', color: '#1B3A5C', basePath: '/icds/' },
-    { id: '2im', color: '#1B2A4A', basePath: '/2im/' },
-  ];
+  const portals = partnerPortals.partners
+    .filter(partner => partner.active)
+    .map(partner => ({
+      id: partner.id,
+      color: partner.color,
+      basePath: partner.link,
+    }));
 
   portals.forEach(portal => {
     const container = document.getElementById('tools-' + portal.id);
