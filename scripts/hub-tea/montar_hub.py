@@ -100,7 +100,10 @@ h1 em .risco path{fill:none;stroke:var(--laranja);stroke-width:6.5;stroke-lineca
     '''/* a logomarca e o titulo. O vetor cresce e encolhe sem perder nada, entao a
    largura e fluida e o telefone recebe o mesmo desenho do desktop. */
 h1.marca{margin:0;line-height:0}
-h1.marca .lockup{display:block;width:clamp(300px,52vw,624px);height:auto;overflow:visible}
+/* a marca e o titulo, entao ela ocupa a coluna inteira ate o teto de 780px.
+   Nada de largura em vw: no telefone ela preenche o wrap e no desktop para
+   antes de virar faixa. Vetor, entao crescer nao custa definicao nenhuma. */
+h1.marca .lockup{display:block;width:min(100%,780px);height:auto;overflow:visible}
 h1.marca .rastro circle,h1.marca .rastro .estrela{opacity:0;
   transform-box:fill-box;transform-origin:center;
   animation:brota .5s cubic-bezier(.2,1.3,.4,1) forwards;
