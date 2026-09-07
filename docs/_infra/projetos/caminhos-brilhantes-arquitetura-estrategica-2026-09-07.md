@@ -24,7 +24,7 @@ A seção de parceiros será ampliada de três para quatro instituições, com c
 
 A dobra será denominada **“Três Eixos, um Sistema Integrado”**. Em desktop, os três eixos formarão um fluxo horizontal conectado. Em mobile, formarão uma trilha vertical contínua. A criança e a família serão o fio condutor do desenho.
 
-Cada eixo terá uma composição interna com três níveis: **necessidade recebida**, **mecanismo central** e **entrega produzida**. O conteúdo será escrito em frases completas, sem listas extensas. Uma alça visual de retorno ligará o terceiro eixo ao primeiro, mostrando que os resultados aprimoram continuamente o acesso, a rede e o cuidado.
+Cada eixo terá uma composição interna com três níveis: **necessidade recebida**, **mecanismo central** e **entrega produzida**. O conteúdo será escrito em frases completas, sem listas extensas. Os eixos serão conectados somente por setas, sem rótulos explicativos ou elementos de metalinguagem.
 
 A base da dobra reunirá as funções internas que sustentam o sistema sem criar uma nova seção: governança técnica do CTNI, gerenciamento populacional pelo EVS, coordenação e apoio à família pela Central de Coordenação do Cuidado e atuação especializada da Auditoria em Saúde.
 
@@ -66,10 +66,6 @@ A base da dobra reunirá as funções internas que sustentam o sistema sem criar
 
 **Entrega Produzida:** Decisões que aprimoram o acesso, a rede e o cuidado coordenado.
 
-### Alça de Retorno
-
-**Texto:** O que se aprende com os resultados retorna aos Eixos 01 e 02 para ajustar fluxos, rede e cuidado.
-
 ### Base de Governança
 
 | Função | Papel Sintético |
@@ -109,7 +105,7 @@ A revisão não alterará URLs, downloads, hero, materiais, autoria, rodapé, me
 
 ## Critérios de Aceite
 
-A página deverá conter uma única dobra explicativa para os três eixos, não conter a seção “Frentes Estruturantes”, exibir quatro parceiros, carregar o logo oficial da 2iM, manter os PDFs e demais assets disponíveis, não apresentar overflow em desktop ou mobile e não registrar erros de console.
+A página deverá conter uma única dobra explicativa para os três eixos, usar setas sem rótulos entre os cards, não apresentar card de melhoria contínua ou outra metalinguagem, não conter a seção “Frentes Estruturantes”, exibir quatro parceiros, carregar o logo oficial da 2iM, manter os PDFs e demais assets disponíveis, não apresentar overflow em desktop ou mobile e não registrar erros de console. A composição mobile deverá ter conectores compactos, cards legíveis e ritmo vertical contínuo.
 
 ## Registro de Redesign Preservativo
 
@@ -118,7 +114,7 @@ A página deverá conter uma única dobra explicativa para os três eixos, não 
 | Modo | Redesign · Preservar |
 | Preservar | Identidade Unimed, hero, seção de contexto, materiais, autoria, rodapé, URLs, PDFs, logo EVS, acessibilidade e metadados |
 | Melhorar | Clareza dos três eixos, percepção de continuidade, distinção entre tecnologias, hierarquia dos parceiros e comportamento responsivo |
-| Remover | Dobra “Frentes Estruturantes”, grade redundante de bullets e qualquer função duplicada entre Neurosteps e 2iM |
+| Remover | Dobra “Frentes Estruturantes”, grade redundante de bullets, rótulos textuais dos conectores, card de melhoria contínua e qualquer função duplicada entre Neurosteps e 2iM |
 | Contratos Protegidos | Rota pública, links de download, link do Hub TEA, conteúdo factual validado, assets existentes e comportamento de redução de movimento |
 | Mudança de Maior Risco | Substituição simultânea dos dois blocos estratégicos por um único componente conectado |
 | Rollback | Backup integral do objeto R2 anterior à publicação e script determinístico com hash-base rígido |
