@@ -10,16 +10,60 @@ verdadeiro.
 """
 import os
 import re
+from html.parser import HTMLParser
+
+
+class Scripts(HTMLParser):
+    """Localiza os elementos <script> pelo analisador de HTML da biblioteca padrao.
+
+    Expressao regular nao serve para isto. HTML aceita <SCRIPT>, aceita
+    </script > com espaco antes do fecha, e cada variante escapa de um padrao
+    simples; a checagem de codigo do repositorio reprova o padrao por isso, com
+    razao. Aqui o script que sobrevivesse nao seria um detalhe: ele tentaria
+    buscar dados autenticados e traria de volta o portao de login por cima do
+    mockup. O analisador devolve as posicoes, e o corte e feito por indice, sem
+    reescrever o resto do documento.
+    """
+
+    def __init__(self, texto):
+        super().__init__(convert_charrefs=False)
+        self.texto = texto
+        self.inicios_de_linha = [0]
+        for linha in texto.splitlines(keepends=True):
+            self.inicios_de_linha.append(self.inicios_de_linha[-1] + len(linha))
+        self.intervalos = []
+        self.abertura = None
+
+    def _offset(self, posicao):
+        linha, coluna = posicao
+        return self.inicios_de_linha[linha - 1] + coluna
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'script' and self.abertura is None:
+            self.abertura = self._offset(self.getpos())
+
+    def handle_endtag(self, tag):
+        if tag == 'script' and self.abertura is not None:
+            fim = self.texto.index('>', self._offset(self.getpos())) + 1
+            self.intervalos.append((self.abertura, fim))
+            self.abertura = None
+
+
+def sem_scripts(texto):
+    leitor = Scripts(texto)
+    leitor.feed(texto)
+    leitor.close()
+    for inicio, fim in reversed(leitor.intervalos):
+        texto = texto[:inicio] + texto[fim:]
+    return texto
 
 RAIZ = os.path.abspath('.')
 FONTE = '/home/user/hub/p/painel-tea/index.html'
 
 s = open(FONTE, encoding='utf-8').read()
 
-# 1. fora todo o JavaScript: o painel so monta com dados autenticados.
-# re.I porque HTML nao distingue caixa em nome de tag: um <SCRIPT> que
-# escapasse daqui tentaria rodar no mockup e traria de volta o portao de login.
-s = re.sub(r'<script\b[^>]*>.*?</script>', '', s, flags=re.S | re.I)
+# 1. fora todo o JavaScript: o painel so monta com dados autenticados
+s = sem_scripts(s)
 
 # 2. fontes locais, para o render sair fiel sem rede
 fontes = open('fontes/painel-local.css', encoding='utf-8').read()
@@ -39,7 +83,6 @@ for remoto, local in mapa.items():
     s = s.replace(remoto, 'file://' + os.path.join(RAIZ, local))
 
 # 3b. fora o portao de login: o mockup mostra a interface, nao a porta
-s = re.sub(r'<div id="gate"[^>]*>.*?</div>\s*</div>\s*(?=<script|$)', '', s, flags=re.S | re.I)
 i = s.find('<div id="gate"')
 if i != -1:
     j = s.find('</body>', i)
