@@ -110,6 +110,10 @@ button { font-family: var(--font-sans); }
 .sb-logo img { height: 52px; width: auto; display: block; margin-left: -2px; }
 .sb-app-name { margin-top: 16px; font-size: 17px; font-weight: 650; letter-spacing: 0.1px; color: #fff; line-height: 1.25; }
 .sb-app-sub { font-size: 11.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+/* O painel é um dos entregáveis do Caminhos Brilhantes. A marca do programa
+   assina o bloco, separada por um fio da identificação da operadora. */
+.sb-brand .sb-programa { margin-top: 15px; padding-top: 13px; border-top: 1px solid rgba(255,255,255,0.12); }
+.sb-brand .sb-programa img { display: block; width: 152px; max-width: 100%; height: auto; }
 .sb-period {
   margin: 14px 6px 4px;
   font-size: 11px;
@@ -142,7 +146,6 @@ button { font-family: var(--font-sans); }
 .sb-foot { padding: 16px 6px 0; border-top: 1px solid rgba(255,255,255,0.12); }
 .sb-foot .sb-foot-logos { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
 .sb-foot .sb-foot-logos img.lg-evs { height: 44px; width: auto; }
-.sb-foot .sb-foot-logos img.lg-unimed { height: 30px; width: auto; }
 .sb-foot .sf-line { font-size: 10.5px; color: rgba(255,255,255,0.55); line-height: 1.45; }
 
 /* ---------- Main column ---------- */
@@ -786,10 +789,22 @@ html,body{max-width:100%;overflow-x:hidden}
   .tabbar{overflow:hidden;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
   .tabbar .tabs{display:flex;grid-template-columns:none;gap:4px;max-width:none;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;padding:0 8px;scroll-snap-type:x proximity}
   .tabbar .tabs::-webkit-scrollbar{display:none}
-  .tab-item{flex:0 0 92px;min-width:92px;min-height:48px;padding:6px 4px;scroll-snap-align:start}
+  /* 84px em vez de 92px por uma razão só: com 92px a quinta aba começa
+     exatamente fora da tela num telefone de 390px, e as quatro seções
+     seguintes ficam escondidas sem nenhum sinal de que existem. Com 84px
+     sobra um pedaço da quinta à mostra, que é o sinal de que a barra rola. */
+  .tab-item{flex:0 0 84px;min-width:84px;min-height:48px;padding:6px 4px;scroll-snap-align:start}
   .content{overflow-x:clip;padding-bottom:calc(var(--tabbar-h) + 34px)}
   .scroll-container{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
   table.rank,.method-table{width:max-content;min-width:720px}
+}
+/* e o esmaecido na borda direita reforça o mesmo recado. As oito abas ocupam
+   716px; acima disso elas cabem inteiras e não há rolagem para anunciar, então
+   o esmaecido só existe abaixo dessa largura — senão viraria uma sombra sobre
+   a última aba sem motivo nenhum. */
+@media (max-width:715px){
+  .tabbar::after{content:"";position:absolute;top:0;bottom:0;right:0;width:34px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(0,78,76,0),var(--u-dark))}
 }
 @media (max-width:700px){
   .method-grid,.modal-series-grid{grid-template-columns:1fr}
@@ -821,6 +836,9 @@ html,body{max-width:100%;overflow-x:hidden}
     </span>
     <div class="sb-app-name">Painel Terapias Especiais</div>
     <div class="sb-app-sub">Visão multidisciplinar · Unimed GV</div>
+    <div class="sb-programa">
+      <img src="https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg" alt="Caminhos Brilhantes">
+    </div>
   </div>
   <nav class="sb-nav">
     <button class="nav-item" data-view="inicio">
@@ -859,7 +877,6 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="sb-foot">
     <div class="sb-foot-logos">
       <img class="lg-evs" src="https://assets.grupocsv.com/logos/evs/selo-white-web-360.png" alt="Escritório de Valor em Saúde">
-      <img class="lg-unimed" src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares">
     </div>
     <div class="sf-line">Unimed Governador Valadares<br>Escritório de Valor em Saúde · AxiaCare · Grupo CSV</div>
   </div>
