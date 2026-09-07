@@ -13,20 +13,40 @@ A logomarca Trilha tem três aplicações na página, e só três:
   ser a trilha da marca: seis pontos crescentes que sobem até a estrela. Os
   raios, as cores e o desenho da estrela vêm do símbolo oficial
   (`logos/caminhos-brilhantes/01-trilha/simbolo-positivo.svg`).
-- **Cartão 01, Estratégia.** A estrela caminha pela trilha pontilhada, em vez do
-  antigo facho de luz. É a mesma ideia de movimento que já existia, agora com a
-  geometria da marca.
+- **Cartão 01, Estratégia.** A estrela caminha pela trilha e acende cada ponto
+  por onde passa. O ponto aceso **fica** aceso, e os dois últimos, amarelos,
+  brilham mais forte. A leitura é a da própria estratégia: o ganho da criança se
+  acumula ao longo do percurso, não pisca e some. O traço também se preenche
+  atrás da estrela, marcando o caminho já andado.
+
+  O tempo é o mesmo para tudo: o ciclo dura 11 segundos e a estrela gasta 84%
+  deles percorrendo a trilha, em movimento linear. Como o movimento é linear, a
+  fração do percurso de cada ponto vira direto a porcentagem de tempo em que ele
+  acende, e `montar_hub.py` gera um `@keyframes` por ponto com essa marca. Se os
+  quadros-chave não entrarem na folha de estilo, nada acende e o script para: há
+  uma verificação para isso.
+
+  Duas armadilhas de leiaute já cobradas em conferência: o SVG precisa de
+  `width:100%` explícito, senão usa a proporção intrínseca, fica mais largo que o
+  cartão e o fim da trilha some no corte; e o pé do desenho fica acima do botão,
+  para que nenhum ponto acenda por trás de palavra.
 - **Rodapé.** A logomarca horizontal assina a página.
 
 O cabeçalho continua sendo o lockup institucional da Unimed. A marca da
 estratégia não disputa espaço com ele.
 
-## Mockups
+## Janelas
+
+A peça real não divide espaço com o texto. Cada cartão reserva uma faixa no pé,
+encostada nas bordas, e o texto ganha recuo equivalente: imagem e palavra nunca
+se cruzam, e não há degradê tapando frase. O cartão do Relatório segue o mesmo
+ritmo, com o ícone no lugar da peça.
 
 | Cartão | Origem | Tratamento |
 | --- | --- | --- |
-| 02 · Jornada | captura do diagrama público de `open.grupocsv.com/jornada-tea/` | recorte das estações 03 a 05 |
-| 03 · Painel | interface real de `p/painel-tea/index.html` | números desfocados, gráficos sem escala |
+| 02 · Jornada | captura do diagrama público de `open.grupocsv.com/jornada-tea/` | faixa larga com o fluxo inteiro |
+| 03 · Painel | interface real de `p/painel-tea/index.html` | faixa com os indicadores; números desfocados, gráficos sem escala |
+| 04 · Relatório | ícone de documento | mesma faixa, fundo levemente tingido |
 
 O painel é de acesso restrito e seus agregados não podem aparecer numa página
 aberta. O mockup usa o HTML e o CSS verdadeiros do produto — barra lateral,
@@ -83,3 +103,9 @@ O token fica no KV do Worker, em `config:admin_token`.
 Worker injeta e o beacon de analytics que a plataforma acrescenta, e compara o
 resto byte a byte com o arquivo aprovado. Também confere os onze arquivos da
 slug e os metadados servidos.
+
+Para a animação, `filme.js` congela todas as animações num instante do ciclo e
+fotografa o cartão, o que permite ver a trilha em 2s, 6s e 10s sem depender de
+sorte na captura. `posicoes.js` devolve a caixa do SVG, a do botão e o centro e a
+cor de cada ponto — foi assim que apareceram o vazamento de largura e o ponto que
+acendia por trás do botão.

@@ -1,27 +1,30 @@
 # -*- coding: utf-8 -*-
-"""Hub TEA — adequacao a identidade visual do Caminhos Brilhantes.
+"""Hub TEA — identidade do Caminhos Brilhantes, janelas e trilha que acende.
 
-Parte da pagina publicada (hub.unimedgv.com/tea/), sem o bloco de <head> que o
-Worker injeta, e aplica quatro mudancas pedidas pelo gestor:
+Parte da pagina publicada (hub.unimedgv.com/tea/) sem o bloco de <head> que o
+Worker injeta, e reconstroi os cartoes.
 
-  1. A identidade oficial do Caminhos Brilhantes entra em tres lugares, e so:
-     o risco do herói vira a trilha da marca (pontos crescentes ate a estrela),
-     o cartao da Estrategia ganha a estrela caminhando pela trilha, e o rodape
-     recebe a logomarca horizontal como assinatura. O cabecalho continua sendo
-     o lockup institucional da Unimed: a marca da estrategia nao disputa com ele.
-  2. Os cartoes 02 e 03 passam a exibir mockups reais. O da Jornada e uma
-     captura do proprio diagrama publico; o do Painel usa a interface verdadeira
-     do produto, com os numeros desfocados — o painel e restrito e seus
-     agregados nao podem aparecer numa pagina aberta.
-  3. O cartao 04 recebe um icone de relatorio, sem mockup.
-  4. "uma construcao com" passa a "Uma construcao com" e a logomarca da 2iM
-     passa a ser aplicada direto sobre o papel, sem o cartao branco.
+O que muda nesta versao, depois da leitura do gestor:
+
+  1. A peca real deixa de dividir espaco com o texto. Cada mockup passa a ocupar
+     uma faixa propria no pe do cartao, encostada nas bordas, e o texto ganha
+     recuo equivalente. Nada de imagem por tras de palavra, nada de degrade
+     tapando frase. O cartao do Relatorio segue o mesmo ritmo: a faixa existe,
+     e nela mora so o icone.
+  2. A trilha do cartao da Estrategia passa a acender. A estrela caminha, e cada
+     ponto por onde ela passa se acende e FICA aceso; os dois ultimos, em amarelo,
+     acendem mais forte. E a leitura da estrategia: o ganho da crianca se acumula
+     ao longo do percurso, nao pisca e some. O traco tambem se preenche atras da
+     estrela, marcando o caminho ja andado.
+
+Segue valendo da versao anterior: a identidade oficial entra em tres lugares e
+so tres — a trilha no lugar do risco do herói, a estrela caminhando no cartao 01
+e a logomarca no rodape. O cabecalho continua sendo o lockup da Unimed.
 
 Uso:  python3 montar_hub.py    # grava hub-novo.html
 """
 import base64
 import hashlib
-import os
 
 FONTE = 'tea-fonte.html'
 s = open(FONTE, encoding='utf-8').read()
@@ -40,19 +43,13 @@ def datauri(caminho, mime):
 
 
 # ---------------------------------------------------------------------------
-# geometria oficial da marca: seis pontos crescentes e a estrela de cinco pontas
+# geometria oficial da marca
 # ---------------------------------------------------------------------------
 ESTRELA = ('M46.87 8.68Q47.44 6.71 48.86 8.19L51.23 10.64Q52.17 11.62 53.54 11.57L56.94 11.45'
            'Q58.99 11.38 58.03 13.19L56.43 16.2Q55.79 17.4 56.25 18.69L57.42 21.89Q58.12 23.81 56.1 23.46'
            'L52.75 22.86Q51.4 22.63 50.33 23.47L47.64 25.57Q46.03 26.83 45.74 24.8L45.27 21.42'
            'Q45.08 20.07 43.95 19.31L41.12 17.4Q39.43 16.26 41.27 15.36L44.33 13.87Q45.56 13.27 45.93 11.96Z')
 EST_CX, EST_CY = 49.21, 16.77          # centro do desenho original da estrela
-
-
-def estrela(cx, cy, escala, cor='#f47920', extra=''):
-    return ('<path class="estrela" d="%s" fill="%s" transform="translate(%.2f %.2f) scale(%.3f)"%s/>'
-            % (ESTRELA, cor, cx - EST_CX * escala, cy - EST_CY * escala, escala, extra))
-
 
 # ---------------------------------------------------------------------------
 # 1a. herói: o risco vira a trilha da marca
@@ -83,12 +80,31 @@ rep('''  h1 em .risco path{animation:none;stroke-dashoffset:0}''',
     '''  h1 em .risco circle,h1 em .risco .astro .estrela{animation:none;opacity:1}''')
 
 # ---------------------------------------------------------------------------
-# 1b. cartão 01: a estrela caminha pela trilha
+# 1b. cartão 01: a estrela caminha e a trilha vai acendendo atrás dela
 # ---------------------------------------------------------------------------
 CURVA = 'M14 194 C 110 168, 60 108, 158 92 S 340 118, 462 24'
-PONTOS_P1 = [(23.6, 191.1, 3.2, .26), (86.5, 137.1, 4.0, .34), (155.3, 92.5, 4.8, .43),
-             (240.5, 88.0, 5.7, .53), (325.8, 84.7, 6.7, .64), (402.5, 61.3, 7.8, .78)]
-trilha_p1 = ''.join('<circle cx="%s" cy="%s" r="%s" fill="#fff" opacity="%s"/>' % p for p in PONTOS_P1)
+COMPRIMENTO = 502.7                    # medido no navegador com getTotalLength
+CICLO = 11                             # segundos
+ANDAR = 84                             # % do ciclo gastos percorrendo a trilha
+
+# x, y, raio, fração do percurso, cor. Os dois últimos são as bolinhas amarelas
+# da marca: acendem mais forte e é nelas que a trilha termina antes da estrela.
+PONTOS_P1 = [(23.6, 191.1, 4.2, 0.02, '#BFE8D2'),
+             (86.5, 137.1, 5.0, 0.19, '#A8E6C6'),
+             (155.3, 92.5, 5.9, 0.36, '#7BE8B0'),
+             (240.5, 88.0, 6.9, 0.53, '#63E9A4'),
+             (325.8, 84.7, 8.1, 0.70, '#D7EA6A'),
+             (402.5, 61.3, 9.4, 0.86, '#E8F386')]
+
+marcos = ''.join(
+    '<circle class="marco m%d" cx="%s" cy="%s" r="%s" fill="%s" style="color:%s"/>'
+    % (i, x, y, r, cor, cor)
+    for i, (x, y, r, f, cor) in enumerate(PONTOS_P1))
+
+andarilho = ('<circle class="halo" r="13" fill="#f47920" opacity=".16"/>'
+             '<g transform="translate(%.2f %.2f) scale(1.6)">'
+             '<path class="estrela" d="%s" fill="#f47920"/></g>'
+             % (-EST_CX * 1.6, -EST_CY * 1.6, ESTRELA))
 
 rep('''      <svg class="caminho" viewBox="0 0 480 210" preserveAspectRatio="none" aria-hidden="true">
         <path class="base" d="M14 194 C 110 168, 60 108, 158 92 S 340 118, 462 24"/>
@@ -96,13 +112,30 @@ rep('''      <svg class="caminho" viewBox="0 0 480 210" preserveAspectRatio="non
         <circle cx="14" cy="194" r="4"/><circle cx="158" cy="92" r="3.4"/><circle cx="462" cy="24" r="4"/>
       </svg>''',
     '''      <svg class="caminho" viewBox="0 0 480 210" aria-hidden="true">
-        <path class="base" d="%s"/>
-        <g class="marcos">%s</g>
-        <g class="andarilho">%s</g>
-      </svg>''' % (CURVA, trilha_p1,
-                   '<circle class="halo" r="13" fill="#f47920" opacity=".16"/>'
-                   + '<g transform="translate(%.2f %.2f) scale(1.6)"><path class="estrela" d="%s" fill="#f47920"/></g>'
-                   % (-EST_CX * 1.6, -EST_CY * 1.6, ESTRELA)))
+        <path class="base" d="@CURVA@"/>
+        <path class="feito" d="@CURVA@"/>
+        <g class="marcos">@MARCOS@</g>
+        <g class="andarilho">@ANDARILHO@</g>
+      </svg>'''.replace('@CURVA@', CURVA).replace('@MARCOS@', marcos).replace('@ANDARILHO@', andarilho))
+
+# cada ponto tem o seu próprio quadro-chave: acende quando a estrela chega e
+# permanece aceso até o fim do ciclo. Fração do percurso vira porcentagem de tempo
+# porque o movimento é linear.
+quadros = []
+for i, (x, y, r, f, cor) in enumerate(PONTOS_P1):
+    p = ANDAR * f
+    forte = i >= 4                      # as bolinhas amarelas brilham mais
+    quadros.append(
+        '@keyframes acende%d{0%%,%.1f%%{opacity:.2;transform:scale(.62);filter:none}'
+        '%.1f%%{opacity:1;transform:scale(%s);filter:drop-shadow(0 0 %spx currentColor)}'
+        '%.1f%%{opacity:1;transform:scale(1.12);filter:drop-shadow(0 0 %spx currentColor)}'
+        '90%%{opacity:1;transform:scale(1.12);filter:drop-shadow(0 0 %spx currentColor)}'
+        '100%%{opacity:.2;transform:scale(.62);filter:none}}'
+        % (i, p, p + 1.6, '2.3' if forte else '1.9', 22 if forte else 13,
+           p + 5.5, 16 if forte else 9, 16 if forte else 9))
+
+css_marcos = ''.join(
+    '.caminho .m%d{animation-name:acende%d}' % (i, i) for i in range(len(PONTOS_P1)))
 
 rep('''.caminho{position:absolute;left:0;right:0;bottom:0;height:46%;pointer-events:none}
 .caminho path.base{fill:none;stroke:rgba(255,255,255,.2);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:.5 9}
@@ -111,99 +144,108 @@ rep('''.caminho{position:absolute;left:0;right:0;bottom:0;height:46%;pointer-eve
   filter:drop-shadow(0 0 6px rgba(255,178,110,.8))}
 @keyframes percorre{to{stroke-dashoffset:0}}
 .caminho circle{fill:rgba(255,255,255,.5)}''',
-    """  .caminho{position:absolute;left:0;right:0;bottom:0;height:52%;pointer-events:none}
-  .caminho path.base{fill:none;stroke:rgba(255,255,255,.17);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:.5 9}
-  .caminho .andarilho{offset-path:path("@CURVA@");offset-rotate:0deg;
-    animation:caminha 9s cubic-bezier(.45,0,.55,1) infinite;
-    filter:drop-shadow(0 0 9px rgba(244,121,32,.75))}
-  .caminho .andarilho .estrela{animation:gira 9s linear infinite;transform-box:fill-box;transform-origin:center}
-  @keyframes caminha{0%{offset-distance:0%;opacity:0}
-    7%{opacity:1}90%{opacity:1}100%{offset-distance:100%;opacity:0}}
-  @keyframes gira{from{transform:rotate(-9deg)}50%{transform:rotate(9deg)}to{transform:rotate(-9deg)}}
-  .p1:hover .caminho .andarilho{animation-duration:5.5s}""".replace('@CURVA@', CURVA))
+    '''/* largura explicita: sem ela o SVG usa a proporcao intrinseca, fica mais largo
+   que o cartao e o fim da trilha some no corte. E o pe fica acima do botao,
+   para que nenhum ponto acenda por tras de palavra. */
+.caminho{position:absolute;left:0;right:0;bottom:78px;width:100%;height:44%;pointer-events:none}
+.caminho path.base{fill:none;stroke:rgba(255,255,255,.15);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:.5 9}
+.caminho path.feito{fill:none;stroke:#8BAF1F;stroke-width:2.1;stroke-linecap:round;opacity:.3;
+  stroke-dasharray:@L@;stroke-dashoffset:@L@;animation:preenche @CICLO@s linear infinite}
+.caminho .marco{transform-box:fill-box;transform-origin:center;opacity:.2;
+  animation-duration:@CICLO@s;animation-timing-function:linear;animation-iteration-count:infinite}
+@MARCOS@
+@QUADROS@
+.caminho .andarilho{offset-path:path("@CURVA@");offset-rotate:0deg;
+  animation:caminha @CICLO@s linear infinite;filter:drop-shadow(0 0 9px rgba(244,121,32,.8))}
+.caminho .andarilho .estrela{animation:gira @CICLO@s ease-in-out infinite;
+  transform-box:fill-box;transform-origin:center}
+@keyframes caminha{0%{offset-distance:0%;opacity:0}
+  3%{opacity:1}@ANDAR@%{offset-distance:100%;opacity:1}
+  90%{offset-distance:100%;opacity:0}100%{offset-distance:100%;opacity:0}}
+@keyframes preenche{0%{stroke-dashoffset:@L@;opacity:.3}
+  @ANDAR@%{stroke-dashoffset:0;opacity:.3}90%{stroke-dashoffset:0;opacity:.3}
+  100%{stroke-dashoffset:0;opacity:0}}
+@keyframes gira{0%{transform:rotate(-10deg)}25%{transform:rotate(10deg)}
+  50%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}100%{transform:rotate(-10deg)}}'''
+    .replace('@L@', str(COMPRIMENTO)).replace('@CICLO@', str(CICLO))
+    .replace('@ANDAR@', str(ANDAR)).replace('@CURVA@', CURVA).replace('@MARCOS@', css_marcos)
+    .replace('@QUADROS@', '\n'.join(quadros)))
 
 rep('''  .caminho path.luz{animation:none}''',
-    '''  .caminho .andarilho{animation:none;offset-distance:88%;opacity:1}
-    .caminho .andarilho .estrela{animation:none}''')
+    '''  .caminho path.feito{animation:none;stroke-dashoffset:0}
+  .caminho .marco{animation:none;opacity:1;filter:drop-shadow(0 0 6px currentColor)}
+  .caminho .andarilho{animation:none;offset-distance:100%;opacity:1}
+  .caminho .andarilho .estrela{animation:none}''')
 
 # ---------------------------------------------------------------------------
-# 2. mockups reais nos cartões 02 e 03
+# 2. janelas: a peça real ganha faixa própria, sem dividir espaço com o texto
 # ---------------------------------------------------------------------------
 rep('''      <span class="fantasma" aria-hidden="true">02</span>
-      <span class="num">Nº 02</span>
-      <h2>Jornada do Paciente</h2>
-      <p class="desc">O caminho da criança, da porta de entrada às Terapias Especiais.</p>''',
-    '''      <span class="num">Nº 02</span>
-      <h2>Jornada do Paciente</h2>
-      <p class="desc">O caminho da criança, da porta de entrada às Terapias Especiais.</p>
-      <span class="mock mock-j" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>'''
-    % datauri('mock-jornada.webp', 'image/webp'))
+      <span class="num">Nº 02</span>''', '''      <span class="num">Nº 02</span>''')
+rep('''      <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>''',
+    '''      <span class="cta">Ver a jornada <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="janela" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>
+    </a>''' % datauri('mock-jornada.webp', 'image/webp'))
 
 rep('''      <span class="fantasma" aria-hidden="true">03</span>
-      <span class="restr">''',
-    '''      <span class="restr">''')
-
-rep('''      <h2>Painel de Dados</h2>
-      <p class="desc">Os dados vivos da carteira, para quem gere e decide.</p>''',
-    '''      <h2>Painel de Dados</h2>
-      <p class="desc">Os dados vivos da carteira, para quem gere e decide.</p>
-      <span class="mock mock-p" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>'''
-    % datauri('mock-painel.webp', 'image/webp'))
+      <span class="restr">''', '''      <span class="restr">''')
+rep('''      <span class="cta">Entrar no painel <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>''',
+    '''      <span class="cta">Entrar no painel <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="janela" aria-hidden="true"><img src="%s" alt="" loading="lazy" decoding="async"></span>
+    </a>''' % datauri('mock-painel.webp', 'image/webp'))
 
 # ---------------------------------------------------------------------------
-# 3. cartão 04: ícone de relatório no lugar do número fantasma
+# 3. cartão 04: na mesma faixa, só o ícone do relatório
 # ---------------------------------------------------------------------------
-ICONE_REL = ('<svg class="icone-rel" viewBox="0 0 96 108" fill="none" aria-hidden="true">'
-             '<path d="M20 6h38l22 22v74a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Z"/>'
-             '<path d="M58 6v18a4 4 0 0 0 4 4h18"/>'
-             '<path class="linhas" d="M30 46h26M30 58h36"/>'
-             '<path class="grafico" d="M31 88v-12M45 88V64M59 88V74M73 88V56"/>'
-             '</svg>')
+ICONE_REL = ('<span class="janela selo" aria-hidden="true">'
+             '<svg viewBox="0 0 64 74" fill="none">'
+             '<path d="M12 4h28l16 16v50a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4Z"/>'
+             '<path d="M40 4v12a4 4 0 0 0 4 4h12"/>'
+             '<path class="linhas" d="M19 32h18M19 41h26"/>'
+             '<path class="grafico" d="M20 60V51M30 60V43M40 60V47M50 60V38"/>'
+             '</svg></span>')
 rep('''      <span class="fantasma" aria-hidden="true">04</span>
-      <span class="restr">''', '''      %s
-      <span class="restr">''' % ICONE_REL)
+      <span class="restr">''', '''      <span class="restr">''')
+rep('''      <span class="cta">Baixar o relatório <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6"/><path d="M5 21h14"/></svg></span>
+    </a>''',
+    '''      <span class="cta">Baixar o relatório <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6"/><path d="M5 21h14"/></svg></span>
+      %s
+    </a>''' % ICONE_REL)
 
-# ---------------------------------------------------------------------------
-# CSS novo: mockups, ícone do relatório e altura dos cartões
-# ---------------------------------------------------------------------------
 rep('''.fantasma{position:absolute;right:14px;bottom:-24px;font-family:var(--fd);font-style:italic;font-weight:700;
   font-size:130px;line-height:1;pointer-events:none;user-select:none}''',
     '''.fantasma{position:absolute;right:14px;bottom:-24px;font-family:var(--fd);font-style:italic;font-weight:700;
   font-size:130px;line-height:1;pointer-events:none;user-select:none}
 
-  /* mockups: a peça real, encostada na borda do cartão */
-  .mock{position:absolute;pointer-events:none;border-radius:13px 0 0 0;overflow:hidden;
-    border:1px solid rgba(11,58,44,.13);border-right:0;border-bottom:0;
-    background:#fff;box-shadow:-14px -10px 34px rgba(84,66,28,.14);
-    transition:transform .55s cubic-bezier(.2,.8,.2,1),box-shadow .55s}
-  .mock img{display:block;width:100%;height:100%;object-fit:cover;object-position:left top}
-  .mock::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(108deg,rgba(255,253,248,.97) 0%,rgba(255,253,248,.72) 22%,rgba(255,253,248,0) 58%)}
-  .mock-j{right:0;bottom:0;width:57%;height:82%}
-  .mock-j img{object-position:left top}
-  .mock-p{right:0;bottom:0;width:50%;height:70%}
-  .mock-p img{object-position:left top;transform:scale(1.12);transform-origin:left top}
-  .p2:hover .mock,.p3:hover .mock{transform:translate(-7px,-7px);box-shadow:-20px -14px 46px rgba(84,66,28,.2)}
+/* janela: faixa propria da peca real, encostada nas bordas do cartao.
+   O texto tem recuo equivalente, entao imagem e palavra nunca se cruzam. */
+.janela{position:absolute;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;
+  border-top:1px solid var(--borda);border-radius:0 0 26px 26px;background:#FFFDF8}
+.janela img{display:block;width:100%;height:100%;object-fit:cover;object-position:left top;
+  transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.p2 .janela{height:122px}
+.p3 .janela{height:116px}
+.p2:hover .janela img{transform:scale(1.05)}
+.p3:hover .janela img{transform:scale(1.06)}
+.p2{padding-bottom:140px}
+.p3{padding-bottom:134px}
 
-  /* cartão 04: um ícone, sem mockup */
-  .icone-rel{position:absolute;right:24px;bottom:16px;width:112px;height:auto;pointer-events:none;
-    stroke:var(--laranja);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:.15;
-    transition:opacity .45s,transform .45s cubic-bezier(.2,.8,.2,1)}
-  .icone-rel .linhas{stroke-width:3.4}
-  .icone-rel .grafico{stroke-width:5.2;stroke:var(--bronze)}
-  .p4:hover .icone-rel{opacity:.24;transform:translateY(-5px)}''')
+/* o cartao do relatorio segue o mesmo ritmo, com o icone no lugar da peca */
+.p4 .janela.selo{height:116px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,rgba(232,128,26,.02),rgba(232,128,26,.05))}
+.p4{padding-bottom:134px}
+.janela.selo svg{width:54px;height:auto;stroke:var(--laranja);stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.5;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.janela.selo .grafico{stroke:var(--bronze);stroke-width:4.6}
+.p4:hover .janela.selo svg{transform:translateY(-4px) scale(1.04);opacity:.72}''')
 
 rep('''.p2,.p3,.p4{min-height:204px;color:var(--tinta);background:var(--carta);''',
-    '''.p2,.p3,.p4{min-height:252px;color:var(--tinta);background:var(--carta);''')
+    '''.p2,.p3,.p4{min-height:306px;color:var(--tinta);background:var(--carta);''')
 rep('''.p1{grid-column:1/6;grid-row:1/3;min-height:432px;color:#fff;''',
-    '''.p1{grid-column:1/6;grid-row:1/3;min-height:520px;color:#fff;''')
-rep('''.porta .desc{font-size:13.6px;margin-top:9px;max-width:340px}''',
-    '''.porta .desc{font-size:13.6px;margin-top:9px;max-width:340px}
-  .p2 .desc,.p3 .desc{max-width:212px}
-  .p3 .desc{max-width:176px}
-  .p4 .desc{max-width:186px}
-  .p2 h2,.p3 h2,.p2 .num,.p3 .num,.p2 .cta,.p3 .cta,.p2 .desc,.p3 .desc,.restr{position:relative;z-index:3}
-  .mock{z-index:1}''')
+    '''.p1{grid-column:1/6;grid-row:1/3;min-height:628px;color:#fff;''')
 
 # ---------------------------------------------------------------------------
 # 4a. "Uma construção com"
@@ -216,13 +258,12 @@ rep('<small>uma construção com</small>', '<small>Uma construção com</small>'
 i = s.find('alt="2iM Inteligência Médica"')
 ini = s.rfind('<img', 0, i)
 fim = s.find('>', i) + 1
-antigo = s[ini:fim]
-assert 'base64' in antigo, 'tag da 2iM nao localizada'
+assert 'base64' in s[ini:fim], 'tag da 2iM nao localizada'
 s = s[:ini] + '<img class="im2" src="%s" alt="2iM Inteligência Médica">' % datauri('ativos/2im-limpo.svg', 'image/svg+xml') + s[fim:]
 
 rep('''.parceiros img.alta{height:clamp(34px,4.4vw,46px)}''',
     '''.parceiros img.alta{height:clamp(34px,4.4vw,46px)}
-  .parceiros img.im2{height:clamp(26px,3.3vw,36px)}''')
+.parceiros img.im2{height:clamp(26px,3.3vw,36px)}''')
 
 # ---------------------------------------------------------------------------
 # 1c. rodapé: assinatura da marca
@@ -235,16 +276,19 @@ rep('''  <div class="wrap f-linha">
 
 rep('''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;background:rgba(255,253,248,.72)}''',
     '''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;background:rgba(255,253,248,.72)}
-  .f-marca{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .f-marca img{height:34px;width:auto;opacity:.95}''')
+.f-marca{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.f-marca img{height:34px;width:auto;opacity:.95}''')
 
 # ---------------------------------------------------------------------------
 for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
               'class="fantasma" aria-hidden="true">03', 'class="fantasma" aria-hidden="true">04',
-              'path.luz', 'M6 14 C 58 20']:
+              'path.luz', 'M6 14 C 58 20', 'class="mock']:
     assert termo not in s, ('residuo: ' + termo)
-for termo in ['Uma construção com', 'mock-j', 'mock-p', 'icone-rel', 'andarilho', 'f-marca', 'img class="im2"']:
+assert s.count('@keyframes acende') == len(PONTOS_P1), 'quadros-chave dos pontos ausentes'
+for termo in ['Uma construção com', 'class="janela"', 'janela selo', 'andarilho', 'acende0', 'acende5',
+              'path class="feito"', 'f-marca', 'img class="im2"']:
     assert termo in s, ('ausente: ' + termo)
+assert s.count('class="janela"') == 2, 'as duas janelas com peça real'
 
 open('hub-novo.html', 'w', encoding='utf-8').write(s)
 print('saida    %s  %d bytes  -> hub-novo.html'
