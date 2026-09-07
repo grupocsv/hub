@@ -1,0 +1,29 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const [,, src, prefixo] = process.argv;
+(async () => {
+  let html = fs.readFileSync(src, 'utf8');
+  const inter = fs.readFileSync('../fonts/inter-local.css', 'utf8');
+  html = html.replace(/<link[^>]*fonts\.googleapis[^>]*>/g, '').replace('<style>', '<style>' + inter + '\n');
+  html = html.split('https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png')
+             .join('file://' + process.cwd() + '/ativos/logos-unimed-gv-sem-box-pinheiro.png');
+  // as pecas vao publicadas na propria slug, com caminho relativo: o render
+  // precisa abrir um arquivo no mesmo diretorio para que elas resolvam
+  fs.writeFileSync('vista-tmp.html', html);
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  for (const [w, tag, dpr] of [[1440, 'desk', 2], [390, 'mob', 2]]) {
+    const p = await b.newPage({ viewport: { width: w, height: 900 }, deviceScaleFactor: dpr });
+    await p.route('**/*', r => (r.request().url().startsWith('http') ? r.abort() : r.continue()));
+    await p.goto('file://' + process.cwd() + '/vista-tmp.html', { waitUntil: 'load' });
+    await p.evaluate(() => document.querySelectorAll('.rv').forEach(e => e.classList.add('in')));
+    // o aviso e position:fixed: numa captura de pagina inteira ele pousa no
+    // meio do documento e vira sujeira que nao existe no navegador
+    await p.evaluate(() => document.querySelectorAll('.aviso').forEach(e => { e.style.display = 'none'; }));
+    await p.waitForTimeout(2600);
+    await p.screenshot({ path: `${prefixo}-${tag}.png`, fullPage: true });
+    const over = await p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    console.log(`${tag} ${w}px overflow=${over}`);
+    await p.close();
+  }
+  await b.close();
+})();
