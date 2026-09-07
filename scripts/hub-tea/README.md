@@ -98,6 +98,40 @@ saíram. Em troca, o que entra é escolhido:
   fora, pelo mesmo motivo: o documento é carimbado "USO RESTRITO" e a página do
   Hub é aberta e indexada. No lugar delas entram contagens de catálogo.
 
+## O título da página
+
+É `Caminhos Brilhantes | Unimed Governador Valadares`, sem o prefixo "Hub TEA".
+A marca já é a apresentação, na página e na peça de compartilhamento; o prefixo
+repetia num rótulo o que a logomarca diz melhor, e era resto da versão que ainda
+tinha o sobretítulo no herói.
+
+O título aparece em **quatro lugares** e todos precisam mudar juntos: `<title>`,
+`og:title` e `twitter:title` no HTML, e o campo `title` do upload — este último é
+o que o Worker injeta no `<head>` e é ele que o WhatsApp lê. `montar_hub.py` para
+o build se sobrar "Hub TEA" em qualquer lugar da página.
+
+## O rodapé no telefone
+
+Não tinha nenhuma regra para telefone: o mesmo flex do desktop em toda largura,
+quebrando onde a medida acabava — "Grupo CSV" sobrava partido em duas linhas.
+
+A costura é uma só para o rodapé inteiro. Cada trecho vira uma **unidade**
+(`.f-un`) e o separador deixa de ser texto solto: passa a ser escrito por
+`::before` entre unidades vizinhas. No desktop sai exatamente a mesma frase de
+antes, com os mesmos "·" nos mesmos lugares; no telefone as unidades viram blocos
+e o separador desaparece.
+
+Isso resolve de quebra o "·" pendurado no fim da linha, que é a mesma quebra ao
+acaso em escala menor: separador no fim da linha fica órfão, ligando a nada.
+
+No telefone o rodapé é uma coluna centrada — logomarca, as duas casas em linhas
+próprias, um fio curto de 44px (em vez de uma borda de ponta a ponta, que pesaria
+demais) e os créditos, com o copyright numa linha à parte e mais apagada.
+
+Conferência: no telefone as cinco unidades ficam em bloco e **nenhum** separador
+é gerado; a partir de 641px são zero blocos e três separadores, e a altura do
+rodapé é a mesma de antes.
+
 ## As marcas dos parceiros, no telefone
 
 No desktop as seis marcas ficam numa linha, e está certo assim. No telefone elas
