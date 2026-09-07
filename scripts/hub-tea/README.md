@@ -98,6 +98,35 @@ saíram. Em troca, o que entra é escolhido:
   fora, pelo mesmo motivo: o documento é carimbado "USO RESTRITO" e a página do
   Hub é aberta e indexada. No lugar delas entram contagens de catálogo.
 
+## A imagem de compartilhamento
+
+`og.jpg` é o que o WhatsApp busca; `og.png` fica na slug como alternativa sem
+perdas, embora nada aponte para ele. Os dois saem do mesmo render.
+
+A peça diz quatro coisas e só essas: de quem é (Unimed GV), o que é (a logomarca
+oficial), por que abrir (uma linha) e quem assina (o selo do Escritório).
+**Entregável não entra** — o hub precisa continuar valendo quando receber outras
+coisas, e uma OG que lista os quatro cartões envelhece no dia em que entrar o
+quinto.
+
+Três coisas da versão anterior saíram de propósito:
+
+- o badge "HUB TEA" com bolinha laranja, reprovado por ter cara de peça gerada
+  por IA. O título do link já diz Hub TEA; a imagem não precisa repetir num selo;
+- o nome desenhado em fonte sans, no lugar da logomarca — agora entra o vetor
+  oficial, que é a marca de verdade;
+- o grafismo de órbitas concêntricas, decoração que não vinha de lugar nenhum. O
+  fundo passou a ser o mesmo da página, os mesmos três brilhos radiais sobre o
+  mesmo papel, então a peça parece a página.
+
+O tamanho da logomarca é o que decide a leitura no WhatsApp, onde a miniatura
+chega perto de 300px de largura: com 724px numa arte de 1200px, ela ainda ocupa
+mais da metade da miniatura e continua reconhecível. Conferir sempre numa cópia
+reduzida a ~320px antes de publicar, e não só no tamanho cheio.
+
+O JPEG não tem alfa: `og-codificar.js` pinta o papel no canvas antes de desenhar,
+senão o fundo sai preto.
+
 ## Como regerar
 
 Fora do repositório, num diretório de trabalho com os ativos baixados do bucket e
@@ -126,7 +155,13 @@ python3 montar_mock_painel.py                     # -> mock-painel.html
 node shot-mock.js mock-painel.html painel-raw.png 1194 834 2
 node imagem.js painel-raw.png peca-painel.webp 1240 0 0 2388 1668 0.84
 
-# 4. página, e conferência do leiaute
+# 4. imagem de compartilhamento
+python3 montar_og.py                              # -> og.html
+node shot-mock.js og.html og-novo.png 1200 630 2
+node og-codificar.js og-novo.png og 1200 0.92     # -> og.jpg e og.png
+node imagem.js og-novo.png prova-zap.webp 320 0 0 2400 1260 0.9   # a prova da miniatura
+
+# 5. página, e conferência do leiaute
 python3 montar_hub.py                             # -> hub-novo.html
 node shot-hub.js hub-novo.html vista              # capturas 1440px e 390px
 node medir-pecas.js 1440 1100 900 700 390
