@@ -16,6 +16,9 @@ const [,, src, prefixo] = process.argv;
     await p.route('**/*', r => (r.request().url().startsWith('http') ? r.abort() : r.continue()));
     await p.goto('file://' + process.cwd() + '/vista-tmp.html', { waitUntil: 'load' });
     await p.evaluate(() => document.querySelectorAll('.rv').forEach(e => e.classList.add('in')));
+    // o aviso e position:fixed: numa captura de pagina inteira ele pousa no
+    // meio do documento e vira sujeira que nao existe no navegador
+    await p.evaluate(() => document.querySelectorAll('.aviso').forEach(e => { e.style.display = 'none'; }));
     await p.waitForTimeout(2600);
     await p.screenshot({ path: `${prefixo}-${tag}.png`, fullPage: true });
     const over = await p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
