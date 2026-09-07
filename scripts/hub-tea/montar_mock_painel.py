@@ -16,13 +16,15 @@ FONTE = '/home/user/hub/p/painel-tea/index.html'
 
 s = open(FONTE, encoding='utf-8').read()
 
-# 1. fora todo o JavaScript: o painel so monta com dados autenticados
-s = re.sub(r'<script\b[^>]*>.*?</script>', '', s, flags=re.S)
+# 1. fora todo o JavaScript: o painel so monta com dados autenticados.
+# re.I porque HTML nao distingue caixa em nome de tag: um <SCRIPT> que
+# escapasse daqui tentaria rodar no mockup e traria de volta o portao de login.
+s = re.sub(r'<script\b[^>]*>.*?</script>', '', s, flags=re.S | re.I)
 
 # 2. fontes locais, para o render sair fiel sem rede
 fontes = open('fontes/painel-local.css', encoding='utf-8').read()
 s = s.replace('<style>', '<style>\n' + fontes + '\n', 1)
-s = re.sub(r'<link[^>]*fonts\.(googleapis|gstatic)[^>]*>', '', s)
+s = re.sub(r'<link[^>]*fonts\.(googleapis|gstatic)[^>]*>', '', s, flags=re.I)
 
 # 3. imagens do bucket -> copias locais
 mapa = {
@@ -37,7 +39,7 @@ for remoto, local in mapa.items():
     s = s.replace(remoto, 'file://' + os.path.join(RAIZ, local))
 
 # 3b. fora o portao de login: o mockup mostra a interface, nao a porta
-s = re.sub(r'<div id="gate"[^>]*>.*?</div>\s*</div>\s*(?=<script|$)', '', s, flags=re.S)
+s = re.sub(r'<div id="gate"[^>]*>.*?</div>\s*</div>\s*(?=<script|$)', '', s, flags=re.S | re.I)
 i = s.find('<div id="gate"')
 if i != -1:
     j = s.find('</body>', i)

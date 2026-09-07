@@ -4,7 +4,7 @@ const [,, src, prefixo] = process.argv;
 (async () => {
   let html = fs.readFileSync(src, 'utf8');
   const inter = fs.readFileSync('../fonts/inter-local.css', 'utf8');
-  html = html.replace(/<link[^>]*fonts\.googleapis[^>]*>/g, '').replace('<style>', '<style>' + inter + '\n');
+  html = html.replace(/<link[^>]*fonts\.googleapis[^>]*>/gi, '').replace('<style>', '<style>' + inter + '\n');
   html = html.split('https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png')
              .join('file://' + process.cwd() + '/ativos/logos-unimed-gv-sem-box-pinheiro.png');
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
