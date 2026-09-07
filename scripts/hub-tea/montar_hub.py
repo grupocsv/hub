@@ -431,6 +431,68 @@ rep('''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;b
 .f-marca img{height:34px;width:auto;opacity:.95}''')
 
 # ---------------------------------------------------------------------------
+# 6. título da página: sem "Hub TEA"
+# ---------------------------------------------------------------------------
+# A marca já é a apresentação, na página e na peça de compartilhamento. O
+# prefixo repetia num rótulo o que a logomarca diz melhor, e era resto da
+# versão que ainda tinha o sobretítulo no herói.
+
+rep('<title>Hub TEA — Caminhos Brilhantes | Unimed Governador Valadares</title>',
+    '<title>Caminhos Brilhantes | Unimed Governador Valadares</title>')
+rep('<meta property="og:title" content="Hub TEA — Caminhos Brilhantes">',
+    '<meta property="og:title" content="Caminhos Brilhantes | Unimed Governador Valadares">')
+rep('<meta name="twitter:title" content="Hub TEA — Caminhos Brilhantes">',
+    '<meta name="twitter:title" content="Caminhos Brilhantes | Unimed Governador Valadares">')
+assert 'Hub TEA' not in s, 'sobrou "Hub TEA" em algum lugar da página'
+
+# ---------------------------------------------------------------------------
+# 7. rodapé no telefone: quebras escolhidas, e não as que couberem
+# ---------------------------------------------------------------------------
+# O rodapé não tinha nenhuma regra para telefone: o mesmo flex em toda largura,
+# quebrando onde a medida acabava. "Grupo CSV" sobrava partido em duas linhas.
+#
+# A costura é uma só para o rodapé inteiro. Cada trecho vira uma unidade, e o
+# separador deixa de ser texto solto: passa a ser escrito por ::before entre
+# unidades vizinhas. No desktop sai exatamente a mesma frase de antes, com os
+# mesmos "·"; no telefone as unidades viram blocos e o separador desaparece.
+#
+# Isso também resolve o "·" pendurado no fim da linha, que é a mesma quebra ao
+# acaso em escala menor: separador no fim da linha fica órfão, ligando a nada.
+
+rep('<span>Escritório de Valor em Saúde · Unimed Governador Valadares</span>',
+    '<span class="f-casa"><span class="f-un">Escritório de Valor em Saúde</span>'
+    '<span class="f-un">Unimed Governador Valadares</span></span>')
+
+rep('''    <p>Elaboração técnica <a href="https://grupocsv.com/axiacare" target="_blank" rel="noopener">AxiaCare&reg;</a> · Tecnologia <a href="https://thera.tech" target="_blank" rel="noopener">TheraTech&reg;</a> · <a href="https://grupocsv.com" target="_blank" rel="noopener">Grupo CSV</a> · Copyright 2026 TheraTech&reg;</p>''',
+    '''    <p class="f-tec"><span class="f-un">Elaboração técnica <a href="https://grupocsv.com/axiacare" target="_blank" rel="noopener">AxiaCare&reg;</a></span><span class="f-un">Tecnologia <a href="https://thera.tech" target="_blank" rel="noopener">TheraTech&reg;</a> · <a href="https://grupocsv.com" target="_blank" rel="noopener">Grupo CSV</a></span><span class="f-un f-copy">Copyright 2026 TheraTech&reg;</span></p>''')
+
+rep('''.f-marca{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.f-marca img{height:34px;width:auto;opacity:.95}''',
+    '''.f-marca{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.f-marca img{height:34px;width:auto;opacity:.95}
+/* o separador entre unidades vizinhas e escrito aqui, e nao no texto: assim
+   ele some quando as unidades viram blocos no telefone, em vez de sobrar
+   pendurado no fim da linha, ligando a nada */
+.f-un + .f-un::before{content:" · "}
+
+@media(max-width:640px){
+  /* rodape do telefone: coluna centrada, com as quebras escolhidas. Antes era
+     o mesmo flex do desktop e "Grupo CSV" sobrava partido em duas linhas. */
+  footer{padding:28px 0 26px}
+  .f-linha{flex-direction:column;align-items:center;text-align:center;gap:18px}
+  .f-marca{flex-direction:column;gap:13px}
+  .f-marca img{height:38px}
+  .f-linha p{line-height:1.78}
+  .f-un{display:block}
+  .f-un + .f-un::before{content:none}
+  /* fio curto no lugar de uma borda de ponta a ponta: separa sem pesar */
+  .f-tec{position:relative;padding-top:20px}
+  .f-tec::before{content:"";position:absolute;top:0;left:50%;width:44px;height:1px;
+    margin-left:-22px;background:var(--borda2)}
+  .f-copy{margin-top:9px;opacity:.82}
+}''')
+
+# ---------------------------------------------------------------------------
 for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
               'class="fantasma" aria-hidden="true">03', 'class="fantasma" aria-hidden="true">04',
               'path.luz', 'M6 14 C 58 20', 'class="mock', 'class="janela"', 'velado',
@@ -439,6 +501,8 @@ for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
     assert termo not in s, ('residuo: ' + termo)
 assert s.count('@keyframes acende') == len(PONTOS_P1), 'quadros-chave dos pontos ausentes'
 assert s.count('.parceiros{display:grid') == 1, 'grade das marcas ausente'
+assert s.count('class="f-un"') == 4 and s.count('class="f-un f-copy"') == 1, 'costura do rodapé ausente'
+assert 'Hub TEA' not in s, 'sobrou "Hub TEA"'
 for termo in ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
               'class="peca peca-l"', 'class="folha"', 'class="tablet"', 'class="livro"',
               'class="ampliar"', 'andarilho', 'acende0', 'acende5',
