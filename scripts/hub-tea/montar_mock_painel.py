@@ -82,9 +82,13 @@ mapa = {
     'https://assets.grupocsv.com/logos/evs/icon-1x1-sem-fundo.png': 'ativos/logos-evs-icon-1x1-sem-fundo.png',
     'https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg': 'ativos/logos-axiacare-horizontal-positivo.svg',
     'https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png': 'ativos/logos-grupo-csv-horizontal-positivo-transparente.png',
+    'https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg': 'ativos/cb-horizontal-negativo.svg',
+    'https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-positivo.svg': 'ativos/cb-horizontal-positivo.svg',
+    'https://assets.grupocsv.com/logos/evs/selo-hd-contorno.png': 'ativos/logos-evs-selo-hd-contorno.png',
 }
 for remoto, local in mapa.items():
     s = s.replace(remoto, 'file://' + os.path.join(RAIZ, local))
+assert 'assets.grupocsv.com' not in s, 'sobrou imagem do bucket sem cópia local'
 
 # 3b. fora o portao de login: o mockup mostra a interface, nao a porta
 i = s.find('<div id="gate"')

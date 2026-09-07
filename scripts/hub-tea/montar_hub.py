@@ -29,6 +29,7 @@ Uso:  python3 montar_hub.py    # grava hub-novo.html
 import base64
 import hashlib
 import os
+import re
 
 FONTE = 'tea-fonte.html'
 s = open(FONTE, encoding='utf-8').read()
@@ -56,32 +57,82 @@ ESTRELA = ('M46.87 8.68Q47.44 6.71 48.86 8.19L51.23 10.64Q52.17 11.62 53.54 11.5
 EST_CX, EST_CY = 49.21, 16.77          # centro do desenho original da estrela
 
 # ---------------------------------------------------------------------------
-# 1a. herói: o risco vira a trilha da marca
+# 1a. herói: a logomarca oficial no lugar do título desenhado
 # ---------------------------------------------------------------------------
-PONTOS_HERO = [(7, 41, 3.4, '#004e4c'), (44, 39, 4.3, '#004e4c'), (85, 35.2, 5.2, '#00995d'),
-               (130, 29.8, 6.3, '#00995d'), (178, 22.8, 7.4, '#00995d'), (229, 15, 8.8, '#8baf1f')]
-trilha_hero = ''.join(
-    '<circle cx="%s" cy="%s" r="%s" fill="%s" style="--i:%d"/>' % (x, y, r, c, i)
-    for i, (x, y, r, c) in enumerate(PONTOS_HERO)
-) + ('<g class="astro" style="--i:6" transform="translate(%.2f %.2f) scale(%.3f)">'
-     '<path class="estrela" d="%s" fill="#f47920"/></g>'
-     % (279 - EST_CX * 1.75, 14 - EST_CY * 1.75, 1.75, ESTRELA))
+# A trilha improvisada sob "Brilhantes" saiu. Ela cruzava com as hastes das
+# letras e obrigava a estrela a pousar num lugar que nao era o dela. A marca
+# oficial ja resolve isso: a trilha sobe pela esquerda e a estrela pousa no
+# alto, longe da palavra, porque foi desenhada assim.
+#
+# O vetor entra embutido, e nao como <img>, por um motivo so: assim os seis
+# pontos e a estrela continuam nascendo em sequencia na abertura da pagina —
+# o efeito que o gestor aprovou —, agora na geometria certa. O rodape usa o
+# mesmo desenho como arquivo da slug, sem repetir os bytes aqui dentro.
 
-rep('<svg class="risco" viewBox="0 0 300 22" aria-hidden="true"><path d="M6 14 C 58 20, 118 6, 168 12 S 268 17, 294 8"/></svg>',
-    '<svg class="risco" viewBox="0 0 300 52" aria-hidden="true">%s</svg>' % trilha_hero)
+marca = open('publicar/marca-cb.svg', encoding='utf-8').read()
+marca = marca[marca.index('<svg'):]
+marca = marca.replace('<svg ', '<svg class="lockup" ', 1)
+marca = marca.replace('aria-label="Caminhos Brilhantes — Trilha"',
+                      'aria-label="Caminhos Brilhantes"', 1)
+# o primeiro <g> e a trilha: seis pontos e a estrela
+i = marca.index('<g>')
+marca = marca[:i] + '<g class="rastro">' + marca[i + len('<g>'):]
+ordem = iter(range(6))
+marca = re.sub(r'<circle ', lambda m: '<circle style="--i:%d" ' % next(ordem), marca, count=6)
+marca = marca.replace('<path d="' + ESTRELA + '"', '<path class="estrela" style="--i:6" d="' + ESTRELA + '"', 1)
+assert marca.count('style="--i:') == 7, 'os seis pontos e a estrela precisam de ordem'
+assert 'class="rastro"' in marca and 'class="estrela"' in marca
 
-rep('''h1 em .risco{position:absolute;left:2%;bottom:-14px;width:96%;height:22px;overflow:visible}
+rep('''    <p class="overline rv">Hub TEA — Neurodesenvolvimento Infantil</p>
+    <h1 class="rv">Caminhos <em>Brilhantes<svg class="risco" viewBox="0 0 300 22" aria-hidden="true"><path d="M6 14 C 58 20, 118 6, 168 12 S 268 17, 294 8"/></svg></em></h1>''',
+    '    <h1 class="marca rv">' + marca + '</h1>')
+
+rep('''.overline{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:3.4px;
+  text-transform:uppercase;color:var(--bronze)}
+.overline::before{content:"";width:30px;height:2px;background:var(--bronze);border-radius:2px}
+h1{margin-top:18px;font-family:var(--fd);font-weight:700;font-size:clamp(52px,8.6vw,104px);
+  line-height:.96;letter-spacing:-1.5px;color:var(--tinta);font-variation-settings:"opsz" 120}
+h1 em{font-style:italic;font-weight:600;position:relative;display:inline-block;color:var(--verde)}
+h1 em .risco{position:absolute;left:2%;bottom:-14px;width:96%;height:22px;overflow:visible}
 h1 em .risco path{fill:none;stroke:var(--laranja);stroke-width:6.5;stroke-linecap:round;
   stroke-dasharray:330;stroke-dashoffset:330;animation:risca 1s cubic-bezier(.6,0,.3,1) .7s forwards}
 @keyframes risca{to{stroke-dashoffset:0}}''',
-    '''h1 em .risco{position:absolute;left:1%;bottom:-30px;width:99%;height:46px;overflow:visible}
-h1 em .risco circle,h1 em .risco .astro .estrela{opacity:0;transform-box:fill-box;transform-origin:center;
-  animation:brota .5s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(.45s + var(--i) * .085s)}
-h1 em .risco .astro .estrela{animation-delay:calc(.45s + 6 * .085s)}
+    '''/* a logomarca e o titulo. O vetor cresce e encolhe sem perder nada, entao a
+   largura e fluida e o telefone recebe o mesmo desenho do desktop. */
+h1.marca{margin:0;line-height:0}
+/* a marca e o titulo, entao ela ocupa a coluna inteira ate o teto de 780px.
+   Nada de largura em vw: no telefone ela preenche o wrap e no desktop para
+   antes de virar faixa. Vetor, entao crescer nao custa definicao nenhuma. */
+h1.marca .lockup{display:block;width:min(100%,780px);height:auto;overflow:visible}
+h1.marca .rastro circle,h1.marca .rastro .estrela{opacity:0;
+  transform-box:fill-box;transform-origin:center;
+  animation:brota .5s cubic-bezier(.2,1.3,.4,1) forwards;
+  animation-delay:calc(.5s + var(--i) * .085s)}
 @keyframes brota{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}''')
 
 rep('''  h1 em .risco path{animation:none;stroke-dashoffset:0}''',
-    '''  h1 em .risco circle,h1 em .risco .astro .estrela{animation:none;opacity:1}''')
+    '''  h1.marca .rastro circle,h1.marca .rastro .estrela{animation:none;opacity:1}''')
+
+# ---------------------------------------------------------------------------
+# 1a-bis. cabeçalho: duas assinaturas, nenhuma frase
+# ---------------------------------------------------------------------------
+# O nome do Escritorio estava escrito por extenso a direita, ao lado de um
+# logotipo da Unimed a esquerda. Duas marcas, dois logotipos: a linha de texto
+# vira o selo do Escritorio, e o cabecalho passa a ser so isso.
+
+rep('''  <small class="rv">Escritório de Valor em Saúde<br>Unimed Governador Valadares</small>''',
+    '''  <img class="evs rv" src="marca-evs.webp" width="420" height="261" alt="Escritório de Valor em Saúde">''')
+
+rep('''.topo img{height:44px}
+.topo small{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--leve);font-weight:600;text-align:right;line-height:1.8}''',
+    '''.topo img{height:44px;width:auto}
+/* o selo do Escritorio e compacto: a mesma altura do logotipo da Unimed o
+   deixaria opticamente menor, entao ele sobe um pouco */
+.topo img.evs{height:54px}''')
+
+# no telefone as duas assinaturas continuam, lado a lado e menores
+rep('''@media(max-width:640px){.topo small{display:none}.topo{justify-content:center}}''',
+    '''@media(max-width:640px){.topo img{height:32px}.topo img.evs{height:40px}}''')
 
 # ---------------------------------------------------------------------------
 # 1b. cartão 01: a estrela caminha e a trilha vai acendendo atrás dela
@@ -343,8 +394,7 @@ rep('''.parceiros img.alta{height:clamp(34px,4.4vw,46px)}''',
 rep('''  <div class="wrap f-linha">
     <p>Caminhos Brilhantes · Escritório de Valor em Saúde · Unimed Governador Valadares</p>''',
     '''  <div class="wrap f-linha">
-    <p class="f-marca"><img src="%s" alt="Caminhos Brilhantes"><span>Escritório de Valor em Saúde · Unimed Governador Valadares</span></p>'''
-    % datauri('ativos/cb-horizontal-positivo.svg', 'image/svg+xml'))
+    <p class="f-marca"><img src="marca-cb.svg" width="300" height="92" alt="Caminhos Brilhantes" loading="lazy" decoding="async"><span>Escritório de Valor em Saúde · Unimed Governador Valadares</span></p>''')
 
 rep('''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;background:rgba(255,253,248,.72)}''',
     '''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;background:rgba(255,253,248,.72)}
@@ -354,18 +404,25 @@ rep('''footer{margin-top:auto;border-top:1px solid var(--borda);padding:18px 0;b
 # ---------------------------------------------------------------------------
 for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
               'class="fantasma" aria-hidden="true">03', 'class="fantasma" aria-hidden="true">04',
-              'path.luz', 'M6 14 C 58 20', 'class="mock', 'class="janela"', 'velado']:
+              'path.luz', 'M6 14 C 58 20', 'class="mock', 'class="janela"', 'velado',
+              'class="risco"', 'class="overline', 'Escritório de Valor em Saúde<br>',
+              'Hub TEA — Neurodesenvolvimento Infantil', 'c2pa']:
     assert termo not in s, ('residuo: ' + termo)
 assert s.count('@keyframes acende') == len(PONTOS_P1), 'quadros-chave dos pontos ausentes'
 for termo in ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
               'class="peca peca-l"', 'class="folha"', 'class="tablet"', 'class="livro"',
               'class="ampliar"', 'andarilho', 'acende0', 'acende5',
-              'path class="feito"', 'f-marca', 'img class="im2"']:
+              'path class="feito"', 'f-marca', 'img class="im2"',
+              'h1 class="marca rv"', 'class="lockup"', 'class="rastro"', 'img class="evs rv"']:
     assert termo in s, ('ausente: ' + termo)
-# as tres pecas entram como arquivo da slug, nunca como data URI nem link de fora
-for arquivo in ['peca-jornada.webp', 'peca-painel.webp', 'peca-relatorio.webp']:
-    assert s.count('src="%s"' % arquivo) == 1, ('peça fora do lugar: ' + arquivo)
-    assert os.path.exists(arquivo), ('peça não gerada: ' + arquivo)
+# a logomarca do herói é o único título da página, e continua sendo um h1
+assert s.count('<h1') == 1 and 'aria-label="Caminhos Brilhantes"' in s, 'o herói perdeu o título'
+# peças e assinaturas entram como arquivo da slug, nunca como data URI nem link de fora
+for arquivo, vezes in [('peca-jornada.webp', 1), ('peca-painel.webp', 1),
+                       ('peca-relatorio.webp', 1), ('marca-evs.webp', 1), ('marca-cb.svg', 1)]:
+    assert s.count('src="%s"' % arquivo) == vezes, ('arquivo fora do lugar: ' + arquivo)
+    assert os.path.exists(os.path.join('publicar', arquivo)) or os.path.exists(arquivo), \
+        ('arquivo não gerado: ' + arquivo)
 
 open('hub-novo.html', 'w', encoding='utf-8').write(s)
 print('saida    %s  %d bytes  -> hub-novo.html'

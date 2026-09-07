@@ -33,11 +33,15 @@ for m in re.finditer(r'<meta property="og:(title|description|image)" content="([
 print('\n-- conteúdo --')
 # a contagem esperada vem do proprio arquivo aprovado, nao de um numero fixo:
 # assim a conferencia nao envelhece quando o desenho muda
-AUSENTES = ['uma construção com', 'class="fantasma"', 'class="janela"', 'class="mock', 'velado']
+AUSENTES = ['uma construção com', 'class="fantasma"', 'class="janela"', 'class="mock', 'velado',
+            'class="risco"', 'class="overline', 'Hub TEA — Neurodesenvolvimento Infantil',
+            'Escritório de Valor em Saúde<br>', 'c2pa']
 PRESENTES = ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
              'class="peca peca-l"', 'class="ampliar"', 'src="peca-jornada.webp"',
              'src="peca-painel.webp"', 'src="peca-relatorio.webp"', 'andarilho',
-             'path class="feito"', 'f-marca', 'img class="im2"']
+             'path class="feito"', 'f-marca', 'img class="im2"',
+             'h1 class="marca rv"', 'class="lockup"', 'class="rastro"',
+             'src="marca-evs.webp"', 'src="marca-cb.svg"']
 for t in AUSENTES + PRESENTES:
     c, e = live.count(t), alvo.count(t)
     print('  %-26s %d (aprovado %d) %s' % (t, c, e, 'ok' if c == e else '*** DIFERE ***'))
@@ -48,7 +52,8 @@ import os
 for f in ['og.jpg', 'og.png', 'favicon.ico', 'apple-touch.png', 'email-hub.jpg', 'parceiro-evs.png',
           'parceiro-2im.png', 'parceiro-ibravs.webp', 'parceiro-unimed-femg.webp',
           'parceiro-qualix.webp', 'parceiro-neurosteps.webp',
-          'peca-jornada.webp', 'peca-painel.webp', 'peca-relatorio.webp']:
+          'peca-jornada.webp', 'peca-painel.webp', 'peca-relatorio.webp',
+          'marca-cb.svg', 'marca-evs.webp']:
     st, b = pegar(BASE + f)
     nota = ''
     local = os.path.join('publicar', f)
