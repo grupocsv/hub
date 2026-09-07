@@ -389,6 +389,35 @@ rep('''.parceiros img.alta{height:clamp(34px,4.4vw,46px)}''',
 .parceiros img.im2{height:clamp(26px,3.3vw,36px)}''')
 
 # ---------------------------------------------------------------------------
+# 5. parceiros no telefone: um cartão com fileiras, não marcas soltas
+# ---------------------------------------------------------------------------
+# Em flex com wrap as seis marcas embrulhavam pela largura disponível e a
+# última sobrava sozinha no meio da linha — cada telefone quebrava num lugar
+# diferente. Numa grade de duas colunas são sempre três fileiras iguais, em
+# qualquer aparelho, e o cartão dá a elas o mesmo desenho dos cartões da
+# trilha: mesmo papel, mesma borda, mesmo raio.
+#
+# A altura das marcas é fluida e vem com max-width:100%: a mais larga é a
+# neurosteps, com proporção de 4,55 para 1, e num aparelho de 320px a célula
+# tem 118px. Sem o teto de largura ela transbordaria.
+
+rep('''@media(max-width:640px){.parceiros{justify-content:center;text-align:center}.parceiros .sep{display:none}}''',
+    '''@media(max-width:640px){
+  .parceiros{display:grid;grid-template-columns:1fr 1fr;gap:24px 16px;
+    justify-items:center;align-items:center;text-align:center;
+    margin:clamp(20px,3.5vh,34px) 0 clamp(24px,4vh,38px);padding:20px 18px 24px;
+    background:var(--carta);border:1px solid var(--borda);border-radius:22px;
+    box-shadow:0 12px 30px rgba(84,66,28,.07)}
+  .parceiros .sep{display:none}
+  .parceiros small{grid-column:1/-1;margin-bottom:2px}
+  .parceiros img{height:clamp(22px,7vw,30px);max-width:100%;object-fit:contain}
+  .parceiros img.alta{height:clamp(30px,9.5vw,40px)}
+  /* a 2iM tem regra própria de altura desde que passou a ser aplicada sem o
+     cartão branco; aqui ela volta ao ritmo das outras, uns 12% menor porque
+     a marca é limpa e pesa mais que as demais na mesma altura */
+  .parceiros img.im2{height:clamp(20px,6.2vw,27px)}
+}''')
+# ---------------------------------------------------------------------------
 # 1c. rodapé: assinatura da marca
 # ---------------------------------------------------------------------------
 rep('''  <div class="wrap f-linha">
@@ -409,6 +438,7 @@ for termo in ['uma construção com', 'class="fantasma" aria-hidden="true">02',
               'Hub TEA — Neurodesenvolvimento Infantil', 'c2pa']:
     assert termo not in s, ('residuo: ' + termo)
 assert s.count('@keyframes acende') == len(PONTOS_P1), 'quadros-chave dos pontos ausentes'
+assert s.count('.parceiros{display:grid') == 1, 'grade das marcas ausente'
 for termo in ['Uma construção com', 'class="peca peca-f"', 'class="peca peca-t"',
               'class="peca peca-l"', 'class="folha"', 'class="tablet"', 'class="livro"',
               'class="ampliar"', 'andarilho', 'acende0', 'acende5',

@@ -98,6 +98,28 @@ saíram. Em troca, o que entra é escolhido:
   fora, pelo mesmo motivo: o documento é carimbado "USO RESTRITO" e a página do
   Hub é aberta e indexada. No lugar delas entram contagens de catálogo.
 
+## As marcas dos parceiros, no telefone
+
+No desktop as seis marcas ficam numa linha, e está certo assim. No telefone elas
+estavam em flex com quebra automática: embrulhavam pela largura disponível, cada
+aparelho quebrava num lugar diferente e a última sobrava sozinha no meio da
+linha.
+
+Abaixo de 640px viram uma **grade de duas colunas** dentro de um cartão — mesmo
+papel, mesma borda e mesmo raio dos cartões da trilha. Duas colunas dão sempre
+três fileiras iguais, em qualquer aparelho.
+
+A altura das marcas é fluida e vem com `max-width:100%`. A mais larga é a
+neurosteps, com proporção de 4,55 para 1: num aparelho de 320px a célula tem
+118px, e sem o teto de largura ela transbordaria. A 2iM tem regra própria de
+altura desde que passou a ser aplicada sem o cartão branco, e no telefone ela
+volta ao ritmo das outras, uns 12% menor porque a marca é limpa e pesa mais que
+as demais na mesma altura.
+
+`medir-marcas.js` confere isso: conta as fileiras **pelo centro** de cada marca —
+elas têm alturas diferentes e alinham pelo meio, então agrupar por topo dá
+resultado errado — e acusa transbordo da célula e rolagem horizontal.
+
 ## A imagem de compartilhamento
 
 `og.jpg` é o que o WhatsApp busca; `og.png` fica na slug como alternativa sem
@@ -165,6 +187,7 @@ node imagem.js og-novo.png prova-zap.webp 320 0 0 2400 1260 0.9   # a prova da m
 python3 montar_hub.py                             # -> hub-novo.html
 node shot-hub.js hub-novo.html vista              # capturas 1440px e 390px
 node medir-pecas.js 1440 1100 900 700 390
+node medir-marcas.js 320 390 430 1440             # a grade das marcas no telefone
 node filme-heroi.js 0.4 0.7 0.9 1.2               # a marca nascendo em sequência
 ```
 
