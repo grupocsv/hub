@@ -1,7 +1,7 @@
 {
   "portal": "icds",
   "generatedAt": "2026-05-30T14:25:08.296026+00:00",
-  "totalTools": 3,
+  "totalTools": 4,
   "tools": [
     {
       "file": "/documentos/?portal=icds",
@@ -16,6 +16,13 @@
       "title": "Gerador de Apresentações",
       "created": "2026-04-21T20:30:47-04:00",
       "lastModified": "2026-05-11T21:45:23-04:00"
+    },
+    {
+      "file": "https://rd-icds.axcare.app",
+      "title": "Requisição de Dados (RD)",
+      "created": "2026-06-29T14:15:00-03:00",
+      "lastModified": "2026-06-29T14:15:00-03:00",
+      "external": true
     },
     {
       "file": "/p/tea-dataset/",
