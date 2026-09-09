@@ -1124,7 +1124,7 @@ test("fontes reais mantêm cinco tenants isolados e quatro cards gerenciados de 
   }
   assert.doesNotMatch(
     JSON.stringify(baseline),
-    /(?:[A-Za-z]:[\\/]|\/Users\/|mtime)/i,
+    /(?:"[A-Za-z]:[\\/]|\/Users\/|mtime)/i,
   );
   assert.doesNotMatch(
     `${JSON.stringify(baseline)}${JSON.stringify(anchor)}`,

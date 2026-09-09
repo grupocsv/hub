@@ -104,13 +104,20 @@
       "unmanagedOutput": {
         "portal": "icds",
         "generatedAt": "2026-05-30T14:25:08.296026+00:00",
-        "totalTools": 2,
+        "totalTools": 3,
         "tools": [
           {
             "file": "slides.html",
             "title": "Gerador de Apresentações",
             "created": "2026-04-21T20:30:47-04:00",
             "lastModified": "2026-05-11T21:45:23-04:00"
+          },
+          {
+            "file": "https://rd-icds.axcare.app",
+            "title": "Requisição de Dados (RD)",
+            "created": "2026-06-29T14:15:00-03:00",
+            "lastModified": "2026-06-29T14:15:00-03:00",
+            "external": true
           },
           {
             "file": "/p/tea-dataset/",
@@ -121,7 +128,7 @@
           }
         ]
       },
-      "unmanagedOutputSha256": "a73d58f020d832b7d8eeb5d9063e3e1a30bbf9bc16163d202d2b4958ff5c7f77"
+      "unmanagedOutputSha256": "ee2b3f437fc2535e0a88748bb579f52d830e64527e5a27608c967cfbe1f3f02f"
     },
     "2im": {
       "sourceSha256": "d71516149b34d314fdba49b0b985fecd411525cc827620e9a561e972a5be98aa",
@@ -134,5 +141,5 @@
       "unmanagedOutputSha256": "ddbf0873cefa3926ad29d88d76c94267079762f9cef81ea790762af6fc74b725"
     }
   },
-  "manifestSha256": "1a572c80a3185aa358d8196e28f60d4729ab9958eda361030c39f2ee910f7cbb"
+  "manifestSha256": "c826a5a099bdf3980bc504cb6746ca78b7e810d0ede17790d0e1c886c5239fbd"
 }
