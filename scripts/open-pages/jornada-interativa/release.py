@@ -173,8 +173,13 @@ class Release:
             if row['key']==KEY: continue
             body,ctype=fetch('https://open.grupocsv.com/'+row['key'])
             expected=self.image['sha256'] if row['key']==self.png_key else next(item['sha256'] for item in snapshot['objects'] if item['key']==row['key'])
-            require(sha(body)==expected,'PUBLIC_ASSET_MISMATCH:'+row['key'])
-            artifacts.append({'key':row['key'],'status':200,'bytes':len(body),'sha256':sha(body),'content_type':ctype})
+            # O Worker também injeta seu head nos backups HTML existentes.
+            compared=normalize(body.decode()).encode() if row['key'].endswith('.html') else body
+            require(sha(compared)==expected,'PUBLIC_ASSET_MISMATCH:'+row['key'])
+            if row['key'].endswith('.html'):
+                origin,_=self.request(R2+'/'+row['key'])
+                require(sha(origin)==expected,'R2_BACKUP_CHANGED:'+row['key'])
+            artifacts.append({'key':row['key'],'status':200,'bytes':len(body),'sha256':sha(body),'content_type':ctype,'compared_sha256':sha(compared),'comparison':'normalized_html' if row['key'].endswith('.html') else 'raw_bytes'})
         report={'output_sha256':sha(served),'public_identical':True,'metadata_unchanged':True,'public_head_unchanged':True,'public_head':public_head(public),'existing_objects_unchanged':True,'artifacts':artifacts}
         (self.state/'verified.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         self.log('publication_verified',output_sha256=sha(served),public_identical=True,metadata_unchanged=True,assets=len(artifacts))
