@@ -1,10 +1,10 @@
 {
   "source_url": "https://open.grupocsv.com/jornada-tea/",
-  "source_current_sha256": "f7d272abacf7905a439881e904e4a74e70c882f3d8cca7a5476e01e16ed7d66b",
+  "source_current_sha256": "0f2a49d582a08ee3357d711e07950394d2bb72247cfeff5da717d1a1007ac17a",
   "source_base_sha256": "f7d272abacf7905a439881e904e4a74e70c882f3d8cca7a5476e01e16ed7d66b",
   "source_svg_sha256": "9e452e61c918c0ec75a157aaead8baad44487e56286c24cc8b921315d0089e0d",
-  "output_sha256": "0f2a49d582a08ee3357d711e07950394d2bb72247cfeff5da717d1a1007ac17a",
-  "output_bytes": 98307,
+  "output_sha256": "abc445ed4a4db9432595df26b5f7c7bba47836d65e09c1a48824c8fe613f596d",
+  "output_bytes": 96028,
   "image": {
     "name": "mapa-jornada-04689f954dadd0f5.png",
     "sha256": "04689f954dadd0f5837c1865f137a63bada51d5bd08ebbb4bc4a87ffcccb098b",

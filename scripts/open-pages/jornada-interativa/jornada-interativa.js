@@ -52,16 +52,6 @@
     };
     const controls = make('div', 'ji-toolbar');
     const mapTools = make('div', 'ji-map-tools');
-    const zoomTools = make('div', 'ji-zoom');
-    zoomTools.setAttribute('role', 'group');
-    zoomTools.setAttribute('aria-label', 'Ampliação do mapa');
-    const minus = button('ji-control', '−', 'Reduzir mapa');
-    const plus = button('ji-control', '+', 'Ampliar mapa');
-    const output = make('output', 'ji-zoom-value', 'Visão geral');
-    output.setAttribute('aria-label', 'Ampliação atual');
-    const fit = button('ji-control ji-fit', 'Ajustar à tela');
-    zoomTools.append(minus, output, plus, fit);
-    mapTools.append(zoomTools);
 
     // A imagem é apenas uma alternativa de abertura/download. Não é carregada
     // para montar o mapa, que continua sendo o SVG original já presente.
@@ -85,7 +75,7 @@
     } catch (_) { /* URL ausente ou inválida não desativa o mapa. */ }
     controls.append(mapTools);
 
-    const help = make('p', 'ji-help', 'Passe o cursor, toque ou use Tab nos pontos do mapa para ver as explicações. Amplie para ler os detalhes. Esc fecha a explicação.');
+    const help = make('p', 'ji-help', 'O mapa se ajusta à largura da página. Passe o cursor, toque ou escolha uma etapa para ver a explicação. Para ampliar os detalhes, use Abrir imagem ou o zoom do navegador. Esc fecha a explicação.');
     help.id = 'ji-map-help';
     const pickerLabel = make('label', 'ji-stage-picker');
     const pickerTitle = make('span', '', 'Escolha uma etapa do mapa');
@@ -153,14 +143,11 @@
     canvas.append(svg, hotspots);
     frame.append(canvas);
     frame.before(controls, help, pickerLabel);
-    frame.tabIndex = 0;
     frame.setAttribute('role', 'region');
-    frame.setAttribute('aria-label', 'Mapa interativo da jornada. Use as setas para deslocar o mapa ampliado.');
+    frame.setAttribute('aria-label', 'Mapa interativo da jornada. Use Tab para explorar as etapas.');
     frame.setAttribute('aria-describedby', help.id);
     document.body.append(popup);
 
-    let zoom = 100;
-    let overview = true;
     let active = null;
     let pinned = false;
     let origin = null;
@@ -255,44 +242,12 @@
       positionPopup();
       if (focusPanel && !popup.hidden) popup.focus({preventScroll: true});
     }
-    function renderScale(preserveCenter) {
-      if (!frame.clientWidth) return;
-      const oldWidth = canvas.offsetWidth || frame.clientWidth;
-      const oldHeight = canvas.offsetHeight || 1;
-      const centerX = (frame.scrollLeft + frame.clientWidth / 2) / oldWidth;
-      const centerY = (frame.scrollTop + frame.clientHeight / 2) / oldHeight;
-      canvas.style.width = overview ? '100%' : `${Math.max(900, frame.clientWidth) * zoom / 100}px`;
-      output.value = overview ? 'Visão geral' : `${zoom}%`;
-      minus.disabled = zoom === 100;
-      plus.disabled = zoom === 250;
-      if (preserveCenter) {
-        frame.scrollLeft = centerX * canvas.offsetWidth - frame.clientWidth / 2;
-        frame.scrollTop = centerY * canvas.offsetHeight - frame.clientHeight / 2;
-      }
-    }
-    function changeZoom(delta) {
-      dismiss(false);
-      overview = false;
-      zoom = Math.max(100, Math.min(250, zoom + delta));
-      renderScale(true);
-    }
-    minus.addEventListener('click', () => changeZoom(-25));
-    plus.addEventListener('click', () => changeZoom(25));
-    fit.addEventListener('click', () => {
-      dismiss(false);
-      zoom = 100;
-      overview = true;
-      renderScale(false);
-      frame.scrollTo({left: 0, top: 0, behavior: 'instant'});
-    });
     picker.addEventListener('change', () => {
       const point = points.find(item => item.id === picker.value);
       if (!point) { dismiss(false); return; }
-      overview = false;
-      renderScale(false);
       const anchor = pointButtons.get(point.id);
       // Centraliza também a página, sem animação, mantendo o seletor como origem.
-      anchor.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'});
+      anchor.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'});
       reveal(point, picker, true, false);
     });
     for (const point of points) {
@@ -329,7 +284,7 @@
     });
     new MutationObserver(() => {
       if (!page.classList.contains('active')) dismiss(false);
-      else { renderScale(true); queuePosition(); }
+      else queuePosition();
     }).observe(page, {attributes: true, attributeFilter: ['class']});
 
     function toggleText(openText) {
@@ -342,7 +297,6 @@
     textToggle.addEventListener('click', () => toggleText(!textOpen));
     const resized = () => {
       if (!matchMedia('(max-width: 860px)').matches && textOpen) toggleText(false);
-      renderScale(true);
       queuePosition();
     };
     window.addEventListener('resize', resized);
@@ -352,7 +306,6 @@
     }
     document.addEventListener('scroll', queuePosition, true);
     page.classList.add('ji-enhanced');
-    renderScale(false);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once: true});

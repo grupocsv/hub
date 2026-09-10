@@ -1,6 +1,6 @@
 # Interação da Jornada TEA oficial
 
-Camada independente para `https://open.grupocsv.com/jornada-tea/`. Mantém o HTML editorial, o SVG, o cabeçalho e o Apoio Textual da página recebida. Acrescenta explicações por etapa, seleção por teclado/toque, ampliação, ajuste à largura e imagem completa para abrir ou baixar. O mapa fica disponível também no celular, com alternância para o percurso textual existente.
+Camada independente para `https://open.grupocsv.com/jornada-tea/`. Mantém o HTML editorial, o SVG, o cabeçalho e o Apoio Textual da página recebida. Acrescenta explicações por etapa, seleção por teclado/toque e imagem completa para abrir ou baixar. O mapa ocupa a largura disponível e acompanha a rolagem da página, sem área própria de rolagem. A ampliação fica disponível pelo zoom nativo do navegador ou pela imagem completa. O mapa fica disponível também no celular, com alternância para o percurso textual existente.
 
 ## Escopo
 
@@ -57,3 +57,7 @@ Fonte: aba Apoio Textual, “Como Cada Nó Opera e por Que Estão Articulados”
 | EVS | Escritório de Valor em Saúde |
 
 As explicações novas usam “plano terapêutico” e não introduzem números de capacidade, metas clínicas ou regras assistenciais. Há divergências editoriais entre o handoff e a página recebida sobre siglas do plano e capacidade do AAD. A adaptação interativa preserva o texto e o desenho originais; uma correção editorial deve ser tratada separadamente, com fonte validada.
+
+## Correção de rolagem — 09/09/2026
+
+Removidos o limite de altura, a rolagem do contêiner e os controles que aumentavam a largura do desenho. O seletor de etapas não amplia mais o canvas: move apenas a página até a etapa e mostra sua explicação. Desenho e cabeçalho originais permanecem intactos. No celular, o seletor oferece acesso confortável às explicações quando os rótulos do mapa completo ficam pequenos; o percurso textual e a imagem integral continuam disponíveis.
