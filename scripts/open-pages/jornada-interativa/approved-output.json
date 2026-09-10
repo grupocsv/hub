@@ -1,0 +1,31 @@
+{
+  "source_url": "https://open.grupocsv.com/jornada-tea/",
+  "source_current_sha256": "0f2a49d582a08ee3357d711e07950394d2bb72247cfeff5da717d1a1007ac17a",
+  "source_base_sha256": "f7d272abacf7905a439881e904e4a74e70c882f3d8cca7a5476e01e16ed7d66b",
+  "source_svg_sha256": "9e452e61c918c0ec75a157aaead8baad44487e56286c24cc8b921315d0089e0d",
+  "output_sha256": "abc445ed4a4db9432595df26b5f7c7bba47836d65e09c1a48824c8fe613f596d",
+  "output_bytes": 96028,
+  "image": {
+    "name": "mapa-jornada-04689f954dadd0f5.png",
+    "sha256": "04689f954dadd0f5837c1865f137a63bada51d5bd08ebbb4bc4a87ffcccb098b",
+    "bytes": 1002127
+  },
+  "point_count": 30,
+  "assets": [
+    {
+      "url": "https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-positivo.svg",
+      "sha256": "6dc0407c334e49b99f163b6bbc74d4c077d8422f8f3d77313a15e99282a5014b",
+      "bytes": 18493
+    },
+    {
+      "url": "https://open.grupocsv.com/jornada-tea/ccc-selo-branco.png",
+      "sha256": "12e1f68db268bd1bd7e0ddf0ae0f3324b0777afe1b547f978a83f0006ea5150a",
+      "bytes": 191290
+    },
+    {
+      "url": "https://assets.grupocsv.com/logos/evs/selo-white-web-360.png",
+      "sha256": "ea14b99e5c2999b00911daf13b2cb885ec2349fd495f1056bc05893985d99365",
+      "bytes": 49471
+    }
+  ]
+}
