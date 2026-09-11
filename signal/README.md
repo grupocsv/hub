@@ -31,6 +31,7 @@
 > 
 > | Edição | Período | Status |
 > |--------|---------|--------|
+> | [S36/2026](edicoes/2026/S36/signal.md) | 31 de agosto a 4 de setembro | Publicado |
 > | [S35/2026](edicoes/2026/S35/signal.md) | 24 a 28 de agosto | Publicado |
 > | [S18/2026](edicoes/2026/S18/signal.md) | 04 a 10 de maio | Publicado |
 > | [S16/2026](edicoes/2026/S16/signal.md) | 20 a 26 de abril | Publicado |
