@@ -20,6 +20,8 @@
 
 7. **Sidebar do VitePress é obrigatório.** Toda nova edição DEVE ser adicionada ao arquivo `docs/.vitepress/config.mts` na seção `/signal/`. Sem essa entrada, a edição não aparece na navegação lateral do Hub.
 
+8. **Escopo editorial exclusivo da Unimed.** A varredura pode alcançar fontes amplas, mas só podem ser publicados fatos ligados diretamente à Unimed Governador Valadares, ao Hospital Unihealth ou ao Escritório de Valor em Saúde. CMS-CSV, Compass™, Hub, OpenClaw, Extensio, Cloudflare, GitHub, Workers, deploys, repositórios, agentes e releases técnicos são proibidos no Signal.
+
 ---
 
 ## Workflow de Geração
@@ -30,7 +32,7 @@ Este processo é executado semanalmente, tipicamente às segundas-feiras, para c
 
 1.  **Varredura Notion:** Buscar por todas as páginas criadas ou editadas na última semana que contenham palavras-chave relevantes (`RADAR`, `EVS`, `Axys`, `decisão`, `estratégia`, `projeto`, etc.).
 2.  **Varredura Gmail:** Buscar por todas as threads de e-mail no mesmo período com os mesmos critérios de palavra-chave.
-3.  **Consolidação Bruta:** Agregar todo o conteúdo textual (páginas do Notion e corpos de e-mail) em um único arquivo de trabalho (e.g., `varredura_sNN.md`).
+3.  **Consolidação Bruta:** Agregar todo o conteúdo textual (páginas do Notion e corpos de e-mail) em um único arquivo de trabalho (e.g., `varredura_sNN.md`). Classificar cada item como `escopo_editorial: unimed` ou `escopo_editorial: fora_do_signal`.
 
 ### Fase 2: Análise e Síntese
 
@@ -38,6 +40,7 @@ Este processo é executado semanalmente, tipicamente às segundas-feiras, para c
 2.  **Categorização:** Atribuir a cada fato uma tag de categoria, conforme o `padrão-editorial.md`.
 3.  **Síntese:** Para cada fato, escrever um título claro e um resumo de 2 a 4 frases que capture o essencial do acontecimento.
 4.  **Outras Movimentações:** Listar outros pontos relevantes, mas de menor impacto estratégico, em formato de bullet points.
+5.  **Gate de Escopo:** Registrar instituição beneficiária e fonte de cada item. Rejeitar qualquer conteúdo sem vínculo explícito com Unimed GV, Hospital Unihealth ou EVS. Executar `python3 scripts/validate-signal-scope.py`; falha bloqueia PDF, publicação e e-mail.
 
 ### Fase 3: Criação da Edição
 
@@ -97,9 +100,9 @@ Quando uma edição publicada contiver erro (formato, conteúdo, grafia), seguir
 
 1.  **Corrigir** o PDF e o `signal.md` no repositório, substituindo a versão anterior. Não versionar a versão incorreta.
 2.  **Commit** com mensagem: `fix(signal): corrige edição SNN/AAAA — [descrição breve]`
-3.  **Reenviar e-mail** com assunto: `Signal™ SNN/AAAA — Versão pós-correção`
-4.  O corpo do e-mail segue o padrão normal, sem menção explícita ao erro corrigido.
-5.  **Entregar** o PDF corrigido ao usuário para download.
+3.  **Reenviar e-mail** somente quando o usuário não restringir explicitamente a correção ao Hub. Se houver instrução de "somente Hub" ou equivalente, não reenviar.
+4.  Quando houver reenvio, usar o assunto `Signal™ SNN/AAAA — Versão pós-correção`; o corpo segue o padrão normal, sem mencionar o erro.
+5.  **Entregar** o PDF corrigido ao usuário quando solicitado.
 
 ---
 
@@ -165,5 +168,7 @@ Este comando apaga todo o conteúdo da página e substitui por "Relay™". O par
 - [ ] A sidebar do VitePress (`config.mts`) foi atualizada com a nova entrada?
 - [ ] Todos os links funcionam como esperado?
 - [ ] Todos os nomes conferem com o Dicionário Oficial?
-- [ ] O e-mail foi enviado para os 4 destinatários da lista de distribuição?
+- [ ] Cada fato e movimentação possui vínculo direto e comprovado com Unimed GV, Hospital Unihealth ou EVS?
+- [ ] `python3 scripts/validate-signal-scope.py` foi executado e aprovado?
+- [ ] O e-mail foi enviado somente quando autorizado para esta execução?
 - [ ] O assunto e corpo do e-mail contêm acentuação correta em PT-BR?

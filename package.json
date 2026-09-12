@@ -7,6 +7,7 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "npm run compass:publish && npm run compass:catalog && vitepress build docs",
     "docs:preview": "vitepress preview docs",
+    "signal:test": "python3 scripts/validate-signal-scope.py",
     "compass:publish": "node scripts/compass-v2/publish-editions.mjs --source compass/edicoes/2026 --output docs/compass/edicoes/2026",
     "compass:catalog": "node scripts/compass-v2/catalog.mjs --source compass/edicoes/2026 --output docs/compass/catalog.json",
     "compass:test": "node --test tests/compass-v2/*.test.mjs",

@@ -48,9 +48,9 @@ CARGO = "Superintendente Médico | Fundador Grupo CSV"
 
 METRICAS = [
     ("5", "Pautas Notion"),
-    ("88", "E-mails triados"),
+    ("25", "E-mails Unimed"),
     ("6", "Fatos estratégicos"),
-    ("11", "Novos termos"),
+    ("9", "Termos Unimed"),
     ("v4.11", "Dicionário Oficial"),
 ]
 
@@ -81,18 +81,18 @@ FATOS = [
         "resumo": "As sugestões jurídicas da Unimed Governador Valadares foram aceitas sem ressalvas. Em 04/09, a minuta das linhas de Câncer de Mama e Diabetes aguardava assinaturas.",
     },
     {
-        "tag": "TECNOLOGIA",
-        "titulo": "Compass™ v2 estabiliza oito edições em produção",
-        "resumo": "O release 001–008 foi concluído com oito candidatos ativos, oito baselines preservadas e 16 links íntegros. A Queue permaneceu ativa com backlog zero.",
+        "tag": "FINANCEIRO",
+        "titulo": "VPD institui referência financeira para diárias",
+        "resumo": "A metodologia pondera acomodação, UTI e origem do beneficiário em um valor comparável por diária. O indicador estima valor faturado, sem ser tratado como custo assistencial.",
     },
 ]
 
 OBSERVACOES = [
-    "VPD: guia metodológico diferencia valor faturado referencial de custo assistencial.",
-    "CMS-CSV: catálogo interno protegido, com GitHub como fonte de verdade.",
+    "Monitoramento: Mortalidade, Report DRG e PPE-15 de agosto foram publicados.",
     "Navia: 492 pacientes — 433 ativos e 59 arquivados; 11 documentos processados.",
     "PPE-15: novo fluxo de coleta no Hospital Unihealth foi formalizado.",
     "Quálix: relatório da auditoria no Centro de Terapias Especiais foi solicitado.",
+    "Terapias Especiais: BPM de solicitações foi configurado para organizar o fluxo.",
 ]
 
 

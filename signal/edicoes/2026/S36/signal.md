@@ -4,7 +4,7 @@
 **Gerado em:** 11/09/2026  
 **Versão Dicionário:** v4.11
 
-## Fatos Estratégicos
+## Fatos estratégicos
 
 1. **RMBV consolida desempenho acima da meta no segundo quadrimestre.** O grupo alcançou média de 93,9 frente à referência de 90, com 4 de 5 participantes — 80% — acima da meta. A consolidação passa a ser a base oficial para processamento do bônus e devolutiva individual aos médicos da Medicina Interna do Hospital Unihealth.
 
@@ -16,15 +16,15 @@
 
 5. **Contrato da Hi! avança para assinaturas.** As sugestões jurídicas da Unimed Governador Valadares foram aceitas sem ressalvas pela Hi! Healthcare Intelligence, incluindo o registro de que não há transferência internacional de dados prevista na operação. Em 4 de setembro, a minuta das linhas de Câncer de Mama e Diabetes estava na plataforma aguardando assinaturas.
 
-6. **Compass™ v2 estabiliza oito edições em produção.** O release controlado das edições 001–008 foi concluído com oito candidatos v2 ativos, oito baselines preservadas e dezesseis links versionados íntegros. A Queue permaneceu ativa com backlog zero, acompanhada de documentação de arquitetura, segurança e rastreabilidade.
+6. **VPD institui referência financeira para diárias.** O guia metodológico define o Valor Ponderado da Diária Faturada como uma referência única em reais por diária, considerando acomodação, UTI e origem do beneficiário. A metodologia permite estimar o valor financeiro comparável de diárias excedentes ou evitadas, sem tratar o indicador como custo assistencial.
 
-## Demais Movimentações
+## Demais movimentações
 
-- **VPD:** Guia metodológico distribuído como referência comum do DRG Analytics, distinguindo valor faturado referencial de custo assistencial.
-- **CMS-CSV:** Catálogo interno de entregáveis passou a operar com acesso protegido, GitHub como fonte de verdade e publicação automática após verificações obrigatórias.
-- **Navia:** Relatório de 3 de setembro registrou 492 pacientes, sendo 433 ativos e 59 arquivados, além de 11 documentos processados.
-- **PPE-15:** Novo fluxo de coleta no Hospital Unihealth foi formalizado com as áreas envolvidas.
-- **Quálix:** Relatório da auditoria realizada no Centro de Terapias Especiais foi solicitado para acompanhamento institucional.
+- **Monitoramento assistencial:** foram publicadas a Análise de Mortalidade Ajustada por Risco, o Report DRG e a análise PPE-15 de agosto/2026, além do Resumo Executivo DRG 2024–2025.
+- **Navia:** o relatório de 3 de setembro registrou 492 pacientes, sendo 433 ativos e 59 arquivados, além de 11 documentos processados.
+- **PPE-15:** o novo fluxo de coleta no Hospital Unihealth foi formalizado com as áreas envolvidas.
+- **Quálix:** o relatório da auditoria realizada no Centro de Terapias Especiais foi solicitado para acompanhamento institucional.
+- **Terapias Especiais:** o BPM de solicitações foi configurado para organizar o fluxo operacional.
 
 ## PDF
 
