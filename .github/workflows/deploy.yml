@@ -91,6 +91,9 @@ jobs:
       - name: Test Compass v2 contracts
         run: npm run compass:test
 
+      - name: Validate Signal editorial scope
+        run: npm run signal:test
+
       - name: Generate Hub Documentos runtime config
         run: npm run documentos:generate
 

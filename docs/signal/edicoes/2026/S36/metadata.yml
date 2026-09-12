@@ -3,8 +3,10 @@ year: 2026
 period: "31 de agosto a 4 de setembro de 2026"
 generated: "2026-09-11"
 dictionary_version: "v4.11"
+scope: unimed
 facts_count: 6
 new_terms: 11
+unimed_terms: 9
 sources:
   notion_pages: 5
-  gmail_messages: 88
+  gmail_messages: 25

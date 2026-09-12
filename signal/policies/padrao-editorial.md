@@ -29,6 +29,18 @@
 
 ---
 
+## Escopo editorial da Unimed
+
+O Signal™ sintetiza exclusivamente fatos com vínculo direto e comprovado com a **Unimed Governador Valadares**, o **Hospital Unihealth** ou o **Escritório de Valor em Saúde (EVS)**. A varredura pode consultar fontes amplas, mas o universo de coleta não define o universo de publicação.
+
+Um item só pode entrar quando a fonte confirmar impacto ou decisão assistencial, operacional, financeira, regulatória, contratual, de governança ou de linha de cuidado para essas instituições. Parceiros externos podem ser citados somente quando o fato estiver diretamente ligado a uma iniciativa da Unimed, do Hospital Unihealth ou do EVS.
+
+Assuntos internos do Grupo CSV são excluídos, ainda que apareçam no Gmail ou no Notion do período. Isso inclui CMS-CSV, Compass™, Hub, OpenClaw, Extensio, infraestrutura Cloudflare, GitHub, Workers, deploys, repositórios, agentes e releases técnicos.
+
+Antes da aprovação editorial, cada fato e movimentação deve registrar sua instituição beneficiária e sua fonte. O comando `python3 scripts/validate-signal-scope.py` é obrigatório e bloqueia a publicação quando detectar tema interno proibido, ausência do campo `scope: unimed` nos metadados ou falta de âncora institucional nos fatos estratégicos.
+
+---
+
 ## Estrutura do Conteúdo
 
 ### Fatos Estratégicos
@@ -62,6 +74,8 @@
 -   **NÃO** usar cores fora da paleta canônica do Grupo CSV.
 -   **NÃO** alterar a estrutura do layout (posicionamento de logo, fontes, etc.).
 -   **NÃO** incluir informações especulativas ou não verificadas.
+-   **NÃO** incluir assuntos internos do Grupo CSV sem vínculo direto com Unimed GV, Hospital Unihealth ou EVS.
+-   **NÃO** tratar a amplitude da varredura como autorização editorial.
 -   **NÃO** ultrapassar uma página no formato PDF (regra inviolável).
 -   **NÃO** gerar texto sem acentuação ou cedilha.
 
@@ -73,8 +87,8 @@ Quando uma edição publicada contiver erro (formato, conteúdo, grafia), o segu
 
 1.  Corrigir o PDF e o `signal.md` no repositório, substituindo a versão anterior (sem versionamento da versão incorreta).
 2.  Fazer commit com mensagem `fix(signal): corrige edição SNN/AAAA — [descrição breve]`.
-3.  Reenviar o e-mail com o assunto: `Signal™ SNN/AAAA — Versão pós-correção`, sem detalhar a natureza da correção no assunto.
-4.  O corpo do e-mail segue o padrão normal, sem menção explícita ao erro corrigido.
+3.  Reenviar o e-mail somente quando o usuário não restringir explicitamente a correção ao Hub. Se houver instrução de "somente Hub" ou equivalente, não reenviar.
+4.  Quando houver reenvio, usar o assunto `Signal™ SNN/AAAA — Versão pós-correção`; o corpo segue o padrão normal, sem mencionar o erro corrigido.
 
 ---
 
@@ -85,6 +99,8 @@ Quando uma edição publicada contiver erro (formato, conteúdo, grafia), o segu
 -   [ ] As tags de categoria foram aplicadas corretamente?
 -   [ ] O texto foi revisado para erros de gramática, acentuação e digitação?
 -   [ ] Todos os nomes de pessoas, projetos e empresas estão corretos (conforme Dicionário Oficial)?
+-   [ ] Cada fato e movimentação possui vínculo direto e comprovado com Unimed GV, Hospital Unihealth ou EVS?
+-   [ ] O validador `python3 scripts/validate-signal-scope.py` foi executado e aprovado?
 -   [ ] A data e o número da semana (SNN) estão corretos no cabeçalho e no nome do arquivo?
 -   [ ] O nome do executivo está correto?
 -   [ ] O PDF final foi inspecionado visualmente e não contém quebras ou erros de formatação?
