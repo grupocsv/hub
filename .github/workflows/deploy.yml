@@ -185,6 +185,13 @@ jobs:
               "$DIST/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"
           done
 
+          # Publicar todos os PDFs do Signal nos mesmos caminhos usados pelos links relativos.
+          while IFS= read -r pdf; do
+            rel="${pdf#docs/}"
+            mkdir -p "$DIST/$(dirname "$rel")"
+            cp "$pdf" "$DIST/$rel"
+          done < <(find docs/signal/edicoes -type f -name 'Signal_*.pdf' -print)
+
           # Note: _infra is NOT copied here because VitePress builds it from docs/_infra/
 
           # Copy assets
@@ -204,6 +211,14 @@ jobs:
           # Arquivos críticos que precisam existir no artefato publicado.
           # Os cp acima são resilientes (|| true) de propósito; este passo é a
           # rede de segurança que reprova o deploy se algo sumir em silêncio.
+          while IFS= read -r pdf; do
+            rel="${pdf#docs/}"
+            if [ ! -f "$DIST/$rel" ]; then
+              echo "::error::PDF do Signal ausente no artefato: $rel"
+              fail=1
+            fi
+          done < <(find docs/signal/edicoes -type f -name 'Signal_*.pdf' -print)
+
           for f in \
             index.html \
             robots.txt \
