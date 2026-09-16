@@ -8,6 +8,8 @@ O Panta™ (do grego Πάντα, "tudo") é o motor de busca federada do ecossis
 Esta página descreve o Panta v1 federado. Ele é independente da Central de Documentos e não pode autorizar acesso, decidir lifecycle nem expor bytes documentais. O Panta v2 tenant-aware existe no código do backend, mas não foi promovido. O frontend da Central permanece com busca desabilitada. Consulte [Central de Documentos — Relação com o Panta](/_infra/central-documentos#relação-com-o-panta).
 :::
 
+Para pesquisa dos documentos das Centrais corporativa e dos parceiros, consulte o [guia do Panta v2 documental](/_infra/ferramentas/panta-v2). As fontes, o grafo e os comandos desta página pertencem à v1; não são a API de gestão ou busca autorizada da Central.
+
 | Campo | Valor |
 |---|---|
 | Marca | Panta™ |

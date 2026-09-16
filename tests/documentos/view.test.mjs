@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   buildCatalogViewModel,
+  buildSearchStatus,
   buildDeletionRequestsViewModel,
   buildDetailViewModel,
   buildPublicLinksAdminViewModel,
@@ -16,6 +17,16 @@ import {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HUB_ROOT = path.resolve(HERE, "../..");
+
+test("busca diferencia indisponibilidade, acervo excedido e limite explícito sem expor erro bruto", () => {
+  assert.equal(buildSearchStatus({ mode: "catalog", status: "ready" }), "");
+  assert.match(buildSearchStatus({ mode: "search", status: "ready" }), /20 trechos/);
+  assert.match(buildSearchStatus({ mode: "search", status: "empty" }), /em processamento/);
+  assert.match(buildSearchStatus({ mode: "search", status: "error" }), /volte ao catálogo/);
+  const exceeded = buildSearchStatus({ mode: "search", status: "error", error: { code: "search_scope_too_large", message: "segredo" } });
+  assert.match(exceeded, /Nenhum resultado parcial/);
+  assert.doesNotMatch(exceeded, /segredo/);
+});
 
 function catalogItem(overrides = {}) {
   return {

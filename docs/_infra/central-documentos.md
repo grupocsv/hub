@@ -205,6 +205,8 @@ O serviço em `panta.grupocsv.com` é a busca federada existente. Ele é indepen
 
 ### Panta v2
 
+O [guia da pesquisa Panta v2](/_infra/ferramentas/panta-v2) explica o uso na interface, a diferença para a v1 e o contrato para agentes. Ele separa capacidade implementada de ativação produtiva e não substitui a verificação autenticada do ambiente.
+
 O Panta v2 documental está implementado no repositório `grupocsv/backend` como índice tenant-aware. O fluxo correto é sempre:
 
 1. o `csv-documents` autentica e calcula no D1 o conjunto permitido;
@@ -216,6 +218,8 @@ Panta v2 não armazena papéis ou ACL como autoridade, não recebe token humano 
 ### Estado da busca
 
 O frontend publicado declara `features.search = false`. O endpoint interno e os adapters presentes no código não tornam a busca disponível ao usuário. Ativação exige promoção separada do Panta v2, configuração segura no Worker, teste multi-tenant, observabilidade, rollback e alteração explícita do feature flag.
+
+Na interface preparada para a busca, a pesquisa informa indisponibilidade, ausência de resultados ou limite do acervo sem confundi-los. O usuário pode voltar ao catálogo e continuar a gestão documental. Trechos são exibidos como texto simples e cada resultado mantém a referência do documento e da versão; a abertura continua passando pela autorização da Central.
 
 ## Fontes canônicas e verificação
 

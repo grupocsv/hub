@@ -281,6 +281,15 @@ const BOOTSTRAP_SOURCE = `
     }
     if (url.pathname === '/v1/search' && method === 'POST') {
       const query = String(requestBody(init).query || '').toLocaleLowerCase('pt-BR');
+      if (query === 'indisponivel-e2e') {
+        return json({ error: { code: 'search_unavailable' } }, 503);
+      }
+      if (query === 'acervo-excedido-e2e') {
+        return json({ error: { code: 'search_scope_too_large' } }, 422);
+      }
+      if (query === 'trecho-html-e2e') {
+        return json({ results: [{ document_id: 'document-pdf', version_id: 'version-pdf', title: 'Manual Seguro em PDF', excerpt: '<img src=x onerror=alert(1)>', score: 1 }] });
+      }
       const results = catalogDocuments
         .filter((item) =>
           (item.title + ' ' + item.description).toLocaleLowerCase('pt-BR').includes(query)

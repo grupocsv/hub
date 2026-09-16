@@ -115,10 +115,26 @@ export function buildCatalogViewModel(state) {
   return Object.freeze({
     status: state.status,
     mode: state.mode ?? "catalog",
+    searchMessage: buildSearchStatus(state),
     items: Object.freeze(items),
     hasNextPage:
       typeof state.nextCursor === "string" && state.nextCursor.length > 0,
   });
+}
+
+export function buildSearchStatus(state) {
+  if (state.mode !== "search") return "";
+  if (state.status === "loading") return "Pesquisando nos documentos autorizados desta Central.";
+  if (state.status === "error") {
+    if (state.error?.code === "search_scope_too_large") {
+      return "O acervo autorizado excede o limite desta busca. Nenhum resultado parcial foi exibido. Consulte o catálogo e seus filtros.";
+    }
+    return "A pesquisa está indisponível no momento. Tente novamente ou volte ao catálogo para consultar e gerenciar seus documentos.";
+  }
+  if (state.status === "empty") {
+    return "Nenhum resultado para esta pesquisa. Tente outras palavras ou volte ao catálogo. Documentos ainda em processamento podem não aparecer.";
+  }
+  return "Resultados por relevância textual, limitados a 20 trechos por pesquisa. Abra os detalhes para consultar o documento com a autorização atual.";
 }
 
 export function buildDetailViewModel(state, versions = [], capabilities = {}) {
@@ -425,6 +441,9 @@ export function createDocumentosView(options = {}) {
   const searchForm = documentRef.querySelector(".docs-search");
   const searchInput = documentRef.querySelector("#docs-search");
   const searchSubmit = searchForm?.querySelector(".docs-search__submit");
+  const searchFeedback = documentRef.querySelector("#docs-search-feedback");
+  const searchStatus = documentRef.querySelector("#docs-search-status");
+  const searchClear = documentRef.querySelector("#docs-search-clear");
   const uploadButton = documentRef.querySelector("#docs-upload");
   const uploadRoot = documentRef.querySelector("#docs-upload-dialog");
   const uploadPanel = uploadRoot?.querySelector(".docs-upload__panel");
@@ -748,6 +767,8 @@ export function createDocumentosView(options = {}) {
   function renderCatalog(state) {
     captureCatalogFocusIntent();
     const model = buildCatalogViewModel(state);
+    if (searchFeedback) searchFeedback.hidden = !searchEnabled || model.mode !== "search";
+    if (searchStatus) searchStatus.textContent = model.searchMessage;
     if (model.status === "loading") {
       loadMore.hidden = true;
       loadMore.disabled = true;
@@ -755,13 +776,13 @@ export function createDocumentosView(options = {}) {
       return;
     }
     if (model.status === "empty") {
-      renderState("empty", undefined, { controlsEnabled: true });
+      renderState("empty", model.searchMessage || undefined, { controlsEnabled: true });
       loadMore.hidden = true;
       restoreCatalogFocus();
       return;
     }
     if (model.status === "error") {
-      renderState("error", undefined, { controlsEnabled: true });
+      renderState("error", model.searchMessage || undefined, { controlsEnabled: true });
       loadMore.hidden = true;
       restoreCatalogFocus();
       return;
@@ -811,6 +832,14 @@ export function createDocumentosView(options = {}) {
           "docs-card__date",
           `Atualizado em ${formatDate(item.updatedAt)}`,
         );
+      }
+      if (item.isSearchResult) {
+        const reference = documentRef.createElement("details");
+        reference.className = "docs-card__reference";
+        appendTextElement(documentRef, reference, "summary", "", "Referência do resultado");
+        appendTextElement(documentRef, reference, "p", "", `Documento: ${item.documentId}`);
+        appendTextElement(documentRef, reference, "p", "", `Versão pesquisada: ${item.versionId}`);
+        article.append(reference);
       }
 
       const actions = documentRef.createElement("div");
@@ -2157,6 +2186,13 @@ export function createDocumentosView(options = {}) {
         query ? handlers.search(query) : handlers.navigate("documentos"),
       );
     });
+    listen(searchClear, "click", () => {
+      if (searchInput) searchInput.value = "";
+      pendingCatalogFocus = null;
+      selectNavigation("documentos");
+      searchInput?.focus?.();
+      dispatch(() => handlers.navigate("documentos"));
+    });
     listen(filtersForm, "submit", (event) => {
       event.preventDefault();
       pendingCatalogFocus = null;
@@ -2621,6 +2657,8 @@ export function createDocumentosView(options = {}) {
     versionList.replaceChildren();
     if (detailTitle) detailTitle.textContent = "Documento";
     if (searchInput) searchInput.value = "";
+    if (searchStatus) searchStatus.textContent = "";
+    if (searchFeedback) searchFeedback.hidden = true;
     replaceSelectOptions(
       collectionFilter,
       [],
