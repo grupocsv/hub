@@ -8,6 +8,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '../..');
 const componentPath = path.join(repoRoot, 'docs/.vitepress/theme/components/CompassEdition.vue');
 const cssPath = path.join(repoRoot, 'docs/.vitepress/theme/compass-v2.css');
+const customCssPath = path.join(repoRoot, 'docs/.vitepress/theme/custom.css');
+const compassIndexPath = path.join(repoRoot, 'docs/compass/index.md');
+const vitepressConfigPath = path.join(repoRoot, 'docs/.vitepress/config.mts');
 const themePath = path.join(repoRoot, 'docs/.vitepress/theme/index.ts');
 
 async function readOrNull(file) {
@@ -106,5 +109,35 @@ test('define tokens editoriais e componentes essenciais do layout 008', async ()
   }
   for (const className of ['compass-cover', 'compass-key-point', 'compass-timeline', 'compass-data-table', 'compass-callout']) {
     assert.ok(css.includes(`.${className}`), `componente ausente: ${className}`);
+  }
+});
+
+test('mantém o navbar opaco nas páginas internas e transparente somente na homepage', async () => {
+  const css = await readFile(customCssPath, 'utf8');
+  assert.match(css, /\.VPNavBar\s*\{[^}]*background-color:\s*var\(--vp-c-bg\)\s*!important/si);
+  assert.match(css, /body:has\(\.hub-hero\)\s+\.VPNavBar[\s\S]*background-color:\s*transparent\s*!important/si);
+});
+
+test('não corta os títulos das edições na navegação lateral', async () => {
+  const [css, config] = await Promise.all([
+    readFile(customCssPath, 'utf8'),
+    readFile(vitepressConfigPath, 'utf8'),
+  ]);
+  assert.match(css, /body:has\(\.compass-header\)[\s\S]*white-space:\s*normal/si);
+  assert.doesNotMatch(config, /title\.slice\(/u);
+  assert.doesNotMatch(config, /conciseTitle/u);
+});
+
+test('define superfícies e contraste próprios para a Central Compass no modo escuro', async () => {
+  const source = await readFile(compassIndexPath, 'utf8');
+  for (const selector of [
+    '.dark .compass-intro',
+    '.dark .compass-section',
+    '.dark .edition-table th',
+    '.dark .edition-table td a',
+    '.dark .doc-card',
+    '.dark .compass-note',
+  ]) {
+    assert.ok(source.includes(selector), `regra ausente: ${selector}`);
   }
 });

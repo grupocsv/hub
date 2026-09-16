@@ -26,6 +26,7 @@
     0 0.75rem 2rem rgba(0, 0, 0, 0.28);
   --focus-ring: 0 0 0 0.1875rem rgba(127, 217, 174, 0.52);
   --content-width: 75rem;
+  --topbar-content-width: 116rem;
   --docs-viewer-width: min(62vw, 72rem);
 }
 
@@ -131,7 +132,7 @@ input:disabled {
 }
 
 .docs-topbar__inner {
-  width: min(100%, var(--content-width));
+  width: min(100%, var(--topbar-content-width));
   min-width: 0;
   min-height: 4.5rem;
   margin-inline: auto;
@@ -172,6 +173,7 @@ input:disabled {
 .docs-nav {
   min-width: 0;
   display: flex;
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 0.25rem;
 }
@@ -186,6 +188,7 @@ input:disabled {
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 650;
+  white-space: nowrap;
   transition: color 160ms ease, background-color 160ms ease;
 }
 
@@ -505,7 +508,7 @@ input:disabled {
   }
 }
 
-@media (max-width: 90rem) {
+@media (max-width: 116rem) {
   .docs-topbar__inner {
     grid-template-columns: minmax(0, 1fr) auto;
   }

@@ -70,16 +70,37 @@
   --vp-c-gutter: transparent;
 }
 
-/* Navbar transparente — funde com o hero gradient */
+/* Por padrão o navbar precisa ser opaco: páginas internas como Compass™ têm
+   conteúdo rolável e não podem aparecer por baixo do cabeçalho fixo. */
 .VPNavBar {
-  background-color: transparent !important;
+  background-color: var(--vp-c-bg) !important;
 }
 .VPNavBar .content-body {
-  background-color: transparent !important;
+  background-color: var(--vp-c-bg) !important;
 }
 .VPNavBar .divider-line {
-  background-color: transparent !important;
+  background-color: var(--vp-c-divider) !important;
 }
 .VPNavBar .divider {
+  background-color: var(--vp-c-divider) !important;
+}
+
+/* Apenas a homepage funde o navbar com o hero institucional. */
+body:has(.hub-hero) .VPNavBar,
+body:has(.hub-hero) .VPNavBar .content-body {
   background-color: transparent !important;
+}
+body:has(.hub-hero) .VPNavBar .divider-line,
+body:has(.hub-hero) .VPNavBar .divider {
+  background-color: transparent !important;
+}
+
+/* Os títulos editoriais do Compass™ precisam permanecer íntegros. A sidebar
+   pode crescer verticalmente; perder informação por elipse não é aceitável. */
+body:has(.compass-header) .VPSidebarItem .text {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }

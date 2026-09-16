@@ -316,6 +316,63 @@ test("cabeçalho em viewer split reflui marca, ações, sessão e navegação se
   }
 });
 
+test("cabeçalho completo mantém marca, seis destinos e ações sem colisão", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop-1440x900");
+  await openCatalog(page);
+
+  for (const width of [768, 1024, 1280, 1440, 1920, 2035, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.evaluate(() => {
+      const visible = (selector) => [...document.querySelectorAll(selector)]
+        .filter((element) => element.getClientRects().length > 0)
+        .map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            label: element.textContent?.trim() || selector,
+            bottom: rect.bottom,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+          };
+        });
+      const sections = visible(".docs-brand, .docs-nav, .docs-topbar__actions");
+      const navItems = visible(".docs-nav__item");
+      const overlaps = [];
+      for (let left = 0; left < sections.length; left += 1) {
+        for (let right = left + 1; right < sections.length; right += 1) {
+          const a = sections[left];
+          const b = sections[right];
+          const widthOverlap = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+          const heightOverlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+          if (widthOverlap > 0.5 && heightOverlap > 0.5) {
+            overlaps.push(`${a.label} <> ${b.label}`);
+          }
+        }
+      }
+      return {
+        topbarRight: document.querySelector(".docs-topbar").getBoundingClientRect().right,
+        sections,
+        navItems,
+        overlaps,
+      };
+    });
+
+    expect(geometry.sections).toHaveLength(3);
+    expect(geometry.navItems).toHaveLength(6);
+    expect(geometry.overlaps, `${width}px: regiões do cabeçalho colidiram`).toEqual([]);
+    for (const item of geometry.navItems) {
+      expect(item.left, `${width}px: item saiu pela esquerda`).toBeGreaterThanOrEqual(-0.5);
+      expect(item.right, `${width}px: item foi cortado`).toBeLessThanOrEqual(
+        geometry.topbarRight + 0.5,
+      );
+      expect(item.right - item.left, `${width}px: item perdeu largura`).toBeGreaterThan(44);
+    }
+    await expectNoHorizontalOverflow(page);
+  }
+});
+
 test("detalhe cria, lista e inativa link público preso à versão atual", async ({
   page,
 }) => {
