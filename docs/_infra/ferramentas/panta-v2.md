@@ -7,6 +7,8 @@ description: Papel do Panta v2, uso da pesquisa documental e contrato de integra
 
 Atualização do contrato: 16 de setembro de 2026.
 
+Para começar sem detalhes técnicos, abra o [manual ilustrado do Panta v2](/_infra/manuais/panta-v2) e o [manual da Central de Documentos](/_infra/manuais/central-documentos).
+
 ## O que é cada parte
 
 | Componente | Para que serve | Onde usar |
@@ -21,7 +23,25 @@ O Panta mantém um índice de pesquisa reconstruível. O catálogo e as permiss�
 
 ## Disponibilidade
 
-Esta página descreve o contrato implementado. A ativação produtiva precisa ser registrada após a publicação do serviço, a conexão do Worker e a verificação autenticada. A presença desta página ou um `/health` respondendo não comprova busca de ponta a ponta.
+Em 16/09/2026, o serviço isolado está publicado em `panta-v2.grupocsv.com`, versão `2.1.0`, schema `2`, build `aa8f220f28e8fbdcfc921b152e2e4e976fdf228d`. A saúde externa respondeu `200`; o ensaio autenticado local aprovou nove cenários e confirmou tombstone persistente após reinício. A v1 permaneceu saudável e inalterada.
+
+O Worker documental está publicado na versão `0389d7b4-eed6-4b60-b0d1-bdff6e25760b`, fonte `094c8871e65c5f6d9ae0c9d6f0cbff8c107620b9`, com 100% do tráfego. A credencial exclusiva está provisionada nele e na VPS, a partir do Arsenal Técnico, sem alterar credenciais anteriores. Os testes integrados pela Central e pelo Extensio passaram em produção.
+
+| Verificação produtiva em 16/09/2026 | Resultado |
+|---|---|
+| Pesquisa do corpo do documento | Positiva nos cinco tenants: Grupo CSV, Unimed, Unihealth, ICDS e 2iM |
+| Isolamento entre tenants | Consulta de documento de outro tenant retornou `404`; busca cruzada retornou zero resultados |
+| Redução para `metadata_only` | Título pesquisável; termo exclusivo do corpo sem resultado |
+| Política `disabled` | Documento ausente da busca |
+| Exclusão lógica da amostra 2iM | Pedido executado, consulta `404` e revisão de retirada aplicada |
+| Troca de versão da amostra ICDS | Nova versão `b9c8eef2-cbe7-4275-88db-5ca40f887d46` encontrada; texto exclusivo da versão anterior sem resultado |
+| Reconstrução da amostra Unihealth | Documento retirado ao desabilitar a indexação e recuperado após seleção explícita de `full_text` e nova sincronização |
+
+Ao encerrar a validação em 16/09/2026, os cinco canários sintéticos estavam excluídos logicamente, com consulta `404` e busca sem resultados. Nenhuma política do acervo existente foi convertida globalmente.
+
+Esta versão do Hub habilita a busca nas cinco Centrais após a validação produtiva pela API e pelo Extensio, com `features.search = true`. Os controles foram testados localmente; a sessão humana autenticada no navegador permanece não aferida, e o teste por API/MCP não substitui essa demonstração. Também não houve novo reinício da VPS nem restauração integral do volume a partir de backup nesta rodada. A reconstrução de um documento comprova esse fluxo limitado, não uma recuperação integral de desastre.
+
+Diagnóstico resolvido: o `index_unavailable` inicial vinha de `redirect: "error"`, recusado pelo runtime `workerd` antes do envio. A versão publicada usa `redirect: "manual"` no cliente e na sincronização, sem seguir respostas `3xx`. Os canários acima foram executados após essa correção.
 
 O controle público de interface está em `scripts/documentos-runtime-config.json`, gerando `/documentos/assets/runtime-config.js`. Com `features.search = false`, o campo fica oculto. Com a busca habilitada e o serviço temporariamente indisponível, a Central oferece retorno ao catálogo; upload, filtros, versões e demais operações não dependem da pesquisa.
 
@@ -45,6 +65,10 @@ Os filtros do catálogo não são filtros adicionais da pesquisa textual. A inte
 | `disabled` | Documento fora da pesquisa |
 
 A indexação é assíncrona. A indicação de sucesso depende de confirmação do serviço de busca. Revogação de acesso, documento indisponível ou política reduzida não podem depender de uma limpeza posterior do índice para bloquear o resultado na API.
+
+O Worker reconcilia alterações a cada cinco minutos. Esse intervalo não inclui fila, processamento ou novas tentativas e não é um prazo máximo para disponibilidade. A política de cada documento é preservada; ativar a busca não converte todos os documentos para `full_text`.
+
+Nesta versão da interface, o envio mantém **Somente Metadados** como padrão. **Texto completo e metadados** é uma escolha explícita disponível somente com a busca habilitada. Isso não altera a política de documentos existentes; veja o [manual — Políticas de indexação](/_infra/manuais/panta-v2#politicas).
 
 ## Uso por agentes e automações
 
@@ -96,7 +120,7 @@ Para abrir o arquivo, consulte novamente o documento e sua versão pela API docu
 |---|---|
 | Nenhum resultado | Lista vazia, sem inventar resposta ou tentar outro tenant |
 | Serviço de pesquisa indisponível | Erro `503`; consultar o catálogo pela Central e tentar novamente depois |
-| Acervo autorizado excede o limite suportado | Erro `422` com `search_scope_too_large`; não tratar como pesquisa completa nem ocultar o limite |
+| Acervo autorizado excede 500 documentos por consulta | Erro `422` com `search_scope_too_large`; não tratar como pesquisa completa nem ocultar o limite |
 | Sessão/token inválido | Interromper a operação; não mudar para credencial compartilhada |
 | Acesso revogado ou documento retirado | Não reutilizar trecho em cache como se ainda estivesse autorizado |
 
@@ -104,8 +128,16 @@ A busca documental não deve fazer fallback silencioso para o Panta v1. A v1 nã
 
 ## Operação técnica
 
+O runtime v2 usa Docker isolado na VPS-CSV, com escuta no host somente em `127.0.0.1:8092`; o Cloudflare Tunnel encaminha `panta-v2.grupocsv.com` para esse serviço. O índice SQLite usa volume persistente próprio. API `8090` e MCP `8091` da v1 não foram substituídos.
+
 O serviço v2 usa `PANTA_V2_DB_PATH` para o índice persistente e `PANTA_V2_SERVICE_TOKEN` para autenticação interna. O Worker usa `PANTA_BASE_URL` e `PANTA_SERVICE_TOKEN` para se conectar. Esses nomes não são valores secretos; os valores ficam na configuração protegida de cada serviço, nunca no frontend.
+
+Snapshots são enviados a `/internal/v2/documents/sync`, com `upsert` ou `remove` e revisão monotônica. No D1, `panta_sync_state.revision` é o estado desejado e `applied_revision` é o estado confirmado pelo Panta. O escopo da pesquisa exige essa confirmação antes e depois da consulta. Tombstones e revisão impedem que uma mensagem antiga ressuscite um documento retirado ou substitua uma versão mais nova.
 
 Fonte de código: `grupocsv/backend/services/panta-v2/` e `grupocsv/backend/workers/csv-documents/`. Migração, reconstrução, reinício e reversão devem seguir os procedimentos versionados do backend. O índice legado da v1 não pode ser importado como se já possuísse os IDs, versões, políticas e organizações da Central.
 
 Se a VPS que hospeda o índice estiver indisponível, a pesquisa que depende dela fica indisponível. Isso não transfere arquivos da Central para a VPS nem torna a VPS a fonte de permissões. Recuperar o serviço e reconstruir o índice são operações diferentes de recuperar os arquivos oficiais.
+
+## Demonstração pendente
+
+A explicação prática a Guilherme, mostrando o produto publicado e a diferença entre Central, v1 e v2, permanece pendente. Publicar este guia não substitui a demonstração nem a confirmação de entendimento.

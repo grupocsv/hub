@@ -242,11 +242,30 @@ function runGenerator(root, extraEnv = {}) {
   });
 }
 
-function spawnGenerator(root, extraEnv = {}) {
-  const child = spawn("python", [GENERATOR, root], {
+function spawnGenerator(root, extraEnv = {}, { lockBarrier = false } = {}) {
+  // A espera da fixture só termina após a liberação explícita pelo teste.
+  // O gerador continua adquirindo, mantendo e liberando seu lock real.
+  const args = lockBarrier
+    ? ["-c", `
+import os
+import runpy
+import sys
+import time
+
+def wait_for_release(_seconds):
+    print(f"fixture-lock-acquired:{os.getpid()}", flush=True)
+    if sys.stdin.readline() != "release\\n":
+        raise RuntimeError("Fixture lock release was not received.")
+
+time.sleep = wait_for_release
+sys.argv = sys.argv[1:]
+runpy.run_path(sys.argv[0], run_name="__main__")
+`, GENERATOR, root]
+    : [GENERATOR, root];
+  const child = spawn("python", args, {
     cwd: REPO_ROOT,
     env: { ...process.env, ...extraEnv },
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: [lockBarrier ? "pipe" : "ignore", "pipe", "pipe"],
   });
   child.portalToolsOutput = { stdout: "", stderr: "" };
   child.stdout.setEncoding("utf8");
@@ -258,19 +277,6 @@ function spawnGenerator(root, extraEnv = {}) {
     child.portalToolsOutput.stderr += chunk;
   });
   return child;
-}
-
-async function waitForPath(path, timeoutMs = 2_000) {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    try {
-      await access(path);
-      return;
-    } catch {
-      await delay(20);
-    }
-  }
-  assert.fail(`Caminho não apareceu no prazo: ${path}`);
 }
 
 async function collectProcess(child) {
@@ -981,21 +987,34 @@ test("execuções concorrentes são serializadas e a segunda aborta sem escrita"
   await withFixture({ withBaseline: true }, async (root) => {
     const before = await readOutputs(root);
     const first = spawnGenerator(root, {
-      PORTAL_TOOLS_TEST_HOLD_LOCK_MS: "500",
-    });
-    await waitForPath(join(root, ".portal-tools.lock"));
+      PORTAL_TOOLS_TEST_HOLD_LOCK_MS: "0",
+    }, { lockBarrier: true });
+    const firstCompletion = collectProcess(first);
+    let firstResult;
+    try {
+      await waitForProcessOutput(first, /fixture-lock-acquired:\d+/);
+      const lockPath = join(root, ".portal-tools.lock");
+      const lockBefore = await readFile(lockPath, "utf8");
+      const ownerPid = Number(first.portalToolsOutput.stdout.match(/fixture-lock-acquired:(\d+)/)[1]);
+      assert.equal(JSON.parse(lockBefore).pid, ownerPid);
 
-    const second = runGenerator(root);
-    assert.notEqual(second.status, 0);
-    assert.match(`${second.stdout}\n${second.stderr}`, /geração concorrente/i);
-    assert.deepEqual(await readOutputs(root), before);
+      const second = runGenerator(root);
+      assert.notEqual(second.status, 0);
+      assert.match(`${second.stdout}\n${second.stderr}`, /geração concorrente/i);
+      assert.equal(first.exitCode, null);
+      assert.equal(await readFile(lockPath, "utf8"), lockBefore);
+      assert.deepEqual(await readOutputs(root), before);
+    } finally {
+      first.stdin.end("release\n");
+      firstResult = await firstCompletion;
+    }
 
-    const firstResult = await collectProcess(first);
     assert.equal(
       firstResult.status,
       0,
       `${firstResult.stdout}\n${firstResult.stderr}`,
     );
+    await assert.rejects(access(join(root, ".portal-tools.lock")), { code: "ENOENT" });
     assert.deepEqual(await readOutputs(root), before);
   });
 });
@@ -1075,7 +1094,7 @@ test("fontes reais mantêm cinco tenants isolados e quatro cards gerenciados de 
   assert.deepEqual(config.features, {
     favorites: true,
     offline: false,
-    search: false,
+    search: true,
     upload: true,
     viewer: true,
   });

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
+  <title id="title">Central, Panta v2 e VPS</title>
+  <desc id="desc">Pessoas e agentes usam a Central. A Central controla arquivos, versões e permissões. Na VPS, o Panta v2 mantém apenas um índice derivado para pesquisa. A Central autoriza a consulta e revalida os resultados. O Panta v1 continua separado e não administra os documentos da Central.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#0b7187"/></marker></defs>
+  <rect width="960" height="620" rx="20" fill="#f3f7fa"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#14384b">
+    <text x="32" y="43" font-size="24" font-weight="700">Uma Central; um motor de busca complementar</text>
+    <rect x="32" y="84" width="370" height="77" rx="12" fill="#fff" stroke="#b8cbd6" stroke-width="2"/>
+    <text x="56" y="118" font-size="21" font-weight="700">Pessoas e agentes</text><text x="56" y="144" font-size="17">Sempre com identidade e acervo definidos.</text>
+    <path d="M217 161V206" stroke="#0b7187" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="32" y="219" width="370" height="270" rx="12" fill="#153e54"/>
+    <g fill="#fff"><text x="56" y="256" font-size="23" font-weight="700">Central de Documentos</text>
+      <g font-size="18"><text x="56" y="295">Arquivos originais privados</text><text x="56" y="326">Versão vigente e histórico</text><text x="56" y="357">Permissões por organização</text><text x="56" y="388">Links públicos e exclusão lógica</text></g>
+      <text x="56" y="455" font-size="17">Autoriza e confere cada resultado.</text>
+    </g>
+    <rect x="604" y="84" width="324" height="460" rx="16" fill="#e2eef2" stroke="#96b5c4" stroke-width="2"/>
+    <text x="628" y="121" font-size="21" font-weight="700">VPS — servidor de execução</text>
+    <rect x="628" y="170" width="276" height="174" rx="12" fill="#fff" stroke="#0b7187" stroke-width="2"/>
+    <text x="650" y="206" font-size="23" font-weight="700">Panta v2</text>
+    <g font-size="18"><text x="650" y="240">Índice para busca textual</text><text x="650" y="270">derivado da Central.</text><text x="650" y="313">Não decide permissões.</text></g>
+    <path d="M402 252H617" stroke="#0b7187" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="426" y="222" font-size="16">Sincronização e</text><text x="426" y="244" font-size="16">busca autorizada</text>
+    <path d="M628 310H412" stroke="#0b7187" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="434" y="338" font-size="16">Resultados a conferir</text>
+    <rect x="628" y="386" width="276" height="129" rx="12" fill="#fff" stroke="#96b5c4" stroke-width="2"/>
+    <text x="650" y="421" font-size="22" font-weight="700">Panta v1 — separado</text>
+    <text x="650" y="454" font-size="18">Fontes federadas e grafo.</text><text x="650" y="485" font-size="17">Não é outra Central.</text>
+    <text x="32" y="583" font-size="18">Falha da busca não apaga os arquivos nem amplia as permissões da Central.</text>
+  </g>
+</svg>

@@ -592,6 +592,7 @@ test("catálogo e diálogo de upload cumprem axe, overflow e navegação por tec
   const dialog = page.locator("#docs-upload-dialog");
   await expect(dialog).toBeVisible();
   await expect(page.locator("#docs-upload-document-title")).toBeFocused();
+  await expect(page.locator("#docs-upload-indexing")).toHaveValue("metadata_only");
   await expectNoHorizontalOverflow(page);
   await expectNoWcagViolations(page, "#docs-upload-dialog");
 
@@ -631,6 +632,10 @@ test("catálogo e diálogo de upload cumprem axe, overflow e navegação por tec
 
   const log = await requestLog(page);
   expect(
+    log.find((entry) => entry.path === "/v1/documents" && entry.method === "POST")
+      ?.body.indexing_policy,
+  ).toBe("metadata_only");
+  expect(
     log.some(
       (entry) =>
         entry.path === "/v1/upload-sessions/upload-e2e/bytes" &&
@@ -650,4 +655,37 @@ test("catálogo e diálogo de upload cumprem axe, overflow e navegação por tec
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(uploadButton).toBeFocused();
+});
+
+test("upload permite texto completo explícito e volta ao padrão de metadados", async ({ page }) => {
+  await openCatalog(page);
+  await page.getByRole("button", { name: "Enviar Documento" }).click();
+
+  const indexing = page.locator("#docs-upload-indexing");
+  await expect(indexing).toHaveValue("metadata_only");
+  await expect(indexing.locator('[value="full_text"]')).toBeEnabled();
+  await indexing.selectOption({ label: "Texto completo e metadados" });
+  await page.locator("#docs-upload-document-title").fill("Busca textual E2E");
+  await page.locator("#docs-upload-file").setInputFiles({
+    name: "busca-textual-e2e.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Conteúdo sintético autorizado para a busca textual."),
+  });
+  await page.locator("#docs-upload-form").getByRole("button", { name: "Enviar", exact: true }).click();
+  await expect(page.locator("#docs-upload-status")).toHaveText(
+    "Documento processado com sucesso.",
+    { timeout: 15_000 },
+  );
+
+  const log = await requestLog(page);
+  expect(
+    log.find((entry) => entry.path === "/v1/documents" && entry.method === "POST")
+      ?.body.indexing_policy,
+  ).toBe("full_text");
+
+  await page.getByRole("button", { name: "Cancelar Envio" }).click();
+  await page.getByRole("button", { name: "Enviar Documento" }).click();
+  await expect(indexing).toHaveValue("metadata_only");
+  await expectNoHorizontalOverflow(page);
+  await expectNoWcagViolations(page, "#docs-upload-dialog");
 });

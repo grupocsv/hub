@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" role="img" aria-labelledby="title desc">
+  <title id="title">Como a busca acompanha uma alteração</title>
+  <desc id="desc">A Central registra uma nova revisão e o processamento assíncrono lê o estado atual. Se o documento pode ser pesquisado, atualiza o índice. Se foi retirado da busca, remove seu texto e mantém um marcador para rejeitar eventos antigos.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#0b7187"/></marker></defs>
+  <rect width="960" height="430" rx="20" fill="#f3f7fa"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#14384b">
+    <text x="32" y="43" font-size="24" font-weight="700">A busca acompanha o estado atual do documento</text>
+    <text x="32" y="76" font-size="17">Atualização assíncrona: salvar e aparecer na pesquisa não são o mesmo instante.</text>
+    <g fill="#fff" stroke="#b8cbd6" stroke-width="2"><rect x="32" y="153" width="250" height="149" rx="12"/><rect x="330" y="153" width="250" height="149" rx="12"/><rect x="628" y="116" width="300" height="100" rx="12"/><rect x="628" y="253" width="300" height="114" rx="12"/></g>
+    <g font-size="21" font-weight="700"><text x="54" y="190">Central registra</text><text x="352" y="190">Sincronização</text><text x="650" y="150">Atualiza o índice</text><text x="650" y="288">Retira da busca</text></g>
+    <g font-size="17"><text x="54" y="225">Metadados, versão,</text><text x="54" y="251">política ou estado</text><text x="54" y="277">recebem nova revisão.</text><text x="352" y="225">Lê o estado atual</text><text x="352" y="251">e aplica a revisão</text><text x="352" y="277">mais recente.</text><text x="650" y="183">Se continua pesquisável.</text><text x="650" y="320">Se não pode mais aparecer;</text><text x="650" y="346">o texto deixa o índice.</text></g>
+    <g stroke="#0b7187" stroke-width="3" fill="none" marker-end="url(#arrow)"><path d="M282 229H320"/><path d="M580 229H603V166H618"/><path d="M603 229V310H618"/></g>
+    <text x="32" y="405" font-size="18">Revisões antigas são ignoradas: não restauram texto removido ou já substituído.</text>
+  </g>
+</svg>

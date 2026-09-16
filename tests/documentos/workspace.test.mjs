@@ -544,6 +544,24 @@ test("expõe fila de exclusão somente por capability e decide sem hard delete",
   );
 });
 
+test("busca habilitada preserva metadados por padrão e texto completo explícito no upload", async () => {
+  const context = fixture({ features: { favorites: true, upload: true, search: true } });
+  await context.workspace.start();
+  const handlers = context.getHandlers();
+  assert.equal(context.getUploadOptions().fullTextIndexingEnabled, true);
+
+  await handlers.startUpload({ file: { name: "padrao.pdf" }, title: "Padrão" });
+  await handlers.startUpload({
+    file: { name: "texto.pdf" },
+    title: "Texto completo autorizado",
+    indexingPolicy: "full_text",
+  });
+  assert.deepEqual(
+    context.calls.filter(([name]) => name === "upload.start").map(([, input]) => input.indexingPolicy),
+    ["metadata_only", "full_text"],
+  );
+});
+
 test("condiciona upload a create ou create_version e atualiza o catálogo após sucesso", async () => {
   const context = fixture({
     features: { favorites: true, upload: true },
@@ -718,25 +736,8 @@ test("busca falha fechado quando features.search está ausente", async () => {
   );
 });
 
-test("artefato produtivo mantém busca desligada e não chama /v1/search", async () => {
-  const source = await readFile(
-    new URL(
-      "../../docs/public/documentos/assets/runtime-config.js",
-      import.meta.url,
-    ),
-    "utf8",
-  );
-  const prefix = "globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(";
-  assert.ok(source.startsWith(prefix));
-  const config = JSON.parse(source.slice(prefix.length, -3));
-  assert.equal(config.features.search, false);
-
-  const context = fixture({
-    features: {
-      favorites: config.features.favorites,
-      search: config.features.search,
-    },
-  });
+test("busca desligada explicitamente não chama /v1/search", async () => {
+  const context = fixture({ features: { favorites: true, search: false } });
   await context.workspace.start();
   context.calls.length = 0;
 
@@ -747,6 +748,39 @@ test("artefato produtivo mantém busca desligada e não chama /v1/search", async
         name === "catalog.search" || String(target).includes("/v1/search"),
     ),
     false,
+  );
+});
+
+test("artefato produtivo habilita busca somente após ação do usuário", async () => {
+  const source = await readFile(
+    new URL(
+      "../../docs/public/documentos/assets/runtime-config.js",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const prefix = "globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(";
+  assert.ok(source.startsWith(prefix));
+  const config = JSON.parse(source.slice(prefix.length, -3));
+  assert.equal(config.features.search, true);
+
+  const context = fixture({
+    features: {
+      favorites: config.features.favorites,
+      search: config.features.search,
+    },
+  });
+  await context.workspace.start();
+  assert.equal(
+    context.calls.some(([name]) => name === "catalog.search"),
+    false,
+  );
+  context.calls.length = 0;
+
+  await context.getHandlers().search("oncologia");
+  assert.deepEqual(
+    context.calls.filter(([name]) => name === "catalog.search"),
+    [["catalog.search", "oncologia"]],
   );
 });
 

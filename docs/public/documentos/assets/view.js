@@ -924,6 +924,11 @@ export function createDocumentosView(options = {}) {
     detailRoot.inert = true;
     detailRoot.setAttribute("aria-hidden", "true");
     uploadForm.reset();
+    const fullTextOption = uploadIndexing.querySelector('[value="full_text"]');
+    if (fullTextOption) {
+      fullTextOption.hidden = !searchEnabled;
+      fullTextOption.disabled = !searchEnabled;
+    }
     if (!searchEnabled) uploadIndexing.value = "metadata_only";
     uploadDocumentId.value =
       value.mode === "version" ? (value.documentId ?? "") : "";

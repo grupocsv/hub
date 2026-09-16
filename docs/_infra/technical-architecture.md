@@ -297,7 +297,7 @@ Copiar página
 <div class="tech-page">
 <div class="frame hero-section">
 <h1>Infraestrutura Técnica</h1>
-<p class="version">Versão 1.2 — Atualizado em 24/08/2026</p>
+<p class="version">Versão 1.3 — Atualizado em 16/09/2026; API Panta v2 validada, busca habilitada nesta versão do Hub</p>
 <p class="subtitle">
 Visão consolidada da arquitetura de backend documentada do ecossistema <strong>Grupo CSV</strong>.
 Descreve os principais microserviços, bancos de dados, armazenamentos, rotas de API,
@@ -407,15 +407,18 @@ e mantém autorização documental no D1 dedicado.
 <tr><td>Monitor</td><td><code>csv-documents-monitor</code></td><td>Worker, Queue, DLQ, D1, processador e ClamAV; sem rota pública</td></tr>
 <tr><td>Links públicos</td><td><code>documentos-api.grupocsv.com/s/{slug}</code></td><td>Entrega mediada, revogável e limitada; o bucket R2 continua privado</td></tr>
 <tr><td>Operação por agentes</td><td><code>extensio-mcp</code> via Service Binding</td><td>Ferramentas tenant-aware com credencial de serviço, escopos e idempotência</td></tr>
+<tr><td>Pesquisa documental</td><td><code>panta-v2.grupocsv.com</code></td><td>Serviço v2 isolado em Docker, VPS-CSV local 8092; índice derivado, sem autoridade de acesso. Integração por API/MCP validada em produção</td></tr>
 </tbody>
 </table>
 <p class="section-desc">
 Os tenants publicados são <code>grupo-csv</code>, <code>unimed</code>, <code>unihealth</code>, <code>icds</code>
-e <code>2im</code>. A busca permanece desabilitada no frontend publicado. Panta v1 é independente; Panta v2
-documental está implementado no código, mas não foi promovido. Consulte a
+e <code>2im</code>. A pesquisa foi validada pela Central/Extensio nos cinco tenants, incluindo isolamento, políticas, troca de versão, exclusão lógica e reconstrução de um documento retirado. O Worker <code>0389d7b4-eed6-4b60-b0d1-bdff6e25760b</code>, fonte <code>094c8871e65c5f6d9ae0c9d6f0cbff8c107620b9</code>, recebe 100% do tráfego. Esta versão do Hub habilita a busca após essa validação; a sessão humana no navegador permanece não aferida. O serviço isolado está na versão <code>2.1.0</code>, schema <code>2</code>. Panta v1 e seu MCP continuam independentes e preservados nas portas 8090 e 8091. Consulte a
 <a href="/_infra/central-documentos">documentação canônica da Central de Documentos</a> para lifecycle,
 agentes, OpenAPI, links públicos e estado de entrega.
 </p>
+<p class="section-desc">Uso cotidiano: <a href="/_infra/manuais/central-documentos">manual ilustrado da Central</a> e <a href="/_infra/manuais/panta-v2">manual do Panta v2</a>. Os manuais descrevem os controles; não substituem a confirmação operacional nem a demonstração pendente a Guilherme.</p>
+<p class="section-desc">Ao encerrar a validação em 16/09/2026, os cinco canários estavam excluídos logicamente, com consulta 404 e busca sem resultados. Limites da verificação: não houve novo reinício da VPS nem restauração integral do volume a partir de backup nesta rodada. Reconstrução de documento não equivale a recuperação integral de desastre.</p>
+<p class="section-desc">A sincronização usa <code>/internal/v2/documents/sync</code> e revisões monotônicas no D1 (<code>panta_sync_state</code>). Só uma revisão confirmada entra no escopo da pesquisa. O cron reconcilia a cada cinco minutos, além do tempo de fila e processamento. A busca é lexical e limita o escopo a 500 documentos autorizados; excesso retorna <code>422 search_scope_too_large</code>, sem corte silencioso. A credencial exclusiva fica em configuração protegida; nenhum token interno chega ao navegador ou ao agente final.</p>
 </div>
 <div class="frame">
 <h2 class="section-title">2. API Gateway (<code>csv-gateway</code>)</h2>

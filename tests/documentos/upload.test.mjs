@@ -270,6 +270,29 @@ test("cria documento, calcula SHA-256, transmite bytes, conclui e acompanha esta
   });
 });
 
+test("preserva full_text escolhido explicitamente quando a busca está habilitada", async () => {
+  const { client, calls } = successClient();
+  const identifiers = ["document-a", "request-2", "request-3", "request-4"];
+  const { controller } = controllerFixture({
+    client,
+    fullTextIndexingEnabled: true,
+    createRequestId: () => identifiers.shift(),
+  });
+
+  const result = await controller.start({
+    file: fileFixture(),
+    permissions: ["create"],
+    title: "Documento com busca textual autorizada",
+    description: "",
+    collectionId: null,
+    classification: "internal",
+    indexingPolicy: "full_text",
+  });
+
+  assert.equal(result.status, "succeeded");
+  assert.equal(calls[0][1].body.indexing_policy, "full_text");
+});
+
 test("coage full_text para metadata_only quando a busca integral está desabilitada", async () => {
   const { client, calls } = successClient();
   const identifiers = ["document-a", "request-2", "request-3", "request-4"];
