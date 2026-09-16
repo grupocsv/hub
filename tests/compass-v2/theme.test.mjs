@@ -112,6 +112,12 @@ test('define tokens editoriais e componentes essenciais do layout 008', async ()
   }
 });
 
+test('reserva espaço para a marca antes de títulos longos na capa desktop', async () => {
+  const css = await readFile(cssPath, 'utf8');
+  assert.match(css, /@media\s+screen\s+and\s*\(min-width:\s*769px\)\s*\{\s*\.compass-cover__brand\s*\{[^}]*position:\s*static;[^}]*margin-bottom:\s*2rem;/s);
+  assert.match(css, /\.compass-cover\s+\.compass-cover__logo\s*\{\s*margin:\s*0;/s);
+});
+
 test('mantém o navbar opaco nas páginas internas e transparente somente na homepage', async () => {
   const css = await readFile(customCssPath, 'utf8');
   assert.match(css, /\.VPNavBar\s*\{[^}]*background-color:\s*var\(--vp-c-bg\)\s*!important/si);

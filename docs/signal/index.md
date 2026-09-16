@@ -37,8 +37,12 @@ head:
 }
 .signal-header .subtitle {
   font-size: 1rem;
-  color: #6e7681;
+  color: var(--vp-c-text-2);
   font-weight: 300;
+  text-align: center;
+}
+.dark .signal-header h1 {
+  color: #8fc7ec;
 }
 .signal-divider {
   border: none;

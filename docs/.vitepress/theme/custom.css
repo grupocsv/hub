@@ -104,3 +104,50 @@ body:has(.compass-header) .VPSidebarItem .text {
   overflow-wrap: break-word;
   line-height: 1.4;
 }
+
+/* A sessão inserida na navegação acompanha o tema ativo do VitePress. */
+.dark #hub-auth-logout.ha-in-nav .ha-user-badge {
+  color: var(--vp-c-text-2);
+}
+.dark #hub-auth-logout.ha-in-nav .ha-logout-btn {
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-soft);
+  border-color: var(--vp-c-divider);
+}
+.dark #hub-auth-logout.ha-in-nav .ha-logout-btn:hover {
+  color: #fff;
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* A navegação completa precisa reservar espaço para a sessão autenticada. */
+@media (min-width: 768px) and (max-width: 1439px) {
+  .VPNavBarTitle .title > span,
+  .VPNavBarSearchButton .text,
+  .VPNavBarSearchButton .keys,
+  #hub-auth-logout.ha-in-nav .ha-user-badge span {
+    display: none;
+  }
+  .VPNavBarSearch {
+    flex-grow: 0;
+    padding-left: 16px;
+    padding-right: 8px;
+  }
+  .VPNavBarSearchButton {
+    justify-content: center;
+    width: 40px;
+    min-width: 40px;
+    padding: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 959px) {
+  .VPNavBarMenu .VPNavBarMenuLink,
+  .VPNavBarMenuGroup > .button {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+  .VPNavBarSearch {
+    padding-left: 8px;
+  }
+}

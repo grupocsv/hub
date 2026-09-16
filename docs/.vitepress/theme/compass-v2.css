@@ -92,6 +92,17 @@
   display: block;
 }
 
+/* Títulos longos fazem a capa crescer; a marca não pode ocupar o mesmo espaço. */
+@media screen and (min-width: 769px) {
+  .compass-cover__brand {
+    position: static;
+    margin-bottom: 2rem;
+  }
+  .compass-cover .compass-cover__logo {
+    margin: 0;
+  }
+}
+
 .compass-cover__eyebrow {
   margin: 0 0 0.9rem;
   color: #8be8ee;

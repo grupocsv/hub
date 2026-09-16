@@ -193,6 +193,13 @@ head:
 }
 .dark .page-footer { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 .page-footer .small { font-size: 0.85rem; color: #5b6470; }
+
+.dark .hero-text .subtitle,
+.dark .section-desc,
+.dark .link-desc,
+.dark .page-footer .small {
+  color: var(--vp-c-text-2);
+}
 </style>
 
 <div class="founder-page">
