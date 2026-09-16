@@ -156,13 +156,14 @@ function normalizeSearchPayload(payload) {
       typeof item.version_id !== 'string' ||
       typeof item.title !== 'string' ||
       typeof item.excerpt !== 'string' ||
-      typeof item.score !== 'number'
+      typeof item.score !== 'number' ||
+      !Number.isFinite(item.score)
     ) {
       throw new TypeError('Resposta de busca inválida.');
     }
     return Object.freeze({
-      documentId: item.document_id,
-      versionId: item.version_id,
+      documentId: opaqueIdentifier(item.document_id, 'Documento'),
+      versionId: opaqueIdentifier(item.version_id, 'Versão'),
       title: item.title,
       excerpt: item.excerpt,
       score: item.score,

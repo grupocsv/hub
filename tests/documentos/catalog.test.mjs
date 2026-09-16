@@ -85,6 +85,21 @@ test('normaliza catálogo somente quando favorito é verificável em todos os it
   );
 });
 
+test('busca preserva referência e trecho como texto; rejeita ID vazio ou score não finito', async () => {
+  const result = { document_id: 'document-a', version_id: 'version-a', title: 'Manual', excerpt: '<script>alert(1)</script>', score: 1 };
+  const controller = createCatalogController({ client: { async request() {
+    return { data: { results: [result] } };
+  } } });
+  const valid = await controller.search('manual');
+  assert.equal(valid.items[0].versionId, 'version-a');
+  assert.equal(valid.items[0].excerpt, '<script>alert(1)</script>');
+  result.version_id = '';
+  assert.equal((await controller.search('manual')).status, 'error');
+  result.version_id = 'version-a';
+  result.score = NaN;
+  assert.equal((await controller.search('manual')).status, 'error');
+});
+
 test('cancela a listagem anterior e nunca mistura resposta de busca com catálogo', async () => {
   const first = deferred();
   const calls = [];

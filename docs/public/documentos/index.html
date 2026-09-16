@@ -53,8 +53,13 @@
           <label for="docs-search">Buscar Documentos</label>
           <div class="docs-search__control">
             <span class="docs-search__icon" aria-hidden="true"></span>
-            <input id="docs-search" name="query" type="search" inputmode="search" autocomplete="off" placeholder="Título, coleção ou conteúdo" disabled>
+            <input id="docs-search" name="query" type="search" inputmode="search" autocomplete="off" maxlength="500" aria-describedby="docs-search-help" placeholder="Palavras no título ou conteúdo" disabled>
             <button class="docs-search__submit" type="submit" disabled>Buscar</button>
+          </div>
+          <p class="docs-search__help" id="docs-search-help">Pesquisa textual nos documentos autorizados desta Central. Use os filtros abaixo para navegar pelo catálogo.</p>
+          <div class="docs-search__feedback" id="docs-search-feedback" hidden>
+            <p id="docs-search-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <button class="docs-button docs-button--secondary" id="docs-search-clear" type="button">Voltar ao Catálogo</button>
           </div>
         </form>
       </section>

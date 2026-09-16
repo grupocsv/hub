@@ -61,6 +61,19 @@ test("não realiza request sem sessão autenticada", async () => {
   assert.equal(requests, 0);
 });
 
+test("preserva somente código público de limite da busca, sem propagar mensagem remota", async () => {
+  const client = clientWith(async () => jsonResponse(422, {
+    error: { code: "search_scope_too_large", message: "segredo remoto" },
+  }));
+  const searchError = await captureError(() => client.request("/v1/search", {
+    method: "POST", body: { query: "manual", limit: 20 },
+  }));
+  assert.equal(searchError.code, "search_scope_too_large");
+  assert.doesNotMatch(searchError.message, /segredo remoto/);
+  const otherError = await captureError(() => client.request("/v1/documents"));
+  assert.equal(otherError.code, "invalid_request");
+});
+
 test("envia somente X-Auth-Token como credencial humana e não envia contexto de tenant", async () => {
   const calls = [];
   const client = clientWith(async (url, init) => {

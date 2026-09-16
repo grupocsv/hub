@@ -55,6 +55,7 @@ const ERROR_DEFINITIONS = Object.freeze({
     retriable: false,
   }),
   invalid_request: Object.freeze({ category: "validation", retriable: false }),
+  search_scope_too_large: Object.freeze({ category: "validation", retriable: false }),
   rate_limited: Object.freeze({ category: "transient", retriable: true }),
   service_unavailable: Object.freeze({
     category: "transient",
@@ -82,6 +83,7 @@ const PUBLIC_MESSAGES = Object.freeze({
   payload_too_large: "O arquivo excede o tamanho permitido.",
   unsupported_media_type: "Este tipo de arquivo não é permitido.",
   invalid_request: "Revise os dados informados e tente novamente.",
+  search_scope_too_large: "O acervo excede o limite desta busca. Consulte o catálogo e seus filtros.",
   rate_limited: "Há muitas solicitações no momento. Aguarde e tente novamente.",
   service_unavailable: "O serviço está temporariamente indisponível.",
   request_timeout: "A solicitação demorou mais do que o esperado.",
@@ -447,7 +449,9 @@ export function createDocumentApiClient(options = {}) {
       if (!response.ok) {
         throw new DocumentApiError({
           status: response.status,
-          code: codeForStatus(response.status),
+          code: target === "/v1/search" && response.status === 422 && data?.error?.code === "search_scope_too_large"
+            ? "search_scope_too_large"
+            : codeForStatus(response.status),
           requestId,
           retryAfterSeconds: retryAfterSeconds(response),
         });

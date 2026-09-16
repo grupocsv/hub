@@ -148,6 +148,41 @@ test("catálogo cobre paginação, busca, filtros e favorito sem perder foco", a
   await expectNoHorizontalOverflow(page);
 });
 
+test("busca degradada preserva acesso ao catálogo e não mostra resultado parcial", async ({ page }) => {
+  await openCatalog(page);
+  const input = page.getByRole("searchbox", { name: "Buscar Documentos" });
+  for (const [query, message] of [
+    ["indisponivel-e2e", "A pesquisa está indisponível"],
+    ["acervo-excedido-e2e", "Nenhum resultado parcial"],
+  ]) {
+    await input.fill(query);
+    await page.getByRole("button", { name: "Buscar", exact: true }).click();
+    await expect(page.locator("#docs-search-status")).toContainText(message);
+    await expect(page.getByRole("button", { name: "Enviar Documento" })).toBeEnabled();
+    await page.getByRole("button", { name: "Voltar ao Catálogo" }).click();
+    await expect(page.locator(".docs-card")).toHaveCount(2);
+    await expect(input).toBeFocused();
+  }
+  await expectNoHorizontalOverflow(page);
+});
+
+test("trecho da busca permanece texto e abre o documento pela autorização da Central", async ({ page }) => {
+  await openCatalog(page);
+  await page.getByRole("searchbox", { name: "Buscar Documentos" }).fill("trecho-html-e2e");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await expect(page.locator(".docs-card__description")).toHaveText("<img src=x onerror=alert(1)>");
+  await expect(page.locator(".docs-card img")).toHaveCount(0);
+  await page.locator(".docs-card__reference summary").click();
+  await expect(page.locator(".docs-card__reference")).toContainText("Versão pesquisada: version-pdf");
+  await expectNoHorizontalOverflow(page);
+  await expectNoWcagViolations(page);
+  await page.getByRole("button", { name: "Ver detalhes de Manual Seguro em PDF" }).click();
+  await page.getByRole("button", { name: "Abrir Documento", exact: true }).click();
+  await expect(page.locator("#docs-viewer-canvas")).toBeVisible();
+  const log = await requestLog(page);
+  expect(log.some((entry) => entry.path.includes("/viewer-tickets"))).toBe(true);
+});
+
 test("viewer usa PDF Range autenticado, rota sem segredo e teclado coerente", async ({
   page,
 }, testInfo) => {
