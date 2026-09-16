@@ -169,6 +169,12 @@ title: Infraestrutura — Índice Canônico
 }
 .dark .page-footer { background: var(--vp-c-bg-soft); border-color: var(--vp-c-divider); box-shadow: none; }
 .page-footer .small { font-size: 0.85rem; color: #5b6470; }
+
+.dark .hero-section .subtitle,
+.dark .section-desc,
+.dark .page-footer .small {
+  color: var(--vp-c-text-2);
+}
 </style>
 
 <div class="infra-page">

@@ -30,204 +30,206 @@
   --f-mono:"JetBrains Mono",monospace;
 }
 
-*{box-sizing:border-box;}
+/* O CSS carregado pelo VitePress permanece na navegação SPA. O escopo com
+   :where preserva a especificidade editorial sem afetar outras páginas. */
+:where(.compass-v2--paged),:where(.compass-v2--paged) *{box-sizing:border-box;}
 
 
 
-@page{ size:A4; margin:0; }
-.compass-page{
+@page compass-edition-008{ size:A4; margin:0; }
+:where(.compass-v2--paged) .compass-page{
   position:relative; width:210mm; height:297mm; background:#fff;
-  overflow:hidden; page-break-after:always; break-after:page;
+  overflow:hidden; page-break-after:always; break-after:page; page:compass-edition-008;
 }
-.compass-page:last-child{page-break-after:auto;}
-@media screen{ .compass-page{ margin:0 auto 8mm; box-shadow:0 5px 24px rgba(0,0,0,.4);} }
+:where(.compass-v2--paged) .compass-page:last-child{page-break-after:auto;}
+@media screen{ :where(.compass-v2--paged) .compass-page{ margin:0 auto 8mm; box-shadow:0 5px 24px rgba(0,0,0,.4);} }
 
-.pad{ position:absolute; left:20mm; right:18mm; top:21mm; bottom:18mm; }
-.pad--cap{ top:16mm; }
+:where(.compass-v2--paged) .pad{ position:absolute; left:20mm; right:18mm; top:21mm; bottom:18mm; }
+:where(.compass-v2--paged) .pad--cap{ top:16mm; }
 
 /* ---------- cabeçalho e rodapé correntes ---------- */
-.rh{
+:where(.compass-v2--paged) .rh{
   position:absolute; left:20mm; right:18mm; top:10.5mm;
   display:flex; justify-content:space-between; align-items:baseline;
   border-bottom:.3pt solid var(--fio-leve); padding-bottom:2.2mm;
 }
-.rh .l{ font-style:italic; font-size:7.5pt; color:var(--cinza-2); }
-.rh .r{ font-family:var(--f-mono); font-size:6.5pt; color:var(--cinza-3); letter-spacing:.04em; }
+:where(.compass-v2--paged) .rh .l{ font-style:italic; font-size:7.5pt; color:var(--cinza-2); }
+:where(.compass-v2--paged) .rh .r{ font-family:var(--f-mono); font-size:6.5pt; color:var(--cinza-3); letter-spacing:.04em; }
 
-.ft{
+:where(.compass-v2--paged) .ft{
   position:absolute; left:20mm; right:18mm; bottom:10mm;
   display:flex; justify-content:space-between; align-items:baseline;
   border-top:.3pt solid var(--fio-leve); padding-top:2.2mm;
 }
-.ft .c{ font-size:7pt; color:var(--cinza-3); }
-.ft .n{ font-family:var(--f-txt); font-weight:600; font-size:9pt; color:var(--tinta); }
+:where(.compass-v2--paged) .ft .c{ font-size:7pt; color:var(--cinza-3); }
+:where(.compass-v2--paged) .ft .n{ font-family:var(--f-txt); font-weight:600; font-size:9pt; color:var(--tinta); }
 
 /* ---------- tipografia ---------- */
-.kick{
+:where(.compass-v2--paged) .kick{
   font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
   color:var(--azul);
 }
-h1,h2,h3,h4{ margin:0; text-wrap:balance; }
-.h-cap{
+:where(.compass-v2--paged) h1,:where(.compass-v2--paged) h2,:where(.compass-v2--paged) h3,:where(.compass-v2--paged) h4{ margin:0; text-wrap:balance; }
+:where(.compass-v2--paged) .h-cap{
   font-family:var(--f-disp); font-size:19pt; line-height:1.06;
   letter-spacing:-.012em; color:var(--tinta); margin:2.2mm 0 0;
 }
-.h-sec{
+:where(.compass-v2--paged) .h-sec{
   font-size:11.2pt; font-weight:700; letter-spacing:-.008em;
   color:var(--tinta); margin:5mm 0 2mm;
 }
-.h-sec:first-child{ margin-top:0; }
-.h-sub{ font-size:9.4pt; font-weight:700; color:var(--tinta); margin:3.2mm 0 1.2mm; }
+:where(.compass-v2--paged) .h-sec:first-child{ margin-top:0; }
+:where(.compass-v2--paged) .h-sub{ font-size:9.4pt; font-weight:700; color:var(--tinta); margin:3.2mm 0 1.2mm; }
 
-p{ margin:0; text-indent:4.5mm; text-align:justify; hyphens:auto; text-wrap:pretty; }
-p.ni, h2+p, h3+p, h4+p, .kick+p, figure+p, table+p, .destaque+p, .verbete+p, .ld+p, .tn+p, div+p.ni{ text-indent:0; }
-p.lede{ font-size:10.6pt; line-height:1.52; text-indent:0; margin-bottom:3mm; text-align:left; }
-strong{ font-weight:700; }
-em{ font-style:italic; }
-.mut{ color:var(--cinza); }
+:where(.compass-v2--paged) p{ margin:0; text-indent:4.5mm; text-align:justify; hyphens:auto; text-wrap:pretty; }
+:where(.compass-v2--paged) p.ni, :where(.compass-v2--paged) h2+p, :where(.compass-v2--paged) h3+p, :where(.compass-v2--paged) h4+p, :where(.compass-v2--paged) .kick+p, :where(.compass-v2--paged) figure+p, :where(.compass-v2--paged) table+p, :where(.compass-v2--paged) .destaque+p, :where(.compass-v2--paged) .verbete+p, :where(.compass-v2--paged) .ld+p, :where(.compass-v2--paged) .tn+p, :where(.compass-v2--paged) div+p.ni{ text-indent:0; }
+:where(.compass-v2--paged) p.lede{ font-size:10.6pt; line-height:1.52; text-indent:0; margin-bottom:3mm; text-align:left; }
+:where(.compass-v2--paged) strong{ font-weight:700; }
+:where(.compass-v2--paged) em{ font-style:italic; }
+:where(.compass-v2--paged) .mut{ color:var(--cinza); }
 
 /* nota run-in: <p class="nota"><strong>Rótulo —</strong> texto</p> */
-p.nota{ text-indent:0; margin:2.6mm 0; }
-p.nota strong{ font-weight:700; }
+:where(.compass-v2--paged) p.nota{ text-indent:0; margin:2.6mm 0; }
+:where(.compass-v2--paged) p.nota strong{ font-weight:700; }
 
 /* destaque entre fios */
-.destaque{
+:where(.compass-v2--paged) .destaque{
   border-top:.75pt solid var(--fio-forte);
   border-bottom:.3pt solid var(--fio);
   padding:3mm 0 3mm 8mm; margin:4mm 0;
   break-inside:avoid;
 }
-.destaque p{ text-indent:0; }
+:where(.compass-v2--paged) .destaque p{ text-indent:0; }
 
 /* ---------- linha de dados ---------- */
-.ld{
+:where(.compass-v2--paged) .ld{
   display:grid; grid-template-columns:1fr 1fr 1fr;
   border-top:.75pt solid var(--fio-forte);
   border-bottom:.3pt solid var(--fio);
   margin:4.5mm 0;
 }
-.ld > div{ padding:3mm 4mm 3mm 0; }
-.ld > div + div{ border-left:.3pt solid var(--fio); padding-left:4mm; }
-.ld .r{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--cinza-2); }
-.ld .v{ font-family:var(--f-disp); font-size:19pt; line-height:1.05; color:var(--tinta); margin:1.6mm 0 1.2mm; letter-spacing:-.015em; }
-.ld .v .seta{ font-family:var(--f-txt); font-weight:600; font-size:13pt; padding:0 .8mm; color:var(--cinza-2); }
-.ld .v.destq{ color:var(--verde-esc); }
-.ld .f{ font-size:7.5pt; line-height:1.4; color:var(--cinza-2); }
+:where(.compass-v2--paged) .ld > div{ padding:3mm 4mm 3mm 0; }
+:where(.compass-v2--paged) .ld > div + div{ border-left:.3pt solid var(--fio); padding-left:4mm; }
+:where(.compass-v2--paged) .ld .r{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--cinza-2); }
+:where(.compass-v2--paged) .ld .v{ font-family:var(--f-disp); font-size:19pt; line-height:1.05; color:var(--tinta); margin:1.6mm 0 1.2mm; letter-spacing:-.015em; }
+:where(.compass-v2--paged) .ld .v .seta{ font-family:var(--f-txt); font-weight:600; font-size:13pt; padding:0 .8mm; color:var(--cinza-2); }
+:where(.compass-v2--paged) .ld .v.destq{ color:var(--verde-esc); }
+:where(.compass-v2--paged) .ld .f{ font-size:7.5pt; line-height:1.4; color:var(--cinza-2); }
 
 /* ---------- tabelas ---------- */
-.qcap{ font-size:8pt; margin:0 0 1.6mm; text-indent:0; }
-.qcap b{ font-weight:700; }
-.qcap i{ font-style:italic; color:var(--cinza); }
-table{ width:100%; border-collapse:collapse; font-size:8.3pt; line-height:1.4;
+:where(.compass-v2--paged) .qcap{ font-size:8pt; margin:0 0 1.6mm; text-indent:0; }
+:where(.compass-v2--paged) .qcap b{ font-weight:700; }
+:where(.compass-v2--paged) .qcap i{ font-style:italic; color:var(--cinza); }
+:where(.compass-v2--paged) table{ width:100%; border-collapse:collapse; font-size:8.3pt; line-height:1.4;
   font-feature-settings:"tnum"; }
-thead th{
+:where(.compass-v2--paged) thead th{
   text-align:left; font-weight:600; font-size:8.3pt; color:var(--tinta);
   border-top:1pt solid var(--fio-forte); border-bottom:.5pt solid var(--fio-forte);
   padding:1.8mm 2.2mm 1.8mm 0; vertical-align:bottom;
 }
-tbody td{
+:where(.compass-v2--paged) tbody td{
   padding:1.9mm 2.2mm 1.9mm 0; border-bottom:.3pt solid var(--fio-leve);
   vertical-align:top;
 }
-tbody tr:last-child td{ border-bottom:.5pt solid var(--fio); }
-td.k{ font-weight:700; }
-td.mono, th.mono{ font-family:var(--f-mono); font-size:7.6pt; color:var(--azul); white-space:nowrap; }
-.tn{ font-size:7.4pt; color:var(--cinza-2); margin:1.6mm 0 0; text-indent:0; line-height:1.45; }
+:where(.compass-v2--paged) tbody tr:last-child td{ border-bottom:.5pt solid var(--fio); }
+:where(.compass-v2--paged) td.k{ font-weight:700; }
+:where(.compass-v2--paged) td.mono, :where(.compass-v2--paged) th.mono{ font-family:var(--f-mono); font-size:7.6pt; color:var(--azul); white-space:nowrap; }
+:where(.compass-v2--paged) .tn{ font-size:7.4pt; color:var(--cinza-2); margin:1.6mm 0 0; text-indent:0; line-height:1.45; }
 
 /* ---------- verbete (ficha tipográfica) ---------- */
-.verbete{ border-top:.75pt solid var(--fio-forte); margin:3.6mm 0 4.5mm; break-inside:avoid; }
-.verbete .vh{ display:flex; align-items:baseline; gap:3mm; padding:2.2mm 0 1.8mm; border-bottom:.3pt solid var(--fio-leve); }
-.verbete .vh .cod{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
-.verbete .vh .tt{ font-size:9.6pt; font-weight:700; }
-.verbete .vr{ display:grid; grid-template-columns:24mm 1fr; gap:3mm; padding:1.6mm 0; border-bottom:.3pt solid var(--fio-leve); }
-.verbete .vr:last-child{ border-bottom:.5pt solid var(--fio); }
-.verbete .vr .l{ font-size:7pt; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--cinza-2); padding-top:.4mm; }
-.verbete .vr .v{ font-size:8.4pt; line-height:1.45; }
+:where(.compass-v2--paged) .verbete{ border-top:.75pt solid var(--fio-forte); margin:3.6mm 0 4.5mm; break-inside:avoid; }
+:where(.compass-v2--paged) .verbete .vh{ display:flex; align-items:baseline; gap:3mm; padding:2.2mm 0 1.8mm; border-bottom:.3pt solid var(--fio-leve); }
+:where(.compass-v2--paged) .verbete .vh .cod{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
+:where(.compass-v2--paged) .verbete .vh .tt{ font-size:9.6pt; font-weight:700; }
+:where(.compass-v2--paged) .verbete .vr{ display:grid; grid-template-columns:24mm 1fr; gap:3mm; padding:1.6mm 0; border-bottom:.3pt solid var(--fio-leve); }
+:where(.compass-v2--paged) .verbete .vr:last-child{ border-bottom:.5pt solid var(--fio); }
+:where(.compass-v2--paged) .verbete .vr .l{ font-size:7pt; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--cinza-2); padding-top:.4mm; }
+:where(.compass-v2--paged) .verbete .vr .v{ font-size:8.4pt; line-height:1.45; }
 
 /* ---------- listas ---------- */
-ul.li{ margin:1.6mm 0 2.6mm; padding-left:4.8mm; list-style:none; }
-ul.li li{ position:relative; margin-bottom:1.4mm; }
-ul.li li::before{ content:"—"; position:absolute; left:-4.8mm; color:var(--cinza-3); }
-ol.li{ margin:1.6mm 0 2.6mm; padding-left:5mm; }
-ol.li li{ margin-bottom:1.4mm; padding-left:.8mm; }
-ol.li li::marker{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
+:where(.compass-v2--paged) ul.li{ margin:1.6mm 0 2.6mm; padding-left:4.8mm; list-style:none; }
+:where(.compass-v2--paged) ul.li li{ position:relative; margin-bottom:1.4mm; }
+:where(.compass-v2--paged) ul.li li::before{ content:"—"; position:absolute; left:-4.8mm; color:var(--cinza-3); }
+:where(.compass-v2--paged) ol.li{ margin:1.6mm 0 2.6mm; padding-left:5mm; }
+:where(.compass-v2--paged) ol.li li{ margin-bottom:1.4mm; padding-left:.8mm; }
+:where(.compass-v2--paged) ol.li li::marker{ font-family:var(--f-mono); font-size:7.8pt; color:var(--azul); }
 
 /* ---------- figuras ---------- */
-figure{ margin:3.6mm 0 4mm; }
-figure svg{ display:block; width:100%; height:auto; }
-figcaption{ font-size:8pt; margin-top:2mm; padding-top:1.6mm; border-top:.3pt solid var(--fio-leve); text-indent:0; }
-figcaption b{ font-weight:700; }
-figcaption i{ font-style:italic; color:var(--cinza); }
-.fnote{ font-size:7.4pt; color:var(--cinza-2); line-height:1.45; border-top:.3pt solid var(--fio-leve); padding-top:1.4mm; margin-top:2mm; }
-.fnote sup{ font-size:6pt; }
+:where(.compass-v2--paged) figure{ margin:3.6mm 0 4mm; }
+:where(.compass-v2--paged) figure svg{ display:block; width:100%; height:auto; }
+:where(.compass-v2--paged) figcaption{ font-size:8pt; margin-top:2mm; padding-top:1.6mm; border-top:.3pt solid var(--fio-leve); text-indent:0; }
+:where(.compass-v2--paged) figcaption b{ font-weight:700; }
+:where(.compass-v2--paged) figcaption i{ font-style:italic; color:var(--cinza); }
+:where(.compass-v2--paged) .fnote{ font-size:7.4pt; color:var(--cinza-2); line-height:1.45; border-top:.3pt solid var(--fio-leve); padding-top:1.4mm; margin-top:2mm; }
+:where(.compass-v2--paged) .fnote sup{ font-size:6pt; }
 
 /* ---------- abridor de capítulo ---------- */
-.cap-open{
+:where(.compass-v2--paged) .cap-open{
   background:var(--dark); color:#fff;
   margin:0 -18mm 6mm -20mm; padding:9mm 18mm 8mm 20mm;
   position:relative;
 }
-.cap-open .num{
+:where(.compass-v2--paged) .cap-open .num{
   position:absolute; right:18mm; top:7mm;
   font-family:var(--f-disp); font-size:34pt; line-height:1; color:var(--verde);
   letter-spacing:-.02em;
 }
-.cap-open .k{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.55); }
-.cap-open .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.08; letter-spacing:-.014em; color:#fff; margin:2mm 0 0; max-width:128mm; }
-.cap-open .d{ font-size:9pt; line-height:1.5; color:#B9C0C9; margin:2.8mm 0 0; max-width:120mm; padding-top:2.6mm; border-top:.5pt solid rgba(255,255,255,.18); }
+:where(.compass-v2--paged) .cap-open .k{ font-size:7pt; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.55); }
+:where(.compass-v2--paged) .cap-open .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.08; letter-spacing:-.014em; color:#fff; margin:2mm 0 0; max-width:128mm; }
+:where(.compass-v2--paged) .cap-open .d{ font-size:9pt; line-height:1.5; color:#B9C0C9; margin:2.8mm 0 0; max-width:120mm; padding-top:2.6mm; border-top:.5pt solid rgba(255,255,255,.18); }
 
 /* ---------- capa ---------- */
-.compass-page--cover{ background:var(--dark); color:#fff; }
-.compass-page--cover .logo{ position:absolute; left:20mm; top:18mm; height:10.5mm; }
-.compass-page--cover .cod{ position:absolute; right:18mm; top:20mm; font-family:var(--f-mono); font-size:7.2pt; color:rgba(255,255,255,.45); letter-spacing:.05em; }
-.compass-page--cover .bloco{ position:absolute; left:20mm; right:24mm; bottom:66mm; }
-.compass-page--cover .k{ font-size:7.4pt; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--verde); }
-.compass-page--cover .t{ font-family:var(--f-disp); font-size:29pt; line-height:1.08; letter-spacing:-.016em; margin:5mm 0 0; color:#fff; }
-.compass-page--cover .s{ font-size:10.5pt; line-height:1.55; color:rgba(255,255,255,.68); margin:6mm 0 0; max-width:138mm; text-indent:0; text-align:left; }
-.compass-page--cover .base{
+:where(.compass-v2--paged) .compass-page--cover{ background:var(--dark); color:#fff; }
+:where(.compass-v2--paged) .compass-page--cover .logo{ position:absolute; left:20mm; top:18mm; height:10.5mm; }
+:where(.compass-v2--paged) .compass-page--cover .cod{ position:absolute; right:18mm; top:20mm; font-family:var(--f-mono); font-size:7.2pt; color:rgba(255,255,255,.45); letter-spacing:.05em; }
+:where(.compass-v2--paged) .compass-page--cover .bloco{ position:absolute; left:20mm; right:24mm; bottom:66mm; }
+:where(.compass-v2--paged) .compass-page--cover .k{ font-size:7.4pt; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--verde); }
+:where(.compass-v2--paged) .compass-page--cover .t{ font-family:var(--f-disp); font-size:29pt; line-height:1.08; letter-spacing:-.016em; margin:5mm 0 0; color:#fff; }
+:where(.compass-v2--paged) .compass-page--cover .s{ font-size:10.5pt; line-height:1.55; color:rgba(255,255,255,.68); margin:6mm 0 0; max-width:138mm; text-indent:0; text-align:left; }
+:where(.compass-v2--paged) .compass-page--cover .base{
   position:absolute; left:20mm; right:18mm; bottom:16mm;
   border-top:.5pt solid rgba(255,255,255,.16); padding-top:4.6mm;
   display:flex; justify-content:space-between; align-items:flex-end;
 }
-.compass-page--cover .base .l1{ font-size:7pt; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:1.6mm; }
-.compass-page--cover .base .l2{ font-size:8.4pt; color:rgba(255,255,255,.78); line-height:1.5; }
+:where(.compass-v2--paged) .compass-page--cover .base .l1{ font-size:7pt; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:1.6mm; }
+:where(.compass-v2--paged) .compass-page--cover .base .l2{ font-size:8.4pt; color:rgba(255,255,255,.78); line-height:1.5; }
 
 /* ---------- sumário ---------- */
-.toc{ margin-top:3mm; }
-.toc .it{ display:grid; grid-template-columns:9mm 1fr 10mm; align-items:baseline; padding:2.7mm 0; border-bottom:.3pt solid var(--fio-leve); }
-.toc .no{ font-family:var(--f-mono); font-size:8pt; color:var(--azul); }
-.toc .tt{ font-size:9.5pt; font-weight:600; }
-.toc .tt span{ display:block; font-size:8pt; font-weight:400; color:var(--cinza-2); margin-top:.6mm; }
-.toc .pg{ font-family:var(--f-mono); font-size:8pt; color:var(--cinza-2); text-align:right; }
+:where(.compass-v2--paged) .toc{ margin-top:3mm; }
+:where(.compass-v2--paged) .toc .it{ display:grid; grid-template-columns:9mm 1fr 10mm; align-items:baseline; padding:2.7mm 0; border-bottom:.3pt solid var(--fio-leve); }
+:where(.compass-v2--paged) .toc .no{ font-family:var(--f-mono); font-size:8pt; color:var(--azul); }
+:where(.compass-v2--paged) .toc .tt{ font-size:9.5pt; font-weight:600; }
+:where(.compass-v2--paged) .toc .tt span{ display:block; font-size:8pt; font-weight:400; color:var(--cinza-2); margin-top:.6mm; }
+:where(.compass-v2--paged) .toc .pg{ font-family:var(--f-mono); font-size:8pt; color:var(--cinza-2); text-align:right; }
 
 /* ---------- grade dupla ---------- */
-.g2{ display:grid; grid-template-columns:1fr 1fr; gap:6mm; }
+:where(.compass-v2--paged) .g2{ display:grid; grid-template-columns:1fr 1fr; gap:6mm; }
 
 /* ---------- encerramento ---------- */
-.compass-page--back{ background:var(--dark); color:#fff; }
-.compass-page--back .mi{ position:absolute; left:20mm; right:18mm; top:34mm; }
-.compass-page--back .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.1; color:#fff; letter-spacing:-.014em; margin:4mm 0 6mm; }
-.compass-page--back p{ color:rgba(255,255,255,.72); font-size:9.4pt; line-height:1.6; text-indent:0; text-align:left; max-width:132mm; margin-bottom:3mm; }
-.assin{ position:absolute; left:20mm; right:18mm; bottom:44mm; display:flex; align-items:center; gap:8mm; border-top:.5pt solid rgba(255,255,255,.16); padding-top:8mm; }
-.assin img.av{ width:26mm; height:26mm; border-radius:50%; object-fit:cover; }
-.assin .sig{ height:13mm; display:block; margin-bottom:2.4mm; opacity:.92; }
-.assin .nm{ font-size:11pt; font-weight:700; color:#fff; }
-.assin .cg{ font-size:8pt; color:rgba(255,255,255,.55); margin-top:.8mm; }
-.assin .ct{ font-family:var(--f-mono); font-size:7.6pt; color:#8FD9B8; margin-top:2.2mm; letter-spacing:.03em; }
-.compass-page--back .base{
+:where(.compass-v2--paged) .compass-page--back{ background:var(--dark); color:#fff; }
+:where(.compass-v2--paged) .compass-page--back .mi{ position:absolute; left:20mm; right:18mm; top:34mm; }
+:where(.compass-v2--paged) .compass-page--back .t{ font-family:var(--f-disp); font-size:19pt; line-height:1.1; color:#fff; letter-spacing:-.014em; margin:4mm 0 6mm; }
+:where(.compass-v2--paged) .compass-page--back p{ color:rgba(255,255,255,.72); font-size:9.4pt; line-height:1.6; text-indent:0; text-align:left; max-width:132mm; margin-bottom:3mm; }
+:where(.compass-v2--paged) .assin{ position:absolute; left:20mm; right:18mm; bottom:44mm; display:flex; align-items:center; gap:8mm; border-top:.5pt solid rgba(255,255,255,.16); padding-top:8mm; }
+:where(.compass-v2--paged) .assin img.av{ width:26mm; height:26mm; border-radius:50%; object-fit:cover; }
+:where(.compass-v2--paged) .assin .sig{ height:13mm; display:block; margin-bottom:2.4mm; opacity:.92; }
+:where(.compass-v2--paged) .assin .nm{ font-size:11pt; font-weight:700; color:#fff; }
+:where(.compass-v2--paged) .assin .cg{ font-size:8pt; color:rgba(255,255,255,.55); margin-top:.8mm; }
+:where(.compass-v2--paged) .assin .ct{ font-family:var(--f-mono); font-size:7.6pt; color:#8FD9B8; margin-top:2.2mm; letter-spacing:.03em; }
+:where(.compass-v2--paged) .compass-page--back .base{
   position:absolute; left:20mm; right:18mm; bottom:14mm;
   border-top:.5pt solid rgba(255,255,255,.16); padding-top:4.6mm;
   display:flex; justify-content:space-between; align-items:flex-end;
 }
-.compass-page--back .base img.csv{ height:8.6mm; opacity:.92; }
-.compass-page--back .base img.axia{ height:7.8mm; opacity:.85; }
-.compass-page--back .base .cop{ font-size:7pt; color:rgba(255,255,255,.42); }
+:where(.compass-v2--paged) .compass-page--back .base img.csv{ height:8.6mm; opacity:.92; }
+:where(.compass-v2--paged) .compass-page--back .base img.axia{ height:7.8mm; opacity:.85; }
+:where(.compass-v2--paged) .compass-page--back .base .cop{ font-size:7pt; color:rgba(255,255,255,.42); }
 
 /* ---------- referências ---------- */
-.refs{ font-size:8.4pt; line-height:1.55; }
-.refs .r{ display:grid; grid-template-columns:7mm 1fr; gap:2.4mm; padding:2.8mm 0; border-bottom:.3pt solid var(--fio-leve); }
-.refs .r .n{ font-family:var(--f-mono); font-size:7.2pt; color:var(--azul); }
-.refs .r em{ font-style:italic; }
+:where(.compass-v2--paged) .refs{ font-size:8.4pt; line-height:1.55; }
+:where(.compass-v2--paged) .refs .r{ display:grid; grid-template-columns:7mm 1fr; gap:2.4mm; padding:2.8mm 0; border-bottom:.3pt solid var(--fio-leve); }
+:where(.compass-v2--paged) .refs .r .n{ font-family:var(--f-mono); font-size:7.2pt; color:var(--azul); }
+:where(.compass-v2--paged) .refs .r em{ font-style:italic; }
 
 
 /* Adaptação responsiva Compass™ v2; as regras A4 originais permanecem canônicas para impressão. */
@@ -238,7 +240,7 @@ figcaption i{ font-style:italic; color:var(--cinza); }
   background: transparent;
   box-shadow: none;
 }
-.compass-brand-credits {
+:where(.compass-v2--paged) .compass-brand-credits {
   display: grid;
   gap: 0.35rem;
   margin-top: 0.8rem;
@@ -406,10 +408,10 @@ figcaption i{ font-style:italic; color:var(--cinza); }
   .compass-v2--paged .assin { align-items: flex-start; flex-direction: column; }
 }
 @media print {
-  @page { size: A4; margin: 0; }
+  @page compass-edition-008 { size: A4; margin: 0; }
   .compass-v2--paged { width: 210mm; max-width: none; margin: 0; }
   .compass-v2--paged .compass-page { width: 210mm; height: 297mm; margin: 0; overflow: hidden; break-after: page; page-break-after: always; }
   .compass-v2--paged .compass-page:last-child { break-after: auto; page-break-after: auto; }
-  .compass-brand-credits { font-size: 6.2pt; }
+  :where(.compass-v2--paged) .compass-brand-credits { font-size: 6.2pt; }
   .compass-v2--paged .compass-paged-download { display: none !important; }
 }
