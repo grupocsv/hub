@@ -183,6 +183,63 @@ const editions = catalog.editions || []
   color: var(--vp-c-text-1) !important;
   border-color: var(--vp-c-divider);
 }
+.dark .compass-intro {
+  background: linear-gradient(135deg, #172534, #1a202b);
+  border-left-color: #69b7ea;
+}
+.dark .compass-intro h1 {
+  color: #8dcef5;
+}
+.dark .compass-intro p {
+  color: #e4eaf1;
+}
+.dark .compass-section {
+  background: #20242c;
+  border-color: #3c4552;
+}
+.dark .compass-section h2 {
+  color: #f4f7fb;
+  border-bottom-color: #3c4552;
+}
+.dark .compass-section p,
+.dark .edition-table td {
+  color: #d8dee8;
+}
+.dark .edition-table th {
+  background: #2b313b;
+  color: #f4f7fb;
+}
+.dark .edition-table td {
+  border-bottom-color: #3c4552;
+}
+.dark .edition-table td a {
+  color: #8dcef5;
+}
+.dark .status-badge {
+  background: #173d2a;
+  color: #9aefbf;
+}
+.dark .status-badge.draft {
+  background: #493710;
+  color: #ffe29a;
+}
+.dark .doc-card,
+.dark .compass-note {
+  background: #252a33;
+  border-color: #414a57;
+}
+.dark .doc-card:hover {
+  border-color: #69b7ea;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+.dark .doc-card strong {
+  color: #f4f7fb;
+}
+.dark .doc-card span,
+.dark .compass-note,
+.dark .compass-footer {
+  color: #c3ccd8;
+}
 </style>
 
 <div class="compass-header">

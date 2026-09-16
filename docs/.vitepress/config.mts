@@ -4,8 +4,7 @@ import partnerPortals from './data/partner-portals.json'
 
 function compassSidebarLabel(edition: { slug: string; title: string }) {
   const title = edition.title.replace(/\s+/g, ' ').trim()
-  const conciseTitle = title.length > 58 ? `${title.slice(0, 55).trimEnd()}…` : title
-  return `${edition.slug} — ${conciseTitle}`
+  return `${edition.slug} — ${title}`
 }
 
 const compassEditions = compassCatalog.editions.map((edition) => ({
