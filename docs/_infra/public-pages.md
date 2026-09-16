@@ -40,8 +40,12 @@ Copiar página
 Documentação da infraestrutura de publicação de páginas públicas do Hub Grupo CSV.
 
 ::: warning Escopo desta página
-Open Pages publica páginas HTML e assets; não publica documentos da Central de Documentos. Links públicos documentais nativos pertencem ao control plane `csv-documents` e, nesta entrega, ainda dependem de merge, deploy, configuração e canário produtivo. Consulte [Central de Documentos](/_infra/central-documentos#links-publicos-nativos).
+Open Pages publica páginas HTML e assets; não publica documentos da Central de Documentos. Links públicos documentais nativos já integram o control plane `csv-documents`, com produção verificada em 24/08/2026: criação explícita por slug, versão fixada, ativação/inativação e entrega mediada, mantendo o R2 privado. Eles não dependem da ativação do Panta v2. Consulte [Central de Documentos](/_infra/central-documentos#links-publicos-nativos).
 :::
+
+Para compartilhar um arquivo, siga o [manual da Central — Links públicos](/_infra/manuais/central-documentos#links-publicos). Para entender a pesquisa, consulte o [manual do Panta v2](/_infra/manuais/panta-v2): indexar um documento não o torna público.
+
+A validação produtiva da busca Panta v2 pela Central/Extensio em 16/09/2026 não muda o contrato de compartilhamento. Esta versão do Hub habilita a busca nas Centrais, mas links públicos e Open Pages continuam sendo capacidades distintas e independentes dela. A sessão humana da nova busca no navegador permanece não aferida.
 
 ---
 

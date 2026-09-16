@@ -5,10 +5,12 @@
 O Panta™ (do grego Πάντα, "tudo") é o motor de busca federada do ecossistema Grupo CSV. Não é um banco de dados nem um CRM. É um serviço de infraestrutura que consulta múltiplas fontes em uma única requisição, retornando resultados ranqueados por relevância. Funciona como a camada de busca que conecta documentos, pessoas, memórias, assets e conhecimento acumulado.
 
 ::: warning Relação com a Central de Documentos
-Esta página descreve o Panta v1 federado. Ele é independente da Central de Documentos e não pode autorizar acesso, decidir lifecycle nem expor bytes documentais. O Panta v2 tenant-aware existe no código do backend, mas não foi promovido. O frontend da Central permanece com busca desabilitada. Consulte [Central de Documentos — Relação com o Panta](/_infra/central-documentos#relação-com-o-panta).
+Esta página descreve o Panta v1 federado. Ele é independente da Central de Documentos e não pode autorizar acesso, decidir o ciclo documental nem expor arquivos da Central. Em 16/09/2026, a pesquisa da v2 documental foi validada em produção pela Central/Extensio nos cinco tenants. Esta versão do Hub habilita o campo de busca após essa validação; a sessão humana no navegador permanece não aferida. A v1 continua saudável e preservada, sem migração automática de suas fontes ou grafo. Consulte [Central de Documentos — Relação com o Panta](/_infra/central-documentos#relação-com-o-panta).
 :::
 
 Para pesquisa dos documentos das Centrais corporativa e dos parceiros, consulte o [guia do Panta v2 documental](/_infra/ferramentas/panta-v2). As fontes, o grafo e os comandos desta página pertencem à v1; não são a API de gestão ou busca autorizada da Central.
+
+Os [manuais da Central](/_infra/manuais/central-documentos) e [do Panta v2](/_infra/manuais/panta-v2) explicam essa diferença e o uso cotidiano. A demonstração prática a Guilherme permanece pendente; documentação publicada não substitui a apresentação.
 
 | Campo | Valor |
 |---|---|
@@ -19,18 +21,21 @@ Para pesquisa dos documentos das Centrais corporativa e dos parceiros, consulte 
 | Stack | Python 3.12, FastAPI, SQLite FTS5, Supabase pgvector |
 | Autenticação | Header X-Panta-Token |
 | Porta local | 8090 |
+| Porta MCP preservada | 8091 |
 | Proprietário | Grupo CSV |
+
+A verificação de 16/09/2026 confirmou saúde e preservação da v1, não uma nova auditoria de todas as suas fontes. Os detalhes de stack, ingestão e ferramentas abaixo são o cadastro legado da v1; não devem ser usados como contrato de acesso aos documentos da Central.
 
 ## Fontes de Busca Federada
 
-O Panta consulta 6 fontes simultaneamente e retorna resultados unificados com score de relevância:
+O cadastro da v1 descreve as fontes abaixo. Disponibilidade e tamanho atuais de cada fonte não foram revalidados na ativação documental da v2:
 
 | Fonte | Tipo | Descrição |
 |---|---|---|
 | panta_graph | Grafo de pessoas | Entidades (pessoas, empresas, projetos) e relações tipadas |
 | hindsight | Memória longo prazo | Recall via MCP HTTP (Vectorize.io) |
-| csvbrain | Fatos + sessões | Busca híbrida FTS + pgvector (71k+ fatos) |
-| csv_assets | Assets visuais | Logos, criativos, wallpapers (247 assets, 15 marcas) |
+| csvbrain | Fatos + sessões | Busca híbrida FTS + pgvector |
+| csv_assets | Assets visuais | Logos, criativos e wallpapers |
 | local_docs | Documentos pessoais | PDF, DOCX, imagens ingeridos com OCR (SQLite FTS5) |
 | semantic | Busca vetorial | Embeddings 768d via Gemini (panta_embeddings no Supabase) |
 
@@ -108,7 +113,7 @@ O Panta expõe um servidor MCP (Model Context Protocol) com as seguintes tools:
 
 ## Segurança
 
-O acesso requer o header `X-Panta-Token` em todas as requisições (exceto /health). O token é armazenado no config.json da VPS-CSV. O serviço não é exposto diretamente — passa pelo Cloudflare Tunnel com proteção DDoS e rate limiting.
+O contrato legado da v1 utiliza `X-Panta-Token` nas requisições protegidas; `/health` é público. A credencial fica na configuração protegida do serviço e não deve ser copiada para documentação, prompts ou logs. O local exato do armazenamento deve ser conferido no runtime vigente, não presumido a partir de um antigo `config.json`. A credencial exclusiva da v2 é separada e não substitui a da v1. A exposição HTTP passa pelo Cloudflare Tunnel.
 
 ## Manutenção
 

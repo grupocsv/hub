@@ -5,17 +5,21 @@ description: Arquitetura, tenancy, segurança, ciclo documental e integrações 
 
 # Central de Documentos
 
-**Atualizada em 24 de agosto de 2026.**
+**Atualizada em 16 de setembro de 2026.** Esta versão do Hub habilita a busca nas cinco Centrais após a validação produtiva pela API da Central e pelo Extensio. A sessão humana no navegador permanece não aferida.
 
 A Central de Documentos é a aplicação privada e multi-tenant do Hub Grupo CSV para catálogo, upload, versionamento, visualização e gestão de documentos. Existe uma única implementação compartilhada. O portal informado na entrada seleciona o tenant autorizado; ele não cria uma cópia independente da aplicação.
 
-Esta página separa três estados que não devem ser confundidos:
+Para instruções de uso, consulte o [manual ilustrado da Central](/_infra/manuais/central-documentos) e o [manual do Panta v2](/_infra/manuais/panta-v2). Esta página mantém o contrato técnico e o estado operacional.
+
+Esta página distingue a operação documental já existente da ativação da nova busca:
 
 | Estado | Significado |
 |---|---|
 | Produção verificada | Componente publicado e confirmado na verificação de 24/08/2026 |
+| Serviço v2 publicado | Runtime isolado confirmado em 16/09/2026; sua saúde é distinta dos testes integrados abaixo |
 | Implementado no código | Contrato presente nas fontes canônicas, mas sem afirmação de promoção produtiva |
-| Não promovido | Componente presente no código, mas deliberadamente fora do runtime publicado |
+| Integração validada por API/MCP | Canários produtivos de busca, isolamento, política, versão, exclusão e reconstrução de documento aprovados em 16/09/2026 |
+| Interface desta versão | Busca habilitada após validação produtiva da API; controles testados localmente, sessão humana produtiva não aferida |
 
 ## Acesso e tenants
 
@@ -29,7 +33,7 @@ A rota compartilhada é `https://hub.grupocsv.com/documentos/?portal={portal}`. 
 | ICDS | `icds` | [Abrir Central do ICDS](https://hub.grupocsv.com/documentos/?portal=icds) |
 | 2iM | `2im` | [Abrir Central da 2iM](https://hub.grupocsv.com/documentos/?portal=2im) |
 
-O frontend de produção está habilitado para os cinco identificadores acima. Upload, visualizador e favoritos estão habilitados. Busca permanece desabilitada no runtime publicado.
+Esta versão do frontend habilita os cinco identificadores acima, com upload, visualizador, favoritos e busca. A configuração efetivamente servida deve ser conferida no runtime público ao verificar a publicação.
 
 ## Inventário canônico
 
@@ -45,9 +49,9 @@ O frontend de produção está habilitado para os cinco identificadores acima. U
 | Contingência | DLQ `csv-documents-jobs-dlq` | Retém falhas esgotadas para recuperação auditada | Produção verificada |
 | Processamento | `documentos-processor.grupocsv.com` | Validação, detecção de MIME, checksum, antivírus, extração e derivados | Produção verificada |
 | Monitoramento | Worker `csv-documents-monitor` | Avalia Worker, Queue, DLQ, D1, processador e ClamAV; não possui rota pública | Implementado no código e operado por agenda própria |
-| Busca documental | Panta v2 | Índice tenant-aware derivado, sem autoridade de acesso | Implementado no código; não promovido |
+| Busca documental | Panta v2 em `panta-v2.grupocsv.com` | Índice tenant-aware derivado, sem autoridade de acesso | API/MCP validados em produção; interface habilitada nesta versão |
 | Links públicos nativos | Control plane documental | Compartilhamento explícito de uma versão por slug, com ativação e revogação | Produção verificada |
-| Operação por agentes | Extensio MCP + credencial de serviço | Publicar, consultar, buscar e gerenciar dentro do tenant e dos escopos concedidos | Produção verificada |
+| Operação por agentes | Extensio MCP + credencial de serviço | Publicar, consultar, pesquisar e gerenciar dentro do tenant e dos escopos concedidos | Operações documentais verificadas; busca Panta v2 validada em 16/09/2026 |
 
 O Worker possui cron de reconciliação. Queue, DLQ, processador e Panta transportam ou derivam dados, mas não autorizam acesso nem decidem qual versão é vigente. O D1 documental permanece a fonte de verdade do domínio.
 
@@ -92,7 +96,7 @@ Estado de entrega:
 
 | Interface | Estado |
 |---|---|
-| API `/v1/*` | Produção verificada; exige autenticação e autorização por operação |
+| API `/v1/*` | Operações documentais verificadas; busca Panta v2 validada em produção em 16/09/2026. Autenticação e autorização exigidas por operação |
 | OpenAPI versionada no repositório | Publicada e validada em produção |
 | `GET /docs/openapi.json` | Produção verificada em `documentos-api.grupocsv.com` |
 | CLI documental | Versionado em `workers/csv-documents/scripts/documents-cli.mjs`; usa token de serviço, tenant explícito e a API publicada |
@@ -108,7 +112,7 @@ Ferramentas MCP definidas nesta entrega:
 | `documents_publish` | Criar documento ou publicar nova versão, enviar bytes privados e iniciar processamento com idempotência |
 | `documents_status` | Consultar o estado de um job assíncrono |
 | `documents_download` | Recuperar até 8 MiB autorizados em Base64; arquivos maiores são percorridos em blocos com Range, sem expor bucket ou object key |
-| `documents_search` | Buscar no escopo autorizado; indisponível enquanto a capability de busca estiver desativada |
+| `documents_search` | Buscar pela API da Central no escopo autorizado; canário integrado Panta v2 aprovado nos cinco tenants em 16/09/2026 |
 | `documents_manage` | Atualizar, listar ou promover versões, arquivar, restaurar ou solicitar exclusão lógica |
 | `documents_public_links` | Listar, criar, ativar e inativar links públicos mediados pela API |
 | `documents_deletion_requests` | Listar, aprovar, rejeitar ou cancelar solicitações de exclusão lógica |
@@ -121,21 +125,23 @@ O CLI aceita listagem, consulta, busca, status, promoção de versão, archive/r
 
 Uma integração só está pronta quando o contrato publicado, a credencial revogável, o tenant, os escopos, a idempotência e um canário real estiverem validados. Em 24/08/2026, o canário produtivo autorizou os cinco tenants, rejeitou acesso cruzado e tenant inexistente, confirmou bytes de upload e download, link público, `HEAD`, `GET`, `Range`, revogação e exclusão lógica. As nove ferramentas `documents_*` foram descobertas no MCP publicado, e `documents_list` respondeu 200 por meio do Extensio nos cinco tenants. A mera existência do schema ou da ferramenta não comprova acesso produtivo.
 
-### Extensão Compass™ em Preparação
+### Extensão Compass™ — Estado Separado
 
-O contrato OpenAPI 0.12.0 e as rotas `/v1/compass/*` foram implementados e testados localmente no `csv-documents`. Eles reutilizam `documents`, `document_versions` e `document_public_links`; não criam bytes duplicados nem expõem chaves do R2.
+As rotas `/v1/compass/*` estão implementadas no `csv-documents`. Elas reutilizam `documents`, `document_versions` e `document_public_links`; não criam bytes duplicados nem expõem chaves do R2. A migration `0021_create_compass_catalog.sql` já está aplicada no D1, conforme verificação de 16/09/2026. A aplicação do schema não comprova, por si só, cada fluxo editorial ou publicação Compass.
 
-| Operação | Contrato Preparado | Estado |
+| Operação | Contrato Implementado | Verificação nesta rodada Panta |
 |---|---|---|
-| Listar ou registrar edições | `GET/POST /v1/compass/editions` | Somente código local |
-| Consultar edição | `GET /v1/compass/editions/{editionId}` | Somente código local |
-| Listar ou preparar releases | `GET/POST /v1/compass/editions/{editionId}/releases` | Somente código local |
-| Ativar ou restaurar release | `POST /v1/compass/editions/{editionId}/releases/{releaseId}/activate` | Somente código local |
-| Servir o PDF | `GET/HEAD /s/{slug}` | Capacidade produtiva existente; vínculo Compass ainda não criado |
+| Listar ou registrar edições | `GET/POST /v1/compass/editions` | Fluxo não revalidado nesta rodada |
+| Consultar edição | `GET /v1/compass/editions/{editionId}` | Fluxo não revalidado nesta rodada |
+| Listar ou preparar releases | `GET/POST /v1/compass/editions/{editionId}/releases` | Fluxo não revalidado nesta rodada |
+| Ativar ou restaurar release | `POST /v1/compass/editions/{editionId}/releases/{releaseId}/activate` | Fluxo não revalidado nesta rodada |
+| Servir o PDF | `GET/HEAD /s/{slug}` | Entrega documental existente; vínculo de cada release não revalidado nesta rodada |
 
-A migration `0021_create_compass_catalog.sql` permanece não aplicada. Nenhuma tool MCP Compass, rota de gateway, binding, Queue, RLS ou alteração de produção foi introduzida. A aba Compass™ do Admin está preparada em modo somente leitura e utiliza a sessão humana existente. O n8n não integra o caminho crítico e não foi alterado.
+A consolidação Panta não modifica o fluxo editorial Compass, não republica suas edições e não usa a aplicação da migration como aceite de operações não testadas. A documentação específica do Compass continua sendo a referência desse produto.
 
 ## Ciclo Documental e Exclusão
+
+O passo a passo para solicitar, aprovar, rejeitar ou cancelar está no [manual — Arquivar ou excluir](/_infra/manuais/central-documentos#exclusoes).
 
 | Estado | Significado | Ações usuais |
 |---|---|---|
@@ -162,6 +168,8 @@ As três decisões aceitam body fechado com `reason` opcional. O pedido assume `
 A documentação não deve apresentar `deletion_requested` como arquivo apagado nem o tombstone lógico como destruição física.
 
 ## Links públicos nativos
+
+Para criar o endereço curto e administrar os links na tela, siga o [manual — Links públicos](/_infra/manuais/central-documentos#links-publicos).
 
 Links públicos documentais são uma capacidade diferente de Open Pages. Open Pages publica HTML e assets no domínio `open.grupocsv.com`; um link documental referencia uma versão autorizada que continua armazenada no R2 privado e é entregue pelo control plane.
 
@@ -209,17 +217,29 @@ O [guia da pesquisa Panta v2](/_infra/ferramentas/panta-v2) explica o uso na int
 
 O Panta v2 documental está implementado no repositório `grupocsv/backend` como índice tenant-aware. O fluxo correto é sempre:
 
-1. o `csv-documents` autentica e calcula no D1 o conjunto permitido;
-2. o Panta v2 pesquisa somente os IDs e versões autorizados;
-3. o Worker revalida tenant, lifecycle, ACL e versão vigente antes de devolver cada resultado.
+1. o `csv-documents` autentica e calcula no D1 o conjunto permitido, incluindo a revisão confirmada de cada documento;
+2. o Panta v2 pesquisa somente os IDs, versões e revisões autorizados;
+3. o Worker revalida tenant, lifecycle, política, ACL, versão vigente e a mesma revisão confirmada antes de devolver cada resultado.
 
 Panta v2 não armazena papéis ou ACL como autoridade, não recebe token humano e não pode devolver path, chave R2 ou URL interna.
 
 ### Estado da busca
 
-O frontend publicado declara `features.search = false`. O endpoint interno e os adapters presentes no código não tornam a busca disponível ao usuário. Ativação exige promoção separada do Panta v2, configuração segura no Worker, teste multi-tenant, observabilidade, rollback e alteração explícita do feature flag.
+Em 16/09/2026, o serviço isolado respondeu em `https://panta-v2.grupocsv.com/health` com versão `2.1.0`, schema `2` e build `aa8f220f28e8fbdcfc921b152e2e4e976fdf228d`. Ele executa em Docker na VPS-CSV, ligado somente à porta local `8092` e exposto pelo tunnel. O ensaio autenticado local aprovou nove cenários e confirmou a persistência do tombstone após reinício. A v1 permaneceu saudável, com API `8090` e MCP `8091` preservados.
+
+Uma credencial exclusiva da integração foi registrada no Arsenal Técnico e provisionada na VPS e no Worker, sem alterar as anteriores. A versão Worker `0389d7b4-eed6-4b60-b0d1-bdff6e25760b`, fonte `094c8871e65c5f6d9ae0c9d6f0cbff8c107620b9`, recebe 100% do tráfego. A falha de transporte inicialmente diagnosticada foi corrigida, e os testes integrados pela Central/Extensio passaram em produção.
+
+Os canários comprovaram busca por conteúdo nos cinco tenants, consulta cruzada rejeitada com `404`, busca cruzada sem resultados, política `metadata_only` com título pesquisável e corpo ausente, política `disabled` sem resultados, exclusão lógica da amostra 2iM com revisão aplicada, troca de versão no ICDS sem recuperar o texto anterior e reconstrução do documento de teste da Unihealth após retirada do índice. Ao encerrar a validação em 16/09/2026, os cinco canários estavam excluídos logicamente, com consulta `404` e busca sem resultados.
+
+Esta versão configura `features.search = true` após os testes produtivos da API/MCP e os testes locais da interface. A sessão humana autenticada no navegador permanece não aferida. Não foi realizado um novo reinício da VPS nem restauração integral do volume a partir de backup nesta rodada; reconstruir um documento não comprova essa restauração completa.
+
+O contrato de sincronização usa `/internal/v2/documents/sync` e `panta_sync_state`: uma alteração canônica incrementa `revision`, e somente a confirmação correspondente avança `applied_revision`. A pesquisa exige igualdade entre essas revisões. A reconciliação roda a cada cinco minutos, somados à fila, processamento e retries; isso não é garantia de latência máxima. O escopo admite até 500 documentos autorizados por consulta; excesso retorna `422 search_scope_too_large`, sem corte silencioso. A pesquisa é lexical, não semântica.
 
 Na interface preparada para a busca, a pesquisa informa indisponibilidade, ausência de resultados ou limite do acervo sem confundi-los. O usuário pode voltar ao catálogo e continuar a gestão documental. Trechos são exibidos como texto simples e cada resultado mantém a referência do documento e da versão; a abertura continua passando pela autorização da Central.
+
+A demonstração prática a Guilherme sobre Central, Panta v1 e Panta v2 permanece pendente até apresentação do produto publicado e confirmação de entendimento.
+
+O [manual do Panta v2](/_infra/manuais/panta-v2) explica o fluxo previsto, a dependência da VPS e os limites da pesquisa. A disponibilidade deve ser conferida neste estado operacional, não presumida a partir das instruções de uso.
 
 ## Fontes canônicas e verificação
 
@@ -238,6 +258,7 @@ Verificações externas úteis:
 - [Health do control plane](https://documentos-api.grupocsv.com/health)
 - [Readiness do processador e ClamAV](https://documentos-processor.grupocsv.com/readyz)
 - [Configuração pública do frontend](https://hub.grupocsv.com/documentos/assets/runtime-config.js)
+- [Saúde do serviço Panta v2](https://panta-v2.grupocsv.com/health)
 
 Health check prova disponibilidade pontual; não prova permissões, integridade de todos os documentos, operação por agentes, links públicos ou busca. Para essas capacidades, use um canário autenticado no tenant correto. O canário de 24/08/2026 foi encerrado por tombstone lógico, preservando a versão e a referência privada do objeto; não restaram pedidos de exclusão pendentes.
 

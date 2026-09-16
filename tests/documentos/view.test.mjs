@@ -426,7 +426,9 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
     template,
     /id="docs-upload-indexing"[\s\S]*value="metadata_only"/,
   );
-  assert.doesNotMatch(template, /value="full_text"/);
+  assert.match(template, /value="full_text"[^>]*hidden[^>]*disabled/);
+  assert.match(source, /fullTextOption\.hidden\s*=\s*!searchEnabled/);
+  assert.match(source, /fullTextOption\.disabled\s*=\s*!searchEnabled/);
   assert.match(template, /data-action="cancel-upload"/);
   assert.match(template, /accept="\.pdf,\.png,\.jpg,\.jpeg,\.webp,\.txt,\.md"/);
   assert.match(

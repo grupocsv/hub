@@ -187,7 +187,7 @@ title: Infraestrutura — Índice Canônico
       Consolida os componentes verificados e aponta para as páginas técnicas que registram contratos,
       estado de entrega e fontes primárias. Não substitui a verificação do runtime antes de uma operação.
 </p>
-<p class="version" id="page-version">Atualizada em 24 de agosto de 2026</p>
+<p class="version" id="page-version">Atualizada em 16 de setembro de 2026 — API Panta v2 validada, busca habilitada nesta versão do Hub</p>
 </div>
 
 <div class="copy-bar">
@@ -212,6 +212,7 @@ Copiar página
 <tr><td><strong>Relay™</strong></td><td>Mensagens institucionais padronizadas</td><td><a href="https://relay.axcare.com.br">relay.axcare.com.br</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>RTAV™</strong></td><td>Referencial Técnico de Avaliação por Valor</td><td><a href="https://rtav.axcare.app">rtav.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 <tr><td><strong>Panta™</strong></td><td>Omnisearch federado (busca unificada)</td><td><a href="https://panta.grupocsv.com">panta.grupocsv.com</a></td><td>VPS-CSV (FastAPI + Cloudflare Tunnel)</td></tr>
+<tr><td><strong>Panta v2 documental</strong></td><td>Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub</td><td><a href="/_infra/ferramentas/panta-v2">Guia da pesquisa documental</a></td><td>VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents</td></tr>
 <tr><td><strong>Central de Documentos</strong></td><td>Catálogo documental privado e multi-tenant</td><td><a href="https://hub.grupocsv.com/documentos/?portal=grupo-csv">hub.grupocsv.com/documentos/</a></td><td>GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue</td></tr>
 <tr><td><strong>Discovery™</strong></td><td>Diagnóstico estratégico para OPSS</td><td><a href="https://discovery.axcare.app">discovery.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 </tbody>
@@ -225,9 +226,11 @@ Copiar página
 <a class="resource-btn axia" href="/_infra/ferramentas/relay">Relay™</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/rtav">RTAV™</a>
 <a class="resource-btn" href="/_infra/ferramentas/panta">Panta™</a>
+<a class="resource-btn" href="/_infra/ferramentas/panta-v2">Panta v2 documental</a>
 <a class="resource-btn dark-btn" href="/_infra/central-documentos">Central de Documentos</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
+<p class="section-desc">Manuais ilustrados: <a href="/_infra/manuais/central-documentos">usar a Central de Documentos</a> e <a href="/_infra/manuais/panta-v2">entender e usar o Panta v2</a>. A Central administra arquivos; a v2 pesquisa o conteúdo autorizado. O estado de ativação é descrito abaixo e nas páginas técnicas.</p>
 </div>
 
 <!-- 2. BACKEND SERVERLESS -->
@@ -252,7 +255,7 @@ Copiar página
 <tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle e auth gate</td></tr>
 <tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages (Auth Gate)</td></tr>
 <tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com/*</td><td>KV: hub-unimedgv-kv, R2: hub-unimedgv</td><td>Páginas públicas exclusivas Unimed GV</td></tr>
-<tr><td><code>csv-documents</code></td><td>documentos-api.grupocsv.com</td><td>Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue</td><td>Control plane privado e multi-tenant da Central de Documentos</td></tr>
+<tr><td><code>csv-documents</code></td><td>documentos-api.grupocsv.com</td><td>Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP</td><td>Control plane privado e multi-tenant da Central de Documentos</td></tr>
 <tr><td><code>csv-documents-monitor</code></td><td>Cron Trigger; sem rota pública</td><td>D1: csv-documents, APIs de observabilidade e notificação</td><td>Monitor independente do Worker, Queue, DLQ, processador e ClamAV</td></tr>
 </tbody>
 </table>
@@ -413,6 +416,7 @@ Copiar página
 <tr><td><code>csv-documents-jobs-dlq</code></td><td>Dead-letter queue para falhas esgotadas e recuperação auditada</td></tr>
 </tbody>
 </table>
+<p class="section-desc">A sincronização Panta v2 reutiliza jobs, outbox e Queue existentes, sem criar outro acervo. O cron do Worker reconcilia revisões do D1 a cada cinco minutos, além da fila e do processamento. Os testes produtivos pela Central/Extensio passaram nos cinco tenants, com isolamento, políticas, troca de versão, exclusão e reconstrução de documento. Esta versão do Hub habilita a busca após essa validação; a sessão humana permanece não aferida. Ao encerrar a validação em 16/09/2026, os cinco canários estavam excluídos logicamente, com consulta 404 e busca sem resultados. Consulte <a href="/_infra/ferramentas/panta-v2#disponibilidade">versões, evidências e limites da verificação</a>.</p>
 </div>
 
 <!-- 5. DOMINIOS E DNS -->
@@ -463,6 +467,7 @@ Copiar página
 <tr><td>discovery.axcare.app</td><td>cname.manus.space</td><td>Discovery™</td></tr>
 <tr><td>hooks.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Webhook Receiver v2</td></tr>
 <tr><td>panta.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>Panta™</td></tr>
+<tr><td>panta-v2.grupocsv.com</td><td>Cloudflare Tunnel → VPS-CSV 127.0.0.1:8092</td><td>Serviço documental v2 publicado; API interna protegida, integração por Central/Extensio validada</td></tr>
 <tr><td>claw.grupocsv.com</td><td>Cloudflare Tunnel (VPS Hostinger)</td><td>OpenClaw bilateral</td></tr>
 <tr><td>n8n.grupocsv.com</td><td>Cloudflare Tunnel (VPS-CSV)</td><td>n8n (automação de workflows)</td></tr>
 <tr><td>unimedgv.com</td><td>Cloudflare</td><td>Domínio Unimed GV</td></tr>
@@ -676,7 +681,7 @@ onMounted(() => {
   btn.addEventListener('click', () => {
   const md = `# Infraestrutura do Ecossistema Grupo CSV
 
-Indice canonico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primarias; nao substitui a verificacao do runtime. Atualizada em 24 de agosto de 2026.
+Índice canônico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primárias; não substitui a verificação do runtime. Atualizada em 16 de setembro de 2026 — API Panta v2 validada, busca habilitada nesta versão do Hub.
 
 ---
 
@@ -692,8 +697,11 @@ Indice canonico da infraestrutura documentada do Grupo CSV. Consolida componente
 | Relay™ | Mensagens institucionais padronizadas | relay.axcare.com.br | Manus (React + TS + Tailwind) |
 | RTAV™ | Referencial Tecnico de Avaliacao por Valor | rtav.axcare.app | Manus (React + TS + Tailwind) |
 | Panta™ | Omnisearch federado | panta.grupocsv.com | VPS-CSV (FastAPI + Cloudflare Tunnel) |
+| Panta v2 documental | Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub | /_infra/ferramentas/panta-v2 | VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents |
 | Central de Documentos | Catalogo documental privado e multi-tenant | hub.grupocsv.com/documentos/ | GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue |
 | Discovery™ | Diagnostico estrategico para OPSS | discovery.axcare.app | Manus (React + TS + Tailwind) |
+
+Manuais ilustrados: [usar a Central de Documentos](/_infra/manuais/central-documentos) e [entender e usar o Panta v2](/_infra/manuais/panta-v2). A Central administra arquivos; a v2 pesquisa o conteúdo autorizado. O estado de ativação é descrito abaixo e nas páginas técnicas.
 
 ---
 
@@ -714,7 +722,7 @@ Indice canonico da infraestrutura documentada do Grupo CSV. Consolida componente
 | csv-propostas | csv-propostas.guilherme-thom.workers.dev | R2: csv-propostas, Secret | Propostas comerciais |
 | csv-assets | assets.grupocsv.com/* | R2: csv-open-pages | Servico de assets estaticos |
 | csv-open-pages | open.grupocsv.com/* | KV: csv-open-pages, R2: csv-open-pages | Paginas publicas com toggle |
-| csv-documents | documentos-api.grupocsv.com | Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue | Control plane privado e multi-tenant da Central de Documentos |
+| csv-documents | documentos-api.grupocsv.com | Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP | Control plane privado e multi-tenant da Central de Documentos |
 | csv-documents-monitor | Cron Trigger; sem rota publica | D1: csv-documents, APIs de observabilidade e notificacao | Monitor independente do Worker, Queue, DLQ, processador e ClamAV |
 
 ### Workers de Produtos
@@ -811,6 +819,8 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 | csv-documents-jobs | Transporte assincrono de jobs com IDs opacos |
 | csv-documents-jobs-dlq | Falhas esgotadas e recuperacao auditada |
 
+A sincronização Panta v2 reutiliza jobs, outbox e Queue existentes, sem criar outro acervo. O cron do Worker reconcilia revisões do D1 a cada cinco minutos, além da fila e do processamento. Os testes produtivos pela Central/Extensio passaram nos cinco tenants, com isolamento, políticas, troca de versão, exclusão e reconstrução de documento. Esta versão do Hub habilita a busca após essa validação; a sessão humana permanece não aferida. Ao encerrar a validação em 16/09/2026, os cinco canários estavam excluídos logicamente, com consulta 404 e busca sem resultados. Consulte [versões, evidências e limites da verificação](/_infra/ferramentas/panta-v2#disponibilidade).
+
 ---
 
 ## 5. Dominios e DNS
@@ -846,6 +856,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | discovery.axcare.app | cname.manus.space | Discovery |
 | hooks.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | Webhook Receiver v2 |
 | panta.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | Panta |
+| panta-v2.grupocsv.com | Cloudflare Tunnel → VPS-CSV 127.0.0.1:8092 | Serviço documental v2 publicado; API interna protegida, integração por Central/Extensio validada |
 | claw.grupocsv.com | Cloudflare Tunnel (VPS Hostinger) | OpenClaw bilateral |
 | n8n.grupocsv.com | Cloudflare Tunnel (VPS-CSV) | n8n (automacao de workflows) |
 | hub.unimedgv.com | Worker hub-unimedgv | Open Pages Unimed GV |

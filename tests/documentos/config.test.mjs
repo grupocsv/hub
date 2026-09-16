@@ -184,7 +184,7 @@ test("features.search é opcional com default seguro e preserva true quando decl
   );
 });
 
-test("fontes produtivas ativam os cinco tenants isolados e mantêm busca integral desligada", async () => {
+test("fontes produtivas ativam os cinco tenants isolados e a busca textual", async () => {
   const config = JSON.parse(
     await readFile(
       join(REPO_ROOT, "scripts", "documentos-runtime-config.json"),
@@ -206,7 +206,7 @@ test("fontes produtivas ativam os cinco tenants isolados e mantêm busca integra
     features: {
       favorites: true,
       offline: false,
-      search: false,
+      search: true,
       upload: true,
       viewer: true,
     },

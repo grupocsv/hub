@@ -12,7 +12,7 @@
   "features": {
     "favorites": true,
     "offline": false,
-    "search": false,
+    "search": true,
     "upload": true,
     "viewer": true
   }
