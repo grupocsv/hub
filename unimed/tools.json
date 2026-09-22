@@ -1,15 +1,23 @@
 {
   "portal": "unimed",
-  "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-  "totalTools": 8,
+  "generatedAt": "2026-09-22T00:00:00.000000+00:00",
+  "totalTools": 9,
   "tools": [
     {
       "file": "/documentos/?portal=unimed",
       "title": "Documentos",
-      "created": "2026-07-05T18:00:00.000000+00:00",
-      "lastModified": "2026-07-05T18:00:00.000000+00:00",
+      "created": "2026-09-22T00:00:00.000000+00:00",
+      "lastModified": "2026-09-22T00:00:00.000000+00:00",
       "external": true,
       "managedBy": "hub-documentos"
+    },
+    {
+      "file": "esc-tea-100.html",
+      "title": "ESC-TEA-100 · Escore de severidade clínica TEA",
+      "description": "Calculadora e metodologia do escore de severidade clínica da linha de cuidado TEA (Caminhos Brilhantes): triagem, CARS e CBDF em um escore de 0 a 100 com o cluster da Matriz de Alocação de Recursos Terapêuticos.",
+      "created": "2026-09-21T00:00:00+00:00",
+      "lastModified": "2026-09-21T00:00:00+00:00",
+      "note": "Calculadora ESC-TEA-100 com metodologia (Caminhos Brilhantes): triagem, CARS e CBDF em escore de 0 a 100 com o cluster da Matriz de Alocação de Recursos Terapêuticos"
     },
     {
       "file": "drg.html",
