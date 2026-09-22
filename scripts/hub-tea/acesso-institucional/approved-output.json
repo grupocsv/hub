@@ -1,0 +1,220 @@
+{
+  "worker": "hub-unimedgv",
+  "baseline_version": "6cd3fe16-8976-4ae9-8ff1-e0ffce368637",
+  "worker_baseline_sha256": "c5a9fd5b855cb0e9cc0064cfa16d34e5b36edb3e5b6cc82cb656a8f0574123e3",
+  "wrapper_sha256": "98f8efeac91502ef9331401a3c0eb6c08a38ec3c060ee3f6d7519cb800ba92ad",
+  "bucket": "hub-unimedgv",
+  "object_writes": [
+    "tea/index.html",
+    "tea/peca-jornada.webp"
+  ],
+  "source_html_sha256": "75f9ac880615dcb200098075006c2f845686d5e7bb91373554a2f17fb043f9dd",
+  "output_html_sha256": "86a36a1b6cbfa525a80e29db08e8e63370afbaa88ca7757e17d030612d9a6bd7",
+  "source_bytes": 178197,
+  "output_bytes": 179209,
+  "original_objects": [
+    {
+      "key": "tea/apple-touch.png",
+      "bytes": 12898,
+      "sha256": "5a8ed098c63f1764eb7805035229c72878fdd49869c6e447ba9a1accbc02c3e0",
+      "etag": "1adecdd877057d233d9f751cbc720113",
+      "http_metadata": {
+        "contentType": "image/png"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/email-hub.jpg",
+      "bytes": 69665,
+      "sha256": "8f4d3b635f3a37d219b4cc7ff55a04ee6ed69e531f59b0e861f14fc54b75794c",
+      "etag": "003eb9a7f728ae40f4d6548bb932a990",
+      "http_metadata": {
+        "contentType": "image/jpeg"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/favicon.ico",
+      "bytes": 12861,
+      "sha256": "e358afd5fb5af88282e08e776379a4040e9a637c6444975f0313306147467366",
+      "etag": "3b4b0e20b76e4815ef87ddd3858cf453",
+      "http_metadata": {
+        "contentType": "image/x-icon"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/index.html",
+      "bytes": 178197,
+      "sha256": "75f9ac880615dcb200098075006c2f845686d5e7bb91373554a2f17fb043f9dd",
+      "etag": "12181f66e97e21d7fff706b5a89f0109",
+      "http_metadata": {
+        "contentType": "text/html"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/marca-cb.svg",
+      "bytes": 10719,
+      "sha256": "4248b8f5df1308468b630f6ab2e0e866e61cb3c645d074395753f64f7a04da30",
+      "etag": "00e9017aa7ef069ab9f5ff52689b2fd3",
+      "http_metadata": {
+        "contentType": "image/svg+xml"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/marca-evs.webp",
+      "bytes": 16152,
+      "sha256": "529b62156484422e8a1c2466e9ba2272d31a7f28df6983ff4a9a7615bb10463f",
+      "etag": "95c6da36452fb76c300aaeb401a29221",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/og.jpg",
+      "bytes": 76452,
+      "sha256": "17a902218fc5eee8771e25b9fd7ba115a8d6e08eb1f31f40b54bca7d1507acc2",
+      "etag": "d39764fd1d301bac4d82eb33190cebf3",
+      "http_metadata": {
+        "contentType": "image/jpeg"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/og.png",
+      "bytes": 280787,
+      "sha256": "efcb7fbc844f0ec1b404aac95a5db081f985d702d990b41b53559f28c9a2b3b3",
+      "etag": "33e7406672a6a0bec9ec444e1d43ec4d",
+      "http_metadata": {
+        "contentType": "image/png"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-2im.png",
+      "bytes": 12692,
+      "sha256": "806c0b56911395151b9b4ff2bebba5bd11b93429f1742d92baac60997b5766e9",
+      "etag": "1fd36e419fae91c97557b0ede2c74771",
+      "http_metadata": {
+        "contentType": "image/png"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-evs.png",
+      "bytes": 35999,
+      "sha256": "ad5a5a5c782ebad231923a3aee417616f69ae7ff99f20f925819c890928401cd",
+      "etag": "5a46bcaee9a72ff500d968a2cd77b7f7",
+      "http_metadata": {
+        "contentType": "image/png"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-ibravs.webp",
+      "bytes": 16990,
+      "sha256": "b574eadbb86605dc8d09689fba0209334ab69aa03263c1afd3623a5bfa60b501",
+      "etag": "fcafb9aa9601b562d20385f6f5f73968",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-neurosteps.webp",
+      "bytes": 14506,
+      "sha256": "efa29493782a06b309e21870d8d76a68985f32eda8b32c7e1d87ec4741710dd7",
+      "etag": "b536043dd9975850b5a70c9a052793df",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-qualix.webp",
+      "bytes": 17952,
+      "sha256": "56044cfea355e4ebe6b4e9e595a68f702105fb31022ba688a6271d74697dfdf0",
+      "etag": "0e667c118d5291b6a9380b71f93508d3",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/parceiro-unimed-femg.webp",
+      "bytes": 6338,
+      "sha256": "d63d3331e96ae77fffd9e455456e2c8ed5b26a9372247fd43d714dc994fb9ee2",
+      "etag": "c64c012c6dd3ff4088ef439b39517582",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/peca-jornada.webp",
+      "bytes": 101068,
+      "sha256": "25acef9dac25aa2407b4fe75db40ccef2c9d8ef671ee9577b2361f434e081d4a",
+      "etag": "433ac39c69f79090ee8df8705809d9a6",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/peca-painel.webp",
+      "bytes": 51470,
+      "sha256": "63d06af05b210392af607ceedde7fb5b9d596c678c6564811b190d40dd78376e",
+      "etag": "d0c941fb6f7292119b83f29e7718d85b",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    },
+    {
+      "key": "tea/peca-relatorio.webp",
+      "bytes": 51374,
+      "sha256": "d46f4a9fba04c8db336c2218eb21894f35a025ffa397c971061767bb1813a9a5",
+      "etag": "49564a3b945aa6155fb417d9df78afa4",
+      "http_metadata": {
+        "contentType": "image/webp"
+      },
+      "custom_metadata": {},
+      "storage_class": "Standard"
+    }
+  ],
+  "original_metadata_sha256": "1e3a51c72257ac9124236d2b44be1cc743d45c3de7a9173f471da75fe1a31e6a",
+  "protected_legacy_objects": [
+    "tea/peca-jornada.webp"
+  ],
+  "protected_destination": "https://open.grupocsv.com/jornada-tea/mapa-jornada-04689f954dadd0f5.png",
+  "scripts_unchanged": true,
+  "neutralized_preview": {
+    "key": "tea/peca-jornada.webp",
+    "source_sha256": "25acef9dac25aa2407b4fe75db40ccef2c9d8ef671ee9577b2361f434e081d4a",
+    "output_sha256": "cb88fce79f1b7cb4ff7bda99aa5e3472c267490a695fe83bf77b7242efcb59bc",
+    "output_bytes": 50120,
+    "width": 1600,
+    "height": 1130,
+    "content_type": "image/webp",
+    "map_content": false
+  }
+}

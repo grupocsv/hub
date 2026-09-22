@@ -1,0 +1,2 @@
+production/*.mjs -text
+worker.mjs -text

@@ -1,0 +1,37 @@
+name: Contratos do Hub TEA e Jornada
+
+on:
+  pull_request:
+    paths:
+      - scripts/hub-tea/acesso-institucional/**
+      - scripts/open-pages/jornada-interativa/**
+      - .github/workflows/tea-jornada-contracts.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/hub-tea/acesso-institucional/**
+      - scripts/open-pages/jornada-interativa/**
+      - .github/workflows/tea-jornada-contracts.yml
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Contratos da Jornada e do publicador protegido
+        run: python -m unittest discover -s scripts/open-pages/jornada-interativa -p test_release.py
+      - name: Escopo do publicador do Hub
+        run: python -m unittest discover -s scripts/hub-tea/acesso-institucional -p test_release.py
+      - name: Redirecionamento e preservação do Worker do Hub
+        run: node --test scripts/hub-tea/acesso-institucional/worker.test.mjs
+      - name: Sintaxe da interação
+        run: node --check scripts/open-pages/jornada-interativa/jornada-interativa.js
