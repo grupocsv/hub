@@ -4,6 +4,7 @@ from release import Release,WORKER,R2,ACCOUNT,ARCHIVE,ARCHIVE_KEY,upload_metadat
 from build import build,ScriptBlocks
 from card_labels import LabelsRelease
 from calculator_link import CalculatorRelease
+from calculator_related import RelatedRelease
 class ReleaseScope(unittest.TestCase):
  def setUp(self):self.release=Release.__new__(Release)
  def test_other_worker_is_refused(self):
@@ -68,14 +69,17 @@ class LabelsScope(unittest.TestCase):
 
 class CalculatorScope(unittest.TestCase):
  def test_calculator_inherits_index_only_writer(self):
-  item=CalculatorRelease.__new__(CalculatorRelease)
-  with patch.object(Release,'request',return_value=(b'OK',{})) as parent:
-   item.request(R2+'/objects/tea/index.html','PUT',b'HTML')
-   parent.assert_called_once()
+  for release_type in (CalculatorRelease,RelatedRelease):
+   with self.subTest(release=release_type.__name__):
+    item=release_type.__new__(release_type)
+    with patch.object(Release,'request',return_value=(b'OK',{})) as parent:
+     item.request(R2+'/objects/tea/index.html','PUT',b'HTML')
+     parent.assert_called_once()
  def test_calculator_cannot_write_assets_worker_auth_or_purge(self):
-  item=CalculatorRelease.__new__(CalculatorRelease)
-  for target,method in ((WORKER,'PUT'),(R2+'/objects/tea/peca-jornada.webp','PUT'),(WORKER+'/settings','POST'),('/zones/test/purge_cache','POST'),(R2+'/objects/tea/index.html','DELETE')):
-   with self.subTest(target=target,method=method):
-    with self.assertRaisesRegex(ValueError,'LABELS_WRITE_TARGET_REFUSED'):item.request(target,method,b'')
+  for release_type in (CalculatorRelease,RelatedRelease):
+   item=release_type.__new__(release_type)
+   for target,method in ((WORKER,'PUT'),(R2+'/objects/tea/peca-jornada.webp','PUT'),(WORKER+'/settings','POST'),('/zones/test/purge_cache','POST'),(R2+'/objects/tea/index.html','DELETE')):
+    with self.subTest(release=release_type.__name__,target=target,method=method):
+     with self.assertRaisesRegex(ValueError,'LABELS_WRITE_TARGET_REFUSED'):item.request(target,method,b'')
 
 if __name__=='__main__':unittest.main()

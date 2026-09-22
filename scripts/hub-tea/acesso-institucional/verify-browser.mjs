@@ -4,6 +4,8 @@ const [packagePath,outputPath,...flags]=process.argv.slice(2);if(!packagePath||!
 const live=flags.includes('--live');
 const restrictedCards=flags.includes('--restricted-cards');
 const calculator=flags.includes('--calculator');
+const calculatorRelated=flags.includes('--calculator-related');
+assert(!(calculator&&calculatorRelated),'Escolha uma única posição da calculadora');
 const mime={'.html':'text/html; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.ico':'image/x-icon'};
 const server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://local').pathname.replace(/^\/tea\//,'');if(!name)name='index.html';if(name.includes('..')||name==='peca-jornada.webp'){res.writeHead(404);return res.end();}try{const raw=await fs.readFile(path.join(packagePath,name));res.writeHead(200,{'Content-Type':mime[path.extname(name)]||'application/octet-stream'});res.end(raw);}catch{res.writeHead(404);res.end();}});
 if(!live)await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));await fs.mkdir(outputPath,{recursive:true});const browser=await chromium.launch({headless:true,channel:'chrome'});const url=live?'https://hub.unimedgv.com/tea/':`http://127.0.0.1:${server.address().port}/tea/`;const report={mode:live?'produção real':'local',url,allPassed:false,results:[]};
@@ -41,9 +43,32 @@ if(restrictedCards){
  assert.equal(await page.locator('.jornada-acesso').count(),0);
  const spacing=await page.locator('.p2').evaluate(card=>{const b=card.querySelector('.restr').getBoundingClientRect(),p=card.querySelector('.folha').getBoundingClientRect();return {badgeBottom:b.bottom,previewTop:p.top};});assert(spacing.previewTop>spacing.badgeBottom,'Rótulo sobrepõe a prévia');
  proof.badges=badges;proof.previewSpacing=spacing;
- await page.locator('.p1').focus();for(const selector of ['.p2','.p3','.p4']){await page.keyboard.press('Tab');assert(await page.locator(selector).evaluate(el=>document.activeElement===el),'Ordem de teclado alterada');}
+ const keyboardOrder=calculatorRelated?['.p2','.jornada-recurso a','.p3','.p4']:['.p2','.p3','.p4'];
+ await page.locator('.p1').focus();for(const selector of keyboardOrder){await page.keyboard.press('Tab');assert(await page.locator(selector).evaluate(el=>document.activeElement===el),'Ordem de teclado alterada');}
  await page.keyboard.press('Enter');await page.locator('#gate').waitFor({state:'visible'});await page.locator('#gate-x').click();proof.keyboardCardsAndReport=true;
  await page.locator('.trilha').screenshot({path:path.join(outputPath,`hub-cards-${width}.png`),animations:'disabled'});
+}
+if(calculatorRelated){
+ const destination='https://open.grupocsv.com/esc-tea-100',link=page.locator('.jornada-recurso a');
+ assert.equal(await page.locator('header a').count(),0);assert.equal(await page.locator(`a[href="${destination}"]`).count(),1);
+ assert.equal(await page.locator('.jornada-recurso h3').innerText(),'ESC-TEA-100\nEscore de Severidade Clínica');
+ assert.equal(await page.locator('.jornada-recurso p').innerText(),'Reúne triagem, CARS e CBDF em um escore para apoiar a clusterização.');
+ assert.equal(await link.innerText(),'Abrir calculadora e metodologia');assert.equal(await page.locator('.jornada-recurso .restr,.jornada-recurso .num').count(),0);
+ const layout=await page.locator('.jornada-grupo').evaluate(group=>{const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};const resource=group.querySelector('.jornada-recurso');return {group:rect(group),card:rect(group.querySelector('.p2')),resource:rect(resource),link:rect(resource.querySelector('a')),title:rect(resource.querySelector('h3')),description:rect(resource.querySelector('p')),next:rect(document.querySelector('.p3')),resourceBackground:getComputedStyle(resource).backgroundColor,resourceBorder:getComputedStyle(resource).borderTopWidth};});
+ assert(layout.resource.y>=layout.card.bottom&&layout.resource.bottom<=layout.group.bottom+1,'Recurso fora do grupo Jornada');
+ assert(layout.next.y>=layout.group.bottom,'Próximo card deve vir após o recurso');
+ assert.equal(layout.resourceBackground,'rgba(0, 0, 0, 0)');assert.equal(layout.resourceBorder,'0px');
+ for(const box of [layout.link,layout.title,layout.description])assert(box.x>=layout.resource.x&&box.right<=layout.resource.right&&box.bottom<=layout.resource.bottom+1,'Texto ou ação cortado');
+ assert(layout.link.height>=44);
+ await page.locator('.p2').focus();await page.keyboard.press('Tab');assert(await link.evaluate(el=>document.activeElement===el));
+ assert.equal(await link.evaluate(el=>getComputedStyle(el).outlineStyle),'solid');
+ await context.route(destination,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Destino verificado</title>'}));
+ const [popup]=await Promise.all([page.waitForEvent('popup'),page.keyboard.press('Enter')]);await popup.waitForLoadState();
+ assert.equal(popup.url(),destination);assert.equal(await popup.evaluate(()=>window.opener===null),true);await popup.close();
+ await page.keyboard.press('Tab');assert(await page.locator('.p3').evaluate(el=>document.activeElement===el));
+ await page.evaluate(()=>document.activeElement.blur());
+ await page.locator('.jornada-grupo').screenshot({path:path.join(outputPath,`calculadora-jornada-${width}.png`),animations:'disabled'});
+ proof.calculatorRelated={layout,keyboard:true,noopener:true,destination};
 }
 await page.locator('.p2').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(outputPath,`hub-jornada-${width}.png`),animations:'disabled'});
 await page.locator('#porta-rel').click();await page.locator('#gate').waitFor({state:'visible'});await page.locator('#gate-email').waitFor({state:'visible'});await page.locator('#gate-x').click();assert.equal(await page.locator('#gate').isVisible(),false);
