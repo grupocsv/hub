@@ -1,0 +1,15 @@
+{
+  "source_html_sha256": "d9d0f9679fa2280daaa9a1ab6c01eccb486c20dd91e9d4821eac3ec795f35f81",
+  "output_html_sha256": "dd3e53d0492d23d559525d690eae2d7c3ab0db089ffd9a5e38429f9bbb2f92f3",
+  "source_bytes": 181097,
+  "output_bytes": 181655,
+  "object_writes": [
+    "tea/index.html"
+  ],
+  "scripts_unchanged": true,
+  "card_content_unchanged": true,
+  "destination": "https://open.grupocsv.com/esc-tea-100",
+  "placement": "after-jornada-card",
+  "worker_unchanged": true,
+  "legacy_preview_unchanged": true
+}
