@@ -1,11 +1,13 @@
 import unittest
-from release import Release,WORKER,R2,ACCOUNT,upload_metadata,index_headers
+from unittest.mock import Mock
+from release import Release,WORKER,R2,ACCOUNT,ARCHIVE,ARCHIVE_KEY,upload_metadata,index_headers,preview_headers
+from build import build
 class ReleaseScope(unittest.TestCase):
  def setUp(self):self.release=Release.__new__(Release)
  def test_other_worker_is_refused(self):
   with self.assertRaisesRegex(ValueError,'API_TARGET_REFUSED'):self.release.request(f'/accounts/{ACCOUNT}/workers/scripts/csv-auth','PUT',b'')
  def test_other_object_is_refused(self):
-  with self.assertRaisesRegex(ValueError,'WRITE_TARGET_REFUSED'):self.release.request(R2+'/objects/tea%2Fpeca-jornada.webp','PUT',b'')
+  with self.assertRaisesRegex(ValueError,'WRITE_TARGET_REFUSED'):self.release.request(R2+'/objects/tea/peca-painel.webp','PUT',b'')
  def test_metadata_write_is_refused(self):
   with self.assertRaisesRegex(ValueError,'POST_TARGET_REFUSED'):self.release.request(WORKER+'/settings','POST',b'')
  def test_deletion_is_refused(self):
@@ -30,4 +32,19 @@ class ReleaseScope(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'CUSTOM_METADATA'):index_headers({'http_metadata':{'contentType':'text/html'},'custom_metadata':{'new':'value'},'storage_class':'Standard'})
  def test_unexpected_http_metadata_requires_review(self):
   with self.assertRaisesRegex(ValueError,'HTTP_METADATA'):index_headers({'http_metadata':{'contentType':'text/html','cacheControl':'public'},'custom_metadata':{},'storage_class':'Standard'})
+ def test_neutralization_requires_remote_archive(self):
+  item=self.release;item.verify_worker=Mock();item.inventory=Mock();item.check_remote_archive=Mock(side_effect=ValueError('ARCHIVE_NOT_VERIFIED'));item.request=Mock()
+  with self.assertRaisesRegex(ValueError,'ARCHIVE_NOT_VERIFIED'):item.neutralize_preview()
+  item.request.assert_not_called()
+ def test_release_cannot_rewrite_archive(self):
+  with self.assertRaisesRegex(ValueError,'API_TARGET_REFUSED'):self.release.request(ARCHIVE+'/objects/'+ARCHIVE_KEY,'PUT',b'')
+ def test_preview_stays_webp_with_same_metadata(self):
+  self.assertEqual(preview_headers({'http_metadata':{'contentType':'image/webp'},'custom_metadata':{},'storage_class':'Standard'})['Content-Type'],'image/webp')
+ def test_preview_html_disguised_as_image_is_refused(self):
+  with self.assertRaisesRegex(ValueError,'HTTP_METADATA'):preview_headers({'http_metadata':{'contentType':'text/html'},'custom_metadata':{},'storage_class':'Standard'})
+ def test_upper_case_scripts_are_preserved(self):
+  source=b'<html><head></head><body><SCRIPT>const kept = true;</SCRIPT><span class="peca peca-f"><span class="folha"><img src="peca-jornada.webp"><span>Ampliar</span></span></span></body></html>'
+  changed,_=build(source)
+  self.assertIn(b'<SCRIPT>const kept = true;</SCRIPT>',changed)
+  self.assertNotIn(b'peca-jornada.webp',changed)
 if __name__=='__main__':unittest.main()

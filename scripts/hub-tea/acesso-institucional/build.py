@@ -1,5 +1,5 @@
 """Constrói prévia pública sem o mapa, preservando scripts/fluxos do Hub."""
-import argparse,hashlib,importlib.util,json,re,shutil
+import argparse,hashlib,importlib.util,json,re,shutil,subprocess
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 START='<!-- HUB-TEA-PREVIA-PROTEGIDA:BEGIN -->'
@@ -35,7 +35,7 @@ def build(raw):
     style=START+'\n<style id="jornada-public-preview">'+CSS+'</style>\n'+END+'\n'
     edited=edited.replace('</head>',style+'</head>')
     assert 'peca-jornada.webp' not in edited
-    assert re.findall(r'<script\b.*?</script>',edited,re.S)==re.findall(r'<script\b.*?</script>',source,re.S),'Fluxo de scripts alterado'
+    assert re.findall(r'<script\b.*?</script>',edited,re.S|re.I)==re.findall(r'<script\b.*?</script>',source,re.S|re.I),'Fluxo de scripts alterado'
     restored=edited.replace(style,'').replace(PREVIEW,found.group(),1)
     assert restored==source,'Conteúdo fora do escopo alterado'
     return edited.encode(),found.group()
@@ -56,11 +56,15 @@ def main():
     for source in origin.iterdir():
         if source.name!='peca-jornada.webp':shutil.copy2(source,args.output/source.name)
     (args.output/'index.html').write_bytes(html)
+    subprocess.run(['node',str(HERE/'render-safe-preview.mjs'),str(origin/'marca-cb.svg'),str(args.output/'peca-jornada.webp')],check=True)
+    safe_preview=(args.output/'peca-jornada.webp').read_bytes()
+    assert safe_preview[:4]==b'RIFF' and safe_preview[8:12]==b'WEBP','Prévia não é WebP'
     meta=json.loads((args.snapshot/'metadata-PAGES_KV.json').read_text(encoding='utf-8'))
     assert meta['file_count']==len(rows)
     worker=(HERE/'production/hub-unimedgv-20260921.mjs').read_bytes()
     assert worker==(args.snapshot/'modules/index.js').read_bytes()
-    manifest={'worker':'hub-unimedgv','baseline_version':'6cd3fe16-8976-4ae9-8ff1-e0ffce368637','worker_baseline_sha256':sha(worker),'wrapper_sha256':sha((HERE/'worker.mjs').read_bytes()),'bucket':'hub-unimedgv','only_object_write':'tea/index.html','source_html_sha256':sha(raw),'output_html_sha256':sha(html),'source_bytes':len(raw),'output_bytes':len(html),'original_objects':inventory,'original_metadata_sha256':sha((args.snapshot/'metadata-PAGES_KV.json').read_bytes()),'protected_legacy_objects':['tea/peca-jornada.webp'],'protected_destination':'https://open.grupocsv.com/jornada-tea/mapa-jornada-04689f954dadd0f5.png','scripts_unchanged':True}
+    original_preview=next(row for row in inventory if row['key']=='tea/peca-jornada.webp')
+    manifest={'worker':'hub-unimedgv','baseline_version':'6cd3fe16-8976-4ae9-8ff1-e0ffce368637','worker_baseline_sha256':sha(worker),'wrapper_sha256':sha((HERE/'worker.mjs').read_bytes()),'bucket':'hub-unimedgv','object_writes':['tea/index.html','tea/peca-jornada.webp'],'source_html_sha256':sha(raw),'output_html_sha256':sha(html),'source_bytes':len(raw),'output_bytes':len(html),'original_objects':inventory,'original_metadata_sha256':sha((args.snapshot/'metadata-PAGES_KV.json').read_bytes()),'protected_legacy_objects':['tea/peca-jornada.webp'],'protected_destination':'https://open.grupocsv.com/jornada-tea/mapa-jornada-04689f954dadd0f5.png','scripts_unchanged':True,'neutralized_preview':{'key':'tea/peca-jornada.webp','source_sha256':original_preview['sha256'],'output_sha256':sha(safe_preview),'output_bytes':len(safe_preview),'width':1600,'height':1130,'content_type':'image/webp','map_content':False}}
     (args.output/'build-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({k:v for k,v in manifest.items() if k!='original_objects'},ensure_ascii=False))
 if __name__=='__main__':main()

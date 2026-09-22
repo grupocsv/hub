@@ -4,7 +4,10 @@
   "worker_baseline_sha256": "c5a9fd5b855cb0e9cc0064cfa16d34e5b36edb3e5b6cc82cb656a8f0574123e3",
   "wrapper_sha256": "98f8efeac91502ef9331401a3c0eb6c08a38ec3c060ee3f6d7519cb800ba92ad",
   "bucket": "hub-unimedgv",
-  "only_object_write": "tea/index.html",
+  "object_writes": [
+    "tea/index.html",
+    "tea/peca-jornada.webp"
+  ],
   "source_html_sha256": "75f9ac880615dcb200098075006c2f845686d5e7bb91373554a2f17fb043f9dd",
   "output_html_sha256": "86a36a1b6cbfa525a80e29db08e8e63370afbaa88ca7757e17d030612d9a6bd7",
   "source_bytes": 178197,
@@ -203,5 +206,15 @@
     "tea/peca-jornada.webp"
   ],
   "protected_destination": "https://open.grupocsv.com/jornada-tea/mapa-jornada-04689f954dadd0f5.png",
-  "scripts_unchanged": true
+  "scripts_unchanged": true,
+  "neutralized_preview": {
+    "key": "tea/peca-jornada.webp",
+    "source_sha256": "25acef9dac25aa2407b4fe75db40ccef2c9d8ef671ee9577b2361f434e081d4a",
+    "output_sha256": "cb88fce79f1b7cb4ff7bda99aa5e3472c267490a695fe83bf77b7242efcb59bc",
+    "output_bytes": 50120,
+    "width": 1600,
+    "height": 1130,
+    "content_type": "image/webp",
+    "map_content": false
+  }
 }

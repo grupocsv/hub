@@ -1,4 +1,4 @@
-"""Release restrita: Worker existente + tea/index.html; nenhuma exclusão ou migração."""
+"""Release restrita: Worker, index e substituição editorial da antiga prancha."""
 import argparse,copy,getpass,hashlib,json,re,socket,urllib.request,urllib.parse,urllib.error,warnings
 from pathlib import Path
 from datetime import datetime,timezone
@@ -15,6 +15,9 @@ MAP='https://open.grupocsv.com/jornada-tea/mapa-jornada-04689f954dadd0f5.png'
 CONFIG_FIELDS={'placement','compatibility_date','compatibility_flags','usage_model','tags','tail_consumers','logpush','observability','limits'}
 KNOWN_SETTINGS=CONFIG_FIELDS|{'bindings','annotations'}
 WORKER_DOMAINS=f'/accounts/{ACCOUNT}/workers/domains'
+ARCHIVE=f'/accounts/{ACCOUNT}/r2/buckets/portais-eventos-arquivo'
+ARCHIVE_KEY='official-hub-tea/2026-09-21/peca-jornada-original.webp'
+ARCHIVE_MANIFEST='official-hub-tea/2026-09-21/peca-jornada-original.manifest.json'
 def sha(b):return hashlib.sha256(b).hexdigest()
 def require(ok,message):
  if not ok:raise ValueError(message)
@@ -36,6 +39,12 @@ def index_headers(row):
  require(row.get('custom_metadata')=={},'INDEX_CUSTOM_METADATA_REVIEW_REQUIRED')
  require(row.get('storage_class')=='Standard','INDEX_STORAGE_CLASS_REVIEW_REQUIRED')
  return {'Content-Type':'text/html','cf-r2-storage-class':'Standard'}
+
+def preview_headers(row):
+ require(row.get('http_metadata')=={'contentType':'image/webp'},'PREVIEW_HTTP_METADATA_REVIEW_REQUIRED')
+ require(row.get('custom_metadata')=={},'PREVIEW_CUSTOM_METADATA_REVIEW_REQUIRED')
+ require(row.get('storage_class')=='Standard','PREVIEW_STORAGE_CLASS_REVIEW_REQUIRED')
+ return {'Content-Type':'image/webp','cf-r2-storage-class':'Standard'}
 class NoRedirect(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,*args,**kwargs):return None
 class Release:
@@ -47,6 +56,11 @@ class Release:
   require(self.manifest==approved,'UNAPPROVED_PACKAGE')
   self.html=(package/'index.html').read_bytes();require(sha(self.html)==approved['output_html_sha256'],'LOCAL_HTML_CHANGED')
   self.original=(snapshot/'objects/hub-unimedgv/tea/index.html').read_bytes();require(sha(self.original)==approved['source_html_sha256'],'BACKUP_CHANGED')
+  self.preview_key='tea/peca-jornada.webp';self.preview=(package/'peca-jornada.webp').read_bytes()
+  require(self.preview[:4]==b'RIFF' and self.preview[8:12]==b'WEBP','SAFE_PREVIEW_NOT_WEBP')
+  require(sha(self.preview)==approved['neutralized_preview']['output_sha256'],'SAFE_PREVIEW_CHANGED')
+  backup=(snapshot/'objects/hub-unimedgv/tea/peca-jornada.webp').read_bytes()
+  require(sha(backup)==approved['neutralized_preview']['source_sha256'],'ORIGINAL_PREVIEW_BACKUP_CHANGED')
   self.modules={'worker.mjs':(HERE/'worker.mjs').read_bytes(),'production/hub-unimedgv-20260921.mjs':(HERE/'production/hub-unimedgv-20260921.mjs').read_bytes()}
   require(sha(self.modules['production/hub-unimedgv-20260921.mjs'])==approved['worker_baseline_sha256'],'BASELINE_MODULE_CHANGED')
   require(sha(self.modules['worker.mjs'])==approved['wrapper_sha256'],'WRAPPER_CHANGED')
@@ -55,9 +69,10 @@ class Release:
   with (self.state/'events.jsonl').open('a',encoding='utf-8') as f:f.write(json.dumps(record,ensure_ascii=False)+'\n')
   print(json.dumps(record,ensure_ascii=False),flush=True)
  def request(self,path,method='GET',body=None,headers=None):
-  permitted=path.startswith((WORKER,R2,KV)) or (method=='GET' and (path in ('/zones?name=unimedgv.com',WORKER_DOMAINS) or re.fullmatch(r'/zones/[a-f0-9]{32}/workers/routes',path))) or (method=='POST' and re.fullmatch(r'/zones/[a-f0-9]{32}/purge_cache',path))
+  archive_reads=(ARCHIVE+'/domains/managed',ARCHIVE+'/domains/custom',ARCHIVE+'/objects/'+ARCHIVE_KEY,ARCHIVE+'/objects/'+ARCHIVE_MANIFEST)
+  permitted=path.startswith((WORKER,R2,KV)) or (method=='GET' and (path in ('/zones?name=unimedgv.com',WORKER_DOMAINS,*archive_reads) or re.fullmatch(r'/zones/[a-f0-9]{32}/workers/routes',path))) or (method=='POST' and re.fullmatch(r'/zones/[a-f0-9]{32}/purge_cache',path))
   require(permitted,'API_TARGET_REFUSED')
-  if method=='PUT':require(path in (WORKER+'?bindings_inherit=strict',R2+'/objects/tea/index.html'),'WRITE_TARGET_REFUSED')
+  if method=='PUT':require(path in (WORKER+'?bindings_inherit=strict',R2+'/objects/tea/index.html',R2+'/objects/tea/peca-jornada.webp'),'WRITE_TARGET_REFUSED')
   elif method=='POST':require(re.fullmatch(r'/zones/[a-f0-9]{32}/purge_cache',path),'POST_TARGET_REFUSED')
   else:require(method=='GET','METHOD_REFUSED')
   req=urllib.request.Request(API+path,data=body,method=method,headers={'Authorization':'Bearer '+self.token,**(headers or {})})
@@ -96,7 +111,7 @@ class Release:
  def check_invariants(self):
   before=json.loads((self.snapshot/'runtime-invariants.json').read_text(encoding='utf-8'))
   require(self.runtime_invariants()==before,'RUNTIME_INVARIANTS_CHANGED')
- def inventory(self,after=False):
+ def inventory(self,after=False,neutralized=False):
   raw,_=self.request(R2+'/objects?per_page=1000');result=json.loads(raw)
   require(result.get('success') and not result.get('result_info',{}).get('is_truncated'),'INVENTORY_INCOMPLETE')
   current={r['key']:r for r in result['result'] if r['key'].startswith('tea/')}
@@ -105,11 +120,15 @@ class Release:
   for key,row in current.items():
    for field in ('http_metadata','custom_metadata','storage_class'):
     require(row.get(field)==before[key].get(field),'OBJECT_METADATA_CHANGED:'+key+':'+field)
+   if key==self.preview_key and neutralized:
+    require(row['etag']==hashlib.md5(self.preview).hexdigest() and row['size']==len(self.preview),'SAFE_PREVIEW_INVENTORY_CHANGED')
+    continue
    if key=='tea/index.html' and after:continue
    require(row['etag']==before[key]['etag'] and row['size']==before[key]['bytes'],'UNEXPECTED_OBJECT_CHANGE:'+key)
   meta=json.loads(self.request(KV)[0]);original=json.loads((self.snapshot/'metadata-PAGES_KV.json').read_text(encoding='utf-8'))
   require(meta==original,'PAGE_METADATA_CHANGED')
   index_headers(current['tea/index.html'])
+  preview_headers(current[self.preview_key])
  def probe(self,url,status,location=None):
   for method in ('GET','HEAD'):
    request=urllib.request.Request(url,method=method,headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
@@ -157,15 +176,41 @@ class Release:
   active=self.data(WORKER+'/deployments')['deployments'][0]['versions']
   self.log('worker_verified',active_versions=active)
  def publish_page(self):
-  self.verify_worker();self.inventory();require(sha(self.object('tea/index.html'))==self.manifest['source_html_sha256'],'ORIGIN_HTML_CHANGED')
+  self.verify_worker();self.inventory(neutralized=True);self.verify_neutralized();require(sha(self.object('tea/index.html'))==self.manifest['source_html_sha256'],'ORIGIN_HTML_CHANGED')
   self.log('page_put_attempt',sha256=self.manifest['output_html_sha256'])
   original=next(row for row in self.manifest['original_objects'] if row['key']=='tea/index.html')
   self.request(R2+'/objects/tea/index.html','PUT',self.html,index_headers(original))
   self.verify()
+ def neutralize_preview(self):
+  self.verify_worker();self.inventory();self.check_remote_archive()
+  original=next(row for row in self.manifest['original_objects'] if row['key']==self.preview_key)
+  before=self.object(self.preview_key)
+  require(sha(before)==original['sha256'],'ORIGINAL_PREVIEW_CHANGED')
+  backup=self.snapshot/'objects/hub-unimedgv/tea/peca-jornada.webp'
+  require(backup.read_bytes()==before,'ORIGINAL_PREVIEW_BACKUP_DIFFERS')
+  self.log('preview_put_attempt',key=self.preview_key,before_sha256=sha(before),after_sha256=sha(self.preview))
+  self.request(R2+'/objects/tea/peca-jornada.webp','PUT',self.preview,preview_headers(original))
+  self.inventory(neutralized=True);self.verify_neutralized()
+ def check_remote_archive(self):
+  receipt=json.loads((self.snapshot/'remote-preview-archive.json').read_text(encoding='utf-8'))
+  require(receipt.get('archive_bucket')=='portais-eventos-arquivo' and receipt.get('archive_key')==ARCHIVE_KEY and receipt.get('manifest_key')==ARCHIVE_MANIFEST,'ARCHIVE_RECEIPT_SCOPE')
+  managed=self.data(ARCHIVE+'/domains/managed');custom=self.data(ARCHIVE+'/domains/custom')
+  require(managed.get('enabled') is False and custom.get('domains')==[],'ARCHIVE_IS_PUBLIC')
+  original=self.request(ARCHIVE+'/objects/'+ARCHIVE_KEY)[0]
+  require(sha(original)==receipt['sha256']==self.manifest['neutralized_preview']['source_sha256'],'REMOTE_ARCHIVE_HASH_MISMATCH')
+  require(len(original)==receipt['bytes'],'REMOTE_ARCHIVE_LENGTH_MISMATCH')
+  manifest=self.request(ARCHIVE+'/objects/'+ARCHIVE_MANIFEST)[0]
+  require(sha(manifest)==receipt['manifest_sha256'],'REMOTE_MANIFEST_HASH_MISMATCH')
+ def verify_neutralized(self):
+  require(self.object(self.preview_key)==self.preview,'PREVIEW_NEUTRALIZATION_NOT_CONFIRMED')
+  original=next(row for row in self.manifest['original_objects'] if row['key']==self.preview_key)
+  receipt={'key':self.preview_key,'before_sha256':original['sha256'],'after_sha256':sha(self.preview),'before_bytes':original['bytes'],'after_bytes':len(self.preview),'http_metadata':original['http_metadata'],'custom_metadata':original['custom_metadata'],'storage_class':original['storage_class'],'original_backup':str(self.snapshot/'objects/hub-unimedgv/tea/peca-jornada.webp'),'archive_bucket':'portais-eventos-arquivo','archive_key':ARCHIVE_KEY,'map_content_removed':True}
+  (self.state/'preview-neutralized.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+  self.log('preview_neutralized',key=self.preview_key,before_sha256=original['sha256'],after_sha256=sha(self.preview),metadata_unchanged=True)
  def verify(self):
-  self.verify_worker();self.inventory(after=True);require(self.object('tea/index.html')==self.html,'PUBLISHED_HTML_DIFFERS')
+  self.verify_worker();self.inventory(after=True,neutralized=True);self.verify_neutralized();require(self.object('tea/index.html')==self.html,'PUBLISHED_HTML_DIFFERS')
   for row in self.manifest['original_objects']:
-   if row['key']=='tea/index.html':continue
+   if row['key'] in ('tea/index.html',self.preview_key):continue
    require(sha(self.object(row['key']))==row['sha256'],'ORIGINAL_OBJECT_CHANGED:'+row['key'])
   request=urllib.request.Request('https://hub.unimedgv.com/tea/',headers={'User-Agent':'Mozilla/5.0','Cache-Control':'no-cache'})
   with self.opener.open(request,timeout=45) as response:public=response.read(500000)
@@ -178,7 +223,7 @@ class Release:
   raw,_=self.request('/zones/'+zone+'/purge_cache','POST',json.dumps({'files':files}).encode(),{'Content-Type':'application/json'})
   require(json.loads(raw).get('success'),'PURGE_NOT_CONFIRMED');self.log('purge_verified',files=files)
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('action',choices=['snapshot-invariants','preflight','publish-worker','verify-worker','publish-page','verify','purge']);parser.add_argument('--package',type=Path,required=True);parser.add_argument('--snapshot',type=Path,required=True);parser.add_argument('--state',type=Path,required=True);args=parser.parse_args()
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('action',choices=['snapshot-invariants','preflight','publish-worker','verify-worker','neutralize-preview','verify-neutralized','publish-page','verify','purge']);parser.add_argument('--package',type=Path,required=True);parser.add_argument('--snapshot',type=Path,required=True);parser.add_argument('--state',type=Path,required=True);args=parser.parse_args()
  warnings.simplefilter('error',getpass.GetPassWarning);token=getpass.getpass('HUB_RELEASE_CREDENTIAL_READY> ')
  original=socket.getaddrinfo
  socket.getaddrinfo=lambda host,port,family=0,type=0,proto=0,flags=0:original(host,port,socket.AF_INET if host=='api.cloudflare.com' else family,type,proto,flags)
