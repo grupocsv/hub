@@ -1,6 +1,7 @@
 """Constrói prévia pública sem o mapa, preservando scripts/fluxos do Hub."""
 import argparse,hashlib,importlib.util,json,re,shutil,subprocess
 from pathlib import Path
+from html.parser import HTMLParser
 HERE=Path(__file__).resolve().parent
 START='<!-- HUB-TEA-PREVIA-PROTEGIDA:BEGIN -->'
 END='<!-- HUB-TEA-PREVIA-PROTEGIDA:END -->'
@@ -15,6 +16,26 @@ PREVIEW="""<span class="peca peca-f">
         </span>
       </span>"""
 def sha(raw):return hashlib.sha256(raw).hexdigest()
+
+class ScriptBlocks(HTMLParser):
+    """Compara scripts como HTML, incluindo variações válidas de tag/fechamento."""
+    def __init__(self,text):
+        super().__init__(convert_charrefs=False)
+        self.text=text;self.blocks=[];self.start=None;self.lines=[0]
+        for position,char in enumerate(text):
+            if char=='\n':self.lines.append(position+1)
+        self.feed(text);self.close()
+        if self.start is not None:self.blocks.append(text[self.start:])
+    def offset(self):
+        line,column=self.getpos();return self.lines[line-1]+column
+    def handle_starttag(self,tag,attrs):
+        if tag=='script':self.start=self.offset()
+    def handle_endtag(self,tag):
+        if tag=='script' and self.start is not None:
+            end=self.text.index('>',self.offset())+1
+            self.blocks.append(self.text[self.start:end]);self.start=None
+    def handle_startendtag(self,tag,attrs):
+        if tag=='script':self.blocks.append(self.get_starttag_text())
 def normalize_public(raw):
     # Mesmo HTMLRewriter do Hub, mais o beacon versionado reconhecido.
     text=raw.decode('utf-8')
@@ -35,7 +56,7 @@ def build(raw):
     style=START+'\n<style id="jornada-public-preview">'+CSS+'</style>\n'+END+'\n'
     edited=edited.replace('</head>',style+'</head>')
     assert 'peca-jornada.webp' not in edited
-    assert re.findall(r'<script\b.*?</script>',edited,re.S|re.I)==re.findall(r'<script\b.*?</script>',source,re.S|re.I),'Fluxo de scripts alterado'
+    assert ScriptBlocks(edited).blocks==ScriptBlocks(source).blocks,'Fluxo de scripts alterado'
     restored=edited.replace(style,'').replace(PREVIEW,found.group(),1)
     assert restored==source,'Conteúdo fora do escopo alterado'
     return edited.encode(),found.group()

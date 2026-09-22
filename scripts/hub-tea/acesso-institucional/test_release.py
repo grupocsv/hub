@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 from release import Release,WORKER,R2,ACCOUNT,ARCHIVE,ARCHIVE_KEY,upload_metadata,index_headers,preview_headers
-from build import build
+from build import build,ScriptBlocks
 class ReleaseScope(unittest.TestCase):
  def setUp(self):self.release=Release.__new__(Release)
  def test_other_worker_is_refused(self):
@@ -47,4 +47,9 @@ class ReleaseScope(unittest.TestCase):
   changed,_=build(source)
   self.assertIn(b'<SCRIPT>const kept = true;</SCRIPT>',changed)
   self.assertNotIn(b'peca-jornada.webp',changed)
+ def test_script_parser_preserves_case_attributes_and_closing_space(self):
+  for script in ('<SCRIPT>const kept=true;</SCRIPT>','<script src="safe.js"></script >','<script type="text/javascript">let x="<tag>";</script\n>'):
+   with self.subTest(script=script):self.assertEqual(ScriptBlocks('<main>'+script+'</main>').blocks,[script])
+ def test_script_parser_does_not_treat_commented_script_as_executable(self):
+  self.assertEqual(ScriptBlocks('<!-- <script>ignored</script> --><script>real</script>').blocks,['<script>real</script>'])
 if __name__=='__main__':unittest.main()
