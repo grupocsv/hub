@@ -159,7 +159,10 @@ class Release:
         before_keys={row['key'] for row in snapshot['objects']}
         require(set(by_key)==before_keys | ({self.png_key} if after else set()),'OBJECT_SET_CHANGED')
         for row in snapshot['objects']:
-            if after and row['key']==KEY: continue
+            if after and row['key']==KEY:
+                for field in ('http_metadata','custom_metadata','storage_class'):
+                    require(by_key[KEY].get(field)==row.get(field),'INDEX_METADATA_CHANGED:'+field)
+                continue
             require(by_key[row['key']]=={k:v for k,v in row.items() if k!='sha256'},'UNEXPECTED_OBJECT_CHANGE:'+row['key'])
         require(sha(self.metadata())==snapshot['metadata_sha256'],'METADATA_CHANGED')
         return current
@@ -171,6 +174,8 @@ class Release:
         snapshot=self.original()
         self.check_private_origin()
         self.check_preserved(snapshot)
+        index=next(row for row in snapshot['objects'] if row['key']==KEY)
+        require(index.get('http_metadata')=={'contentType':'text/html; charset=utf-8'} and index.get('custom_metadata')=={} and index.get('storage_class')=='Standard','INDEX_METADATA_REVIEW_REQUIRED')
         self.check_access_required()
         current,_=self.request(object_path(KEY))
         require(sha(current)==self.manifest['source_current_sha256'],'ORIGIN_CHANGED_BEFORE_PUBLISH')
@@ -189,7 +194,7 @@ class Release:
         require(sha(self.metadata())==snapshot['metadata_sha256'],'METADATA_CHANGED_BEFORE_INDEX_PUT')
         self.log('index_put_attempt',key=KEY,sha256=self.manifest['output_sha256'])
         # No retry automático de escrita: qualquer resposta incerta exige readback.
-        self.request(write_object_path(KEY),'PUT',self.html_bytes,{'Content-Type':'text/html; charset=utf-8'})
+        self.request(write_object_path(KEY),'PUT',self.html_bytes,{'Content-Type':'text/html; charset=utf-8','cf-r2-storage-class':'Standard'})
         self.verify()
 
     def verify(self):
