@@ -141,6 +141,17 @@ try{
       await page.locator('#p1.ji-enhanced').waitFor();await page.evaluate(()=>document.fonts.ready);
       const invariant=await page.evaluate(()=>({points:document.querySelectorAll('.ji-hotspot').length,viewBox:document.querySelector('.ji-canvas > svg').getAttribute('viewBox'),images:[...document.images].every(image=>image.complete&&image.naturalWidth>0),masthead:document.querySelector('.masthead').outerHTML,svg:document.querySelector('.ji-canvas > svg').outerHTML}));
       assert.equal(invariant.points,points.length);assert.equal(invariant.viewBox,'0 0 1820 1375');assert.equal(invariant.images,true);
+      if(manifest.editorial){
+        const labels=await page.locator('.ji-canvas > svg').evaluate(svg=>{
+          const expected=[['PRÉ-CLUSTER',925,1005],['ESC-TEA-100',924,1007],['Triagem por faixa etária',638,834],['Instrumento conforme idade e indicação',638,834],['Revisão médica e confirmação do cluster',1043,1297],['1',650,702],['2',882,934],['3',1114,1166]];
+          return expected.map(([text,left,right])=>{const matches=[...svg.querySelectorAll('text')].filter(node=>node.textContent===text&&(!['1','2','3'].includes(text)||node.getAttribute('y')==='464'));if(matches.length!==1)return {text,matches:matches.length};const b=matches[0].getBBox();return {text,matches:1,x:b.x,right:b.x+b.width,leftLimit:left,rightLimit:right};});
+        });
+        for(const label of labels){assert.equal(label.matches,1,`Rótulo ausente/duplicado: ${label.text}`);assert(label.x>=label.leftLimit&&label.right<=label.rightLimit,`Rótulo ultrapassa seu espaço: ${label.text}`);}
+        result.editorial={labels,methodologyLink:await page.locator('#p2 a[href="https://open.grupocsv.com/esc-tea-100"]').count()};
+        assert.equal(result.editorial.methodologyLink,1);
+        const support=await page.locator('#p2').innerText();
+        for(const old of ['TEA Nível 1','31 a 36 pts','É ela que separa os níveis 2 e 3'])assert(!support.includes(old));
+      }
       result.inlineInitial=await inlineProof(page,'Inicial');result.wheel=await wheelProof(page);
       if(width===390)result.swipe=await swipeProof(page,context);
       result.afterGesture=await settledScroll(page);
@@ -164,7 +175,7 @@ try{
       assert.equal(await hoverTarget.getAttribute('aria-pressed'),'false');
       result.hoverDoesNotSelectOrScroll=true;
       result.hoverProof={method:'mouse.move',beforeY:hoverStart,afterY:await page.evaluate(()=>scrollY),targetBox:hoverBox};
-      const sample=width===390?points:points.filter(point=>['ccc','aad','evs'].includes(point.id));
+      const sample=width===390?points:points.filter(point=>(manifest.editorial?['ccc','cluster','mchat','aad','evs']:['ccc','aad','evs']).includes(point.id));
       for(const point of sample){
         const before=await page.locator('.ji-canvas').boundingBox();
         const picker=page.getByLabel('Escolha uma etapa do mapa',{exact:true});
@@ -191,6 +202,7 @@ try{
         await page.getByRole('button',{name:'Ler explicação',exact:true}).click();
         assert.equal(await panel.evaluate(element=>document.activeElement===element),true);
         if(point.id==='ccc')await page.screenshot({path:path.join(outputPath,`jornada-${width}.png`),animations:'disabled'});
+        if(manifest.editorial&&point.id==='cluster')await page.screenshot({path:path.join(outputPath,`pre-cluster-${width}.png`),animations:'disabled'});
         await page.getByRole('button',{name:'Voltar à etapa no mapa',exact:true}).click();
         assert.equal(await page.locator(`[data-ji-point="${point.id}"]`).evaluate(element=>document.activeElement===element),true);
         await page.keyboard.press('Escape');

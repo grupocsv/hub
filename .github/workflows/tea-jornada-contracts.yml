@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '22'
       - name: Contratos da Jornada e do publicador protegido
-        run: python -m unittest discover -s scripts/open-pages/jornada-interativa -p test_release.py
+        run: python -m unittest discover -s scripts/open-pages/jornada-interativa -p 'test_*.py'
       - name: Escopo do publicador do Hub
         run: python -m unittest discover -s scripts/hub-tea/acesso-institucional -p test_release.py
       - name: Redirecionamento e preservação do Worker do Hub

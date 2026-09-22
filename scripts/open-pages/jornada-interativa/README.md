@@ -85,3 +85,19 @@ O verificador aceita `--live --storage-state-stdin` para receber a sessão pela 
 Para testar localmente depois da proteção da origem, acrescente `--source-snapshot CAMINHO_PRIVADO` apontando para o snapshot do publicador. O runner confere tamanho e SHA-256 das imagens PNG e fontes OTF antes de servir essas fixtures em loopback ou atender suas URLs absolutas somente no contexto local. Não publica nem inclui esses arquivos no Git. O modo `--live` rejeita essa opção e lê exclusivamente a publicação real.
 
 Após roda ou swipe, o teste aguarda a rolagem estabilizar. Para medir hover, posiciona primeiro uma etapa no viewport e move o mouse por coordenadas, sem usar o reposicionamento automático de `locator.hover`. A asserção de ausência de deslocamento continua estrita e registra as posições antes/depois. Esse cuidado separa a interação da página da inércia do gesto emulado e da rolagem do próprio executor.
+
+## Revisão editorial ESC-TEA-100 — 22/09/2026
+
+Somente com `--editorial-esc-tea`, `build.py` aplica antes da construção a transformação em `editorial_esc_tea.py`. Ela exige o SHA-256 exato da base editorial anterior, substituições únicas e reversão byte a byte. A origem atualmente publicada continua registrada separadamente em `source_current_sha256`, para o preflight detectar qualquer alteração concorrente no R2. O manifesto acrescenta o recibo das mudanças editoriais; a preservação da camada interativa continua obrigatória.
+
+A revisão alinha SVG, percurso textual móvel, Apoio Textual e explicações: triagem por faixa etária, pré-clusterização apoiada pelo ESC-TEA-100 e revisão médica no AAD. A tabela anterior de faixas é substituída por síntese dos três componentes e link à metodologia. Não replica faixas, pesos ou novas regras clínicas, nem equipara cluster a nível diagnóstico de suporte. Capacidades, destinos, horas, proporções e critérios não envolvidos permanecem na fonte original.
+
+```powershell
+python scripts/open-pages/jornada-interativa/build.py --input ORIGEM_PRIVADA/index.html --asset-directory SNAPSHOT_PRIVADO/objects --output PACOTE_PRIVADO --editorial-esc-tea
+python -m unittest discover -s scripts/open-pages/jornada-interativa -p 'test_*.py'
+node scripts/open-pages/jornada-interativa/verify-browser.mjs PACOTE_PRIVADO QA_LOCAL --source-snapshot SNAPSHOT_PRIVADO
+```
+
+O SVG incorporado é a fonte do novo PNG de abertura e download, com nome derivado do hash. O PNG anterior permanece protegido e imutável, incluindo o destino histórico do redirecionamento do Hub; este publicador não altera o Worker do Hub. A revisão não usa os antigos scripts de download público para reconstruir uma página agora protegida.
+
+Antes de publicar, validar os bytes finais em `approved-output.json`. O gate institucional e o bucket privado continuam sendo pré-requisitos; a revisão editorial não tem opção de contorná-los. O QA acrescenta a aferição dos rótulos SVG dentro de seus espaços, a remoção das equivalências antigas e o link à metodologia, além das regressões de interação e download já existentes.
