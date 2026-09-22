@@ -112,6 +112,7 @@ export default defineConfig({
               text: '2026',
               collapsed: false,
               items: [
+              { text: 'S37 — 7-11 Set', link: '/signal/edicoes/2026/S37/' },
               { text: 'S36 — 31 Ago-04 Set', link: '/signal/edicoes/2026/S36/' },
               { text: 'S35 — 24-28 Ago', link: '/signal/edicoes/2026/S35/' },
               { text: 'S31 — 27-31 Jul', link: '/signal/edicoes/2026/S31/' },
