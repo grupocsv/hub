@@ -1,0 +1,332 @@
+[
+  {
+    "id": "rastreio",
+    "title": "Rastreio populacional",
+    "body": "Frente prevista para identificar sinais de risco antes da suspeição formal, com ações em escolas e meios de comunicação. O tracejado indica uma etapa futura no projeto.",
+    "bounds": [
+      30,
+      95,
+      270,
+      98
+    ]
+  },
+  {
+    "id": "status-quo",
+    "title": "Status Quo",
+    "body": "Casa, escola e rotina familiar: os lugares onde a criança vive fora das atividades de saúde. É o ponto de partida da jornada e permanece acompanhado pela CCC.",
+    "bounds": [
+      30,
+      210,
+      270,
+      112
+    ]
+  },
+  {
+    "id": "pediatria-1",
+    "title": "Pediatria · Unidade 1",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "bounds": [
+      345,
+      95,
+      245,
+      64
+    ]
+  },
+  {
+    "id": "pediatria-2",
+    "title": "Pediatria · Unidade 2",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "bounds": [
+      345,
+      172,
+      245,
+      64
+    ]
+  },
+  {
+    "id": "pediatria-3",
+    "title": "Pediatria · Unidade 3",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "bounds": [
+      345,
+      249,
+      245,
+      64
+    ]
+  },
+  {
+    "id": "protocolo",
+    "title": "Protocolo de rastreio",
+    "body": "Ações de rastreio aplicadas pelo pediatra, com capacitação pela Gestão de Provimento de Saúde. A adesão é acompanhada por evidências da aplicação do protocolo.",
+    "bounds": [
+      345,
+      336,
+      245,
+      52
+    ]
+  },
+  {
+    "id": "ccc",
+    "title": "Central de Coordenação do Cuidado",
+    "body": "Organiza o acesso, os agendamentos e a navegação entre os pontos de atenção. É a referência de apoio da família antes e depois da avaliação diagnóstica.",
+    "bounds": [
+      630,
+      95,
+      270,
+      142
+    ]
+  },
+  {
+    "id": "auditoria",
+    "title": "Autorização e auditoria",
+    "body": "A autorização e a auditoria da guia são atribuições da Auditoria em Saúde, área distinta da CCC e do EVS. A Gestão de Provimento de Saúde coordena essas áreas.",
+    "bounds": [
+      630,
+      249,
+      270,
+      64
+    ]
+  },
+  {
+    "id": "visualizador",
+    "title": "Visualizador clínico",
+    "body": "Reúne o paciente e suas demandas, distinguindo início de atendimento, renovação e diagnóstico. Ajuda a CCC a organizar quais casos seguem ao AAD e quais permanecem gerenciados.",
+    "bounds": [
+      630,
+      336,
+      270,
+      52
+    ]
+  },
+  {
+    "id": "cluster",
+    "title": "Clusterização · três fases",
+    "body": "Integra a triagem pelo M-CHAT-R, a intensidade dos sintomas pela CARS e a funcionalidade pela CBDF. A preparação ocorre antes do AAD, que confirma o cluster.",
+    "bounds": [
+      924,
+      126,
+      83,
+      120
+    ]
+  },
+  {
+    "id": "aad",
+    "title": "Ambulatório de Avaliação Diagnóstica · AAD · CAI",
+    "body": "Realiza a avaliação diagnóstica, complementa informações e confirma o cluster. Recebe o paciente com os instrumentos aplicados e a pré-clusterização organizada.",
+    "bounds": [
+      1035,
+      95,
+      270,
+      142
+    ]
+  },
+  {
+    "id": "entregas-aad",
+    "title": "Entregas do AAD",
+    "body": "Valida a clusterização, verifica critérios de inclusão e exclusão e propõe o plano terapêutico inicial. Direciona o paciente para destinos da rede que podem se combinar.",
+    "bounds": [
+      1035,
+      249,
+      270,
+      64
+    ]
+  },
+  {
+    "id": "terapias",
+    "title": "Rede de Terapias Especiais",
+    "body": "Executa o plano terapêutico pactuado com a família, a partir do cluster confirmado. Nesse momento é registrada a linha de base do QoLA, sobre a qualidade de vida do cuidador.",
+    "bounds": [
+      1355,
+      90,
+      435,
+      128
+    ]
+  },
+  {
+    "id": "especialista",
+    "title": "Consultório Médico Especialista",
+    "body": "Acompanha o tratamento medicamentoso em co-manejo com o Centro de Terapias Especiais. Enquanto houver prescrição, há um médico responsável por ela.",
+    "bounds": [
+      1355,
+      228,
+      435,
+      60
+    ]
+  },
+  {
+    "id": "apoio-diagnostico",
+    "title": "Rede de Apoio Diagnóstico",
+    "body": "Oferece avaliações complementares, como a avaliação neuropsicológica. Pode apoiar a aplicação dos instrumentos de clusterização, conforme decisão da CCC.",
+    "bounds": [
+      1355,
+      326,
+      435,
+      60
+    ]
+  },
+  {
+    "id": "continuidade",
+    "title": "Consultório Médico de Continuidade",
+    "body": "Faz o seguimento periódico e mantém contato com a CCC. Tem função distinta da avaliação diagnóstica realizada no AAD.",
+    "bounds": [
+      1355,
+      422,
+      435,
+      60
+    ]
+  },
+  {
+    "id": "mchat",
+    "title": "M-CHAT-R · fase 1",
+    "body": "Instrumento de triagem do risco de TEA. Integra a preparação do paciente antes da avaliação diagnóstica.",
+    "bounds": [
+      630,
+      436,
+      212,
+      92
+    ]
+  },
+  {
+    "id": "cars",
+    "title": "CARS · fase 2",
+    "body": "Instrumento que gradua a intensidade dos sintomas. Integra a estratificação preparada antes da avaliação no AAD.",
+    "bounds": [
+      862,
+      436,
+      212,
+      92
+    ]
+  },
+  {
+    "id": "cbdf",
+    "title": "CBDF · fase 3",
+    "body": "Sistema de codificação funcional do COFFITO, fundamentado na CIF. Complementa a leitura da funcionalidade, da atividade e da participação.",
+    "bounds": [
+      1094,
+      436,
+      212,
+      92
+    ]
+  },
+  {
+    "id": "local-aplicacao",
+    "title": "Local de aplicação dos instrumentos",
+    "body": "Os instrumentos podem ser aplicados no cotidiano do paciente ou na Rede de Apoio Diagnóstico. A CCC decide caso a caso e recebe o retorno do processo.",
+    "bounds": [
+      630,
+      544,
+      676,
+      30
+    ]
+  },
+  {
+    "id": "alca-fechada",
+    "title": "Alça fechada",
+    "body": "A clusterização envolve idas e retornos entre a CCC, os locais de aplicação dos instrumentos e o AAD. O processo permanece acompanhado pela coordenação.",
+    "bounds": [
+      330,
+      600,
+      270,
+      30
+    ]
+  },
+  {
+    "id": "navegacao",
+    "title": "Navegação contínua",
+    "body": "Começa na entrada da guia e continua depois do AAD. A CCC acompanha os pontos de atenção e orienta a família sobre a unidade, a data e a sequência do cuidado.",
+    "bounds": [
+      556,
+      688,
+      418,
+      34
+    ]
+  },
+  {
+    "id": "demanda-1a",
+    "title": "Código 1A · início de atendimento",
+    "body": "Pedido de terapias especiais para iniciar o atendimento. O código é elegível ao AAD na triagem representada no mapa.",
+    "bounds": [
+      30,
+      846,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-1b",
+    "title": "Código 1B · renovação por especialista",
+    "body": "Renovação pedida por neuropediatra ou psiquiatra. Permanece gerenciada no visualizador, com terapia e clínica de origem, sem seguir ao AAD naquele momento.",
+    "bounds": [
+      30,
+      888,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-2",
+    "title": "Código 2 · renovação pela clínica",
+    "body": "Renovação solicitada pela clínica prestadora. Permanece sinalizada no visualizador, com terapia e clínica de origem, sem seguir ao AAD naquele momento.",
+    "bounds": [
+      30,
+      930,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-3",
+    "title": "Código 3 · liminar para início de tratamento",
+    "body": "Demanda por liminar para início de tratamento. O código é elegível ao AAD na triagem representada no mapa.",
+    "bounds": [
+      30,
+      972,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-4a",
+    "title": "Código 4A · encaminhamento a neuropediatra",
+    "body": "Encaminhamento a neuropediatra por pediatra ou médico de família, com hipótese diagnóstica de TEA. O código é elegível ao AAD na triagem representada.",
+    "bounds": [
+      30,
+      1014,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-4b",
+    "title": "Código 4B · encaminhamento a psiquiatra",
+    "body": "Encaminhamento a psiquiatra por pediatra ou médico de família, com hipótese diagnóstica de TEA. O código é elegível ao AAD na triagem representada.",
+    "bounds": [
+      30,
+      1056,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "demanda-4c",
+    "title": "Código 4C · liminar de acesso a especialista",
+    "body": "Demanda por liminar de acesso a neuropediatra ou psiquiatra. O código é elegível ao AAD na triagem representada no mapa.",
+    "bounds": [
+      30,
+      1098,
+      1760,
+      36
+    ]
+  },
+  {
+    "id": "evs",
+    "title": "Escritório de Valor em Saúde",
+    "body": "Sustenta a governança metodológica da jornada, com estratificação, desfechos e remuneração por valor. Autorização e auditoria pertencem à Auditoria em Saúde.",
+    "bounds": [
+      30,
+      1243,
+      1760,
+      100
+    ]
+  }
+]
