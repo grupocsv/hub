@@ -15,5 +15,9 @@
   "auditor.html": {
     "note": "Redireciona para o micro-SaaS auditor.grupocsv.com (card externo em tools.json)",
     "featured": true
+  },
+  "esc-tea-100.html": {
+    "title": "ESC-TEA-100 · Escore de severidade clínica TEA",
+    "note": "Calculadora ESC-TEA-100 com metodologia (Caminhos Brilhantes): triagem, CARS e CBDF em escore de 0 a 100 com o cluster da Matriz de Alocação de Recursos Terapêuticos"
   }
 }

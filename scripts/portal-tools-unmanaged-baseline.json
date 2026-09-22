@@ -4,12 +4,20 @@
   "integrityAuthority": "Git e revisão obrigatória são a âncora de autoridade; manifestSha256 é apenas checksum de integridade.",
   "portals": {
     "unimed": {
-      "sourceSha256": "f504abe2047a06337b59f75d181b6769d62dbb8cce075f0ce78bfff2e8d6299a",
+      "sourceSha256": "2bd46c8bcfb583a1cdfed1beca4108adcd8d42ef0f42ac465c7c293e3c6659ed",
       "unmanagedOutput": {
         "portal": "unimed",
-        "generatedAt": "2026-07-05T18:00:00.000000+00:00",
-        "totalTools": 7,
+        "generatedAt": "2026-09-22T00:00:00.000000+00:00",
+        "totalTools": 8,
         "tools": [
+          {
+            "file": "esc-tea-100.html",
+            "title": "ESC-TEA-100 · Escore de severidade clínica TEA",
+            "description": "Calculadora e metodologia do escore de severidade clínica da linha de cuidado TEA (Caminhos Brilhantes): triagem, CARS e CBDF em um escore de 0 a 100 com o cluster da Matriz de Alocação de Recursos Terapêuticos.",
+            "created": "2026-09-21T00:00:00+00:00",
+            "lastModified": "2026-09-21T00:00:00+00:00",
+            "note": "Calculadora ESC-TEA-100 com metodologia (Caminhos Brilhantes): triagem, CARS e CBDF em escore de 0 a 100 com o cluster da Matriz de Alocação de Recursos Terapêuticos"
+          },
           {
             "file": "drg.html",
             "title": "DRG Brasil Analytics",
@@ -62,7 +70,7 @@
           }
         ]
       },
-      "unmanagedOutputSha256": "b032c2a7e152ca0296fa8f780256222f5db2bec2f5723ac8956a8f9a4dbca5dc"
+      "unmanagedOutputSha256": "f8d3d27bb8652dcfa80c9712d66d8d94a0d6aa37e7511b78e8e4c9b922936d14"
     },
     "unihealth": {
       "sourceSha256": "ea0df38154f65576d2c7f2113f52bbce25f91bc5d5a47093bee402e1d23e8d7c",
@@ -141,5 +149,5 @@
       "unmanagedOutputSha256": "ddbf0873cefa3926ad29d88d76c94267079762f9cef81ea790762af6fc74b725"
     }
   },
-  "manifestSha256": "c826a5a099bdf3980bc504cb6746ca78b7e810d0ede17790d0e1c886c5239fbd"
+  "manifestSha256": "3519d2a351f83fad5a71fe50228325afbe164872dccf8b36698bc3d7692727f0"
 }

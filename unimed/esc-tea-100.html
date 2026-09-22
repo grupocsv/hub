@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ESC-TEA-100 | Unimed GV</title>
+<meta name="description" content="ESC-TEA-100: escore de severidade clínica para a linha de cuidado TEA da Unimed Governador Valadares. Consolida M-CHAT-R ou AQ-10, CARS e CBDF em um escore de 0 a 100 e indica o cluster da Matriz de Alocação de Recursos Terapêuticos.">
+<meta name="hub-category" content="tool">
+<meta name="hub-entity" content="Unimed GV">
+<link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="ESC-TEA-100 | Unimed GV">
+<meta property="og:description" content="Escore de severidade clínica para a linha de cuidado TEA: triagem, CARS e CBDF em uma leitura única de 0 a 100, com o cluster da Matriz de Alocação de Recursos Terapêuticos.">
+<meta property="og:url" content="https://hub.grupocsv.com/unimed/esc-tea-100.html">
+<meta property="og:site_name" content="Unimed GV | Hub Grupo CSV">
+<meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ESC-TEA-100 | Unimed GV">
+<meta name="twitter:description" content="Escore de severidade clínica para a linha de cuidado TEA da Unimed Governador Valadares.">
+<meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+<meta name="theme-color" content="#004e4c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --u-green:#00995d; --u-green-dark:#006b41; --u-citrus:#8baf1f; --u-dark:#004e4c; --u-dark-2:#003c3a; --u-orange:#f47920;
+  --u-paper:#fafaf7; --card:#ffffff; --line:#c9d2ca; --line-soft:#e3e8e2;
+  --ink:#0d3331; --ink-2:#1f4d4a; --ink-3:#2d5b58; --ink-4:#3f6a67;
+  --green-100:#eef7f0; --green-200:#d9eee1; --green-300:#bfe0d2;
+  --amber:#9a5f0e; --amber-100:#fdf1e3; --amber-200:#eccfa8;
+  --band0:#f0f6f2; --band1:#dfeee5; --band2:#c9e2d3; --band3:#afd4bf;
+  --interval:rgba(139,175,31,0.28);
+  --radius-card:12px; --radius-box:28px;
+  --font-sans:'Unimed Sans','Source Sans 3','Segoe UI',Arial,Helvetica,sans-serif;
+  --font-serif:'Unimed Serif','Source Serif 4','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --sidebar-w:250px; --topbar-h:64px; --tabbar-h:62px;
+}
+*{box-sizing:border-box}
+html{font-size:16px;height:100%;overflow:hidden}
+body{margin:0;height:100%;overflow:hidden;font-family:var(--font-sans);color:var(--ink);font-optical-sizing:auto;background:var(--u-paper);line-height:1.55;-webkit-font-smoothing:antialiased;font-feature-settings:"kern","liga","tnum";overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+h1,h2,h3,p{margin:0}
+button{font-family:inherit}
+img{max-width:100%}
+a{color:var(--u-green-dark)}
+.hide-m{}
+
+/* estrutura */
+.app{display:flex;height:100dvh;min-height:0;overflow:hidden}
+.sidebar{width:var(--sidebar-w);flex:0 0 var(--sidebar-w);background:var(--u-dark);color:#fff;position:relative;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:22px 16px 18px;z-index:60}
+.sb-brand{padding:2px 6px 18px}
+.sb-logo{display:block}
+.sb-logo img{height:52px;width:auto;display:block;margin-left:-2px}
+.sb-app-name{margin-top:16px;font-size:17px;font-weight:650;letter-spacing:.1px;color:#fff;line-height:1.25}
+.sb-app-sub{font-size:12px;color:rgba(255,255,255,.82);margin-top:2px}
+.sb-programa{margin-top:14px}
+.sb-programa img{display:block;width:152px;max-width:100%;height:auto}
+.sb-nav{margin-top:14px;display:flex;flex-direction:column;gap:3px;flex:1;min-height:0;overflow-y:auto;padding-right:2px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:9999px;color:rgba(255,255,255,.88);font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:transparent;text-align:left;transition:background .15s ease,color .15s ease}
+.nav-item svg{width:19px;height:19px;flex:0 0 19px}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:var(--u-green-dark);color:#fff;font-weight:600}
+.sb-foot{padding:16px 6px 0;border-top:1px solid rgba(255,255,255,.12)}
+.sb-foot-logos{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.sb-foot-logos img{height:44px;width:auto}
+.sb-foot .sf-line{font-size:11px;color:rgba(255,255,255,.76);line-height:1.45}
+.main{flex:1;min-width:0;height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.topbar{position:relative;flex:0 0 auto;z-index:50;background:rgba(250,250,247,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 30px;display:flex;align-items:center;gap:16px;min-height:var(--topbar-h)}
+.tb-brand-m{display:none}
+.tb-titles{min-width:0;flex:1}
+.tb-title{font-size:19px;font-weight:650;color:var(--u-dark);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-size:12.5px;color:var(--ink-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-chips{display:flex;gap:8px;align-items:center;flex:0 0 auto}
+.tb-chips[hidden]{display:none}
+.chip{font-size:11.5px;font-weight:600;color:var(--u-dark);background:var(--green-100);border:1px solid var(--green-200);border-radius:9999px;padding:5px 13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip.strong{background:var(--u-dark);color:#fff;border-color:var(--u-dark)}
+.chip.soft{background:#fff;border-color:var(--line);color:var(--ink-3);font-weight:500}
+.tb-voltar{font-size:12px;font-weight:600;color:var(--ink-3);text-decoration:none;border:1px solid var(--line);border-radius:9999px;padding:6px 12px;white-space:nowrap;background:#fff}
+.tb-voltar:hover{color:var(--u-green-dark);border-color:var(--u-green)}
+.content-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.content{width:100%;max-width:1180px;margin:0 auto;padding:26px 30px 46px}
+.view{display:none}
+.view.active{display:block;animation:viewIn .25s ease}
+@keyframes viewIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* cards e texto */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);padding:20px 24px;margin-bottom:16px;min-width:0}
+.card-hd{border-bottom:1px solid var(--line-soft);padding-bottom:12px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-title{font-size:15.5px;font-weight:650;color:var(--u-dark)}
+.card-sub{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.lead{max-width:860px;margin-bottom:18px}
+.lead p{font-family:var(--font-serif);font-weight:450;font-size:16px;line-height:1.65;color:var(--ink)}
+.sec-label{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin:26px 2px 12px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--line)}
+.calc-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+.calc-grid .card{margin-bottom:0}
+.calc-grid > *{min-width:0}
+
+/* campos */
+.field{margin-top:18px}
+.field:first-of-type{margin-top:0}
+.lbl{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;font-weight:650;color:var(--u-dark);margin-bottom:8px;min-height:24px}
+.lbl .auto{font-size:11.5px;font-weight:600;line-height:1.3;color:var(--u-dark);background:var(--green-100);border:1px solid var(--green-200);border-radius:9999px;padding:3px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.lbl .auto.mute{background:var(--u-paper);border-color:var(--line);color:var(--ink-3);font-weight:500}
+.lbl .auto.warn{background:var(--amber-100);border-color:var(--amber-200);color:var(--amber)}
+.lbl .auto[hidden]{display:none}
+.bands{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px;max-width:460px}
+.bands.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.band-c{border:1px solid var(--line-soft);border-radius:10px;padding:6px 4px 5px;background:var(--u-paper);min-width:0;text-align:center;transition:border-color .12s ease,box-shadow .12s ease}
+.band-c .r{display:block;font-size:13px;font-weight:650;color:var(--u-dark);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.25;overflow:hidden;text-overflow:ellipsis}
+.band-c .c{display:block;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.band-c.b0{background:var(--band0)}.band-c.b1{background:var(--band1)}.band-c.b2{background:var(--band2)}.band-c.b3{background:var(--band3)}
+.band-c.on{border-color:var(--u-green);box-shadow:inset 0 0 0 1px var(--u-green)}
+.band-c.on .c{color:var(--u-green-dark)}
+.band-c.mute{background:var(--u-paper);border-style:dashed}
+.band-c.mute .r{color:var(--ink-4);font-weight:500}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.unit{font-size:13px;color:var(--ink-2)}
+input[type=number]{font-family:var(--font-sans);font-size:16px;font-weight:600;color:var(--u-dark);background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 12px;min-height:44px;min-width:0;width:100%;font-variant-numeric:tabular-nums;outline:none;-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]:focus{border-color:var(--u-green);box-shadow:0 0 0 3px rgba(0,153,93,.12)}
+input[type=number]:disabled{background:var(--u-paper);color:var(--ink-3);border-style:dashed}
+input::placeholder{color:#6f8582;font-weight:400}
+.age{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:360px}
+.age .u{display:flex;align-items:center;gap:8px}
+.stepper{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:9999px;overflow:hidden;background:#fff;max-width:100%}
+.stepper:focus-within{border-color:var(--u-green);box-shadow:0 0 0 3px rgba(0,153,93,.12)}
+.stepper button{width:46px;min-height:44px;border:0;background:transparent;color:var(--u-dark);font-size:22px;line-height:1;cursor:pointer;touch-action:manipulation}
+.stepper button:hover{background:var(--green-100)}
+.stepper button:disabled{color:#7d908d;cursor:default;background:transparent}
+.stepper input[type=number]{width:96px;border:0;border-inline:1px solid var(--line-soft);border-radius:0;text-align:center;font-size:17px;box-shadow:none;min-height:44px;background:transparent}
+.stepper input[type=number]:disabled{background:transparent;border-style:solid}
+.stepper.off{opacity:.55;border-style:dashed}
+.choices{display:grid;gap:8px;max-width:460px}
+.choice{display:flex;align-items:center;gap:12px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-height:46px;font-size:14px;color:var(--ink);transition:border-color .12s,box-shadow .12s,background .12s}
+.choice input{width:18px;height:18px;accent-color:var(--u-green);margin:0;flex:none}
+.choice .t{flex:1 1 auto;font-weight:500}
+.choice .cv{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.choice .cv em{font-style:normal}
+.choice:hover{background:var(--green-100)}
+.choice.on{border-color:var(--u-green);box-shadow:inset 0 0 0 1px var(--u-green);background:var(--green-100)}
+.choice.on .t{color:var(--u-dark);font-weight:650}
+.choice:focus-within{outline:2px solid var(--u-green);outline-offset:2px}
+@media (max-width:440px){.choice .cv em{display:none}.band-c .r{font-size:12px}.band-c .c{font-size:10px;letter-spacing:.3px}}
+details.params{margin-top:18px;border-top:1px solid var(--line-soft);padding-top:12px}
+details.params summary{cursor:pointer;font-size:13px;font-weight:650;color:var(--u-dark);list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:32px}
+details.params summary::-webkit-details-marker{display:none}
+details.params summary .sv{font-size:12.5px;font-weight:500;color:var(--ink-3)}
+details.params summary::after{content:'';width:8px;height:8px;border-right:1.5px solid var(--ink-3);border-bottom:1.5px solid var(--ink-3);transform:rotate(45deg);margin-left:8px;flex:none;transition:transform .15s}
+details.params[open] summary::after{transform:rotate(-135deg)}
+.weights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:360px;margin-top:12px}
+.weights .w{display:grid;gap:5px}
+.weights .w span{font-size:12.5px;color:var(--ink-2)}
+.weights input{text-align:center}
+.wsum{font-size:13px;color:var(--ink-3);margin-top:8px}
+.wsum.bad{color:var(--amber)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;min-height:42px;border-radius:9999px;font-family:var(--font-sans);font-weight:650;font-size:14px;background:var(--u-green-dark);color:#fff;border:0;cursor:pointer;touch-action:manipulation;transition:background .15s ease}
+.btn:hover{background:#005a36}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:#fff;color:var(--u-dark);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--green-100);border-color:var(--green-300)}
+.btn.mini{min-height:32px;padding:0 12px;font-size:12px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.toast{font-size:13px;color:var(--u-green-dark)}
+
+/* resultado */
+.placeholder{padding:6px 0 4px}
+.placeholder .empty-scale svg{width:100%;height:auto;display:block}
+.placeholder .empty-scale text{font-family:var(--font-sans);fill:var(--ink-3);font-size:11.5px}
+.placeholder .empty-scale .band text{font-weight:700;fill:var(--ink-2);letter-spacing:.6px}
+.placeholder p{font-family:var(--font-serif);font-weight:450;font-size:15px;color:var(--ink-2);line-height:1.6;max-width:56ch;margin-top:16px}
+.result-top{display:flex;gap:20px 40px;align-items:flex-end;flex-wrap:wrap;justify-content:space-between}
+.score .k{font-size:11px;letter-spacing:1.1px;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+.score .v{font-weight:650;font-size:clamp(58px,15vw,84px);line-height:.98;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--u-green-dark);margin-top:4px}
+.score .v small{font-size:15px;font-weight:600;color:var(--ink-2);letter-spacing:0;margin-left:8px}
+.score .sub{font-size:13px;color:var(--ink-2);margin-top:4px}
+.cluster{display:grid;gap:5px;min-width:0}
+.cluster .k{font-size:11px;letter-spacing:1.1px;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+.cluster .tag{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cluster .tag .kk{font-weight:650;font-size:40px;line-height:1;color:var(--u-dark);letter-spacing:-.02em}
+.cluster .tag .ll{font-size:14px;font-weight:600;color:var(--ink-2)}
+.cluster .tag .ll:empty{display:none}
+.cluster .ref{font-size:13px;color:var(--ink-2)}
+.cluster .conf{font-size:13px;color:var(--ink);line-height:1.5}
+.chart{margin-top:22px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--font-sans);fill:var(--ink)}
+.chart .axis text{font-size:11.5px;fill:var(--ink-3)}
+.chart .lab{font-size:13px;font-weight:650;fill:var(--u-dark)}
+.chart .val{font-size:12.5px;font-variant-numeric:tabular-nums}
+.chart .band text{font-size:11.5px;font-weight:700;fill:var(--ink-2);letter-spacing:.6px}
+table.rows{border-collapse:collapse;width:100%;margin-top:18px;font-size:13.5px}
+table.rows th,table.rows td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+table.rows th{font-size:11px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;color:var(--ink-2);border-bottom:1px solid var(--line)}
+table.rows td{color:var(--ink)}
+table.rows td:first-child{font-weight:650;color:var(--u-dark)}
+table.rows td.n{font-variant-numeric:tabular-nums}
+table.rows td.big{font-weight:700;color:var(--u-dark);font-size:15px}
+table.rows td.miss{color:var(--ink-3)}
+@media (max-width:560px){
+  table.rows thead{display:none}
+  table.rows,table.rows tbody,table.rows tr,table.rows td{display:block}
+  table.rows tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  table.rows td{border:0;padding:3px 0;display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:right}
+  table.rows td::before{content:attr(data-l);color:var(--ink-3);font-size:12px;text-align:left;flex:none;font-style:normal;font-family:var(--font-sans)}
+  table.rows td:first-child{display:block;text-align:left;padding-bottom:6px}
+  table.rows td:first-child::before{content:none}
+}
+.notes{display:grid;gap:9px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.note{font-size:14px;line-height:1.55;color:var(--ink);font-family:var(--font-serif);font-weight:450}
+.note b{color:var(--u-dark);font-family:var(--font-sans);font-size:13px;font-weight:700}
+.note.alert b{color:var(--amber)}
+.note.ok b{color:var(--u-green-dark)}
+
+/* metodologia */
+.metodo-block{max-width:920px}
+.metodo-block h3{position:relative;font-family:var(--font-sans);font-size:21px;font-weight:650;letter-spacing:-.01em;line-height:1.25;color:var(--u-green-dark);margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
+.metodo-block h3::after{content:'';position:absolute;left:0;bottom:-1px;width:44px;height:3px;border-radius:2px;background:var(--u-green)}
+.metodo-block p{font-size:15px;color:var(--ink);line-height:1.7;font-family:var(--font-serif);font-weight:450;margin-bottom:12px}
+.metodo-block p:last-child{margin-bottom:0}
+.metodo-block p strong,.metodo-block li strong{color:var(--u-dark);font-family:var(--font-sans);font-size:13.5px}
+.metodo-block ul{margin:0 0 12px;padding-left:20px}
+.metodo-block li{font-size:15px;color:var(--ink);line-height:1.6;margin-bottom:8px;font-family:var(--font-serif);font-weight:450}
+.formula{font-family:var(--font-sans);font-size:14px;font-weight:500;line-height:1.8;color:var(--u-dark);background:var(--u-paper);border:1px solid var(--line-soft);border-radius:12px;padding:12px 16px;margin:0 0 12px;overflow-wrap:anywhere}
+.formula .c{color:var(--ink-2);font-weight:400}
+table.method{width:100%;border-collapse:collapse;margin:4px 0 12px;font-size:13.5px}
+table.method th{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-weight:700}
+table.method td{color:var(--ink);padding:9px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+table.method td:first-child{font-weight:650;color:var(--u-dark)}
+table.method td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.method td.k{font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -8px;padding:0 8px}
+@media (max-width:700px){
+  table.method.stack thead{display:none}
+  table.method.stack,table.method.stack tbody,table.method.stack tr,table.method.stack td{display:block}
+  table.method.stack tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  table.method.stack td{border:0;padding:3px 0;display:flex;justify-content:space-between;gap:12px;text-align:right;white-space:normal}
+  table.method.stack td::before{content:attr(data-l);color:var(--ink-3);font-size:12px;text-align:left;flex:none}
+  table.method.stack td:first-child{display:block;text-align:left;padding-bottom:6px}
+  table.method.stack td:first-child::before{content:none}
+}
+dl.rules{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;margin:0;font-size:15px;line-height:1.6}
+dl.rules dt{font-weight:650;color:var(--u-dark);font-family:var(--font-sans);font-size:14px}
+dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:450}
+@media (max-width:560px){dl.rules{grid-template-columns:1fr;gap:3px}dl.rules dd{margin-bottom:9px}}
+.conv{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:4px;margin-bottom:10px}
+.conv.wide{display:flex;flex-wrap:wrap}
+.conv span{font-family:var(--font-sans);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;padding:5px 8px;border-radius:8px;background:var(--u-paper);border:1px solid var(--line-soft);white-space:nowrap;color:var(--ink)}
+.conv span.c0{background:var(--band0)}.conv span.c1{background:var(--band1)}.conv span.c2{background:var(--band2)}.conv span.c3{background:var(--band3)}
+.conv-title{font-size:14px;font-weight:650;color:var(--u-dark);margin:14px 0 2px;font-family:var(--font-sans)}
+.conv-title:first-of-type{margin-top:0}
+.conv-sub{font-size:13px;color:var(--ink-3);margin-bottom:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin-right:6px;border:1px solid var(--line)}
+.refs p{font-size:14px;line-height:1.6;color:var(--ink);font-family:var(--font-serif);font-weight:450;padding-left:1.6em;text-indent:-1.6em;margin-bottom:8px}
+.refs p:last-child{margin-bottom:0}
+
+/* rodape */
+.site-footer{margin-top:44px;border-top:1px solid var(--line);padding:26px 4px 6px}
+.sf-logos{display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap}
+.sf-logos a{display:flex;align-items:center;text-decoration:none;border:none;border-radius:8px}
+.sf-logos img{width:auto;display:block;opacity:.92;filter:saturate(.96)}
+.sf-logos img.lg-unimedgv{height:28px}
+.sf-logos img.lg-evs{height:46px}
+.sf-logos img.lg-axia{height:34px}
+.sf-logos img.lg-gcsv{height:32px}
+.sf-sep{width:1px;height:26px;background:var(--line)}
+.sf-legal{text-align:center;margin-top:18px;font-size:11.5px;color:var(--ink-3);line-height:1.75}
+
+/* barra inferior (telas estreitas) */
+.tabbar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--u-dark);box-shadow:0 -4px 18px rgba(0,40,38,.18);z-index:100;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.tabbar .tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;max-width:420px;margin:0 auto}
+.tab-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px 5px;border:none;background:transparent;color:rgba(255,255,255,.85);font-size:11px;font-weight:600;cursor:pointer;border-radius:12px;transition:background .15s ease,color .15s ease;min-height:46px}
+.tab-item svg{width:21px;height:21px}
+.tab-item.active{background:var(--u-green-dark);color:#fff}
+
+@media (max-width:1023px){
+  .sidebar{display:none}
+  .tabbar{display:block}
+  .content{padding:18px 16px calc(var(--tabbar-h) + 34px)}
+  .topbar{padding:10px 16px;min-height:58px}
+  .tb-brand-m{display:flex;align-items:center;margin-right:2px;flex:0 0 auto}
+  .tb-brand-m img{height:24px;width:auto}
+  .hide-m{display:none !important}
+  .calc-grid{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .tb-title{font-size:16.5px}
+  .tb-sub{display:none}
+  .content{padding:14px 12px calc(var(--tabbar-h) + 30px)}
+  .card{padding:16px 16px;border-radius:18px}
+  .site-footer{margin-top:32px;padding-top:22px}
+  .sf-logos{gap:20px}
+  .sf-logos img.lg-unimedgv{height:22px}
+  .sf-logos img.lg-evs{height:38px}
+  .sf-logos img.lg-axia{height:26px}
+  .sf-logos img.lg-gcsv{height:24px}
+  .sf-sep{display:none}
+  .chip{padding:4px 10px;font-size:11px}
+  .btn{width:100%}
+  .btn.mini{width:auto}
+  .lead{margin-bottom:14px}
+  .lead p{font-size:15px}
+  .metodo-block h3{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){.view.active{animation:none}.btn,.choice,.nav-item,.tab-item{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Navegação principal">
+    <div class="sb-brand">
+      <span class="sb-logo"><img src="https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png" alt="Unimed Governador Valadares"></span>
+      <div class="sb-app-name">ESC-TEA-100</div>
+      <div class="sb-app-sub">Escore de severidade clínica · Linha de cuidado TEA</div>
+      <div class="sb-programa"><img src="https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg" alt="Caminhos Brilhantes"></div>
+    </div>
+    <nav class="sb-nav">
+      <button class="nav-item active" data-view="calc" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="3"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> Calculadora</button>
+      <button class="nav-item" data-view="metodo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg> Metodologia</button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-foot-logos"><img src="https://assets.grupocsv.com/logos/evs/selo-white-web-360.png" alt="Escritório de Valor em Saúde"></div>
+      <div class="sf-line">Unimed Governador Valadares<br>Escritório de Valor em Saúde · AxiaCare · Grupo CSV</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="tb-brand-m"><img src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV"></span>
+      <div class="tb-titles">
+        <h1 class="tb-title" id="tbTitle">Calculadora</h1>
+        <div class="tb-sub" id="tbSub">Escore de severidade clínica para a linha de cuidado TEA</div>
+      </div>
+      <div class="tb-chips" id="tbChips" hidden><span class="chip strong" id="chipScore">—</span><span class="chip" id="chipCluster">—</span></div>
+      <a class="tb-voltar hide-m" href="index.html" data-direct>← Hub Unimed</a>
+      <span id="hub-auth-slot"></span>
+    </header>
+
+    <div class="content-scroll" id="scroll">
+      <div class="content">
+
+        <section class="view active" id="view-calc" data-title="Calculadora" data-sub="Escore de severidade clínica para a linha de cuidado TEA">
+          <div class="lead">
+            <p>O ESC-TEA-100 consolida a triagem (M-CHAT-R ou AQ-10), a CARS e a CBDF em um escore de 0 a 100 e indica o cluster da Matriz de Alocação de Recursos Terapêuticos.</p>
+          </div>
+
+          <div class="calc-grid">
+            <div class="card" id="entradas" aria-label="Dados do caso">
+              <div class="card-hd">
+                <div><div class="card-title">Dados do caso</div><div class="card-sub">Idade, triagem, CARS e CBDF</div></div>
+                <button class="btn ghost mini" id="btnLimpar" type="button">Limpar</button>
+              </div>
+
+              <div class="field">
+                <div class="lbl"><label for="idadeAnos">Idade</label></div>
+                <div class="age">
+                  <div class="u"><input type="number" id="idadeAnos" min="0" max="99" step="1" placeholder="—" inputmode="numeric" aria-label="Idade em anos"><span class="unit">anos</span></div>
+                  <div class="u"><input type="number" id="idadeMeses" min="0" max="11" step="1" placeholder="—" inputmode="numeric" aria-label="Meses"><span class="unit">meses</span></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="lbl"><label for="triagem">Triagem</label><span class="auto mute" id="instrAuto">instrumento definido pela idade</span></div>
+                <div class="row">
+                  <div class="stepper off" id="stTriagem"><button type="button" class="step" data-for="triagem" data-d="-1" aria-label="Diminuir a pontuação da triagem" disabled>−</button><input type="number" id="triagem" min="0" max="20" step="1" placeholder="—" inputmode="numeric" aria-label="Pontuação da triagem" disabled><button type="button" class="step" data-for="triagem" data-d="1" aria-label="Aumentar a pontuação da triagem" disabled>+</button></div>
+                  <span class="unit" id="triagemUnit">pontos</span>
+                </div>
+                <div class="bands" id="bandsTriagem" aria-label="Faixas da triagem por cluster"></div>
+              </div>
+
+              <div class="field">
+                <div class="lbl"><label for="cars">CARS</label><span class="auto warn" id="carsAuto" hidden>indicada a partir dos 2 anos</span></div>
+                <div class="row">
+                  <div class="stepper" id="stCars"><button type="button" class="step" data-for="cars" data-d="-1" aria-label="Diminuir a pontuação da CARS">−</button><input type="number" id="cars" min="15" max="60" step="0.5" placeholder="—" inputmode="decimal" aria-label="Pontuação da CARS"><button type="button" class="step" data-for="cars" data-d="1" aria-label="Aumentar a pontuação da CARS">+</button></div>
+                  <span class="unit">pontos (15 a 60)</span>
+                </div>
+                <div class="bands" id="bandsCars" aria-label="Faixas da CARS por cluster"></div>
+              </div>
+
+              <div class="field">
+                <div class="lbl"><span id="lblCbdf">CBDF</span></div>
+                <div class="choices" role="radiogroup" aria-labelledby="lblCbdf">
+                  <label class="choice"><input type="radio" name="cbdf" value="sem"><span class="t">Sem disfunção</span><span class="cv">12,5<em> · cluster 0</em></span></label>
+                  <label class="choice"><input type="radio" name="cbdf" value="leve"><span class="t">Disfunção leve</span><span class="cv">37,5<em> · cluster 1</em></span></label>
+                  <label class="choice"><input type="radio" name="cbdf" value="mod"><span class="t">Disfunção moderada</span><span class="cv">62,5<em> · cluster 2</em></span></label>
+                  <label class="choice"><input type="radio" name="cbdf" value="grave"><span class="t">Disfunção grave</span><span class="cv">87,5<em> · cluster 3</em></span></label>
+                </div>
+              </div>
+
+              <details class="params">
+                <summary><span>Pesos do modelo</span><span class="sv" id="wsumShort">20 · 35 · 45</span></summary>
+                <div class="weights">
+                  <div class="w"><span>Triagem</span><input type="number" id="wT" min="0" max="100" step="1" value="20" inputmode="numeric" aria-label="Peso da triagem"></div>
+                  <div class="w"><span>CARS</span><input type="number" id="wC" min="0" max="100" step="1" value="35" inputmode="numeric" aria-label="Peso da CARS"></div>
+                  <div class="w"><span>CBDF</span><input type="number" id="wF" min="0" max="100" step="1" value="45" inputmode="numeric" aria-label="Peso da CBDF"></div>
+                </div>
+                <p class="wsum" id="wsum"></p>
+                <div class="row" style="margin-top:10px"><button class="btn ghost mini" id="btnPadrao" type="button">Restaurar 20 · 35 · 45</button></div>
+              </details>
+            </div>
+
+            <div class="card" id="resultado" aria-label="Resultado" aria-live="polite">
+              <div class="card-hd">
+                <div><div class="card-title">Resultado</div><div class="card-sub" id="resSub">Escore, cluster e composição</div></div>
+              </div>
+              <div class="placeholder" id="placeholder">
+                <div class="empty-scale" id="emptyScale" aria-hidden="true"></div>
+                <p>O escore aparece com a idade e a triagem, como valor provisório, e fica definitivo com a CARS e a CBDF.</p>
+              </div>
+              <div id="resBody" hidden>
+                <div class="result-top">
+                  <div class="score"><span class="k" id="scoreK">Escore</span><div class="v"><span id="scoreV">—</span><small>de 100</small></div><span class="sub" id="scoreSub"></span></div>
+                  <div class="cluster">
+                    <span class="k">Cluster</span>
+                    <div class="tag"><span class="kk" id="clusterK">—</span><span class="ll" id="clusterL"></span></div>
+                    <span class="ref" id="clusterRef"></span>
+                    <span class="conf" id="clusterConf"></span>
+                  </div>
+                </div>
+                <div class="chart" id="chart" aria-label="Posição dos subescores e do escore na escala de 0 a 100"></div>
+                <table class="rows" id="rowsTable" aria-label="Composição do escore"></table>
+                <div class="notes" id="notes"></div>
+                <div class="actions">
+                  <button class="btn" id="btnCopy" type="button">Copiar resumo</button>
+                  <span class="toast" id="toast" aria-live="polite"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-metodo" data-title="Metodologia" data-sub="Conversão, agregação, faixas e regras de leitura">
+          <div class="card metodo-block">
+            <h3>Finalidade</h3>
+            <p>A linha de cuidado TEA da estratégia Caminhos Brilhantes define o cluster de cada caso pela combinação de 3 instrumentos aplicados na avaliação diagnóstica: a triagem (M-CHAT-R até 3 anos e 11 meses; AQ-10 Child, Adolescent ou Adult a partir dos 4 anos), a CARS e a CBDF. Cada instrumento tem escala e cortes próprios, e a leitura conjunta exige uma regra para as combinações em que os instrumentos apontam faixas diferentes.</p>
+            <p>O ESC-TEA-100 aplica o processo de clusterização do Framework IBRAVS a essa necessidade: converte os 3 instrumentos para uma escala comum de 0 a 100, combina-os por média ponderada e lê o cluster pela faixa do escore. O resultado é uma leitura unificada dos instrumentos, com regra explícita para as divergências e com intervalo e nível de confiança quando a avaliação está incompleta. O escore apoia a decisão; a confirmação diagnóstica e a definição do cluster são ato médico.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Conversão para a escala comum</h3>
+            <p>Cada instrumento é convertido para a escala de 0 a 100, na qual as faixas dos clusters coincidem: 0 a 24,9 corresponde ao cluster 0; 25 a 49,9, ao cluster 1; 50 a 74,9, ao cluster 2; 75 a 100, ao cluster 3. A conversão é linear por partes: os pontos de corte de cada instrumento são ancorados nas fronteiras 25, 50 e 75, os extremos da escala vão a 0 e 100 e, dentro de cada faixa, o valor é interpolado linearmente. A fronteira fica no ponto médio entre o maior valor da faixa inferior e o menor valor da faixa superior, de modo que nenhum resultado observável cai exatamente sobre um corte.</p>
+            <div class="tablewrap"><table class="method stack knots">
+              <thead><tr><th>Instrumento</th><th>Escala</th><th>Nós da conversão (valor bruto → subescore)</th></tr></thead>
+              <tbody>
+                <tr><td>M-CHAT-R</td><td class="n" data-l="Escala">0 a 20</td><td class="k" data-l="Nós">0 → 0 · 2,5 → 25 · 7,5 → 50 · 13,5 → 75 · 20 → 100</td></tr>
+                <tr><td>AQ-10 Child e Adolescent</td><td class="n" data-l="Escala">0 a 10</td><td class="k" data-l="Nós">0 → 0 · 5,5 → 25 · 6,5 → 50 · 8,5 → 75 · 10 → 100</td></tr>
+                <tr><td>AQ-10 Adult</td><td class="n" data-l="Escala">0 a 10</td><td class="k" data-l="Nós">0 → 0 · 5,5 → 25 · 7,5 → 50 · 8,5 → 75 · 10 → 100</td></tr>
+                <tr><td>CARS</td><td class="n" data-l="Escala">15 a 60</td><td class="k" data-l="Nós">15 → 0 · 29,75 → 25 · 36,75 → 50 · 48,25 → 75 · 60 → 100</td></tr>
+                <tr><td>CBDF</td><td data-l="Escala">4 categorias</td><td class="k" data-l="Nós">sem disfunção 12,5 · leve 37,5 · moderada 62,5 · grave 87,5</td></tr>
+              </tbody>
+            </table></div>
+            <p>A CBDF entra pela classificação em 4 categorias, cada uma no centro da sua faixa. Na CARS, os cortes publicados são 30 e 37, e a faixa de 37 ou mais abrange os clusters 2 e 3 no scorecard. Como cada valor de instrumento aponta um único cluster, o ESC-TEA-100 fixa a fronteira entre os clusters 2 e 3 em 48,25 pontos: ponto médio entre 48 e 48,5, os valores observáveis vizinhos do ponto em que a distribuição linear da faixa de 37 a 60 cruza 75 (48,4). Assim, 37 a 48 corresponde ao cluster 2 e 48,5 a 60 ao cluster 3.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Agregação e pesos</h3>
+            <div class="formula">ESC-TEA-100 = w<sub>T</sub> · Triagem<sub>0–100</sub> + w<sub>C</sub> · CARS<sub>0–100</sub> + w<sub>F</sub> · CBDF<sub>0–100</sub> <span class="c">· com w<sub>T</sub> + w<sub>C</sub> + w<sub>F</sub> = 1 · pesos de referência 0,20 · 0,35 · 0,45</span></div>
+            <p>O escore é uma média ponderada aditiva dos 3 subescores, o mesmo modelo aditivo de análise de decisão multicritério que o Framework IBRAVS aplica ao Escore de Valor em Saúde: índices padronizados em 0 a 100 e combinados por pesos. Como média ponderada, o escore fica sempre entre o menor e o maior subescore: quando os 3 instrumentos apontam a mesma faixa, o escore cai nessa faixa, qualquer que seja o conjunto de pesos. Quando apontam faixas diferentes, os pesos decidem, e cada instrumento desloca o escore em no máximo o seu peso vezes 100 pontos.</p>
+            <p>Os pesos de referência seguem a ordem triagem &lt; CARS &lt; CBDF (razão 4 : 7 : 9): a triagem é instrumento de rastreio; a CARS gradua a sintomatologia; a CBDF registra a funcionalidade, que orienta a intensidade das intervenções. A calculadora aceita outros pesos, normalizados para 100 %.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Faixas do escore e clusters</h3>
+            <div class="tablewrap"><table class="method stack">
+              <thead><tr><th>Faixa do escore</th><th>Cluster</th><th>Intensidade de referência</th></tr></thead>
+              <tbody>
+                <tr><td class="n">0 a 24,9</td><td class="n" data-l="Cluster">0</td><td data-l="Intensidade de referência">10 h semanais</td></tr>
+                <tr><td class="n">25 a 49,9</td><td class="n" data-l="Cluster">1</td><td data-l="Intensidade de referência">20 h semanais</td></tr>
+                <tr><td class="n">50 a 74,9</td><td class="n" data-l="Cluster">2</td><td data-l="Intensidade de referência">30 h semanais</td></tr>
+                <tr><td class="n">75 a 100</td><td class="n" data-l="Cluster">3</td><td data-l="Intensidade de referência">40 h semanais</td></tr>
+              </tbody>
+            </table></div>
+            <p>O cluster é a categoria de alocação da Matriz de Alocação de Recursos Terapêuticos: a numeração de 0 a 3 designa a faixa do escore e a intensidade de referência, que é a carga horária semanal de intervenções multiprofissionais prevista para cada cluster. As horas dos clusters 1, 2 e 3 guardam a razão de proporção 1 : 1,5 : 2 e são ajustáveis à capacidade instalada da rede, com isonomia entre os clusters.</p>
+            <p>No scorecard TEA do Framework IBRAVS, as 4 faixas recebem os rótulos de suspeita de TEA e de níveis 1, 2 e 3 de suporte. O ESC-TEA-100 designa cada faixa apenas pelo número do cluster e pela intensidade de referência, para manter separadas a categoria de alocação e a classificação diagnóstica: o nível de suporte e a gravidade do quadro são atribuições do médico assistente, segundo os critérios do DSM-5-TR, e ficam fora do escopo do escore.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Regras de leitura</h3>
+            <dl class="rules">
+              <dt>Concordância</dt><dd>Os 3 instrumentos são compatíveis com um mesmo cluster. O escore posiciona o caso dentro da faixa.</dd>
+              <dt>Divergência</dt><dd>As faixas apontadas diferem em 1 cluster. O escore resolve pelos pesos e o caso segue o cluster do escore.</dd>
+              <dt>Discordância maior</dt><dd>As faixas diferem em 2 ou mais clusters. O escore é informativo e o caso segue para o comitê de casos especiais antes da alocação.</dd>
+              <dt>Zona de fronteira</dt><dd>Escore a até 2,5 pontos de 25, 50 ou 75. Os valores brutos são conferidos antes de fechar o cluster.</dd>
+              <dt>Avaliação incompleta</dt><dd>Instrumento ausente. O cluster é provisório, acompanhado do intervalo, do nível de confiança e da completude da avaliação, e é revisto quando o instrumento for aplicado.</dd>
+              <dt>Faixa de validação</dt><dd>M-CHAT-R validado para 16 a 30 meses e adotado de 0 a 3 anos e 11 meses; AQ-10 Child para 4 a 11 anos; AQ-10 Adolescent para 12 a 15 anos; AQ-10 Adult a partir de 16 anos. CARS indicada a partir dos 2 anos. O uso fora da faixa de validação fica sinalizado no resultado.</dd>
+            </dl>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Avaliação incompleta</h3>
+            <p>Sem a CARS, sem a CBDF ou sem ambas, o escore final pertence a um intervalo definido pelos instrumentos disponíveis: o limite inferior soma os subescores disponíveis com os seus pesos; o limite superior acrescenta 100 pontos vezes a soma dos pesos ausentes. A largura do intervalo é 35 pontos sem a CARS, 45 pontos sem a CBDF e 80 pontos só com a triagem.</p>
+            <div class="formula">V<sub>min</sub> = Σ w<sub>i</sub> · v<sub>i</sub> (disponíveis) <span class="c">·</span> V<sub>max</sub> = V<sub>min</sub> + 100 · Σ w<sub>j</sub> (ausentes) <span class="c">·</span> escore provisório = Σ w<sub>i</sub> · v<sub>i</sub> / Σ w<sub>i</sub> (disponíveis)</div>
+            <p>O escore provisório usa os pesos redistribuídos entre os instrumentos disponíveis, o que equivale a admitir que o instrumento ausente cairia na mesma posição dos demais. O nível de confiança de um cluster é a fração do intervalo contida na faixa desse cluster, admitida posição uniforme do instrumento ausente ao longo da escala. Como cada faixa tem 25 pontos, o nível de confiança máximo é 71 % sem a CARS, 56 % sem a CBDF e 31 % só com a triagem. O cluster atribuído com avaliação incompleta é provisório e a alocação definitiva exige os 3 instrumentos.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Tabelas de conversão</h3>
+            <p>Valor bruto → subescore. O fundo indica a faixa do cluster.</p>
+            <div id="tables"></div>
+            <div class="legend"><span><i style="background:var(--band0)"></i>cluster 0</span><span><i style="background:var(--band1)"></i>cluster 1</span><span><i style="background:var(--band2)"></i>cluster 2</span><span><i style="background:var(--band3)"></i>cluster 3</span></div>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Faixas de cada instrumento por cluster</h3>
+            <div class="tablewrap"><table class="method stack">
+              <thead><tr><th>Cluster</th><th>M-CHAT-R</th><th>AQ-10 Child e Adolescent</th><th>AQ-10 Adult</th><th>CARS</th><th>CBDF</th><th>Faixa do escore</th></tr></thead>
+              <tbody>
+                <tr><td>Cluster 0</td><td class="n" data-l="M-CHAT-R">0 a 2</td><td class="n" data-l="AQ-10 Child e Adolescent">0 a 5</td><td class="n" data-l="AQ-10 Adult">0 a 5</td><td class="n" data-l="CARS">menor que 30</td><td data-l="CBDF">Sem disfunção</td><td class="n" data-l="Faixa do escore">0 a 24,9</td></tr>
+                <tr><td>Cluster 1</td><td class="n" data-l="M-CHAT-R">3 a 7</td><td class="n" data-l="AQ-10 Child e Adolescent">6</td><td class="n" data-l="AQ-10 Adult">6 a 7</td><td class="n" data-l="CARS">30 a 36,5</td><td data-l="CBDF">Disfunção leve</td><td class="n" data-l="Faixa do escore">25 a 49,9</td></tr>
+                <tr><td>Cluster 2</td><td class="n" data-l="M-CHAT-R">8 a 13</td><td class="n" data-l="AQ-10 Child e Adolescent">7 a 8</td><td class="n" data-l="AQ-10 Adult">8</td><td class="n" data-l="CARS">37 a 48</td><td data-l="CBDF">Disfunção moderada</td><td class="n" data-l="Faixa do escore">50 a 74,9</td></tr>
+                <tr><td>Cluster 3</td><td class="n" data-l="M-CHAT-R">14 a 20</td><td class="n" data-l="AQ-10 Child e Adolescent">9 a 10</td><td class="n" data-l="AQ-10 Adult">9 a 10</td><td class="n" data-l="CARS">48,5 a 60</td><td data-l="CBDF">Disfunção grave</td><td class="n" data-l="Faixa do escore">75 a 100</td></tr>
+              </tbody>
+            </table></div>
+            <p>Os cortes do M-CHAT-R, da CARS e da CBDF e a lógica geral de clusterização seguem o scorecard TEA do Framework IBRAVS; a subdivisão do M-CHAT-R em 8 a 13 e 14 a 20 e as faixas do AQ-10 seguem a capacitação CBDF da Unimed Governador Valadares. A CARS usa os cortes do próprio instrumento, 30 e 37, e a fronteira de 48,25 entre os clusters 2 e 3 definida na conversão.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>Verificação</h3>
+            <p>As propriedades do escore foram verificadas por enumeração exaustiva das 7.644 combinações possíveis de M-CHAT-R (0 a 20), CARS (15 a 60, passo 0,5) e CBDF (4 categorias), com 2 métodos de cálculo independentes que coincidem em todos os valores. Nas 466 combinações em que os 3 instrumentos apontam o mesmo cluster, o escore reproduz esse cluster em 100 % dos casos, propriedade da média ponderada de subescores contidos na mesma faixa; nas demais, o escore resolve a divergência pela posição de cada instrumento dentro da sua faixa. O escore é monotônico em cada instrumento: aumentar qualquer valor bruto nunca reduz o escore.</p>
+            <p>Sensibilidade aos pesos: a troca dos pesos de referência por 15 · 35 · 50 muda o cluster em 7,8 % das combinações; por 20 · 30 · 50, em 7,1 %; por 25 · 35 · 40, em 7,1 %; por 10 · 40 · 50, em 12,4 %; por pesos iguais, em 17,0 %. Os percentuais referem-se ao espaço combinatório dos instrumentos; a distribuição na população atendida resulta dos casos avaliados.</p>
+          </div>
+
+          <div class="card metodo-block refs">
+            <h3>Referências</h3>
+            <p>INSTITUTO BRASILEIRO DE VALOR EM SAÚDE. <em>Framework IBRAVS</em>: um caminho prático para valor em saúde e modelos de remuneração baseados em valor. Versão 1.7. [S. l.]: IBRAVS, [2025?]. 253 p. Seções aplicadas: sistemas de agrupamento clínico e CBDF (itens 1.2.6 e 1.2.7, p. 24-26); Escore de Valor em Saúde e MCDA (cap. 2, p. 47-61); processo de clusterização de episódios (item 6.3, p. 126-128); Score de Severidade Clínica (Apêndice 6, p. 155-156); scorecard TEA (p. 235-247).</p>
+            <p>ABICALAFFE, C. L.; ARAUJO, G.; RIBAS, L. F.; CABRAL, A. Escore de Valor em Saúde (EVS): uma proposta para mensuração de valor dentro de um sistema de saúde. <em>Jornal Brasileiro de Economia da Saúde</em>, v. 14, supl. 2, p. 246-250, 2022.</p>
+            <p>KEENEY, R. L.; RAIFFA, H. <em>Decisions with multiple objectives</em>: preferences and value tradeoffs. New York: Wiley, 1976.</p>
+            <p>ROBINS, D. L. et al. Validation of the Modified Checklist for Autism in Toddlers, Revised with Follow-up (M-CHAT-R/F). <em>Pediatrics</em>, v. 133, n. 1, p. 37-45, 2014.</p>
+            <p>ALLISON, C.; AUYEUNG, B.; BARON-COHEN, S. Toward brief "red flags" for autism screening: the Short Autism Spectrum Quotient and the Short Quantitative Checklist in 1,000 cases and 3,000 controls. <em>Journal of the American Academy of Child and Adolescent Psychiatry</em>, v. 51, n. 2, p. 202-212, 2012.</p>
+            <p>SCHOPLER, E. et al. Toward objective classification of childhood autism: Childhood Autism Rating Scale (CARS). <em>Journal of Autism and Developmental Disorders</em>, v. 10, n. 1, p. 91-103, 1980.</p>
+            <p>CONSELHO FEDERAL DE FISIOTERAPIA E TERAPIA OCUPACIONAL. <em>Resolução nº 555, de 2022</em>. Institui a Classificação Brasileira de Diagnósticos Fisioterapêuticos (CBDF). <em>Resolução nº 610, de 2025</em>. Dispõe sobre a primeira atualização da CBDF (CBDF-1). Disponível em: https://cbdf.coffito.gov.br.</p>
+            <p>AMERICAN PSYCHIATRIC ASSOCIATION. <em>Diagnostic and statistical manual of mental disorders</em>: DSM-5-TR. 5. ed., text rev. Washington, DC: American Psychiatric Association, 2022.</p>
+            <p>UNIMED GOVERNADOR VALADARES. <em>Capacitação CBDF</em>: Classificação Brasileira de Diagnósticos Fisioterapêuticos: rastreio do autismo em bebês, crianças, adolescentes e adultos. Governador Valadares: Unimed GV, 2026. Apresentação.</p>
+          </div>
+        </section>
+
+        <footer class="site-footer">
+          <div class="sf-logos">
+            <img loading="lazy" class="lg-unimedgv" src="https://assets.grupocsv.com/logos/unimed-gv/sem-box-pinheiro.png" alt="Unimed GV">
+            <span class="sf-sep"></span>
+            <img loading="lazy" class="lg-evs" src="https://assets.grupocsv.com/logos/evs/icon-1x1-sem-fundo.png" alt="EVS">
+            <a href="https://grupocsv.com/axiacare" target="_blank" rel="noopener" aria-label="AxiaCare"><img loading="lazy" class="lg-axia" src="https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg" alt="AxiaCare"></a>
+            <a href="https://grupocsv.com/" target="_blank" rel="noopener" aria-label="Grupo CSV"><img loading="lazy" class="lg-gcsv" src="https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png" alt="Grupo CSV"></a>
+          </div>
+          <div class="sf-legal">Uso interno · Instrumento de apoio à decisão clínica · Linha de cuidado TEA · Caminhos Brilhantes</div>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar" aria-label="Navegação inferior">
+  <div class="tabs">
+    <button class="tab-item active" data-view="calc" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="3"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg> Calculadora</button>
+    <button class="tab-item" data-view="metodo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg> Metodologia</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const INSTR = {
+    mchat:{label:'M-CHAT-R', min:0, max:20, step:1, xs:[0,2.5,7.5,13.5,20], ys:[0,25,50,75,100],
+           bands:[[0,2,[0]],[3,7,[1]],[8,13,[2]],[14,20,[3]]], faixas:'0 a 2 · 3 a 7 · 8 a 13 · 14 a 20', idade:'0 a 3 anos e 11 meses'},
+    aqc:  {label:'AQ-10 Child', min:0, max:10, step:1, xs:[0,5.5,6.5,8.5,10], ys:[0,25,50,75,100],
+           bands:[[0,5,[0]],[6,6,[1]],[7,8,[2]],[9,10,[3]]], faixas:'0 a 5 · 6 · 7 a 8 · 9 a 10', idade:'4 a 11 anos'},
+    aqa:  {label:'AQ-10 Adolescent', min:0, max:10, step:1, xs:[0,5.5,6.5,8.5,10], ys:[0,25,50,75,100],
+           bands:[[0,5,[0]],[6,6,[1]],[7,8,[2]],[9,10,[3]]], faixas:'0 a 5 · 6 · 7 a 8 · 9 a 10', idade:'12 a 15 anos'},
+    aqad: {label:'AQ-10 Adult', min:0, max:10, step:1, xs:[0,5.5,7.5,8.5,10], ys:[0,25,50,75,100],
+           bands:[[0,5,[0]],[6,7,[1]],[8,8,[2]],[9,10,[3]]], faixas:'0 a 5 · 6 a 7 · 8 · 9 a 10', idade:'16 anos ou mais'}
+  };
+  const CARS = {label:'CARS', min:15, max:60, step:0.5, xs:[15,29.75,36.75,48.25,60], ys:[0,25,50,75,100], bands:[[15,29.5,[0]],[30,36.5,[1]],[37,48,[2]],[48.5,60,[3]]]};
+  const CBDF = {sem:{label:'Sem disfunção', v:12.5, c:[0]}, leve:{label:'Disfunção leve', v:37.5, c:[1]}, mod:{label:'Disfunção moderada', v:62.5, c:[2]}, grave:{label:'Disfunção grave', v:87.5, c:[3]}};
+  const CLUSTER = [
+    {k:0, ref:'10 h semanais de referência'},
+    {k:1, ref:'20 h semanais de referência'},
+    {k:2, ref:'30 h semanais de referência'},
+    {k:3, ref:'40 h semanais de referência'}
+  ];
+  const MATRIZ = 'Matriz de Alocação de Recursos Terapêuticos';
+  const fmt1 = (x) => x.toLocaleString('pt-BR',{minimumFractionDigits:1, maximumFractionDigits:1});
+  const fmtRaw = (x) => x.toLocaleString('pt-BR',{minimumFractionDigits:0, maximumFractionDigits:1});
+  const pct = (x) => Math.round(x*100) + ' %';
+  const pct1 = (x) => (x*100).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' %';
+
+  function interp(x, xs, ys){
+    if (x <= xs[0]) return ys[0];
+    if (x >= xs[xs.length-1]) return ys[ys.length-1];
+    for (let i=0;i<xs.length-1;i++){ if (x >= xs[i] && x <= xs[i+1]) return ys[i] + (ys[i+1]-ys[i])*(x-xs[i])/(xs[i+1]-xs[i]); }
+    return NaN;
+  }
+  function bandOf(inst, x){ for (const [lo,hi,c] of inst.bands){ if (x>=lo && x<=hi) return c; } return null; }
+  function clusterOf(V){ return V>=75?3:(V>=50?2:(V>=25?1:0)); }
+  function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+  function instrByAge(months){ if (months<48) return 'mchat'; const y=Math.floor(months/12); if (y<=11) return 'aqc'; if (y<=15) return 'aqa'; return 'aqad'; }
+  function bandLabel(c){ return c.length===1 ? 'cluster '+c[0] : 'cluster '+c.join(' ou '); }
+  function rangeLabel(inst, lo, hi){ return lo === hi ? fmtRaw(lo) : fmtRaw(lo) + ' a ' + fmtRaw(hi); }
+  function bandStrip(id, inst, x){
+    const cells = inst
+      ? inst.bands.map(([lo,hi,c]) => ({r: rangeLabel(inst, lo, hi), c: (c.length===1 ? 'cluster '+c[0] : 'clusters '+c.join(' e ')), b: c[0], on: x!==null && x>=lo && x<=hi, mute:false}))
+      : [0,1,2,3].map(b => ({r:'—', c:'cluster '+b, b, on:false, mute:true}));
+    $(id).innerHTML = cells.map(cl => `<div class="band-c b${cl.b}${cl.on?' on':''}${cl.mute?' mute':''}"><span class="r">${cl.r}</span><span class="c">${cl.c}</span></div>`).join('');
+  }
+  function emptyScale(){
+    const el = $('emptyScale');
+    const cw = Math.max(300, Math.round(el.clientWidth || 720));
+    const abbr = cw < 420;
+    const L = 8, R = cw - 8, top = 26, h = 36, H = top + h + 24;
+    const x = (v) => L + (R-L)*v/100;
+    const bands = ['var(--band0)','var(--band1)','var(--band2)','var(--band3)'];
+    let svg = `<svg viewBox="0 0 ${cw} ${H}" role="img" aria-label="Escala de 0 a 100 dividida em 4 clusters">`;
+    for (let i=0;i<4;i++) svg += `<rect x="${x(25*i)}" y="${top}" width="${(R-L)/4}" height="${h}" fill="${bands[i]}"/>`;
+    svg += `<g class="band">`;
+    for (let i=0;i<4;i++) svg += `<text x="${x(25*i+12.5)}" y="${top-9}" text-anchor="middle">${abbr?'C':'Cluster '}${i}</text>`;
+    svg += `</g>`;
+    for (const t of [0,25,50,75,100]) svg += `<line x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${top+h}" stroke="#fff" stroke-width="${t===0||t===100?0:2}"/><text x="${x(t)}" y="${H-5}" text-anchor="middle">${t}</text>`;
+    svg += `</svg>`;
+    el.innerHTML = svg;
+  }
+  function cbdfValue(){ const r = document.querySelector('input[name="cbdf"]:checked'); return r ? r.value : null; }
+  function num(id){ const v = $(id).value.trim(); if (v==='') return null; const n = parseFloat(v.replace(',','.')); return isNaN(n) ? null : n; }
+
+  function readState(){
+    const aRaw = num('idadeAnos'), mRaw = num('idadeMeses');
+    const hasAge = aRaw !== null || mRaw !== null;
+    const anos = clamp(Math.round(aRaw||0),0,99), meses = clamp(Math.round(mRaw||0),0,11);
+    const months = anos*12+meses;
+    const key = hasAge ? instrByAge(months) : null;
+    const inst = key ? INSTR[key] : null;
+    const tRaw = num('triagem');
+    const xT = (inst && tRaw !== null) ? clamp(Math.round(tRaw), inst.min, inst.max) : null;
+    const carsOk = hasAge && months >= 24;
+    const cRaw = num('cars');
+    const xC = (carsOk && cRaw !== null) ? clamp(Math.round(cRaw*2)/2, 15, 60) : null;
+    const cb = cbdfValue();
+    const wT = Math.max(0, num('wT')||0), wC = Math.max(0, num('wC')||0), wF = Math.max(0, num('wF')||0);
+    return {hasAge, anos, meses, months, key, inst, xT, carsOk, xC, cb, wT, wC, wF};
+  }
+
+  function compute(s){
+    if (s.xT === null) return null;
+    const vT = interp(s.xT, s.inst.xs, s.inst.ys);
+    const vC = s.xC === null ? null : interp(s.xC, CARS.xs, CARS.ys);
+    const vF = s.cb === null ? null : CBDF[s.cb].v;
+    const sumW = s.wT + s.wC + s.wF || 1;
+    const w = {T:s.wT/sumW, C:s.wC/sumW, F:s.wF/sumW};
+    const avail = [['T',vT,w.T]].concat(vC!==null?[['C',vC,w.C]]:[]).concat(vF!==null?[['F',vF,w.F]]:[]);
+    const wAvail = avail.reduce((a,x)=>a+x[2],0);
+    const wMiss = 1 - wAvail;
+    const vmin = avail.reduce((a,x)=>a+x[2]*x[1],0);
+    const vmax = vmin + 100*wMiss;
+    const complete = (vC!==null && vF!==null);
+    let V = complete ? vmin : (wAvail>0 ? vmin/wAvail : 0);
+    V = Math.round(V*100)/100;
+    const k = clusterOf(V);
+    const L = vmax - vmin;
+    const cov = [0,1,2,3].map(b => { const lo=25*b, hi=(b===3?100.0001:25*b+25); const seg=Math.max(0, Math.min(vmax,hi)-Math.max(vmin,lo)); return L>0 ? seg/L : ((vmin>=lo && vmin<hi)?1:0); });
+    const bT = bandOf(s.inst, s.xT), bC = vC===null ? null : bandOf(CARS, s.xC), bF = vF===null ? null : CBDF[s.cb].c;
+    const sets = [bT].concat(bC?[bC]:[]).concat(bF?[bF]:[]);
+    let amp = null;
+    const rec = (i, cur) => { if (i===sets.length){ const a = Math.max(...cur)-Math.min(...cur); amp = (amp===null||a<amp)?a:amp; return; } for (const c of sets[i]) rec(i+1, cur.concat([c])); };
+    rec(0, []);
+    const front = [25,50,75].some(t => Math.abs(V-t) <= 2.5);
+    return {vT, vC, vF, V, k, w, wAvail, wMiss, vmin, vmax, cov, complete, amp, front, bT, bC, bF};
+  }
+
+  function chart(r, s){
+    const cw = Math.max(300, Math.round($('chart').clientWidth || 720));
+    const narrow = cw < 560, abbr = cw < 420;
+    const rows = [
+      {lab:s.inst.label, v:r.vT, raw:fmtRaw(s.xT)+' pt'},
+      {lab:'CARS', v:r.vC, raw: r.vC===null ? (s.carsOk ? 'não informada' : 'não indicada nesta idade') : fmtRaw(s.xC)+' pt'},
+      {lab:'CBDF', v:r.vF, raw: r.vF===null ? 'não informada' : CBDF[s.cb].label},
+      {lab:r.complete?'Escore':(narrow?'Provisório':'Escore provisório'), v:r.V, raw:'', main:true}
+    ];
+    const bands = ['var(--band0)','var(--band1)','var(--band2)','var(--band3)'];
+    const W = cw, L = narrow ? 8 : 124, R = narrow ? cw - 8 : cw - 30, top = narrow ? 26 : 30, rowH = narrow ? 52 : 40;
+    const H = top + rowH*rows.length + 26;
+    const x = (v) => L + (R-L)*v/100;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Escala de 0 a 100 com 4 faixas e a posição de cada subescore e do escore">`;
+    for (let i=0;i<4;i++) svg += `<rect x="${x(25*i)}" y="${top-4}" width="${(R-L)/4}" height="${rowH*rows.length+8}" fill="${bands[i]}"/>`;
+    svg += `<g class="band">`;
+    for (let i=0;i<4;i++) svg += `<text x="${x(25*i+12.5)}" y="${top-11}" text-anchor="middle">${abbr?'C':'Cluster '}${i}</text>`;
+    svg += `</g><g class="axis">`;
+    for (const t of [0,25,50,75,100]) svg += `<line x1="${x(t)}" x2="${x(t)}" y1="${top-4}" y2="${top+rowH*rows.length+4}" stroke="#fff" stroke-width="${t===0||t===100?0:2}"/><text x="${x(t)}" y="${H-6}" text-anchor="middle">${t}</text>`;
+    svg += `</g>`;
+    rows.forEach((row, i) => {
+      const rowTop = top + rowH*i;
+      const cy = narrow ? rowTop + 36 : rowTop + rowH/2;
+      let label = row.v===null ? row.raw : fmt1(row.v) + (row.raw ? '  ·  ' + row.raw : '');
+      if (row.main && !r.complete) label = fmt1(row.v) + '  ·  intervalo ' + fmt1(r.vmin) + ' a ' + fmt1(r.vmax);
+      if (narrow){
+        svg += `<text class="lab" x="${L+4}" y="${rowTop+15}">${row.lab}</text>`;
+        svg += `<text class="val" x="${R-4}" y="${rowTop+15}" text-anchor="end" font-weight="${row.main?700:400}" fill="${row.v===null?'var(--ink-4)':'var(--ink-2)'}">${label}</text>`;
+        if (row.v === null) return;
+      } else {
+        svg += `<text class="lab" x="${L-12}" y="${cy+4}" text-anchor="end">${row.lab}</text>`;
+        if (row.v === null){ svg += `<text class="val" x="${x(0)+6}" y="${cy+4}" fill="var(--ink-4)" font-style="italic">${row.raw}</text>`; return; }
+      }
+      const cx = x(row.v);
+      if (row.main){
+        if (!r.complete) svg += `<rect x="${x(r.vmin)}" y="${cy-11}" width="${Math.max(0,x(r.vmax)-x(r.vmin))}" height="22" rx="4" fill="var(--interval)"/>`;
+        svg += `<rect x="${x(0)}" y="${cy-6}" width="${Math.max(0,cx-x(0))}" height="12" rx="6" fill="var(--u-green)"/>`;
+        svg += `<circle cx="${cx}" cy="${cy}" r="9" fill="var(--u-green)" stroke="#fff" stroke-width="2"/>`;
+      } else {
+        svg += `<line x1="${x(0)}" x2="${cx}" y1="${cy}" y2="${cy}" stroke="var(--u-dark)" stroke-opacity=".35" stroke-width="2"/>`;
+        svg += `<circle cx="${cx}" cy="${cy}" r="6.5" fill="var(--u-dark)" stroke="#fff" stroke-width="2"/>`;
+      }
+      if (!narrow){
+        const right = cx + 14 + label.length*6.4 < R;
+        svg += `<text class="val" x="${right ? cx+14 : cx-14}" y="${cy+4}" text-anchor="${right?'start':'end'}" font-weight="${row.main?700:400}">${label}</text>`;
+      }
+    });
+    svg += `</svg>`;
+    $('chart').innerHTML = svg;
+  }
+
+  function setStepper(id, stId, enabled){
+    $(id).disabled = !enabled;
+    $(stId).classList.toggle('off', !enabled);
+    $(stId).querySelectorAll('button').forEach(b => { b.disabled = !enabled; });
+  }
+
+  function render(){
+    const s = readState();
+    // triagem: instrumento definido pela idade
+    if (s.inst){
+      $('triagem').min = s.inst.min; $('triagem').max = s.inst.max;
+      if (num('triagem') !== null && num('triagem') > s.inst.max) $('triagem').value = s.inst.max;
+      $('instrAuto').textContent = s.inst.label + ' · ' + s.inst.idade;
+      $('instrAuto').classList.remove('mute');
+      $('triagemUnit').textContent = `pontos (${s.inst.min} a ${s.inst.max})`;
+      setStepper('triagem','stTriagem', true);
+      bandStrip('bandsTriagem', s.inst, s.xT);
+    } else {
+      $('instrAuto').textContent = 'instrumento definido pela idade';
+      $('instrAuto').classList.add('mute');
+      $('triagemUnit').textContent = 'pontos';
+      setStepper('triagem','stTriagem', false);
+      bandStrip('bandsTriagem', null, null);
+    }
+    // CARS: indicada a partir dos 2 anos
+    if (s.hasAge && !s.carsOk){
+      setStepper('cars','stCars', false);
+      $('carsAuto').hidden = false;
+      $('bandsCars').innerHTML = CARS.bands.map(([lo,hi,c]) => `<div class="band-c b${c[0]} mute"><span class="r">${rangeLabel(CARS, lo, hi)}</span><span class="c">${c.length===1 ? 'cluster '+c[0] : 'clusters '+c.join(' e ')}</span></div>`).join('');
+    } else {
+      setStepper('cars','stCars', true);
+      $('carsAuto').hidden = true;
+      bandStrip('bandsCars', CARS, s.xC);
+    }
+    document.querySelectorAll('.choice').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+    // pesos
+    const wsum = s.wT+s.wC+s.wF;
+    const el = $('wsum');
+    if (Math.abs(wsum-100) > 0.001){ el.textContent = `Os pesos somam ${fmtRaw(wsum)} %. O cálculo usa os pesos normalizados para 100 %.`; el.classList.add('bad'); }
+    else { el.textContent = 'Os pesos somam 100 %.'; el.classList.remove('bad'); }
+    if (s.wT > s.wC || s.wC > s.wF){ el.textContent += ' A ordem de referência é triagem < CARS < CBDF.'; }
+    $('wsumShort').textContent = `${fmtRaw(s.wT)} · ${fmtRaw(s.wC)} · ${fmtRaw(s.wF)}`;
+
+    const r = compute(s);
+    window.__last = {s, r};
+    if (!r){
+      $('placeholder').hidden = false; $('resBody').hidden = true; $('tbChips').hidden = true;
+      $('resSub').textContent = 'Escore, cluster e composição';
+      emptyScale();
+      return;
+    }
+    $('placeholder').hidden = true; $('resBody').hidden = false;
+    $('resSub').textContent = r.complete ? 'Avaliação completa: triagem, CARS e CBDF' : 'Avaliação incompleta: escore provisório com intervalo';
+    $('scoreK').textContent = r.complete ? 'Escore' : 'Escore provisório';
+    $('scoreV').textContent = fmt1(r.V);
+    $('scoreSub').textContent = r.complete
+      ? `pesos ${Math.round(r.w.T*100)} · ${Math.round(r.w.C*100)} · ${Math.round(r.w.F*100)}`
+      : `intervalo ${fmt1(r.vmin)} a ${fmt1(r.vmax)} · completude ${pct(r.wAvail)} do peso`;
+    $('clusterK').textContent = r.k; $('clusterL').textContent = r.complete ? '' : 'provisório'; $('clusterRef').textContent = CLUSTER[r.k].ref + ' · ' + MATRIZ;
+    if (r.complete) $('clusterConf').textContent = '';
+    else {
+      const parts = r.cov.map((c,b)=>[b,c]).filter(x=>x[1]>0.0005).map(x=>`cluster ${x[0]} ${pct1(x[1])}`);
+      $('clusterConf').textContent = `Nível de confiança: ${parts.join(' · ')}`;
+    }
+    $('tbChips').hidden = false;
+    const compact = window.matchMedia && window.matchMedia('(max-width:640px)').matches;
+    $('chipScore').textContent = (compact ? '' : (r.complete ? 'Escore ' : 'Provisório ')) + fmt1(r.V) + (compact && !r.complete ? ' prov.' : '');
+    $('chipCluster').textContent = `Cluster ${r.k}`;
+    chart(r, s);
+    const head = ['Instrumento','Valor','Subescore','Faixa','Peso'];
+    const carsRaw = r.vC===null ? (s.carsOk ? 'não informada' : 'não indicada nesta idade') : fmtRaw(s.xC)+' pt';
+    const rowsHtml = [
+      [s.inst.label, fmtRaw(s.xT)+' pt', fmt1(r.vT), bandLabel(r.bT), Math.round(r.w.T*100)+' %', false],
+      ['CARS', carsRaw, r.vC===null?'—':fmt1(r.vC), r.vC===null?'—':bandLabel(r.bC), Math.round(r.w.C*100)+' %', r.vC===null],
+      ['CBDF', r.vF===null?'não informada':CBDF[s.cb].label, r.vF===null?'—':fmt1(r.vF), r.vF===null?'—':bandLabel(r.bF), Math.round(r.w.F*100)+' %', r.vF===null]
+    ];
+    $('rowsTable').innerHTML = '<thead><tr>' + head.map(h=>`<th>${h}</th>`).join('') + '</tr></thead><tbody>' + rowsHtml.map(rw => `<tr><td>${rw[0]}</td><td class="n${rw[5]?' miss':''}" data-l="${head[1]}">${rw[1]}</td><td class="n big" data-l="${head[2]}">${rw[2]}</td><td data-l="${head[3]}">${rw[3]}</td><td class="n" data-l="${head[4]}">${rw[4]}</td></tr>`).join('') + '</tbody>';
+    const notes = [];
+    if (r.complete){
+      if (r.amp === 0) notes.push(['ok','Concordância.','Os instrumentos são compatíveis com um mesmo cluster; o escore posiciona o caso dentro da faixa.']);
+      else if (r.amp === 1) notes.push(['','Divergência de 1 cluster.','O escore resolve pelos pesos e o caso segue o cluster do escore.']);
+      else notes.push(['alert','Discordância maior.',`As faixas apontadas diferem em ${r.amp} clusters. O caso segue para o comitê de casos especiais antes da alocação.`]);
+    } else {
+      const falta = [].concat(r.vC===null?['CARS']:[]).concat(r.vF===null?['CBDF']:[]);
+      notes.push(['alert','Avaliação incompleta.',`Sem ${falta.join(' e ')}. Cluster provisório com nível de confiança de ${pct1(r.cov[r.k])} e completude de ${pct(r.wAvail)} do peso. O escore é refeito quando o instrumento for aplicado.`]);
+      if (r.amp !== null && sets2(r) > 1){
+        if (r.amp === 0) notes.push(['ok','Concordância parcial.','Os instrumentos disponíveis são compatíveis com um mesmo cluster.']);
+        else if (r.amp === 1) notes.push(['','Divergência de 1 cluster.','Entre os instrumentos disponíveis, o escore provisório resolve pelos pesos.']);
+        else notes.push(['alert','Discordância maior.',`As faixas apontadas pelos instrumentos disponíveis diferem em ${r.amp} clusters. O caso segue para o comitê de casos especiais.`]);
+      }
+    }
+    if (r.front) notes.push(['alert','Zona de fronteira.','O escore está a até 2,5 pontos de um corte de cluster; os valores brutos são conferidos antes de fechar.']);
+    if (s.key==='mchat' && (s.months<16 || s.months>30)) notes.push(['','M-CHAT-R fora da faixa de validação.','Instrumento validado para 16 a 30 meses e adotado de 0 a 3 anos e 11 meses.']);
+    $('notes').innerHTML = notes.map(n => `<p class="note ${n[0]}"><b>${n[1]}</b> ${n[2]}</p>`).join('');
+  }
+  function sets2(r){ return 1 + (r.vC!==null?1:0) + (r.vF!==null?1:0); }
+
+  function tables(){
+    let html = '';
+    for (const key of ['mchat','aqc','aqa','aqad']){
+      const inst = INSTR[key];
+      html += `<div class="conv-title">${inst.label}</div><div class="conv-sub">Faixas: ${inst.faixas} · ${inst.idade}</div><div class="conv">`;
+      for (let x=inst.min; x<=inst.max; x+=inst.step){ const b = bandOf(inst,x); html += `<span class="c${b[0]}">${x} → ${fmt1(interp(x,inst.xs,inst.ys))}</span>`; }
+      html += `</div>`;
+    }
+    html += `<div class="conv-title">CARS</div><div class="conv-sub">Faixas: 15 a 29,5 · 30 a 36,5 · 37 a 48 · 48,5 a 60</div><div class="conv">`;
+    for (let x=15; x<=60; x+=0.5){ const b = bandOf(CARS,x); html += `<span class="c${b[0]}">${fmtRaw(x)} → ${fmt1(interp(x,CARS.xs,CARS.ys))}</span>`; }
+    html += `</div>`;
+    html += `<div class="conv-title">CBDF</div><div class="conv-sub">4 categorias, no centro de cada faixa</div><div class="conv wide">`;
+    for (const k of ['sem','leve','mod','grave']) html += `<span class="c${CBDF[k].c[0]}">${CBDF[k].label} → ${fmt1(CBDF[k].v)}</span>`;
+    html += `</div>`;
+    $('tables').innerHTML = html;
+  }
+
+  function copySummary(){
+    const {s, r} = window.__last || {};
+    if (!s || !r) return;
+    const lines = [
+      `ESC-TEA-100: ${fmt1(r.V)} de 100${r.complete?'':' (provisório)'} → cluster ${r.k} (${CLUSTER[r.k].ref}, ${MATRIZ})`,
+      `Idade: ${s.anos} anos e ${s.meses} meses`,
+      `${s.inst.label}: ${fmtRaw(s.xT)} pt → ${fmt1(r.vT)} (${bandLabel(r.bT)}, peso ${Math.round(r.w.T*100)} %)`,
+      r.vC===null ? `CARS: ${s.carsOk ? 'não informada' : 'não indicada nesta idade'}` : `CARS: ${fmtRaw(s.xC)} pt → ${fmt1(r.vC)} (${bandLabel(r.bC)}, peso ${Math.round(r.w.C*100)} %)`,
+      r.vF===null ? `CBDF: não informada` : `CBDF: ${CBDF[s.cb].label} → ${fmt1(r.vF)} (${bandLabel(r.bF)}, peso ${Math.round(r.w.F*100)} %)`
+    ];
+    if (!r.complete) lines.push(`Intervalo: ${fmt1(r.vmin)} a ${fmt1(r.vmax)} · nível de confiança do cluster ${r.k}: ${pct1(r.cov[r.k])} · completude ${pct(r.wAvail)}`);
+    if (r.complete) lines.push(r.amp===0 ? 'Concordância entre os instrumentos.' : (r.amp===1 ? 'Divergência de 1 cluster, resolvida pelo escore.' : `Discordância maior (${r.amp} clusters): comitê de casos especiais.`));
+    if (r.front) lines.push('Zona de fronteira (até 2,5 pontos de um corte).');
+    const txt = lines.join('\n');
+    const done = () => { $('toast').textContent = 'Resumo copiado.'; setTimeout(()=>{$('toast').textContent='';}, 2500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>fallback(txt, done)); else fallback(txt, done);
+  }
+  function fallback(txt, done){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); done();}catch(e){} document.body.removeChild(ta); }
+
+  function clearAll(){
+    ['idadeAnos','idadeMeses','triagem','cars'].forEach(id => { $(id).value = ''; });
+    document.querySelectorAll('input[name="cbdf"]').forEach(r => { r.checked = false; });
+    render();
+    $('idadeAnos').focus();
+  }
+
+  // navegacao entre vistas
+  const VIEWS = {calc:'calculadora', metodo:'metodologia'};
+  function showView(key, push){
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-'+key));
+    document.querySelectorAll('.nav-item, .tab-item').forEach(b => b.classList.toggle('active', b.dataset.view === key));
+    const v = $('view-'+key);
+    $('tbTitle').textContent = v.dataset.title; $('tbSub').textContent = v.dataset.sub;
+    $('tbChips').style.display = (key === 'calc') ? '' : 'none';
+    $('scroll').scrollTop = 0;
+    if (push !== false){ try { history.replaceState(null, '', '#' + VIEWS[key]); } catch(e){} }
+    if (key === 'calc'){ if (window.__last && window.__last.r) chart(window.__last.r, window.__last.s); else emptyScale(); }
+  }
+  document.querySelectorAll('.nav-item, .tab-item').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+  window.addEventListener('hashchange', () => { const h = location.hash.replace('#',''); const k = Object.keys(VIEWS).find(k => VIEWS[k] === h); if (k) showView(k, false); });
+
+  ['idadeAnos','idadeMeses','triagem','cars','wT','wC','wF'].forEach(id => { $(id).addEventListener('input', render); $(id).addEventListener('change', render); });
+  document.querySelectorAll('input[name="cbdf"]').forEach(r => r.addEventListener('change', render));
+  document.querySelectorAll('.step').forEach(b => b.addEventListener('click', () => {
+    const inp = $(b.dataset.for); if (inp.disabled) return;
+    const st = parseFloat(inp.step)||1, lo = parseFloat(inp.min), hi = parseFloat(inp.max);
+    const cur = num(inp.id);
+    let v;
+    if (cur === null) v = (b.dataset.for === 'cars') ? 30 : lo; else v = cur + st*parseFloat(b.dataset.d);
+    inp.value = clamp(Math.round(v/st)*st, lo, hi);
+    render();
+  }));
+  $('btnLimpar').addEventListener('click', clearAll);
+  $('btnPadrao').addEventListener('click', () => { $('wT').value=20; $('wC').value=35; $('wF').value=45; render(); });
+  $('btnCopy').addEventListener('click', copySummary);
+  let rt = null;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (window.__last && window.__last.r) chart(window.__last.r, window.__last.s); else emptyScale(); }, 120); });
+
+  tables();
+  render();
+  const h0 = location.hash.replace('#',''); const k0 = Object.keys(VIEWS).find(k => VIEWS[k] === h0);
+  showView(k0 || 'calc', false);
+})();
+</script>
+<script src="/scripts/hub-auth.js" data-portal="unimed"></script>
+</body>
+</html>
