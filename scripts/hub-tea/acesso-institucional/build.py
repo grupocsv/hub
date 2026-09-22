@@ -26,13 +26,13 @@ class ScriptBlocks(HTMLParser):
             if char=='\n':self.lines.append(position+1)
         self.feed(text);self.close()
         if self.start is not None:self.blocks.append(text[self.start:])
-    def offset(self):
+    def source_offset(self):
         line,column=self.getpos();return self.lines[line-1]+column
     def handle_starttag(self,tag,attrs):
-        if tag=='script':self.start=self.offset()
+        if tag=='script':self.start=self.source_offset()
     def handle_endtag(self,tag):
         if tag=='script' and self.start is not None:
-            end=self.text.index('>',self.offset())+1
+            end=self.text.index('>',self.source_offset())+1
             self.blocks.append(self.text[self.start:end]);self.start=None
     def handle_startendtag(self,tag,attrs):
         if tag=='script':self.blocks.append(self.get_starttag_text())
