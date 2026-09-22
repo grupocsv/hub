@@ -12,8 +12,20 @@ const [packagePath,outputPath,...flags]=process.argv.slice(2);
 if(!packagePath||!outputPath)throw Error('Uso: node verify-browser.mjs PACKAGE OUTPUT [--live]');
 const live=flags.includes('--live');
 const stateIndex=flags.indexOf('--storage-state');
-const storageState=stateIndex>=0?flags[stateIndex+1]:undefined;
-if(live&&!storageState)throw Error('QA autenticado exige --storage-state fora do Git. Teste anônimo é responsabilidade do publicador.');
+let storageState=stateIndex>=0?flags[stateIndex+1]:undefined;
+if(flags.includes('--storage-state-stdin')){
+ if(storageState)throw Error('Informe apenas uma origem de sessão.');
+ const chunks=[];let size=0;
+ for await(const chunk of process.stdin){size+=chunk.length;if(size>65536)throw Error('Estado de sessão inválido.');chunks.push(chunk);}
+ try{
+  const candidate=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  assert(Array.isArray(candidate.cookies)&&candidate.cookies.length>0);
+  assert(candidate.cookies.every(cookie=>['__Host-tea_access','__Host-tea_csrf'].includes(cookie.name)&&cookie.domain==='open.grupocsv.com'&&cookie.path==='/'&&cookie.secure===true&&cookie.httpOnly===true&&/^[a-f0-9]{64}$/.test(cookie.value)));
+  assert(!candidate.origins||candidate.origins.length===0);
+  storageState=candidate;
+ }catch{throw Error('Estado de sessão inválido.');}
+}
+if(live&&!storageState)throw Error('QA autenticado exige --storage-state ou --storage-state-stdin. Teste anônimo é responsabilidade do publicador.');
 const manifest=JSON.parse(await fs.readFile(path.join(packagePath,'build-manifest.json'),'utf8'));
 const points=JSON.parse(await fs.readFile(new URL('./points.json',import.meta.url),'utf8'));
 let url='https://open.grupocsv.com/jornada-tea/';let server;

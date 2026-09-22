@@ -41,6 +41,8 @@ A publicação exige primeiro o gate institucional ativo: GET e HEAD anônimos d
 
 O relatório `verified.json` separa origem conferida e bloqueio anônimo de `authenticated_browser_qa_required`: o QA em navegador com uma sessão institucional válida ainda é obrigatório. Esse estado de sessão é privado, fora do Git, e nunca deve aparecer nos logs. A suíte de navegador confirma interação, ausência de transbordamento, alinhamento dos pontos, carregamento das imagens, abertura e download do PNG. Não cria contas, não envia e-mails e não valida por si só todas as regras de permissão do provedor institucional.
 
+Preferencialmente, use `--storage-state-stdin`: o executor autenticado passa o JSON de cookies diretamente ao subprocesso, só em memória, sem arquivo de sessão, argumento, variável de ambiente ou log. O modo aceita apenas os cookies institucionais seguros do domínio oficial. O executor deve encerrar a sessão no `finally`, inclusive se algum teste falhar.
+
 O publicador não serve para instalar o gate ou migrar objetos. A ordem é: preservar a origem, copiar os prefixos para o bucket privado com integridade conferida, ativar o binding e o gate, neutralizar as cópias antigas públicas, executar snapshot/publicação da camada visual, validar acesso autorizado e anônimo. Migração e neutralização pertencem à entrega de acesso em `csv-open-pages`; esta camada nunca volta a publicar conteúdo no bucket compartilhado. Não reativar downloads públicos para simplificar uma publicação.
 
 ## Curadoria das explicações
