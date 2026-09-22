@@ -1,0 +1,12 @@
+edition: S37
+year: 2026
+period: "7 a 11 de setembro de 2026"
+generated: "2026-09-22"
+dictionary_version: "v4.12"
+scope: unimed
+facts_count: 6
+new_terms: 8
+unimed_terms: 8
+sources:
+  notion_pages: 0
+  gmail_messages: 78
