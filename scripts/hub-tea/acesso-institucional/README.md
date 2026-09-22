@@ -6,7 +6,7 @@ O Worker é a versão ativa `6cd3fe16-8976-4ae9-8ff1-e0ffce368637`, capturada em
 
 ## Acervo e limites
 
-O snapshot autenticado está fora do Git, sob `%LOCALAPPDATA%/GrupoCSV/PortaisArquivo/clavs-2026-09-21/hub-unimedgv`. Contém o código original, settings sem segredos, deploy ativo, inventário R2, metadata KV e todos os objetos de `tea/`. As cópias públicas também foram conferidas contra o inventário; o HTML foi normalizado apenas para remover a injeção conhecida do Worker e o beacon de analytics.
+O snapshot autenticado está fora do Git, sob `%LOCALAPPDATA%/GrupoCSV/PortaisArquivo/clavs-2026-09-21/hub-unimedgv`. Contém o código original, settings sem segredos, deploy ativo, inventário R2, metadata KV e todos os objetos de `tea/`. `snapshot-invariants` acrescenta schedules, workers.dev, rotas da zona e domínios ligados ao Worker; o publicador exige igualdade antes e depois da alteração. As cópias públicas também foram conferidas contra o inventário; o HTML foi normalizado apenas para remover a injeção conhecida do Worker e o beacon de analytics.
 
 O inventário atual tem uma única prancha integral: `tea/peca-jornada.webp`. OG e imagem de e-mail foram inspecionados e não contêm o mapa. A publicação não apaga nem sobrescreve a prancha original; seu acesso público fica desviado para a origem protegida. Arquivos previamente baixados/caches de navegador já existentes não podem ser recolhidos remotamente.
 
@@ -27,10 +27,10 @@ Não executar `api/upload`: ele substitui o conjunto inteiro da slug. O publicad
 
 1. Ativar a proteção institucional em Open Pages e confirmar 401/no-store na imagem de destino, além do canário institucional autenticado da frente responsável.
 2. Conferir `approved-output.json` contra o pacote revisado. O nome indica aprovação técnica dos bytes, não autorização externa adicional.
-3. Executar `release.py preflight --package PACOTE --snapshot SNAPSHOT --state ESTADO_PRIVADO`. A credencial é lida por entrada protegida, somente em memória. Pré-requisitos incluem worker/settings/origem intactos e ausência de domínio R2 público.
+3. Executar `release.py snapshot-invariants --package PACOTE --snapshot SNAPSHOT --state ESTADO_PRIVADO` uma única vez, antes de alterar o Worker. Depois executar `preflight` com os mesmos argumentos. A credencial é lida por entrada protegida, somente em memória. Pré-requisitos incluem worker/settings/origem intactos e ausência de domínio R2 público. Campo desconhecido de settings interrompe a operação; uso, limites, observabilidade e demais configurações conhecidas são incluídos no upload e comparados na releitura.
 4. Executar `publish-worker`, depois `publish-page`, com os mesmos argumentos. O Worker passa a proteger a prancha antes da troca da prévia.
 5. Executar `purge`, que invalida apenas as URLs canônicas da página e da antiga imagem (incluindo barra final), sem purge geral da zona.
-6. Executar `verify`: módulo publicado, settings, bloqueio/redirect anônimo, bytes do HTML servido e do R2, demais objetos e metadata preservados.
+6. Executar `verify`: módulo publicado, settings, schedules, domínios, rotas, bloqueio/redirect anônimo, bytes do HTML servido e do R2, demais objetos e metadata preservados. O index mantém `Content-Type: text/html`, custom metadata vazio e classe Standard; mudança desses metadados impede a escrita e exige revisão. O manifesto também registra metadados HTTP/custom e classe de todos os objetos.
 7. Conferir visualmente o endereço público, acesso autenticado à Jornada e continuidade do Painel e do Relatório.
 
 Em falha ou resultado incerto, examinar `events.jsonl` e executar `verify-worker`/`verify` antes de repetir qualquer escrita. O script não repete mutações automaticamente. Reverter o HTML exige comparar o estado atual e preservar o bloqueio do recurso antigo; restaurar o Worker antigo isoladamente reabriria a prancha e não é uma reversão segura. O snapshot original permite reconstrução sem perda de material, mas a proteção deve permanecer ativa durante qualquer correção.

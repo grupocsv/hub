@@ -49,7 +49,7 @@ def main():
     for row in rows:
         body=(origin/row['key'].removeprefix('tea/')).read_bytes()
         assert hashlib.md5(body).hexdigest()==row['etag'],'Snapshot não confere com inventário: '+row['key']
-        inventory.append({'key':row['key'],'bytes':len(body),'sha256':sha(body),'etag':row['etag']})
+        inventory.append({'key':row['key'],'bytes':len(body),'sha256':sha(body),'etag':row['etag'],**{key:row[key] for key in ('http_metadata','custom_metadata','storage_class')}})
     require_public=normalize_public((args.snapshot/'public-capture/tea/index.html').read_bytes())
     assert require_public==raw,'Captura pública diverge da origem R2'
     html,old=build(raw);args.output.mkdir(parents=True,exist_ok=True)

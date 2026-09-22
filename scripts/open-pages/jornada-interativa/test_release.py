@@ -5,7 +5,7 @@ import unittest
 from email.message import Message
 from urllib.error import HTTPError
 from unittest.mock import Mock
-from release import Release, ACCOUNT, BUCKET, BUCKET_API, WORKER_SETTINGS, object_path
+from release import Release, ACCOUNT, BUCKET, BUCKET_API, WORKER_SETTINGS, object_path, write_object_path
 
 class PrivateOrigin(unittest.TestCase):
     def subject(self, enabled=False, domains=None, binding=BUCKET):
@@ -42,6 +42,9 @@ class PrivateOrigin(unittest.TestCase):
 
     def test_object_key_is_fully_encoded(self):
         self.assertTrue(object_path('jornada-tea/index.html').endswith('/jornada-tea%2Findex.html'))
+
+    def test_put_path_keeps_slash_per_api_contract(self):
+        self.assertTrue(write_object_path('jornada-tea/index.html').endswith('/jornada-tea/index.html'))
 
     def test_other_prefix_is_refused(self):
         with self.assertRaisesRegex(ValueError,'OBJECT_PREFIX_REFUSED'):

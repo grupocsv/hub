@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import getpass
 import hashlib
 import json
+import socket
 from pathlib import Path
 import urllib.error
 import urllib.parse
@@ -29,6 +30,10 @@ def object_path(key):
     require(key.startswith('jornada-tea/'), 'OBJECT_PREFIX_REFUSED')
     return R2+'/'+urllib.parse.quote(key,safe='')
 
+def write_object_path(key):
+    require(key.startswith('jornada-tea/'), 'OBJECT_PREFIX_REFUSED')
+    return R2+'/'+urllib.parse.quote(key,safe='/')
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):
         raise RuntimeError('REDIRECT_REFUSED')
@@ -39,7 +44,7 @@ class Release:
         self.package=package.resolve()
         self.state=state.resolve()
         self.state.mkdir(parents=True,exist_ok=True)
-        self.opener=urllib.request.build_opener(NoRedirect)
+        self.opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect)
         self.manifest=json.loads((package/'build-manifest.json').read_text(encoding='utf-8'))
         self.image=self.manifest['image']
         self.png_key='jornada-tea/'+self.image['name']
@@ -58,7 +63,7 @@ class Release:
     def request(self,path,method='GET',body=None,headers=None):
         require(path in (KV,WORKER_SETTINGS,BUCKET_API+'/domains/managed',BUCKET_API+'/domains/custom') or path.startswith((R2+'/',R2+'?')), 'API_PATH_REFUSED')
         if method=='PUT':
-            require(path in (object_path(KEY),object_path(self.png_key)),'WRITE_TARGET_REFUSED')
+            require(path in (write_object_path(KEY),write_object_path(self.png_key)),'WRITE_TARGET_REFUSED')
         else:
             require(method=='GET','METHOD_REFUSED')
         req=urllib.request.Request(API+path,data=body,method=method,headers={'Authorization':'Bearer '+self.token,**(headers or {})})
@@ -176,7 +181,7 @@ class Release:
             self.log('image_reused',key=self.png_key,sha256=self.image['sha256'])
         else:
             self.log('image_put_attempt',key=self.png_key,sha256=self.image['sha256'])
-            self.request(object_path(self.png_key),'PUT',self.png_bytes,{'Content-Type':'image/png'})
+            self.request(write_object_path(self.png_key),'PUT',self.png_bytes,{'Content-Type':'image/png'})
         saved,_=self.request(object_path(self.png_key))
         require(sha(saved)==self.image['sha256'],'IMAGE_WRITE_MISMATCH')
         current,_=self.request(object_path(KEY))
@@ -184,7 +189,7 @@ class Release:
         require(sha(self.metadata())==snapshot['metadata_sha256'],'METADATA_CHANGED_BEFORE_INDEX_PUT')
         self.log('index_put_attempt',key=KEY,sha256=self.manifest['output_sha256'])
         # No retry automático de escrita: qualquer resposta incerta exige readback.
-        self.request(object_path(KEY),'PUT',self.html_bytes,{'Content-Type':'text/html; charset=utf-8'})
+        self.request(write_object_path(KEY),'PUT',self.html_bytes,{'Content-Type':'text/html; charset=utf-8'})
         self.verify()
 
     def verify(self):
@@ -216,6 +221,8 @@ def main():
     args=parser.parse_args()
     warnings.simplefilter('error',getpass.GetPassWarning)
     token=getpass.getpass('ENTRADA_PROTEGIDA_PRONTA> ')
+    original_dns=socket.getaddrinfo
+    socket.getaddrinfo=lambda host,port,family=0,type=0,proto=0,flags=0:original_dns(host,port,socket.AF_INET if host=='api.cloudflare.com' else family,type,proto,flags)
     try:
         release=Release(token,args.package,args.state)
         getattr(release,args.action)()
@@ -225,5 +232,6 @@ def main():
         raise SystemExit(1) from None
     finally:
         token=None
+        socket.getaddrinfo=original_dns
 
 if __name__=='__main__': main()
