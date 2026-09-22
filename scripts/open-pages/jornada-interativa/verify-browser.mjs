@@ -11,9 +11,35 @@ const {chromium}=require('playwright');
 const [packagePath,outputPath,...flags]=process.argv.slice(2);
 if(!packagePath||!outputPath)throw Error('Uso: node verify-browser.mjs PACKAGE OUTPUT [--live]');
 const live=flags.includes('--live');
+const snapshotIndex=flags.indexOf('--source-snapshot');
+const snapshotPath=snapshotIndex>=0?flags[snapshotIndex+1]:undefined;
+if(live&&snapshotPath)throw Error('O modo real não aceita fixtures de origem.');
+const fixtures=new Map();
+if(snapshotPath){
+ const snapshot=JSON.parse(await fs.readFile(path.join(snapshotPath,'snapshot.json'),'utf8'));
+ for(const item of snapshot.objects){
+  if(!/^jornada-tea\/(?:fonts\/)?[a-zA-Z0-9_.-]+\.(?:png|otf)$/.test(item.key))continue;
+  const body=await fs.readFile(path.join(snapshotPath,'objects',item.key.slice('jornada-tea/'.length)));
+  assert.equal(body.length,item.size,'Tamanho do asset diverge do snapshot.');
+  assert.equal(crypto.createHash('sha256').update(body).digest('hex'),item.sha256,'Asset diverge do hash do snapshot.');
+  fixtures.set('/'+item.key,{body,contentType:item.http_metadata.contentType,sha256:item.sha256});
+ }
+}
 const stateIndex=flags.indexOf('--storage-state');
-const storageState=stateIndex>=0?flags[stateIndex+1]:undefined;
-if(live&&!storageState)throw Error('QA autenticado exige --storage-state fora do Git. Teste anônimo é responsabilidade do publicador.');
+let storageState=stateIndex>=0?flags[stateIndex+1]:undefined;
+if(flags.includes('--storage-state-stdin')){
+ if(storageState)throw Error('Informe apenas uma origem de sessão.');
+ const chunks=[];let size=0;
+ for await(const chunk of process.stdin){size+=chunk.length;if(size>65536)throw Error('Estado de sessão inválido.');chunks.push(chunk);}
+ try{
+  const candidate=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  assert(Array.isArray(candidate.cookies)&&candidate.cookies.length>0);
+  assert(candidate.cookies.every(cookie=>['__Host-tea_access','__Host-tea_csrf'].includes(cookie.name)&&cookie.domain==='open.grupocsv.com'&&cookie.path==='/'&&cookie.secure===true&&cookie.httpOnly===true&&/^[a-f0-9]{64}$/.test(cookie.value)));
+  assert(!candidate.origins||candidate.origins.length===0);
+  storageState=candidate;
+ }catch{throw Error('Estado de sessão inválido.');}
+}
+if(live&&!storageState)throw Error('QA autenticado exige --storage-state ou --storage-state-stdin. Teste anônimo é responsabilidade do publicador.');
 const manifest=JSON.parse(await fs.readFile(path.join(packagePath,'build-manifest.json'),'utf8'));
 const points=JSON.parse(await fs.readFile(new URL('./points.json',import.meta.url),'utf8'));
 let url='https://open.grupocsv.com/jornada-tea/';let server;
@@ -23,13 +49,14 @@ if(!live){
     const pathname=new URL(request.url,'http://localhost').pathname;
     if(pathname==='/jornada-tea/'){response.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});response.end(html);}
     else if(pathname==='/jornada-tea/'+manifest.image.name){response.writeHead(200,{'Content-Type':'image/png','Content-Length':png.length});response.end(png);}
+    else if(fixtures.has(pathname)){const asset=fixtures.get(pathname);response.writeHead(200,{'Content-Type':asset.contentType});response.end(asset.body);}
     else{response.writeHead(404);response.end();}
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));url=`http://127.0.0.1:${server.address().port}/jornada-tea/`;
 }
 await fs.mkdir(outputPath,{recursive:true});
 const browser=await chromium.launch({headless:true,...(process.env.JORNADA_BROWSER_CHANNEL?{channel:process.env.JORNADA_BROWSER_CHANNEL}:{})});
-const report={mode:live?'produção real':'artefatos locais por HTTP em loopback',time:new Date().toISOString(),url,output_sha256:manifest.output_sha256,browser:browser.version(),allPassed:false,results:[],limitations:[
+const report={mode:live?'produção real':'artefatos locais por HTTP em loopback',time:new Date().toISOString(),url,output_sha256:manifest.output_sha256,browser:browser.version(),sourceFixtures:[...fixtures].map(([pathname,asset])=>({pathname,sha256:asset.sha256})),allPassed:false,results:[],limitations:[
   'Chromium com tamanhos de viewport emulados; não equivale a aparelhos físicos ou Safari móvel.',
   'Swipe móvel emulado por eventos de toque do Chromium; não mede conforto ou precisão de toque de pessoas reais.',
   'Mapa e explicação são aferidos no fluxo da página, sem rolagem própria. A imagem separada conserva o visualizador nativo.',
@@ -66,6 +93,16 @@ async function mapPosition(page){
   if(rect.y>=await page.evaluate(()=>innerHeight-80))await page.evaluate(top=>window.scrollTo({top,behavior:'instant'}),rect.y-200);
   return page.locator('.ji-frame').evaluate(element=>{const r=element.getBoundingClientRect();return {x:r.left+Math.min(8,r.width/2),y:Math.min(innerHeight-30,r.bottom-12),top:r.top,bottom:r.bottom,windowY:scrollY,remaining:document.documentElement.scrollHeight-innerHeight-scrollY};});
 }
+async function settledScroll(page){
+ const proof=await page.evaluate(()=>new Promise(resolve=>{
+  let previous=scrollY,stable=0;const started=performance.now();
+  function frame(){const current=scrollY;stable=Math.abs(current-previous)<.5?stable+1:0;previous=current;
+   if(stable>=12||performance.now()-started>3000)return resolve({settled:stable>=12,y:current});
+   requestAnimationFrame(frame);
+  }requestAnimationFrame(frame);
+ }));
+ assert(proof.settled,'Rolagem do gesto anterior não estabilizou');return proof;
+}
 async function wheelProof(page){
   const point=await mapPosition(page);assert(point.y>point.top&&point.y<point.bottom,'Não foi possível posicionar wheel sobre o mapa');
   if(point.remaining<2)return {needed:false,reason:'Todo o conteúdo abaixo do início do mapa já cabe no viewport'};
@@ -93,6 +130,10 @@ try{
   for(const width of [1440,768,390,320]){
     const height=width<861?844:960;
     const context=await browser.newContext({...storageState?{storageState}:{},viewport:{width,height},hasTouch:width<861,deviceScaleFactor:1,acceptDownloads:true,serviceWorkers:'block',extraHTTPHeaders:{'Cache-Control':'no-cache'}});
+    if(!live&&snapshotPath)await context.route('https://open.grupocsv.com/jornada-tea/**',async route=>{
+      const asset=fixtures.get(new URL(route.request().url()).pathname);
+      if(asset)await route.fulfill({status:200,contentType:asset.contentType,body:asset.body});else await route.abort('blockedbyclient');
+    });
     const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
     const result={width,height,ok:false,pointsChecked:[]};report.results.push(result);
     try{
@@ -102,20 +143,27 @@ try{
       assert.equal(invariant.points,points.length);assert.equal(invariant.viewBox,'0 0 1820 1375');assert.equal(invariant.images,true);
       result.inlineInitial=await inlineProof(page,'Inicial');result.wheel=await wheelProof(page);
       if(width===390)result.swipe=await swipeProof(page,context);
+      result.afterGesture=await settledScroll(page);
       const panel=page.locator('#ji-explanation');
       assert.equal(await page.getByRole('dialog').count(),0);
       assert.equal(await page.locator('.ji-popover').count(),0);
       const initialTitle=await panel.locator('h2').innerText();
       assert.equal(initialTitle,'Entenda cada etapa');
       const hoverTarget=page.locator('[data-ji-point="ccc"]');
-      await hoverTarget.scrollIntoViewIfNeeded();
+      await hoverTarget.evaluate(element=>element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+      await settledScroll(page);
+      const hoverBox=await hoverTarget.boundingBox();
+      assert(hoverBox&&hoverBox.y>=0&&hoverBox.y+hoverBox.height<=height,'Etapa do hover precisa estar visível antes do teste');
       const hoverStart=await page.evaluate(()=>scrollY);
-      await hoverTarget.hover();
+      // locator.hover pode reposicionar a página; aqui o cursor se move apenas
+      // dentro da etapa já visível, depois de encerrar a inércia do swipe.
+      await page.mouse.move(hoverBox.x+hoverBox.width/2,hoverBox.y+hoverBox.height/2);
       await page.waitForTimeout(180);
       assert.equal(await page.evaluate(()=>scrollY),hoverStart,'Hover deslocou a página');
       assert.equal(await panel.locator('h2').innerText(),initialTitle,'Hover alterou explicação');
       assert.equal(await hoverTarget.getAttribute('aria-pressed'),'false');
       result.hoverDoesNotSelectOrScroll=true;
+      result.hoverProof={method:'mouse.move',beforeY:hoverStart,afterY:await page.evaluate(()=>scrollY),targetBox:hoverBox};
       const sample=width===390?points:points.filter(point=>['ccc','aad','evs'].includes(point.id));
       for(const point of sample){
         const before=await page.locator('.ji-canvas').boundingBox();
