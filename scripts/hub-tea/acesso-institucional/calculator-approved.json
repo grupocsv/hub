@@ -1,0 +1,14 @@
+{
+  "source_html_sha256": "5aa0a09648103d7cd04d2083fe746b2285657ffb1a0ac4882a121f2b1ce39214",
+  "output_html_sha256": "d9d0f9679fa2280daaa9a1ab6c01eccb486c20dd91e9d4821eac3ec795f35f81",
+  "source_bytes": 179631,
+  "output_bytes": 181097,
+  "object_writes": [
+    "tea/index.html"
+  ],
+  "scripts_unchanged": true,
+  "existing_links_unchanged": true,
+  "added_destination": "https://open.grupocsv.com/esc-tea-100",
+  "worker_unchanged": true,
+  "legacy_preview_unchanged": true
+}
