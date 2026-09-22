@@ -1,7 +1,8 @@
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock,patch
 from release import Release,WORKER,R2,ACCOUNT,ARCHIVE,ARCHIVE_KEY,upload_metadata,index_headers,preview_headers
 from build import build,ScriptBlocks
+from card_labels import LabelsRelease
 class ReleaseScope(unittest.TestCase):
  def setUp(self):self.release=Release.__new__(Release)
  def test_other_worker_is_refused(self):
@@ -52,4 +53,16 @@ class ReleaseScope(unittest.TestCase):
    with self.subTest(script=script):self.assertEqual(ScriptBlocks('<main>'+script+'</main>').blocks,[script])
  def test_script_parser_does_not_treat_commented_script_as_executable(self):
   self.assertEqual(ScriptBlocks('<!-- <script>ignored</script> --><script>real</script>').blocks,['<script>real</script>'])
+class LabelsScope(unittest.TestCase):
+ def test_labels_can_only_write_index(self):
+  item=LabelsRelease.__new__(LabelsRelease)
+  with patch.object(Release,'request',return_value=(b'OK',{})) as parent:
+   item.request(R2+'/objects/tea/index.html','PUT',b'HTML')
+   parent.assert_called_once()
+ def test_labels_cannot_write_worker_assets_metadata_or_purge(self):
+  item=LabelsRelease.__new__(LabelsRelease)
+  for target,method in ((WORKER,'PUT'),(R2+'/objects/tea/peca-jornada.webp','PUT'),(WORKER+'/settings','POST'),('/zones/test/purge_cache','POST'),(R2+'/objects/tea/index.html','DELETE')):
+   with self.subTest(target=target,method=method):
+    with self.assertRaisesRegex(ValueError,'LABELS_WRITE_TARGET_REFUSED'):item.request(target,method,b'')
+
 if __name__=='__main__':unittest.main()

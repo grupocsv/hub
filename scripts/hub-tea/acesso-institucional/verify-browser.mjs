@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';import path from 'node:path';import http from 
 const require=createRequire(process.env.JORNADA_RUNTIME_PACKAGE||import.meta.url);const {chromium}=require('playwright');
 const [packagePath,outputPath,...flags]=process.argv.slice(2);if(!packagePath||!outputPath)throw Error('Informe pacote e saída.');
 const live=flags.includes('--live');
+const restrictedCards=flags.includes('--restricted-cards');
 const mime={'.html':'text/html; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.ico':'image/x-icon'};
 const server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://local').pathname.replace(/^\/tea\//,'');if(!name)name='index.html';if(name.includes('..')||name==='peca-jornada.webp'){res.writeHead(404);return res.end();}try{const raw=await fs.readFile(path.join(packagePath,name));res.writeHead(200,{'Content-Type':mime[path.extname(name)]||'application/octet-stream'});res.end(raw);}catch{res.writeHead(404);res.end();}});
 if(!live)await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));await fs.mkdir(outputPath,{recursive:true});const browser=await chromium.launch({headless:true,channel:'chrome'});const url=live?'https://hub.unimedgv.com/tea/':`http://127.0.0.1:${server.address().port}/tea/`;const report={mode:live?'produção real':'local',url,allPassed:false,results:[]};
@@ -10,6 +11,17 @@ await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>document.
 assert.equal(await page.locator('.jornada-convite').count(),1);assert.equal(await page.locator('img[src*="peca-jornada"]').count(),0);
 const proof=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,images:[...document.images].filter(i=>!i.closest('#gate')).every(i=>i.complete&&i.naturalWidth>0),jornada:document.querySelector('.p2').getAttribute('href'),painel:document.querySelector('.p3').getAttribute('href'),reportRole:document.querySelector('#porta-rel').getAttribute('role')}));
 assert(proof.scroll<=proof.width+1);assert(proof.images);assert.equal(proof.jornada,'https://open.grupocsv.com/jornada-tea/');assert.equal(proof.painel,'https://hub.grupocsv.com/p/painel-tea/');assert.equal(proof.reportRole,'button');
+if(restrictedCards){
+ const badges=await page.locator('.trilha .porta').evaluateAll(cards=>cards.map(card=>{const badge=card.querySelector(':scope > .restr'),r=card.getBoundingClientRect(),b=badge?.getBoundingClientRect(),s=badge?getComputedStyle(badge):null;return {text:badge?.textContent,icon:badge?.querySelector('svg')?.outerHTML,top:b?.top-r.top,right:r.right-b?.right,color:s?.color,fontSize:s?.fontSize,letterSpacing:s?.letterSpacing,inside:!!b&&b.left>=r.left&&b.right<=r.right&&b.top>=r.top&&b.bottom<=r.bottom};}));
+ assert.equal(badges.length,4);assert(badges.every(b=>b.text==='Restrito'&&b.icon===badges[0].icon&&b.inside));
+ assert(badges.every(b=>Math.abs(b.top-badges[0].top)<=1&&Math.abs(b.right-badges[0].right)<=1&&b.fontSize===badges[0].fontSize&&b.letterSpacing===badges[0].letterSpacing));
+ assert.equal(await page.locator('.jornada-acesso').count(),0);
+ const spacing=await page.locator('.p2').evaluate(card=>{const b=card.querySelector('.restr').getBoundingClientRect(),p=card.querySelector('.folha').getBoundingClientRect();return {badgeBottom:b.bottom,previewTop:p.top};});assert(spacing.previewTop>spacing.badgeBottom,'Rótulo sobrepõe a prévia');
+ proof.badges=badges;proof.previewSpacing=spacing;
+ await page.locator('.p1').focus();for(const selector of ['.p2','.p3','.p4']){await page.keyboard.press('Tab');assert(await page.locator(selector).evaluate(el=>document.activeElement===el),'Ordem de teclado alterada');}
+ await page.keyboard.press('Enter');await page.locator('#gate').waitFor({state:'visible'});await page.locator('#gate-x').click();proof.keyboardCardsAndReport=true;
+ await page.locator('.trilha').screenshot({path:path.join(outputPath,`hub-cards-${width}.png`),animations:'disabled'});
+}
 await page.locator('.p2').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(outputPath,`hub-jornada-${width}.png`),animations:'disabled'});
 await page.locator('#porta-rel').click();await page.locator('#gate').waitFor({state:'visible'});await page.locator('#gate-email').waitFor({state:'visible'});await page.locator('#gate-x').click();assert.equal(await page.locator('#gate').isVisible(),false);
 assert.equal(writes,0);assert.equal(mapRequests,0);assert.deepEqual(errors,[]);report.results.push({width,passed:true,noMapRequest:true,reportModalPreserved:true,telemetryRequests:telemetry,applicationWrites:writes,proof});await context.close();}
