@@ -78,6 +78,16 @@ async function mapPosition(page){
   if(rect.y>=await page.evaluate(()=>innerHeight-80))await page.evaluate(top=>window.scrollTo({top,behavior:'instant'}),rect.y-200);
   return page.locator('.ji-frame').evaluate(element=>{const r=element.getBoundingClientRect();return {x:r.left+Math.min(8,r.width/2),y:Math.min(innerHeight-30,r.bottom-12),top:r.top,bottom:r.bottom,windowY:scrollY,remaining:document.documentElement.scrollHeight-innerHeight-scrollY};});
 }
+async function settledScroll(page){
+ const proof=await page.evaluate(()=>new Promise(resolve=>{
+  let previous=scrollY,stable=0;const started=performance.now();
+  function frame(){const current=scrollY;stable=Math.abs(current-previous)<.5?stable+1:0;previous=current;
+   if(stable>=12||performance.now()-started>3000)return resolve({settled:stable>=12,y:current});
+   requestAnimationFrame(frame);
+  }requestAnimationFrame(frame);
+ }));
+ assert(proof.settled,'Rolagem do gesto anterior não estabilizou');return proof;
+}
 async function wheelProof(page){
   const point=await mapPosition(page);assert(point.y>point.top&&point.y<point.bottom,'Não foi possível posicionar wheel sobre o mapa');
   if(point.remaining<2)return {needed:false,reason:'Todo o conteúdo abaixo do início do mapa já cabe no viewport'};
@@ -114,20 +124,27 @@ try{
       assert.equal(invariant.points,points.length);assert.equal(invariant.viewBox,'0 0 1820 1375');assert.equal(invariant.images,true);
       result.inlineInitial=await inlineProof(page,'Inicial');result.wheel=await wheelProof(page);
       if(width===390)result.swipe=await swipeProof(page,context);
+      result.afterGesture=await settledScroll(page);
       const panel=page.locator('#ji-explanation');
       assert.equal(await page.getByRole('dialog').count(),0);
       assert.equal(await page.locator('.ji-popover').count(),0);
       const initialTitle=await panel.locator('h2').innerText();
       assert.equal(initialTitle,'Entenda cada etapa');
       const hoverTarget=page.locator('[data-ji-point="ccc"]');
-      await hoverTarget.scrollIntoViewIfNeeded();
+      await hoverTarget.evaluate(element=>element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+      await settledScroll(page);
+      const hoverBox=await hoverTarget.boundingBox();
+      assert(hoverBox&&hoverBox.y>=0&&hoverBox.y+hoverBox.height<=height,'Etapa do hover precisa estar visível antes do teste');
       const hoverStart=await page.evaluate(()=>scrollY);
-      await hoverTarget.hover();
+      // locator.hover pode reposicionar a página; aqui o cursor se move apenas
+      // dentro da etapa já visível, depois de encerrar a inércia do swipe.
+      await page.mouse.move(hoverBox.x+hoverBox.width/2,hoverBox.y+hoverBox.height/2);
       await page.waitForTimeout(180);
       assert.equal(await page.evaluate(()=>scrollY),hoverStart,'Hover deslocou a página');
       assert.equal(await panel.locator('h2').innerText(),initialTitle,'Hover alterou explicação');
       assert.equal(await hoverTarget.getAttribute('aria-pressed'),'false');
       result.hoverDoesNotSelectOrScroll=true;
+      result.hoverProof={method:'mouse.move',beforeY:hoverStart,afterY:await page.evaluate(()=>scrollY),targetBox:hoverBox};
       const sample=width===390?points:points.filter(point=>['ccc','aad','evs'].includes(point.id));
       for(const point of sample){
         const before=await page.locator('.ji-canvas').boundingBox();

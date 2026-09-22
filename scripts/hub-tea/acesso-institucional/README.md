@@ -21,6 +21,8 @@ node scripts/hub-tea/acesso-institucional/verify-browser.mjs PACOTE EVIDENCIAS
 
 O render reutiliza Playwright instalado, apontado por `JORNADA_RUNTIME_PACKAGE`. A suíte de navegador testa 320, 390, 768 e 1440 pixels, ausência de solicitação da prancha, imagens carregadas, ausência de overflow, destino original do Painel e abertura/fechamento do modal do Relatório. Não envia credenciais ou solicita downloads de relatório real. Os testes do Worker conferem aliases de caminho, GET/HEAD, host alternativo, preservação do código original e delegação das demais rotas.
 
+Acrescente `--live` ao comando do verificador para executar a mesma conferência no Hub publicado. A saída identifica o modo e a URL; requisições de telemetria em `/cdn-cgi/rum` ficam separadas da contagem de escritas da aplicação. O teste não autentica nem envia o formulário do Relatório.
+
 ## Publicação controlada
 
 Não executar `api/upload`: ele substitui o conjunto inteiro da slug. O publicador desta entrega permite apenas o Worker `hub-unimedgv`, os objetos `tea/index.html` e `tea/peca-jornada.webp`, e purge pontual da zona `unimedgv.com` resolvida na mesma conta.

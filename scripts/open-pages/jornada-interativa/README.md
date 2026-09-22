@@ -77,3 +77,9 @@ O seletor superior atualiza a explicação sem deslocamento automático; o botã
 Validação local: Chromium em 320, 390, 768 e 1440 pixels, os 30 pontos em 390 pixels, amostra nas demais larguras, navegação por toque e teclado, hover sem deslocamento, persistência da seleção, foco, ausência de recortes, rolagem da página por roda/toque, imagem integral e download. Isso não substitui teste de produção autenticado ou em aparelhos físicos.
 
 Contrato do publicador: `python -m unittest discover -s scripts/open-pages/jornada-interativa -p test_release.py`.
+
+## QA autenticado e rolagem
+
+O verificador aceita `--live --storage-state-stdin` para receber a sessão pela entrada padrão em memória. O chamador deve autenticar antes e revogar a sessão em `finally`; o verificador não imprime nem salva cookies. A entrada aceita somente os cookies institucionais seguros do host `open.grupocsv.com`, sem estado de outras origens.
+
+Após roda ou swipe, o teste aguarda a rolagem estabilizar. Para medir hover, posiciona primeiro uma etapa no viewport e move o mouse por coordenadas, sem usar o reposicionamento automático de `locator.hover`. A asserção de ausência de deslocamento continua estrita e registra as posições antes/depois. Esse cuidado separa a interação da página da inércia do gesto emulado e da rolagem do próprio executor.
