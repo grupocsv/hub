@@ -176,6 +176,8 @@
     let readHovered = false;
     let hoveredPoint = null;
     let ignoreNextFocus = false;
+    let hoverSuppressed = false;
+    let lastPointerPosition = null;
     const finePointer = matchMedia('(any-hover: hover) and (any-pointer: fine)');
 
     function cancelClose() {
@@ -200,6 +202,10 @@
     function close(restoreFocus) {
       cancelClose();
       cancelHover();
+      // Fechar ou retornar pode mover o desenho sob um cursor imóvel.
+      // Um pointerenter causado por essa rolagem não representa nova intenção.
+      hoverSuppressed = true;
+      hoveredPoint = null;
       const target = active && pointButtons.get(active.id);
       const hadFocus = explanation.contains(document.activeElement);
       if (target) {
@@ -278,22 +284,27 @@
       if (point) select(point, true);
       else if (active) picker.value = active.id;
     });
+    function previewPoint(point) {
+      if (hoverSuppressed) return;
+      hoveredPoint = point.id;
+      cancelClose();
+      cancelHover();
+      if (pinned) return;
+      if (!active || active.id === point.id) select(point, false);
+      else {
+        // Cruzar outra etapa a caminho do painel não deve trocar sua leitura.
+        hoverTimer = setTimeout(() => {
+          hoverTimer = null;
+          if (!hoverSuppressed && !pinned && hoveredPoint === point.id) select(point, false);
+        }, 150);
+      }
+    }
     for (const point of points) {
       const target = pointButtons.get(point.id);
       target.addEventListener('pointerenter', event => {
         if (!finePointer.matches || event.pointerType === 'touch') return;
-        hoveredPoint = point.id;
-        cancelClose();
-        cancelHover();
-        if (pinned) return;
-        if (!active || active.id === point.id) select(point, false);
-        else {
-          // Cruzar outra etapa a caminho do painel não deve trocar sua leitura.
-          hoverTimer = setTimeout(() => {
-            hoverTimer = null;
-            if (!pinned && hoveredPoint === point.id) select(point, false);
-          }, 150);
-        }
+        if (!lastPointerPosition && !hoverSuppressed) lastPointerPosition = {x: event.clientX, y: event.clientY};
+        previewPoint(point);
       });
       target.addEventListener('pointerleave', () => {
         if (hoveredPoint === point.id) hoveredPoint = null;
@@ -348,6 +359,23 @@
     document.addEventListener('pointerdown', event => {
       if (active && !explanation.contains(event.target) && !hotspots.contains(event.target) && !pickerRow.contains(event.target)) close(false);
     });
+    document.addEventListener('pointerdown', event => {
+      if (event.pointerType !== 'touch') lastPointerPosition = {x: event.clientX, y: event.clientY};
+    }, {capture: true, passive: true});
+    document.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch') return;
+      const moved = !lastPointerPosition || event.clientX !== lastPointerPosition.x || event.clientY !== lastPointerPosition.y;
+      lastPointerPosition = {x: event.clientX, y: event.clientY};
+      if (!hoverSuppressed || !moved) return;
+      hoverSuppressed = false;
+      // O cursor pode continuar dentro da mesma área após a rolagem, sem
+      // disparar outro pointerenter. Resolver o alvo pelo ponto visível.
+      const element = document.elementFromPoint(event.clientX, event.clientY);
+      const target = element && element.closest('[data-ji-point]');
+      if (!finePointer.matches || !target || !hotspots.contains(target)) return;
+      const point = points.find(item => item.id === target.dataset.jiPoint);
+      if (point) previewPoint(point);
+    }, {passive: true});
     window.addEventListener('scroll', updateReadHint, {passive: true});
     // A alternância editorial das abas não pertence a esta camada.
     // Observar apenas sua visibilidade evita manter a pista sobre Apoio Textual.

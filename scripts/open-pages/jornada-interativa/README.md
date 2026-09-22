@@ -111,3 +111,7 @@ O foco do teclado também abre cada explicação. O seletor e o botão Ver expli
 A legenda ESC-TEA-100 tem área interativa própria e link validado exclusivamente para `https://open.grupocsv.com/esc-tea-100`. Título e descrição são inseridos como texto. O conteúdo segue a metodologia vigente do escore: apoio à pré-clusterização, distinção entre cluster de alocação e avaliação médica, tratamento de dados incompletos. Não altera a calculadora, as faixas, os pesos ou o conteúdo clínico do mapa.
 
 Esta revisão é somente da camada interativa. Construir a partir da origem corrente **sem** `--editorial-esc-tea`; a revisão editorial anterior já integra a fonte publicada. Os hashes da base editorial, do SVG e do PNG devem permanecer iguais. O acesso institucional, a imagem integral, o download, as abas e o percurso textual continuam sujeitos à regressão local e à conferência autenticada em produção.
+
+### Fechamento durante a rolagem
+
+Fechar, Escape e Voltar à etapa suprimem a reabertura por `pointerenter` causado pela própria rolagem ou pelo desaparecimento do popup. O hover é retomado somente após mudança real das coordenadas do ponteiro; foco, clique e toque continuam independentes. O teste de regressão desloca o mapa sob um cursor parado, confirma que a explicação dispensada permanece fechada e verifica a reabertura após movimento real. Esse cenário foi reproduzido na publicação autenticada e no pacote local anterior à correção.

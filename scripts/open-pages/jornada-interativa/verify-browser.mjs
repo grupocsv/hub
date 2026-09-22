@@ -152,6 +152,17 @@ try{
         const support=await page.locator('#p2').innerText();
         for(const old of ['TEA Nível 1','31 a 36 pts','É ela que separa os níveis 2 e 3'])assert(!support.includes(old));
       }
+      if(width===1440){
+        // Sessão nova: nenhum movimento de mouse precede o uso do teclado.
+        const first=page.locator('[data-ji-point="ccc"]'),popup=page.locator('#ji-explanation');
+        await first.focus();await page.keyboard.press('Enter');await page.keyboard.press('Escape');
+        await first.evaluate(element=>element.scrollIntoView({block:'center',behavior:'instant'}));
+        await page.waitForTimeout(250);assert.equal(await popup.isVisible(),false);
+        const firstBox=await first.boundingBox();
+        await page.mouse.move(firstBox.x+firstBox.width/2,firstBox.y+firstBox.height/2);
+        assert.equal(await popup.isVisible(),true,'Primeiro movimento após teclado não abriu a etapa');
+        await page.keyboard.press('Escape');result.firstMouseAfterKeyboard=true;
+      }
       result.inlineInitial=await inlineProof(page,'Inicial');result.wheel=await wheelProof(page);
       if(width===390)result.swipe=await swipeProof(page,context);
       result.afterGesture=await settledScroll(page);
@@ -251,7 +262,22 @@ try{
       await page.keyboard.press('Escape');assert.equal(await panel.isVisible(),false);
       assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);
       await page.keyboard.press('Enter');await page.getByRole('button',{name:'Voltar à etapa no mapa',exact:true}).click();
-      assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);assert.equal(await panel.isVisible(),false);result.keyboard=true;
+      await page.waitForTimeout(250);
+      assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);assert.equal(await panel.isVisible(),false,'Retorno reabriu explicação sob ponteiro parado');result.keyboard=true;
+      if(width===1440){
+        await page.keyboard.press('Enter');
+        const restingX=(await hotspot.boundingBox()).x+20,restingY=300;
+        await page.mouse.move(restingX,restingY);
+        await page.keyboard.press('Escape');
+        // A página muda sob o cursor parado, como acontece ao retornar à etapa.
+        await hotspot.evaluate((target,y)=>{const r=target.getBoundingClientRect();window.scrollBy({top:r.top+r.height/2-y,behavior:'instant'});},restingY);
+        await page.waitForTimeout(350);
+        assert.equal(await panel.isVisible(),false,'Rolagem sob cursor parado reabriu a explicação dispensada');
+        await page.mouse.move(restingX+3,restingY+2);await page.waitForTimeout(250);
+        assert.equal(await panel.isVisible(),true,'Movimento real não restaurou o hover');
+        assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='ccc').title);
+        await page.keyboard.press('Escape');result.dismissUntilRealPointerMove=true;
+      }
       if(width<861){
         await hotspot.tap();
         assert.equal(await panel.evaluate(element=>document.activeElement===element),true);result.touchPoint=true;
