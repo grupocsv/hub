@@ -3,6 +3,7 @@ from unittest.mock import Mock,patch
 from release import Release,WORKER,R2,ACCOUNT,ARCHIVE,ARCHIVE_KEY,upload_metadata,index_headers,preview_headers
 from build import build,ScriptBlocks
 from card_labels import LabelsRelease
+from calculator_link import CalculatorRelease
 class ReleaseScope(unittest.TestCase):
  def setUp(self):self.release=Release.__new__(Release)
  def test_other_worker_is_refused(self):
@@ -61,6 +62,18 @@ class LabelsScope(unittest.TestCase):
    parent.assert_called_once()
  def test_labels_cannot_write_worker_assets_metadata_or_purge(self):
   item=LabelsRelease.__new__(LabelsRelease)
+  for target,method in ((WORKER,'PUT'),(R2+'/objects/tea/peca-jornada.webp','PUT'),(WORKER+'/settings','POST'),('/zones/test/purge_cache','POST'),(R2+'/objects/tea/index.html','DELETE')):
+   with self.subTest(target=target,method=method):
+    with self.assertRaisesRegex(ValueError,'LABELS_WRITE_TARGET_REFUSED'):item.request(target,method,b'')
+
+class CalculatorScope(unittest.TestCase):
+ def test_calculator_inherits_index_only_writer(self):
+  item=CalculatorRelease.__new__(CalculatorRelease)
+  with patch.object(Release,'request',return_value=(b'OK',{})) as parent:
+   item.request(R2+'/objects/tea/index.html','PUT',b'HTML')
+   parent.assert_called_once()
+ def test_calculator_cannot_write_assets_worker_auth_or_purge(self):
+  item=CalculatorRelease.__new__(CalculatorRelease)
   for target,method in ((WORKER,'PUT'),(R2+'/objects/tea/peca-jornada.webp','PUT'),(WORKER+'/settings','POST'),('/zones/test/purge_cache','POST'),(R2+'/objects/tea/index.html','DELETE')):
    with self.subTest(target=target,method=method):
     with self.assertRaisesRegex(ValueError,'LABELS_WRITE_TARGET_REFUSED'):item.request(target,method,b'')

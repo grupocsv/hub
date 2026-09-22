@@ -45,3 +45,11 @@ Não executar `api/upload`: ele substitui o conjunto inteiro da slug. O publicad
 8. Conferir visualmente o endereço público, acesso autenticado à Jornada, endereço antigo por versão histórica e continuidade do Painel e do Relatório.
 
 Em falha ou resultado incerto, examinar `events.jsonl` e executar `verify-worker`/`verify-neutralized`/`verify` antes de repetir qualquer escrita. O script não repete mutações automaticamente. A reversão de UI pode restaurar o HTML original somente mantendo a peça editorial neutra no R2 e a Jornada protegida. Não restaurar a prancha integral na chave pública: o snapshot e o arquivo remoto são acervo privado, não um rollback automático. Não reabrir o acesso para resolver uma falha visual.
+
+## Link da calculadora no cabeçalho
+
+`calculator_link.py` acrescenta um link simples para `https://open.grupocsv.com/esc-tea-100`, com ícone e texto “Calculadora ESC-TEA-100”. O desktop mantém as assinaturas na mesma fileira; no celular, o link ocupa uma segunda fileira sem reduzir as logos. Não introduz autenticação, script, modal ou mudança nos quatro cards.
+
+O build recebe o pacote privado da versão dos quatro rótulos (`--source-package`) e grava o resultado fora do repositório (`--output`). A publicação também recebe `--base-package`, `--snapshot` e `--state` da cadeia anterior. Herda as verificações de `LabelsRelease` e a restrição de escrita a `tea/index.html`; não pode escrever Worker, assets, KV ou configuração. O manifesto `calculator-approved.json` deve corresponder à revisão visual e ao pacote de saída. O helper preserva `before-calculator.html`, compara o conteúdo antes da escrita e verifica novamente após o único PUT, sem repetição automática.
+
+Verificar o pacote com `verify-browser.mjs PACOTE SAIDA --restricted-cards --calculator`: quatro larguras, integridade das imagens, foco visível, nova aba sem acesso à origem, ausência de sobreposição/rolagem horizontal, sequência de teclado e modal original do Relatório. A calculadora é interceptada apenas durante essa prova de navegação, sem executar cálculos ou enviar dados. Para verificar a página publicada, adicionar `--live`.
