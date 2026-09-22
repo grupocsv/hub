@@ -11,6 +11,20 @@ const {chromium}=require('playwright');
 const [packagePath,outputPath,...flags]=process.argv.slice(2);
 if(!packagePath||!outputPath)throw Error('Uso: node verify-browser.mjs PACKAGE OUTPUT [--live]');
 const live=flags.includes('--live');
+const snapshotIndex=flags.indexOf('--source-snapshot');
+const snapshotPath=snapshotIndex>=0?flags[snapshotIndex+1]:undefined;
+if(live&&snapshotPath)throw Error('O modo real não aceita fixtures de origem.');
+const fixtures=new Map();
+if(snapshotPath){
+ const snapshot=JSON.parse(await fs.readFile(path.join(snapshotPath,'snapshot.json'),'utf8'));
+ for(const item of snapshot.objects){
+  if(!/^jornada-tea\/(?:fonts\/)?[a-zA-Z0-9_.-]+\.(?:png|otf)$/.test(item.key))continue;
+  const body=await fs.readFile(path.join(snapshotPath,'objects',item.key.slice('jornada-tea/'.length)));
+  assert.equal(body.length,item.size,'Tamanho do asset diverge do snapshot.');
+  assert.equal(crypto.createHash('sha256').update(body).digest('hex'),item.sha256,'Asset diverge do hash do snapshot.');
+  fixtures.set('/'+item.key,{body,contentType:item.http_metadata.contentType,sha256:item.sha256});
+ }
+}
 const stateIndex=flags.indexOf('--storage-state');
 let storageState=stateIndex>=0?flags[stateIndex+1]:undefined;
 if(flags.includes('--storage-state-stdin')){
@@ -35,13 +49,14 @@ if(!live){
     const pathname=new URL(request.url,'http://localhost').pathname;
     if(pathname==='/jornada-tea/'){response.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});response.end(html);}
     else if(pathname==='/jornada-tea/'+manifest.image.name){response.writeHead(200,{'Content-Type':'image/png','Content-Length':png.length});response.end(png);}
+    else if(fixtures.has(pathname)){const asset=fixtures.get(pathname);response.writeHead(200,{'Content-Type':asset.contentType});response.end(asset.body);}
     else{response.writeHead(404);response.end();}
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));url=`http://127.0.0.1:${server.address().port}/jornada-tea/`;
 }
 await fs.mkdir(outputPath,{recursive:true});
 const browser=await chromium.launch({headless:true,...(process.env.JORNADA_BROWSER_CHANNEL?{channel:process.env.JORNADA_BROWSER_CHANNEL}:{})});
-const report={mode:live?'produção real':'artefatos locais por HTTP em loopback',time:new Date().toISOString(),url,output_sha256:manifest.output_sha256,browser:browser.version(),allPassed:false,results:[],limitations:[
+const report={mode:live?'produção real':'artefatos locais por HTTP em loopback',time:new Date().toISOString(),url,output_sha256:manifest.output_sha256,browser:browser.version(),sourceFixtures:[...fixtures].map(([pathname,asset])=>({pathname,sha256:asset.sha256})),allPassed:false,results:[],limitations:[
   'Chromium com tamanhos de viewport emulados; não equivale a aparelhos físicos ou Safari móvel.',
   'Swipe móvel emulado por eventos de toque do Chromium; não mede conforto ou precisão de toque de pessoas reais.',
   'Mapa e explicação são aferidos no fluxo da página, sem rolagem própria. A imagem separada conserva o visualizador nativo.',
@@ -115,6 +130,10 @@ try{
   for(const width of [1440,768,390,320]){
     const height=width<861?844:960;
     const context=await browser.newContext({...storageState?{storageState}:{},viewport:{width,height},hasTouch:width<861,deviceScaleFactor:1,acceptDownloads:true,serviceWorkers:'block',extraHTTPHeaders:{'Cache-Control':'no-cache'}});
+    if(!live&&snapshotPath)await context.route('https://open.grupocsv.com/jornada-tea/**',async route=>{
+      const asset=fixtures.get(new URL(route.request().url()).pathname);
+      if(asset)await route.fulfill({status:200,contentType:asset.contentType,body:asset.body});else await route.abort('blockedbyclient');
+    });
     const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
     const result={width,height,ok:false,pointsChecked:[]};report.results.push(result);
     try{

@@ -82,4 +82,6 @@ Contrato do publicador: `python -m unittest discover -s scripts/open-pages/jorna
 
 O verificador aceita `--live --storage-state-stdin` para receber a sessão pela entrada padrão em memória. O chamador deve autenticar antes e revogar a sessão em `finally`; o verificador não imprime nem salva cookies. A entrada aceita somente os cookies institucionais seguros do host `open.grupocsv.com`, sem estado de outras origens.
 
+Para testar localmente depois da proteção da origem, acrescente `--source-snapshot CAMINHO_PRIVADO` apontando para o snapshot do publicador. O runner confere tamanho e SHA-256 das imagens PNG e fontes OTF antes de servir essas fixtures em loopback ou atender suas URLs absolutas somente no contexto local. Não publica nem inclui esses arquivos no Git. O modo `--live` rejeita essa opção e lê exclusivamente a publicação real.
+
 Após roda ou swipe, o teste aguarda a rolagem estabilizar. Para medir hover, posiciona primeiro uma etapa no viewport e move o mouse por coordenadas, sem usar o reposicionamento automático de `locator.hover`. A asserção de ausência de deslocamento continua estrita e registra as posições antes/depois. Esse cuidado separa a interação da página da inércia do gesto emulado e da rolagem do próprio executor.
