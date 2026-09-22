@@ -155,11 +155,17 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--input',type=Path,help='Captura autenticada do HTML de origem (R2)')
     parser.add_argument('--asset-directory',type=Path,help='Snapshot autenticado dos objetos de jornada-tea para renderizar imagens protegidas')
+    parser.add_argument('--editorial-esc-tea',action='store_true',help='Aplica a revisão editorial ESC-TEA-100 sobre a base conhecida antes de construir a camada visual')
     args=parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=True)
     raw=args.input.read_bytes() if args.input else fetch(URL)[0]
     source=raw.decode('utf-8')
-    base=remove_owned(normalize(source)); svg=extract_svg(base)
+    base=remove_owned(normalize(source))
+    editorial=None
+    if args.editorial_esc_tea:
+        from editorial_esc_tea import apply
+        base,editorial=apply(base)
+    svg=extract_svg(base)
     (args.output/'source-live.html').write_bytes(raw)
     (args.output/'source-base.html').write_bytes(base.encode())
     export,records=export_svg(svg,args.output,args.asset_directory)
@@ -169,9 +175,10 @@ def main():
     image_name='mapa-jornada-'+sha(png)[:16]+'.png'
     (args.output/image_name).write_bytes(png)
     points=json.loads((HERE/'points.json').read_text(encoding='utf-8'))
-    base,output=build(source,(HERE/'jornada-interativa.css').read_text(encoding='utf-8'),(HERE/'jornada-interativa.js').read_text(encoding='utf-8'),points,image_name)
+    base,output=build(base,(HERE/'jornada-interativa.css').read_text(encoding='utf-8'),(HERE/'jornada-interativa.js').read_text(encoding='utf-8'),points,image_name)
     (args.output/'index.html').write_bytes(output.encode())
     manifest={'source_url':URL,'source_current_sha256':sha(normalize(source).encode()),'source_base_sha256':sha(base.encode()),'source_svg_sha256':sha(svg.encode()),'output_sha256':sha(output.encode()),'output_bytes':len(output.encode()),'image':{'name':image_name,'sha256':sha(png),'bytes':len(png)},'point_count':len(points),'assets':records}
+    if editorial: manifest['editorial']=editorial
     (args.output/'build-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(manifest,ensure_ascii=False,indent=2))
 

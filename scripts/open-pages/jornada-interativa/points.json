@@ -24,7 +24,7 @@
   {
     "id": "pediatria-1",
     "title": "Pediatria · Unidade 1",
-    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, com triagem conforme a idade e a indicação. A CCC organiza o percurso entre os pontos de atenção.",
     "bounds": [
       345,
       95,
@@ -35,7 +35,7 @@
   {
     "id": "pediatria-2",
     "title": "Pediatria · Unidade 2",
-    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, com triagem conforme a idade e a indicação. A CCC organiza o percurso entre os pontos de atenção.",
     "bounds": [
       345,
       172,
@@ -46,7 +46,7 @@
   {
     "id": "pediatria-3",
     "title": "Pediatria · Unidade 3",
-    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, incluindo o M-CHAT-R. A CCC organiza o percurso entre os pontos de atenção.",
+    "body": "Unidade de atenção primária que aplica o protocolo de rastreio, com triagem conforme a idade e a indicação. A CCC organiza o percurso entre os pontos de atenção.",
     "bounds": [
       345,
       249,
@@ -100,8 +100,8 @@
   },
   {
     "id": "cluster",
-    "title": "Clusterização · três fases",
-    "body": "Integra a triagem pelo M-CHAT-R, a intensidade dos sintomas pela CARS e a funcionalidade pela CBDF. A preparação ocorre antes do AAD, que confirma o cluster.",
+    "title": "Pré-clusterização · ESC-TEA-100",
+    "body": "Reúne a triagem por idade, a CARS e a CBDF em um escore de 0 a 100. Apoia a pré-clusterização e segue para avaliação médica.\n\nDados incompletos: resultado provisório e pendências para avaliação.\nFronteira: conferir os valores antes de concluir.\nDiscordância maior: revisão clínica antes da alocação.",
     "bounds": [
       924,
       126,
@@ -112,7 +112,7 @@
   {
     "id": "aad",
     "title": "Ambulatório de Avaliação Diagnóstica · AAD · CAI",
-    "body": "Realiza a avaliação diagnóstica, complementa informações e confirma o cluster. Recebe o paciente com os instrumentos aplicados e a pré-clusterização organizada.",
+    "body": "A avaliação médica complementa as informações necessárias e considera os instrumentos e o contexto clínico para concluir o diagnóstico e definir o cluster. O escore apoia essa decisão; não a substitui. Recebe a avaliação organizada, com os instrumentos disponíveis e as pendências identificadas.",
     "bounds": [
       1035,
       95,
@@ -177,8 +177,8 @@
   },
   {
     "id": "mchat",
-    "title": "M-CHAT-R · fase 1",
-    "body": "Instrumento de triagem do risco de TEA. Integra a preparação do paciente antes da avaliação diagnóstica.",
+    "title": "Triagem por faixa etária · componente 1",
+    "body": "O instrumento de triagem é escolhido conforme a idade, a indicação e o protocolo adotado: M-CHAT-R ou AQ-10. Os alertas de faixa etária e as etapas próprias de aplicação permanecem válidos. A Jornada mantém seu escopo infantil.",
     "bounds": [
       630,
       436,
@@ -188,7 +188,7 @@
   },
   {
     "id": "cars",
-    "title": "CARS · fase 2",
+    "title": "CARS · componente 2",
     "body": "Instrumento que gradua a intensidade dos sintomas. Integra a estratificação preparada antes da avaliação no AAD.",
     "bounds": [
       862,
@@ -199,7 +199,7 @@
   },
   {
     "id": "cbdf",
-    "title": "CBDF · fase 3",
+    "title": "CBDF · componente 3",
     "body": "Sistema de codificação funcional do COFFITO, fundamentado na CIF. Complementa a leitura da funcionalidade, da atividade e da participação.",
     "bounds": [
       1094,

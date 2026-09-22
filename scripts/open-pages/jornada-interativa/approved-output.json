@@ -1,14 +1,14 @@
 {
   "source_url": "https://open.grupocsv.com/jornada-tea/",
-  "source_current_sha256": "abc445ed4a4db9432595df26b5f7c7bba47836d65e09c1a48824c8fe613f596d",
-  "source_base_sha256": "f7d272abacf7905a439881e904e4a74e70c882f3d8cca7a5476e01e16ed7d66b",
-  "source_svg_sha256": "9e452e61c918c0ec75a157aaead8baad44487e56286c24cc8b921315d0089e0d",
-  "output_sha256": "156dd844283167caf1efcf7a580271588652f393ad6c646415657c0777cadcb3",
-  "output_bytes": 91763,
+  "source_current_sha256": "156dd844283167caf1efcf7a580271588652f393ad6c646415657c0777cadcb3",
+  "source_base_sha256": "ab3e8789fed133b74d8e0a6dea00c9183a67abd70260d9707a8de622449fc563",
+  "source_svg_sha256": "9cb82c5301811a9493dc671f98b32f69ef339d1ad7fe24c37487704ff1054411",
+  "output_sha256": "5a4067fe9d3d3f902cea93f66d7a847057e70fee7d0e9596f21fbbfe3ecba165",
+  "output_bytes": 93443,
   "image": {
-    "name": "mapa-jornada-04689f954dadd0f5.png",
-    "sha256": "04689f954dadd0f5837c1865f137a63bada51d5bd08ebbb4bc4a87ffcccb098b",
-    "bytes": 1002127
+    "name": "mapa-jornada-82bef187ec673fa6.png",
+    "sha256": "82bef187ec673fa6b568daa30c357ca55b2dc8fdddb5d50355b6b24fcf7e4f10",
+    "bytes": 1003282
   },
   "point_count": 30,
   "assets": [
@@ -27,5 +27,41 @@
       "sha256": "ea14b99e5c2999b00911daf13b2cb885ec2349fd495f1056bc05893985d99365",
       "bytes": 49471
     }
-  ]
+  ],
+  "editorial": {
+    "revision": "esc-tea-100-2026-09-22",
+    "before_sha256": "f7d272abacf7905a439881e904e4a74e70c882f3d8cca7a5476e01e16ed7d66b",
+    "after_sha256": "ab3e8789fed133b74d8e0a6dea00c9183a67abd70260d9707a8de622449fc563",
+    "changes": [
+      "svg-pre-cluster",
+      "svg-score",
+      "svg-aad",
+      "svg-components",
+      "svg-component-1",
+      "svg-component-2",
+      "svg-component-3",
+      "svg-screening",
+      "svg-screening-detail",
+      "mobile-pre-cluster",
+      "mobile-screening",
+      "mobile-aad",
+      "pediatric-protocol",
+      "support-heading",
+      "support-description",
+      "support-table",
+      "support-cbdf",
+      "support-available-assessment",
+      "support-aad-arrival",
+      "support-medical-review",
+      "support-methodology-origin",
+      "support-intensity-heading",
+      "support-intensity-review",
+      "support-intensity-1",
+      "support-intensity-2",
+      "support-intensity-3",
+      "support-application",
+      "support-consultations"
+    ],
+    "reversible_byte_for_byte": true
+  }
 }
