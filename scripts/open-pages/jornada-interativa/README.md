@@ -1,11 +1,11 @@
 # Interação da Jornada TEA oficial
 
-Camada independente para `https://open.grupocsv.com/jornada-tea/`. Mantém o HTML editorial, o SVG, o cabeçalho e o Apoio Textual da página recebida. Acrescenta explicações por etapa abaixo do mapa, seleção por teclado/toque e imagem completa para abrir ou baixar após acesso institucional. O mapa ocupa a largura disponível e acompanha a rolagem da página, sem área própria de rolagem. A ampliação fica disponível pelo zoom nativo do navegador ou pela imagem completa. O mapa fica disponível também no celular, com alternância para o percurso textual existente.
+Camada independente para `https://open.grupocsv.com/jornada-tea/`. Mantém o HTML editorial, o SVG, o cabeçalho e o Apoio Textual da página recebida. Acrescenta explicações em popup sobre a tabela de códigos de demanda, abertas por mouse, teclado ou toque, e imagem completa para abrir ou baixar após acesso institucional. O mapa ocupa a largura disponível e acompanha a rolagem da página, sem área própria de rolagem. A ampliação fica disponível pelo zoom nativo do navegador ou pela imagem completa. O mapa fica disponível também no celular, com alternância para o percurso textual existente.
 
 ## Escopo
 
 - JavaScript e CSS com prefixo `ji-`, sem React nem serviços do portal CLAVS. O acesso institucional é exigido pelo Worker antes de entregar HTML, imagens e demais objetos do prefixo; não é responsabilidade desta camada visual.
-- Os 30 pontos usam as coordenadas do mapa validado no portal CLAVS; suas explicações foram revisadas contra o Apoio Textual da página oficial.
+- Os pontos usam as coordenadas do mapa validado no portal CLAVS; suas explicações foram revisadas contra o Apoio Textual da página oficial. A legenda ESC-TEA-100 tem ponto próprio com acesso à calculadora e à metodologia oficial.
 - JSON inválido, estrutura incompatível ou ausência da camada preservam o conteúdo original.
 - Publicação limitada a `jornada-tea/index.html` e ao PNG aprovado no R2 privado `csv-open-pages-tea-private`, servido pelo binding `TEA_CONTENT`. Não escreve em KV, Worker, DNS, no bucket compartilhado antigo ou em outras páginas.
 - Git guarda código e manifesto dos bytes revisados. Capturas, cópias anteriores e evidências de execução ficam fora do repositório.
@@ -68,7 +68,7 @@ As explicações novas usam “plano terapêutico” e não introduzem números 
 
 Removidos o limite de altura, a rolagem do contêiner e os controles que aumentavam a largura do desenho. O seletor de etapas não amplia mais o canvas: move apenas a página até a etapa e mostra sua explicação. Desenho e cabeçalho originais permanecem intactos. No celular, o seletor oferece acesso confortável às explicações quando os rótulos do mapa completo ficam pequenos; o percurso textual e a imagem integral continuam disponíveis.
 
-## Explicação abaixo do mapa — 21/09/2026
+## Histórico: explicação abaixo do mapa — 21/09/2026 (substituída)
 
 O balão flutuante foi removido. O hover e o foco apenas destacam a etapa; não selecionam, não movimentam a página e não cobrem outro trecho do desenho. Clique, toque, Enter ou espaço selecionam a etapa e levam à explicação, localizada após o mapa. O retorno leva o foco de volta à etapa. A seleção permanece após rolagem, Escape, clique fora, alternância do percurso textual e troca entre Diagrama/Apoio Textual.
 
@@ -101,3 +101,13 @@ node scripts/open-pages/jornada-interativa/verify-browser.mjs PACOTE_PRIVADO QA_
 O SVG incorporado é a fonte do novo PNG de abertura e download, com nome derivado do hash. O PNG anterior permanece protegido e imutável, incluindo o destino histórico do redirecionamento do Hub; este publicador não altera o Worker do Hub. A revisão não usa os antigos scripts de download público para reconstruir uma página agora protegida.
 
 Antes de publicar, validar os bytes finais em `approved-output.json`. O gate institucional e o bucket privado continuam sendo pré-requisitos; a revisão editorial não tem opção de contorná-los. O QA acrescenta a aferição dos rótulos SVG dentro de seus espaços, a remoção das equivalências antigas e o link à metodologia, além das regressões de interação e download já existentes.
+
+## Popup sobre os códigos de demanda — 22/09/2026
+
+A revisão solicitada pelo usuário substitui o painel estático após o mapa. A explicação agora fica sobre a tabela, ancorada em y=760 do SVG, preservando livre o percurso assistencial superior. O primeiro hover abre imediatamente; a troca entre etapas aguarda uma breve permanência do ponteiro para não trocar o texto durante a travessia até o popup. A passagem do mouse não desloca a página. Sair da área fecha após tolerância; entrar no popup ou na ação de leitura conserva a explicação. Clique ou toque fixa a seleção e leva o foco ao painel. Escape, Fechar e clique fora permitem dispensá-lo.
+
+O foco do teclado também abre cada explicação. O seletor e o botão Ver explicação oferecem alvos maiores no celular. Quando o painel está fora da tela, o botão de leitura permanece acessível sem mover o mapa automaticamente. O popup não tem limite de altura nem rolagem interna: a área do mapa reserva somente o espaço inferior adicional necessário, conservando o tamanho do SVG e suas coordenadas.
+
+A legenda ESC-TEA-100 tem área interativa própria e link validado exclusivamente para `https://open.grupocsv.com/esc-tea-100`. Título e descrição são inseridos como texto. O conteúdo segue a metodologia vigente do escore: apoio à pré-clusterização, distinção entre cluster de alocação e avaliação médica, tratamento de dados incompletos. Não altera a calculadora, as faixas, os pesos ou o conteúdo clínico do mapa.
+
+Esta revisão é somente da camada interativa. Construir a partir da origem corrente **sem** `--editorial-esc-tea`; a revisão editorial anterior já integra a fonte publicada. Os hashes da base editorial, do SVG e do PNG devem permanecer iguais. O acesso institucional, a imagem integral, o download, as abas e o percurso textual continuam sujeitos à regressão local e à conferência autenticada em produção.

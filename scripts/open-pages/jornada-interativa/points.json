@@ -106,8 +106,18 @@
       924,
       126,
       83,
-      120
+      86
     ]
+  },
+  {
+    "id": "esc-tea-100",
+    "title": "ESC-TEA-100 · Escore de severidade clínica",
+    "body": "Reúne a triagem conforme a idade, a CARS e a CBDF em um escore de 0 a 100. O resultado apoia a pré-clusterização e indica o cluster de alocação de recursos terapêuticos. Avaliações incompletas geram resultado provisório; fronteiras e discordâncias exigem revisão. O escore não substitui a avaliação médica.",
+    "bounds": [918, 220, 99, 32],
+    "link": {
+      "href": "https://open.grupocsv.com/esc-tea-100",
+      "label": "Abrir calculadora e metodologia"
+    }
   },
   {
     "id": "aad",

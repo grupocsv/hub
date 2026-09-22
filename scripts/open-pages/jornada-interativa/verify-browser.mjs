@@ -59,7 +59,7 @@ const browser=await chromium.launch({headless:true,...(process.env.JORNADA_BROWS
 const report={mode:live?'produção real':'artefatos locais por HTTP em loopback',time:new Date().toISOString(),url,output_sha256:manifest.output_sha256,browser:browser.version(),sourceFixtures:[...fixtures].map(([pathname,asset])=>({pathname,sha256:asset.sha256})),allPassed:false,results:[],limitations:[
   'Chromium com tamanhos de viewport emulados; não equivale a aparelhos físicos ou Safari móvel.',
   'Swipe móvel emulado por eventos de toque do Chromium; não mede conforto ou precisão de toque de pessoas reais.',
-  'Mapa e explicação são aferidos no fluxo da página, sem rolagem própria. A imagem separada conserva o visualizador nativo.',
+  'Mapa sem rolagem própria; explicação flutua sobre a tabela de códigos e reserva espaço inferior quando necessário. A imagem separada conserva o visualizador nativo.',
   'A suíte local verifica interação. A autenticação server-side e o bloqueio anônimo são aferidos separadamente antes da publicação.',
 ]};
 
@@ -79,7 +79,7 @@ async function inlineProof(page,label){
   for(const name of ['frame','canvas']){
     const box=proof[name];assert(box.left>=-1&&box.right<=proof.documentWidth+1,`${label}: ${name} sai da largura da página`);
     assert(box.scrollWidth<=box.clientWidth+1,`${label}: ${name} contém largura excedente`);
-    assert(box.scrollHeight<=box.clientHeight+1,`${label}: ${name} contém altura excedente`);
+    if(name==='frame')assert(box.scrollHeight<=box.clientHeight+1,`${label}: ${name} contém altura excedente sem reserva no fluxo`);
     assert.equal(box.scrollLeft,0,`${label}: ${name} deslocou horizontalmente`);assert.equal(box.scrollTop,0,`${label}: ${name} deslocou verticalmente`);
   }
   assert.deepEqual(proof.attemptedFrameScroll,{left:0,top:0},`${label}: mapa aceita rolagem independente`);
@@ -141,7 +141,7 @@ try{
       await page.locator('#p1.ji-enhanced').waitFor();await page.evaluate(()=>document.fonts.ready);
       const invariant=await page.evaluate(()=>({points:document.querySelectorAll('.ji-hotspot').length,viewBox:document.querySelector('.ji-canvas > svg').getAttribute('viewBox'),images:[...document.images].every(image=>image.complete&&image.naturalWidth>0),masthead:document.querySelector('.masthead').outerHTML,svg:document.querySelector('.ji-canvas > svg').outerHTML}));
       assert.equal(invariant.points,points.length);assert.equal(invariant.viewBox,'0 0 1820 1375');assert.equal(invariant.images,true);
-      if(manifest.editorial){
+      if(invariant.svg.includes('ESC-TEA-100')){
         const labels=await page.locator('.ji-canvas > svg').evaluate(svg=>{
           const expected=[['PRÉ-CLUSTER',925,1005],['ESC-TEA-100',924,1007],['Triagem por faixa etária',638,834],['Instrumento conforme idade e indicação',638,834],['Revisão médica e confirmação do cluster',1043,1297],['1',650,702],['2',882,934],['3',1114,1166]];
           return expected.map(([text,left,right])=>{const matches=[...svg.querySelectorAll('text')].filter(node=>node.textContent===text&&(!['1','2','3'].includes(text)||node.getAttribute('y')==='464'));if(matches.length!==1)return {text,matches:matches.length};const b=matches[0].getBBox();return {text,matches:1,x:b.x,right:b.x+b.width,leftLimit:left,rightLimit:right};});
@@ -156,42 +156,71 @@ try{
       if(width===390)result.swipe=await swipeProof(page,context);
       result.afterGesture=await settledScroll(page);
       const panel=page.locator('#ji-explanation');
-      assert.equal(await page.getByRole('dialog').count(),0);
-      assert.equal(await page.locator('.ji-popover').count(),0);
-      const initialTitle=await panel.locator('h2').innerText();
-      assert.equal(initialTitle,'Entenda cada etapa');
+      assert.equal(await panel.isVisible(),false);
       const hoverTarget=page.locator('[data-ji-point="ccc"]');
-      await hoverTarget.evaluate(element=>element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
-      await settledScroll(page);
-      const hoverBox=await hoverTarget.boundingBox();
-      assert(hoverBox&&hoverBox.y>=0&&hoverBox.y+hoverBox.height<=height,'Etapa do hover precisa estar visível antes do teste');
-      const hoverStart=await page.evaluate(()=>scrollY);
-      // locator.hover pode reposicionar a página; aqui o cursor se move apenas
-      // dentro da etapa já visível, depois de encerrar a inércia do swipe.
-      await page.mouse.move(hoverBox.x+hoverBox.width/2,hoverBox.y+hoverBox.height/2);
-      await page.waitForTimeout(180);
-      assert.equal(await page.evaluate(()=>scrollY),hoverStart,'Hover deslocou a página');
-      assert.equal(await panel.locator('h2').innerText(),initialTitle,'Hover alterou explicação');
-      assert.equal(await hoverTarget.getAttribute('aria-pressed'),'false');
-      result.hoverDoesNotSelectOrScroll=true;
-      result.hoverProof={method:'mouse.move',beforeY:hoverStart,afterY:await page.evaluate(()=>scrollY),targetBox:hoverBox};
-      const sample=width===390?points:points.filter(point=>(manifest.editorial?['ccc','cluster','mchat','aad','evs']:['ccc','aad','evs']).includes(point.id));
+      if(width===1440){
+        await hoverTarget.evaluate(element=>element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+        await settledScroll(page);
+        const hoverBox=await hoverTarget.boundingBox();
+        const hoverStart=await page.evaluate(()=>scrollY);
+        await page.mouse.move(hoverBox.x+hoverBox.width/2,hoverBox.y+hoverBox.height/2);
+        await panel.waitFor({state:'visible'});
+        assert.equal(await page.evaluate(()=>scrollY),hoverStart,'Hover deslocou a página');
+        assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='ccc').title);
+        assert.equal(await hoverTarget.getAttribute('aria-pressed'),'false');
+        assert.equal(await hoverTarget.getAttribute('aria-expanded'),'true');
+        const transitPoint=page.locator('[data-ji-point="mchat"]');
+        const transitBox=await transitPoint.boundingBox();
+        assert(transitBox.y>=0&&transitBox.y+transitBox.height<height);
+        await page.mouse.move(transitBox.x+transitBox.width/2,transitBox.y+transitBox.height/2);
+        await page.waitForTimeout(50);
+        await page.mouse.move(hoverBox.x+hoverBox.width/2,hoverBox.y+hoverBox.height/2);
+        await page.waitForTimeout(200);
+        assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='ccc').title,'Travessia rápida trocou o conteúdo');
+        await page.mouse.move(transitBox.x+transitBox.width/2,transitBox.y+transitBox.height/2);
+        await page.waitForTimeout(220);
+        assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='mchat').title,'Hover estável não atualizou a etapa');
+        result.hoverIntent=true;
+        // Travessia real do ponteiro até o painel; ao entrar nele, a explicação persiste.
+        await panel.scrollIntoViewIfNeeded();
+        await panel.hover();await page.waitForTimeout(750);
+        assert.equal(await panel.isVisible(),true,'Popup desapareceu durante sua leitura');
+        await page.mouse.move(width-2,3);await page.waitForTimeout(800);
+        assert.equal(await panel.isVisible(),false,'Popup não fechou após saída do ponteiro');
+        result.hoverOpensWithoutScroll=true;result.hoverToPopupPersists=true;
+        // O rótulo do escore tem área própria, independentemente do losango.
+        const esc=page.locator('[data-ji-point="esc-tea-100"]');
+        await esc.scrollIntoViewIfNeeded();await settledScroll(page);
+        const escBox=await esc.boundingBox(),escBefore=await page.evaluate(()=>scrollY);
+        await page.mouse.move(escBox.x+escBox.width/2,escBox.y+escBox.height/2);
+        await panel.waitFor({state:'visible'});
+        assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='esc-tea-100').title);
+        assert.equal(await page.evaluate(()=>scrollY),escBefore);
+        const escLabelCoverage=await page.locator('.ji-canvas > svg').evaluate(svg=>{
+          const label=[...svg.querySelectorAll('text')].find(t=>t.textContent==='ESC-TEA-100').getBoundingClientRect();
+          const target=document.querySelector('[data-ji-point="esc-tea-100"]').getBoundingClientRect();
+          return label.left>=target.left&&label.right<=target.right&&label.top>=target.top&&label.bottom<=target.bottom;
+        });assert(escLabelCoverage,'Hotspot não cobre o rótulo ESC-TEA-100');result.escLabelCoverage=true;
+        await page.keyboard.press('Escape');assert.equal(await panel.isVisible(),false);
+      }
+      const sample=width===390?points:points.filter(point=>['ccc','cluster','esc-tea-100','mchat','aad','evs'].includes(point.id));
       for(const point of sample){
+        await page.keyboard.press('Escape');
         const before=await page.locator('.ji-canvas').boundingBox();
         const picker=page.getByLabel('Escolha uma etapa do mapa',{exact:true});
-        await picker.scrollIntoViewIfNeeded();
+        await picker.scrollIntoViewIfNeeded();await settledScroll(page);
         const beforeSelectY=await page.evaluate(()=>scrollY);
         await picker.selectOption(point.id);
         assert.equal(await page.evaluate(()=>scrollY),beforeSelectY,'Seletor deslocou a página');
         assert.equal(await panel.locator('h2').innerText(),point.title);
         assert.equal(await panel.locator('p').innerText(),point.body);
         const panelGeometry=await panel.evaluate(element=>{
-          const map=document.querySelector('.ji-frame'),r=element.getBoundingClientRect(),m=map.getBoundingClientRect(),s=getComputedStyle(element);
+          const svg=document.querySelector('.ji-canvas > svg'),r=element.getBoundingClientRect(),m=svg.getBoundingClientRect(),s=getComputedStyle(element);
           element.scrollTo({top:123,left:123,behavior:'instant'});
-          return {top:r.top,mapBottom:m.bottom,width:r.width,left:r.left,right:r.right,position:s.position,overflowX:s.overflowX,overflowY:s.overflowY,scrollTop:element.scrollTop,scrollLeft:element.scrollLeft,clientHeight:element.clientHeight,scrollHeight:element.scrollHeight};
+          return {top:r.top,mapTop:m.top,mapHeight:m.height,width:r.width,left:r.left,right:r.right,position:s.position,overflowX:s.overflowX,overflowY:s.overflowY,scrollTop:element.scrollTop,scrollLeft:element.scrollLeft,clientHeight:element.clientHeight,scrollHeight:element.scrollHeight};
         });
-        assert(panelGeometry.top>=panelGeometry.mapBottom,'Explicação sobrepõe o mapa');
-        assert.equal(panelGeometry.position,'static');
+        assert(Math.abs(panelGeometry.top-panelGeometry.mapTop-panelGeometry.mapHeight*760/1375)<2,'Popup não está sobre a área da tabela');
+        assert.equal(panelGeometry.position,'absolute');
         assert.equal(panelGeometry.overflowX,'visible');assert.equal(panelGeometry.overflowY,'visible');
         assert.equal(panelGeometry.scrollTop,0);assert.equal(panelGeometry.scrollLeft,0);
         assert(panelGeometry.scrollHeight<=panelGeometry.clientHeight+1);
@@ -199,30 +228,36 @@ try{
         const geometry=await page.locator(`[data-ji-point="${point.id}"]`).evaluate((button,bounds)=>{const rect=button.getBoundingClientRect(),canvas=button.closest('.ji-canvas').getBoundingClientRect();return Math.max(Math.abs(rect.left-canvas.left-bounds[0]/1820*canvas.width),Math.abs(rect.top-canvas.top-bounds[1]/1375*canvas.height),Math.abs(rect.width-bounds[2]/1820*canvas.width),Math.abs(rect.height-bounds[3]/1375*canvas.height));},point.bounds);
         assert(geometry<1);const after=await page.locator('.ji-canvas').boundingBox();assert(Math.abs(before.width-after.width)<1);assert(Math.abs(before.height-after.height)<1);
         await inlineProof(page,`Etapa ${point.id}`);result.pointsChecked.push(point.id);
-        await page.getByRole('button',{name:'Ler explicação',exact:true}).click();
+        await page.getByRole('button',{name:'Ver explicação',exact:true}).click();
         assert.equal(await panel.evaluate(element=>document.activeElement===element),true);
-        if(point.id==='ccc')await page.screenshot({path:path.join(outputPath,`jornada-${width}.png`),animations:'disabled'});
-        if(manifest.editorial&&point.id==='cluster')await page.screenshot({path:path.join(outputPath,`pre-cluster-${width}.png`),animations:'disabled'});
-        await page.getByRole('button',{name:'Voltar à etapa no mapa',exact:true}).click();
+        if(point.id==='ccc'||point.id==='esc-tea-100')await page.screenshot({path:path.join(outputPath,`${point.id}-${width}.png`),animations:'disabled'});
+        if(point.id==='esc-tea-100'){
+          const link=panel.getByRole('link',{name:'Abrir calculadora e metodologia',exact:true});
+          assert.equal(await link.getAttribute('href'),'https://open.grupocsv.com/esc-tea-100');
+          assert.equal(await link.getAttribute('rel'),'noopener noreferrer');result.escLink=true;
+        }
+        const close=panel.getByRole('button',{name:'Fechar explicação',exact:true});
+        const closeBox=await close.boundingBox();assert(closeBox.width>=44&&closeBox.height>=44);
+        await close.click();await page.waitForTimeout(220);assert.equal(await panel.isVisible(),false,'Fechar reabriu um ponto atrás do popup');
         assert.equal(await page.locator(`[data-ji-point="${point.id}"]`).evaluate(element=>document.activeElement===element),true);
-        await page.keyboard.press('Escape');
-        assert.equal(await panel.locator('h2').innerText(),point.title,'Escape removeu a seleção persistente');
       }
       const hotspot=page.locator('[data-ji-point="ccc"]');
-      const selectedBeforeFocus=await panel.locator('h2').innerText();
       await hotspot.focus();
-      assert.equal(await panel.locator('h2').innerText(),selectedBeforeFocus,'Foco isolado alterou seleção');
+      assert.equal(await panel.locator('h2').innerText(),points.find(p=>p.id==='ccc').title,'Foco não abriu a etapa');
+      assert.equal(await panel.isVisible(),true);
       await page.keyboard.press('Enter');
       assert.equal(await panel.evaluate(element=>document.activeElement===element),true);
       assert.equal(await hotspot.getAttribute('aria-pressed'),'true');
-      await page.getByRole('button',{name:'Voltar à etapa no mapa',exact:true}).click();
-      assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);result.keyboard=true;
+      await page.keyboard.press('Escape');assert.equal(await panel.isVisible(),false);
+      assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);
+      await page.keyboard.press('Enter');await page.getByRole('button',{name:'Voltar à etapa no mapa',exact:true}).click();
+      assert.equal(await hotspot.evaluate(element=>document.activeElement===element),true);assert.equal(await panel.isVisible(),false);result.keyboard=true;
       if(width<861){
         await hotspot.tap();
         assert.equal(await panel.evaluate(element=>document.activeElement===element),true);result.touchPoint=true;
         const picker=await page.locator('.ji-select').boundingBox();assert(picker.height>=44&&picker.x>=0&&picker.x+picker.width<=width+1);result.accessiblePicker=true;
         await page.getByRole('button',{name:'Ver percurso em texto',exact:true}).click();await page.locator('#p1.ji-text-open').waitFor();assert.equal(await page.locator('.ji-frame').isVisible(),false);assert.equal(await page.locator('#p1 > .diagram-mobile').isVisible(),true);assert.equal(await panel.isVisible(),false);
-        await page.getByRole('button',{name:'Voltar ao mapa interativo',exact:true}).click();await page.locator('.ji-frame').waitFor({state:'visible'});await inlineProof(page,'Retorno do percurso em texto');assert.equal(await hotspot.getAttribute('aria-pressed'),'true');result.mobileText=true;
+        await page.getByRole('button',{name:'Voltar ao mapa interativo',exact:true}).click();await page.locator('.ji-frame').waitFor({state:'visible'});await inlineProof(page,'Retorno do percurso em texto');result.mobileText=true;
       }
       const persistedTitle=await panel.locator('h2').innerText();
       await page.getByRole('button',{name:'Apoio Textual',exact:true}).click();assert.equal(await panel.isVisible(),false);await page.locator('#p2.active').waitFor();
