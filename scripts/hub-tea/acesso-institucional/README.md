@@ -1,5 +1,13 @@
 # Hub TEA público: prévia e proteção da antiga prancha
 
+## Rótulos dos quatro cards
+
+A atualização posterior `card_labels.py` aplica o mesmo cadeado e “Restrito” de Painel/Relatório em Estratégia/Jornada. Mantém posição e tipografia, clareando o laranja somente no fundo verde para contraste. A indicação duplicada “Acesso institucional” sai da prévia da Jornada. A transformação exige o hash do HTML protegido revisado e prova a preservação integral do documento fora das inserções/remoção; não publica fontes completas no Git.
+
+`build --source-package PACOTE_ANTERIOR --output PACOTE_ROTULOS` gera a atualização. `preflight`, `publish` e `verify` recebem os mesmos parâmetros, mais `--snapshot SNAPSHOT_ORIGINAL --state ESTADO_PRIVADO_NOVO`. O manifesto `card-labels-approved.json` fixa os bytes revisados. A extensão reutiliza todas as verificações do publicador já aprovado, mas permite escrita somente em `tea/index.html`: nenhum upload de Worker, alteração de acesso, imagem ou configuração. Salva o HTML anterior no estado privado antes do PUT e verifica novamente origem, página servida, proteção e invariantes. Resposta incerta exige `verify`, sem repetir publicação automaticamente.
+
+Validação visual: acrescentar `--restricted-cards` ao verificador, local ou `--live`, para conferir os quatro rótulos, ordem de teclado, abertura do Relatório por Enter, ausência de sobreposição na prévia e capturas do conjunto de cards. Invalidação de cache deve se limitar a `https://hub.unimedgv.com/tea/` e `https://hub.unimedgv.com/tea/index.html`; nenhum asset muda nesta atualização.
+
 Esta entrega preserva a página inicial pública, substitui a prancha integral por uma peça editorial com a marca Caminhos Brilhantes e mantém a mesma navegação para Jornada, Painel e Relatório. O HTML deriva do objeto R2 ativo, conferido contra o HTML servido; scripts de acesso do Relatório permanecem byte a byte.
 
 O Worker é a versão ativa `6cd3fe16-8976-4ae9-8ff1-e0ffce368637`, capturada em 21/09/2026, com uma extensão mínima. Somente `/tea/peca-jornada.webp` e suas variantes normalizadas passam a responder 302 sem cache para o PNG da Jornada protegida em Open Pages. Não há outro formulário, token em URL ou novo provedor de identidade. O restante é delegado ao módulo original sem edição.

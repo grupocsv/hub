@@ -1,0 +1,14 @@
+{
+  "source_html_sha256": "86a36a1b6cbfa525a80e29db08e8e63370afbaa88ca7757e17d030612d9a6bd7",
+  "output_html_sha256": "5aa0a09648103d7cd04d2083fe746b2285657ffb1a0ac4882a121f2b1ce39214",
+  "source_bytes": 179209,
+  "output_bytes": 179631,
+  "object_writes": [
+    "tea/index.html"
+  ],
+  "scripts_unchanged": true,
+  "links_unchanged": true,
+  "badges": 4,
+  "worker_unchanged": true,
+  "legacy_preview_unchanged": true
+}
