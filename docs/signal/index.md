@@ -72,6 +72,7 @@ O objetivo é fornecer à alta gestão uma visão panorâmica, curada e de alta 
 
 | Edição | Período | Fatos | Status |
 |--------|---------|-------|--------|
+| [S38/2026](edicoes/2026/S38/) | 14 a 18 de setembro | 6 | Publicado |
 | [S37/2026](edicoes/2026/S37/) | 7 a 11 de setembro | 6 | Publicado |
 | [S36/2026](edicoes/2026/S36/) | 31 de agosto a 4 de setembro | 6 | Publicado |
 | [S35/2026](edicoes/2026/S35/) | 24 a 28 de agosto | 6 | Publicado |

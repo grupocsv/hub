@@ -1,0 +1,12 @@
+edition: S38
+year: 2026
+period: "14 a 18 de setembro de 2026"
+generated: "2026-09-25"
+dictionary_version: "v4.14"
+scope: unimed
+facts_count: 6
+new_terms: 14
+unimed_terms: 14
+sources:
+  notion_pages: 4
+  gmail_messages: 48
