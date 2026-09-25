@@ -297,7 +297,7 @@ Copiar página
 <div class="tech-page">
 <div class="frame hero-section">
 <h1>Infraestrutura Técnica</h1>
-<p class="version">Versão 1.3 — Atualizado em 16/09/2026; API Panta v2 validada, busca habilitada nesta versão do Hub</p>
+<p class="version">Versão 1.4 — Atualizado em 25/09/2026; NFS-e AxiaCare v3 em homologação segura</p>
 <p class="subtitle">
 Visão consolidada da arquitetura de backend documentada do ecossistema <strong>Grupo CSV</strong>.
 Descreve os principais microserviços, bancos de dados, armazenamentos, rotas de API,
@@ -478,6 +478,12 @@ registra o log no D1 e encaminha (proxy) para o worker de destino.
 <td>csv-propostas</td>
 <td><span class="badge protected">Protegido</span></td>
 <td>Geração de propostas comerciais</td>
+</tr>
+<tr>
+<td><code>/nfse</code></td>
+<td>nfse-api</td>
+<td><span class="badge protected">Protegido</span></td>
+<td>Perfis, simulações e documentos privados da NFS-e AxiaCare; somente <code>/nfse/health</code> é público</td>
 </tr>
 </tbody>
 </table>
@@ -746,6 +752,10 @@ Banco de dados SQL relacional (SQLite na edge). Principal fonte de verdade para 
 <div class="db-table-name">email_logs</div>
 <div class="db-table-desc">Log de e-mails enviados via Resend. Campos: from_addr, to_addrs, subject, resend_id, status, error, worker_origin.</div>
 </div>
+<div class="db-table-card">
+<div class="db-table-name">nfse_*</div>
+<div class="db-table-desc">Control plane da NFS-e v3: perfis e versões, papéis, solicitações, snapshots, aprovações, operações, idempotência, documentos, eventos e auditoria.</div>
+</div>
 </div>
 <h3 class="subsection-title">5.2. Outros Bancos D1</h3>
 <table class="tech-table">
@@ -798,6 +808,7 @@ Armazenamento de objetos compatível com S3, distribuído globalmente.
 <tr><td><code>rd-icds-uploads</code></td><td>Uploads do Relatório de Desempenho ICDS</td></tr>
 <tr><td><code>axiacare-methods</code></td><td>Arquivos do Methods Registry AxiaCare</td></tr>
 <tr><td><code>csv-documents-private</code></td><td>Originais e derivados privados da Central de Documentos</td></tr>
+<tr><td><code>nfse-pdfs</code></td><td>PDFs fiscais privados; sem domínio público e com entrega exclusiva pela API autenticada</td></tr>
 </tbody>
 </table>
 </div>
@@ -922,7 +933,31 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 </p>
 </div>
 <div class="frame">
-<h2 class="section-title">9. Notas Técnicas</h2>
+<h2 class="section-title">9. NFS-e AxiaCare</h2>
+<p class="section-desc">
+A arquitetura fiscal está em homologação segura. O navegador acessa o Worker <code>nfse-api</code>, que valida a sessão individual pelo Service Binding do <code>csv-auth</code>, aplica RBAC, calcula a prévia no servidor e consulta o D1 <code>csv-hub</code>. PDFs permanecem no bucket privado <code>nfse-pdfs</code>.
+</p>
+<table class="tech-table">
+<thead><tr><th>Componente</th><th>Contrato Vigente</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Interface</td><td><code>hub.grupocsv.com/axia/nota-fiscal.html</code></td><td>Consulta de perfis, simulação, histórico, adequação e manual</td></tr>
+<tr><td>API pública</td><td><code>api.grupocsv.com/nfse/*</code></td><td>Worker <code>nfse-api</code>; health público e demais rotas autenticadas</td></tr>
+<tr><td>Autenticação</td><td><code>X-Auth-Token</code> verificado pelo <code>csv-auth</code></td><td>Sessão individual obrigatória; sessões compartilhadas recusadas</td></tr>
+<tr><td>Persistência</td><td>D1 <code>csv-hub</code>, tabelas <code>nfse_*</code></td><td>Perfis, papéis, solicitações, snapshots, aprovações, operações, documentos, eventos, idempotência e auditoria</td></tr>
+<tr><td>Documentos</td><td>R2 <code>nfse-pdfs</code></td><td>Bucket privado; PDF entregue somente pela rota autenticada e auditada</td></tr>
+<tr><td>Emissor privado</td><td><code>nfse-emitter.service</code> em <code>127.0.0.1:8789</code></td><td>Serviço local autenticado por HMAC-SHA256; sem exposição pública direta</td></tr>
+<tr><td>Integração nacional</td><td>SEFIN e ADN</td><td>Sem transmissão nesta versão</td></tr>
+</tbody>
+</table>
+<div class="security-note">
+<strong>Mutações fiscais desabilitadas:</strong> criação de solicitação, aprovação, emissão e cancelamento retornam bloqueio operacional. Os perfis AbbVie e 2iM permanecem em <code>blocked_accounting</code>; a Ordem de Compra é obrigatória para AbbVie. A simulação não persiste dados e não transmite DPS ao Sistema Nacional NFS-e.
+</div>
+<p class="section-desc">
+Consulte o <a href="/_infra/manuais/nfse-axiacare">Manual da NFS-e AxiaCare</a> para regras de uso, cálculos, controles, endpoints e gates de liberação.
+</p>
+</div>
+<div class="frame">
+<h2 class="section-title">10. Notas Técnicas</h2>
 <table class="tech-table">
 <thead><tr><th>Tópico</th><th>Detalhe</th></tr></thead>
 <tbody>
@@ -940,7 +975,7 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 </tr>
 <tr>
 <td><strong>CORS</strong></td>
-<td>Todos os workers incluem headers CORS permissivos (<code>Access-Control-Allow-Origin: *</code>) para permitir chamadas do frontend em GitHub Pages.</td>
+<td>Os contratos variam por serviço. O <code>nfse-api</code> aceita chamadas do navegador somente com origem <code>https://hub.grupocsv.com</code>; outros Workers devem ser verificados individualmente antes de qualquer mudança.</td>
 </tr>
 <tr>
 <td><strong>Logging</strong></td>

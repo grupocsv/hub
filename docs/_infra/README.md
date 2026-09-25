@@ -24,6 +24,7 @@ Estruturas específicas de cada braço do grupo, herdando princípios do núcleo
 - **`/frameworks`**: Modelos mentais e estruturas de decisão.
 - **`/toolkits`**: Ferramentas práticas e templates.
 - **`/ferramentas/compass.md`**: Arquitetura, motor v2, backend, downloads, Admin, release e rollback do Compass™.
+- **`/manuais/nfse-axiacare.md`**: Operação, perfis fiscais, cálculos, segurança, arquitetura e gates da NFS-e AxiaCare v3.
 
 ### 4. Compass™
 
