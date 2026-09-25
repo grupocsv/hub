@@ -186,7 +186,7 @@
   }
 
   var AUTHORIZED_FETCH_ORIGINS = Object.freeze([
-    'https://nfse-api.guilherme-thom.workers.dev',
+    'https://api.grupocsv.com',
     'https://documentos-api.grupocsv.com',
   ]);
 

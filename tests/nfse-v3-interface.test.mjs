@@ -50,7 +50,8 @@ test('NFS-e v3: usa sessão efêmera do Hub e API autenticada v3', () => {
   assert.match(hubAuthSource, /window\.HUB_AUTH_API\s*=\s*Object\.freeze/);
   assert.match(hubAuthSource, /headers\.set\(["']X-Auth-Token["'],\s*session\.token\)/);
   assert.match(hubAuthSource, /AUTHORIZED_FETCH_ORIGINS/);
-  assert.match(source, /https:\/\/nfse-api\.guilherme-thom\.workers\.dev\/v1\//);
+  assert.match(source, /https:\/\/api\.grupocsv\.com\/nfse\/v1\//);
+  assert.match(hubAuthSource, /https:\/\/api\.grupocsv\.com/);
   assert.match(source, /new\s+AbortController\(\)/);
   assert.match(source, /setTimeout\(/);
 });
@@ -60,6 +61,12 @@ test('NFS-e v3: consulta somente os contratos de leitura e prévia', () => {
     assert.match(source, new RegExp(endpoint.replaceAll('/', '\\/')));
   }
   assert.match(source, /authFetch\(url,\s*\{[\s\S]*?signal:/);
+  assert.match(source, /profile_code:\s*fields\.profile/);
+  assert.match(source, /gross_amount_cents:\s*fields\.grossAmountCents/);
+  assert.doesNotMatch(source, /gross_amount:\s*fields\.grossAmount/);
+  assert.match(source, /block_reasons/);
+  assert.match(source, /rate_bps/);
+  assert.match(source, /amount_cents/);
   assert.match(source, /URL\.createObjectURL/);
   assert.match(source, /URL\.revokeObjectURL/);
 });

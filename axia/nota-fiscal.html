@@ -566,7 +566,7 @@
     (() => {
       'use strict';
 
-      const API_V3 = 'https://nfse-api.guilherme-thom.workers.dev/v1/';
+      const API_V3 = 'https://api.grupocsv.com/nfse/v1/';
       const REQUEST_TIMEOUT_MS = 12000;
       const FIXTURE = Object.freeze({
         profile: 'abbvie',
@@ -629,6 +629,30 @@
         return Number.isFinite(numeric) ? numeric : null;
       }
 
+      function parseMoneyToCents(value) {
+        const raw = cleanText(value, 80).replace(/^R\$\s*/i, '').replace(/\s/g, '');
+        if (!raw || raw.startsWith('-')) return null;
+        let wholeDigits;
+        let fractionDigits = '';
+        if (raw.includes(',')) {
+          if (!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(raw)) return null;
+          const [whole, fraction = ''] = raw.split(',');
+          wholeDigits = whole.replace(/\./g, '');
+          fractionDigits = fraction;
+        } else if (/^\d+\.\d{1,2}$/.test(raw)) {
+          [wholeDigits, fractionDigits = ''] = raw.split('.');
+        } else if (/^\d{1,3}(?:\.\d{3})+$/.test(raw)) {
+          wholeDigits = raw.replace(/\./g, '');
+        } else if (/^\d+$/.test(raw)) {
+          wholeDigits = raw;
+        } else {
+          return null;
+        }
+        fractionDigits = fractionDigits.padEnd(2, '0').slice(0, 2);
+        const cents = Number(wholeDigits) * 100 + Number(fractionDigits || '0');
+        return Number.isSafeInteger(cents) ? cents : null;
+      }
+
       function formatMoney(value) {
         const numeric = asNumber(value);
         if (numeric === null) return '—';
@@ -650,13 +674,18 @@
       function normalizeProfile(raw) {
         const source = raw && typeof raw === 'object' ? raw : {};
         const id = cleanText(firstValue(source, ['id', 'slug', 'code', 'profile_id']), 100).toLowerCase();
-        const name = cleanText(firstValue(source, ['name', 'display_name', 'label', 'title']), 160) || (id === '2im' ? '2iM' : id === 'abbvie' ? 'AbbVie' : 'Perfil');
-        const rates = safeArray(firstValue(source, ['rates', 'confirmed_rates', 'aliquotas'], []))
-          .map((rate) => typeof rate === 'object'
-            ? `${formatText(firstValue(rate, ['name', 'label', 'tax']), '')}: ${formatText(firstValue(rate, ['value', 'rate', 'percentage']), '')}`.replace(/: $/, '')
+        const sourceName = cleanText(firstValue(source, ['name', 'legal_name', 'display_name', 'label', 'title']), 160);
+        const name = id === '2im' ? '2iM Inteligência Médica S.A.' : id === 'abbvie' ? 'AbbVie Farmacêutica Ltda.' : sourceName || 'Perfil';
+        const rawRates = firstValue(source, ['rates', 'confirmed_rates', 'aliquotas'], []);
+        const rateLabels = { iss_bps: 'ISS', irrf_bps: 'IRRF', pis_bps: 'PIS', cofins_bps: 'COFINS', csll_bps: 'CSLL', federal_total_bps: 'Total federal' };
+        const normalizedRates = Array.isArray(rawRates)
+          ? rawRates
+          : Object.entries(rawRates && typeof rawRates === 'object' ? rawRates : {}).map(([key, rate_bps]) => ({ tax: rateLabels[key] || key, rate_bps }));
+        const rates = normalizedRates.map((rate) => typeof rate === 'object'
+            ? `${formatText(firstValue(rate, ['name', 'label', 'tax']), '')}: ${Number.isSafeInteger(rate.rate_bps) ? formatBasisPoints(rate.rate_bps) : formatText(firstValue(rate, ['value', 'rate', 'percentage']), '')}`.replace(/: $/, '')
             : formatText(rate, ''))
           .filter(Boolean);
-        const pending = safeArray(firstValue(source, ['pending', 'pendencias', 'warnings'], []))
+        const pending = safeArray(firstValue(source, ['pending', 'block_reasons', 'pendencias', 'warnings'], []))
           .map((item) => formatText(item, ''))
           .filter(Boolean);
         return {
@@ -679,9 +708,9 @@
           status: formatText(firstValue(source, ['status', 'situacao', 'state']), 'Não informado'),
           customer: formatText(firstValue(source, ['customer', 'tomador', 'recipient_name', 'taker_name']), 'Não informado'),
           competence: formatText(firstValue(source, ['competence', 'competencia']), 'Não informado'),
-          gross: firstValue(source, ['gross_amount', 'valor_bruto', 'amount']),
-          withholding: firstValue(source, ['withholding_amount', 'retentions', 'retencoes']),
-          net: firstValue(source, ['net_amount', 'valor_liquido', 'net']),
+          gross: firstValue(source, ['gross_amount', 'valor_bruto', 'amount'], Number.isSafeInteger(source.gross_amount_cents) ? source.gross_amount_cents / 100 : ''),
+          withholding: firstValue(source, ['withholding_amount', 'retentions', 'retencoes'], Number.isSafeInteger(source.withholding_amount_cents) ? source.withholding_amount_cents / 100 : ''),
+          net: firstValue(source, ['net_amount', 'valor_liquido', 'net'], Number.isSafeInteger(source.net_amount_cents) ? source.net_amount_cents / 100 : ''),
         };
       }
 
@@ -810,6 +839,17 @@
         updatePurchaseOrderRequirement();
       }
 
+      function stateLabel(value) {
+        const normalized = cleanText(value).toLowerCase();
+        const labels = {
+          active: 'Ativo',
+          candidate: 'Candidato',
+          blocked_accounting: 'Bloqueado: validação contábil',
+          retired: 'Desativado',
+        };
+        return labels[normalized] || formatText(value);
+      }
+
       function tagForState(value) {
         const tag = document.createElement('span');
         const normalized = cleanText(value).toLowerCase();
@@ -817,7 +857,7 @@
         if (/ativo|valid|confirm|conclu|emitid/.test(normalized)) tag.classList.add('good');
         if (/bloq|erro|inativ|cancel/.test(normalized)) tag.classList.add('danger');
         if (/pend|aguard|revis/.test(normalized)) tag.classList.add('warning');
-        tag.textContent = formatText(value);
+        tag.textContent = stateLabel(value);
         return tag;
       }
 
@@ -842,7 +882,7 @@
           const details = document.createElement('dl');
           details.className = 'profile-meta';
           appendMetaPair(details, 'Versão', profile.version);
-          appendMetaPair(details, 'Estado', profile.state);
+          appendMetaPair(details, 'Estado', stateLabel(profile.state));
           appendMetaPair(details, 'Alíquotas confirmadas', profile.rates.length ? profile.rates.join(' · ') : 'Não informadas');
           appendMetaPair(details, 'Ordem de Compra', profile.purchaseOrderRequired ? 'Obrigatória' : 'Não exigida pelo perfil');
           appendMetaPair(details, 'Pendências', profile.pending.length ? profile.pending.join(' · ') : 'Nenhuma informada');
@@ -863,7 +903,7 @@
           state.profilesLoaded = true;
           renderProfileSelect();
           renderProfiles();
-          const mode = cleanText(firstValue(meta, ['mode', 'environment', 'status']), '');
+          const mode = cleanText(firstValue(responseData(meta), ['mode', 'environment', 'status']), '');
           setMessage('profiles-message', 'success', mode ? `Perfis atualizados. Ambiente informado: ${mode}.` : 'Perfis atualizados.');
         } catch (error) {
           state.profiles = FALLBACK_PROFILES;
@@ -895,7 +935,7 @@
         clearFieldErrors();
         const profile = cleanText(byId('profile').value, 100);
         const purchaseOrder = cleanText(byId('purchase-order').value, 40);
-        const grossAmount = asNumber(byId('gross-amount').value);
+        const grossAmountCents = parseMoneyToCents(byId('gross-amount').value);
         const competence = cleanText(byId('competence').value, 12);
         const serviceDate = cleanText(byId('service-date').value, 12);
         const description = cleanText(byId('description').value, 1800);
@@ -903,15 +943,27 @@
         let valid = true;
         if (!profile) { setFieldError('profile', 'Selecione um perfil.'); valid = false; }
         if (selected?.purchaseOrderRequired && !purchaseOrder) { setFieldError('purchase-order', 'Informe a Ordem de Compra para este perfil.'); valid = false; }
-        if (grossAmount === null || grossAmount <= 0) { setFieldError('gross-amount', 'Informe um valor bruto maior que zero.'); valid = false; }
+        if (grossAmountCents === null || grossAmountCents <= 0) { setFieldError('gross-amount', 'Informe um valor bruto maior que zero.'); valid = false; }
         if (!/^\d{4}-\d{2}$/.test(competence)) { setFieldError('competence', 'Informe a competência.'); valid = false; }
         if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate)) { setFieldError('service-date', 'Informe a data do serviço ou evento.'); valid = false; }
         if (!description) { setFieldError('description', 'Informe a descrição.'); valid = false; }
-        return valid ? { profile, purchaseOrder, grossAmount, competence, serviceDate, description } : null;
+        return valid ? { profile, purchaseOrder, grossAmountCents, competence, serviceDate, description } : null;
+      }
+
+      function responseData(payload) {
+        const data = firstValue(payload, ['data'], payload);
+        return data && typeof data === 'object' ? data : {};
+      }
+
+      function formatBasisPoints(value) {
+        return Number.isSafeInteger(value)
+          ? `${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100)}%`
+          : formatText(value);
       }
 
       function simulationBlocks(payload) {
-        const raw = firstValue(payload, ['blocks', 'blockers', 'bloqueios', 'validations'], []);
+        const source = responseData(payload);
+        const raw = firstValue(source, ['block_reasons', 'blockReasons', 'blocks', 'blockers', 'bloqueios', 'validations'], []);
         return safeArray(raw).map((item) => {
           if (typeof item === 'object') return formatText(firstValue(item, ['message', 'description', 'reason', 'code']), 'Bloqueio informado pelo servidor.');
           return formatText(item, '');
@@ -919,12 +971,12 @@
       }
 
       function simulationMetrics(payload) {
-        const result = firstValue(payload, ['calculation', 'result', 'preview', 'data'], payload);
-        const source = result && typeof result === 'object' ? result : {};
+        const result = responseData(payload);
+        const source = firstValue(result, ['amounts', 'calculation', 'result', 'preview'], result);
         return [
-          ['Valor bruto', firstValue(source, ['gross_amount', 'valor_bruto', 'gross']), 'money'],
-          ['Retenções', firstValue(source, ['withholding_amount', 'retentions', 'retencoes']), 'money'],
-          ['Valor líquido', firstValue(source, ['net_amount', 'valor_liquido', 'net']), 'money'],
+          ['Valor bruto', firstValue(source, ['gross_amount_cents', 'gross_amount', 'valor_bruto', 'gross']), Number.isSafeInteger(source.gross_amount_cents) ? 'cents' : 'money'],
+          ['Retenções', firstValue(source, ['federal_total_cents', 'withholding_amount', 'retentions', 'retencoes']), Number.isSafeInteger(source.federal_total_cents) ? 'cents' : 'money'],
+          ['Valor líquido', firstValue(source, ['net_amount_cents', 'net_amount', 'valor_liquido', 'net']), Number.isSafeInteger(source.net_amount_cents) ? 'cents' : 'money'],
         ];
       }
 
@@ -934,10 +986,9 @@
         const metrics = byId('simulation-metrics');
         const blocksNode = byId('simulation-blocks');
         const allocationsNode = byId('simulation-allocations');
-        const result = firstValue(payload, ['calculation', 'result', 'preview', 'data'], payload);
-        const source = result && typeof result === 'object' ? result : {};
+        const source = responseData(payload);
         section.hidden = false;
-        summary.textContent = formatText(firstValue(payload, ['message', 'summary', 'status_message'], firstValue(source, ['message', 'summary'], 'Prévia recebida do servidor.')));
+        summary.textContent = formatText(firstValue(source, ['message', 'summary'], firstValue(payload, ['message', 'summary', 'status_message'], 'Prévia recebida do servidor.')));
         metrics.replaceChildren();
         simulationMetrics(payload).forEach(([label, value, kind]) => {
           const metric = document.createElement('div');
@@ -945,7 +996,7 @@
           const term = document.createElement('dt');
           term.textContent = label;
           const definition = document.createElement('dd');
-          definition.textContent = kind === 'money' ? formatMoney(value) : formatText(value);
+          definition.textContent = kind === 'cents' ? formatMoney(Number.isSafeInteger(value) ? value / 100 : null) : kind === 'money' ? formatMoney(value) : formatText(value);
           metric.append(term, definition);
           metrics.append(metric);
         });
@@ -964,7 +1015,7 @@
           allocations.forEach((allocation) => {
             const row = document.createElement('tr');
             const values = typeof allocation === 'object'
-              ? [firstValue(allocation, ['name', 'label', 'tax'], 'Não informado'), firstValue(allocation, ['rate', 'percentage', 'aliquota'], '—'), firstValue(allocation, ['amount', 'value', 'valor'], '—')]
+              ? [firstValue(allocation, ['name', 'label', 'tax'], 'Não informado'), Number.isSafeInteger(allocation.rate_bps) ? formatBasisPoints(allocation.rate_bps) : firstValue(allocation, ['rate', 'percentage', 'aliquota'], '—'), Number.isSafeInteger(allocation.amount_cents) ? allocation.amount_cents / 100 : firstValue(allocation, ['amount', 'value', 'valor'], '—')]
               : [allocation, '—', '—'];
             values.forEach((value, index) => {
               const cell = document.createElement('td');
@@ -1012,12 +1063,12 @@
           const payload = await requestJson('/v1/simulations', {
             method: 'POST',
             json: {
-              profile_id: fields.profile,
-              gross_amount: fields.grossAmount,
+              profile_code: fields.profile,
+              gross_amount_cents: fields.grossAmountCents,
               competence: fields.competence,
               description: fields.description,
               service_date: fields.serviceDate,
-              purchase_order: fields.purchaseOrder,
+              ...(fields.purchaseOrder ? { purchase_order: fields.purchaseOrder } : {}),
             },
           });
           renderSimulation(payload);
