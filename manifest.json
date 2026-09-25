@@ -1,8 +1,8 @@
 {
   "manifestVersion": "2.0.0",
-  "lastUpdated": "2026-08-01T18:35:51Z",
-  "totalAssets": 48,
-  "totalProducts": 29,
+  "lastUpdated": "2026-09-25T23:10:18Z",
+  "totalAssets": 65,
+  "totalProducts": 30,
   "knowledgeAssets": [
     {
       "id": "llms",
@@ -53,7 +53,7 @@
       "priority": 4,
       "title": "Logo Usage Guide",
       "path": "/_infra/assets/logo-usage-guide.html",
-      "sha256": "19b7524b84f50210f3a415794f5dee97d7c3cfb7d9f3c30a0f25ea0dc6366ac2",
+      "sha256": "66a7781f5400f69cf30454b78f49c87a774e346850b321f5bba68f60fd4bcf63",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -130,7 +130,7 @@
       "priority": 8,
       "title": "Playbook Hub",
       "path": "/_infra/csv-core/playbook-hub.html",
-      "sha256": "729da09d4ae9a3426decf7c46616d3ee1b8eb563deee2141c497229bb4f11990",
+      "sha256": "10083e413fd570325678933a01f818198b4c750eda0bbea3aae32648c8343253",
       "description": "Documento fundamental do ecossistema Grupo CSV.",
       "tags": [
         "core"
@@ -218,7 +218,7 @@
       "priority": 9,
       "title": "Medvalor",
       "path": "/_infra/assets/medvalor.html",
-      "sha256": "e313d7c0992c888cac06e7216fd9c143825bdd9978f3bf92eed8b46f5595c656",
+      "sha256": "217e6d9c7785b21a3a583cb2ff64d1e8fad63035f088738c86c779d919f0a46b",
       "description": "Catálogo ou guia de assets visuais do ecossistema.",
       "tags": [
         "assets"
@@ -251,7 +251,7 @@
       "priority": 10,
       "title": "Footer",
       "path": "/_infra/standards/footer.html",
-      "sha256": "b902d13847ec0587083685358207b1b8eb611484b505e090b8acece8d6e4c8dd",
+      "sha256": "177825a53fe7e1308aa5eedeb818d8a28f583fdea98b83647a474dfb6dfe6867",
       "description": "Padrão ou diretriz de compliance e governança.",
       "tags": [
         "standards"
@@ -262,7 +262,7 @@
       "priority": 11,
       "title": "Readme",
       "path": "/_infra/README.html",
-      "sha256": "1c33ca101cd0012d635872f0f5dca31aed36b56433839d1e8605f8b955c244e8",
+      "sha256": "fdc4c19a8f3e97e026bd1827f6bb6d99470ce2c9e1cd6e61144d0a1e19504086",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -273,7 +273,7 @@
       "priority": 11,
       "title": "Ai Search",
       "path": "/_infra/ai-search.html",
-      "sha256": "ca0fe6c85668e0bb9119bf135e79133b05b22ba1713931ef6796cb18749dc13a",
+      "sha256": "34894d04e1b9c21e948a952b09284415b7ed2bcd6dc7662efbaadfe4fedab086",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -285,6 +285,17 @@
       "title": "Index",
       "path": "/_infra/archive/index.html",
       "sha256": "dcd9e74f91500c930df9606e750e785d991c822513efc1bbe8fa14a28a8d22f4",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "central-documentos",
+      "priority": 11,
+      "title": "Central Documentos",
+      "path": "/_infra/central-documentos.html",
+      "sha256": "8371ca7bc7461b08f7d539a696d5d9db50475746dbb6cd2dcb5205dabee15935",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -306,7 +317,7 @@
       "priority": 11,
       "title": "Compass",
       "path": "/_infra/ferramentas/compass.html",
-      "sha256": "5eadfcfb398cfeac33a786303c982f1d05ee7a45a73cf4e0496eb0d45da6fb37",
+      "sha256": "77bff1301da44515cf7169e551071ce90ce5e84fc61da9d41c6342c09e503ccd",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -335,11 +346,22 @@
       ]
     },
     {
+      "id": "ferramentas-panta-v2",
+      "priority": 11,
+      "title": "Panta V2",
+      "path": "/_infra/ferramentas/panta-v2.html",
+      "sha256": "ce9e2e42602ea56c2e36da6429c71b0b1d946b2eb2efd43beec95a14d0102e9c",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
       "id": "ferramentas-panta",
       "priority": 11,
       "title": "Panta",
       "path": "/_infra/ferramentas/panta.html",
-      "sha256": "a1a1a80f9e42c6eec3933200441b17968cf86754b2dcc0e40e8d0e868c7a0d56",
+      "sha256": "b3e5980c1a66f25370759f6b738934ef2c7f6decbbeb81760b1427962edaece2",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -405,7 +427,40 @@
       "priority": 11,
       "title": "Index",
       "path": "/_infra/index.html",
-      "sha256": "479d6191321e48b9d271f192745ec2e1679253ac9f9e037b435955ee3b10fab3",
+      "sha256": "bcf4882d7000612be35559ad21e1bcabb94e35135fcc58f7dcb21b445e86f391",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "manuais-central-documentos",
+      "priority": 11,
+      "title": "Central Documentos",
+      "path": "/_infra/manuais/central-documentos.html",
+      "sha256": "51faae81538fb217e28c8bf82137b485388648de157bfb12cb8a726a84a62495",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "manuais-nfse-axiacare",
+      "priority": 11,
+      "title": "Nfse Axiacare",
+      "path": "/_infra/manuais/nfse-axiacare.html",
+      "sha256": "7570e9cda67eed1215ab4f057168692dc37b1f374f10bf1d79aeca8df6610cbc",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "manuais-panta-v2",
+      "priority": 11,
+      "title": "Panta V2",
+      "path": "/_infra/manuais/panta-v2.html",
+      "sha256": "3809dc1a093b6589c232145f4ea741f336626c17afe9164e2e0333c2fec067ad",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -489,11 +544,143 @@
       ]
     },
     {
+      "id": "projetos-compass-v2-baseline",
+      "priority": 11,
+      "title": "Baseline",
+      "path": "/_infra/projetos/compass-v2/baseline.html",
+      "sha256": "6774dd0eb9560c9429d2615fdc49f3f68f11bdf63af76ab0e9b6a6850664988d",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-comentarios-do-usuario",
+      "priority": 11,
+      "title": "Comentarios Do Usuario",
+      "path": "/_infra/projetos/compass-v2/comentarios-do-usuario.html",
+      "sha256": "9c34ae8f57288b545d81b34ad09af13beb7e294b4bb4f4d3500e10e990d615c5",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-plano-transicao",
+      "priority": 11,
+      "title": "Plano Transicao",
+      "path": "/_infra/projetos/compass-v2/plano-transicao.html",
+      "sha256": "cc41eb1cf9368c08cbcc46abc2d53e9580bcc5ca77f99263482aaa110787f71d",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-prd",
+      "priority": 11,
+      "title": "Prd",
+      "path": "/_infra/projetos/compass-v2/prd.html",
+      "sha256": "765d236ae06a8d07369bacdc5849e4e61f3db832fc81085c5af82b6bd87c4a89",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m4-edicao-008",
+      "priority": 11,
+      "title": "Qa M4 Edicao 008",
+      "path": "/_infra/projetos/compass-v2/qa-m4-edicao-008.html",
+      "sha256": "b65ff906f16e1ad95475c4487f306780bfbbbdeedd832b144979d143238ba60c",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m5-backend-admin",
+      "priority": 11,
+      "title": "Qa M5 Backend Admin",
+      "path": "/_infra/projetos/compass-v2/qa-m5-backend-admin.html",
+      "sha256": "06f4ca43550ca7fac909023c683d71740bbb11f8c53470c59eec135996f1fd57",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m6-edicao-007",
+      "priority": 11,
+      "title": "Qa M6 Edicao 007",
+      "path": "/_infra/projetos/compass-v2/qa-m6-edicao-007.html",
+      "sha256": "23d7789363fcfdda27052a4e07b9f8bd48eed0632d10c95bd43b20dd81f9f45d",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m7-edicoes-005-006",
+      "priority": 11,
+      "title": "Qa M7 Edicoes 005 006",
+      "path": "/_infra/projetos/compass-v2/qa-m7-edicoes-005-006.html",
+      "sha256": "6d39e12b9b4e6aceef937aedc7be8070f0700880cdc599f6cb38fed1c8f837dd",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m8-edicoes-001-004",
+      "priority": 11,
+      "title": "Qa M8 Edicoes 001 004",
+      "path": "/_infra/projetos/compass-v2/qa-m8-edicoes-001-004.html",
+      "sha256": "3e75d05260d7a61a4d737ad9c88686c90afd5ce871c386473f68d45754090540",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m9-pre-release",
+      "priority": 11,
+      "title": "Qa M9 Pre Release",
+      "path": "/_infra/projetos/compass-v2/qa-m9-pre-release.html",
+      "sha256": "49ea08f61551e70a50c060966d4514a2326876d85c8b24b54c6acfbec2bbe9bc",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-qa-m9-release-production",
+      "priority": 11,
+      "title": "Qa M9 Release Production",
+      "path": "/_infra/projetos/compass-v2/qa-m9-release-production.html",
+      "sha256": "0796a4630397a7c27d7c16855e7a71812b700813470ce498f4dfb68fac2ea4de",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
+      "id": "projetos-compass-v2-runbook-release-rollback",
+      "priority": 11,
+      "title": "Runbook Release Rollback",
+      "path": "/_infra/projetos/compass-v2/runbook-release-rollback.html",
+      "sha256": "75e48b0709ba72f4817e17de64f1fd44cf453874ba94c9d7f8702cca9caa394c",
+      "description": "Documento de infraestrutura cognitiva do Hub.",
+      "tags": [
+        "infra"
+      ]
+    },
+    {
       "id": "public-pages",
       "priority": 11,
       "title": "Public Pages",
       "path": "/_infra/public-pages.html",
-      "sha256": "b2dc7b00cdf1c87ad2b5ffb6b1f08a2f5da171b7e8860292f7c7ab26e8ee1333",
+      "sha256": "685ea5d2297e4907996d1f782d35abccb399dd23667d697f2c71f7106c7dee63",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -504,7 +691,7 @@
       "priority": 11,
       "title": "Technical Architecture",
       "path": "/_infra/technical-architecture.html",
-      "sha256": "65a5857322c35d6e5fb4f788b29d2f7a33808aee88dcbffc0850bdcc695f9239",
+      "sha256": "deca76d7a3f981316f7f3dd9ec4ccc74dbb37c8082b126b3fc3534df7e60dd71",
       "description": "Documento de infraestrutura cognitiva do Hub.",
       "tags": [
         "infra"
@@ -538,7 +725,7 @@
       "id": "2im-index",
       "title": "2iM Inteligência Médica - Hub de Ferramentas",
       "path": "/2im/index.html",
-      "sha256": "5e21b2ea77f6e279b91186f1cc3f70b442effafc8bc7a62ff3ac0e61cb929b9d",
+      "sha256": "3d6072f727bad4464cee39ddd03d25255f57b5d62db5c64db2e0468460088a7e",
       "category": "static",
       "entity": "2iM Inteligência Médica",
       "description": "Página estática com conteúdo informativo."
@@ -547,7 +734,7 @@
       "id": "admin-index",
       "title": "Painel Administrativo",
       "path": "/admin/index.html",
-      "sha256": "665d65db4e035510e5c122fc66dd1ee7f39d33dadb8421a71a3b84c906f21e49",
+      "sha256": "ee3bbb81359d5b7047c6bc504ed29d8ca4872b1e1efecdeba47fd9de907738c5",
       "category": "tool",
       "entity": "Grupo CSV",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -556,19 +743,19 @@
       "id": "axia-index",
       "title": "AxiaCare (landing)",
       "path": "/axia/index.html",
-      "sha256": "a0c70f9ac779209d2675d51ed50c013334dfcad047e9ca2b136dcf6e85ac2a23",
+      "sha256": "420356b4e4a25cbbac32a2480f1010cfaaf3303d27b72b492909fb2c08899d13",
       "category": "static",
       "entity": "AxiaCare",
       "description": "Página estática com conteúdo informativo."
     },
     {
       "id": "axia-nota-fiscal",
-      "title": "Gerador de Nota Fiscal",
+      "title": "NFS-e AxiaCare",
       "path": "/axia/nota-fiscal.html",
-      "sha256": "3e345046a14a458090b6c161ce4e615a8040580e903741308a7defd15f0b7ac5",
-      "category": "tool",
+      "sha256": "3a266a3436bd036948c7586dda5ca623c1c1b4e8b3679fe67c813daddd5f0c1a",
+      "category": "webapp",
       "entity": "AxiaCare",
-      "description": "Ferramenta focada em tarefa específica com escopo limitado."
+      "description": "Aplicação web completa com autenticação, persistência e lógica de negócio."
     },
     {
       "id": "axia-propostas",
@@ -655,7 +842,7 @@
       "id": "p-painel-tea-index",
       "title": "Painel Terapias Especiais",
       "path": "/p/painel-tea/index.html",
-      "sha256": "df1f1e1275a9714be3964ef51c5ed4302f7bceb9889589493ce3c3a310676461",
+      "sha256": "0bc0ebb602a4a88949220bbdc654fc4fcef0133d15cfe547015b522a689177ca",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -682,7 +869,7 @@
       "id": "unihealth-calc-plantao",
       "title": "Calculadora de Plantão",
       "path": "/unihealth/calc-plantao.html",
-      "sha256": "7f7a760144c2bc0520d538d996474bb119ee7c7d70fbc49b32868452c8f28e9f",
+      "sha256": "9e3b75fe01cb5b3ccecb24f2ab0f7195ddc0b2d3cf387bad08b3c644b8dcec52",
       "category": "tool",
       "entity": "Unihealth",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -700,7 +887,7 @@
       "id": "unihealth-opme",
       "title": "OPME",
       "path": "/unihealth/opme.html",
-      "sha256": "0680169513162535c887d86f2e4c3d1959cbbd559acd72e71259f582b4b1a03e",
+      "sha256": "25537ceee5478c277f68c6d024fa2e025b6aa3424bc2fba47a354825a8eee0eb",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -709,7 +896,7 @@
       "id": "unihealth-repasse",
       "title": "Repasse",
       "path": "/unihealth/repasse.html",
-      "sha256": "f8f0a22627bfed4645ac8a979f197cb00061d8ebbf7ad5bab57c64ad7f20197e",
+      "sha256": "0ca7da524bc888331fb498fdf875a87e0b3b83cd5c2e24d4c8862eeb5dca374b",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -718,7 +905,7 @@
       "id": "unihealth-retornopa",
       "title": "Retorno PA",
       "path": "/unihealth/retornopa.html",
-      "sha256": "8f7656804d29f54c26072c3300b9cd04da18a4da9e92968c836cdb180d81f4a1",
+      "sha256": "aecd57b3643f7b7d93f6446caa48fcde4e6dedc7ec2d69c44bc85e1c917b88ba",
       "category": "dashboard",
       "entity": "Unihealth",
       "description": "Painel de visualização e análise de dados."
@@ -745,7 +932,16 @@
       "id": "unimed-drg",
       "title": "DRG Brasil Analytics",
       "path": "/unimed/drg.html",
-      "sha256": "26aba564a30b123b61539d6facd97f088c1f5baba54943540158545188572f53",
+      "sha256": "9e6691c0e3f4165f690a63e16978704bf05ffdc082b1f01ec5a0a5ca816225c5",
+      "category": "tool",
+      "entity": "Unimed GV",
+      "description": "Ferramenta focada em tarefa específica com escopo limitado."
+    },
+    {
+      "id": "unimed-esc-tea-100",
+      "title": "ESC-TEA-100",
+      "path": "/unimed/esc-tea-100.html",
+      "sha256": "247d946dff8e29e8228235306389578be29d34298c4b2c6eda5148f9e461e6d0",
       "category": "tool",
       "entity": "Unimed GV",
       "description": "Ferramenta focada em tarefa específica com escopo limitado."
@@ -754,7 +950,7 @@
       "id": "unimed-gce",
       "title": "Painel GCE | Gerenciamento de Casos Especiais 2025",
       "path": "/unimed/gce.html",
-      "sha256": "4a6b8a0fb08ba5a59e3110c25cb28d30a9799f3b6860235a3599ff28d92cfcce",
+      "sha256": "a267f5ba934a6402d25d124c9bcf34054735ba1a572c3f82fc7702b904c58c24",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -772,7 +968,7 @@
       "id": "unimed-ped-amb",
       "title": "Pediatria Ambulatorial - Centro de Atendimento Integrado",
       "path": "/unimed/ped-amb.html",
-      "sha256": "67954688d4a740b1e5f526cdf21cdeac6fc4fed427a510abafaccbd000404333",
+      "sha256": "c0e8a8af8899af18dc6f90c2554cb2fde74ab95ef688aea50222144d41b2406c",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -781,7 +977,7 @@
       "id": "unimed-tea",
       "title": "Painel Terapias Especiais",
       "path": "/unimed/tea.html",
-      "sha256": "ea5455bb3fa4db8d2e9861d818d4ac0fc4474cc2ed167bc44267ef645b18f684",
+      "sha256": "20297cb94d747d16dd15aebf81d7241ac5bf9924bd40d13bf48b617606b9ed54",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."
@@ -790,7 +986,7 @@
       "id": "unimed-vivapleno",
       "title": "#VivaPleno – Vertical de Cuidados ao Idoso",
       "path": "/unimed/vivapleno.html",
-      "sha256": "15e20bfa2d2d9fa5b50a8c6058c3caf24dc7bff3fa065c88f56c01a9948758c2",
+      "sha256": "14d77ed0c739f9539529c8cfca3c385ab97841ef2225ba60ffcdb5edfbb0d292",
       "category": "dashboard",
       "entity": "Unimed GV",
       "description": "Painel de visualização e análise de dados."

@@ -7,7 +7,7 @@
   <meta name="description" content="NFS-e AxiaCare — homologação segura, consulta e prévia.">
   <meta name="hub-category" content="webapp">
   <meta name="hub-entity" content="AxiaCare">
-  <title>NFS-e v3 | AxiaCare</title>
+  <title>NFS-e AxiaCare | AxiaCare</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicons/axiacare/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/axiacare/apple-touch-icon.webp">
   <style>
@@ -296,6 +296,8 @@
     .content-stack .table-wrap { margin-top: 8px; }
     .content-stack .table-wrap table { min-width: 620px; }
     .source-note { color: var(--muted) !important; font-size: .78rem !important; }
+    .status-list { margin: 12px 0 0; padding-left: 20px; color: #34414a; font-size: .9rem; }
+    .status-list li + li { margin-top: 7px; }
 
     @media (max-width: 760px) {
       .top-bar { min-height: 60px; padding-inline: 14px; }
@@ -342,7 +344,7 @@
     <button class="tab" id="tab-button-historico" type="button" role="tab" aria-selected="false" aria-controls="tab-historico" data-tab-target="historico" tabindex="-1">Histórico</button>
     <button class="tab" id="tab-button-perfis" type="button" role="tab" aria-selected="false" aria-controls="tab-perfis" data-tab-target="perfis" tabindex="-1">Perfis</button>
     <button class="tab" id="tab-button-adequacao" type="button" role="tab" aria-selected="false" aria-controls="tab-adequacao" data-tab-target="adequacao" tabindex="-1">Adequação</button>
-    <button class="tab" id="tab-button-instrucoes" type="button" role="tab" aria-selected="false" aria-controls="tab-instrucoes" data-tab-target="instrucoes" tabindex="-1">Instruções</button>
+    <button class="tab" id="tab-button-manual" type="button" role="tab" aria-selected="false" aria-controls="tab-manual" data-tab-target="manual" tabindex="-1">Manual</button>
   </nav>
 
   <main id="nfse-main" tabindex="-1">
@@ -527,36 +529,69 @@
       </article>
     </section>
 
-    <section class="panel" id="tab-instrucoes" role="tabpanel" aria-labelledby="tab-button-instrucoes" tabindex="-1" hidden>
+    <section class="panel" id="tab-manual" role="tabpanel" aria-labelledby="tab-button-manual" tabindex="-1" hidden>
       <div class="panel-head">
         <div>
-          <p class="section-kicker">Uso seguro</p>
-          <h2>Instruções</h2>
-          <p>Fluxo de consulta e prévia em ambiente de homologação.</p>
+          <p class="section-kicker">Manual</p>
+          <h2>Manual da NFS-e AxiaCare</h2>
+          <p>Operação segura dos perfis fiscais AbbVie e 2iM no ambiente de homologação.</p>
         </div>
       </div>
-      <article class="card content-stack">
-        <h3>Fluxo seguro</h3>
-        <ol>
-          <li>Entre no Hub e aguarde a validação da sua sessão.</li>
-          <li>Escolha o perfil e confira os dados da prévia, incluindo a Ordem de Compra quando exigida.</li>
-          <li>Solicite a prévia. O resultado e eventuais bloqueios são devolvidos pelo servidor.</li>
-          <li>Use o Histórico somente para consulta e obtenção autenticada de PDFs disponíveis.</li>
-        </ol>
+      <article class="card warning-card">
+        <h3>Ambiente de homologação</h3>
+        <p class="card-copy"><strong>A ferramenta não emite, não cancela e não altera NFS-e.</strong> Os perfis permanecem bloqueados para emissão até a conclusão dos gates fiscais e operacionais.</p>
+      </article>
 
-        <h3>Gates de proteção</h3>
-        <ul>
-          <li>Uma sessão válida é necessária para consultar perfis, documentos e prévias.</li>
-          <li>O perfil pode exigir campos adicionais; para AbbVie, a Ordem de Compra é obrigatória.</li>
-          <li>Bloqueios retornados na prévia impedem o avanço do fluxo.</li>
-          <li>Este ambiente não disponibiliza emissão ou cancelamento.</li>
-        </ul>
+      <div class="grid" style="margin-top:16px;">
+        <article class="card span-6">
+          <h3>1. Acesso</h3>
+          <ul class="status-list">
+            <li>Entre no portal AxiaCare com uma sessão individual ativa.</li>
+            <li>Sessões compartilhadas não são aceitas pela API fiscal.</li>
+            <li>Os perfis e as prévias são carregados somente após a validação da sessão.</li>
+          </ul>
+        </article>
+        <article class="card span-6">
+          <h3>2. Simulação</h3>
+          <ol class="status-list">
+            <li>Selecione o perfil fiscal.</li>
+            <li>Informe o valor bruto, a competência, a data do serviço e a descrição.</li>
+            <li>A Ordem de Compra é obrigatória para o perfil AbbVie e não é exigida para o perfil 2iM.</li>
+            <li>Selecione <strong>Calcular prévia</strong> e confira todos os valores.</li>
+          </ol>
+        </article>
+        <article class="card span-6">
+          <h3>3. Regras dos Perfis</h3>
+          <ul class="status-list">
+            <li><strong>AbbVie:</strong> IRRF de 1,5%; contribuições sociais de 4,65%; retenções federais totais de 6,15%; Ordem de Compra obrigatória.</li>
+            <li><strong>2iM:</strong> IRRF de 1,5%; contribuições sociais de 4,65%; retenções federais totais de 6,15%; Ordem de Compra não exigida.</li>
+            <li>O ISS é destacado na prévia e não é subtraído do valor líquido calculado.</li>
+            <li>Os componentes são arredondados individualmente pelo critério HALF_UP.</li>
+          </ul>
+        </article>
+        <article class="card span-6">
+          <h3>4. Outras Abas</h3>
+          <ul class="status-list">
+            <li><strong>Histórico:</strong> consulta documentos privados disponíveis para o papel autorizado.</li>
+            <li><strong>Perfis:</strong> apresenta versão, alíquotas, estado e razões de bloqueio.</li>
+            <li><strong>Adequação:</strong> reúne o roteiro de preparação para IBS/CBS; não altera a emissão.</li>
+          </ul>
+        </article>
+      </div>
 
-        <h3>Referência AbbVie</h3>
-        <p>A referência visual pré-preenchida representa um documento já emitido manualmente. Revise os dados antes de solicitar qualquer prévia e não a use como comando de emissão.</p>
+      <article class="card info-card">
+        <h3>Conferência da Prévia</h3>
+        <p class="card-copy">Compare o tomador, o valor bruto, a competência, a data do serviço, a descrição, a Ordem de Compra quando aplicável, cada retenção federal e o valor líquido. A prévia é informativa e não cria solicitação nem transmite dados ao Sistema Nacional NFS-e.</p>
+      </article>
 
-        <h3>Suporte</h3>
-        <p>Em caso de acesso negado, sessão expirada, bloqueio fiscal ou divergência de perfil, registre a ocorrência com a equipe responsável pela operação fiscal.</p>
+      <article class="card warning-card">
+        <h3>Regra Operacional</h3>
+        <p class="card-copy">Não tente contornar o bloqueio operacional. A futura emissão deverá usar um perfil contábil aprovado, solicitação auditável, aprovação aplicável, chave de idempotência, transmissão controlada e reconciliação oficial.</p>
+      </article>
+
+      <article class="card">
+        <h3>Documentação Técnica</h3>
+        <p class="card-copy">Consulte o <a href="/_infra/manuais/nfse-axiacare" target="_self">manual técnico-operacional da NFS-e</a> para regras de cálculo, arquitetura, segurança, mensagens de erro e referências oficiais.</p>
       </article>
     </section>
   </main>

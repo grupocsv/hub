@@ -28,8 +28,8 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | Categoria | Propósito | Back-end | Exemplos no Hub |
 | :--- | :--- | :--- | :--- |
 | **Página Estática** | Informar | Não | `compliance/*`, `founder/`, `thera/`, `medvalor/` |
-| **Ferramenta (Tool)** | Executar tarefa específica | Opcional | `axia/nota-fiscal.html`, `axia/reembolso.html`, `unihealth/calc-plantao.html` |
-| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `cmm.grupocsv.com`, `themis.grupocsv.com` |
+| **Ferramenta (Tool)** | Executar tarefa específica | Opcional | `axia/reembolso.html`, `unihealth/calc-plantao.html` |
+| **WebApp** | Solução de negócio completa | Sim | `p/tea-dataset/`, `axia/propostas.html`, `axia/nota-fiscal.html`, `cmm.grupocsv.com`, `themis.grupocsv.com` |
 | **Painel BI** | Visualizar e analisar dados | Sim | `unimed/onco.html`, `unimed/painel-onco-vo.html` |
 | **Portal** | Ponto de acesso unificado | Sim | `hub.grupocsv.com` (visão futura) |
 
@@ -39,7 +39,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | :--- | :--- | :--- | :--- | :--- |
 | Data Set TEA | `p/tea-dataset/` | **WebApp** | ICDS | Ativo |
 | Gerador de Propostas | `axia/propostas.html` | **WebApp** | AxiaCare | Ativo |
-| Gerador de Nota Fiscal | `axia/nota-fiscal.html` | **Ferramenta** | AxiaCare | Ativo |
+| NFS-e AxiaCare | `axia/nota-fiscal.html` | **WebApp** | AxiaCare | Homologação |
 | Solicitação de Reembolso | `axia/reembolso.html` | **Ferramenta** | AxiaCare | Ativo |
 | Calculadora de Plantão | `unihealth/calc-plantao.html` | **Ferramenta** | Unihealth | Ativo |
 | Painel de Oncologia | `unimed/onco.html` | **Painel BI** | Unimed GV | Ativo |

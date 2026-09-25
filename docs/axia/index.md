@@ -232,9 +232,9 @@ head:
         <a href="/axia/reembolso.html" target="_self" style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
       </div>
       <div class="operation-card">
-        <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Ativo</span>
-        <h4 style="margin:0; font-size:0.95rem; color:var(--operation-title); border:none; line-height:1.4;">Solicitação de Emissão de NF</h4>
-        <p style="margin:0; font-size:0.84rem; color:var(--operation-description); line-height:1.5; flex-grow:1;">Solicitação de emissão de nota fiscal com gestão de status e aprovações.</p>
+        <span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:3px 10px; border-radius:20px; width:fit-content; background:#d1fae5; color:#065f46;">Homologação</span>
+        <h4 style="margin:0; font-size:0.95rem; color:var(--operation-title); border:none; line-height:1.4;">NFS-e AxiaCare</h4>
+        <p style="margin:0; font-size:0.84rem; color:var(--operation-description); line-height:1.5; flex-grow:1;">Perfis fiscais, simulação de retenções e documentos privados; emissão e cancelamento desabilitados.</p>
         <a href="/axia/nota-fiscal.html" target="_self" style="display:inline-block; padding:10px 0; background:linear-gradient(135deg, #196396, #2DBF7F); color:#fff; border-radius:10px; font-size:0.88rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s;">Acessar</a>
       </div>
     </div>

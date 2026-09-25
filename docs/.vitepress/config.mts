@@ -159,6 +159,15 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Manuais',
+          collapsed: false,
+          items: [
+            { text: 'Central de Documentos', link: '/_infra/manuais/central-documentos' },
+            { text: 'Panta v2', link: '/_infra/manuais/panta-v2' },
+            { text: 'NFS-e AxiaCare', link: '/_infra/manuais/nfse-axiacare' },
+          ]
+        },
+        {
           text: 'Ferramentas',
           collapsed: false,
           items: [

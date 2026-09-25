@@ -35,7 +35,7 @@ test('NFS-e v3: remove credenciais, comandos e superfícies legadas', () => {
 
 test('NFS-e v3: explicita a homologação e mantém as cinco abas de leitura', () => {
   assert.match(source, /Homologação segura — emissão e cancelamento desabilitados/);
-  for (const label of ['Simular', 'Histórico', 'Perfis', 'Adequação', 'Instruções']) {
+  for (const label of ['Simular', 'Histórico', 'Perfis', 'Adequação', 'Manual']) {
     assert.match(source, new RegExp(`>${label}<`));
   }
 });

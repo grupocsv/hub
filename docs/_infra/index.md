@@ -187,7 +187,7 @@ title: Infraestrutura — Índice Canônico
       Consolida os componentes verificados e aponta para as páginas técnicas que registram contratos,
       estado de entrega e fontes primárias. Não substitui a verificação do runtime antes de uma operação.
 </p>
-<p class="version" id="page-version">Atualizada em 16 de setembro de 2026 — API Panta v2 validada, busca habilitada nesta versão do Hub</p>
+<p class="version" id="page-version">Atualizada em 25 de setembro de 2026 — NFS-e AxiaCare v3 em homologação segura, com mutações fiscais desabilitadas</p>
 </div>
 
 <div class="copy-bar">
@@ -214,6 +214,7 @@ Copiar página
 <tr><td><strong>Panta™</strong></td><td>Omnisearch federado (busca unificada)</td><td><a href="https://panta.grupocsv.com">panta.grupocsv.com</a></td><td>VPS-CSV (FastAPI + Cloudflare Tunnel)</td></tr>
 <tr><td><strong>Panta v2 documental</strong></td><td>Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub</td><td><a href="/_infra/ferramentas/panta-v2">Guia da pesquisa documental</a></td><td>VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents</td></tr>
 <tr><td><strong>Central de Documentos</strong></td><td>Catálogo documental privado e multi-tenant</td><td><a href="https://hub.grupocsv.com/documentos/?portal=grupo-csv">hub.grupocsv.com/documentos/</a></td><td>GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue</td></tr>
+<tr><td><strong>NFS-e AxiaCare</strong></td><td>Perfis fiscais, simulação canônica e documentos privados em homologação segura</td><td><a href="https://hub.grupocsv.com/axia/nota-fiscal.html">hub.grupocsv.com/axia/nota-fiscal.html</a></td><td>GitHub Pages + Worker nfse-api + D1 csv-hub + R2 privado + emissor local bloqueado</td></tr>
 <tr><td><strong>Discovery™</strong></td><td>Diagnóstico estratégico para OPSS</td><td><a href="https://discovery.axcare.app">discovery.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 </tbody>
 </table>
@@ -228,9 +229,10 @@ Copiar página
 <a class="resource-btn" href="/_infra/ferramentas/panta">Panta™</a>
 <a class="resource-btn" href="/_infra/ferramentas/panta-v2">Panta v2 documental</a>
 <a class="resource-btn dark-btn" href="/_infra/central-documentos">Central de Documentos</a>
+<a class="resource-btn axia" href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
-<p class="section-desc">Manuais ilustrados: <a href="/_infra/manuais/central-documentos">usar a Central de Documentos</a> e <a href="/_infra/manuais/panta-v2">entender e usar o Panta v2</a>. A Central administra arquivos; a v2 pesquisa o conteúdo autorizado. O estado de ativação é descrito abaixo e nas páginas técnicas.</p>
+<p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a> e <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
 </div>
 
 <!-- 2. BACKEND SERVERLESS -->
@@ -312,6 +314,7 @@ Copiar página
 <tr><td><code>drg-data-proxy</code></td><td>drg-data-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de dados DRG Brasil</td></tr>
 <tr><td><code>drg-ai-proxy</code></td><td>drg-ai-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de IA para DRG</td></tr>
 <tr><td><code>spectra-api</code></td><td>spectra-api.guilherme-thom.workers.dev</td><td>D1: spectra-db, KV: spectra-sessions, KV: spectra-config, R2: spectra-assets, R2: spectra-knowledge</td><td>API Principal Spectra</td></tr>
+<tr><td><code>nfse-api</code></td><td>api.grupocsv.com/nfse/*</td><td>Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs</td><td>Perfis, simulações e documentos privados da NFS-e AxiaCare; mutações fiscais desabilitadas</td></tr>
 </tbody>
 </table>
 
@@ -328,7 +331,7 @@ Copiar página
 <table class="infra-table">
 <thead><tr><th>Banco</th><th>ID</th><th>Tamanho</th><th>Tabelas</th><th>Uso</th></tr></thead>
 <tbody>
-<tr><td><code>csv-hub</code></td><td><code>6fac03eb-4c71-40d5-8edf-7fb0f2e27d37</code></td><td>1.2 MB</td><td>21</td><td>Hub principal (auth, logs, NF, TEA, propostas, e-mail)</td></tr>
+<tr><td><code>csv-hub</code></td><td><code>6fac03eb-4c71-40d5-8edf-7fb0f2e27d37</code></td><td>≈ 0,9 MB</td><td>48</td><td>Hub principal, incluindo autenticação, logs e control plane da NFS-e v3</td></tr>
 <tr><td><code>whatsapp-brain</code></td><td><code>db907899-3b4d-43b3-b2d4-f429bad2a88a</code></td><td>98 MB</td><td>4</td><td>Cérebro do WhatsApp (Extensio)</td></tr>
 <tr><td><code>ccrt</code></td><td><code>8adfc2da-379f-4983-a19c-4d089b5e0fdc</code></td><td>52 KB</td><td>-</td><td>CRT</td></tr>
 <tr><td><code>tnumm-control</code></td><td><code>a42b50a8-0665-43f6-a243-f77c01e7fe2c</code></td><td>—</td><td>—</td><td>Controle operacional, sessões e auditoria do CMM</td></tr>
@@ -344,7 +347,7 @@ Copiar página
 </tbody>
 </table>
 
-<h3 class="subsection-title">Tabelas do csv-hub (21)</h3>
+<h3 class="subsection-title">Tabelas Fiscais do csv-hub</h3>
 <table class="infra-table">
 <thead><tr><th>Tabela</th><th>Descrição</th></tr></thead>
 <tbody>
@@ -358,6 +361,12 @@ Copiar página
 <tr><td><code>nf_servicos</code></td><td>Serviços prestados para NF</td></tr>
 <tr><td><code>nf_solicitacoes</code></td><td>Solicitações de NF emitidas</td></tr>
 <tr><td><code>nf_dados_bancarios</code></td><td>Dados bancários</td></tr>
+<tr><td><code>nfse_profiles</code> e <code>nfse_profile_versions</code></td><td>Perfis fiscais versionados e suas regras de cálculo</td></tr>
+<tr><td><code>nfse_roles</code></td><td>Papéis fiscais por identidade individual</td></tr>
+<tr><td><code>nfse_requests</code>, <code>nfse_request_snapshots</code> e <code>nfse_approvals</code></td><td>Solicitações, snapshots imutáveis e aprovações do fluxo futuro</td></tr>
+<tr><td><code>nfse_operations</code> e <code>nfse_idempotency</code></td><td>Operações e prevenção de duplicidade</td></tr>
+<tr><td><code>nfse_documents</code> e <code>nfse_events</code></td><td>Documentos privados e eventos oficiais</td></tr>
+<tr><td><code>nfse_audit</code></td><td>Auditoria das ações fiscais e dos downloads de PDF</td></tr>
 <tr><td><code>tea_submissions</code></td><td>Submissões dataset TEA</td></tr>
 <tr><td><code>tea_answers</code></td><td>Respostas dataset TEA</td></tr>
 <tr><td><code>tea_users</code></td><td>Usuários TEA</td></tr>
@@ -405,6 +414,7 @@ Copiar página
 <tr><td><code>tnumm-evidence</code></td><td>Privado</td><td>Arquivos oficiais, manifestos e evidências de processamento do CMM</td></tr>
 <tr><td><code>themis-private</code></td><td>Privado</td><td>Documentos originais, intermediários e exportações da Themis™</td></tr>
 <tr><td><code>csv-documents-private</code></td><td>Privado</td><td>Originais e derivados da Central; acesso somente pelo control plane autorizado</td></tr>
+<tr><td><code>nfse-pdfs</code></td><td>Privado</td><td>PDFs fiscais da NFS-e AxiaCare; entrega exclusiva pela API autenticada</td></tr>
 </tbody>
 </table>
 
@@ -446,6 +456,7 @@ Copiar página
 <tbody>
 <tr><td>hub.grupocsv.com</td><td>grupocsv.github.io</td><td>Hub principal (GitHub Pages)</td></tr>
 <tr><td>api.grupocsv.com</td><td>Worker csv-gateway</td><td>API gateway</td></tr>
+<tr><td>api.grupocsv.com/nfse/*</td><td>Worker nfse-api</td><td>API privada da NFS-e AxiaCare; somente o health check é público</td></tr>
 <tr><td>mail-api.grupocsv.com</td><td>Worker csv-mail</td><td>E-mail agêntico</td></tr>
 <tr><td>webhook.grupocsv.com</td><td>Worker whatsapp-webhook</td><td>Webhook WhatsApp</td></tr>
 <tr><td>open.grupocsv.com</td><td>Worker csv-open-pages</td><td>Páginas públicas</td></tr>
@@ -567,6 +578,7 @@ Copiar página
 <tbody>
 <tr><td>Senha fixa</td><td>AxiaCare, Thera, MedValor</td><td>Senha única por portal (armazenada no KV csv-config)</td></tr>
 <tr><td>Login individual</td><td>Unimed, Unihealth, ICDS, 2iM</td><td>E-mail + senha, com fluxo de solicitação e aprovação</td></tr>
+<tr><td>Sessão individual obrigatória</td><td>NFS-e AxiaCare</td><td>Hub Auth + <code>X-Auth-Token</code>; sessão compartilhada é recusada</td></tr>
 <tr><td>Login individual da aplicação</td><td>CMM</td><td>E-mail + senha, sessão e permissões geridas pelo próprio CMM</td></tr>
 <tr><td>Login individual da aplicação</td><td>Themis™</td><td>Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorização prévia</td></tr>
 <tr><td>PIN local</td><td>Deck™</td><td>PIN 4 dígitos (SHA-256 no localStorage)</td></tr>
@@ -582,7 +594,7 @@ Copiar página
 <thead><tr><th>Repositório</th><th>Conteúdo</th><th>Deploy</th></tr></thead>
 <tbody>
 <tr><td><code>grupocsv/hub</code></td><td>Frontend: VitePress + HTML + portais + compliance + admin + deck</td><td>GitHub Pages (Actions)</td></tr>
-<tr><td><code>grupocsv/backend</code></td><td>Workers e serviços do backend, incluindo csv-documents, processador, monitor, D1, R2 e filas documentais</td><td>Workflows protegidos + Wrangler e deploy do processador</td></tr>
+<tr><td><code>grupocsv/backend</code></td><td>Workers e serviços do backend, incluindo csv-documents, nfse-api, nfse-emitter, D1, R2, filas e monitores</td><td>Workflows protegidos + Wrangler e serviços persistentes controlados</td></tr>
 <tr><td><code>grupocsv/csv-open-pages</code></td><td>Worker + admin do Open Pages</td><td>Wrangler (manual)</td></tr>
 <tr><td><code>grupocsv/tnumm</code></td><td>CMM: WebApp, API, pipeline de ingestão e documentação</td><td>GitHub Actions + Wrangler</td></tr>
 <tr><td><code>axiacare/themis</code></td><td>Themis™: WebApp, Worker, Workflow, schema e documentação</td><td>GitHub Actions + Wrangler</td></tr>
@@ -681,7 +693,7 @@ onMounted(() => {
   btn.addEventListener('click', () => {
   const md = `# Infraestrutura do Ecossistema Grupo CSV
 
-Índice canônico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primárias; não substitui a verificação do runtime. Atualizada em 16 de setembro de 2026 — API Panta v2 validada, busca habilitada nesta versão do Hub.
+Índice canônico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primárias; não substitui a verificação do runtime. Atualizada em 25 de setembro de 2026 — NFS-e AxiaCare v3 em homologação segura, com mutações fiscais desabilitadas.
 
 ---
 
@@ -699,9 +711,10 @@ onMounted(() => {
 | Panta™ | Omnisearch federado | panta.grupocsv.com | VPS-CSV (FastAPI + Cloudflare Tunnel) |
 | Panta v2 documental | Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub | /_infra/ferramentas/panta-v2 | VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents |
 | Central de Documentos | Catalogo documental privado e multi-tenant | hub.grupocsv.com/documentos/ | GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue |
+| NFS-e AxiaCare | Perfis fiscais, simulacao canonica e documentos privados em homologacao segura | hub.grupocsv.com/axia/nota-fiscal.html | GitHub Pages + Worker nfse-api + D1 csv-hub + R2 privado + emissor local bloqueado |
 | Discovery™ | Diagnostico estrategico para OPSS | discovery.axcare.app | Manus (React + TS + Tailwind) |
 
-Manuais ilustrados: [usar a Central de Documentos](/_infra/manuais/central-documentos) e [entender e usar o Panta v2](/_infra/manuais/panta-v2). A Central administra arquivos; a v2 pesquisa o conteúdo autorizado. O estado de ativação é descrito abaixo e nas páginas técnicas.
+Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos), [Panta v2](/_infra/manuais/panta-v2) e [NFS-e AxiaCare](/_infra/manuais/nfse-axiacare). O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.
 
 ---
 
@@ -757,6 +770,12 @@ Manuais ilustrados: [usar a Central de Documentos](/_infra/manuais/central-docum
 | crt | crt.guilherme-thom.workers.dev | CRT |
 | digital-deck-api | digital-deck-api.guilherme-thom.workers.dev | API de leads, gates e campanhas |
 
+### Workers de Saude e Dados
+
+| Worker | Rota / Dominio | Bindings | Funcao |
+|---|---|---|---|
+| nfse-api | api.grupocsv.com/nfse/* | Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs | Perfis, simulacoes e documentos privados da NFS-e AxiaCare; mutacoes fiscais desabilitadas |
+
 ---
 
 ## 3. Bancos de Dados (D1 e Supabase)
@@ -765,7 +784,7 @@ Manuais ilustrados: [usar a Central de Documentos](/_infra/manuais/central-docum
 
 | Banco | ID | Tamanho | Tabelas | Uso |
 |---|---|---|---|---|
-| csv-hub | 6fac03eb-4c71-40d5-8edf-7fb0f2e27d37 | 1.2 MB | 21 | Hub principal (auth, logs, NF, TEA, propostas, e-mail) |
+| csv-hub | 6fac03eb-4c71-40d5-8edf-7fb0f2e27d37 | aproximadamente 0,9 MB | 48 | Hub principal, incluindo autenticacao, logs e control plane da NFS-e v3 |
 | whatsapp-brain | db907899-3b4d-43b3-b2d4-f429bad2a88a | 98 MB | 4 | Cerebro do WhatsApp (Extensio) |
 | ccrt | 8adfc2da-379f-4983-a19c-4d089b5e0fdc | 52 KB | - | CRT |
 | tnumm-control | a42b50a8-0665-43f6-a243-f77c01e7fe2c | - | - | Controle operacional, sessoes e auditoria do CMM |
@@ -777,9 +796,11 @@ Manuais ilustrados: [usar a Central de Documentos](/_infra/manuais/central-docum
 |---|---|---|---|
 | themis | hstoxemjhpdltzwrmbkf | sa-east-1 | Autenticacao, perfis, RLS, casos, evidencias e auditoria da Themis™ |
 
-### Tabelas do csv-hub (21)
+### Tabelas Fiscais do csv-hub
 
-auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tomadores, nf_servicos, nf_solicitacoes, nf_dados_bancarios, tea_submissions, tea_answers, tea_users, tea_organizations, tea_audit_logs, proposals, email_logs, api_logs, form_submissions, webhook_events, _cf_KV
+Legado em leitura: nf_tomadores, nf_servicos, nf_solicitacoes e nf_dados_bancarios.
+
+NFS-e v3: nfse_profiles, nfse_profile_versions, nfse_roles, nfse_requests, nfse_request_snapshots, nfse_approvals, nfse_operations, nfse_idempotency, nfse_documents, nfse_events e nfse_audit.
 
 ---
 
@@ -811,6 +832,7 @@ auth_sessions, access_logs, access_requests, users, user_tenants, config, nf_tom
 | tnumm-evidence | Privado | Arquivos oficiais, manifestos e evidencias de processamento do CMM |
 | themis-private | Privado | Documentos originais, intermediarios e exportacoes da Themis™ |
 | csv-documents-private | Privado | Originais e derivados da Central; acesso somente pelo control plane autorizado |
+| nfse-pdfs | Privado | PDFs fiscais da NFS-e AxiaCare; entrega exclusiva pela API autenticada |
 
 ### Queues da Central de Documentos
 
@@ -835,6 +857,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 |---|---|---|
 | hub.grupocsv.com | grupocsv.github.io | Hub principal (GitHub Pages) |
 | api.grupocsv.com | Worker csv-gateway | API gateway |
+| api.grupocsv.com/nfse/* | Worker nfse-api | API privada da NFS-e AxiaCare; somente o health check e publico |
 | mail-api.grupocsv.com | Worker csv-mail | E-mail agentico |
 | webhook.grupocsv.com | Worker whatsapp-webhook | Webhook WhatsApp |
 | open.grupocsv.com | Worker csv-open-pages | Paginas publicas |
@@ -931,6 +954,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 |---|---|---|
 | Senha fixa | AxiaCare, Thera, MedValor | Senha unica por portal (KV csv-config) |
 | Login individual | Unimed, Unihealth, ICDS, 2iM | E-mail + senha, com fluxo de solicitacao e aprovacao |
+| Sessao individual obrigatoria | NFS-e AxiaCare | Hub Auth + X-Auth-Token; sessao compartilhada e recusada |
 | Login individual da aplicacao | CMM | E-mail + senha, sessao e permissoes geridas pelo proprio CMM |
 | Login individual da aplicacao | Themis™ | Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorizacao previa |
 | PIN local | Deck | PIN 4 digitos (SHA-256 no localStorage) |
@@ -944,7 +968,7 @@ Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de lo
 | Repositorio | Conteudo | Deploy |
 |---|---|---|
 | grupocsv/hub | Frontend: VitePress + HTML + portais + compliance + admin + deck | GitHub Pages (Actions) |
-| grupocsv/backend | Workers e servicos, incluindo csv-documents, processador, monitor, D1, R2 e filas documentais | Workflows protegidos + Wrangler e deploy do processador |
+| grupocsv/backend | Workers e servicos, incluindo csv-documents, nfse-api, nfse-emitter, D1, R2, filas e monitores | Workflows protegidos + Wrangler e servicos persistentes controlados |
 | grupocsv/csv-open-pages | Worker + admin do Open Pages | Wrangler (manual) |
 | grupocsv/tnumm | CMM: WebApp, API, pipeline de ingestao e documentacao | GitHub Actions + Wrangler |
 | axiacare/themis | Themis™: WebApp, Worker, Workflow, schema e documentacao | GitHub Actions + Wrangler |

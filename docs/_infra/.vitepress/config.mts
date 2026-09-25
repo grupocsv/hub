@@ -75,6 +75,16 @@ export default defineConfig({
           ]
         }
       ],
+      '/manuais/': [
+        {
+          text: 'Manuais',
+          items: [
+            { text: 'Central de Documentos', link: '/manuais/central-documentos' },
+            { text: 'Panta v2', link: '/manuais/panta-v2' },
+            { text: 'NFS-e AxiaCare', link: '/manuais/nfse-axiacare' },
+          ]
+        }
+      ],
       '/compliance/': [
         {
           text: 'Central de Compliance',

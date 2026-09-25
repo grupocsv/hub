@@ -131,7 +131,7 @@ def main() -> int:
     allowed_axia = (
         ("Propostas Comerciais", "/axia/propostas.html"),
         ("Solicitação de Reembolso", "/axia/reembolso.html"),
-        ("Solicitação de Emissão de NF", "/axia/nota-fiscal.html"),
+        ("NFS-e AxiaCare", "/axia/nota-fiscal.html"),
     )
     for source_name, source in axia_sources.items():
         for title, href in allowed_axia:

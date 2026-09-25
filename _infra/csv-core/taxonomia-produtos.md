@@ -40,7 +40,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 
 **Quando usar:** Calculadoras, geradores de documentos simples, conversores, formulários de coleta com envio único.
 
-**Exemplos no Hub:** `unihealth/calc-plantao.html` (calculadora), `axia/nota-fiscal.html` (gerador de NF), `axia/reembolso.html` (solicitação de reembolso).
+**Exemplos no Hub:** `unihealth/calc-plantao.html` (calculadora) e `axia/reembolso.html` (solicitação de reembolso).
 
 ### WebApp (Aplicação Web)
 
@@ -50,7 +50,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 
 **Quando usar:** Sistemas de gestão, plataformas colaborativas, ferramentas de análise com entrada de dados contínua.
 
-**Exemplos no Hub:** `icds/tea-dataset.html` é o exemplo mais claro de uma Ferramenta que evoluiu para WebApp, com login, multi-tenancy e back-end robusto para persistência e análise. `axia/propostas.html` também se enquadra aqui pela lógica de negócio complexa.
+**Exemplos no Hub:** `icds/tea-dataset.html` é o exemplo mais claro de uma Ferramenta que evoluiu para WebApp, com login, multi-tenancy e back-end robusto para persistência e análise. `axia/propostas.html` também se enquadra aqui pela lógica de negócio complexa. `axia/nota-fiscal.html` integra autenticação individual, RBAC, perfis versionados, cálculo no servidor, D1, R2 privado e serviço persistente.
 
 ### Painel BI (Dashboard)
 
@@ -78,7 +78,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 | :--- | :--- | :--- |
 | `icds/tea-dataset.html` | **WebApp** | Lógica complexa, multi-tenancy, login, back-end para persistência. |
 | `axia/sistema-unimed.html` | **WebApp** | Catálogo autenticado com busca, API versionada e assets privados. |
-| `axia/nota-fiscal.html` | **Ferramenta** | Foco em uma única tarefa (gerar NF) com envio para Worker. |
+| `axia/nota-fiscal.html` | **WebApp** | Perfis fiscais versionados, autenticação individual, cálculo no servidor, RBAC, persistência e documentos privados; emissão bloqueada na homologação. |
 | `axia/reembolso.html` | **Ferramenta** | Foco em uma única tarefa (solicitar reembolso) com envio para Worker. |
 | `axia/propostas.html` | **WebApp** | Lógica de negócio complexa para gerar propostas, com múltiplos inputs e envio. |
 | `unihealth/calc-plantao.html` | **Ferramenta** | Calculadora client-side com escopo bem definido. |

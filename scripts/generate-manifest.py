@@ -84,7 +84,7 @@ PRODUCT_TAXONOMY = {
     "axia/propostas.html":            {"category": "webapp",       "entity": "AxiaCare",   "title": "Gerador de Propostas"},
 
     # Ferramentas — Tarefas específicas, escopo limitado
-    "axia/nota-fiscal.html":          {"category": "tool",         "entity": "AxiaCare",   "title": "Gerador de Nota Fiscal"},
+    "axia/nota-fiscal.html":          {"category": "webapp",       "entity": "AxiaCare",   "title": "NFS-e AxiaCare"},
     "axia/reembolso.html":            {"category": "tool",         "entity": "AxiaCare",   "title": "Solicitação de Reembolso"},
     "unihealth/calc-plantao.html":    {"category": "tool",         "entity": "Unihealth",  "title": "Calculadora de Plantão"},
     "admin/index.html":               {"category": "tool",         "entity": "Grupo CSV",  "title": "Painel Administrativo"},
