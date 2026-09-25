@@ -185,6 +185,44 @@
       || readStoredSession(sessionStorage, 'session');
   }
 
+  var AUTHORIZED_FETCH_ORIGINS = Object.freeze([
+    'https://api.grupocsv.com',
+    'https://documentos-api.grupocsv.com',
+  ]);
+
+  async function authorizedFetch(input, init) {
+    var session = getStoredSession();
+    if (!session || !session.token) {
+      throw new DOMException('Sessão indisponível.', 'NotAllowedError');
+    }
+
+    var target = new URL(input, window.location.origin);
+    if (target.protocol !== 'https:' || !AUTHORIZED_FETCH_ORIGINS.includes(target.origin)) {
+      throw new DOMException('Destino não autorizado para a sessão do Hub.', 'SecurityError');
+    }
+
+    var options = Object.assign({}, init || {});
+    var method = String(options.method || 'GET').toUpperCase();
+    if (!['GET', 'HEAD', 'POST'].includes(method)) {
+      throw new DOMException('Método não autorizado para a sessão do Hub.', 'SecurityError');
+    }
+
+    var headers = new Headers(options.headers || {});
+    headers.delete('Authorization');
+    headers.set('X-Auth-Token', session.token);
+    options.method = method;
+    options.headers = headers;
+    options.credentials = 'omit';
+    options.redirect = 'error';
+    options.referrerPolicy = 'no-referrer';
+
+    var response = await fetch(target.href, options);
+    if (response.status === 401) clearSession();
+    return response;
+  }
+
+  window.HUB_AUTH_API = Object.freeze({ fetch: authorizedFetch });
+
   function saveSession(token, email, expiresAt, preferredStorage) {
     if (preferredStorage === 'session') {
       sessionStorage.setItem(TOKEN_KEY, token);
