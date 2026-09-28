@@ -111,6 +111,13 @@ a{color:var(--u-green-dark)}
 .lbl .auto.mute{background:var(--u-paper);border-color:var(--line);color:var(--ink-3);font-weight:500}
 .lbl .auto.warn{background:var(--amber-100);border-color:var(--amber-200);color:var(--amber)}
 .lbl .auto[hidden]{display:none}
+.instr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 10px;max-width:460px}
+.instr-i{display:flex;flex-direction:column;justify-content:center;border:1px dashed var(--line);border-radius:10px;padding:6px 5px 5px;background:var(--u-paper);text-align:center;min-width:0;color:var(--ink-4);transition:border-color .15s ease,background-color .15s ease}
+.instr-i b{display:block;font-size:12px;font-weight:500;line-height:1.2;color:inherit}
+.instr-i small{display:block;font-size:10.5px;line-height:1.25;margin-top:2px;color:inherit}
+.instr-i.on{border:1px solid var(--u-green);background:var(--green-100);color:var(--u-dark);box-shadow:inset 0 0 0 1px var(--u-green)}
+.instr-i.on b{font-weight:700;color:var(--u-green-dark)}
+@media (max-width:560px){.instr{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .bands{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px;max-width:460px}
 .bands.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .band-c{border:1px solid var(--line-soft);border-radius:10px;padding:6px 4px 5px;background:var(--u-paper);min-width:0;text-align:center;transition:border-color .12s ease,box-shadow .12s ease}
@@ -161,6 +168,8 @@ details.params[open] summary::after{transform:rotate(-135deg)}
 .weights input{text-align:center}
 .wsum{font-size:13px;color:var(--ink-3);margin-top:8px}
 .wsum.bad{color:var(--amber)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.presets .btn.mini{width:auto}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;min-height:42px;border-radius:9999px;font-family:var(--font-sans);font-weight:650;font-size:14px;background:var(--u-green-dark);color:#fff;border:0;cursor:pointer;touch-action:manipulation;transition:background .15s ease}
 .btn:hover{background:#005a36}
 .btn:active{transform:scale(.98)}
@@ -221,6 +230,7 @@ table.rows td.miss{color:var(--ink-3)}
 
 /* metodologia */
 .metodo-block{max-width:920px}
+.metodo-block .ver{font-size:12.5px;color:var(--ink-3);margin-top:14px}
 .metodo-block h3{position:relative;font-family:var(--font-sans);font-size:21px;font-weight:650;letter-spacing:-.01em;line-height:1.25;color:var(--u-green-dark);margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
 .metodo-block h3::after{content:'';position:absolute;left:0;bottom:-1px;width:44px;height:3px;border-radius:2px;background:var(--u-green)}
 .metodo-block p{font-size:15px;color:var(--ink);line-height:1.7;font-family:var(--font-serif);font-weight:450;margin-bottom:12px}
@@ -368,7 +378,13 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
               </div>
 
               <div class="field">
-                <div class="lbl"><label for="triagem">Triagem</label><span class="auto mute" id="instrAuto">instrumento definido pela idade</span></div>
+                <div class="lbl"><label for="triagem" id="lblTriagem">Instrumento de triagem</label><span class="auto mute" id="instrAuto">definido pela idade</span></div>
+                <div class="instr" id="instrList" aria-label="Instrumentos de triagem por faixa etária">
+                  <span class="instr-i" data-key="mchat"><b>M-CHAT-R</b><small>0 a 3 anos</small></span>
+                  <span class="instr-i" data-key="aqc"><b>AQ-10 Child</b><small>4 a 11 anos</small></span>
+                  <span class="instr-i" data-key="aqa"><b>AQ-10 Adolescent</b><small>12 a 15 anos</small></span>
+                  <span class="instr-i" data-key="aqad"><b>AQ-10 Adult</b><small>16 anos ou mais</small></span>
+                </div>
                 <div class="row">
                   <div class="stepper off" id="stTriagem"><button type="button" class="step" data-for="triagem" data-d="-1" aria-label="Diminuir a pontuação da triagem" disabled>−</button><input type="number" id="triagem" min="0" max="20" step="1" placeholder="—" inputmode="numeric" aria-label="Pontuação da triagem" disabled><button type="button" class="step" data-for="triagem" data-d="1" aria-label="Aumentar a pontuação da triagem" disabled>+</button></div>
                   <span class="unit" id="triagemUnit">pontos</span>
@@ -403,7 +419,12 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
                   <div class="w"><span>CBDF</span><input type="number" id="wF" min="0" max="100" step="1" value="45" inputmode="numeric" aria-label="Peso da CBDF"></div>
                 </div>
                 <p class="wsum" id="wsum"></p>
-                <div class="row" style="margin-top:10px"><button class="btn ghost mini" id="btnPadrao" type="button">Restaurar 20 · 35 · 45</button></div>
+                <div class="presets" aria-label="Conjuntos de pesos">
+                  <button class="btn ghost mini" type="button" data-w="20,35,45">Referência 20 · 35 · 45</button>
+                  <button class="btn ghost mini" type="button" data-w="17,33,50">Soma de postos 17 · 33 · 50</button>
+                  <button class="btn ghost mini" type="button" data-w="11,28,61">Centroide 11 · 28 · 61</button>
+                  <button class="btn ghost mini" type="button" data-w="34,33,33">Iguais</button>
+                </div>
               </details>
             </div>
 
@@ -442,6 +463,14 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
             <h3>Finalidade</h3>
             <p>A linha de cuidado TEA da estratégia Caminhos Brilhantes define o cluster de cada caso pela combinação de 3 instrumentos aplicados na avaliação diagnóstica: a triagem (M-CHAT-R até 3 anos e 11 meses; AQ-10 Child, Adolescent ou Adult a partir dos 4 anos), a CARS e a CBDF. Cada instrumento tem escala e cortes próprios, e a leitura conjunta exige uma regra para as combinações em que os instrumentos apontam faixas diferentes.</p>
             <p>O ESC-TEA-100 aplica o processo de clusterização do Framework IBRAVS a essa necessidade: converte os 3 instrumentos para uma escala comum de 0 a 100, combina-os por média ponderada e lê o cluster pela faixa do escore. O resultado é uma leitura unificada dos instrumentos, com regra explícita para as divergências e com intervalo e nível de confiança quando a avaliação está incompleta. O escore apoia a decisão; a confirmação diagnóstica e a definição do cluster são ato médico.</p>
+            <p>O Framework chama de Score de Severidade Clínica o indicador composto que resume, em um número, a intensidade da condição de um paciente a partir de dados clínicos, escalas específicas e grau de dependência funcional, combinados por um algoritmo de pontuação, e lista como sua primeira função a clusterização de pacientes (Apêndice 6). O Framework define o conceito e o uso; o ESC-TEA-100 é o algoritmo desse indicador para o TEA.</p>
+          </div>
+
+          <div class="card metodo-block">
+            <h3>O problema tratado</h3>
+            <p>No scorecard TEA do Framework IBRAVS, o Quadro 4 define cada cluster pela combinação simultânea de 3 colunas: a faixa do M-CHAT-R, a faixa da CARS e a categoria da CBDF. A tabela responde apenas às combinações em que os 3 resultados caem na mesma linha. No espaço combinatório dos instrumentos (M-CHAT-R de 0 a 20, CARS de 15 a 60 em passos de 0,5 e 4 categorias de CBDF, 7.644 combinações), 1.370 combinações (17,9 %) cabem inteiras em uma linha do quadro e 6.274 (82,1 %) ficam sem resposta. Na população atendida a concordância tende a ser maior, porque os instrumentos se correlacionam; ainda assim, cada caso discordante fica a cargo da interpretação de quem avalia, sem regra escrita no Framework.</p>
+            <p>O quadro tem ainda 3 lacunas internas. Os clusters 2 e 3 têm os mesmos critérios de M-CHAT-R (8 ou mais) e de CARS (37 ou mais), e o único separador, a CBDF, aparece no Quadro 3 como uma categoria única de disfunção moderada ou grave. O cluster 0 exige M-CHAT-R de 0 a 2, classificado no Quadro 1 como baixo risco, com repetição da triagem em 6 meses e sem aplicação de CARS e CBDF, de modo que a linha não se completa pelo próprio fluxo. Na CARS, o Quadro 2 situa 30 pontos na faixa leve e o Quadro 4 situa 30 ou menos no cluster 0; os valores 30,5 e 36,5 não pertencem a nenhuma linha.</p>
+            <p>O ESC-TEA-100 responde a cada ponto: dá resposta única e reproduzível às 7.644 combinações; subdivide a faixa da CARS de 37 ou mais em 37 a 48 e 48,5 a 60 e usa a classificação da CBDF em 4 categorias atribuída pelo fisioterapeuta; trata o caso com triagem isolada como avaliação incompleta; segue o Quadro 2 na CARS e cobre os meios-pontos. As regras de leitura tornam explícito o que acontece na divergência e quando o caso vai ao comitê.</p>
           </div>
 
           <div class="card metodo-block">
@@ -461,10 +490,13 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
           </div>
 
           <div class="card metodo-block">
-            <h3>Agregação e pesos</h3>
+            <h3>Agregação e ponderação</h3>
             <div class="formula">ESC-TEA-100 = w<sub>T</sub> · Triagem<sub>0–100</sub> + w<sub>C</sub> · CARS<sub>0–100</sub> + w<sub>F</sub> · CBDF<sub>0–100</sub> <span class="c">· com w<sub>T</sub> + w<sub>C</sub> + w<sub>F</sub> = 1 · pesos de referência 0,20 · 0,35 · 0,45</span></div>
-            <p>O escore é uma média ponderada aditiva dos 3 subescores, o mesmo modelo aditivo de análise de decisão multicritério que o Framework IBRAVS aplica ao Escore de Valor em Saúde: índices padronizados em 0 a 100 e combinados por pesos. Como média ponderada, o escore fica sempre entre o menor e o maior subescore: quando os 3 instrumentos apontam a mesma faixa, o escore cai nessa faixa, qualquer que seja o conjunto de pesos. Quando apontam faixas diferentes, os pesos decidem, e cada instrumento desloca o escore em no máximo o seu peso vezes 100 pontos.</p>
-            <p>Os pesos de referência seguem a ordem triagem &lt; CARS &lt; CBDF (razão 4 : 7 : 9): a triagem é instrumento de rastreio; a CARS gradua a sintomatologia; a CBDF registra a funcionalidade, que orienta a intensidade das intervenções. A calculadora aceita outros pesos, normalizados para 100 %.</p>
+            <p>O escore é uma média ponderada aditiva dos 3 subescores, o mesmo modelo aditivo de análise de decisão multicritério que o Framework IBRAVS aplica ao Escore de Valor em Saúde: índices padronizados em 0 a 100 e combinados por pesos. Como média ponderada, o escore fica sempre entre o menor e o maior subescore: quando os 3 instrumentos apontam a mesma faixa, o escore cai nessa faixa, qualquer que seja o conjunto de pesos. Quando apontam faixas diferentes, os pesos decidem, e cada instrumento desloca o escore em no máximo o seu peso vezes 100 pontos: com os outros 2 fixos, a triagem muda o cluster em até 1 faixa; a CARS e a CBDF, em até 2. A resolução é pela posição de cada instrumento dentro da sua faixa, sem regra de maioria: nas 4.754 combinações em que 2 instrumentos apontam a mesma faixa e o terceiro outra, o escore fica fora da faixa dos 2 em 2.088 (43,9 %).</p>
+            <p>Os pesos de referência, 0,20, 0,35 e 0,45 (razão 4 : 7 : 9), seguem a ordem triagem &lt; CARS &lt; CBDF, sustentada em 3 camadas.</p>
+            <p><b>Construto.</b> O cluster é uma categoria de intensidade de intervenção. O DSM-5-TR define a gravidade do TEA pelo apoio necessário (nível 1, exigindo apoio; nível 2, apoio substancial; nível 3, apoio muito substancial) e a CIF descreve a funcionalidade por atividade e participação; no Framework, a nota do COFFITO aponta a CBDF como o componente funcional do Score de Severidade Clínica. O instrumento mais próximo do construto é o que mede funcionalidade e participação; a CARS mede a intensidade dos sintomas e o M-CHAT-R mede risco de triagem.</p>
+            <p><b>Evidência psicométrica.</b> Na validação do M-CHAT-R/F, o valor preditivo positivo foi de 0,48 para TEA e de 0,95 para qualquer transtorno do desenvolvimento (ROBINS et al., 2014): instrumento de rastreio, sem graduação de gravidade. A CARS foi desenhada para graduar a gravidade e apresentou, no estudo original, consistência interna de 0,94, concordância entre avaliadores de 0,71 e correlação de 0,84 com o julgamento clínico (SCHOPLER et al., 1980). A CBDF é classificação normativa do COFFITO (Resoluções 555/2022 e 610/2025); até setembro de 2026 não se localizou estudo publicado de validação psicométrica da prevalência de qualificadores como medida de gravidade no TEA, e o seu peso apoia-se na proximidade com o construto.</p>
+            <p><b>Método formal.</b> Os pesos equivalem, no método de análise hierárquica (SAATY, 1980), a 3 comparações pareadas: a CBDF vale 1,29 vez a CARS e 2,25 vezes a triagem, e a CARS vale 1,75 vez a triagem; a matriz é consistente (razão de consistência 0). Os pesos derivados apenas da ordem dos instrumentos seriam 0,17, 0,33 e 0,50 pela soma de postos e 0,11, 0,28 e 0,61 pelo centroide (BARRON; BARRETT, 1996); os pesos de referência são mais planos do que ambos. Nas 7.644 combinações, a soma de postos muda o cluster em 6,7 % delas e o centroide em 19,7 %. Os pesos são de referência e ficam sujeitos à calibração com casos do Ambulatório de Avaliação Diagnóstica, descrita adiante. A calculadora aceita outros pesos, normalizados para 100 %.</p>
           </div>
 
           <div class="card metodo-block">
@@ -528,6 +560,16 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
             <p>Sensibilidade aos pesos: a troca dos pesos de referência por 15 · 35 · 50 muda o cluster em 7,8 % das combinações; por 20 · 30 · 50, em 7,1 %; por 25 · 35 · 40, em 7,1 %; por 10 · 40 · 50, em 12,4 %; por pesos iguais, em 17,0 %. Os percentuais referem-se ao espaço combinatório dos instrumentos; a distribuição na população atendida resulta dos casos avaliados.</p>
           </div>
 
+          <div class="card metodo-block">
+            <h3>Calibração</h3>
+            <p>A verificação acima é matemática. A validade clínica dos pesos e das faixas depende de casos reais, e o escore prevê a sua calibração com os casos do Ambulatório de Avaliação Diagnóstica, segundo protocolo fixado antes da análise dos dados.</p>
+            <p><b>Padrão de referência.</b> Para cada caso, o cluster de consenso da equipe multiprofissional, registrado antes do cálculo do escore e sem conhecimento do resultado. Horas de terapia consumidas, custo e autorizações não servem de padrão, porque refletem oferta, preço e regras administrativas.</p>
+            <p><b>Pré-requisitos.</b> Regra escrita da classificação da CBDF em 4 categorias e teste de concordância entre os fisioterapeutas do ambulatório (kappa) nos primeiros casos; confirmação das 3 comparações pareadas dos pesos por painel clínico.</p>
+            <p><b>Amostra.</b> Casos com os 3 instrumentos aplicados: mínimo de 100 casos, com pelo menos 20 por cluster de consenso, e registro dos casos na zona de fronteira e dos encaminhados ao comitê.</p>
+            <p><b>Medidas e método.</b> Concordância entre o cluster do escore e o cluster de consenso (kappa ponderado e percentual de concordância), taxa de zona de fronteira e taxa de comitê. Os pesos são estimados por busca exaustiva no conjunto dos pesos que somam 1, em passos de 0,01, com as faixas fixas em 25, 50 e 75, maximizando a concordância; em empate, prevalecem os pesos de referência. A estimativa é validada por validação cruzada, e a aceitação exige a concordância mínima definida no protocolo (kappa ponderado de 0,70 ou mais).</p>
+            <p><b>Registro e versão.</b> Protocolo, amostra e critérios registrados antes de analisar os dados; resultado publicado com a data e o número de casos; qualquer alteração de pesos ou faixas gera nova versão do escore, com a enumeração e os testes refeitos.</p>
+          </div>
+
           <div class="card metodo-block refs">
             <h3>Referências</h3>
             <p>INSTITUTO BRASILEIRO DE VALOR EM SAÚDE. <em>Framework IBRAVS</em>: um caminho prático para valor em saúde e modelos de remuneração baseados em valor. Versão 1.7. [S. l.]: IBRAVS, [2025?]. 253 p. Seções aplicadas: sistemas de agrupamento clínico e CBDF (itens 1.2.6 e 1.2.7, p. 24-26); Escore de Valor em Saúde e MCDA (cap. 2, p. 47-61); processo de clusterização de episódios (item 6.3, p. 126-128); Score de Severidade Clínica (Apêndice 6, p. 155-156); scorecard TEA (p. 235-247).</p>
@@ -538,7 +580,12 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
             <p>SCHOPLER, E. et al. Toward objective classification of childhood autism: Childhood Autism Rating Scale (CARS). <em>Journal of Autism and Developmental Disorders</em>, v. 10, n. 1, p. 91-103, 1980.</p>
             <p>CONSELHO FEDERAL DE FISIOTERAPIA E TERAPIA OCUPACIONAL. <em>Resolução nº 555, de 2022</em>. Institui a Classificação Brasileira de Diagnósticos Fisioterapêuticos (CBDF). <em>Resolução nº 610, de 2025</em>. Dispõe sobre a primeira atualização da CBDF (CBDF-1). Disponível em: https://cbdf.coffito.gov.br.</p>
             <p>AMERICAN PSYCHIATRIC ASSOCIATION. <em>Diagnostic and statistical manual of mental disorders</em>: DSM-5-TR. 5. ed., text rev. Washington, DC: American Psychiatric Association, 2022.</p>
+            <p>ORGANIZAÇÃO MUNDIAL DA SAÚDE. <em>CIF</em>: Classificação Internacional de Funcionalidade, Incapacidade e Saúde. São Paulo: EDUSP, 2003.</p>
+            <p>SAATY, T. L. <em>The analytic hierarchy process</em>: planning, priority setting, resource allocation. New York: McGraw-Hill, 1980.</p>
+            <p>BARRON, F. H.; BARRETT, B. E. Decision quality using ranked attribute weights. <em>Management Science</em>, v. 42, n. 11, p. 1515-1523, 1996.</p>
+            <p>ORGANISATION FOR ECONOMIC CO-OPERATION AND DEVELOPMENT; JOINT RESEARCH CENTRE OF THE EUROPEAN COMMISSION. <em>Handbook on constructing composite indicators</em>: methodology and user guide. Paris: OECD Publishing, 2008.</p>
             <p>UNIMED GOVERNADOR VALADARES. <em>Capacitação CBDF</em>: Classificação Brasileira de Diagnósticos Fisioterapêuticos: rastreio do autismo em bebês, crianças, adolescentes e adultos. Governador Valadares: Unimed GV, 2026. Apresentação.</p>
+            <p class="ver">ESC-TEA-100 · metodologia versão 1.4 · setembro de 2026.</p>
           </div>
         </section>
 
@@ -737,18 +784,21 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
     if (s.inst){
       $('triagem').min = s.inst.min; $('triagem').max = s.inst.max;
       if (num('triagem') !== null && num('triagem') > s.inst.max) $('triagem').value = s.inst.max;
-      $('instrAuto').textContent = s.inst.label + ' · ' + s.inst.idade;
-      $('instrAuto').classList.remove('mute');
+      $('lblTriagem').textContent = s.inst.label;
+      $('instrAuto').textContent = s.inst.idade;
+      $('instrAuto').hidden = true;
       $('triagemUnit').textContent = `pontos (${s.inst.min} a ${s.inst.max})`;
       setStepper('triagem','stTriagem', true);
       bandStrip('bandsTriagem', s.inst, s.xT);
     } else {
-      $('instrAuto').textContent = 'instrumento definido pela idade';
-      $('instrAuto').classList.add('mute');
+      $('lblTriagem').textContent = 'Instrumento de triagem';
+      $('instrAuto').textContent = 'definido pela idade';
+      $('instrAuto').hidden = false;
       $('triagemUnit').textContent = 'pontos';
       setStepper('triagem','stTriagem', false);
       bandStrip('bandsTriagem', null, null);
     }
+    document.querySelectorAll('#instrList .instr-i').forEach(el => el.classList.toggle('on', !!s.inst && el.dataset.key === s.key));
     // CARS: indicada a partir dos 2 anos
     if (s.hasAge && !s.carsOk){
       setStepper('cars','stCars', false);
@@ -815,6 +865,11 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
         else if (r.amp === 1) notes.push(['','Divergência de 1 cluster.','Entre os instrumentos disponíveis, o escore provisório resolve pelos pesos.']);
         else notes.push(['alert','Discordância maior.',`As faixas apontadas pelos instrumentos disponíveis diferem em ${r.amp} clusters. O caso segue para o comitê de casos especiais.`]);
       }
+    }
+    if (r.complete && r.amp !== null && r.amp > 0){
+      const cl = [r.bT[0], r.bC[0], r.bF[0]];
+      const maj = cl.find(c => cl.filter(x => x === c).length === 2);
+      if (maj !== undefined && maj !== r.k) notes.push(['', 'Leitura por posição.', `2 instrumentos apontam o cluster ${maj}; o escore fica no cluster ${r.k} pela posição de cada instrumento dentro da sua faixa, sem regra de maioria.`]);
     }
     if (r.front) notes.push(['alert','Zona de fronteira.','O escore está a até 2,5 pontos de um corte de cluster; os valores brutos são conferidos antes de fechar.']);
     if (s.key==='mchat' && (s.months<16 || s.months>30)) notes.push(['','M-CHAT-R fora da faixa de validação.','Instrumento validado para 16 a 30 meses e adotado de 0 a 3 anos e 11 meses.']);
@@ -892,7 +947,7 @@ dl.rules dd{margin:0;color:var(--ink);font-family:var(--font-serif);font-weight:
     render();
   }));
   $('btnLimpar').addEventListener('click', clearAll);
-  $('btnPadrao').addEventListener('click', () => { $('wT').value=20; $('wC').value=35; $('wF').value=45; render(); });
+  document.querySelectorAll('.presets button').forEach(b => b.addEventListener('click', () => { const [t,c,f] = b.dataset.w.split(',').map(Number); $('wT').value=t; $('wC').value=c; $('wF').value=f; render(); }));
   $('btnCopy').addEventListener('click', copySummary);
   let rt = null;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (window.__last && window.__last.r) chart(window.__last.r, window.__last.s); else emptyScale(); }, 120); });
