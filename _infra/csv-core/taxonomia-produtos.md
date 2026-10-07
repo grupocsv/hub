@@ -78,7 +78,7 @@ A taxonomia é composta por 5 categorias com critérios claros de distinção.
 | :--- | :--- | :--- |
 | `icds/tea-dataset.html` | **WebApp** | Lógica complexa, multi-tenancy, login, back-end para persistência. |
 | `axia/sistema-unimed.html` | **WebApp** | Catálogo autenticado com busca, API versionada e assets privados. |
-| `axia/nota-fiscal.html` | **WebApp** | Perfis fiscais versionados, autenticação individual, cálculo no servidor, RBAC, persistência e documentos privados; emissão bloqueada na homologação. |
+| `axia/nota-fiscal.html` | **WebApp** | Perfis fiscais versionados, autenticação individual, cálculo no servidor, RBAC, persistência, documentos privados e emissão controlada de NFS-e. |
 | `axia/reembolso.html` | **Ferramenta** | Foco em uma única tarefa (solicitar reembolso) com envio para Worker. |
 | `axia/propostas.html` | **WebApp** | Lógica de negócio complexa para gerar propostas, com múltiplos inputs e envio. |
 | `unihealth/calc-plantao.html` | **Ferramenta** | Calculadora client-side com escopo bem definido. |

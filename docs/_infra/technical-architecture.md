@@ -297,7 +297,7 @@ Copiar página
 <div class="tech-page">
 <div class="frame hero-section">
 <h1>Infraestrutura Técnica</h1>
-<p class="version">Versão 1.4 — Atualizado em 25/09/2026; NFS-e AxiaCare v3 em homologação segura</p>
+<p class="version">Versão 1.5 — Atualizado em 07/10/2026; NFS-e AxiaCare v3.2 com emissão controlada em produção</p>
 <p class="subtitle">
 Visão consolidada da arquitetura de backend documentada do ecossistema <strong>Grupo CSV</strong>.
 Descreve os principais microserviços, bancos de dados, armazenamentos, rotas de API,
@@ -483,7 +483,7 @@ registra o log no D1 e encaminha (proxy) para o worker de destino.
 <td><code>/nfse</code></td>
 <td>nfse-api</td>
 <td><span class="badge protected">Protegido</span></td>
-<td>Perfis, simulações e documentos privados da NFS-e AxiaCare; somente <code>/nfse/health</code> é público</td>
+<td>Emissão controlada da NFS-e AxiaCare; somente <code>/nfse/health</code> é público</td>
 </tr>
 </tbody>
 </table>
@@ -935,25 +935,25 @@ Todas utilizam Google Workspace para e-mail corporativo (MX records).
 <div class="frame">
 <h2 class="section-title">9. NFS-e AxiaCare</h2>
 <p class="section-desc">
-A arquitetura fiscal está em homologação segura. O navegador acessa o Worker <code>nfse-api</code>, que valida a sessão individual pelo Service Binding do <code>csv-auth</code>, aplica RBAC, calcula a prévia no servidor e consulta o D1 <code>csv-hub</code>. PDFs permanecem no bucket privado <code>nfse-pdfs</code>.
+A emissão controlada está em produção. O navegador ou o agente acessa o Worker <code>nfse-api</code>, que valida a sessão individual pelo Service Binding do <code>csv-auth</code> ou a chave individual do agente, aplica RBAC por escopos, calcula os valores no servidor e registra solicitações, aprovações, operações e auditoria no D1 <code>csv-hub</code>. O Worker aciona o emissor privado na VPS-CSV pelo Cloudflare Tunnel, protegido por Cloudflare Access e HMAC-SHA256. PDFs permanecem no bucket privado <code>nfse-pdfs</code>.
 </p>
 <table class="tech-table">
 <thead><tr><th>Componente</th><th>Contrato Vigente</th><th>Estado</th></tr></thead>
 <tbody>
-<tr><td>Interface</td><td><code>hub.grupocsv.com/axia/nota-fiscal.html</code></td><td>Consulta de perfis, simulação, histórico, adequação e manual</td></tr>
+<tr><td>Interface</td><td><code>hub.grupocsv.com/axia/nota-fiscal.html</code></td><td>Emissão, solicitações, simulação, histórico, perfis, agentes, adequação e manual</td></tr>
 <tr><td>API pública</td><td><code>api.grupocsv.com/nfse/*</code></td><td>Worker <code>nfse-api</code>; health público e demais rotas autenticadas</td></tr>
-<tr><td>Autenticação</td><td><code>X-Auth-Token</code> verificado pelo <code>csv-auth</code></td><td>Sessão individual obrigatória; sessões compartilhadas recusadas</td></tr>
+<tr><td>Autenticação</td><td><code>X-Auth-Token</code> verificado pelo <code>csv-auth</code>; <code>Authorization: Bearer</code> para agentes</td><td>Sessão individual obrigatória; sessões compartilhadas recusadas; chaves de agentes individuais, com escopos, validade e revogação</td></tr>
 <tr><td>Persistência</td><td>D1 <code>csv-hub</code>, tabelas <code>nfse_*</code></td><td>Perfis, papéis, solicitações, snapshots, aprovações, operações, documentos, eventos, idempotência e auditoria</td></tr>
 <tr><td>Documentos</td><td>R2 <code>nfse-pdfs</code></td><td>Bucket privado; PDF entregue somente pela rota autenticada e auditada</td></tr>
-<tr><td>Emissor privado</td><td><code>nfse-emitter.service</code> em <code>127.0.0.1:8789</code></td><td>Serviço local autenticado por HMAC-SHA256; sem exposição pública direta</td></tr>
-<tr><td>Integração nacional</td><td>SEFIN e ADN</td><td>Sem transmissão nesta versão</td></tr>
+<tr><td>Emissor privado</td><td><code>nfse-emitter.service</code> em <code>127.0.0.1:8789</code> na VPS-CSV</td><td>Monta, assina e transmite a DPS, reconcilia por ledger, confere o XML autorizado e gera o DANFSe; acesso somente pelo Cloudflare Tunnel, com Cloudflare Access e HMAC-SHA256</td></tr>
+<tr><td>Integração nacional</td><td>SEFIN Nacional e ADN</td><td>Transmissão da DPS em produção e consulta do XML autorizado</td></tr>
 </tbody>
 </table>
 <div class="security-note">
-<strong>Mutações fiscais desabilitadas:</strong> criação de solicitação, aprovação, emissão e cancelamento retornam bloqueio operacional. Os perfis AbbVie e 2iM permanecem em <code>blocked_accounting</code>; a Ordem de Compra é obrigatória para AbbVie. A simulação não persiste dados e não transmite DPS ao Sistema Nacional NFS-e.
+<strong>Emissão controlada:</strong> cada NFS-e exige solicitação com prévia oficial, aprovação com o valor líquido confirmado e Idempotency-Key. Os perfis 2iM, AbbVie, ICDS Matriz e ICDS Unihealth GV estão ativos; a Ordem de Compra é obrigatória para AbbVie. O cancelamento permanece desabilitado na API e no emissor e fica com o responsável humano.
 </div>
 <p class="section-desc">
-Consulte o <a href="/_infra/manuais/nfse-axiacare">Manual da NFS-e AxiaCare</a> para regras de uso, cálculos, controles, endpoints e gates de liberação.
+Consulte o <a href="/_infra/manuais/nfse-axiacare">Manual da NFS-e AxiaCare</a> para regras de uso, cálculos, controles, endpoints e integração de agentes.
 </p>
 </div>
 <div class="frame">

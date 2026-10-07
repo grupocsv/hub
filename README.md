@@ -39,7 +39,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | :--- | :--- | :--- | :--- | :--- |
 | Data Set TEA | `p/tea-dataset/` | **WebApp** | ICDS | Ativo |
 | Gerador de Propostas | `axia/propostas.html` | **WebApp** | AxiaCare | Ativo |
-| NFS-e AxiaCare | `axia/nota-fiscal.html` | **WebApp** | AxiaCare | Homologação |
+| NFS-e AxiaCare | `axia/nota-fiscal.html` | **WebApp** | AxiaCare | Ativo |
 | Solicitação de Reembolso | `axia/reembolso.html` | **Ferramenta** | AxiaCare | Ativo |
 | Calculadora de Plantão | `unihealth/calc-plantao.html` | **Ferramenta** | Unihealth | Ativo |
 | Painel de Oncologia | `unimed/onco.html` | **Painel BI** | Unimed GV | Ativo |
