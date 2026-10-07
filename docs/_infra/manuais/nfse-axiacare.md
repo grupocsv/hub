@@ -45,6 +45,7 @@ Cada emissão segue o fluxo **solicitação com prévia oficial → aprovação 
 - O segredo é exibido **uma única vez** na criação. A API armazena apenas o hash SHA-256.
 - A chave pode ter escopos reduzidos e validade de 1 a 730 dias.
 - Agentes não enviam `Origin` e não podem usar `X-Auth-Token` e `Authorization` na mesma chamada.
+- Agentes enviam um `User-Agent` próprio e identificado, por exemplo `grupocsv-nfse-agent/1.0 (Nome do agente)`. O `User-Agent` padrão da biblioteca `urllib` do Python (`Python-urllib/...`) é recusado pela borda da Cloudflare com HTTP 403 e código 1010, antes de chegar à API.
 
 ## Emissão de NFS-e
 
@@ -196,6 +197,7 @@ Base: `https://api.grupocsv.com/nfse`
 ```http
 POST /nfse/v1/requests
 Authorization: Bearer <chave do agente>
+User-Agent: grupocsv-nfse-agent/1.0 (Nome do agente)
 Content-Type: application/json
 Idempotency-Key: 2im-2026-09-solicitacao-0001
 
@@ -205,6 +207,7 @@ Idempotency-Key: 2im-2026-09-solicitacao-0001
 ```http
 POST /nfse/v1/requests/{request_id}/approve
 Authorization: Bearer <chave do agente>
+User-Agent: grupocsv-nfse-agent/1.0 (Nome do agente)
 Content-Type: application/json
 Idempotency-Key: 2im-2026-09-aprovacao-0001
 
@@ -214,6 +217,7 @@ Idempotency-Key: 2im-2026-09-aprovacao-0001
 ```http
 POST /nfse/v1/operations/{request_id}/emit
 Authorization: Bearer <chave do agente>
+User-Agent: grupocsv-nfse-agent/1.0 (Nome do agente)
 Content-Type: application/json
 Idempotency-Key: 2im-2026-09-emissao-0001
 
@@ -235,6 +239,7 @@ Se a emissão responder HTTP 202 `pending_confirmation`, o Sistema Nacional NFS-
 
 | Situação | Significado | Conduta |
 |---|---|---|
+| HTTP 403 com código 1010 da Cloudflare | `User-Agent` padrão do `Python-urllib`, recusado na borda. | Envie um `User-Agent` próprio e identificado do agente. |
 | HTTP 401 `invalid_session` ou `invalid_agent_key` | Sessão ou chave não aceita, expirada ou revogada. | Entre novamente no portal ou solicite nova chave ao administrador. |
 | HTTP 403 `insufficient_scope` ou `insufficient_role` | A identidade não possui o escopo exigido. | Solicite a revisão do papel ou dos escopos. |
 | HTTP 400 `fixed_description_profile` | Descrição informada para perfil de descrição padronizada. | Remova o campo `description`. |
