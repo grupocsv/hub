@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="NFS-e AxiaCare — homologação segura, consulta e prévia.">
+  <meta name="description" content="NFS-e AxiaCare — emissão controlada, solicitações, documentos e integração de agentes.">
   <meta name="hub-category" content="webapp">
   <meta name="hub-entity" content="AxiaCare">
   <title>NFS-e AxiaCare | AxiaCare</title>
@@ -191,6 +191,10 @@
       background: #fff;
     }
     input:hover, select:hover, textarea:hover { border-color: #8299a7; }
+    fieldset.field { margin: 0; padding: 12px 14px; border: 1px solid var(--line, #d5dee4); border-radius: 8px; }
+    fieldset.field legend { padding: 0 6px; font-weight: 700; color: var(--axia-blue-dark); }
+    main a { color: var(--axia-blue); }
+    main a:hover { color: var(--axia-blue-dark); }
     input:focus, select:focus, textarea:focus { border-color: var(--axia-blue); }
     textarea { min-height: 108px; resize: vertical; }
     input[readonly] { color: #34434d; background: #f6f8f9; }
@@ -298,6 +302,39 @@
     .source-note { color: var(--muted) !important; font-size: .78rem !important; }
     .status-list { margin: 12px 0 0; padding-left: 20px; color: #34414a; font-size: .9rem; }
     .status-list li + li { margin-top: 7px; }
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+      padding: 0;
+      list-style: none;
+    }
+    .steps li {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .steps li[aria-current="step"] {
+      border-color: var(--axia-blue);
+      color: #fff;
+      background: var(--axia-blue);
+    }
+    .review-table th { width: 42%; font-weight: 600; }
+    .review-table td { font-variant-numeric: tabular-nums; }
+    .review-table tr.total-row th, .review-table tr.total-row td { font-weight: 800; color: var(--axia-blue-dark); }
+    .inline-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .inline-actions .button { min-height: 32px; padding: 5px 10px; font-size: .8rem; }
+    .scope-options { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 0; padding: 0; border: 0; }
+    .scope-options label { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+    .scope-options input { width: auto; min-height: 0; }
+    .secret-box { display: flex; gap: 8px; align-items: center; }
+    .secret-box input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; word-break: break-all; }
 
     @media (max-width: 760px) {
       .top-bar { min-height: 60px; padding-inline: 14px; }
@@ -326,34 +363,159 @@
     </div>
     <div class="title-wrap">
       <h1>NFS-e AxiaCare</h1>
-      <p>Consulta e prévia protegidas por sessão do Hub</p>
+      <p>Emissão controlada protegida por sessão do Hub</p>
     </div>
     <div class="top-actions">
-      <span class="environment-badge">Homologação</span>
+      <span class="environment-badge">Produção</span>
       <span id="hub-auth-slot" data-hub-auth-theme="dark"></span>
     </div>
   </header>
 
   <div class="safe-banner" role="status" aria-live="polite">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path></svg>
-    <div><strong>Homologação segura — emissão e cancelamento desabilitados</strong>Use esta versão para consultar documentos e conferir a prévia retornada pelo servidor.</div>
+    <div><strong>Emissão controlada em produção — cancelamento somente pelo responsável humano</strong> Cada NFS-e passa por prévia oficial, confirmação do valor líquido e conferência automática do XML autorizado.</div>
   </div>
 
   <nav class="tabs" role="tablist" aria-label="Seções da NFS-e">
-    <button class="tab" id="tab-button-simular" type="button" role="tab" aria-selected="true" aria-controls="tab-simular" data-tab-target="simular">Simular</button>
+    <button class="tab" id="tab-button-emitir" type="button" role="tab" aria-selected="true" aria-controls="tab-emitir" data-tab-target="emitir">Emitir</button>
+    <button class="tab" id="tab-button-solicitacoes" type="button" role="tab" aria-selected="false" aria-controls="tab-solicitacoes" data-tab-target="solicitacoes" tabindex="-1">Solicitações</button>
+    <button class="tab" id="tab-button-simular" type="button" role="tab" aria-selected="false" aria-controls="tab-simular" data-tab-target="simular" tabindex="-1">Simular</button>
     <button class="tab" id="tab-button-historico" type="button" role="tab" aria-selected="false" aria-controls="tab-historico" data-tab-target="historico" tabindex="-1">Histórico</button>
     <button class="tab" id="tab-button-perfis" type="button" role="tab" aria-selected="false" aria-controls="tab-perfis" data-tab-target="perfis" tabindex="-1">Perfis</button>
+    <button class="tab" id="tab-button-agentes" type="button" role="tab" aria-selected="false" aria-controls="tab-agentes" data-tab-target="agentes" tabindex="-1" hidden>Agentes</button>
     <button class="tab" id="tab-button-adequacao" type="button" role="tab" aria-selected="false" aria-controls="tab-adequacao" data-tab-target="adequacao" tabindex="-1">Adequação</button>
     <button class="tab" id="tab-button-manual" type="button" role="tab" aria-selected="false" aria-controls="tab-manual" data-tab-target="manual" tabindex="-1">Manual</button>
   </nav>
 
   <main id="nfse-main" tabindex="-1">
-    <section class="panel" id="tab-simular" role="tabpanel" aria-labelledby="tab-button-simular" tabindex="-1">
+    <section class="panel" id="tab-emitir" role="tabpanel" aria-labelledby="tab-button-emitir" tabindex="-1">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Emissão controlada</p>
+          <h2>Emitir NFS-e</h2>
+          <p>Gere a prévia oficial, confira os valores e confirme o valor líquido. A nota só é transmitida ao Sistema Nacional NFS-e depois da sua confirmação.</p>
+        </div>
+      </div>
+      <div id="emit-message" class="message-region" aria-live="polite"></div>
+      <ol class="steps" aria-label="Etapas da emissão">
+        <li id="emit-step-1" aria-current="step">1. Dados da nota</li>
+        <li id="emit-step-2">2. Conferência da prévia oficial</li>
+        <li id="emit-step-3">3. NFS-e emitida</li>
+      </ol>
+
+      <form id="emit-form" class="card" novalidate>
+        <div class="form-grid">
+          <div class="field half">
+            <label for="emit-profile">Tomador (perfil fiscal) <span class="required">*</span></label>
+            <select id="emit-profile" name="emit-profile" required aria-describedby="emit-profile-help emit-profile-error"></select>
+            <p id="emit-profile-help" class="field-help">Somente perfis ativos no servidor podem emitir.</p>
+            <p class="field-error" id="emit-profile-error" aria-live="polite"></p>
+          </div>
+          <div class="field third">
+            <label for="emit-gross-amount">Valor bruto <span class="required">*</span></label>
+            <input id="emit-gross-amount" name="emit-gross-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="10.000,00" aria-describedby="emit-gross-amount-error">
+            <p class="field-error" id="emit-gross-amount-error" aria-live="polite"></p>
+          </div>
+          <div class="field third">
+            <label for="emit-competence">Competência (mês trabalhado) <span class="required">*</span></label>
+            <input id="emit-competence" name="emit-competence" type="month" required aria-describedby="emit-competence-help emit-competence-error">
+            <p id="emit-competence-help" class="field-help">Meses anteriores ao da emissão: a data de competência é o último dia do mês trabalhado. Mês corrente: data da emissão. Não aceita mês futuro nem competência com mais de 12 meses.</p>
+            <p class="field-error" id="emit-competence-error" aria-live="polite"></p>
+          </div>
+          <div class="field" id="emit-description-field" hidden>
+            <label for="emit-description">Descrição específica do serviço <span class="required">*</span></label>
+            <textarea id="emit-description" name="emit-description" maxlength="600" aria-describedby="emit-description-help emit-description-error"></textarea>
+            <p id="emit-description-help" class="field-help">Os dados bancários e a ordem de serviço são acrescentados automaticamente pelo modelo oficial do tomador.</p>
+            <p class="field-error" id="emit-description-error" aria-live="polite"></p>
+          </div>
+          <div class="field half" id="emit-purchase-order-field" hidden>
+            <label for="emit-purchase-order">Ordem de Compra <span class="required">*</span></label>
+            <input id="emit-purchase-order" name="emit-purchase-order" type="text" autocomplete="off" maxlength="60" aria-describedby="emit-purchase-order-error">
+            <p class="field-error" id="emit-purchase-order-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <p id="emit-standard-description" class="field-help"></p>
+          </div>
+        </div>
+        <div class="button-row end">
+          <button class="button" id="emit-preview-button" type="submit">Gerar prévia oficial</button>
+        </div>
+      </form>
+
+      <section id="emit-review" class="card" hidden aria-labelledby="emit-review-title" tabindex="-1">
+        <h3 id="emit-review-title">Conferência da prévia oficial</h3>
+        <p id="emit-review-summary" class="card-copy"></p>
+        <div class="table-wrap">
+          <table class="review-table">
+            <caption>Valores calculados pelo emissor e conferidos de forma independente pela API fiscal</caption>
+            <tbody id="emit-review-body"></tbody>
+          </table>
+        </div>
+        <div class="form-grid" style="margin-top:14px;">
+          <div class="field half">
+            <label for="emit-confirm-net">Digite o valor líquido para confirmar <span class="required">*</span></label>
+            <input id="emit-confirm-net" name="emit-confirm-net" type="text" inputmode="decimal" autocomplete="off" aria-describedby="emit-confirm-net-help emit-confirm-net-error">
+            <p id="emit-confirm-net-help" class="field-help">A emissão só prossegue se o valor digitado for idêntico ao líquido da prévia.</p>
+            <p class="field-error" id="emit-confirm-net-error" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="button-row end">
+          <button class="button secondary" id="emit-back-button" type="button">Voltar e corrigir dados</button>
+          <button class="button" id="emit-confirm-button" type="button">Confirmar e emitir</button>
+        </div>
+      </section>
+
+      <section id="emit-result" class="card" hidden aria-labelledby="emit-result-title" tabindex="-1">
+        <h3 id="emit-result-title">NFS-e emitida</h3>
+        <p id="emit-result-summary" class="card-copy"></p>
+        <dl id="emit-result-metrics" class="result-grid"></dl>
+        <div id="emit-result-warnings" hidden></div>
+        <div class="button-row end">
+          <button class="button secondary" id="emit-new-button" type="button">Nova emissão</button>
+          <button class="button" id="emit-pdf-button" type="button">Abrir DANFSe</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel" id="tab-solicitacoes" role="tabpanel" aria-labelledby="tab-button-solicitacoes" tabindex="-1" hidden>
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Trilha auditável</p>
+          <h2>Solicitações</h2>
+          <p>Cada emissão nasce de uma solicitação com prévia oficial, aprovação com valor líquido confirmado e registro de auditoria. Consulte esta lista antes de emitir para evitar duplicidade.</p>
+        </div>
+        <button class="button secondary" id="refresh-requests" type="button">Atualizar solicitações</button>
+      </div>
+      <div id="requests-message" class="message-region" aria-live="polite"></div>
+      <section class="card" aria-label="Lista de solicitações">
+        <div class="table-wrap">
+          <table>
+            <caption>Solicitações registradas na API fiscal</caption>
+            <thead>
+              <tr>
+                <th>Criada em</th>
+                <th>Tomador</th>
+                <th>Competência</th>
+                <th class="numeric">Valor bruto</th>
+                <th class="numeric">Líquido</th>
+                <th>Situação</th>
+                <th>NFS-e</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="requests-body"></tbody>
+          </table>
+        </div>
+        <p id="requests-empty" class="empty" hidden>Nenhuma solicitação registrada.</p>
+      </section>
+    </section>
+
+    <section class="panel" id="tab-simular" role="tabpanel" aria-labelledby="tab-button-simular" tabindex="-1" hidden>
       <div class="panel-head">
         <div>
           <p class="section-kicker">Prévia</p>
           <h2>Simular NFS-e</h2>
-          <p>Os valores, as retenções, as alíquotas e os bloqueios desta prévia são informados exclusivamente pelo servidor após a validação do perfil.</p>
+          <p>Cálculo rápido pela API fiscal, sem criar solicitação e sem transmitir dados ao Sistema Nacional NFS-e. Para emitir, use a aba Emitir.</p>
         </div>
       </div>
 
@@ -389,14 +551,14 @@
             <p class="field-error" id="competence-error" aria-live="polite"></p>
           </div>
           <div class="field third">
-            <label for="service-date">Data do serviço/evento <span class="required">*</span></label>
-            <input id="service-date" name="service-date" type="date" required aria-describedby="service-date-error">
+            <label for="service-date">Data do serviço/evento</label>
+            <input id="service-date" name="service-date" type="date" aria-describedby="service-date-error">
             <p class="field-error" id="service-date-error" aria-live="polite"></p>
           </div>
           <div class="field">
-            <label for="description">Descrição <span class="required">*</span></label>
-            <textarea id="description" name="description" maxlength="1800" required aria-describedby="description-help description-error">FEE DR GUILHERME CAMARGO THOME; EVENTO Mini Meeting com Dr Guilherme Thome sobre Cuidado Baseado em Valor: Mais Qualidade, Sustentabilidade e Resultados. DATA DO EVENTO 24/09/26</textarea>
-            <p id="description-help" class="field-help">Confirme a descrição antes de solicitar a prévia.</p>
+            <label for="description">Descrição</label>
+            <textarea id="description" name="description" maxlength="600" aria-describedby="description-help description-error">FEE DR GUILHERME CAMARGO THOME; EVENTO Mini Meeting com Dr Guilherme Thome sobre Cuidado Baseado em Valor: Mais Qualidade, Sustentabilidade e Resultados. DATA DO EVENTO 24/09/26</textarea>
+            <p id="description-help" class="field-help">Exigida apenas para perfis com descrição específica (AbbVie).</p>
             <p class="field-error" id="description-error" aria-live="polite"></p>
           </div>
         </div>
@@ -420,7 +582,7 @@
         <div>
           <p class="section-kicker">Leitura autenticada</p>
           <h2>Histórico de documentos</h2>
-          <p>Consulte documentos registrados. O PDF é aberto por requisição autenticada e temporária.</p>
+          <p>Consulte as NFS-e emitidas pela ferramenta. O DANFSe é aberto por requisição autenticada e temporária e pode ser regerado a partir do XML autorizado.</p>
         </div>
         <button class="button secondary" id="refresh-documents" type="button">Atualizar histórico</button>
       </div>
@@ -432,14 +594,14 @@
             <thead>
               <tr>
                 <th>Número</th>
-                <th>Origem</th>
+                <th>Emitida em</th>
                 <th>Situação</th>
                 <th>Tomador</th>
                 <th>Competência</th>
                 <th class="numeric">Valor bruto</th>
                 <th class="numeric">Retenções</th>
                 <th class="numeric">Líquido</th>
-                <th>PDF</th>
+                <th>DANFSe</th>
               </tr>
             </thead>
             <tbody id="documents-body"></tbody>
@@ -454,7 +616,7 @@
         <div>
           <p class="section-kicker">Consulta de regras</p>
           <h2>Perfis</h2>
-          <p>Os perfis são apresentados em modo de leitura. Não há edição ou ativação nesta versão.</p>
+          <p>Perfis fiscais versionados, espelhados das NFS-e oficiais de referência de cada tomador. Alterações são feitas somente por migração revisada no repositório.</p>
         </div>
         <button class="button secondary" id="refresh-profiles" type="button">Atualizar perfis</button>
       </div>
@@ -462,6 +624,79 @@
       <section class="card" aria-label="Perfis disponíveis">
         <div id="profiles-list" class="profile-list"></div>
       </section>
+    </section>
+
+    <section class="panel" id="tab-agentes" role="tabpanel" aria-labelledby="tab-button-agentes" tabindex="-1" hidden>
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Integração</p>
+          <h2>Agentes</h2>
+          <p>Chaves individuais para agentes de IA e automações (Manus AI, Dots, Codex, Claude Code e outros). Somente o administrador, em sessão individual no Hub, cria e revoga chaves.</p>
+        </div>
+        <button class="button secondary" id="refresh-agents" type="button">Atualizar chaves</button>
+      </div>
+      <div id="agents-message" class="message-region" aria-live="polite"></div>
+
+      <form id="agent-form" class="card" novalidate>
+        <h3>Nova chave de agente</h3>
+        <div class="form-grid">
+          <div class="field half">
+            <label for="agent-name">Nome do agente <span class="required">*</span></label>
+            <input id="agent-name" name="agent-name" type="text" autocomplete="off" maxlength="80" placeholder="Codex" aria-describedby="agent-name-error">
+            <p class="field-error" id="agent-name-error" aria-live="polite"></p>
+          </div>
+          <div class="field half">
+            <label for="agent-expiration">Validade em dias</label>
+            <input id="agent-expiration" name="agent-expiration" type="number" min="1" max="730" inputmode="numeric" placeholder="Sem expiração" aria-describedby="agent-expiration-error">
+            <p class="field-error" id="agent-expiration-error" aria-live="polite"></p>
+          </div>
+          <fieldset class="field">
+            <legend>Escopos</legend>
+            <div class="scope-options" id="agent-scopes"></div>
+            <p class="field-error" id="agent-scopes-error" aria-live="polite"></p>
+          </fieldset>
+        </div>
+        <div class="button-row end">
+          <button class="button" id="agent-create-button" type="submit">Criar chave</button>
+        </div>
+      </form>
+
+      <section id="agent-secret" class="card warning-card" hidden aria-labelledby="agent-secret-title">
+        <h3 id="agent-secret-title">Chave criada</h3>
+        <p class="card-copy"><strong>A chave é exibida somente agora.</strong> Copie-a para o cofre do agente. Ela não pode ser recuperada depois; se for perdida, revogue e crie outra.</p>
+        <div class="secret-box">
+          <input id="agent-secret-value" type="text" readonly aria-label="Chave do agente">
+          <button class="button secondary" id="agent-secret-copy" type="button">Copiar</button>
+          <button class="button secondary" id="agent-secret-hide" type="button">Ocultar</button>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Chaves de agentes">
+        <div class="table-wrap">
+          <table>
+            <caption>Chaves cadastradas (o segredo nunca é exibido novamente)</caption>
+            <thead>
+              <tr>
+                <th>Agente</th>
+                <th>Prefixo</th>
+                <th>Escopos</th>
+                <th>Situação</th>
+                <th>Criada em</th>
+                <th>Último uso</th>
+                <th>Expira em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agents-body"></tbody>
+          </table>
+        </div>
+        <p id="agents-empty" class="empty" hidden>Nenhuma chave disponível para a sessão atual.</p>
+      </section>
+
+      <article class="card info-card">
+        <h3>Integração por API</h3>
+        <p class="card-copy">Base: <span class="mono">https://api.grupocsv.com/nfse/v1/</span>. Autenticação: cabeçalho <span class="mono">Authorization: Bearer &lt;chave&gt;</span>. Fluxo: <span class="mono">POST /requests</span> (prévia oficial), <span class="mono">POST /requests/{id}/approve</span> (líquido esperado), <span class="mono">POST /operations/{id}/emit</span> e <span class="mono">GET /documents/{id}/pdf</span>. Contrato completo no <a href="/_infra/manuais/nfse-axiacare" target="_self">manual técnico-operacional</a>.</p>
+      </article>
     </section>
 
     <section class="panel" id="tab-adequacao" role="tabpanel" aria-labelledby="tab-button-adequacao" tabindex="-1" hidden>
@@ -475,7 +710,7 @@
       <article class="card warning-card content-stack">
         <div class="notice warning" role="note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path></svg>
-          <p><strong>IBS/CBS não está ativado nesta interface.</strong> Qualquer adoção depende de decisão contábil futura, validação regulatória vigente e definição formal das regras aplicáveis. Este conteúdo não afirma aplicabilidade automática à AxiaCare.</p>
+          <p><strong>Não há recolhimento de IBS/CBS pela ferramenta.</strong> Quando presente na NFS-e oficial de referência do tomador, a classificação IBS/CBS é reproduzida sem destaque de valores e sem alterar o valor líquido. Qualquer mudança de regime ou recolhimento depende de decisão contábil futura, validação regulatória vigente e definição formal das regras aplicáveis.</p>
         </div>
 
         <h3>1. Contexto regulatório</h3>
@@ -534,64 +769,82 @@
         <div>
           <p class="section-kicker">Manual</p>
           <h2>Manual da NFS-e AxiaCare</h2>
-          <p>Operação segura dos perfis fiscais AbbVie e 2iM no ambiente de homologação.</p>
+          <p>Emissão controlada de NFS-e pelos modelos oficiais dos tomadores 2iM, AbbVie, ICDS Matriz e ICDS Unihealth GV.</p>
         </div>
       </div>
       <article class="card warning-card">
-        <h3>Ambiente de homologação</h3>
-        <p class="card-copy"><strong>A ferramenta não emite, não cancela e não altera NFS-e.</strong> Os perfis permanecem bloqueados para emissão até a conclusão dos gates fiscais e operacionais.</p>
+        <h3>Emissão controlada em produção</h3>
+        <p class="card-copy"><strong>A ferramenta emite NFS-e reais no Sistema Nacional NFS-e.</strong> Cada nota exige prévia oficial, confirmação do valor líquido e conferência automática do XML autorizado. Cancelamento e substituição não são feitos pela ferramenta: ficam com o responsável humano no Emissor Nacional.</p>
       </article>
 
       <div class="grid" style="margin-top:16px;">
         <article class="card span-6">
           <h3>1. Acesso</h3>
           <ul class="status-list">
-            <li>Entre no portal AxiaCare com uma sessão individual ativa.</li>
-            <li>Sessões compartilhadas não são aceitas pela API fiscal.</li>
-            <li>Os perfis e as prévias são carregados somente após a validação da sessão.</li>
+            <li>Entre no portal AxiaCare com uma sessão individual ativa; sessões compartilhadas não são aceitas pela API fiscal.</li>
+            <li><strong>Administrador:</strong> todas as operações, inclusive chaves de agentes.</li>
+            <li><strong>Solicitante:</strong> consulta, simulação e criação de solicitações.</li>
+            <li><strong>Aprovador:</strong> consulta, simulação e aprovação.</li>
+            <li><strong>Auditor:</strong> consulta, simulação e documentos.</li>
           </ul>
         </article>
         <article class="card span-6">
-          <h3>2. Simulação</h3>
+          <h3>2. Emitir</h3>
           <ol class="status-list">
-            <li>Selecione o perfil fiscal.</li>
-            <li>Informe o valor bruto, a competência, a data do serviço e a descrição.</li>
-            <li>A Ordem de Compra é obrigatória para o perfil AbbVie e não é exigida para o perfil 2iM.</li>
-            <li>Selecione <strong>Calcular prévia</strong> e confira todos os valores.</li>
+            <li>Na aba <strong>Emitir</strong>, selecione o tomador e informe o valor bruto e a competência (mês trabalhado).</li>
+            <li>Para AbbVie, informe também a descrição específica do serviço e a Ordem de Compra.</li>
+            <li>Selecione <strong>Gerar prévia oficial</strong> e confira todos os campos.</li>
+            <li>Digite o valor líquido exatamente como na prévia e selecione <strong>Confirmar e emitir</strong>.</li>
+            <li>Ao final, abra o DANFSe e confira número, chave de acesso e valores.</li>
           </ol>
         </article>
         <article class="card span-6">
-          <h3>3. Regras dos Perfis</h3>
+          <h3>3. Regras dos perfis</h3>
           <ul class="status-list">
-            <li><strong>AbbVie:</strong> IRRF de 1,5%; contribuições sociais de 4,65%; retenções federais totais de 6,15%; Ordem de Compra obrigatória.</li>
-            <li><strong>2iM:</strong> IRRF de 1,5%; contribuições sociais de 4,65%; retenções federais totais de 6,15%; Ordem de Compra não exigida.</li>
-            <li>O ISS é destacado na prévia e não é subtraído do valor líquido calculado.</li>
+            <li>Todos os perfis usam o código de tributação nacional 17.12.01 e a NBS 1.1401.22.00, como nas NFS-e oficiais de referência.</li>
+            <li>Retenções federais: IRRF 1,50%; PIS 0,65%; COFINS 3,00%; CSLL 1,00%; contribuições sociais 4,65%; total 6,15%.</li>
+            <li>ISS de 5,00% destacado, não retido e não subtraído do valor líquido.</li>
             <li>Os componentes são arredondados individualmente pelo critério HALF_UP.</li>
+            <li><strong>2iM:</strong> descrição padronizada “Assessoria Estratégia de Gestão em Saúde”.</li>
+            <li><strong>ICDS Matriz:</strong> “Apoio Técnico Consultivo - Gestão em Saúde - Ref. mês/ano”, seguida dos dados bancários.</li>
+            <li><strong>ICDS Unihealth GV:</strong> descrição padronizada, seguida dos dados bancários.</li>
+            <li><strong>AbbVie:</strong> descrição específica, dados bancários e Ordem de Compra obrigatória.</li>
           </ul>
         </article>
         <article class="card span-6">
-          <h3>4. Outras Abas</h3>
+          <h3>4. Competência</h3>
           <ul class="status-list">
-            <li><strong>Histórico:</strong> consulta documentos privados disponíveis para o papel autorizado.</li>
-            <li><strong>Perfis:</strong> apresenta versão, alíquotas, estado e razões de bloqueio.</li>
-            <li><strong>Adequação:</strong> reúne o roteiro de preparação para IBS/CBS; não altera a emissão.</li>
+            <li>Meses anteriores ao da emissão: a data de competência é o último dia do mês trabalhado.</li>
+            <li>Mês corrente: a data de competência é a data da emissão.</li>
+            <li>Não são aceitos mês futuro nem competência com mais de 12 meses.</li>
+          </ul>
+        </article>
+        <article class="card span-6">
+          <h3>5. DANFSe</h3>
+          <ul class="status-list">
+            <li>Gerado a partir do XML autorizado, conforme a NT 008/2026 v1.02, com QR Code de consulta pública.</li>
+            <li>A API nacional de DANFSe foi suspensa pela NT 008/2026; por isso o documento é gerado pela própria ferramenta.</li>
+            <li>Use <strong>Regerar DANFSe</strong> no Histórico ou em Solicitações para gerar o documento novamente a partir do XML autorizado.</li>
+          </ul>
+        </article>
+        <article class="card span-6">
+          <h3>6. Agentes e integrações</h3>
+          <ul class="status-list">
+            <li>Cada agente usa uma chave individual, criada na aba Agentes pelo administrador.</li>
+            <li>A chave é exibida uma única vez e pode ser revogada a qualquer momento.</li>
+            <li>Agentes seguem o mesmo fluxo de prévia, aprovação com valor líquido e emissão; não cancelam NFS-e.</li>
           </ul>
         </article>
       </div>
 
-      <article class="card info-card">
-        <h3>Conferência da Prévia</h3>
-        <p class="card-copy">Compare o tomador, o valor bruto, a competência, a data do serviço, a descrição, a Ordem de Compra quando aplicável, cada retenção federal e o valor líquido. A prévia é informativa e não cria solicitação nem transmite dados ao Sistema Nacional NFS-e.</p>
-      </article>
-
       <article class="card warning-card">
-        <h3>Regra Operacional</h3>
-        <p class="card-copy">Não tente contornar o bloqueio operacional. A futura emissão deverá usar um perfil contábil aprovado, solicitação auditável, aprovação aplicável, chave de idempotência, transmissão controlada e reconciliação oficial.</p>
+        <h3>Regra operacional</h3>
+        <p class="card-copy">Antes de emitir, consulte a aba Solicitações para evitar duplicidade. Se a confirmação do Sistema Nacional NFS-e demorar, não crie outra solicitação: use <strong>Continuar</strong> na mesma solicitação, que é reconciliada sem gerar nova nota.</p>
       </article>
 
       <article class="card">
-        <h3>Documentação Técnica</h3>
-        <p class="card-copy">Consulte o <a href="/_infra/manuais/nfse-axiacare" target="_self">manual técnico-operacional da NFS-e</a> para regras de cálculo, arquitetura, segurança, mensagens de erro e referências oficiais.</p>
+        <h3>Documentação técnica</h3>
+        <p class="card-copy">Consulte o <a href="/_infra/manuais/nfse-axiacare" target="_self">manual técnico-operacional da NFS-e</a> para arquitetura, contrato da API, segurança, mensagens de erro e referências oficiais.</p>
       </article>
     </section>
   </main>
@@ -603,6 +856,15 @@
 
       const API_V3 = 'https://api.grupocsv.com/nfse/v1/';
       const REQUEST_TIMEOUT_MS = 12000;
+      const CREATE_TIMEOUT_MS = 45000;
+      const EMIT_TIMEOUT_MS = 110000;
+      const DANFSE_TIMEOUT_MS = 75000;
+      const EMIT_RETRY_DELAY_MS = 30000;
+      const EMIT_MAX_CONFIRMATIONS = 6;
+      const ALL_SCOPES = Object.freeze(['read', 'simulate', 'request', 'approve', 'emit', 'documents']);
+      const SCOPE_LABELS = Object.freeze({ read: 'Consulta', simulate: 'Simulação', request: 'Solicitação', approve: 'Aprovação', emit: 'Emissão', documents: 'Documentos' });
+      const PROFILE_NAMES = Object.freeze({ '2im': '2iM Inteligência Médica S.A.', abbvie: 'AbbVie Farmacêutica Ltda.', 'icds-matriz': 'ICDS Matriz', 'icds-unihealth': 'ICDS Unihealth GV' });
+      const REQUEST_STATUS = Object.freeze({ draft: 'Rascunho', submitted: 'Aguardando aprovação', approved: 'Aprovada, aguardando emissão', emitted: 'Emitida', rejected: 'Rejeitada', blocked: 'Bloqueada', cancelled: 'Cancelada' });
       const FIXTURE = Object.freeze({
         profile: 'abbvie',
         purchaseOrder: '4203234719',
@@ -614,8 +876,20 @@
       const FALLBACK_PROFILES = Object.freeze([
         { id: 'abbvie', name: 'AbbVie', version: 'Aguardando confirmação', state: 'Pendente de consulta', purchase_order_required: true, rates: [], pending: ['Aguardando confirmação do servidor.'] },
         { id: '2im', name: '2iM', version: 'Aguardando confirmação', state: 'Pendente de consulta', purchase_order_required: false, rates: [], pending: ['Aguardando confirmação do servidor.'] },
+        { id: 'icds-matriz', name: 'ICDS Matriz', version: 'Aguardando confirmação', state: 'Pendente de consulta', purchase_order_required: false, rates: [], pending: ['Aguardando confirmação do servidor.'] },
+        { id: 'icds-unihealth', name: 'ICDS Unihealth GV', version: 'Aguardando confirmação', state: 'Pendente de consulta', purchase_order_required: false, rates: [], pending: ['Aguardando confirmação do servidor.'] },
       ]);
-      const state = { authenticated: false, profiles: [], profilesLoaded: false, documentsLoaded: false };
+      const state = {
+        authenticated: false,
+        meta: null,
+        scopes: new Set(),
+        profiles: [],
+        profilesLoaded: false,
+        documentsLoaded: false,
+        requestsLoaded: false,
+        agentsLoaded: false,
+        emit: { createKeys: new Map(), request: null, emitKey: '', emitKeyFor: '', documentId: '' },
+      };
 
       const byId = (id) => document.getElementById(id);
       const icon = (name) => {
@@ -706,11 +980,61 @@
         return `${day}/${month}/${year}`;
       }
 
+      function formatCents(value) {
+        return Number.isSafeInteger(value) ? formatMoney(value / 100) : '—';
+      }
+
+      function formatDateTime(value) {
+        const text = cleanText(value, 40);
+        if (!text) return '—';
+        const date = new Date(text);
+        if (Number.isNaN(date.getTime())) return formatText(text);
+        return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }).format(date);
+      }
+
+      function formatCompetence(value) {
+        const text = cleanText(value, 12);
+        return /^\d{4}-\d{2}$/.test(text) ? `${text.slice(5, 7)}/${text.slice(0, 4)}` : formatText(text);
+      }
+
+      function formatCnpj(value) {
+        const digits = cleanText(value, 20).replace(/\D/g, '');
+        return digits.length === 14 ? `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}` : formatText(value);
+      }
+
+      function formatServiceCode(value) {
+        const digits = cleanText(value, 12).replace(/\D/g, '');
+        return digits.length === 6 ? `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}` : formatText(value);
+      }
+
+      function formatNbs(value) {
+        const digits = cleanText(value, 12).replace(/\D/g, '');
+        return digits.length === 9 ? `${digits.slice(0, 1)}.${digits.slice(1, 5)}.${digits.slice(5, 7)}.${digits.slice(7)}` : formatText(value);
+      }
+
+      function currentMonthBrt() {
+        const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit' }).formatToParts(new Date());
+        const year = parts.find((part) => part.type === 'year')?.value || '';
+        const month = parts.find((part) => part.type === 'month')?.value || '';
+        return `${year}-${month}`;
+      }
+
+      function shiftMonth(competence, delta) {
+        const [year, month] = competence.split('-').map(Number);
+        const date = new Date(Date.UTC(year, month - 1 + delta, 1));
+        return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+      }
+
+      function profileName(id) {
+        const key = cleanText(id, 100).toLowerCase();
+        return PROFILE_NAMES[key] || formatText(key, 'Não informado');
+      }
+
       function normalizeProfile(raw) {
         const source = raw && typeof raw === 'object' ? raw : {};
         const id = cleanText(firstValue(source, ['id', 'slug', 'code', 'profile_id']), 100).toLowerCase();
         const sourceName = cleanText(firstValue(source, ['name', 'legal_name', 'display_name', 'label', 'title']), 160);
-        const name = id === '2im' ? '2iM Inteligência Médica S.A.' : id === 'abbvie' ? 'AbbVie Farmacêutica Ltda.' : sourceName || 'Perfil';
+        const name = PROFILE_NAMES[id] || sourceName || 'Perfil';
         const rawRates = firstValue(source, ['rates', 'confirmed_rates', 'aliquotas'], []);
         const rateLabels = { iss_bps: 'ISS', irrf_bps: 'IRRF', pis_bps: 'PIS', cofins_bps: 'COFINS', csll_bps: 'CSLL', federal_total_bps: 'Total federal' };
         const normalizedRates = Array.isArray(rawRates)
@@ -729,6 +1053,10 @@
           version: formatText(firstValue(source, ['version', 'profile_version', 'revision']), 'Não informado'),
           state: formatText(firstValue(source, ['state', 'status', 'state_label']), 'Não informado'),
           purchaseOrderRequired: Boolean(firstValue(source, ['purchase_order_required', 'requires_purchase_order', 'oc_required'], false)),
+          descriptionRequired: Boolean(firstValue(source, ['description_required'], false)),
+          serviceCode: cleanText(firstValue(source, ['service_code']), 12),
+          serviceDescription: cleanText(firstValue(source, ['service_description']), 300),
+          cnpj: cleanText(firstValue(source, ['cnpj_digits']), 20),
           rates,
           pending,
         };
@@ -736,16 +1064,19 @@
 
       function normalizeDocument(raw) {
         const source = raw && typeof raw === 'object' ? raw : {};
+        const gross = Number.isSafeInteger(source.gross_amount_cents) ? source.gross_amount_cents : null;
+        const net = Number.isSafeInteger(source.net_amount_cents) ? source.net_amount_cents : null;
         return {
-          id: cleanText(firstValue(source, ['id', 'document_id', 'uuid']), 160),
-          number: formatText(firstValue(source, ['number', 'numero', 'document_number']), 'Sem número'),
-          origin: formatText(firstValue(source, ['origin', 'origem', 'source']), 'Não informado'),
-          status: formatText(firstValue(source, ['status', 'situacao', 'state']), 'Não informado'),
-          customer: formatText(firstValue(source, ['customer', 'tomador', 'recipient_name', 'taker_name']), 'Não informado'),
-          competence: formatText(firstValue(source, ['competence', 'competencia']), 'Não informado'),
-          gross: firstValue(source, ['gross_amount', 'valor_bruto', 'amount'], Number.isSafeInteger(source.gross_amount_cents) ? source.gross_amount_cents / 100 : ''),
-          withholding: firstValue(source, ['withholding_amount', 'retentions', 'retencoes'], Number.isSafeInteger(source.withholding_amount_cents) ? source.withholding_amount_cents / 100 : ''),
-          net: firstValue(source, ['net_amount', 'valor_liquido', 'net'], Number.isSafeInteger(source.net_amount_cents) ? source.net_amount_cents / 100 : ''),
+          id: cleanText(firstValue(source, ['document_id', 'id']), 160),
+          requestId: cleanText(firstValue(source, ['request_id']), 160),
+          number: formatText(firstValue(source, ['numero_nfse', 'number']), 'Sem número'),
+          createdAt: cleanText(firstValue(source, ['created_at']), 40),
+          status: cleanText(firstValue(source, ['status']), 40),
+          customer: profileName(firstValue(source, ['profile_id'])),
+          competence: formatCompetence(firstValue(source, ['competence'])),
+          grossCents: gross,
+          netCents: net,
+          withholdingCents: gross !== null && net !== null ? gross - net : null,
         };
       }
 
@@ -789,8 +1120,8 @@
 
       function errorMessage(status) {
         if (status === 401) return 'Sua sessão expirou. Entre novamente no Hub para continuar.';
-        if (status === 403) return 'Sua sessão não possui permissão para consultar este recurso.';
-        if (status === 423) return 'O recurso está temporariamente bloqueado para revisão.';
+        if (status === 403) return 'Sua sessão não possui permissão para esta operação.';
+        if (status === 423) return 'A operação está bloqueada nesta ferramenta.';
         if (status >= 500) return 'O serviço está indisponível no momento. Tente novamente mais tarde.';
         return 'Não foi possível concluir a solicitação. Revise os dados e tente novamente.';
       }
@@ -803,7 +1134,7 @@
           throw error;
         }
         const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        const timeout = window.setTimeout(() => controller.abort(), options.timeoutMs || REQUEST_TIMEOUT_MS);
         const relativePath = path.startsWith('/v1/') ? path.slice(4) : path.replace(/^\//, '');
         const url = `${API_V3}${relativePath}`;
         try {
@@ -817,15 +1148,26 @@
             signal: controller.signal,
           });
           if (!response.ok) {
-            const error = new Error(errorMessage(response.status));
+            let serverMessage = '';
+            let serverCode = '';
+            try {
+              const payload = await response.clone().json();
+              serverMessage = cleanText(payload && payload.error && payload.error.message, 600);
+              serverCode = cleanText(payload && payload.error && payload.error.code, 100);
+            } catch (_ignored) {
+              serverMessage = '';
+            }
+            const error = new Error(serverMessage && response.status !== 401 ? serverMessage : errorMessage(response.status));
             error.status = response.status;
+            error.code = serverCode;
             throw error;
           }
           return response;
         } catch (error) {
           if (error && error.name === 'AbortError') {
-            const timeoutError = new Error('A solicitação excedeu o tempo limite. Tente novamente.');
+            const timeoutError = new Error('A resposta excedeu o tempo limite.');
             timeoutError.status = 0;
+            timeoutError.timeout = true;
             throw timeoutError;
           }
           if (error instanceof TypeError && !error.status) {
@@ -889,11 +1231,37 @@
         const tag = document.createElement('span');
         const normalized = cleanText(value).toLowerCase();
         tag.className = 'tag';
-        if (/ativo|valid|confirm|conclu|emitid/.test(normalized)) tag.classList.add('good');
+        if (/^active$|ativo|valid|confirm|conclu|emitid/.test(normalized)) tag.classList.add('good');
         if (/bloq|erro|inativ|cancel/.test(normalized)) tag.classList.add('danger');
         if (/pend|aguard|revis/.test(normalized)) tag.classList.add('warning');
         tag.textContent = stateLabel(value);
         return tag;
+      }
+
+      function labeledTag(text, kind) {
+        const tag = document.createElement('span');
+        tag.className = kind ? `tag ${kind}` : 'tag';
+        tag.textContent = text;
+        return tag;
+      }
+
+      function hasScope(scope) {
+        return state.scopes.has(scope);
+      }
+
+      function isAdminSession() {
+        const principal = state.meta && state.meta.principal;
+        return Boolean(principal && principal.kind === 'session' && ALL_SCOPES.every((scope) => state.scopes.has(scope)));
+      }
+
+      function newIdempotencyKey(prefix) {
+        const bytes = new Uint8Array(16);
+        window.crypto.getRandomValues(bytes);
+        return `${prefix}-${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+      }
+
+      function wait(milliseconds) {
+        return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
       }
 
       function appendMetaPair(list, label, value) {
@@ -936,15 +1304,21 @@
           const profiles = profilesFromPayload(payload);
           state.profiles = profiles.length ? profiles : FALLBACK_PROFILES;
           state.profilesLoaded = true;
+          state.meta = responseData(meta);
+          state.scopes = new Set(safeArray(state.meta.principal && state.meta.principal.scopes).map((scope) => cleanText(scope, 30)));
           renderProfileSelect();
           renderProfiles();
+          renderEmitProfileSelect();
+          applyPermissions();
           const mode = cleanText(firstValue(responseData(meta), ['mode', 'environment', 'status']), '');
           setMessage('profiles-message', 'success', mode ? `Perfis atualizados. Ambiente informado: ${mode}.` : 'Perfis atualizados.');
         } catch (error) {
           state.profiles = FALLBACK_PROFILES;
           renderProfileSelect();
           renderProfiles();
+          renderEmitProfileSelect();
           setMessage('profiles-message', 'warning', error.message || 'Não foi possível atualizar os perfis.');
+          setMessage('emit-message', 'warning', error.message || 'Não foi possível carregar os perfis fiscais.');
         }
       }
 
@@ -969,19 +1343,19 @@
       function validateSimulation() {
         clearFieldErrors();
         const profile = cleanText(byId('profile').value, 100);
-        const purchaseOrder = cleanText(byId('purchase-order').value, 40);
+        const purchaseOrder = cleanText(byId('purchase-order').value, 60);
         const grossAmountCents = parseMoneyToCents(byId('gross-amount').value);
         const competence = cleanText(byId('competence').value, 12);
         const serviceDate = cleanText(byId('service-date').value, 12);
-        const description = cleanText(byId('description').value, 1800);
+        const description = cleanText(byId('description').value, 600);
         const selected = state.profiles.find((item) => item.id === profile) || FALLBACK_PROFILES.find((item) => item.id === profile);
         let valid = true;
         if (!profile) { setFieldError('profile', 'Selecione um perfil.'); valid = false; }
         if (selected?.purchaseOrderRequired && !purchaseOrder) { setFieldError('purchase-order', 'Informe a Ordem de Compra para este perfil.'); valid = false; }
         if (grossAmountCents === null || grossAmountCents <= 0) { setFieldError('gross-amount', 'Informe um valor bruto maior que zero.'); valid = false; }
         if (!/^\d{4}-\d{2}$/.test(competence)) { setFieldError('competence', 'Informe a competência.'); valid = false; }
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate)) { setFieldError('service-date', 'Informe a data do serviço ou evento.'); valid = false; }
-        if (!description) { setFieldError('description', 'Informe a descrição.'); valid = false; }
+        if (serviceDate && !/^\d{4}-\d{2}-\d{2}$/.test(serviceDate)) { setFieldError('service-date', 'Informe uma data válida.'); valid = false; }
+        if (selected?.descriptionRequired && !description) { setFieldError('description', 'Informe a descrição específica do serviço.'); valid = false; }
         return valid ? { profile, purchaseOrder, grossAmountCents, competence, serviceDate, description } : null;
       }
 
@@ -1101,13 +1475,13 @@
               profile_code: fields.profile,
               gross_amount_cents: fields.grossAmountCents,
               competence: fields.competence,
-              description: fields.description,
-              service_date: fields.serviceDate,
+              ...(fields.description ? { description: fields.description } : {}),
+              ...(fields.serviceDate ? { service_date: fields.serviceDate } : {}),
               ...(fields.purchaseOrder ? { purchase_order: fields.purchaseOrder } : {}),
             },
           });
           renderSimulation(payload);
-          setMessage('session-message', 'success', 'Prévia atualizada. A emissão permanece desabilitada neste ambiente.');
+          setMessage('session-message', 'success', 'Prévia atualizada. A simulação não cria solicitação; para emitir, use a aba Emitir.');
         } catch (error) {
           setMessage('session-message', 'danger', error.message || 'Não foi possível solicitar a prévia.');
         } finally {
@@ -1133,31 +1507,46 @@
         const empty = byId('documents-empty');
         body.replaceChildren();
         empty.hidden = documents.length > 0;
-        documents.forEach((document) => {
+        documents.forEach((item) => {
           const row = document.createElement('tr');
-          appendCell(row, document.number, 'break');
-          appendCell(row, document.origin);
+          appendCell(row, item.number, 'break');
+          appendCell(row, formatDateTime(item.createdAt));
           const statusCell = document.createElement('td');
-          statusCell.append(documentStatusTag(document.status));
+          const statusLabels = { active: ['Disponível', 'good'], cancelled: ['Cancelado', 'danger'], superseded: ['Substituído', 'warning'] };
+          const [label, kind] = statusLabels[item.status] || [formatText(item.status), ''];
+          statusCell.append(labeledTag(label, kind));
           row.append(statusCell);
-          appendCell(row, document.customer, 'break');
-          appendCell(row, document.competence);
-          appendCell(row, formatMoney(document.gross), 'numeric');
-          appendCell(row, formatMoney(document.withholding), 'numeric');
-          appendCell(row, formatMoney(document.net), 'numeric');
-          const pdfCell = document.createElement('td');
-          if (document.id) {
+          appendCell(row, item.customer, 'break');
+          appendCell(row, item.competence);
+          appendCell(row, formatCents(item.grossCents), 'numeric');
+          appendCell(row, formatCents(item.withholdingCents), 'numeric');
+          appendCell(row, formatCents(item.netCents), 'numeric');
+          const actionCell = document.createElement('td');
+          const actions = document.createElement('div');
+          actions.className = 'inline-actions';
+          if (item.id && hasScope('documents')) {
             const pdfButton = document.createElement('button');
             pdfButton.type = 'button';
             pdfButton.className = 'button secondary pdf';
-            pdfButton.textContent = 'Abrir PDF';
-            pdfButton.addEventListener('click', () => openPdf(document.id, pdfButton));
-            pdfCell.append(pdfButton);
-          } else {
-            pdfCell.textContent = 'Indisponível';
-            pdfCell.className = 'muted';
+            pdfButton.textContent = 'Abrir DANFSe';
+            pdfButton.addEventListener('click', () => openPdf(item.id, pdfButton, 'history-message'));
+            actions.append(pdfButton);
           }
-          row.append(pdfCell);
+          if (item.requestId && item.status === 'active' && hasScope('documents')) {
+            const regenerateButton = document.createElement('button');
+            regenerateButton.type = 'button';
+            regenerateButton.className = 'button secondary';
+            regenerateButton.textContent = 'Regerar DANFSe';
+            regenerateButton.addEventListener('click', () => regenerateDanfse(item.requestId, regenerateButton, 'history-message'));
+            actions.append(regenerateButton);
+          }
+          if (actions.childElementCount) {
+            actionCell.append(actions);
+          } else {
+            actionCell.textContent = 'Indisponível';
+            actionCell.className = 'muted';
+          }
+          row.append(actionCell);
           body.append(row);
         });
       }
@@ -1175,20 +1564,22 @@
         }
       }
 
-      async function openPdf(id, button) {
+      async function openPdf(id, button, regionId = 'history-message') {
         const documentId = cleanText(id, 160);
         if (!documentId) {
-          setMessage('history-message', 'warning', 'O identificador do PDF não é válido.');
+          setMessage(regionId, 'warning', 'O identificador do DANFSe não é válido.');
           return;
         }
-        const originalLabel = button.textContent;
-        button.disabled = true;
-        button.textContent = 'Abrindo PDF…';
+        const originalLabel = button ? button.textContent : '';
+        if (button) {
+          button.disabled = true;
+          button.textContent = 'Abrindo…';
+        }
         try {
-          const response = await request(`/v1/documents/${encodeURIComponent(documentId)}/pdf`);
+          const response = await request(`/v1/documents/${encodeURIComponent(documentId)}/pdf`, { timeoutMs: 30000 });
           const blob = await response.blob();
-          if (!blob.size) throw new Error('O PDF solicitado está vazio.');
-          const objectUrl = URL.createObjectURL(blob);
+          if (!blob.size) throw new Error('O DANFSe solicitado está vazio.');
+          const objectUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
           const popup = window.open(objectUrl, '_blank', 'noopener,noreferrer');
           if (!popup) {
             const link = document.createElement('a');
@@ -1201,12 +1592,647 @@
             link.remove();
           }
           window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
-          setMessage('history-message', 'success', 'PDF aberto por acesso autenticado temporário.');
+          setMessage(regionId, 'success', 'DANFSe aberto por acesso autenticado temporário.');
         } catch (error) {
-          setMessage('history-message', 'danger', error.message || 'Não foi possível abrir o PDF.');
+          setMessage(regionId, 'danger', error.message || 'Não foi possível abrir o DANFSe.');
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = originalLabel;
+          }
+        }
+      }
+
+      async function regenerateDanfse(requestId, button, regionId) {
+        const id = cleanText(requestId, 60);
+        if (!id) return;
+        const originalLabel = button ? button.textContent : '';
+        if (button) {
+          button.disabled = true;
+          button.textContent = 'Regerando…';
+        }
+        setLoading(regionId, 'Regerando o DANFSe a partir do XML autorizado…');
+        try {
+          const payload = await requestJson(`/v1/requests/${encodeURIComponent(id)}/danfse`, { method: 'POST', json: {}, timeoutMs: DANFSE_TIMEOUT_MS });
+          const data = responseData(payload);
+          const documentId = cleanText(data.document && data.document.document_id, 60);
+          setMessage(regionId, 'success', 'DANFSe regerado a partir do XML autorizado.');
+          if (regionId === 'history-message') loadDocuments();
+          if (documentId) await openPdf(documentId, null, regionId);
+        } catch (error) {
+          setMessage(regionId, 'danger', error.message || 'Não foi possível regerar o DANFSe.');
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = originalLabel;
+          }
+        }
+      }
+
+      function updateEmitButton() {
+        const mutationsEnabled = Boolean(state.meta && state.meta.mutations_enabled);
+        byId('emit-preview-button').disabled = !(hasScope('request') && mutationsEnabled);
+      }
+
+      function applyPermissions() {
+        byId('tab-button-agentes').hidden = !isAdminSession();
+        const canRequest = hasScope('request');
+        const mutationsEnabled = Boolean(state.meta && state.meta.mutations_enabled);
+        updateEmitButton();
+        if (!mutationsEnabled) {
+          setMessage('emit-message', 'warning', 'A emissão está desativada no servidor neste momento. Simulações e consultas continuam disponíveis.');
+        } else if (!canRequest) {
+          setMessage('emit-message', 'warning', 'Sua sessão permite consultar, mas não criar solicitações de emissão. Solicite ao administrador o papel adequado.');
+        } else {
+          setMessage('emit-message', 'success', 'Sessão validada. Emissão disponível para os perfis ativos.');
+        }
+      }
+
+      function activeProfiles() {
+        return state.profiles.filter((profile) => cleanText(profile.state).toLowerCase() === 'active');
+      }
+
+      function selectedEmitProfile() {
+        const id = cleanText(byId('emit-profile').value, 100).toLowerCase();
+        return activeProfiles().find((profile) => profile.id === id) || null;
+      }
+
+      function renderEmitProfileSelect() {
+        const select = byId('emit-profile');
+        const current = select.value;
+        select.replaceChildren();
+        const profiles = activeProfiles();
+        if (!profiles.length) {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = state.profilesLoaded ? 'Nenhum perfil ativo' : 'Aguardando a sessão do Hub';
+          select.append(option);
+        }
+        profiles.forEach((profile) => {
+          const option = document.createElement('option');
+          option.value = profile.id;
+          option.textContent = profile.name;
+          select.append(option);
+        });
+        if (profiles.some((profile) => profile.id === current)) select.value = current;
+        updateEmitFields();
+      }
+
+      function updateEmitFields() {
+        const profile = selectedEmitProfile();
+        const descriptionRequired = Boolean(profile && profile.descriptionRequired);
+        const purchaseOrderRequired = Boolean(profile && profile.purchaseOrderRequired);
+        byId('emit-description-field').hidden = !descriptionRequired;
+        byId('emit-purchase-order-field').hidden = !purchaseOrderRequired;
+        const standard = byId('emit-standard-description');
+        if (profile && !descriptionRequired && profile.serviceDescription) {
+          standard.textContent = `Descrição padronizada do modelo oficial: ${profile.serviceDescription.replace('{MÊS}/{ANO}', 'mês/ano da competência')}. A descrição completa aparece na prévia oficial.`;
+        } else if (profile && descriptionRequired) {
+          standard.textContent = 'Este tomador exige a descrição específica do serviço a cada NFS-e.';
+        } else {
+          standard.textContent = '';
+        }
+      }
+
+      function setupCompetence() {
+        const input = byId('emit-competence');
+        const current = currentMonthBrt();
+        if (!/^\d{4}-\d{2}$/.test(current)) return;
+        input.max = current;
+        input.min = shiftMonth(current, -12);
+        if (!input.value) input.value = shiftMonth(current, -1);
+      }
+
+      function setEmitStep(step) {
+        [1, 2, 3].forEach((index) => {
+          const item = byId(`emit-step-${index}`);
+          if (index === step) item.setAttribute('aria-current', 'step');
+          else item.removeAttribute('aria-current');
+        });
+      }
+
+      function validateEmit() {
+        clearFieldErrors();
+        const profile = selectedEmitProfile();
+        const grossAmountCents = parseMoneyToCents(byId('emit-gross-amount').value);
+        const competence = cleanText(byId('emit-competence').value, 12);
+        const description = cleanText(byId('emit-description').value, 600);
+        const purchaseOrder = cleanText(byId('emit-purchase-order').value, 60);
+        const input = byId('emit-competence');
+        let valid = true;
+        if (!profile) { setFieldError('emit-profile', 'Selecione um tomador com perfil ativo.'); valid = false; }
+        if (grossAmountCents === null || grossAmountCents < 100) { setFieldError('emit-gross-amount', 'Informe um valor bruto de pelo menos R$ 1,00.'); valid = false; }
+        if (!/^\d{4}-\d{2}$/.test(competence) || (input.min && competence < input.min) || (input.max && competence > input.max)) {
+          setFieldError('emit-competence', `Informe uma competência entre ${formatCompetence(input.min)} e ${formatCompetence(input.max)}.`);
+          valid = false;
+        }
+        if (profile && profile.descriptionRequired && (description.length < 3 || /[<>]/.test(description))) {
+          setFieldError('emit-description', 'Informe a descrição específica do serviço (mínimo de 3 caracteres, sem os sinais < e >).');
+          valid = false;
+        }
+        if (profile && profile.purchaseOrderRequired && !/^[A-Za-z0-9._\-/ ]{1,60}$/.test(purchaseOrder)) {
+          setFieldError('emit-purchase-order', 'Informe a Ordem de Compra (letras, números, espaço, ponto, hífen, sublinhado ou barra).');
+          valid = false;
+        }
+        if (!valid || !profile) return null;
+        return {
+          profile,
+          payload: {
+            profile_code: profile.id,
+            gross_amount_cents: grossAmountCents,
+            competence,
+            ...(profile.descriptionRequired ? { description } : {}),
+            ...(profile.purchaseOrderRequired ? { purchase_order: purchaseOrder } : {}),
+          },
+        };
+      }
+
+      function addReviewRow(body, label, value, strong = false) {
+        const row = document.createElement('tr');
+        const head = document.createElement('th');
+        head.scope = 'row';
+        head.textContent = label;
+        const cell = document.createElement('td');
+        if (strong) {
+          const emphasis = document.createElement('strong');
+          emphasis.textContent = value;
+          cell.append(emphasis);
+        } else {
+          cell.textContent = value;
+        }
+        row.append(head, cell);
+        body.append(row);
+      }
+
+      function renderReview(data) {
+        const preview = data.preview && typeof data.preview === 'object' ? data.preview : {};
+        const amounts = data.amounts && typeof data.amounts === 'object' ? data.amounts : {};
+        const input = data.input && typeof data.input === 'object' ? data.input : {};
+        const body = byId('emit-review-body');
+        body.replaceChildren();
+        addReviewRow(body, 'Solicitação', formatText(data.request_id));
+        addReviewRow(body, 'Tomador', `${formatText(preview.tomador_nome)} — CNPJ ${formatCnpj(preview.tomador_cnpj)}`);
+        addReviewRow(body, 'Modelo oficial', `${profileName(data.profile_id)} — versão ${formatText(data.profile_version)}`);
+        addReviewRow(body, 'Competência', formatCompetence(preview.competencia || input.competence));
+        addReviewRow(body, 'Data de competência na NFS-e', formatDate(preview.data_competencia));
+        addReviewRow(body, 'Data prevista de emissão', formatDate(preview.data_emissao_prevista));
+        addReviewRow(body, 'Código de tributação nacional', formatServiceCode(preview.c_trib_nac));
+        addReviewRow(body, 'Código NBS', formatNbs(preview.c_nbs));
+        if (data.purchase_order) addReviewRow(body, 'Ordem de Compra', formatText(data.purchase_order));
+        addReviewRow(body, 'Descrição do serviço', formatText(preview.descricao));
+        addReviewRow(body, 'Valor bruto', formatCents(preview.valor_bruto_centavos));
+        addReviewRow(body, 'IRRF retido', formatCents(preview.irrf_centavos));
+        addReviewRow(body, 'PIS retido', formatCents(preview.pis_centavos));
+        addReviewRow(body, 'COFINS retida', formatCents(preview.cofins_centavos));
+        addReviewRow(body, 'CSLL retida', formatCents(preview.csll_centavos));
+        addReviewRow(body, 'Contribuições sociais retidas (PIS/COFINS/CSLL)', formatCents(preview.contribuicoes_sociais_centavos));
+        addReviewRow(body, 'Total de retenções federais', formatCents(preview.total_retencoes_centavos));
+        addReviewRow(body, preview.iss_retido ? 'ISS retido' : 'ISS destacado (não retido; não reduz o líquido)', formatCents(preview.iss_destacado_centavos));
+        addReviewRow(body, 'Valor líquido', formatCents(preview.valor_liquido_centavos), true);
+        const independent = Number.isSafeInteger(amounts.net_amount_cents) && amounts.net_amount_cents === preview.valor_liquido_centavos;
+        addReviewRow(body, 'Conferência independente da API fiscal', independent ? 'Confere com a prévia do emissor' : 'Divergente — não emita');
+        byId('emit-review-summary').textContent = 'Prévia oficial gerada pelo emissor com o modelo do tomador. Nada foi transmitido ao Sistema Nacional NFS-e até a sua confirmação.';
+        byId('emit-confirm-net').value = '';
+        byId('emit-confirm-button').disabled = !independent || !hasScope('emit') || (data.status === 'submitted' && !hasScope('approve'));
+      }
+
+      function renderEmitResult(data) {
+        const result = data.result && typeof data.result === 'object' ? data.result : {};
+        const metrics = byId('emit-result-metrics');
+        metrics.replaceChildren();
+        [
+          ['Número da NFS-e', formatText(result.numero_nfse)],
+          ['Chave de acesso', formatText(result.chave_acesso)],
+          ['Data de competência', formatDate(result.data_competencia)],
+          ['Valor líquido', formatCents(result.valor_liquido_cents)],
+          ['Conferência do XML autorizado', result.conferencia_ok === true ? 'Confere' : 'Revisar'],
+          ['DANFSe', formatText(result.danfse_norma, 'Gerado a partir do XML autorizado')],
+        ].forEach(([label, value]) => {
+          const metric = document.createElement('div');
+          metric.className = 'metric';
+          const term = document.createElement('dt');
+          term.textContent = label;
+          const definition = document.createElement('dd');
+          definition.textContent = value;
+          if (label === 'Chave de acesso') definition.className = 'mono';
+          metric.append(term, definition);
+          metrics.append(metric);
+        });
+        const warningsNode = byId('emit-result-warnings');
+        warningsNode.replaceChildren();
+        const warnings = [...safeArray(result.warnings), ...safeArray(result.divergencias)].map((item) => formatText(typeof item === 'object' ? firstValue(item, ['message', 'campo', 'field'], '') : item, '')).filter(Boolean);
+        if (data.requires_review || result.conferencia_ok === false || warnings.length) {
+          warningsNode.append(createNotice('warning', `Revise a nota antes de enviá-la ao tomador.${warnings.length ? ` ${warnings.join(' · ')}` : ''}`));
+          warningsNode.hidden = false;
+        } else {
+          warningsNode.hidden = true;
+        }
+        state.emit.documentId = cleanText(data.document && data.document.document_id, 60);
+        byId('emit-pdf-button').disabled = !state.emit.documentId || !hasScope('documents');
+        byId('emit-result-summary').textContent = `NFS-e nº ${formatText(result.numero_nfse)} autorizada para ${profileName(data.profile_id)}`.replace(/\.?$/, '.');
+        byId('emit-form').hidden = true;
+        byId('emit-review').hidden = true;
+        byId('emit-result').hidden = false;
+        setEmitStep(3);
+        byId('emit-result').focus();
+        state.requestsLoaded = false;
+        state.documentsLoaded = false;
+      }
+
+      function showEmitStage(data) {
+        state.emit.request = data;
+        const status = cleanText(data.status, 30);
+        if (status === 'emitted') {
+          renderEmitResult(data);
+          setMessage('emit-message', 'success', 'NFS-e emitida e conferida.');
+          return;
+        }
+        if (status !== 'submitted' && status !== 'approved') {
+          setMessage('emit-message', 'danger', `Esta solicitação está com a situação “${REQUEST_STATUS[status] || formatText(status)}” e não pode ser emitida.`);
+          return;
+        }
+        renderReview(data);
+        byId('emit-form').hidden = true;
+        byId('emit-result').hidden = true;
+        byId('emit-review').hidden = false;
+        setEmitStep(2);
+        byId('emit-review').focus();
+        if (status === 'submitted' && !hasScope('approve')) {
+          setMessage('emit-message', 'info', 'Solicitação registrada. A aprovação e a emissão dependem de um aprovador.');
+        } else if (status === 'approved') {
+          setMessage('emit-message', 'info', 'Solicitação já aprovada. Digite o valor líquido para confirmar a emissão.');
+        } else {
+          setMessage('emit-message', 'info', 'Confira a prévia oficial e digite o valor líquido para confirmar.');
+        }
+      }
+
+      async function submitEmitPreview(event) {
+        event.preventDefault();
+        const fields = validateEmit();
+        if (!fields) {
+          setMessage('emit-message', 'danger', 'Revise os campos destacados antes de gerar a prévia oficial.');
+          return;
+        }
+        const fingerprint = JSON.stringify(fields.payload);
+        let key = state.emit.createKeys.get(fingerprint);
+        if (!key) {
+          key = newIdempotencyKey('hub-create');
+          state.emit.createKeys.set(fingerprint, key);
+        }
+        const button = byId('emit-preview-button');
+        button.disabled = true;
+        button.textContent = 'Gerando prévia oficial…';
+        setLoading('emit-message', 'Gerando a prévia oficial no emissor…');
+        try {
+          const created = responseData(await requestJson('/v1/requests', { method: 'POST', json: fields.payload, headers: { 'Idempotency-Key': key }, timeoutMs: CREATE_TIMEOUT_MS }));
+          const id = cleanText(created.request_id, 60);
+          if (!id) throw new Error('A API não retornou o identificador da solicitação.');
+          let current = created;
+          try {
+            current = responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}`));
+          } catch (_ignored) {
+            current = created;
+          }
+          state.requestsLoaded = false;
+          showEmitStage(current);
+        } catch (error) {
+          if (error.status >= 400 && error.status < 500 && ![401, 408, 429].includes(error.status)) state.emit.createKeys.delete(fingerprint);
+          const message = error.timeout ? 'A prévia oficial não respondeu a tempo. Tente novamente: a mesma solicitação será reaproveitada.' : error.message;
+          setMessage('emit-message', 'danger', message || 'Não foi possível gerar a prévia oficial.');
+        } finally {
+          button.textContent = 'Gerar prévia oficial';
+          updateEmitButton();
+        }
+      }
+
+      async function runEmission(id) {
+        if (state.emit.emitKeyFor !== id || !state.emit.emitKey) {
+          state.emit.emitKey = newIdempotencyKey('hub-emit');
+          state.emit.emitKeyFor = id;
+        }
+        for (let attempt = 0; attempt <= EMIT_MAX_CONFIRMATIONS; attempt += 1) {
+          setLoading('emit-message', attempt === 0
+            ? 'Transmitindo ao Sistema Nacional NFS-e e conferindo o XML autorizado. Não feche esta página.'
+            : `Aguardando a confirmação do Sistema Nacional NFS-e (consulta ${attempt} de ${EMIT_MAX_CONFIRMATIONS}).`);
+          let response;
+          try {
+            response = await request(`/v1/operations/${encodeURIComponent(id)}/emit`, { method: 'POST', json: {}, headers: { 'Idempotency-Key': state.emit.emitKey }, timeoutMs: EMIT_TIMEOUT_MS });
+          } catch (error) {
+            if (error.status >= 400 && error.status < 500 && ![401, 408, 429].includes(error.status)) {
+              state.emit.emitKey = newIdempotencyKey('hub-emit');
+            }
+            if (error.timeout || error.status === 0 || error.status >= 500) {
+              const detail = error.timeout || error.status === 0 ? 'A confirmação não chegou a tempo.' : `${error.message}`;
+              const pending = new Error(`${detail} Não crie outra solicitação: selecione “Confirmar e emitir” novamente ou use “Continuar” na aba Solicitações; a mesma operação é reconciliada sem gerar nova nota.`);
+              pending.status = error.status;
+              throw pending;
+            }
+            throw error;
+          }
+          let payload = null;
+          try {
+            payload = await response.json();
+          } catch (_ignored) {
+            payload = null;
+          }
+          if (response.status === 202) {
+            await wait(EMIT_RETRY_DELAY_MS);
+            continue;
+          }
+          let data = responseData(payload);
+          if (!data.document || !data.result) {
+            try {
+              data = { ...responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}`)), requires_review: data.requires_review };
+            } catch (_ignored) {
+              data = responseData(payload);
+            }
+          }
+          renderEmitResult(data);
+          setMessage('emit-message', data.requires_review ? 'warning' : 'success', data.requires_review ? 'NFS-e emitida. A conferência automática pediu revisão.' : 'NFS-e emitida e conferida com o XML autorizado.');
+          return;
+        }
+        throw new Error('O Sistema Nacional NFS-e ainda não confirmou a emissão. Não crie outra solicitação: consulte a aba Solicitações em alguns minutos e use “Continuar” nesta mesma solicitação.');
+      }
+
+      async function confirmEmission() {
+        const current = state.emit.request;
+        if (!current) return;
+        clearFieldErrors();
+        const id = cleanText(current.request_id, 60);
+        const expected = current.amounts && current.amounts.net_amount_cents;
+        const typed = parseMoneyToCents(byId('emit-confirm-net').value);
+        if (!Number.isSafeInteger(expected)) {
+          setMessage('emit-message', 'danger', 'A solicitação não possui valor líquido calculado. Gere uma nova prévia.');
+          return;
+        }
+        if (typed === null || typed !== expected) {
+          setFieldError('emit-confirm-net', 'O valor digitado não confere com o valor líquido da prévia.');
+          return;
+        }
+        const gross = current.amounts && current.amounts.gross_amount_cents;
+        const confirmed = window.confirm(`Emitir a NFS-e para ${profileName(current.profile_id)}?\n\nValor bruto: ${formatCents(gross)}\nValor líquido: ${formatCents(expected)}\n\nA nota será transmitida ao Sistema Nacional NFS-e.`);
+        if (!confirmed) return;
+        const confirmButton = byId('emit-confirm-button');
+        const backButton = byId('emit-back-button');
+        confirmButton.disabled = true;
+        backButton.disabled = true;
+        confirmButton.textContent = 'Emitindo…';
+        try {
+          if (cleanText(current.status, 30) === 'submitted') {
+            setLoading('emit-message', 'Registrando a aprovação com o valor líquido confirmado…');
+            try {
+              const approved = responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}/approve`, {
+                method: 'POST',
+                json: { expected_net_amount_cents: typed },
+                headers: { 'Idempotency-Key': `hub-approve-${id}-${typed}` },
+                timeoutMs: 20000,
+              }));
+              state.emit.request = { ...current, ...approved, status: 'approved' };
+            } catch (error) {
+              if (error.code !== 'request_not_pending') throw error;
+              const latest = responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}`));
+              if (latest.status === 'emitted') {
+                renderEmitResult(latest);
+                setMessage('emit-message', 'success', 'Esta solicitação já havia sido emitida.');
+                return;
+              }
+              if (latest.status !== 'approved') throw error;
+              state.emit.request = latest;
+            }
+            state.requestsLoaded = false;
+          }
+          await runEmission(id);
+        } catch (error) {
+          setMessage('emit-message', 'danger', error.message || 'Não foi possível concluir a emissão.');
+        } finally {
+          confirmButton.textContent = 'Confirmar e emitir';
+          confirmButton.disabled = false;
+          backButton.disabled = false;
+        }
+      }
+
+      function backToEmitForm() {
+        byId('emit-review').hidden = true;
+        byId('emit-result').hidden = true;
+        byId('emit-form').hidden = false;
+        setEmitStep(1);
+        setMessage('emit-message', 'info', 'Corrija os dados e gere uma nova prévia oficial.');
+      }
+
+      function resetEmit() {
+        state.emit.request = null;
+        state.emit.emitKey = '';
+        state.emit.emitKeyFor = '';
+        state.emit.documentId = '';
+        byId('emit-gross-amount').value = '';
+        byId('emit-description').value = '';
+        byId('emit-purchase-order').value = '';
+        byId('emit-confirm-net').value = '';
+        byId('emit-competence').value = '';
+        setupCompetence();
+        clearFieldErrors();
+        backToEmitForm();
+        applyPermissions();
+      }
+
+      async function continueRequest(id) {
+        switchTab('emitir', true);
+        setLoading('emit-message', 'Carregando a solicitação…');
+        try {
+          showEmitStage(responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}`)));
+        } catch (error) {
+          setMessage('emit-message', 'danger', error.message || 'Não foi possível carregar a solicitação.');
+        }
+      }
+
+      async function openRequestPdf(id, button) {
+        try {
+          const data = responseData(await requestJson(`/v1/requests/${encodeURIComponent(id)}`));
+          const documentId = cleanText(data.document && data.document.document_id, 60);
+          if (!documentId) throw new Error('A solicitação ainda não possui DANFSe registrado.');
+          await openPdf(documentId, button, 'requests-message');
+        } catch (error) {
+          setMessage('requests-message', 'danger', error.message || 'Não foi possível abrir o DANFSe.');
+        }
+      }
+
+      function actionButton(label, onClick, className = 'button secondary') {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = className;
+        button.textContent = label;
+        button.addEventListener('click', () => onClick(button));
+        return button;
+      }
+
+      function renderRequests(list) {
+        const body = byId('requests-body');
+        body.replaceChildren();
+        byId('requests-empty').hidden = list.length > 0;
+        const sorted = [...list].sort((a, b) => cleanText(b.created_at, 40).localeCompare(cleanText(a.created_at, 40)));
+        sorted.forEach((item) => {
+          const id = cleanText(item.request_id, 60);
+          const status = cleanText(item.status, 30);
+          const amounts = item.amounts && typeof item.amounts === 'object' ? item.amounts : {};
+          const input = item.input && typeof item.input === 'object' ? item.input : {};
+          const result = item.result && typeof item.result === 'object' ? item.result : {};
+          const row = document.createElement('tr');
+          appendCell(row, formatDateTime(item.created_at));
+          appendCell(row, profileName(item.profile_id), 'break');
+          appendCell(row, formatCompetence(input.competence));
+          appendCell(row, formatCents(amounts.gross_amount_cents), 'numeric');
+          appendCell(row, formatCents(amounts.net_amount_cents), 'numeric');
+          const statusCell = document.createElement('td');
+          const kinds = { emitted: 'good', submitted: 'warning', approved: 'warning', rejected: 'danger', blocked: 'danger', cancelled: 'danger' };
+          statusCell.append(labeledTag(REQUEST_STATUS[status] || formatText(status), kinds[status] || ''));
+          row.append(statusCell);
+          appendCell(row, formatText(result.numero_nfse));
+          const actionCell = document.createElement('td');
+          const actions = document.createElement('div');
+          actions.className = 'inline-actions';
+          if ((status === 'submitted' || status === 'approved') && hasScope('read')) {
+            actions.append(actionButton('Continuar', () => continueRequest(id)));
+          }
+          if (status === 'emitted' && hasScope('documents')) {
+            actions.append(actionButton('Abrir DANFSe', (button) => openRequestPdf(id, button), 'button secondary pdf'));
+            actions.append(actionButton('Regerar DANFSe', (button) => regenerateDanfse(id, button, 'requests-message')));
+          }
+          if (actions.childElementCount) actionCell.append(actions);
+          else { actionCell.textContent = '—'; actionCell.className = 'muted'; }
+          row.append(actionCell);
+          body.append(row);
+        });
+      }
+
+      async function loadRequests() {
+        setLoading('requests-message', 'Atualizando solicitações…');
+        try {
+          const payload = await requestJson('/v1/requests');
+          renderRequests(safeArray(firstValue(payload, ['data'], [])));
+          state.requestsLoaded = true;
+          setMessage('requests-message', 'success', 'Solicitações atualizadas.');
+        } catch (error) {
+          renderRequests([]);
+          setMessage('requests-message', 'warning', error.message || 'Não foi possível consultar as solicitações.');
+        }
+      }
+
+      function renderScopeOptions() {
+        const container = byId('agent-scopes');
+        container.replaceChildren();
+        ALL_SCOPES.forEach((scope) => {
+          const label = document.createElement('label');
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.value = scope;
+          input.checked = true;
+          input.id = `agent-scope-${scope}`;
+          label.append(input, document.createTextNode(` ${SCOPE_LABELS[scope]}`));
+          container.append(label);
+        });
+      }
+
+      function renderAgents(list) {
+        const body = byId('agents-body');
+        body.replaceChildren();
+        byId('agents-empty').hidden = list.length > 0;
+        list.forEach((item) => {
+          const id = cleanText(item.key_id, 60);
+          const status = cleanText(item.status, 30);
+          const row = document.createElement('tr');
+          appendCell(row, formatText(item.agent_name), 'break');
+          appendCell(row, formatText(item.key_prefix), 'mono');
+          appendCell(row, safeArray(item.scopes).map((scope) => SCOPE_LABELS[scope] || formatText(scope)).join(', ') || '—', 'break');
+          const statusCell = document.createElement('td');
+          statusCell.append(status === 'active' ? labeledTag('Ativa', 'good') : labeledTag(status === 'revoked' ? 'Revogada' : formatText(status), 'danger'));
+          row.append(statusCell);
+          appendCell(row, formatDateTime(item.created_at));
+          appendCell(row, item.last_used_at ? formatDateTime(item.last_used_at) : 'Nunca');
+          appendCell(row, item.expires_at ? formatDateTime(item.expires_at) : 'Sem expiração');
+          const actionCell = document.createElement('td');
+          if (status === 'active') actionCell.append(actionButton('Revogar', (button) => revokeAgentKey(id, item.agent_name, button), 'button secondary'));
+          else { actionCell.textContent = '—'; actionCell.className = 'muted'; }
+          row.append(actionCell);
+          body.append(row);
+        });
+      }
+
+      async function loadAgents() {
+        if (!isAdminSession()) {
+          setMessage('agents-message', 'warning', 'Somente o administrador, em sessão individual no Hub, gerencia chaves de agentes.');
+          return;
+        }
+        setLoading('agents-message', 'Atualizando chaves…');
+        try {
+          const payload = await requestJson('/v1/agent-keys');
+          renderAgents(safeArray(firstValue(payload, ['data'], [])));
+          state.agentsLoaded = true;
+          setMessage('agents-message', 'success', 'Chaves atualizadas.');
+        } catch (error) {
+          renderAgents([]);
+          setMessage('agents-message', 'warning', error.message || 'Não foi possível consultar as chaves.');
+        }
+      }
+
+      async function createAgentKey(event) {
+        event.preventDefault();
+        clearFieldErrors();
+        const name = cleanText(byId('agent-name').value, 80);
+        const expirationText = cleanText(byId('agent-expiration').value, 4);
+        const scopes = ALL_SCOPES.filter((scope) => byId(`agent-scope-${scope}`).checked);
+        let valid = true;
+        if (name.length < 2 || /[<>]/.test(name)) { setFieldError('agent-name', 'Informe o nome do agente (2 a 80 caracteres, sem os sinais < e >).'); valid = false; }
+        const expiration = expirationText ? Number(expirationText) : null;
+        if (expiration !== null && (!Number.isSafeInteger(expiration) || expiration < 1 || expiration > 730)) { setFieldError('agent-expiration', 'Informe de 1 a 730 dias ou deixe em branco.'); valid = false; }
+        if (!scopes.length) { setFieldError('agent-scopes', 'Selecione ao menos um escopo.'); valid = false; }
+        if (!valid) return;
+        const button = byId('agent-create-button');
+        button.disabled = true;
+        try {
+          const created = responseData(await requestJson('/v1/agent-keys', { method: 'POST', json: { agent_name: name, scopes, ...(expiration ? { expires_in_days: expiration } : {}) } }));
+          const secret = cleanText(created.secret, 200);
+          if (!secret) throw new Error('A API não retornou a chave criada.');
+          byId('agent-secret-value').value = secret;
+          byId('agent-secret').hidden = false;
+          byId('agent-name').value = '';
+          byId('agent-expiration').value = '';
+          setMessage('agents-message', 'success', `Chave criada para ${name}. Copie-a agora; ela não será exibida novamente.`);
+          await loadAgents();
+          setMessage('agents-message', 'success', `Chave criada para ${name}. Copie-a agora; ela não será exibida novamente.`);
+        } catch (error) {
+          setMessage('agents-message', 'danger', error.message || 'Não foi possível criar a chave.');
         } finally {
           button.disabled = false;
-          button.textContent = originalLabel;
+        }
+      }
+
+      async function copyAgentSecret() {
+        const input = byId('agent-secret-value');
+        if (!input.value) return;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          setMessage('agents-message', 'success', 'Chave copiada para a área de transferência.');
+        } catch (_error) {
+          input.select();
+          setMessage('agents-message', 'info', 'Selecione o texto e copie manualmente.');
+        }
+      }
+
+      function hideAgentSecret() {
+        byId('agent-secret-value').value = '';
+        byId('agent-secret').hidden = true;
+      }
+
+      async function revokeAgentKey(id, name, button) {
+        if (!window.confirm(`Revogar a chave do agente ${formatText(name)}? O agente perde o acesso imediatamente.`)) return;
+        button.disabled = true;
+        try {
+          await requestJson(`/v1/agent-keys/${encodeURIComponent(id)}/revoke`, { method: 'POST' });
+          await loadAgents();
+          setMessage('agents-message', 'success', `Chave de ${formatText(name)} revogada.`);
+        } catch (error) {
+          setMessage('agents-message', 'danger', error.message || 'Não foi possível revogar a chave.');
+          button.disabled = false;
         }
       }
 
@@ -1221,24 +2247,29 @@
         });
         const panel = byId(`tab-${target}`);
         if (focusPanel && panel) panel.focus();
+        if (!state.authenticated) return;
         if (target === 'historico' && !state.documentsLoaded) loadDocuments();
         if (target === 'perfis' && !state.profilesLoaded) loadProfiles();
+        if (target === 'solicitacoes' && !state.requestsLoaded) loadRequests();
+        if (target === 'agentes' && !state.agentsLoaded) loadAgents();
       }
 
       function wireTabs() {
         const tabs = [...document.querySelectorAll('[role="tab"]')];
-        tabs.forEach((tab, index) => {
+        tabs.forEach((tab) => {
           tab.addEventListener('click', () => switchTab(tab.dataset.tabTarget, true));
           tab.addEventListener('keydown', (event) => {
             if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
             event.preventDefault();
+            const visible = tabs.filter((item) => !item.hidden);
+            const index = visible.indexOf(tab);
             let next = index;
-            if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-            if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === 'ArrowRight') next = (index + 1) % visible.length;
+            if (event.key === 'ArrowLeft') next = (index - 1 + visible.length) % visible.length;
             if (event.key === 'Home') next = 0;
-            if (event.key === 'End') next = tabs.length - 1;
-            tabs[next].focus();
-            switchTab(tabs[next].dataset.tabTarget);
+            if (event.key === 'End') next = visible.length - 1;
+            visible[next].focus();
+            switchTab(visible[next].dataset.tabTarget);
           });
         });
       }
@@ -1259,30 +2290,50 @@
       async function initialize() {
         renderProfileSelect();
         renderProfiles();
+        renderEmitProfileSelect();
+        setupCompetence();
+        renderScopeOptions();
         restoreFixture();
         wireTabs();
+        switchTab('emitir');
+        byId('emit-preview-button').disabled = true;
         byId('simulation-form').addEventListener('submit', submitSimulation);
         byId('profile').addEventListener('change', updatePurchaseOrderRequirement);
         byId('reset-reference').addEventListener('click', restoreFixture);
         byId('refresh-documents').addEventListener('click', loadDocuments);
         byId('refresh-profiles').addEventListener('click', loadProfiles);
+        byId('refresh-requests').addEventListener('click', loadRequests);
+        byId('refresh-agents').addEventListener('click', loadAgents);
+        byId('emit-form').addEventListener('submit', submitEmitPreview);
+        byId('emit-profile').addEventListener('change', updateEmitFields);
+        byId('emit-confirm-button').addEventListener('click', confirmEmission);
+        byId('emit-back-button').addEventListener('click', backToEmitForm);
+        byId('emit-new-button').addEventListener('click', resetEmit);
+        byId('emit-pdf-button').addEventListener('click', () => openPdf(state.emit.documentId, byId('emit-pdf-button'), 'emit-message'));
+        byId('agent-form').addEventListener('submit', createAgentKey);
+        byId('agent-secret-copy').addEventListener('click', copyAgentSecret);
+        byId('agent-secret-hide').addEventListener('click', hideAgentSecret);
 
+        setMessage('emit-message', 'info', 'Validando a sessão do Hub…');
         setMessage('session-message', 'info', 'Validando a sessão do Hub…');
         try {
           const auth = await window.HUB_AUTH_READY;
           const sessionIsValid = auth && auth.status === 'valid';
           if (!sessionIsValid) {
-            setMessage('session-message', 'warning', 'Acesso restrito. Aguarde a validação ou entre no Hub para consultar a NFS-e.');
+            setMessage('emit-message', 'warning', 'Acesso restrito. Entre no Hub com sua sessão individual para usar a NFS-e.');
+            setMessage('session-message', 'warning', 'Acesso restrito. Entre no Hub com sua sessão individual para usar a NFS-e.');
             return;
           }
           if (!window.HUB_AUTH_API || typeof window.HUB_AUTH_API.fetch !== 'function') {
+            setMessage('emit-message', 'warning', 'A sessão foi validada, mas não está disponível. Entre novamente no Hub.');
             setMessage('session-message', 'warning', 'A sessão foi validada, mas não está disponível. Entre novamente no Hub.');
             return;
           }
           state.authenticated = true;
-          setMessage('session-message', 'success', 'Sessão validada. Você pode consultar perfis, prévias e documentos.');
+          setMessage('session-message', 'success', 'Sessão validada. Você pode simular prévias.');
           await loadProfiles();
         } catch (_error) {
+          setMessage('emit-message', 'warning', 'Não foi possível validar a sessão neste momento. Tente novamente pelo Hub.');
           setMessage('session-message', 'warning', 'Não foi possível validar a sessão neste momento. Tente novamente pelo Hub.');
         }
       }
