@@ -1,0 +1,13 @@
+edition: S40
+year: 2026
+period: "28 de setembro a 2 de outubro de 2026"
+generated: "2026-10-10"
+dictionary_version: "v4.17"
+scope: unimed
+facts_count: 6
+new_terms: 8
+updated_terms: 3
+dictionary_movements: 11
+sources:
+  notion_pages: 2
+  gmail_threads: 9
