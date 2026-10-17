@@ -2,7 +2,7 @@
 
 **Status:** preparado e validado localmente; não executado em produção.
 
-**Escopo:** edições 001–008, Hub CSV, `csv-documents`, downloads públicos e AI Search.
+**Escopo:** edições 001–009, Hub CSV, `csv-documents`, downloads públicos e AI Search.
 **Hierarquia canônica:** Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®.
 
 > Nenhum push, merge, deploy, migration remota, upload, link público ou ativação pode ser executado sem autorização explícita. O n8n não integra o caminho crítico e não deve ser alterado.
@@ -62,7 +62,7 @@ npm run compass:test:pdf
 npm run docs:build
 ```
 
-O build deve permanecer sem deriva em `docs/compass`. O smoke do workflow deve encontrar as páginas e os PDFs 001–008, validar que o catálogo contém exatamente as oito edições e bloquear qualquer PDF acima de 4.194.304 bytes.
+O build deve permanecer sem deriva em `docs/compass`. O smoke do workflow deve encontrar as páginas e os PDFs 001–009, validar que o catálogo contém exatamente as nove edições e bloquear qualquer PDF acima de 4.194.304 bytes.
 
 ### 3.3 Plano Offline
 
@@ -88,7 +88,7 @@ Antes da primeira mudança remota, apresentar para autorização:
 | Commits | SHAs completos das revisões candidatas do Hub e backend. |
 | Pull requests | URLs, escopo e gates aprovados. |
 | Backend | Resultado integral de `npm run ci`. |
-| Hub | Resultado de testes, integração PDF, build e smoke 001–008. |
+| Hub | Resultado de testes, integração PDF, build e smoke 001–009. |
 | Release | Hash do plano offline e resumo das 16 versões documentais. |
 | Rollback | Resultado do ensaio local de reativação da baseline com links estáveis. |
 | Impacto | Confirmação de que RLS e n8n não serão alterados. |
@@ -125,7 +125,7 @@ Confirmar por fontes primárias:
 
 ## 6. Ingestão Bifásica das Oito Edições
 
-Executar uma edição por vez, na ordem 001→008. Os payloads devem ser montados exclusivamente a partir do plano offline. IDs retornados pela API devem ser preservados em evidência segura, sem chaves privadas do R2.
+Executar uma edição por vez, na ordem 001→009. Os payloads devem ser montados exclusivamente a partir do plano offline. IDs retornados pela API devem ser preservados em evidência segura, sem chaves privadas do R2.
 
 ### 6.1 Criar o documento PDF
 
@@ -183,7 +183,7 @@ O release do Hub deve ocorrer somente depois que o backend estiver saudável e o
 Validar por dois métodos: requisição HTTP sem cache e navegador real.
 
 1. Central Compass™;
-2. catálogo JSON com 001–008;
+2. catálogo JSON com 001–009;
 3. oito rotas web históricas terminadas em `/compass`;
 4. oito PDFs nos caminhos históricos `compass_<nnn>_2026.pdf`;
 5. Admin Compass™ autenticado;
@@ -231,7 +231,7 @@ Após o rollback do Hub, aguardar ou disparar manualmente `sync-r2-ai-search.yml
 Interromper imediatamente diante de qualquer uma destas condições:
 
 - checksum, tamanho ou páginas divergentes;
-- catálogo diferente de 001–008;
+- catálogo diferente de 001–009;
 - link histórico ou versionado indisponível;
 - ponteiro ativo diferente do valor esperado;
 - falha de autenticação, autorização, Origin ou idempotência;

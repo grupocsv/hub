@@ -278,6 +278,7 @@ A extensão Compass™ do `csv-documents` possui release independente e protegid
 | 06/03/2026 | Mapeamento completo dos ativos digitais do ecossistema |
 | 06/03/2026 | Documentação dos Workers (csv-auth, csv-ai, csv-email) |
 | 31/08/2026 | Implementação local do motor Compass™ v2, edição 008, catálogo, Admin e extensão preparada do `csv-documents` |
+| 17/10/2026 | Compass™ 009/2026 (Rumo à organização por condição), edição de referência do padrão paginado; CSS com escopo por edição e correção da página em branco na impressão |
 
 ---
 

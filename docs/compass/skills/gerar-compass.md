@@ -13,7 +13,7 @@ A fonte única de cada edição fica em `compass/edicoes/<ano>/<número>/`. A á
 | `metadata.yml` | Identidade, marcas, rotas, engine, estado e release |
 | `compass.md` | Invólucro VitePress e configuração do componente global |
 | `CompassNNNContent.vue` | Conteúdo semântico integral da edição |
-| `edition.css` | Estilos específicos, sempre namespaceados em `.compass-v2` |
+| `edition.css` | Estilos específicos, sempre namespaceados em `.compass-v2`; nas edições paginadas, com escopo próprio da edição (`.compass-ed-NNN`) |
 | `assets/` | Imagens e recursos locais da edição |
 | `compass_NNN_AAAA.pdf` | PDF A4 determinístico |
 | `release.json` | Checksum, tamanho, procedência e versão do render |
@@ -63,7 +63,23 @@ Use `migration.state: native-v2` para novas edições. O release nasce inativo a
 
 Crie `CompassNNNContent.vue` com um único bloco `<template>`. Use HTML semântico, títulos em ordem lógica, tabelas com `thead` e `tbody`, imagens com texto alternativo e links externos com destino preservado. Todo CSS específico deve ficar em `edition.css`, sob o namespace `.compass-v2`, para não contaminar o Hub.
 
-O arquivo `compass.md` usa `CompassEdition.vue` como moldura. Selecione `mode: flow` para leitura contínua com PDF paginado pelo navegador. Use `mode: paged` somente quando a fonte já possuir composição editorial página a página e exigir preservação integral desse layout.
+O arquivo `compass.md` usa `CompassEdition.vue` como moldura. Selecione `mode: flow` para leitura contínua com PDF paginado pelo navegador. Use `mode: paged` quando a edição for composta página a página em A4.
+
+### Edição de referência do padrão paginado
+
+A edição **009/2026** (`compass/edicoes/2026/009/`) é a referência visual e funcional para novas edições paginadas. Parta dela, nunca do zero nem da edição 008:
+
+| Elemento | Regra observada na 009 |
+|---|---|
+| Invólucro | Todas as seções `.compass-page` ficam dentro de `<div class="compass-ed-NNN">` no componente Vue |
+| Escopo do CSS | Todo seletor começa por `.compass-v2--paged .compass-v2__content .compass-ed-NNN …`; o VitePress concatena o CSS de todas as edições em um único bundle, e esse escopo impede que uma edição paginada altere outra e garante precedência sobre `.vp-doc` e sobre o tema genérico |
+| Página nomeada | `@page compass-edition-NNN { size:A4; margin:0 }` e `:where(.compass-v2--paged) .compass-ed-NNN .compass-page { page:compass-edition-NNN }` |
+| Contrato de tipografia | As regras `:where(.compass-v2--paged) p { text-indent:4.5mm; text-align:justify; hyphens:auto }` e congêneres permanecem (ver `tests/compass-v2/paged-css-isolation.test.mjs`) |
+| Tela | Leitura fluida em qualquer largura (sem fac-símile A4), figuras SVG com rolagem horizontal no celular, tabelas roláveis; A4 somente em `@media print` |
+| Impressão | O tema força cores em `p`, `td`, `strong`, `h2` e `h3` na impressão; a edição devolve as suas com `!important` no bloco `@media print` |
+| Fontes | Inter 400/400i/500/600/700, JetBrains Mono 500 e Grifter Bold em `assets/`, referenciadas por `url("/compass/edicoes/AAAA/NNN/assets/…")`; a Grifter não possui `õ`, `Õ`, travessões e setas, o que limita títulos em fonte display |
+| Componentes editoriais | Abertura de capítulo em faixa escura, linhas de dados, fichas de prática (`.verbete`), quadros com `colgroup`, figuras SVG inline com legenda e fonte, referências com numeração original |
+| Camada de texto do PDF | Sem hifens suaves (U+00AD) inseridos no HTML: eles contaminam busca, cópia e indexação do PDF |
 
 ## 5. Publicar a Árvore Derivada e Gerar o Catálogo
 
@@ -147,7 +163,7 @@ A revisão mínima combina dois métodos independentes:
 | Determinístico | Testes, catálogo, checksums, paridade, build, links e varredura de segredos |
 | Visual e Adversarial | Desktop, mobile, todas as páginas do PDF, contraste, cortes, tabelas, figuras e encerramento |
 
-Faça commit atômico em branch de trabalho. Gere o plano offline com `npm run compass:release-plan`, usando a baseline congelada e os SHAs completos das revisões candidatas. O plano deve manter `remoteMutationAllowed: false`, exigir autorização explícita e validar as oito edições por checksum, bytes, páginas, rotas e limite de 4 MB.
+Faça commit atômico em branch de trabalho. Gere o plano offline com `npm run compass:release-plan`, usando a baseline congelada e os SHAs completos das revisões candidatas. O plano deve manter `remoteMutationAllowed: false`, exigir autorização explícita e validar as nove edições por checksum, bytes, páginas, rotas e limite de 4 MB.
 
 Não faça push, merge, deploy, upload ou ativação de ponteiro antes da aprovação do release correspondente. A sequência completa, os checkpoints, as condições de interrupção e o rollback estão no [Runbook de Release e Rollback do Compass™ v2](/_infra/projetos/compass-v2/runbook-release-rollback).
 

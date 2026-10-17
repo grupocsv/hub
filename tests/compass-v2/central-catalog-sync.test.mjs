@@ -131,7 +131,7 @@ test("deriva IDs e descrições determinísticas do catálogo, com fallback não
   assert.ok(documents.every((document) => document.collectionId === "compass"));
 });
 
-test("o catálogo canônico gera metadados para as oito edições existentes", async () => {
+test("o catálogo canônico gera metadados para as nove edições existentes", async () => {
   const catalog = JSON.parse(
     await readFile(new URL("../../docs/compass/catalog.json", import.meta.url), "utf8"),
   );
@@ -139,7 +139,7 @@ test("o catálogo canônico gera metadados para as oito edições existentes", a
 
   assert.deepEqual(
     documents.map((document) => document.documentId),
-    Array.from({ length: 8 }, (_, index) =>
+    Array.from({ length: 9 }, (_, index) =>
       `compass-pdf-2026-${String(index + 1).padStart(3, "0")}`,
     ),
   );

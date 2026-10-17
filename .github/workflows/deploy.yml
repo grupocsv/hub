@@ -179,7 +179,7 @@ jobs:
           # Publicar o catálogo e os PDFs Compass como artefatos estáveis.
           mkdir -p "$DIST/compass"
           cp docs/compass/catalog.json "$DIST/compass/catalog.json"
-          for edition in 001 002 003 004 005 006 007 008; do
+          for edition in 001 002 003 004 005 006 007 008 009; do
             mkdir -p "$DIST/compass/edicoes/2026/$edition"
             cp "docs/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf" \
               "$DIST/compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"
@@ -261,7 +261,7 @@ jobs:
               fail=1
             fi
           done
-          for edition in 001 002 003 004 005 006 007 008; do
+          for edition in 001 002 003 004 005 006 007 008 009; do
             for f in \
               "compass/edicoes/2026/$edition/compass.html" \
               "compass/edicoes/2026/$edition/compass_${edition}_2026.pdf"; do
@@ -285,17 +285,17 @@ jobs:
           const numbers = catalog.editions
             .map((edition) => String(edition.number).padStart(3, '0'))
             .sort();
-          const expected = ['001', '002', '003', '004', '005', '006', '007', '008'];
+          const expected = ['001', '002', '003', '004', '005', '006', '007', '008', '009'];
           if (
             catalog.schemaVersion !== 2 ||
-            catalog.total !== 8 ||
+            catalog.total !== 9 ||
             JSON.stringify(numbers) !== JSON.stringify(expected)
           ) {
             process.exit(1);
           }
           NODE
           then
-            echo "::error::catálogo Compass não contém exatamente as edições 001–008"
+            echo "::error::catálogo Compass não contém exatamente as edições 001–009"
             fail=1
           fi
           if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="compass"' "$DIST/admin/index.html"; then

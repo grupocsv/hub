@@ -420,6 +420,13 @@
     display: none !important;
   }
 
+  /* O alvo de foco do VitePress (<span tabindex="-1">, primeiro filho de .Layout) é uma caixa
+     vazia no fluxo de impressão. Em Chromium recente, ela abre uma página padrão em branco antes
+     da primeira página nomeada das edições paginadas (compass-edition-NNN). */
+  .Layout > span[tabindex="-1"] {
+    display: none !important;
+  }
+
   .VPContent,
   .VPDoc,
   .VPDoc .container,

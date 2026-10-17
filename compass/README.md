@@ -38,7 +38,8 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 | [005/2026](edicoes/2026/005/compass.md) | Precificação Estruturada da Jornada Cirúrgica | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
 | [006/2026](edicoes/2026/006/compass.md) | Transição Demográfica e Oftalmologia na Saúde Suplementar | Migrada para v2 no M7; numeração histórica cruzada corrigida e release controlado pendente |
 | [007/2026](edicoes/2026/007/compass.md) | Crise de Sustentabilidade e Eficiência na Saúde Suplementar Brasileira | Migrada para v2 no M6; release controlado pendente |
-| [008/2026](edicoes/2026/008/compass.md) | Modelo editorial completo da edição 008 | Nativa v2; release controlado pendente |
+| [008/2026](edicoes/2026/008/compass.md) | Marcos temporais do processo de alta e da substituição do leito | Nativa v2; primeira edição paginada do motor |
+| [009/2026](edicoes/2026/009/compass.md) | Rumo à organização por condição | Nativa v2; edição de referência do padrão paginado; release controlado pendente |
 
 ## Comandos Oficiais
 
@@ -55,7 +56,7 @@ As edições seguem o formato **NNN/AAAA**. O número possui três dígitos e é
 
 O renderizador `render-pdf.mjs` usa Playwright e Chromium em container efêmero fixado por digest. O host não recebe bibliotecas do navegador. O gate `quality-gates.mjs` verifica paridade de conteúdo, marcas obrigatórias, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo de 4 MB, checksums, overflow documental e distribuição legível das colunas de referências no mobile.
 
-As edições 001–008 usam o motor v2 como caminho ativo. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
+As edições 001–009 usam o motor v2 como caminho ativo. A edição 009/2026 é a referência visual e funcional do padrão paginado: CSS com escopo próprio (`.compass-ed-009`), gramática editorial completa e PDF validado pelos gates. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
 
 ## Backend e Downloads
 
