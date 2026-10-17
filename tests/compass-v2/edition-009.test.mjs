@@ -22,7 +22,8 @@ test('a edição 009 é nativa v2 com metadados válidos, créditos e artefatos 
   assert.equal(metadata.id, '009-2026');
   assert.equal(metadata.slug, '009');
   assert.equal(metadata.title, 'Rumo à organização por condição');
-  assert.equal(metadata.status, 'Minuta para revisão');
+  assert.equal(metadata.status, 'Publicado');
+  assert.deepEqual(metadata.elaboration, ['Grupo CSV']);
   assert.equal(metadata.migration.state, 'native-v2');
   assert.equal(metadata.release.active, false);
   assert.equal(metadata.routes.pdf, '/compass/edicoes/2026/009/compass_009_2026.pdf');
@@ -38,9 +39,10 @@ test('a fonte canônica da edição 009 usa o componente nativo, o modo paginado
   assert.match(component, /^<template>\s*<div class="compass-ed-009">/u);
   assert.match(component, /href=["']\.\/compass_009_2026\.pdf["'][^>]*\bdownload\b/u);
   assert.match(component, /Baixar PDF da edição 009/u);
-  for (const credit of ['Compass™ — um produto do Grupo CSV', 'Responsabilidade editorial: MedValor®', 'Elaboração: AxiaCare®']) {
+  for (const credit of ['Compass™ — elaboração do Grupo CSV', 'Responsabilidade editorial: MedValor®']) {
     assert.ok(component.includes(credit), `crédito ausente: ${credit}`);
   }
+  assert.doesNotMatch(component, /Minuta para revisão|Status<\/div>/u, 'a edição não carrega selo de estado editorial');
   assert.equal((component.match(/<section class="compass-page/gu) ?? []).length, 21);
   assert.doesNotMatch(component, /­/u, 'o componente não pode carregar hifens suaves');
 });

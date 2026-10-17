@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T08:04:49.629Z",
-  "sourceHash": "d15d7d8a33e3c8c50f9ce1d59bed5e64aff58f99bd6f53d3646be24255dd2d88",
+  "generatedAt": "2026-10-17T09:23:55.646Z",
+  "sourceHash": "90f2d3824d08fca11a7a01cfa3ea9e1c5493d76ca5bfddc31a1d5b2f2d8b4736",
   "total": 9,
   "editions": [
     {
@@ -13,7 +13,7 @@
       "title": "Rumo à organização por condição",
       "subtitle": "Lições dos 10 hospitais do Value Catalyst sobre estrutura, papéis e estratégia de mudança na transição para a Saúde Baseada em Valor.",
       "publishedAt": "2026-10-17",
-      "status": "Minuta para revisão",
+      "status": "Publicado",
       "summary": "Adaptação, em português, do artigo Moving toward a Condition-Based Organization — Lessons from the Value Catalyst Hospitals (Westerink HJ, van Staalduinen DJ, et al., NEJM Catalyst Innovations in Care Delivery, outubro de 2026), com os 3 domínios da transição para a organização por condição.",
       "topics": [
         "saúde baseada em valor",
@@ -37,7 +37,7 @@
         "responsible": "MedValor®"
       },
       "elaboration": [
-        "AxiaCare®"
+        "Grupo CSV"
       ],
       "engine": {
         "name": "compass-v2",

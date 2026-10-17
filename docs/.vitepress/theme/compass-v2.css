@@ -146,20 +146,6 @@
   content: "•";
 }
 
-.compass-cover__status {
-  position: absolute;
-  top: clamp(1.5rem, 4vw, 3rem);
-  right: clamp(1.5rem, 5vw, 4rem);
-  padding: 0.45rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  color: #ffffff;
-  background: rgba(13, 38, 76, 0.28);
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(10px);
-}
 
 .compass-v2__content {
   margin-top: 1.5rem;
@@ -346,12 +332,6 @@
     width: 145px;
   }
 
-  .compass-cover__status {
-    top: 1.35rem;
-    right: 1.35rem;
-    max-width: 42%;
-    text-align: right;
-  }
 
   .compass-cover h1 {
     width: 100%;

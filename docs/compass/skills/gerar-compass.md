@@ -1,8 +1,8 @@
 # Guia Operacional | Produzir e Publicar Edições do Compass™
 
-**Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®**
+**Compass™ — elaboração do Grupo CSV | Responsabilidade editorial: MedValor®**
 
-AxiaCare® deve permanecer identificada na elaboração e na aplicação prática das edições utilizadas em consultorias e assessorias.
+A elaboração é creditada ao Grupo CSV e a responsabilidade editorial à MedValor®. Nenhuma edição carrega selo de estado editorial (minuta, revisão, aprovação) na capa, na Central ou no componente global: uma edição publicada é a edição. O campo `status` dos metadados é operacional.
 
 ## Princípio Operacional
 
@@ -50,14 +50,14 @@ product:
 editorial:
   responsible: MedValor®
 elaboration:
-  - AxiaCare®
+  - Grupo CSV
 engine:
   name: compass-v2
   version: 2.0.0
   templateVersion: 2.0.0
 ```
 
-Use `migration.state: native-v2` para novas edições. O release nasce inativo até concluir os gates e o processo de ativação controlada.
+Use `migration.state: native-v2` para novas edições. O release nasce inativo até concluir os gates e o processo de ativação controlada; o campo `status` é operacional e não aparece na capa nem na Central.
 
 ## 4. Estruturar o Conteúdo Semântico
 

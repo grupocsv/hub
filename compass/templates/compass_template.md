@@ -21,7 +21,7 @@ compass:
   year: AAAA
   title: Título Fiel à Fonte Primária
   subtitle: null
-  status: Minuta para revisão
+  status: Publicado
   publishedAt: null
   pdf: /compass/edicoes/AAAA/NNN/compass_NNN_AAAA.pdf
   mode: flow
@@ -31,7 +31,7 @@ compass:
   editorial:
     responsible: MedValor®
   elaboration:
-    - AxiaCare®
+    - Grupo CSV
 ---
 
 <script setup>

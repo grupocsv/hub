@@ -15,7 +15,7 @@ compass:
   title: Rumo à organização por condição
   subtitle: Lições dos 10 hospitais do Value Catalyst sobre estrutura, papéis e estratégia de mudança na transição para a Saúde Baseada em Valor.
   publishedAt: 2026-10-17
-  status: Minuta para revisão
+  status: Publicado
   mode: paged
   product:
     name: Compass™
@@ -23,7 +23,7 @@ compass:
   editorial:
     responsible: MedValor®
   elaboration:
-    - AxiaCare®
+    - Grupo CSV
 ---
 
 <script setup>

@@ -3,7 +3,7 @@
 **Edição:** 009/2026 — Rumo à organização por condição
 **Fonte primária:** Westerink HJ, van Staalduinen DJ, et al. Moving toward a Condition-Based Organization — Lessons from the Value Catalyst Hospitals. NEJM Catalyst Innovations in Care Delivery 2026;7(10). DOI 10.1056/CAT.26.0046.
 **Natureza:** adaptação em português, com as 25 referências do artigo preservadas na numeração original.
-**Estado:** nativa v2, `Minuta para revisão`, release inativo.
+**Estado:** nativa v2, release inativo (sem selo de estado editorial na capa ou na Central).
 
 ## 1. Resultado
 
@@ -27,7 +27,7 @@ A 009 é a primeira edição composta diretamente no contrato v2, sem HTML receb
 2. **Cores na impressão.** O tema força cores escuras em `p`, `td`, `strong`, `h2` e `h3` com `!important` na mídia de impressão, o que escurecia subtítulo da capa e texto da contracapa. A 009 devolve as suas cores no bloco `@media print` com a mesma força.
 3. **Página em branco na impressão.** O alvo de foco do VitePress (`<span tabindex="-1">`, primeiro filho de `.Layout`) é uma caixa vazia no fluxo de impressão. Em Chromium recente, ela abre uma página padrão em branco antes da primeira página nomeada das edições paginadas. A regra `.Layout > span[tabindex="-1"] { display:none !important }` entrou no bloco de impressão de `docs/.vitepress/theme/compass-v2.css`, com teste em `tests/compass-v2/theme.test.mjs`. Com ela, a 009 renderiza 21 páginas e a 008 volta a renderizar 23 no mesmo Chromium.
 
-Outras decisões incorporadas ao padrão: leitura fluida em qualquer largura de tela (sem fac-símile A4 na web), figuras SVG inline com rolagem horizontal no celular, tabelas com `colgroup` e coluna de texto corrido mais larga, fichas de prática (`.verbete`), linhas de dados e abertura de capítulo em faixa escura. A Grifter Bold não possui `õ`, `Õ`, travessões e setas, o que condiciona a redação dos títulos em fonte display.
+A edição fixa também a fórmula de créditos definida em 17/10/2026: "Compass™ — elaboração do Grupo CSV" e "Responsabilidade editorial: MedValor®", sem selo de estado editorial na capa (o campo `status` dos metadados é operacional). Outras decisões incorporadas ao padrão: leitura fluida em qualquer largura de tela (sem fac-símile A4 na web), figuras SVG inline com rolagem horizontal no celular, tabelas com `colgroup` e coluna de texto corrido mais larga, fichas de prática (`.verbete`), linhas de dados e abertura de capítulo em faixa escura. A Grifter Bold não possui `õ`, `Õ`, travessões e setas, o que condiciona a redação dos títulos em fonte display.
 
 ## 3. Contratos de teste adicionados ou generalizados
 
@@ -40,4 +40,4 @@ Outras decisões incorporadas ao padrão: leitura fluida em qualquer largura de 
 
 ## 4. Pendências de release
 
-O release segue o [runbook](./runbook-release-rollback.md): aprovação editorial da minuta, `npm run compass:test:pdf` no runtime isolado, plano offline com `npm run compass:release-plan` (nove edições), ingestão do PDF no `csv-documents` e ativação pelo workflow protegido. Nenhuma dessas etapas foi executada.
+O release segue o [runbook](./runbook-release-rollback.md): aprovação editorial, `npm run compass:test:pdf` no runtime isolado, plano offline com `npm run compass:release-plan` (nove edições), ingestão do PDF no `csv-documents` e ativação pelo workflow protegido. Nenhuma dessas etapas foi executada.

@@ -24,9 +24,9 @@ test("expõe a aba Compass™ com catálogo, checksums, versões e downloads", (
   assert.match(admin, /Downloads/u);
   assert.match(
     admin,
-    /Compass™ — um produto do Grupo CSV \| Responsabilidade editorial: MedValor®/u,
+    /Compass™ — elaboração do Grupo CSV \| Responsabilidade editorial: MedValor®/u,
   );
-  assert.match(admin, /AxiaCare®/u);
+  assert.doesNotMatch(admin, /AxiaCare® permanece identificada na elaboração/u);
 });
 
 test("consome o domínio confirmado do csv-documents com a sessão humana existente", () => {
@@ -65,7 +65,7 @@ test("deriva a Central Compass™ do catálogo gerado sem duplicar a lista de ed
   );
   assert.match(
     centralCompass,
-    /Compass&trade; — um produto do Grupo CSV \| Responsabilidade editorial: MedValor&reg;/u,
+    /Compass&trade; — elaboração do Grupo CSV \| Responsabilidade editorial: MedValor&reg;/u,
   );
   assert.match(centralCompass, /AxiaCare&reg;/u);
 });

@@ -4,7 +4,7 @@
   <img class="logo" src="/compass/edicoes/2026/009/assets/csv-neg.png" alt="Grupo CSV">
   <div class="marca">
     <div class="p">Compass™</div>
-    <div class="cr" aria-label="Créditos editoriais"><span>Compass™ — um produto do Grupo CSV</span><span>Responsabilidade editorial: MedValor®</span><span>Elaboração: AxiaCare®</span></div>
+    <div class="cr" aria-label="Créditos editoriais"><span>Compass™ — elaboração do Grupo CSV</span><span>Responsabilidade editorial: MedValor®</span></div>
     <div class="e">Editorial</div>
   </div>
   <svg class="motivo" viewBox="0 0 1000 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="6" y1="0" x2="6" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="160" y1="0" x2="160" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="320" y1="0" x2="320" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="480" y1="0" x2="480" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="640" y1="0" x2="640" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="800" y1="0" x2="800" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="994" y1="0" x2="994" y2="118" stroke="#5B7A93" stroke-opacity=".55" stroke-width="1.1" stroke-dasharray="3 5"/><line x1="6" y1="70" x2="994" y2="70" stroke="#2DBF7F" stroke-width="2.2"/><circle cx="6" cy="70" r="6" fill="#14171C" stroke="#4F90BE" stroke-width="2"/><circle cx="160" cy="70" r="7" fill="#4F90BE"/><circle cx="320" cy="70" r="6" fill="#14171C" stroke="#4F90BE" stroke-width="2"/><circle cx="480" cy="70" r="7" fill="#4F90BE"/><circle cx="640" cy="70" r="7" fill="#4F90BE"/><circle cx="800" cy="70" r="6" fill="#14171C" stroke="#4F90BE" stroke-width="2"/><circle cx="994" cy="70" r="7" fill="#2DBF7F"/><text x="6" y="108" font-family="JetBrains Mono" font-size="13.5" font-weight="500" fill="#7C93A6" text-anchor="start">especialidades</text><text x="994" y="56" font-family="JetBrains Mono" font-size="13.5" font-weight="500" fill="#7FD0AC" text-anchor="end">condição</text></svg>
@@ -16,17 +16,12 @@
     <div class="meta">
       <div><div class="ml">Edição</div><div class="mv">009/2026</div></div>
       <div><div class="ml">Data de publicação</div><div class="mv">Outubro 2026</div></div>
-      <div><div class="ml">Status</div><div class="mv">Minuta para revisão</div></div>
     </div>
   </div>
   <div class="base">
     <div>
       <div class="l1">Aplicação</div>
       <div class="l2">Hospitais e redes em transição para a Saúde Baseada em Valor<br>Lideranças clínicas, de enfermagem e de gestão</div>
-    </div>
-    <div style="text-align:right">
-      <div class="l1">Elaboração</div>
-      <img src="/compass/edicoes/2026/009/assets/axia-neg.png" alt="AxiaCare®">
     </div>
   </div>
 </section>
@@ -195,7 +190,6 @@
   <div class="base">
     <div class="logos">
       <img class="csv" src="/compass/edicoes/2026/009/assets/csv-neg.png" alt="Grupo CSV">
-      <img class="axia" src="/compass/edicoes/2026/009/assets/axia-neg.png" alt="AxiaCare®">
     </div>
     <div class="cop">© 2026 Grupo CSV &nbsp;·&nbsp; Compass™ 009/2026</div>
   </div>

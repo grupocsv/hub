@@ -121,7 +121,7 @@ onMounted(() => {
 
 ## Visão Geral
 
-O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica é **“Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®”**. AxiaCare® permanece visível como responsável pela elaboração e pela aplicação prática nas consultorias e assessorias, conforme o contexto de cada edição.
+O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica, definida em 17/10/2026, é **“Compass™ — elaboração do Grupo CSV | Responsabilidade editorial: MedValor®”**. As edições não carregam selo de estado editorial (minuta, revisão, aprovação) em capa, Central ou componente global; o campo `status` dos metadados permanece operacional e o release ativo é controlado pelo catálogo. As edições anteriores à 009 registram AxiaCare® na elaboração em seus próprios metadados e permanecem válidas.
 
 | Campo | Estado Verificado em Produção |
 |---|---|

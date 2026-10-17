@@ -1,8 +1,8 @@
 # Central Compass™ | Publicações Estratégicas do Grupo CSV
 
-**Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®**
+**Compass™ — elaboração do Grupo CSV | Responsabilidade editorial: MedValor®**
 
-AxiaCare® permanece identificada na elaboração e na aplicação prática das edições utilizadas em consultorias e assessorias.
+A elaboração é creditada ao Grupo CSV e a responsabilidade editorial à MedValor®. As edições não carregam selo de estado editorial (minuta, revisão, aprovação): uma edição publicada no Hub é a edição. O release ativo é controlado pelo catálogo e pelo `csv-documents`. As edições anteriores à 009 registram AxiaCare® na elaboração em seus próprios metadados e permanecem válidas.
 
 ## Finalidade
 

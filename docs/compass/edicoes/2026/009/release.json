@@ -3,16 +3,16 @@
   "editionId": "009-2026",
   "editionSlug": "009",
   "year": 2026,
-  "generatedAt": "2026-10-17T08:18:52.793Z",
+  "generatedAt": "2026-10-17T09:24:59.596Z",
   "engine": {
     "name": "compass-v2",
     "renderer": "playwright-chromium"
   },
-  "sourceHash": "03212701c03ed6fbea2bc6408de2d5ada0b91312c553376444cf6d0f151c67d1",
+  "sourceHash": "5a02686fb4995e6f0ad670b2da757ad06bbc6ad1f195019ffba3657637d683e7",
   "pdf": {
     "filename": "compass_009_2026.pdf",
-    "sha256": "bef910101c1c1e7cf3779928211fc27091f8107c8e71b9f831fc161d8386d32b",
-    "bytes": 938829,
+    "sha256": "b9e135cae41309e96d85bbfef68d15be0ddc9ec11bfd3883915dcc1b488c51fd",
+    "bytes": 894122,
     "pages": 21
   }
 }

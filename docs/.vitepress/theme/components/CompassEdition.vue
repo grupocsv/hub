@@ -8,13 +8,11 @@ const title = computed(() => metadata.value.title ?? frontmatter.value.title ?? 
 const subtitle = computed(() => metadata.value.subtitle ?? '')
 const edition = computed(() => metadata.value.edition ?? metadata.value.number ?? '')
 const year = computed(() => metadata.value.year ?? '')
-const status = computed(() => metadata.value.status ?? 'Publicado')
 const mode = computed(() => metadata.value.mode ?? 'flow')
 
 const credits = Object.freeze({
-  product: 'Compass™ — um produto do Grupo CSV',
+  product: 'Compass™ — elaboração do Grupo CSV',
   editorialResponsibility: 'Responsabilidade editorial: MedValor®',
-  elaboration: 'Elaboração: AxiaCare®',
 })
 </script>
 
@@ -42,10 +40,7 @@ const credits = Object.freeze({
       <div class="compass-cover__meta" aria-label="Créditos editoriais">
         <span>{{ credits.product }}</span>
         <span>{{ credits.editorialResponsibility }}</span>
-        <span>{{ credits.elaboration }}</span>
       </div>
-
-      <span class="compass-cover__status">{{ status }}</span>
     </header>
 
     <div class="compass-v2__content" itemprop="articleBody">
@@ -55,7 +50,6 @@ const credits = Object.freeze({
     <footer v-if="mode !== 'paged'" class="compass-v2__footer">
       <strong>{{ credits.product }}</strong>
       <span>{{ credits.editorialResponsibility }}</span>
-      <span>{{ credits.elaboration }}</span>
     </footer>
   </article>
 </template>

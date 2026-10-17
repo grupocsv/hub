@@ -6,7 +6,7 @@ slug: "009"
 title: Rumo à organização por condição
 subtitle: Lições dos 10 hospitais do Value Catalyst sobre estrutura, papéis e estratégia de mudança na transição para a Saúde Baseada em Valor.
 publishedAt: 2026-10-17
-status: Minuta para revisão
+status: Publicado
 topics:
   - saúde baseada em valor
   - organização por condição
@@ -31,7 +31,7 @@ product:
 editorial:
   responsible: MedValor®
 elaboration:
-  - AxiaCare®
+  - Grupo CSV
 engine:
   name: compass-v2
   version: 2.0.0
