@@ -31,6 +31,7 @@
 > 
 > | Edição | Período | Status |
 > |--------|---------|--------|
+> | [S41/2026](edicoes/2026/S41/signal.md) | 5 a 9 de outubro | Publicado |
 > | [S40/2026](edicoes/2026/S40/signal.md) | 28 de setembro a 2 de outubro | Publicado |
 > | [S39/2026](edicoes/2026/S39/signal.md) | 21 a 25 de setembro | Publicado |
 > | [S38/2026](edicoes/2026/S38/signal.md) | 14 a 18 de setembro | Publicado |
