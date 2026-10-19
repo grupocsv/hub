@@ -79,6 +79,8 @@ A edição **009/2026** (`compass/edicoes/2026/009/`) é a referência visual e 
 | Impressão | O tema força cores em `p`, `td`, `strong`, `h2` e `h3` na impressão; a edição devolve as suas com `!important` no bloco `@media print` |
 | Fontes | Inter 400/400i/500/600/700, JetBrains Mono 500 e Grifter Bold em `assets/`, referenciadas por `url("/compass/edicoes/AAAA/NNN/assets/…")`; a Grifter não possui `õ`, `Õ`, travessões e setas, o que limita títulos em fonte display |
 | Componentes editoriais | Abertura de capítulo em faixa escura, linhas de dados, fichas de prática (`.verbete`), quadros com `colgroup`, figuras SVG inline com legenda e fonte, referências com numeração original |
+| Capa | Marca, créditos em duas linhas, ilustração, título, subtítulo, linha de fonte (quando adaptação), Edição e Data de publicação. Sem rótulo de tipo ou tema, sem bloco de público ou aplicação e sem selo de estado editorial |
+| Texto sem metalinguagem | O texto apresenta o conteúdo e não fala de si: sem rubricas acima dos títulos ("Conteúdo", "O essencial"), sem parágrafos que expliquem o que a edição é ou como ler o aparato (notas, sobrescritos), sem anúncio de figura ("a figura X mostra"), sem notas de tradução ("no original"). Remissões secas entre parênteses: `(cap. 6)`, `(figura 3.3)`. Fonte de figura e quadro na forma `Fonte: Autor et al., ano.` |
 | Camada de texto do PDF | Sem hifens suaves (U+00AD) inseridos no HTML: eles contaminam busca, cópia e indexação do PDF |
 
 ## 5. Publicar a Árvore Derivada e Gerar o Catálogo

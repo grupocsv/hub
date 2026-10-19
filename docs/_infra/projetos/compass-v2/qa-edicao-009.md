@@ -11,7 +11,7 @@
 |---|---|
 | `npm run compass:test` | 107 testes aprovados |
 | Páginas do PDF | 21 (capa, sumário, síntese, 6 capítulos, referências, contracapa) |
-| Tamanho do PDF | 894.122 bytes (SHA-256 em `release.json`) |
+| Tamanho do PDF | 886.781 bytes (SHA-256 em `release.json`) |
 | Paridade web/PDF (`quality-gates.mjs`) | Aprovada, inclusive título, Value Catalyst, Westerink e síntese da contracapa |
 | Acessibilidade (axe) | 0 violações bloqueantes |
 | Contraste do título da contracapa | 17,96:1 em tela e no PDF |
@@ -27,7 +27,7 @@ A 009 é a primeira edição composta diretamente no contrato v2, sem HTML receb
 2. **Cores na impressão.** O tema força cores escuras em `p`, `td`, `strong`, `h2` e `h3` com `!important` na mídia de impressão, o que escurecia subtítulo da capa e texto da contracapa. A 009 devolve as suas cores no bloco `@media print` com a mesma força.
 3. **Página em branco na impressão.** O alvo de foco do VitePress (`<span tabindex="-1">`, primeiro filho de `.Layout`) é uma caixa vazia no fluxo de impressão. Em Chromium recente, ela abre uma página padrão em branco antes da primeira página nomeada das edições paginadas. A regra `.Layout > span[tabindex="-1"] { display:none !important }` entrou no bloco de impressão de `docs/.vitepress/theme/compass-v2.css`, com teste em `tests/compass-v2/theme.test.mjs`. Com ela, a 009 renderiza 21 páginas e a 008 volta a renderizar 23 no mesmo Chromium.
 
-A edição fixa também a fórmula de créditos definida em 17/10/2026: "Compass™ — elaboração do Grupo CSV" e "Responsabilidade editorial: MedValor®", sem selo de estado editorial na capa (o campo `status` dos metadados é operacional). Outras decisões incorporadas ao padrão: leitura fluida em qualquer largura de tela (sem fac-símile A4 na web), figuras SVG inline com rolagem horizontal no celular, tabelas com `colgroup` e coluna de texto corrido mais larga, fichas de prática (`.verbete`), linhas de dados e abertura de capítulo em faixa escura. A Grifter Bold não possui `õ`, `Õ`, travessões e setas, o que condiciona a redação dos títulos em fonte display.
+A edição fixa também a fórmula de créditos definida em 17/10/2026: "Compass™ — elaboração do Grupo CSV" e "Responsabilidade editorial: MedValor®", sem selo de estado editorial na capa (o campo `status` dos metadados é operacional). Em 19/10/2026 a capa passou a trazer apenas marca, créditos, ilustração, título, subtítulo, linha de fonte, Edição e Data de publicação (saíram o rótulo de tipo, o rótulo de tema e o bloco de aplicação), e o miolo foi revisado contra metalinguagem: parágrafo de perímetro reduzido à referência bibliográfica, rubricas acima dos títulos retiradas, anúncio de figura e notas de tradução removidos, fontes de figura na forma "Fonte: Westerink et al., 2026.". Outras decisões incorporadas ao padrão: leitura fluida em qualquer largura de tela (sem fac-símile A4 na web), figuras SVG inline com rolagem horizontal no celular, tabelas com `colgroup` e coluna de texto corrido mais larga, fichas de prática (`.verbete`), linhas de dados e abertura de capítulo em faixa escura. A Grifter Bold não possui `õ`, `Õ`, travessões e setas, o que condiciona a redação dos títulos em fonte display.
 
 ## 3. Contratos de teste adicionados ou generalizados
 
