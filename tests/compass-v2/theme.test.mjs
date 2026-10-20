@@ -27,9 +27,10 @@ test('possui um componente global que lê metadados da página e envolve o conte
   assert.notEqual(component, null, 'CompassEdition.vue ainda não existe');
   assert.match(component, /useData\(\)/);
   assert.match(component, /<slot\s*\/>/);
-  assert.match(component, /Compass™ — um produto do Grupo CSV/);
+  assert.match(component, /Compass™ — elaboração do Grupo CSV/);
   assert.match(component, /Responsabilidade editorial: MedValor®/);
-  assert.match(component, /Elaboração: AxiaCare®/);
+  assert.doesNotMatch(component, /Elaboração: AxiaCare®/);
+  assert.doesNotMatch(component, /compass-cover__status/, 'as edições não carregam selo de estado editorial');
   assert.match(component, /metadata\.value\.mode/);
   assert.match(component, /compass-v2--paged/);
   assert.match(component, /v-if="mode !== 'paged'"/);
@@ -91,6 +92,13 @@ test('preserva títulos claros nas contracapas escuras durante a impressão', as
   assert.notEqual(css, null, 'compass-v2.css ainda não existe');
   const printCss = css.split(/@media\s+print/)[1] ?? '';
   assert.match(printCss, /\.compass-v2--paged\s+\.compass-page--back[^}]*h2[^}]*\{[^}]*color:\s*#fff\s*!important/si);
+});
+
+test('oculta o alvo de foco do VitePress na impressão para não abrir página em branco antes das edições paginadas', async () => {
+  const css = await readOrNull(cssPath);
+  assert.notEqual(css, null, 'compass-v2.css ainda não existe');
+  const printCss = css.split(/@media\s+print/)[1] ?? '';
+  assert.match(printCss, /\.Layout\s*>\s*span\[tabindex="-1"\]\s*\{[^}]*display:\s*none\s*!important/s);
 });
 
 test('não fixa largura A4 no modo de leitura web', async () => {

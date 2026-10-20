@@ -6,7 +6,7 @@ slug: NNN
 title: Título Fiel à Fonte Primária
 subtitle: null
 publishedAt: null
-status: Minuta para revisão
+status: Publicado
 topics:
   - Tema presente na fonte primária
 tags:
@@ -19,7 +19,7 @@ product:
 editorial:
   responsible: MedValor®
 elaboration:
-  - AxiaCare®
+  - Grupo CSV
 engine:
   name: compass-v2
   version: 2.0.0

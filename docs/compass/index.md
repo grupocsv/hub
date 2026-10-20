@@ -103,19 +103,6 @@ const editions = catalog.editions || []
 .edition-table td a:hover {
   text-decoration: underline;
 }
-.status-badge {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #dcfce7;
-  color: #166534;
-}
-.status-badge.draft {
-  background: #fef3c7;
-  color: #92400e;
-}
 .doc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -215,14 +202,6 @@ const editions = catalog.editions || []
 .dark .edition-table td a {
   color: #8dcef5;
 }
-.dark .status-badge {
-  background: #173d2a;
-  color: #9aefbf;
-}
-.dark .status-badge.draft {
-  background: #493710;
-  color: #ffe29a;
-}
 .dark .doc-card,
 .dark .compass-note {
   background: #252a33;
@@ -248,8 +227,8 @@ const editions = catalog.editions || []
 
 <div class="compass-intro">
   <h1>Compass&trade; — Publicações Estratégicas do Grupo CSV</h1>
-  <p><strong>Compass&trade; — um produto do Grupo CSV | Responsabilidade editorial: MedValor&reg;</strong></p>
-  <p>Cada edição consolida análise técnica sobre um tema relevante para a gestão em saúde, com base em fontes primárias verificáveis, preservando integralmente texto e referências. AxiaCare&reg; permanece identificada na elaboração e na aplicação prática das publicações utilizadas em consultorias e assessorias.</p>
+  <p><strong>Compass&trade; — elaboração do Grupo CSV | Responsabilidade editorial: MedValor&reg;</strong></p>
+  <p>Cada edição consolida análise técnica sobre um tema relevante para a gestão em saúde, com base em fontes primárias verificáveis, preservando integralmente texto e referências. As edições aplicadas em consultorias e assessorias são conduzidas pela AxiaCare&reg;.</p>
 </div>
 
 <div class="compass-section">
@@ -264,14 +243,12 @@ const editions = catalog.editions || []
       <tr>
         <th>Edição</th>
         <th>Título</th>
-        <th>Status</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="edition in editions" :key="edition.id">
         <td><a :href="edition.routes.web">{{ String(edition.number).padStart(3, '0') }}/{{ edition.year }}</a></td>
         <td>{{ edition.title }}</td>
-        <td><span class="status-badge" :class="{ draft: edition.status !== 'Publicado' }">{{ edition.status }}</span></td>
       </tr>
     </tbody>
   </table>
@@ -304,5 +281,5 @@ const editions = catalog.editions || []
 </div>
 
 <div class="compass-footer">
-  Compass&trade; &mdash; um produto do Grupo CSV | Responsabilidade editorial: MedValor&reg;
+  Compass&trade; &mdash; elaboração do Grupo CSV | Responsabilidade editorial: MedValor&reg;
 </div>

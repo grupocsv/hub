@@ -34,10 +34,10 @@ test('fixa a hierarquia canônica de marcas sem ambiguidade', async () => {
   const schema = await loadSchemaModule();
   assert.notEqual(schema, null, 'schema ausente');
   assert.deepEqual(schema.COMPASS_BRAND_CREDITS, {
-    product: 'Compass™ — um produto do Grupo CSV',
+    product: 'Compass™ — elaboração do Grupo CSV',
     editorialResponsibility: 'Responsabilidade editorial: MedValor®',
-    elaboration: 'Elaboração: AxiaCare®',
   });
+  assert.deepEqual(schema.COMPASS_ELABORATION_CREDITS, ['Grupo CSV', 'AxiaCare®']);
 });
 
 test('normaliza o schema histórico 001–006 para o contrato v2', async () => {

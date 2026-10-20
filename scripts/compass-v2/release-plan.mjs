@@ -114,7 +114,7 @@ export async function buildReleasePlan({
   baselineRoot,
   sourceCommit,
   baselineCommit,
-  expectedEditionNumbers = ["001", "002", "003", "004", "005", "006", "007", "008"],
+  expectedEditionNumbers = ["001", "002", "003", "004", "005", "006", "007", "008", "009"],
 }) {
   assertCommit(sourceCommit, "sourceCommit");
   assertCommit(baselineCommit, "baselineCommit");

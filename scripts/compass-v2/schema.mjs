@@ -1,8 +1,12 @@
+// Fórmula canônica dos créditos (definida em 17/10/2026): a elaboração é creditada ao Grupo CSV
+// e a responsabilidade editorial à MedValor®. Edições anteriores à 009 registram AxiaCare® na
+// elaboração em seus próprios metadados e permanecem válidas.
 export const COMPASS_BRAND_CREDITS = Object.freeze({
-  product: 'Compass™ — um produto do Grupo CSV',
+  product: 'Compass™ — elaboração do Grupo CSV',
   editorialResponsibility: 'Responsabilidade editorial: MedValor®',
-  elaboration: 'Elaboração: AxiaCare®',
 });
+
+export const COMPASS_ELABORATION_CREDITS = Object.freeze(['Grupo CSV', 'AxiaCare®']);
 
 const MONTHS_PT_BR = new Map([
   ['janeiro', '01'],
@@ -148,8 +152,9 @@ export function validateEditionMetadata(metadata) {
   if (metadata?.editorial?.responsible !== 'MedValor®') {
     errors.push(error('editorial.responsible', 'Responsabilidade editorial deve ser MedValor®.'));
   }
-  if (!Array.isArray(metadata?.elaboration) || !metadata.elaboration.includes('AxiaCare®')) {
-    errors.push(error('elaboration', 'A elaboração deve identificar AxiaCare®.'));
+  if (!Array.isArray(metadata?.elaboration)
+    || !metadata.elaboration.some((credit) => COMPASS_ELABORATION_CREDITS.includes(credit))) {
+    errors.push(error('elaboration', 'A elaboração deve identificar o Grupo CSV (ou AxiaCare®, nas edições anteriores à 009).'));
   }
   if (!metadata?.release || typeof metadata.release !== 'object') errors.push(error('release', 'Release obrigatório.'));
   if (!metadata?.migration || typeof metadata.migration !== 'object') errors.push(error('migration', 'Migração obrigatória.'));

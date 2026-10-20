@@ -22,7 +22,7 @@ test('os títulos da sidebar são resumidos por função determinística', async
   assert.match(config, /edition\.title/);
 });
 
-test('a documentação operacional fixa as oito edições no motor v2 e congela o FPDF fora do caminho ativo', async () => {
+test('a documentação operacional fixa as nove edições no motor v2 e congela o FPDF fora do caminho ativo', async () => {
   const [readme, infra, guide, metadataTemplate, editionTemplate] = await Promise.all([
     readFile(path.join(repoRoot, 'compass/README.md'), 'utf8'),
     readFile(path.join(repoRoot, 'docs/_infra/ferramentas/compass.md'), 'utf8'),
@@ -31,9 +31,9 @@ test('a documentação operacional fixa as oito edições no motor v2 e congela 
     readFile(path.join(repoRoot, 'compass/templates/compass_template.md'), 'utf8'),
   ]);
 
-  assert.match(readme, /As edições 001–008 usam o motor v2 como caminho ativo/u);
+  assert.match(readme, /As edições 001–009 usam o motor v2 como caminho ativo/u);
   assert.doesNotMatch(readme, /migração prevista no M8/u);
-  assert.match(infra, /Acervo no Motor v2 \| 001–008/u);
+  assert.match(infra, /Acervo no Motor v2 \| 001–009/u);
   assert.match(guide, /render-pdf\.mjs/u);
   assert.match(guide, /quality-gates\.mjs/u);
   assert.doesNotMatch(guide, /python3 tools\/compass-pdf\/compass-pdf-gen\.py/u);

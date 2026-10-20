@@ -24,9 +24,9 @@ test("expõe a aba Compass™ com catálogo, checksums, versões e downloads", (
   assert.match(admin, /Downloads/u);
   assert.match(
     admin,
-    /Compass™ — um produto do Grupo CSV \| Responsabilidade editorial: MedValor®/u,
+    /Compass™ — elaboração do Grupo CSV \| Responsabilidade editorial: MedValor®/u,
   );
-  assert.match(admin, /AxiaCare®/u);
+  assert.doesNotMatch(admin, /AxiaCare® permanece identificada na elaboração/u);
 });
 
 test("consome o domínio confirmado do csv-documents com a sessão humana existente", () => {
@@ -65,7 +65,7 @@ test("deriva a Central Compass™ do catálogo gerado sem duplicar a lista de ed
   );
   assert.match(
     centralCompass,
-    /Compass&trade; — um produto do Grupo CSV \| Responsabilidade editorial: MedValor&reg;/u,
+    /Compass&trade; — elaboração do Grupo CSV \| Responsabilidade editorial: MedValor&reg;/u,
   );
   assert.match(centralCompass, /AxiaCare&reg;/u);
 });
@@ -81,11 +81,11 @@ test("bloqueia deploy com contratos ou artefatos Compass™ divergentes", () => 
   assert.match(deployWorkflow, /git diff --exit-code -- docs\/compass/u);
   assert.match(deployWorkflow, /admin\/index\.html/u);
   assert.match(deployWorkflow, /compass\/catalog\.json/u);
-  assert.match(deployWorkflow, /for edition in 001 002 003 004 005 006 007 008/u);
+  assert.match(deployWorkflow, /for edition in 001 002 003 004 005 006 007 008 009/u);
   assert.match(deployWorkflow, /compass\/edicoes\/2026\/\$edition\/compass\.html/u);
   assert.match(deployWorkflow, /compass\/edicoes\/2026\/\$edition\/compass_\$\{edition\}_2026\.pdf/u);
   assert.match(deployWorkflow, /cp "docs\/compass\/edicoes\/2026\/\$edition\/compass_\$\{edition\}_2026\.pdf"/u);
-  assert.match(deployWorkflow, /catálogo Compass não contém exatamente as edições 001–008/u);
+  assert.match(deployWorkflow, /catálogo Compass não contém exatamente as edições 001–009/u);
   assert.match(deployWorkflow, /pdf_bytes[\s\S]*4194304/u);
   assert.match(deployWorkflow, /data-tab="compass"/u);
 });

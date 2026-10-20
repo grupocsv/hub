@@ -175,7 +175,7 @@ Documentação técnica pensada para:
 
 ### Módulo 6 — Compass™
 
-**Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®**. AxiaCare® permanece identificada na elaboração e na aplicação prática das edições utilizadas em consultorias e assessorias.
+**Compass™ — elaboração do Grupo CSV | Responsabilidade editorial: MedValor®**. As edições não carregam selo de estado editorial; o release ativo é controlado pelo catálogo.
 
 O motor v2 mantém a fonte em `compass/edicoes/`, deriva a publicação VitePress e o catálogo `docs/compass/catalog.json`, e gera PDF A4 determinístico em runtime Chromium isolado. A edição 008 é nativa v2; as edições 001–007 foram migradas nos marcos M6–M8, com preservação das URLs, dos downloads históricos e dos checksums de proveniência. O acervo 001–008 aguarda o release controlado.
 
@@ -278,6 +278,7 @@ A extensão Compass™ do `csv-documents` possui release independente e protegid
 | 06/03/2026 | Mapeamento completo dos ativos digitais do ecossistema |
 | 06/03/2026 | Documentação dos Workers (csv-auth, csv-ai, csv-email) |
 | 31/08/2026 | Implementação local do motor Compass™ v2, edição 008, catálogo, Admin e extensão preparada do `csv-documents` |
+| 17/10/2026 | Compass™ 009/2026 (Rumo à organização por condição), edição de referência do padrão paginado; CSS com escopo por edição e correção da página em branco na impressão |
 
 ---
 

@@ -356,7 +356,7 @@ function parseArgs(argv) {
     url: get('--url'),
     pdfPath: get('--pdf'),
     outputDir: get('--output-dir'),
-    requiredTexts: (get('--required') ?? 'Compass™|Grupo CSV|MedValor®|AxiaCare®').split('|'),
+    requiredTexts: (get('--required') ?? 'Compass™|Grupo CSV|MedValor®').split('|'),
   };
   if (!values.url || !values.pdfPath || !values.outputDir) {
     throw new Error('Uso: node quality-gates.mjs --url <localhost> --pdf <arquivo> --output-dir <diretório> [--required <texto|texto>]');

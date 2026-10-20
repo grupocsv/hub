@@ -121,7 +121,7 @@ onMounted(() => {
 
 ## Visão Geral
 
-O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica é **“Compass™ — um produto do Grupo CSV | Responsabilidade editorial: MedValor®”**. AxiaCare® permanece visível como responsável pela elaboração e pela aplicação prática nas consultorias e assessorias, conforme o contexto de cada edição.
+O Compass™ é a linha editorial estratégica do Grupo CSV para análises técnico-estratégicas em saúde. A fórmula institucional canônica, definida em 17/10/2026, é **“Compass™ — elaboração do Grupo CSV | Responsabilidade editorial: MedValor®”**. As edições não carregam selo de estado editorial (minuta, revisão, aprovação) em capa, Central ou componente global; o campo `status` dos metadados permanece operacional e o release ativo é controlado pelo catálogo. As edições anteriores à 009 registram AxiaCare® na elaboração em seus próprios metadados e permanecem válidas.
 
 | Campo | Estado Verificado em Produção |
 |---|---|
@@ -130,9 +130,9 @@ O Compass™ é a linha editorial estratégica do Grupo CSV para análises técn
 | Publicação Web | VitePress, derivada automaticamente em `docs/compass/` |
 | PDF | A4 determinístico por Playwright/Chromium em runtime Docker isolado |
 | Catálogo | `docs/compass/catalog.json`, derivado dos metadados de cada edição |
-| Edição Nativa v2 | 008/2026, publicada e ativa no motor v2 |
+| Edições Nativas v2 | 008/2026, publicada e ativa; 009/2026, edição de referência do padrão paginado, release controlado pendente |
 | Edições Migradas | 001–007, publicadas e ativas após os marcos M6–M8 |
-| Acervo no Motor v2 | 001–008, com oito releases v2 ativos e oito baselines preservadas |
+| Acervo no Motor v2 | 001–009, com oito releases v2 ativos, oito baselines preservadas e a edição 009 aguardando release |
 | Backend | `csv-documents` publicado; migration 0021 aplicada; catálogo e releases tenant-first ativos |
 | Admin | Consulta somente leitura pela sessão humana; mutações restritas ao workflow protegido |
 | n8n | Fora do caminho crítico; nenhuma alteração realizada |
@@ -153,7 +153,9 @@ O comando `npm run compass:publish` sincroniza apenas edições com schema v2 pa
 
 ## Motor Web e PDF
 
-O componente global `CompassEdition.vue` aplica a moldura editorial comum. A edição 008 usa o modo `paged`, com CSS global namespaceado, para preservar integralmente as 23 páginas editoriais sem duplicar capa ou contracapa. O modo de leitura web permanece responsivo; as regras A4 são ativadas somente na mídia de impressão.
+O componente global `CompassEdition.vue` aplica a moldura editorial comum. As edições 008 e 009 usam o modo `paged`, com CSS namespaceado, para preservar integralmente as páginas editoriais sem duplicar capa ou contracapa. O modo de leitura web permanece responsivo; as regras A4 são ativadas somente na mídia de impressão.
+
+A edição 009/2026 é a referência do padrão paginado para novas edições. Seu CSS tem escopo próprio (`.compass-v2--paged .compass-v2__content .compass-ed-009 …`), o que impede que regras de uma edição paginada alcancem outra no bundle único do VitePress e garante precedência sobre `.vp-doc` e sobre o tema genérico. A página nomeada `compass-edition-009` fica restrita ao invólucro da edição. O QA da edição está registrado em `docs/_infra/projetos/compass-v2/qa-edicao-009.md`.
 
 O PDF é renderizado por `scripts/compass-v2/render-pdf.mjs`. O wrapper `pdf-runtime.sh` executa Chromium em container efêmero fixado por digest, sem instalar bibliotecas no host. Os gates verificam conteúdo obrigatório, paridade web/PDF, PDF.js, acessibilidade, contraste, screenshots, quantidade de páginas, tamanho máximo, checksums, overflow documental e distribuição legível das colunas de referências no mobile.
 
@@ -186,11 +188,11 @@ O painel Compass™ permanece somente leitura por desenho operacional. Publicaç
 
 As edições 001–007 foram migradas e validadas nos marcos M6–M8; a edição 008 é nativa v2. As oito edições estão publicadas e ativas. Cada marco preservou o conteúdo, a URL histórica e o PDF original na proveniência, além de produzir metadados e checksums no contrato v2. A numeração cruzada dos PDFs históricos 005/006 foi detectada a partir dos próprios artefatos, registrada em `migration.numberingCorrection` e corrigida nos PDFs v2 sem alterar os slugs públicos. Os assets históricos da edição 003 também foram incorporados à fonte canônica e permanecem acessíveis na experiência web.
 
-O motor v2 é o caminho ativo para as edições 001–008. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
+O motor v2 é o caminho ativo para as edições 001–009. O gerador FPDF v1 permanece congelado apenas para reprodutibilidade histórica e rollback documental; não gera nem atualiza releases v2.
 
 ## CI, AI Search e Sistemas Relacionados
 
-O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–008, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF, aplica o mesmo limite, cria um job oficial em `/ai-search/instances/hub-csv/jobs` e acompanha sua conclusão. Depois de `ended_at`, o gate aguarda `queued=0` e `running=0` e exige `error=0` e `outdated=0`.
+O workflow de deploy executa os testes Compass™ antes do VitePress, rejeita deriva entre a fonte e `docs/compass/` e verifica a presença das páginas e PDFs 001–009, o catálogo exato, o limite de 4 MB e a aba do Admin no artefato final. O workflow `sync-r2-ai-search.yml` inclui arquivos PDF, aplica o mesmo limite, cria um job oficial em `/ai-search/instances/hub-csv/jobs` e acompanha sua conclusão. Depois de `ended_at`, o gate aguarda `queued=0` e `running=0` e exige `error=0` e `outdated=0`.
 
 Open Pages permanece dedicado à publicação de HTML e assets independentes. O `csv-gateway` não é necessário para o primeiro release porque o `csv-documents` possui domínio próprio e autenticação existente. A Queue e a DLQ documentais não recebem jobs Compass™ no M5, pois não existe etapa assíncrona necessária. O n8n não integra o caminho crítico e não foi alterado.
 

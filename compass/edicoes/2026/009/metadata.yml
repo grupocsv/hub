@@ -1,0 +1,53 @@
+schemaVersion: 2
+id: 009-2026
+number: 9
+year: 2026
+slug: "009"
+title: Rumo à organização por condição
+subtitle: Lições dos 10 hospitais do Value Catalyst sobre estrutura, papéis e estratégia de mudança na transição para a Saúde Baseada em Valor.
+publishedAt: 2026-10-17
+status: Publicado
+topics:
+  - saúde baseada em valor
+  - organização por condição
+  - unidades de prática integrada
+  - governança hospitalar
+  - estratégia de mudança
+tags:
+  - VBHC
+  - organização por condição
+  - Value Catalyst
+  - IPU
+  - NEJM Catalyst
+summary: Adaptação, em português, do artigo Moving toward a Condition-Based Organization — Lessons from the Value Catalyst Hospitals (Westerink HJ, van Staalduinen DJ, et al., NEJM Catalyst Innovations in Care Delivery, outubro de 2026), com os 3 domínios da transição para a organização por condição.
+sources:
+  - type: article
+    citation: Westerink HJ, van Staalduinen DJ, Makdisse M, et al. Moving toward a Condition-Based Organization — Lessons from the Value Catalyst Hospitals. NEJM Catalyst Innovations in Care Delivery 2026;7(10).
+    doi: 10.1056/CAT.26.0046
+    relation: adaptação em português, com as 25 referências do artigo preservadas na numeração original
+product:
+  name: Compass™
+  owner: Grupo CSV
+editorial:
+  responsible: MedValor®
+elaboration:
+  - Grupo CSV
+engine:
+  name: compass-v2
+  version: 2.0.0
+  templateVersion: 2.0.0
+routes:
+  web: /compass/edicoes/2026/009/compass
+  pdf: /compass/edicoes/2026/009/compass_009_2026.pdf
+artifacts:
+  source: compass.md
+  pdf: compass_009_2026.pdf
+  manifest: release.json
+release:
+  version: 1
+  active: false
+  checksum: null
+  publishedAt: null
+migration:
+  state: native-v2
+  sourceSchema: 2
