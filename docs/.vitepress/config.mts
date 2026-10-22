@@ -32,13 +32,14 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicons/favicon-16x16.png' }],
     ['meta', { property: 'og:title', content: 'Hub Grupo CSV | Portal Central' }],
     ['meta', { property: 'og:description', content: 'Ecossistema de soluções em saúde: AxiaCare®, MedValor®, Thera®' }],
-    ['meta', { property: 'og:image', content: 'https://hub.grupocsv.com/og/og_hub.png' }],
+    ['meta', { property: 'og:image', content: 'https://hub.grupocsv.com/og/og_hub-v2.jpg' }],
+    ['meta', { property: 'og:image:type', content: 'image/jpeg' }],
     ['meta', { property: 'og:url', content: 'https://hub.grupocsv.com' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:image', content: 'https://hub.grupocsv.com/og/og_hub.png' }],
+    ['meta', { name: 'twitter:image', content: 'https://hub.grupocsv.com/og/og_hub-v2.jpg' }],
   ],
 
   themeConfig: {
@@ -211,6 +212,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Central de Links (PRD)', link: '/_infra/projetos/central-de-links/prd' },
+            { text: 'Central de Links — operação', link: '/_infra/projetos/central-de-links/operacao' },
           ]
         },
         {

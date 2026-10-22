@@ -1,0 +1,19 @@
+{
+  "original_sha256": "265a006468bfead510e88de73288cdc3ea63c86cc4b74f99a72f8bae3d35cac2",
+  "jpeg_sha256": "45ea15e458380f5c2470740c79cb54dff489e997968fb56c3dd2c6647980f09b",
+  "generator": "sharp 0.34.5",
+  "options": {
+    "quality": 97,
+    "chromaSubsampling": "4:4:4"
+  },
+  "width": 1200,
+  "height": 630,
+  "size_bytes": 245209,
+  "ssim": 0.9921590278547802,
+  "ssim_rgb": [
+    0.9882375296941159,
+    0.9946052385433466,
+    0.9936343153268778
+  ],
+  "method": "SSIM médio dos três canais RGB, janela uniforme de 7 × 7 pixels, covariância amostral (49/48), intervalo de 255 níveis, K1 = 0,01, K2 = 0,03 e exclusão de borda de 3 pixels. Pixels decodificados pelo sharp 0.34.5; cálculo em JavaScript com somas integrais. A verificação automática confere o SHA-256 exato deste JPEG para preservar a medição sem adicionar um decodificador de imagens às dependências do Hub."
+}
