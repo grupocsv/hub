@@ -207,6 +207,13 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Projetos',
+          collapsed: true,
+          items: [
+            { text: 'Central de Links (PRD)', link: '/_infra/projetos/central-de-links/prd' },
+          ]
+        },
+        {
           text: 'Padr\u00f5es',
           collapsed: true,
           items: [
