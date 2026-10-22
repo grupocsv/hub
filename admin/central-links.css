@@ -73,6 +73,12 @@
   gap: 12px;
   margin: 16px 0;
 }
+#centralLinks .cl-grid > .cl-button {
+  align-self: end;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
 #centralLinks .cl-field {
   min-width: 0;
   margin: 12px 0;

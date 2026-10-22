@@ -796,3 +796,27 @@ test("alerta de credencial no destino exige reconhecimento antes de publicar", a
     ).body.confirm_credential_url,
   ).toBe(true);
 });
+
+for (const width of [1440, 768, 390, 320]) {
+  test(`H3: Filtrar acompanha a altura dos campos em ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await start(page);
+    await section(page, "Rotativos");
+    const filter = await button(page, "Filtrar").boundingBox();
+    const search = await input(page, "Buscar").boundingBox();
+    expect(Math.abs(filter.height - search.height)).toBeLessThanOrEqual(2);
+    if (width >= 768) {
+      const alignedField =
+        width === 1440
+          ? search
+          : await input(page, "Ordenação").boundingBox();
+      expect(
+        Math.abs(filter.y + filter.height - alignedField.y - alignedField.height),
+      ).toBeLessThanOrEqual(2);
+    } else {
+      expect(Math.abs(filter.width - search.width)).toBeLessThanOrEqual(2);
+    }
+  });
+}
