@@ -251,13 +251,3 @@
     white-space: normal;
   }
 }
-/* O cabeçalho existente excedia 320 px; a quebra preserva seus controles. */
-@media (max-width: 390px) {
-  .topbar {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .topbar-actions {
-    flex-wrap: wrap;
-  }
-}

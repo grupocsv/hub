@@ -399,6 +399,17 @@
             .modal-box { padding: 24px; margin: 12px; }
             .auth-box { padding: 32px 24px 28px; margin: 16px; }
         }
+
+        /* O cabeçalho existente excedia 320 px; a quebra preserva seus controles. */
+        @media (max-width: 390px) {
+          .topbar {
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .topbar-actions {
+            flex-wrap: wrap;
+          }
+        }
     </style>
 </head>
 <body>
