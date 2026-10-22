@@ -262,7 +262,8 @@
       if (!item.routing_enabled) return "Desativado";
       if (item.expires_at && Date.parse(item.expires_at) <= Date.now())
         return "Expirado";
-      if (item.last_check?.status === "falhou") return "Destino com falha";
+      if ((item.last_check_status ?? item.last_check?.status) === "falhou")
+        return "Destino com falha";
       if (
         item.published_at &&
         Date.now() - Date.parse(item.published_at) < 90000
@@ -351,9 +352,6 @@
       });
       for (const [key, value] of [...params]) if (!value) params.delete(key);
       const data = await api("/links?" + params);
-      const details = await Promise.all(
-        data.links.map((item) => api("/links/" + encodeURIComponent(item.id))),
-      );
       if (gen !== generation) return;
       rows.append(el("p", data.total + (data.total === 1 ? " link" : " links")));
       const table = el("table", "", "cl-table cl-link-table"),
@@ -372,7 +370,7 @@
       const body = el("tbody");
       table.append(body);
       rows.append(table);
-      details.forEach((item) => {
+      data.links.forEach((item) => {
         const row = el("tr");
         row.dataset.slug = item.slug;
         const values = [
@@ -387,9 +385,9 @@
           el("div", date(item.updated_at) + " · " + item.updated_by),
           el("div", "", "cl-actions"),
         ];
-        const dest = el("span", item.destination?.url || "—", "cl-destination");
-        dest.title = item.destination?.url || "";
-        values[1].append(dest, el("p", item.destination?.label || ""));
+        const dest = el("span", item.url || "—", "cl-destination");
+        dest.title = item.url || "";
+        values[1].append(dest, el("p", item.destination_label || ""));
         values[5].append(
           link("Abrir", publicURL(item.slug)),
           button("Copiar", () =>

@@ -443,6 +443,11 @@ export async function mockApi(page, options = {}) {
           .map(({ destination: dest, last_check, tags, ...item }) => ({
             ...item,
             url: dest.url,
+            destination_label: dest.label,
+            destination_source: dest.source,
+            destination_blog_post_id: dest.blog_post_id,
+            last_check_status: last_check?.status ?? null,
+            last_check_at: last_check?.at ?? null,
           })),
         total: items.length,
         page: pageNumber,
