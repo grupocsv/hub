@@ -2,8 +2,9 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 1.0 |
+| Versão | 1.1 |
 | Data | 22/10/2026 |
+| Revisão | 1.1 (22/10/2026): token da API administrativa (seções 4, 8.2 e 10.1), campos da listagem `GET /links` (seção 9) e saúde de csv.online antes da virada (seção 10.5) |
 | Situação | Aprovado para implementação |
 | Repositórios afetados | grupocsv/backend, grupocsv/hub, grupocsv/csv-open-pages |
 | Documento público | Sim. Este arquivo fica no repositório público grupocsv/hub. IDs de recursos, registros DNS, contas e credenciais ficam fora dele, no handoff privado da VPS-CSV |
@@ -88,7 +89,7 @@ As decisões abaixo vieram de uma sabatina com Guilherme Thomé, de P1 a P46, e 
 | Padrão de verificação de sessão | O csv-documents usa o service binding `AUTH` para o csv-auth e chama `https://csv-auth.internal/verify` em modo fail-closed | Código na main do grupocsv/backend |
 | Modelo de Worker com D1, rota e release | `workers/nfse-api` (TypeScript, vitest com `@cloudflare/vitest-pool-workers`, `wrangler.production.jsonc` e o workflow `nfse-api-release.yml`, que faz migrations, `deploy --strict`, health check e rollback automático) | Código na main do grupocsv/backend |
 | Proteção da main | hub: PR obrigatório, checks `build` e CodeQL, sem bypass. backend: PR obrigatório, checks "Validar Worker", "Validar Processador" e "Validar Autenticação", sem bypass. O ambiente `production` do backend exige revisor | API do GitHub |
-| Admin do Hub | `admin/index.html`, com as seções Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema. A aba "Links Públicos" trata do `/p/` e das Open Pages, não de links curtos. Token em `localStorage['op_admin_token']`, enviado no header `X-Auth-Token`. Sem CSP | Código na main do grupocsv/hub |
+| Admin do Hub | `admin/index.html`, com as seções Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema. A aba "Links Públicos" trata do `/p/` e das Open Pages, não de links curtos. A sessão do Admin no csv-auth (login com `portal: 'admin'`) fica em `localStorage['hub_auth_admin_token']`, é lida por `getToken()` e vai no header `X-Auth-Token`. O `localStorage['op_admin_token']` é outro token, o das Open Pages, enviado como `Authorization: Bearer`. Sem CSP | Código na main do grupocsv/hub |
 | `api.grupocsv.com` | A rota `api.grupocsv.com/*` é do csv-gateway, que exige `X-API-Key` (um caminho novo como `/links/v1/health` responde 401 dele). Há rotas mais específicas para o nfse-api (`/nfse/*`) e o unimed-system (`/unimed*`). `links-api.grupocsv.com` não existe no DNS | API da Cloudflare, código e teste HTTP |
 | Open Pages | A og:image padrão é `${DOMAIN}/_assets/og/default.png` (`src/index.js`). O repositório não tem workflow de deploy; o README manda publicar com `npx wrangler deploy` | Código na main do grupocsv/csv-open-pages |
 | assets.grupocsv.com | O Worker `csv-assets` está publicado, mas o código-fonte não está versionado em nenhum repositório. `/` devolve JSON de serviço, sem HTML nem tags de prévia | API da Cloudflare (download do código publicado) |
@@ -203,7 +204,7 @@ Colisão: a criação tenta o `INSERT`. Se o índice único parcial recusar, a r
 
 ### 8.2 Autenticação e papéis
 
-A API administrativa aceita só o header `X-Auth-Token` com a sessão do Admin do Hub, a mesma guardada hoje em `localStorage['op_admin_token']`. Para cada requisição, a API faz:
+A API administrativa aceita só o header `X-Auth-Token` com a sessão do Admin do Hub, a mesma guardada hoje em `localStorage['hub_auth_admin_token']` e lida por `getToken()`; o `op_admin_token`, das Open Pages, não é aceito. Para cada requisição, a API faz:
 
 1. Rejeita, com 401, token ausente, token com mais de 512 caracteres, token com caracteres de controle e token que começa com `shared_`.
 2. Chama `AUTH.fetch('https://csv-auth.internal/verify')` com o token, com tempo limite de 5 segundos e `redirect: 'manual'`. Sessão inválida ou expirada (`valid !== true` ou `expires_at` no passado) dá 401. Sessão válida com `portal !== 'admin'` ou `auth_mode !== 'individual'` dá 403. Falha de rede, tempo esgotado, resposta não JSON ou corpo acima de 8 KB dão 503, sem fallback (fail-closed).
@@ -268,7 +269,7 @@ Base: `https://links-api.grupocsv.com/v1`. Respostas em JSON UTF-8. Erros seguem
 |---|---|---|
 | `GET /health` | Público | `{service: "csv-links", version, d1, kv}`, em que `d1` e `kv` valem `"ok"` ou `"erro"`, sem dados de links |
 | `GET /me` | admin | `{email, role}` |
-| `GET /links` | admin | Lista com `q` (nome, título, destino e etiqueta), `kind`, `status` (`ativo`, `desativado`, `expirado`, `arquivado`, `excluido`, `com_falha`), `tag`, `sort` (`updated_at` ou `slug`), `page` e `page_size` (padrão 25, máximo 100). Sem filtro, oculta arquivados e excluídos |
+| `GET /links` | admin | Lista com `q` (nome, título, destino e etiqueta), `kind`, `status` (`ativo`, `desativado`, `expirado`, `arquivado`, `excluido`, `com_falha`), `tag`, `sort` (`updated_at` ou `slug`), `page` e `page_size` (padrão 25, máximo 100). Sem filtro, oculta arquivados e excluídos. Cada item traz, além dos campos do link, `url` e `published_at` do destino vigente, `destination_label`, `destination_source`, `destination_blog_post_id`, `last_check_status` (`ok`, `falhou` ou vazio) e `last_check_at`, para que a lista não precise consultar o detalhe de cada item |
 | `GET /slugs/:slug/availability` | admin | `{available, reason}` com `reason` igual a `formato`, `reservado` ou `em_uso` |
 | `POST /checks` | admin | Testa uma URL (seção 8.4) e devolve o registro do teste, com `check_id`. Limite de 30 por minuto por admin |
 | `POST /links` | admin | Cria o link com `slug`, `kind`, `title`, `notes`, `tags`, `expires_at`, `preview_description`, `destination {url, label, source, blog_post_id}`, `check_id` e `publish_despite_failure` |
@@ -302,7 +303,7 @@ Limites de taxa (binding de rate limiting do Workers, mesma técnica do csv-auth
 - Item novo "Central de Links" no menu lateral, na seção "Comunicação", com `data-tab="central-links"`.
 - Dentro da aba, um seletor de seções com Visão geral, Rotativos, Estáticos, Domínios, Métricas e csv.email (D1). A seção do histórico geral fica dentro de Métricas, com o título "Histórico e Métricas".
 - A aba usa os estilos, as variáveis de cor, o tema e os componentes que o Admin já tem. Não há CSS de outra marca nem framework novo.
-- A constante `LINKS_API = 'https://links-api.grupocsv.com/v1'` fica junto das constantes de API existentes. O token é o mesmo `op_admin_token`.
+- A constante `LINKS_API = 'https://links-api.grupocsv.com/v1'` fica junto das constantes de API existentes. O token é a sessão do Admin, lida por `getToken()`, e nunca o `op_admin_token`.
 
 ### 10.2 Listas de Rotativos e Estáticos
 
@@ -342,7 +343,7 @@ Na lista de Rotativos, um bloco "Sugestões" mostra `compass`, `evento`, `materi
 ### 10.5 Visão geral, Domínios e Métricas
 
 - **Visão geral**: totais de rotativos e estáticos; ativos, desativados, expirados e com falha no último teste diário; cliques sem robôs nos últimos 7 e 30 dias; as 10 alterações mais recentes; situação dos domínios.
-- **Domínios**: resultado de `GET /domains` com a hora da verificação; saúde do Worker em `csv.online/_csv/health`, consultada pelo navegador; a política vigente em modo de leitura (302 com `no-store`, parâmetros `utm_`, nomes reservados). A central não altera DNS e não tem chave da Cloudflare.
+- **Domínios**: resultado de `GET /domains` com a hora da verificação; saúde do Worker em `csv.online/_csv/health`, consultada pelo navegador (até a virada da seção 16.3, `csv.online` ainda responde com o redirecionamento provisório e essa consulta falha; a aba mostra "Sem resposta", com a hora da tentativa); a política vigente em modo de leitura (302 com `no-store`, parâmetros `utm_`, nomes reservados). A central não altera DNS e não tem chave da Cloudflare.
 - **Métricas**: período de 7, 30 ou 90 dias ou personalizado (até 24 meses); escolha do link; gráfico diário de cliques, com robôs numa série separada que pode ser ocultada; tabelas por período de cada destino, país, origem e campanha. O gráfico é desenhado em SVG ou canvas, sem biblioteca de CDN. Abaixo, o histórico geral com filtros por link, tipo de evento, autor e período.
 
 ### 10.6 Qualidade da interface
