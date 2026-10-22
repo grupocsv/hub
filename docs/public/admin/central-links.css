@@ -255,22 +255,3 @@
     flex-wrap: wrap;
   }
 }
-@media (prefers-color-scheme: dark) {
-  #centralLinks {
-    --bg: #1b1e24;
-    --card: #252a33;
-    --text: #f3f4f6;
-    --text-secondary: #c3c9d4;
-    --border: #46505f;
-    --primary: #8cc8ef;
-    --primary-dark: #c5e4fa;
-    --red: #ff9999;
-    padding: 16px;
-    border-radius: 12px;
-    color-scheme: dark;
-  }
-  #centralLinks .cl-button[aria-pressed="true"],
-  #centralLinks .cl-primary {
-    color: #10283a;
-  }
-}

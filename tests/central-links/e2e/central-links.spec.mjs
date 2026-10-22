@@ -329,6 +329,26 @@ for (const width of [1440, 768, 390, 320])
       await page.setViewportSize({ width, height: width === 768 ? 1024 : 900 });
       await page.emulateMedia({ colorScheme: theme });
       const state = await start(page);
+      const palette = () =>
+        root(page).evaluate((element) => {
+          const style = getComputedStyle(element);
+          return { background: style.backgroundColor, color: style.color };
+        });
+      const originalColors = await palette();
+      await page.emulateMedia({
+        colorScheme: theme === "light" ? "dark" : "light",
+      });
+      await expect
+        .poll(palette, {
+          message: "A aba mantém as cores do Admin ao alternar o esquema do sistema.",
+        })
+        .toEqual(originalColors);
+      await page.emulateMedia({ colorScheme: theme });
+      const adminColors = await page.locator("body").evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { background: style.backgroundColor, color: style.color };
+      });
+      expect(await palette()).toEqual(adminColors);
       for (const sectionName of [
         "Visão geral",
         "Rotativos",
