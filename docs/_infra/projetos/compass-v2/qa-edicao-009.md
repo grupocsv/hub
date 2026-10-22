@@ -11,7 +11,7 @@
 |---|---|
 | `npm run compass:test` | 107 testes aprovados |
 | Páginas do PDF | 21 (capa, sumário, síntese, 6 capítulos, referências, contracapa) |
-| Tamanho do PDF | 886.781 bytes (SHA-256 em `release.json`) |
+| Tamanho do PDF | 888.260 bytes (SHA-256 em `release.json`) |
 | Paridade web/PDF (`quality-gates.mjs`) | Aprovada, inclusive título, Value Catalyst, Westerink e síntese da contracapa |
 | Acessibilidade (axe) | 0 violações bloqueantes |
 | Contraste do título da contracapa | 17,96:1 em tela e no PDF |
