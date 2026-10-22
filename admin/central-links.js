@@ -355,7 +355,7 @@
         data.links.map((item) => api("/links/" + encodeURIComponent(item.id))),
       );
       if (gen !== generation) return;
-      rows.append(el("p", data.total + " link(s)"));
+      rows.append(el("p", data.total + (data.total === 1 ? " link" : " links")));
       const table = el("table", "", "cl-table cl-link-table"),
         head = el("thead"),
         tr = el("tr");
