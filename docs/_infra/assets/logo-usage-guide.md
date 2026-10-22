@@ -196,16 +196,16 @@ Formatos disponíveis: PNG (raster) e SVG (vetor). Preferir SVG para web quando 
 
 ### Grupo CSV
 
-O Grupo CSV possui um caso especial: o arquivo `grupo-csv_logo_horizontal_full-color_positive.png` tem dimensões 500x500 (quadrado com fundo branco), apesar do nome "horizontal". Para uso web onde transparência é necessária, usar a versão `_transparent`.
+Desde 21/10/2026, as quatro logos do Grupo CSV desta pasta reproduzem a arte oficial entregue pela agência, com os mesmos nomes de arquivo. As versões com fundo branco deixaram de ser quadradas: `grupo-csv_logo_horizontal_full-color_positive.png` é horizontal (500x172) e `grupo-csv_logo_vertical_full-color_positive.png` é vertical (449x500). Para uso web onde transparência é necessária, usar a versão `_transparent`. O pacote oficial completo (horizontal e vertical, positivo, negativo e monocromático, em PNG, WebP, JPG, SVG, PDF e AI) está no bucket de assets, em `logos/grupo-csv/`.
 
 | Arquivo | Dimensões | Transparência | Uso recomendado |
 |---------|-----------|---------------|-----------------|
 | `avatar/grupo-csv_avatar_v1.png` | 2048x2048 | Não | Redes sociais |
 | `avatar/grupo-csv_avatar_v2.png` | 480x480 | Não | Redes sociais, favicon |
-| `logo/png/grupo-csv_logo_horizontal_full-color_positive.png` | 500x500 | Não | Documentos (fundo branco) |
-| `logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png` | 1310x539 | Sim | Navbar, headers web, footers web |
-| `logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png` | 1291x522 | Sim | Headers/footers sobre fundo escuro |
-| `logo/png/grupo-csv_logo_vertical_full-color_positive.png` | 500x500 | Não | Cards, blocos, capas |
+| `logo/png/grupo-csv_logo_horizontal_full-color_positive.png` | 500x172 | Não | Documentos (fundo branco) |
+| `logo/png/grupo-csv_logo_horizontal_full-color_positive_transparent.png` | 1310x451 | Sim | Navbar, headers web, footers web |
+| `logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png` | 1291x444 | Sim | Headers/footers sobre fundo escuro |
+| `logo/png/grupo-csv_logo_vertical_full-color_positive.png` | 449x500 | Não | Cards, blocos, capas |
 
 ### AxiaCare
 
@@ -274,7 +274,7 @@ Cor primaria: azul marinho (#1B3A5C). Cor secundaria: azul medio (#2C5F8A). Enti
 
 3. **Usar logo negative sobre fundo claro.** O texto ficará invisível. Usar variante positive.
 
-4. **Confundir o arquivo `grupo-csv_logo_horizontal_full-color_positive.png` (500x500) com uma logo quadrada.** Apesar das dimensões, é uma logo horizontal com padding branco. Para web, preferir a versão `_transparent`.
+4. **Fixar largura e altura ao mesmo tempo nas logos do Grupo CSV.** Desde 21/10/2026, as versões com fundo branco não são mais quadradas (500x172 e 449x500). Definir só a altura ou só a largura, ou usar `object-fit: contain`. Para web, preferir a versão `_transparent`.
 
 5. **Usar logos de alta resolução (3000px+) sem redimensionamento.** Em contextos web, definir height/width via CSS para evitar carregamento desnecessário.
 
