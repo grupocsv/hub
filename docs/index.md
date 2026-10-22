@@ -10,7 +10,10 @@ head:
       content: "Portal central do ecossistema Grupo CSV — AxiaCare®, MedValor®, Thera®"
   - - meta
     - property: og:image
-      content: "https://hub.grupocsv.com/og/og_hub.png"
+      content: "https://hub.grupocsv.com/og/og_hub-v2.jpg"
+  - - meta
+    - property: og:image:type
+      content: "image/jpeg"
   - - meta
     - property: og:url
       content: "https://hub.grupocsv.com/"
@@ -28,7 +31,7 @@ head:
       content: summary_large_image
   - - meta
     - name: twitter:image
-      content: "https://hub.grupocsv.com/og/og_hub.png"
+      content: "https://hub.grupocsv.com/og/og_hub-v2.jpg"
 ---
 
 <style>

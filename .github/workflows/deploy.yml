@@ -88,6 +88,9 @@ jobs:
       - name: Test Hub Documentos contracts
         run: npm run documentos:test
 
+      - name: Testar contratos da Central de Links
+        run: npm run central-links:test
+
       - name: Test Compass v2 contracts
         run: npm run compass:test
 
@@ -135,6 +138,9 @@ jobs:
 
       - name: Install pinned Chromium for Hub Documentos E2E
         run: npm exec -- playwright install --with-deps chromium
+
+      - name: Testar Central de Links no Chromium
+        run: npm run central-links:e2e
 
       - name: Test built Hub Documentos in Chromium
         env:
@@ -227,6 +233,12 @@ jobs:
             scripts/hub-auth.js \
             scripts/hub-auth.css \
             admin/index.html \
+            admin/central-links.js \
+            admin/central-links-sections.js \
+            admin/central-links.css \
+            admin/vendor/README.md \
+            admin/vendor/qrcode-generator-1.4.4.js \
+            admin/vendor/qrcode-generator-LICENSE \
             compass/index.html \
             compass/catalog.json \
             documentos/index.html \
@@ -300,6 +312,10 @@ jobs:
           fi
           if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="compass"' "$DIST/admin/index.html"; then
             echo "::error::aba Compass ausente no Admin publicado"
+            fail=1
+          fi
+          if [ -f "$DIST/admin/index.html" ] && ! grep -q 'data-tab="central-links"' "$DIST/admin/index.html"; then
+            echo "::error::aba Central de Links ausente no Admin publicado"
             fail=1
           fi
           # O meta noindex deve sobreviver nas sub-páginas restritas standalone.

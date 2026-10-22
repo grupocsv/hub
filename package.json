@@ -23,7 +23,9 @@
     "documentos:vendor": "node scripts/vendor-documentos-pdfjs.mjs",
     "documentos:generate": "npm run documentos:vendor && node scripts/generate-documentos-config.mjs",
     "documentos:test": "npm run documentos:vendor && node --test tests/documentos/*.test.mjs tests/hub-auth-corporate.test.mjs",
-    "documentos:e2e": "playwright test --config=playwright.documentos.config.mjs"
+    "documentos:e2e": "playwright test --config=playwright.documentos.config.mjs",
+    "central-links:test": "node --test tests/central-links/*.test.mjs",
+    "central-links:e2e": "playwright test --config=playwright.admin.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
     "@playwright/test": "1.62.0",
+    "jsqr": "1.4.0",
     "pdfjs-dist": "6.2.108",
     "vitepress": "2.0.0-alpha.17",
     "yaml": "^2.8.3"

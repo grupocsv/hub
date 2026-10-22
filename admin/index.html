@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
     <title>Admin - Hub Grupo CSV</title>
     <link rel="icon" href="/favicons/favicon.ico">
+    <link rel="stylesheet" href="/admin/central-links.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -398,6 +399,17 @@
             .modal-box { padding: 24px; margin: 12px; }
             .auth-box { padding: 32px 24px 28px; margin: 16px; }
         }
+
+        /* O cabeçalho existente excedia 320 px; a quebra preserva seus controles. */
+        @media (max-width: 390px) {
+          .topbar {
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .topbar-actions {
+            flex-wrap: wrap;
+          }
+        }
     </style>
 </head>
 <body>
@@ -511,6 +523,10 @@
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Comunicação</div>
+                <button class="sidebar-item" data-tab="central-links">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg>
+                    Central de Links
+                </button>
                 <button class="sidebar-item" data-tab="waba">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                     WABA-CSV
@@ -543,6 +559,21 @@
 
         <!-- Main Content -->
         <div class="main-content">
+
+            <section class="admin-tab-content" data-tab="central-links" id="centralLinks" aria-labelledby="cl-title">
+                <h2 id="cl-title">Central de Links</h2>
+                <p>Links rotativos e estáticos em csv.online.</p>
+                <nav class="cl-nav" aria-label="Seções da Central de Links">
+                    <button type="button" class="cl-button" data-cl-section="overview" aria-pressed="true">Visão geral</button>
+                    <button type="button" class="cl-button" data-cl-section="rotativo" aria-pressed="false">Rotativos</button>
+                    <button type="button" class="cl-button" data-cl-section="estatico" aria-pressed="false">Estáticos</button>
+                    <button type="button" class="cl-button" data-cl-section="domains" aria-pressed="false">Domínios</button>
+                    <button type="button" class="cl-button" data-cl-section="metrics" aria-pressed="false">Métricas</button>
+                    <button type="button" class="cl-button" data-cl-section="email" aria-pressed="false">csv.email</button>
+                </nav>
+                <div id="cl-notice" class="cl-notice" role="alert" hidden></div>
+                <div id="cl-view"><p>Abra a aba para carregar.</p></div>
+            </section>
 
             <!-- TAB: Overview (new) -->
             <div class="admin-tab-content active" data-tab="overview">
@@ -1708,6 +1739,9 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="/admin/vendor/qrcode-generator-1.4.4.js"></script>
+<script src="/admin/central-links-sections.js"></script>
+<script src="/admin/central-links.js"></script>
 <script>
 function toggleAdminPw() {
     const pw = document.getElementById('admin-password');
@@ -1724,6 +1758,7 @@ function toggleAdminPw() {
 (function() {
     'use strict';
 
+    const LINKS_API = 'https://links-api.grupocsv.com/v1';
     const AUTH_API = 'https://csv-auth.guilherme-thom.workers.dev';
     const DATA_API = 'https://csv-data.guilherme-thom.workers.dev';
     const DOCUMENTS_API = 'https://documentos-api.grupocsv.com';
@@ -1825,6 +1860,8 @@ function toggleAdminPw() {
             this.classList.add('active');
             const target = document.querySelector('.admin-tab-content[data-tab="' + tabName + '"]');
             if (target) target.classList.add('active');
+            if (tabName === 'central-links') centralLinks.open();
+            else centralLinks.close();
             // Load data on demand
             if (tabName === 'passwords') loadPasswords();
             if (tabName === 'public-links') loadPublicLinks();
@@ -3649,6 +3686,8 @@ function toggleAdminPw() {
             txt.style.color = '#dc2626';
         }
     }
+
+    const centralLinks = window.createCentralLinks({ apiBase: LINKS_API, getToken, clearAuth, showAuth });
 
     // ===== Start =====
     init();

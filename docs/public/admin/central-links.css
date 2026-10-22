@@ -1,0 +1,253 @@
+/* Estilos restritos à Central de Links. */
+#centralLinks {
+  --text-secondary: #626b77;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#centralLinks [hidden] {
+  display: none !important;
+}
+#centralLinks h2 {
+  font-size: 23px;
+  margin: 0 0 8px;
+}
+#centralLinks h3 {
+  font-size: 19px;
+  margin: 12px 0;
+}
+#centralLinks h4 {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+#centralLinks p {
+  margin: 8px 0;
+}
+#centralLinks a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+#centralLinks .cl-nav,
+#centralLinks .cl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+#centralLinks .cl-nav {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+#centralLinks .cl-button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  max-width: 100%;
+}
+#centralLinks .cl-button[aria-pressed="true"],
+#centralLinks .cl-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+#centralLinks button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+#centralLinks :focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+#centralLinks .cl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+#centralLinks .cl-grid > .cl-button {
+  align-self: end;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+#centralLinks .cl-field {
+  min-width: 0;
+  margin: 12px 0;
+}
+#centralLinks label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+#centralLinks input:not([type="checkbox"]),
+#centralLinks textarea,
+#centralLinks select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+#centralLinks textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+#centralLinks input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+#centralLinks .cl-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 0;
+}
+#centralLinks .cl-card {
+  padding: 20px;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  min-width: 0;
+}
+#centralLinks .cl-card > .cl-button {
+  margin: 6px 6px 6px 0;
+}
+#centralLinks .cl-muted {
+  color: var(--text-secondary);
+}
+#centralLinks .cl-note,
+#centralLinks .cl-notice {
+  padding: 12px 14px;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  background: var(--card);
+}
+#centralLinks .cl-notice.error {
+  border-left-color: var(--red);
+}
+#centralLinks .cl-notice.success {
+  border-left-color: var(--green);
+}
+#centralLinks .cl-check-result:empty {
+  display: none;
+}
+#centralLinks .cl-check-result {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+}
+#centralLinks table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+#centralLinks td,
+#centralLinks th {
+  padding: 12px 8px;
+  color: var(--text);
+  background: var(--card);
+  word-break: break-word;
+  text-transform: none;
+}
+#centralLinks th {
+  font-size: 12px;
+}
+#centralLinks td {
+  font-size: 13px;
+}
+#centralLinks .cl-destination {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#centralLinks .cl-kind {
+  font-weight: 600;
+}
+#centralLinks .cl-kind.rotativo {
+  color: var(--primary);
+}
+#centralLinks .cl-kind.estatico {
+  color: var(--text);
+  border-bottom: 2px solid var(--green);
+}
+#centralLinks .cl-history {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+#centralLinks summary {
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 600;
+}
+#centralLinks canvas,
+#centralLinks svg {
+  max-width: 100%;
+  height: auto;
+}
+#centralLinks .cl-qr canvas {
+  display: block;
+  margin: 12px 0;
+  width: 296px;
+  image-rendering: pixelated;
+}
+@media (max-width: 768px) {
+  #centralLinks .cl-card {
+    padding: 14px;
+  }
+  #centralLinks .cl-link-table,
+  #centralLinks .cl-link-table tbody {
+    display: block;
+  }
+  #centralLinks .cl-link-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  #centralLinks .cl-link-table tr {
+    display: block;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+  #centralLinks .cl-link-table td {
+    display: block;
+    padding: 7px 0;
+    border: 0;
+  }
+  #centralLinks .cl-link-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  #centralLinks .cl-destination {
+    white-space: normal;
+  }
+}
