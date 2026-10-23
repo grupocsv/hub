@@ -1,0 +1,14 @@
+edition: S42
+year: 2026
+period: "12 a 16 de outubro de 2026"
+generated: "2026-10-23"
+dictionary_version: "v4.20"
+scope: unimed
+facts_count: 6
+new_terms: 34
+restored_terms: 1
+updated_terms: 15
+dictionary_movements: 50
+sources:
+  notion_pages: 1
+  gmail_threads: 8

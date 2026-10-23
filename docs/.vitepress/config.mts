@@ -113,6 +113,7 @@ export default defineConfig({
               text: '2026',
               collapsed: false,
               items: [
+              { text: 'S42 — 12-16 Out', link: '/signal/edicoes/2026/S42/' },
               { text: 'S41 — 5-9 Out', link: '/signal/edicoes/2026/S41/' },
               { text: 'S40 — 28 Set–2 Out', link: '/signal/edicoes/2026/S40/' },
               { text: 'S39 — 21-25 Set', link: '/signal/edicoes/2026/S39/' },
