@@ -74,3 +74,39 @@ Após publicar, conferir no KV `csv-open-pages` (`page:caminhos-brilhantes`) que
 `og_image` aponta para `https://open.grupocsv.com/caminhos-brilhantes/og.png` —
 sem essa chave o Worker injeta a imagem genérica do Grupo CSV nos
 compartilhamentos.
+
+## `caminhos-brilhantes-jornada-arquivos.py`
+
+Complemento da revisão visual publicada em 7 de setembro de 2026. Amplia o card
+da Jornada TEA sem substituir a página interativa existente:
+
+| Recurso | Objeto Público |
+| --- | --- |
+| Desenho integral em alta resolução | `caminhos-brilhantes/jornada-tea-diagrama-alta.png` |
+| Documento original A3, duas páginas | `caminhos-brilhantes/jornada-tea-a3.pdf` |
+| Relatório Técnico da Jornada, 16 páginas | `caminhos-brilhantes/relatorio-tecnico-jornada-tea.pdf` |
+
+O relatório é incorporado à página com um `<iframe>` dedicado ao PDF. Em
+telas com largura de até 767 px, o visualizador é ocultado e substituído pelas
+ações de abrir em nova aba e baixar, evitando leitores PDF móveis comprimidos.
+
+A fonte do relatório fica em
+`source/caminhos-brilhantes/relatorio-tecnico-jornada-tea-fonte.pdf`. Execute
+`normalizar-relatorio-jornada.py` para gerar a versão pública antes dos testes.
+A interface e o PDF público usam somente a nomenclatura **Relatório Técnico da
+Jornada**.
+
+Fluxo local, com `PyMuPDF` disponível no ambiente:
+
+```sh
+sudo pip3 install PyMuPDF
+python3 scripts/open-pages/normalizar-relatorio-jornada.py
+python3 scripts/open-pages/caminhos-brilhantes-jornada-arquivos.py
+CAMINHOS_HTML_TARGET=scripts/open-pages/index-novo.html \
+  python3 scripts/open-pages/test_caminhos_brilhantes_jornada_assets.py
+```
+
+Para publicar, criar backup do `caminhos-brilhantes/index.html` e gravar
+diretamente no R2 os quatro objetos alterados ou novos: `index.html`, a imagem
+em alta, o PDF A3 e o relatório técnico. Não usar o endpoint `/api/upload`, pois
+ele substitui o conjunto da slug.
