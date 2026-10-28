@@ -8,6 +8,7 @@
     <title>Admin - Hub Grupo CSV</title>
     <link rel="icon" href="/favicons/favicon.ico">
     <link rel="stylesheet" href="/admin/central-links.css">
+    <link rel="stylesheet" href="/admin/central-assets.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -510,7 +511,7 @@
                 <div class="sidebar-section-label">Infraestrutura</div>
                 <button class="sidebar-item" data-tab="asset-bucket">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    Asset Bucket
+                    Central de Assets
                 </button>
                 <button class="sidebar-item" data-tab="cooperados-ugv">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -976,103 +977,11 @@
                 </div>
             </div>
 
-            <!-- TAB: Asset Bucket -->
-            <div class="admin-tab-content" data-tab="asset-bucket">
-                <h3 class="section-header">Asset Bucket (assets.grupocsv.com)</h3>
-                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
-                    Repositório centralizado de assets visuais do Grupo CSV. Hospedado em Cloudflare R2.
-                </p>
-                <div class="summary-grid" id="asset-summary" style="margin-bottom:24px;">
-                    <div class="summary-card accent">
-                        <div class="sc-label">Total de Assets</div>
-                        <div class="sc-value" id="asset-total">-</div>
-                    </div>
-                    <div class="summary-card info">
-                        <div class="sc-label">Logos</div>
-                        <div class="sc-value" id="asset-logos">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">Assinaturas</div>
-                        <div class="sc-value" id="asset-assinaturas">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">Avatares</div>
-                        <div class="sc-value" id="asset-avatares">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">Icones</div>
-                        <div class="sc-value" id="asset-icones">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">Criativos</div>
-                        <div class="sc-value" id="asset-criativos">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">E-mail</div>
-                        <div class="sc-value" id="asset-email">-</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="sc-label">Wallpapers</div>
-                        <div class="sc-value" id="asset-wallpapers">-</div>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="tc-header">
-                        <h3>Assets por Marca</h3>
-                        <span class="count" id="asset-brands-count">Carregando...</span>
-                    </div>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Marca</th>
-                                    <th>Logos</th>
-                                    <th>Assinaturas</th>
-                                    <th>Avatares</th>
-                                    <th>Icones</th>
-                                    <th>Criativos</th>
-                                    <th>E-mail</th>
-                                    <th>Wallpapers</th>
-                                    <th>Institucional</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="asset-brands-tbody">
-                                <tr><td colspan="10" class="empty-state">Carregando...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- Catálogo Visual -->
-                <div class="table-card" id="asset-catalog-section" style="margin-top:24px;">
-                    <div class="tc-header">
-                        <h3>Catálogo Visual</h3>
-                        <span class="count" id="asset-catalog-count"></span>
-                    </div>
-                    <div style="padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-                        <select id="asset-filter-brand" style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:white; color:var(--text); cursor:pointer;">
-                            <option value="">Todas as marcas</option>
-                        </select>
-                        <select id="asset-filter-category" style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:white; color:var(--text); cursor:pointer;">
-                            <option value="">Todas as categorias</option>
-                            <option value="logo">Logo</option>
-                            <option value="assinatura">Assinatura</option>
-                            <option value="avatar">Avatar</option>
-                            <option value="icone">Ícone</option>
-                            <option value="criativo">Criativo</option>
-                            <option value="email">E-mail</option>
-                            <option value="wallpaper">Wallpaper</option>
-                            <option value="institucional">Institucional</option>
-                        </select>
-                        <input type="text" id="asset-filter-search" placeholder="Buscar por nome ou tag..." style="padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; flex:1; min-width:180px; color:var(--text);">
-                    </div>
-                    <div id="asset-catalog-grid" style="padding:20px; display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; max-height:600px; overflow-y:auto;"></div>
-                </div>
-                <div style="margin-top:16px;">
-                    <a href="https://assets.grupocsv.com" target="_blank" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Abrir Asset Bucket &rarr;</a>
-                </div>
-            </div>
-
+            <!-- TAB: Central de Assets (assets.grupocsv.com) -->
+            <section class="admin-tab-content" data-tab="asset-bucket" id="centralAssets" aria-labelledby="ca-title">
+                <h3 class="section-header" id="ca-title">Central de Assets</h3>
+                <p style="font-size: 13px; color: var(--text-secondary);">Carregando o catálogo de assets.grupocsv.com…</p>
+            </section>
             <!-- TAB: WABA-CSV -->
             <div class="admin-tab-content" data-tab="waba">
                 <h3 class="section-header">WABA-CSV &mdash; WhatsApp Business</h3>
@@ -1742,6 +1651,7 @@
 <script src="/admin/vendor/qrcode-generator-1.4.4.js"></script>
 <script src="/admin/central-links-sections.js"></script>
 <script src="/admin/central-links.js"></script>
+<script src="/admin/central-assets.js"></script>
 <script>
 function toggleAdminPw() {
     const pw = document.getElementById('admin-password');
@@ -1862,6 +1772,8 @@ function toggleAdminPw() {
             if (target) target.classList.add('active');
             if (tabName === 'central-links') centralLinks.open();
             else centralLinks.close();
+            if (tabName === 'asset-bucket') centralAssets.open();
+            else centralAssets.close();
             // Load data on demand
             if (tabName === 'passwords') loadPasswords();
             if (tabName === 'public-links') loadPublicLinks();
@@ -1870,7 +1782,6 @@ function toggleAdminPw() {
             if (tabName === 'deck-memories') loadDeckMemories();
             if (tabName === 'deck-api') loadDeckApi();
             if (tabName === 'admins') loadAdmins();
-            if (tabName === 'asset-bucket') loadAssetBucket();
             if (tabName === 'compass') loadCompass();
             if (tabName === 'waba') loadWaba();
             if (tabName === 'cooperados-ugv') loadCooperadosUGV();
@@ -1914,7 +1825,7 @@ function toggleAdminPw() {
     }
 
     async function loadAll() {
-        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadAssetBucket(), loadCooperadosUGV(), loadPanta()]);
+        await Promise.all([loadStats(), loadRequests(), loadUsers(), loadPasswords(), loadPublicLinks(), loadAccessLogs(), loadDeckUsers(), loadDeckFeedback(), loadDeckMemories(), loadDeckApi(), loadAdmins(), loadServices(), loadWaba(), loadCooperadosUGV(), loadPanta()]);
     }
 
     // ===== Auth form =====
@@ -2790,129 +2701,6 @@ function toggleAdminPw() {
         }).join('');
     }
 
-    // ===== Asset Bucket =====
-    async function loadAssetBucket() {
-        try {
-            const resp = await fetch('https://assets.grupocsv.com/manifest.json');
-            const data = await resp.json();
-            const assets = data.assets || [];
-
-            document.getElementById('asset-total').textContent = assets.length;
-
-            // Count by category (normalizado)
-            const cats = {};
-            const brands = {};
-            const catTemplate = { logo: 0, assinatura: 0, avatar: 0, icone: 0, criativo: 0, email: 0, wallpaper: 0, institucional: 0, total: 0 };
-            assets.forEach(a => {
-                const cat = (a.category || 'outro').toLowerCase();
-                cats[cat] = (cats[cat] || 0) + 1;
-                const brand = a.brand || 'sem-marca';
-                if (!brands[brand]) brands[brand] = { ...catTemplate };
-                brands[brand].total++;
-                if (cat === 'logo') brands[brand].logo++;
-                else if (cat === 'assinatura') brands[brand].assinatura++;
-                else if (cat === 'avatar') brands[brand].avatar++;
-                else if (cat === 'icone') brands[brand].icone++;
-                else if (cat === 'criativo') brands[brand].criativo++;
-                else if (cat === 'email') brands[brand].email++;
-                else if (cat === 'wallpaper') brands[brand].wallpaper++;
-                else if (cat === 'institucional') brands[brand].institucional++;
-            });
-
-            document.getElementById('asset-logos').textContent = cats['logo'] || 0;
-            document.getElementById('asset-assinaturas').textContent = cats['assinatura'] || 0;
-            document.getElementById('asset-avatares').textContent = cats['avatar'] || 0;
-            document.getElementById('asset-icones').textContent = cats['icone'] || 0;
-            document.getElementById('asset-criativos').textContent = cats['criativo'] || 0;
-            document.getElementById('asset-email').textContent = cats['email'] || 0;
-            document.getElementById('asset-wallpapers').textContent = cats['wallpaper'] || 0;
-
-            const brandKeys = Object.keys(brands).sort();
-            document.getElementById('asset-brands-count').textContent = brandKeys.length + ' marca(s)';
-            const tbody = document.getElementById('asset-brands-tbody');
-            if (brandKeys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Nenhum asset encontrado</td></tr>';
-            } else {
-                tbody.innerHTML = brandKeys.map(b => {
-                    const d = brands[b];
-                    return `<tr>
-                        <td style="font-weight:600;">${esc(b)}</td>
-                        <td>${d.logo}</td>
-                        <td>${d.assinatura}</td>
-                        <td>${d.avatar}</td>
-                        <td>${d.icone}</td>
-                        <td>${d.criativo}</td>
-                        <td>${d.email}</td>
-                        <td>${d.wallpaper}</td>
-                        <td>${d.institucional}</td>
-                        <td style="font-weight:600;">${d.total}</td>
-                    </tr>`;
-                }).join('');
-            }
-
-            // === Catálogo Visual ===
-            window._assetCatalogData = assets;
-            const brandSelect = document.getElementById('asset-filter-brand');
-            brandSelect.innerHTML = '<option value="">Todas as marcas</option>' +
-                brandKeys.map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
-
-            function renderCatalog() {
-                const fb = document.getElementById('asset-filter-brand').value;
-                const fc = document.getElementById('asset-filter-category').value;
-                const fs = document.getElementById('asset-filter-search').value.toLowerCase().trim();
-                let filtered = window._assetCatalogData;
-                if (fb) filtered = filtered.filter(a => a.brand === fb);
-                if (fc) filtered = filtered.filter(a => (a.category || '').toLowerCase() === fc);
-                if (fs) filtered = filtered.filter(a => {
-                    const haystack = [a.key, a.description, a.brand, a.category, ...(a.tags || [])].join(' ').toLowerCase();
-                    return haystack.includes(fs);
-                });
-                document.getElementById('asset-catalog-count').textContent = filtered.length + ' asset(s)';
-                const grid = document.getElementById('asset-catalog-grid');
-                if (filtered.length === 0) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-secondary);font-size:14px;">Nenhum asset encontrado para os filtros selecionados.</div>';
-                    return;
-                }
-                grid.innerHTML = filtered.map(a => {
-                    const isImg = /\.(png|jpg|jpeg|webp|gif|svg)$/i.test(a.key);
-                    const fname = a.key.split('/').pop();
-                    const catLabel = (a.category || 'outro').charAt(0).toUpperCase() + (a.category || 'outro').slice(1);
-                    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s;cursor:default;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow='none'">
-                        <div style="height:120px;display:flex;align-items:center;justify-content:center;background:${
-                            isImg ? (a.transparent ? 'repeating-conic-gradient(#f0f0f0 0% 25%, #fff 0% 50%) 50% / 16px 16px' : '#f9fafb') : '#f3f4f6'
-                        };overflow:hidden;padding:12px;">
-                            ${isImg
-                                ? `<img src="${esc(a.url)}" alt="${esc(fname)}" style="max-width:100%;max-height:100%;object-fit:contain;" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=32 height=32 viewBox=\'0 0 24 24\' fill=none stroke=#9ca3af stroke-width=1.5><rect x=3 y=3 width=18 height=18 rx=2/><circle cx=8.5 cy=8.5 r=1.5/><path d=\'m21 15-5-5L5 21\'/></svg>';">`
-                                : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
-                            }
-                        </div>
-                        <div style="padding:10px 12px;border-top:1px solid var(--border);">
-                            <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;" title="${esc(fname)}">${esc(fname)}</div>
-                            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">${esc(a.brand)} &middot; ${esc(catLabel)}</div>
-                            <div style="display:flex;gap:6px;">
-                                <button onclick="navigator.clipboard.writeText('${esc(a.url)}').then(()=>{this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar URL',1500)})" style="flex:1;padding:4px 8px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:white;color:var(--primary);cursor:pointer;transition:all .15s;" onmouseenter="this.style.background='#e8f4fd'" onmouseleave="this.style.background='white'">Copiar URL</button>
-                                <a href="${esc(a.url)}" target="_blank" style="padding:4px 8px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:white;color:var(--text-secondary);text-decoration:none;display:flex;align-items:center;transition:all .15s;" onmouseenter="this.style.background='#f3f4f6'" onmouseleave="this.style.background='white'">Abrir</a>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-
-            document.getElementById('asset-filter-brand').addEventListener('change', renderCatalog);
-            document.getElementById('asset-filter-category').addEventListener('change', renderCatalog);
-            let _searchTimeout;
-            document.getElementById('asset-filter-search').addEventListener('input', () => {
-                clearTimeout(_searchTimeout);
-                _searchTimeout = setTimeout(renderCatalog, 300);
-            });
-            renderCatalog();
-
-        } catch (err) {
-            document.getElementById('asset-brands-tbody').innerHTML = '<tr><td colspan="10" class="empty-state">Erro ao carregar manifest.json</td></tr>';
-            document.getElementById('asset-brands-count').textContent = 'Erro';
-        }
-    }
-
     // ===== WABA-CSV =====
     async function loadWaba() {
         try {
@@ -3688,6 +3476,7 @@ function toggleAdminPw() {
     }
 
     const centralLinks = window.createCentralLinks({ apiBase: LINKS_API, getToken, clearAuth, showAuth });
+    const centralAssets = window.createCentralAssets({ root: document.getElementById('centralAssets'), showToast });
 
     // ===== Start =====
     init();

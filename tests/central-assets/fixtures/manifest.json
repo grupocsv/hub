@@ -1,0 +1,2990 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-10-28T13:55:26Z",
+  "base_url": "https://assets.grupocsv.com",
+  "total_assets": 52,
+  "categories": {
+    "logo": 46,
+    "icone": 3,
+    "email": 2,
+    "institucional": 1
+  },
+  "brands": {
+    "2im": 5,
+    "axiacare": 5,
+    "caminhos-brilhantes": 3,
+    "evs": 3,
+    "gabi-care": 5,
+    "grupo-csv": 4,
+    "guilherme-thome": 4,
+    "icds": 4,
+    "medvalor": 4,
+    "thera": 5,
+    "unihealth": 3,
+    "unimed-gv": 4,
+    "criale": 2,
+    "qualix": 1
+  },
+  "search_instructions": {
+    "by_brand": "Filtre assets[].brand == 'axiacare'",
+    "by_category": "Filtre assets[].category == 'logo'",
+    "by_tags": "Busque em assets[].tags por qualquer termo",
+    "by_format": "Filtre assets[].format == 'svg'",
+    "by_use_case": "Busque em assets[].use_cases por 'email' ou 'web'",
+    "full_text": "Busque em assets[].description por qualquer termo",
+    "by_purpose": "Filtre assets[].purpose (identidade-de-marca, comunicacao-recorrente, conteudo-e-campanha, produto-digital, pessoas, utilitario, documentacao, ambiente-visual)",
+    "by_asset_type": "Filtre assets[].asset_type (ex: logo-completo, simbolo, favicon, mockup-de-conteudo)",
+    "by_brand_group": "Use brand_registry[brand].group (ex: grupo-csv-e-marcas-proprias, sistema-unimed)",
+    "display": "Use assets[].display_name e brand_registry[brand].display_name para exibir nomes; key e url nunca mudam",
+    "legacy": "assets[].legacy guarda o valor anterior de campos corrigidos; a API aceita o valor anterior nos filtros",
+    "accents": "A busca da API ignora acentos (saude e saúde dão o mesmo resultado)"
+  },
+  "governance": {
+    "naming": "lowercase kebab-case, sem acentos, sem espacos",
+    "structure": "/{category}/{brand}/{orientation}-{polarity}[-{cor}].{ext}",
+    "immutability": "Nunca alterar arquivo existente. Para versionar, usar sufixo -v2, -v3",
+    "manifest_sync": "Ao adicionar/remover asset, SEMPRE atualizar manifest.json",
+    "compatibility": "Nunca renomear key, url, brand, category, format ou orientation existentes; para corrigir, gravar o valor anterior em legacy",
+    "new_asset_fields": "Todo asset novo deve ter display_name, purpose, asset_type e review_status (pendente até revisão)",
+    "write": "Antes de gravar o manifest, ler o ETag atual com cache-busting, fazer backup fora do bucket e comparar depois da gravação"
+  },
+  "total": 52,
+  "updated_at": "2026-10-28T13:55:26Z",
+  "schema_version": "2.0.0",
+  "brand_group_registry": {
+    "grupo-csv-e-marcas-proprias": {
+      "display_name": "Grupo CSV e Marcas Próprias",
+      "order": 1
+    },
+    "clientes-e-instituicoes-parceiras": {
+      "display_name": "Clientes e Instituições Parceiras",
+      "order": 2
+    },
+    "sistema-unimed": {
+      "display_name": "Sistema Unimed",
+      "order": 3
+    },
+    "pessoas-e-projetos-pessoais": {
+      "display_name": "Pessoas e Projetos Pessoais",
+      "order": 4
+    },
+    "terceiros": {
+      "display_name": "Terceiros",
+      "order": 5
+    }
+  },
+  "brand_registry": {
+    "2im": {
+      "display_name": "2iM",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/2im/horizontal-positivo.svg",
+      "logo_dark": "logos/2im/horizontal-negativo.svg",
+      "aliases": [],
+      "note": "",
+      "order": 8
+    },
+    "abbvie": {
+      "display_name": "AbbVie",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/abbvie/horizontal-positivo.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "axiacare": {
+      "display_name": "AxiaCare®",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "grupo-csv",
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/axiacare/horizontal-positivo.svg",
+      "logo_dark": "logos/axiacare/horizontal-negativo.svg",
+      "aliases": [],
+      "note": "",
+      "order": 4
+    },
+    "caminhos-brilhantes": {
+      "display_name": "Caminhos Brilhantes",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": "unimed-gv",
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/caminhos-brilhantes/01-trilha/horizontal-positivo.svg",
+      "logo_dark": "logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg",
+      "aliases": [],
+      "note": "Programa da Unimed GV",
+      "order": 12
+    },
+    "cbexs": {
+      "display_name": "CBEXs",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/cbexs/logo-positiva-full.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "claude": {
+      "display_name": "Claude (Anthropic)",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "icones/claude/claude-anthropic.ico",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Ícone de terceiro"
+    },
+    "criale": {
+      "display_name": "Crialê",
+      "group": "pessoas-e-projetos-pessoais",
+      "parent_brand": "gabriela-alvim",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/criale/quadrada-borda.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Projeto da Dra. Gabriela Alvim"
+    },
+    "evs": {
+      "display_name": "Escritório de Valor em Saúde (EVS)",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": "unimed-gv",
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/evs/selo-hd-contorno.png",
+      "logo_dark": "logos/evs/selo-white-hd-1024.png",
+      "aliases": [
+        "escritório de valor em saúde"
+      ],
+      "note": "",
+      "order": 10
+    },
+    "extensio": {
+      "display_name": "Extensio™",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "grupo-csv",
+      "status": "ativo",
+      "featured": false,
+      "logo": "icones/extensio/extensio.ico",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "gabi": {
+      "display_name": "Gabi (Incorporada a Gabi Care)",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "gabi-care",
+      "status": "incorporado",
+      "featured": false,
+      "logo": "logos/gabi/simbolo-gabi.svg",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Slug mantido como alias; os arquivos foram reclassificados para gabi-care."
+    },
+    "gabi-care": {
+      "display_name": "Gabi Care",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/gabi-care/logo-positivo-transparente-2048.webp",
+      "logo_dark": null,
+      "aliases": [
+        "gabi",
+        "gabi care"
+      ],
+      "note": "Inclui os arquivos antes cadastrados como gabi.",
+      "order": 11
+    },
+    "gabriela-alvim": {
+      "display_name": "Dra. Gabriela Alvim",
+      "group": "pessoas-e-projetos-pessoais",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "institucional/gabriela-alvim/assinatura-preta.png",
+      "logo_dark": null,
+      "aliases": [
+        "gabriela alvim",
+        "dra. gabriela alvim"
+      ],
+      "note": "Pessoa"
+    },
+    "grupo-csv": {
+      "display_name": "Grupo CSV",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/grupo-csv/horizontal-positivo-transparente.svg",
+      "logo_dark": "logos/grupo-csv/horizontal-negativo-transparente.png",
+      "aliases": [],
+      "note": "",
+      "order": 1
+    },
+    "guilherme-thome": {
+      "display_name": "Guilherme Thomé",
+      "group": "pessoas-e-projetos-pessoais",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/guilherme-thome/horizontal-positivo.svg",
+      "logo_dark": "logos/guilherme-thome/horizontal-negativo.svg",
+      "aliases": [
+        "guilherme thomé"
+      ],
+      "note": "Marca pessoal",
+      "order": 9
+    },
+    "hospital-evangelico-londrina": {
+      "display_name": "Hospital Evangélico de Londrina",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/hospital-evangelico-londrina/horizontal-positivo.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "iag-saude-drg-brasil": {
+      "display_name": "Grupo IAG Saúde (Valor Saúde Brasil e DRG Brasil)",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "arquivado",
+      "featured": false,
+      "logo": "logos/iag-saude-drg-brasil/logo-plataforma-valor-saude-drg-brasil.webp",
+      "logo_dark": null,
+      "aliases": [
+        "iag saúde",
+        "drg brasil",
+        "valor saúde brasil"
+      ],
+      "note": "Marca arquivada."
+    },
+    "ibravs": {
+      "display_name": "IBRAVS",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/ibravs/horizontal-positivo.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "icds": {
+      "display_name": "ICDS",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/icds/horizontal-positivo.png",
+      "logo_dark": "logos/icds/horizontal-negativo.png",
+      "aliases": [],
+      "note": "",
+      "order": 7
+    },
+    "intraconecta": {
+      "display_name": "Intraconecta",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/intraconecta/horizontal-box.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "medvalor": {
+      "display_name": "MedValor®",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "grupo-csv",
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/medvalor/horizontal-positivo-laranja.svg",
+      "logo_dark": "logos/medvalor/horizontal-negativo-verde-laranja.svg",
+      "aliases": [],
+      "note": "",
+      "order": 3
+    },
+    "naline-rocha": {
+      "display_name": "Naline Rocha",
+      "group": "pessoas-e-projetos-pessoais",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "institucional/naline-rocha/assinatura-preta.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Pessoa"
+    },
+    "navia": {
+      "display_name": "Navia",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "axiacare",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/thera/wordmark-navia-negativo-v2.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Plataforma AxiaCare® de gestão assistencial; arquivos em logos/thera."
+    },
+    "ndri": {
+      "display_name": "NDRI",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": "unihealth",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/ndri/horizontal-positivo-v1.svg",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Núcleo de Desenvolvimento e Relações Institucionais"
+    },
+    "panta": {
+      "display_name": "Panta™",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "grupo-csv",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/panta/logo-512.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "qualix": {
+      "display_name": "Programa Quálix",
+      "group": "sistema-unimed",
+      "parent_brand": "unimed-federacao-minas",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/qualix/horizontal-fundo-branco.png",
+      "logo_dark": null,
+      "aliases": [
+        "qualix",
+        "quálix"
+      ],
+      "note": "Programa da FEMG."
+    },
+    "spectra": {
+      "display_name": "Spectra",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "thera",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/thera/wordmark-spectra-negativo-v2.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Produto em spectra.thera.tech."
+    },
+    "thera": {
+      "display_name": "Thera®",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "grupo-csv",
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/thera/horizontal-positivo-roxo.svg",
+      "logo_dark": "logos/thera/horizontal-negativo-roxo.svg",
+      "aliases": [],
+      "note": "",
+      "order": 2
+    },
+    "unihealth": {
+      "display_name": "Unihealth GV",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/unihealth/horizontal-box.png",
+      "logo_dark": null,
+      "aliases": [
+        "unihealth gv"
+      ],
+      "note": "",
+      "order": 6
+    },
+    "unimed-araraquara": {
+      "display_name": "Unimed Araraquara",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-araraquara/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0013"
+    },
+    "unimed-axis": {
+      "display_name": "Unimed Axis",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-axis/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    },
+    "unimed-catanduva": {
+      "display_name": "Unimed Catanduva",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-catanduva/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0016"
+    },
+    "unimed-centro-oeste": {
+      "display_name": "Unimed Centro-Oeste",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-centro-oeste/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0238 (Pará de Minas)"
+    },
+    "unimed-federacao-minas": {
+      "display_name": "Unimed Federação Minas (FEMG)",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-federacao-minas/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [
+        "femg",
+        "federação minas"
+      ],
+      "note": ""
+    },
+    "unimed-femg": {
+      "display_name": "Unimed Federação Minas + Programa Quálix",
+      "group": "sistema-unimed",
+      "parent_brand": "unimed-federacao-minas",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-femg/femg-qualix-horizontal.png",
+      "logo_dark": null,
+      "aliases": [
+        "femg",
+        "qualix"
+      ],
+      "note": "Arte combinada FEMG e Programa Quálix."
+    },
+    "unimed-gv": {
+      "display_name": "Unimed Governador Valadares",
+      "group": "clientes-e-instituicoes-parceiras",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": true,
+      "logo": "logos/unimed-gv/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [
+        "unimed gv",
+        "unimed governador valadares"
+      ],
+      "note": "Nome curto: Unimed GV",
+      "order": 5
+    },
+    "unimed-leste-nordeste": {
+      "display_name": "Unimed Leste Nordeste de Minas",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-leste-nordeste/sem-box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0858 (intrafederativa)"
+    },
+    "unimed-ourinhos": {
+      "display_name": "Unimed Ourinhos",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-ourinhos/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0094"
+    },
+    "unimed-porto-alegre": {
+      "display_name": "Unimed Porto Alegre",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-porto-alegre/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0048"
+    },
+    "unimed-ribeirao-preto": {
+      "display_name": "Unimed Ribeirão Preto",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-ribeirao-preto/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0008"
+    },
+    "unimed-rio-verde": {
+      "display_name": "Unimed Rio Verde",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-rio-verde/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0228"
+    },
+    "unimed-sao-jose-rio-pardo": {
+      "display_name": "Unimed São José do Rio Pardo",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-sao-jose-rio-pardo/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0250"
+    },
+    "unimed-sudoeste-paulista": {
+      "display_name": "Unimed Sudoeste Paulista",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-sudoeste-paulista/sem-box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0325"
+    },
+    "unimed-tres-vales": {
+      "display_name": "Unimed Três Vales",
+      "group": "sistema-unimed",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/unimed-tres-vales/box-pinheiro.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "PTU 0202"
+    },
+    "veritas": {
+      "display_name": "Veritas",
+      "group": "grupo-csv-e-marcas-proprias",
+      "parent_brand": "thera",
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/thera/wordmark-veritas-negativo-v2.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": "Produto em veritas.thera.tech."
+    },
+    "ymunity": {
+      "display_name": "Ymunity",
+      "group": "terceiros",
+      "parent_brand": null,
+      "status": "ativo",
+      "featured": false,
+      "logo": "logos/ymunity/horizontal-positivo.png",
+      "logo_dark": null,
+      "aliases": [],
+      "note": ""
+    }
+  },
+  "system_objects": [
+    {
+      "key": "_assets/favicons/android-chrome-192x192.png",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 24171,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/favicons/android-chrome-512x512.png",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 88239,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/favicons/apple-touch-icon.png",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 21927,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/favicons/favicon-16x16.png",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 790,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/favicons/favicon-32x32.png",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 1937,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/favicons/favicon.ico",
+      "kind": "favicon",
+      "used_by": "open-pages",
+      "size_bytes": 15406,
+      "last_modified": "2026-03-28"
+    },
+    {
+      "key": "_assets/og/coordenacao-cuidado.png",
+      "kind": "og",
+      "used_by": "open-pages",
+      "size_bytes": 717689,
+      "last_modified": "2026-05-29"
+    },
+    {
+      "key": "_assets/og/default.png",
+      "kind": "og",
+      "used_by": "open-pages",
+      "size_bytes": 34984,
+      "last_modified": "2026-04-21"
+    },
+    {
+      "key": "_assets/og/spectra-internalizacao-cirurgica.png",
+      "kind": "og",
+      "used_by": "open-pages",
+      "size_bytes": 50362,
+      "last_modified": "2026-03-28"
+    }
+  ],
+  "revision_history": [
+    {
+      "date": "2026-10-28",
+      "schema_version": "2.0.0",
+      "summary": "Catálogo v2: cadastro de marcas, finalidade, tipo, títulos, medição técnica, correções de marca, categoria, transparência e descrições com valor anterior em legacy; nenhuma key ou URL alterada."
+    }
+  ],
+  "assets": [
+    {
+      "key": "logos/2im/box.png",
+      "brand": "2im",
+      "category": "logo",
+      "description": "Logo 2iM em box branco com bordas arredondadas (padrão bucket). Fundo branco. 1140x420px. Formato PNG.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "2im",
+        "tecnologia-medica",
+        "gestao-saude",
+        "box",
+        "bordas-arredondadas",
+        "fundo-branco",
+        "png",
+        "parceiro"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-06-16",
+      "url": "https://assets.grupocsv.com/logos/2im/box.png",
+      "legacy": {
+        "description": "Logo 2iM em box branco com bordas arredondadas (padrao bucket). Fundo branco. 1140x420px. Formato PNG."
+      },
+      "display_name": "Logo Box",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1140,
+        "height": 420,
+        "transparent_fraction": 0.003,
+        "aspect_ratio": 2.714,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "icones/2im/2im.ico",
+      "brand": "2im",
+      "category": "icone",
+      "description": "Ícone da 2iM em formato ICO multi-size (16-256px, 8 frames, BMP clássico + PNG 256). Símbolo oficial renderizado do SVG do site. Compatível com Windows 11. Fundo transparente.",
+      "orientation": "quadrada",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "ico",
+      "transparent": true,
+      "tags": [
+        "icone",
+        "ico",
+        "2im",
+        "windows",
+        "desktop",
+        "multi-size",
+        "transparente"
+      ],
+      "use_cases": [
+        "desktop-windows",
+        "icone",
+        "app-icon",
+        "shortcut"
+      ],
+      "added": "2026-07-25",
+      "url": "https://assets.grupocsv.com/icones/2im/2im.ico",
+      "legacy": {
+        "description": "Icone da 2iM em formato ICO multi-size (16-256px, 8 frames, BMP classico + PNG 256). Simbolo oficial renderizado do SVG do site. Compativel com Windows 11. Fundo transparente."
+      },
+      "display_name": "Favicon 2iM",
+      "purpose": "identidade-de-marca",
+      "asset_type": "favicon",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "ico",
+        "has_alpha": true,
+        "width": 256,
+        "height": 256,
+        "transparent_fraction": 0.455,
+        "aspect_ratio": 1.0,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/2im/horizontal-negativo-4k.png",
+      "brand": "2im",
+      "category": "logo",
+      "description": "Logo horizontal da 2iM completa (símbolo + texto '2iM' branco) para fundos escuros. PNG 4096x1731, alta definição, renderizado do SVG oficial. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": "branco",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "2im",
+        "horizontal",
+        "negativo",
+        "branco",
+        "png",
+        "4k",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "apresentacao",
+        "documento",
+        "fundo-escuro",
+        "alta-definicao"
+      ],
+      "added": "2026-07-27",
+      "url": "https://assets.grupocsv.com/logos/2im/horizontal-negativo-4k.png",
+      "legacy": {
+        "description": "Logo horizontal da 2iM completa (simbolo + texto '2iM' branco) para fundos escuros. PNG 4096x1731, alta definicao, renderizado do SVG oficial. Fundo transparente."
+      },
+      "display_name": "Logo Horizontal Negativo 4K",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 4096,
+        "height": 1731,
+        "aspect_ratio": 2.366,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/2im/horizontal-positivo.svg",
+      "brand": "2im",
+      "category": "logo",
+      "description": "Logo horizontal da 2iM completa (símbolo + texto '2iM' na cor oficial #021734) em SVG vetorial. Para fundos claros. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": "azul-021734",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "2im",
+        "horizontal",
+        "positivo",
+        "azul",
+        "021734",
+        "svg",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "vetor-escalavel",
+        "fundo-claro"
+      ],
+      "added": "2026-07-27",
+      "url": "https://assets.grupocsv.com/logos/2im/horizontal-positivo.svg",
+      "legacy": {
+        "description": "Logo horizontal da 2iM completa (simbolo + texto '2iM' na cor oficial #021734) em SVG vetorial. Para fundos claros. Fundo transparente."
+      },
+      "display_name": "Logo Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 324,
+        "transparent_fraction": 0.569,
+        "aspect_ratio": 2.37,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/axiacare/horizontal-mono-negativo.jpg",
+      "brand": "axiacare",
+      "category": "logo",
+      "description": "Logo horizontal monocromático negativo da marca AxiaCare. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "axiacare",
+        "horizontal",
+        "mono-negativo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico negativo da marca Axiacare. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/axiacare/horizontal-mono-positivo.jpg",
+      "brand": "axiacare",
+      "category": "logo",
+      "description": "Logo horizontal monocromático positivo da marca AxiaCare. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "axiacare",
+        "horizontal",
+        "mono-positivo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/axiacare/horizontal-mono-positivo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico positivo da marca Axiacare. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/axiacare/horizontal-negativo.jpg",
+      "brand": "axiacare",
+      "category": "logo",
+      "description": "Logo horizontal negativo da marca AxiaCare. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "axiacare",
+        "horizontal",
+        "negativo",
+        "jpg"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/axiacare/horizontal-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal negativo da marca Axiacare. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/axiacare/horizontal-positivo.svg",
+      "brand": "axiacare",
+      "category": "logo",
+      "description": "Logo horizontal positivo da marca AxiaCare. Formato SVG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "axiacare",
+        "horizontal",
+        "positivo",
+        "svg",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "web-otimizado",
+        "vetor-escalavel"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/axiacare/horizontal-positivo.svg",
+      "legacy": {
+        "description": "Logo horizontal positivo da marca Axiacare. Formato SVG. Fundo transparente."
+      },
+      "display_name": "Logo Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 316,
+        "transparent_fraction": 0.861,
+        "aspect_ratio": 2.43,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/caminhos-brilhantes/01-trilha/horizontal-mono.svg",
+      "brand": "caminhos-brilhantes",
+      "category": "logo",
+      "description": "Logomarca Caminhos Brilhantes — conceito Trilha, composição horizontal monocromática em verde escuro. Pontos que crescem ao longo de um caminho sinuoso até o ponto de luz. Formato SVG vetorial, fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "mono-positivo",
+      "color_variant": "01-trilha",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "caminhos-brilhantes",
+        "unimed-gv",
+        "neurodesenvolvimento-infantil",
+        "cuidados-no-neurodesenvolvimento-infantil",
+        "transicao-espectral-autista",
+        "neurosteps",
+        "01-trilha",
+        "trilha",
+        "horizontal",
+        "mono-positivo",
+        "monocromatico",
+        "fundo-claro",
+        "svg",
+        "transparente",
+        "vetorial",
+        "desenvolvimento-infantil",
+        "ponto-de-luz"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "web-header",
+        "vetor-escalavel",
+        "impressao"
+      ],
+      "added": "2026-09-04",
+      "url": "https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-mono.svg",
+      "display_name": "Logo Horizontal Monocromático",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 235,
+        "transparent_fraction": 0.849,
+        "aspect_ratio": 3.268,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg",
+      "brand": "caminhos-brilhantes",
+      "category": "logo",
+      "description": "Logomarca Caminhos Brilhantes — conceito Trilha, composição horizontal negativa para fundo verde escuro. Pontos que crescem ao longo de um caminho sinuoso até o ponto de luz. Formato SVG vetorial, fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": "01-trilha",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "caminhos-brilhantes",
+        "unimed-gv",
+        "neurodesenvolvimento-infantil",
+        "cuidados-no-neurodesenvolvimento-infantil",
+        "transicao-espectral-autista",
+        "neurosteps",
+        "01-trilha",
+        "trilha",
+        "horizontal",
+        "negativo",
+        "fundo-escuro",
+        "svg",
+        "transparente",
+        "vetorial",
+        "desenvolvimento-infantil",
+        "ponto-de-luz"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "web-header",
+        "vetor-escalavel",
+        "impressao"
+      ],
+      "added": "2026-09-04",
+      "url": "https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-negativo.svg",
+      "display_name": "Logo Horizontal Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 235,
+        "transparent_fraction": 0.849,
+        "aspect_ratio": 3.268,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/caminhos-brilhantes/01-trilha/horizontal-positivo.svg",
+      "brand": "caminhos-brilhantes",
+      "category": "logo",
+      "description": "Logomarca Caminhos Brilhantes — conceito Trilha, composição horizontal positiva para fundo claro. Pontos que crescem ao longo de um caminho sinuoso até o ponto de luz. Formato SVG vetorial, fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": "01-trilha",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "caminhos-brilhantes",
+        "unimed-gv",
+        "neurodesenvolvimento-infantil",
+        "cuidados-no-neurodesenvolvimento-infantil",
+        "transicao-espectral-autista",
+        "neurosteps",
+        "01-trilha",
+        "trilha",
+        "horizontal",
+        "positivo",
+        "fundo-claro",
+        "svg",
+        "transparente",
+        "vetorial",
+        "desenvolvimento-infantil",
+        "ponto-de-luz"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "web-header",
+        "vetor-escalavel",
+        "impressao"
+      ],
+      "added": "2026-09-04",
+      "url": "https://assets.grupocsv.com/logos/caminhos-brilhantes/01-trilha/horizontal-positivo.svg",
+      "display_name": "Logo Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 235,
+        "transparent_fraction": 0.849,
+        "aspect_ratio": 3.268,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/evs/selo-hd-contorno.png",
+      "brand": "evs",
+      "category": "logo",
+      "description": "Selo do Escritório de Valor em Saúde em alta definição com contorno verde-limão. Fundo branco. Texto verde escuro com barras verdes.",
+      "orientation": "quadrado",
+      "polarity": "positivo",
+      "color_variant": "contorno",
+      "format": "png",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "evs",
+        "escritorio-de-valor",
+        "selo",
+        "contorno",
+        "hd",
+        "alta-definicao"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "fundo-claro"
+      ],
+      "added": "2026-04-10",
+      "url": "https://assets.grupocsv.com/logos/evs/selo-hd-contorno.png",
+      "legacy": {
+        "description": "Selo do Escritorio de Valor em Saude em alta definicao com contorno verde-limao. Fundo branco. Texto verde escuro com barras verdes."
+      },
+      "display_name": "Selo HD Contorno",
+      "purpose": "identidade-de-marca",
+      "asset_type": "selo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": false,
+        "width": 2048,
+        "height": 1274,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 1.608,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/evs/selo-white-footer-180.png",
+      "brand": "evs",
+      "category": "logo",
+      "description": "Selo EVS branco transparente - Footer 180px. Para uso sobre fundos escuros ou coloridos.",
+      "orientation": "quadrado",
+      "polarity": "negativo",
+      "color_variant": "branco",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "evs",
+        "escritorio-de-valor",
+        "selo",
+        "branco",
+        "transparente",
+        "footer-180",
+        "footer",
+        "rodape",
+        "web"
+      ],
+      "use_cases": [
+        "footer",
+        "rodape",
+        "web"
+      ],
+      "added": "2026-04-10",
+      "url": "https://assets.grupocsv.com/logos/evs/selo-white-footer-180.png",
+      "display_name": "Selo Branco Rodapé 180",
+      "purpose": "identidade-de-marca",
+      "asset_type": "selo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 287,
+        "height": 180,
+        "transparent_fraction": 0.542,
+        "aspect_ratio": 1.594,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/evs/selo-white-footer-240.png",
+      "brand": "evs",
+      "category": "logo",
+      "description": "Selo EVS branco transparente - Footer 240px. Para uso sobre fundos escuros ou coloridos.",
+      "orientation": "quadrado",
+      "polarity": "negativo",
+      "color_variant": "branco",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "evs",
+        "escritorio-de-valor",
+        "selo",
+        "branco",
+        "transparente",
+        "footer-240",
+        "footer",
+        "rodape",
+        "web",
+        "email"
+      ],
+      "use_cases": [
+        "footer",
+        "rodape",
+        "web",
+        "email"
+      ],
+      "added": "2026-04-10",
+      "url": "https://assets.grupocsv.com/logos/evs/selo-white-footer-240.png",
+      "display_name": "Selo Branco Rodapé 240",
+      "purpose": "identidade-de-marca",
+      "asset_type": "selo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 383,
+        "height": 240,
+        "transparent_fraction": 0.55,
+        "aspect_ratio": 1.596,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "icones/gabi-care/simbolo.ico",
+      "brand": "gabi-care",
+      "category": "icone",
+      "description": "Ícone Windows multi-size do símbolo Gabi Care (i com coração, fundo laranja, squircle). 8 frames 16-256px, pipeline BMP+PNG.",
+      "orientation": "quadrado",
+      "polarity": "negativo",
+      "format": "ico",
+      "transparent": false,
+      "tags": [
+        "icone",
+        "gabi-care",
+        "gabi",
+        "simbolo",
+        "coracao",
+        "ico",
+        "windows",
+        "squircle",
+        "laranja"
+      ],
+      "use_cases": [
+        "desktop",
+        "windows",
+        "atalho",
+        "pasta"
+      ],
+      "added": "2026-08-20",
+      "url": "https://assets.grupocsv.com/icones/gabi-care/simbolo.ico",
+      "legacy": {
+        "description": "Icone Windows multi-size do simbolo Gabi Care (i com coracao, fundo laranja, squircle). 8 frames 16-256px, pipeline BMP+PNG."
+      },
+      "display_name": "Símbolo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "favicon",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "ico",
+        "has_alpha": true,
+        "width": 256,
+        "height": 256,
+        "transparent_fraction": 0.06,
+        "aspect_ratio": 1.0,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "icones/gabi-care/logo.ico",
+      "brand": "gabi-care",
+      "category": "icone",
+      "description": "Ícone Windows multi-size do logotipo Gabi Care (texto Gabi + coração, fundo laranja, squircle). 8 frames 16-256px, pipeline BMP+PNG.",
+      "orientation": "quadrado",
+      "polarity": "negativo",
+      "format": "ico",
+      "transparent": false,
+      "tags": [
+        "icone",
+        "gabi-care",
+        "gabi",
+        "logo",
+        "coracao",
+        "ico",
+        "windows",
+        "squircle",
+        "laranja"
+      ],
+      "use_cases": [
+        "desktop",
+        "windows",
+        "atalho",
+        "pasta"
+      ],
+      "added": "2026-08-20",
+      "url": "https://assets.grupocsv.com/icones/gabi-care/logo.ico",
+      "legacy": {
+        "description": "Icone Windows multi-size do logotipo Gabi Care (texto Gabi + coracao, fundo laranja, squircle). 8 frames 16-256px, pipeline BMP+PNG."
+      },
+      "display_name": "Logo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "favicon",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "ico",
+        "has_alpha": true,
+        "width": 256,
+        "height": 256,
+        "transparent_fraction": 0.06,
+        "aspect_ratio": 1.0,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/gabi-care/simbolo-negativo-squircle-1024.png",
+      "brand": "gabi-care",
+      "category": "logo",
+      "description": "Símbolo Gabi Care (i com coração) em squircle com fundo laranja. PNG 1024x1024, alta definição. Versão negativa (elementos claros sobre fundo laranja).",
+      "orientation": "quadrado",
+      "polarity": "negativo",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "gabi-care",
+        "gabi",
+        "simbolo",
+        "coracao",
+        "squircle",
+        "laranja",
+        "1024",
+        "png"
+      ],
+      "use_cases": [
+        "app-icon",
+        "web",
+        "apresentacao",
+        "social-media"
+      ],
+      "added": "2026-08-20",
+      "url": "https://assets.grupocsv.com/logos/gabi-care/simbolo-negativo-squircle-1024.png",
+      "legacy": {
+        "description": "Simbolo Gabi Care (i com coracao) em squircle com fundo laranja. PNG 1024x1024, alta definicao. Versao negativa (elementos claros sobre fundo laranja)."
+      },
+      "display_name": "Símbolo Negativo Squircle 1024",
+      "purpose": "identidade-de-marca",
+      "asset_type": "simbolo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1024,
+        "height": 1024,
+        "transparent_fraction": 0.052,
+        "aspect_ratio": 1.0,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/gabi-care/logo-positivo-transparente-2048.webp",
+      "brand": "gabi-care",
+      "category": "logo",
+      "description": "Logotipo Gabi Care (texto Gabi laranja + coração rose) sem fundo. WebP 2048x1024 com transparência. Versão positiva horizontal para composição livre.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "format": "webp",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "gabi-care",
+        "gabi",
+        "logotipo",
+        "coracao",
+        "positivo",
+        "transparente",
+        "horizontal",
+        "2048",
+        "webp"
+      ],
+      "use_cases": [
+        "web",
+        "apresentacao",
+        "documento",
+        "composicao",
+        "overlay",
+        "cabecalho"
+      ],
+      "added": "2026-08-20",
+      "url": "https://assets.grupocsv.com/logos/gabi-care/logo-positivo-transparente-2048.webp",
+      "legacy": {
+        "description": "Logotipo Gabi Care (texto Gabi laranja + coracao rose) sem fundo. WebP 2048x1024 com transparencia. Versao positiva horizontal para composicao livre."
+      },
+      "display_name": "Logo Positivo Transparente 2048",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "webp",
+        "has_alpha": true,
+        "width": 2048,
+        "height": 1024,
+        "transparent_fraction": 0.834,
+        "aspect_ratio": 2.0,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/grupo-csv/horizontal-positivo.png",
+      "brand": "grupo-csv",
+      "category": "logo",
+      "description": "Logo horizontal positivo do Grupo CSV. Formato PNG. Fundo branco. 500x172. Atualizado para o pacote oficial 2026 em 2026-10-21.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "grupo-csv",
+        "horizontal",
+        "positivo",
+        "png"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo.png",
+      "width": 500,
+      "height": 172,
+      "size_bytes": 44490,
+      "sha256": "4dd1c69025f86b12499a49f6fc452c6864be3ae335125836a9d650827124c323",
+      "updated_at": "2026-10-21T16:36:56Z",
+      "display_name": "Logo Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": false,
+        "width": 500,
+        "height": 172,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 2.907,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/grupo-csv/horizontal-positivo-transparente.png",
+      "brand": "grupo-csv",
+      "category": "logo",
+      "description": "Logo horizontal positivo do Grupo CSV. Formato PNG. Fundo transparente. 1310x451. Atualizado para o pacote oficial 2026 em 2026-10-21.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "grupo-csv",
+        "horizontal",
+        "positivo",
+        "png"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.png",
+      "width": 1310,
+      "height": 451,
+      "size_bytes": 144987,
+      "sha256": "c2148954d6ad622aba934cc889efe08e6fd3837b41142e6806efd4656212839d",
+      "updated_at": "2026-10-21T16:36:56Z",
+      "display_name": "Logo Horizontal Positivo Transparente",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1310,
+        "height": 451,
+        "transparent_fraction": 0.624,
+        "aspect_ratio": 2.905,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/grupo-csv/horizontal-negativo-transparente.png",
+      "brand": "grupo-csv",
+      "category": "logo",
+      "description": "Logo horizontal negativo do Grupo CSV. Formato PNG. Fundo transparente. 1291x444. Atualizado para o pacote oficial 2026 em 2026-10-21.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "grupo-csv",
+        "horizontal",
+        "negativo",
+        "png"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/grupo-csv/horizontal-negativo-transparente.png",
+      "width": 1291,
+      "height": 444,
+      "size_bytes": 116720,
+      "sha256": "3a64dd75a2b41e0b5e6cd843f067e1562a29e557cbc81777e59dd60a8fa4232f",
+      "updated_at": "2026-10-21T16:36:56Z",
+      "display_name": "Logo Horizontal Negativo Transparente",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1291,
+        "height": 444,
+        "transparent_fraction": 0.623,
+        "aspect_ratio": 2.908,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/grupo-csv/horizontal-positivo-transparente.svg",
+      "brand": "grupo-csv",
+      "category": "logo",
+      "description": "Logo horizontal positivo do Grupo CSV. Símbolo em gradiente verde-azul e texto azul. Formato SVG. Fundo transparente. Pacote oficial 2026.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "grupo-csv",
+        "horizontal",
+        "positivo",
+        "svg",
+        "transparente",
+        "oficial-2026"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "web-otimizado",
+        "vetor-escalavel",
+        "fundo-claro"
+      ],
+      "added": "2026-10-21",
+      "url": "https://assets.grupocsv.com/logos/grupo-csv/horizontal-positivo-transparente.svg",
+      "size_bytes": 232451,
+      "sha256": "5bebed668dd569d774feb8739d3443d7d2b8fd7c5a523d16357eff11cd915cfd",
+      "legacy": {
+        "description": "Logo horizontal positivo do Grupo CSV. Simbolo em gradiente verde-azul e texto azul. Formato SVG. Fundo transparente. Pacote oficial 2026."
+      },
+      "display_name": "Logo Horizontal Positivo Transparente",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 264,
+        "transparent_fraction": 0.619,
+        "aspect_ratio": 2.909,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/guilherme-thome/horizontal-mono-negativo.jpg",
+      "brand": "guilherme-thome",
+      "category": "logo",
+      "description": "Logo horizontal monocromático negativo da marca Guilherme Thomé. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "guilherme-thome",
+        "horizontal",
+        "mono-negativo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/guilherme-thome/horizontal-mono-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico negativo da marca Guilherme Thome. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/guilherme-thome/horizontal-mono-positivo.jpg",
+      "brand": "guilherme-thome",
+      "category": "logo",
+      "description": "Logo horizontal monocromático positivo da marca Guilherme Thomé. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "guilherme-thome",
+        "horizontal",
+        "mono-positivo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/guilherme-thome/horizontal-mono-positivo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico positivo da marca Guilherme Thome. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/guilherme-thome/horizontal-negativo.jpg",
+      "brand": "guilherme-thome",
+      "category": "logo",
+      "description": "Logo horizontal negativo da marca Guilherme Thomé. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "guilherme-thome",
+        "horizontal",
+        "negativo",
+        "jpg"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/guilherme-thome/horizontal-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal negativo da marca Guilherme Thome. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/guilherme-thome/horizontal-positivo.svg",
+      "brand": "guilherme-thome",
+      "category": "logo",
+      "description": "Logo horizontal positivo da marca Guilherme Thomé. Formato SVG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "guilherme-thome",
+        "horizontal",
+        "positivo",
+        "svg",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "web-otimizado",
+        "vetor-escalavel"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/guilherme-thome/horizontal-positivo.svg",
+      "legacy": {
+        "description": "Logo horizontal positivo da marca Guilherme Thome. Formato SVG. Fundo transparente."
+      },
+      "display_name": "Wordmark Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "wordmark",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 316,
+        "transparent_fraction": 0.919,
+        "aspect_ratio": 2.43,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/icds/horizontal-box-azul.png",
+      "brand": "icds",
+      "category": "logo",
+      "description": "Logo ICDS Gestão em Saúde. Horizontal com box azul-escuro arredondado. Ícone hexagonal azul-claro a esquerda, texto 'ICDS' branco, subtexto 'GESTÃO EM SAÚDE' branco. Formato PNG. Fundo transparente. 404x156px.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": "azul",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "icds",
+        "gestao-em-saude",
+        "horizontal",
+        "box",
+        "azul-escuro",
+        "negativo",
+        "png",
+        "transparente",
+        "hexagono"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "fundo-claro",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/icds/horizontal-box-azul.png",
+      "legacy": {
+        "description": "Logo ICDS Gestao em Saude. Horizontal com box azul-escuro arredondado. Icone hexagonal azul-claro a esquerda, texto 'ICDS' branco, subtexto 'GESTAO EM SAUDE' branco. Formato PNG. Fundo transparente. 404x156px."
+      },
+      "display_name": "Logo Horizontal Box Azul",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 404,
+        "height": 156,
+        "transparent_fraction": 0.003,
+        "aspect_ratio": 2.59,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/icds/vertical-negativo.png",
+      "brand": "icds",
+      "category": "logo",
+      "description": "Logo ICDS Gestão em Saúde. Vertical, versão negativa (branco). Ícone hexagonal e texto 'ICDS' e 'GESTÃO EM SAÚDE' em branco sobre fundo transparente. Para uso em fundos escuros. Formato PNG. 208x193px.",
+      "orientation": "vertical",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "icds",
+        "gestao-em-saude",
+        "vertical",
+        "negativo",
+        "branco",
+        "sem-fundo",
+        "png",
+        "transparente",
+        "hexagono"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/icds/vertical-negativo.png",
+      "legacy": {
+        "description": "Logo ICDS Gestao em Saude. Vertical, versao negativa (branco). Icone hexagonal e texto 'ICDS' e 'GESTAO EM SAUDE' em branco sobre fundo transparente. Para uso em fundos escuros. Formato PNG. 208x193px."
+      },
+      "display_name": "Logo Vertical Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 208,
+        "height": 193,
+        "transparent_fraction": 0.785,
+        "aspect_ratio": 1.078,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/icds/horizontal-negativo.png",
+      "brand": "icds",
+      "category": "logo",
+      "description": "Logo ICDS Gestão em Saúde. Horizontal, versão negativa (branco). Ícone hexagonal e texto 'ICDS' e 'GESTÃO EM SAÚDE' em branco sobre fundo transparente. Para uso em fundos escuros. Formato PNG. 600x214px.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "icds",
+        "gestao-em-saude",
+        "horizontal",
+        "negativo",
+        "branco",
+        "sem-fundo",
+        "png",
+        "transparente",
+        "hexagono"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/icds/horizontal-negativo.png",
+      "legacy": {
+        "description": "Logo ICDS Gestao em Saude. Horizontal, versao negativa (branco). Icone hexagonal e texto 'ICDS' e 'GESTAO EM SAUDE' em branco sobre fundo transparente. Para uso em fundos escuros. Formato PNG. 600x214px."
+      },
+      "display_name": "Logo Horizontal Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 600,
+        "height": 214,
+        "transparent_fraction": 0.706,
+        "aspect_ratio": 2.804,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/icds/horizontal-positivo.png",
+      "brand": "icds",
+      "category": "logo",
+      "description": "Logo horizontal positivo do ICDS (Gestão em Saúde). Formato PNG. Fundo transparente. Extraído dos documentos-semente validados do padrão de entregáveis ICDS/AxiaCare.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "icds",
+        "horizontal",
+        "positivo",
+        "png",
+        "transparente",
+        "gestao-em-saude"
+      ],
+      "use_cases": [
+        "documento",
+        "apresentacao",
+        "web",
+        "email"
+      ],
+      "added": "2026-06-05",
+      "url": "https://assets.grupocsv.com/logos/icds/horizontal-positivo.png",
+      "display_name": "Logo Horizontal Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 500,
+        "height": 178,
+        "transparent_fraction": 0.743,
+        "aspect_ratio": 2.809,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/medvalor/horizontal-mono-negativo.jpg",
+      "brand": "medvalor",
+      "category": "logo",
+      "description": "Logo horizontal monocromático negativo da marca MedValor. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "medvalor",
+        "horizontal",
+        "mono-negativo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/medvalor/horizontal-mono-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico negativo da marca Medvalor. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 4098,
+        "height": 1357,
+        "aspect_ratio": 3.02,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/medvalor/horizontal-mono-positivo.jpg",
+      "brand": "medvalor",
+      "category": "logo",
+      "description": "Logo horizontal monocromático positivo da marca MedValor. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "medvalor",
+        "horizontal",
+        "mono-positivo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/medvalor/horizontal-mono-positivo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico positivo da marca Medvalor. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 4098,
+        "height": 1357,
+        "aspect_ratio": 3.02,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/medvalor/horizontal-negativo-azul.jpg",
+      "brand": "medvalor",
+      "category": "logo",
+      "description": "Logo horizontal negativo da MedValor® sobre fundo azul: símbolo em verde-claro e azul, nome em branco. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": "azul",
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "medvalor",
+        "horizontal",
+        "negativo",
+        "jpg",
+        "azul"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/medvalor/horizontal-negativo-azul.jpg",
+      "legacy": {
+        "description": "Logo horizontal negativo na cor azul da marca Medvalor. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Negativo Azul",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 4098,
+        "height": 1357,
+        "aspect_ratio": 3.02,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/medvalor/horizontal-positivo-laranja.svg",
+      "brand": "medvalor",
+      "category": "logo",
+      "description": "Logo horizontal positivo na cor laranja da marca MedValor. Formato SVG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": "laranja",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "medvalor",
+        "horizontal",
+        "positivo",
+        "svg",
+        "laranja",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "web-otimizado",
+        "vetor-escalavel"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/medvalor/horizontal-positivo-laranja.svg",
+      "legacy": {
+        "description": "Logo horizontal positivo na cor laranja da marca Medvalor. Formato SVG. Fundo transparente."
+      },
+      "display_name": "Logo Horizontal Positivo Laranja",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 254,
+        "transparent_fraction": 0.885,
+        "aspect_ratio": 3.024,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/thera/horizontal-mono-negativo.jpg",
+      "brand": "thera",
+      "category": "logo",
+      "description": "Logo horizontal monocromático negativo da marca Thera. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "thera",
+        "horizontal",
+        "mono-negativo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/thera/horizontal-mono-negativo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico negativo da marca Thera. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Negativo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/thera/horizontal-mono-positivo.jpg",
+      "brand": "thera",
+      "category": "logo",
+      "description": "Logo horizontal monocromático positivo da marca Thera. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "mono-positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "thera",
+        "horizontal",
+        "mono-positivo",
+        "jpg",
+        "monocromatico"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/thera/horizontal-mono-positivo.jpg",
+      "legacy": {
+        "description": "Logo horizontal monocromatico positivo da marca Thera. Formato JPG."
+      },
+      "display_name": "Logo Horizontal Monocromático Positivo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/thera/horizontal-negativo-azul.jpg",
+      "brand": "thera",
+      "category": "logo",
+      "description": "Logo horizontal negativo na cor azul da marca Thera. Formato JPG.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": "azul",
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "thera",
+        "horizontal",
+        "negativo",
+        "jpg",
+        "azul"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/thera/horizontal-negativo-azul.jpg",
+      "display_name": "Logo Horizontal Negativo Azul",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 3299,
+        "height": 1357,
+        "aspect_ratio": 2.431,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/thera/horizontal-positivo-roxo.svg",
+      "brand": "thera",
+      "category": "logo",
+      "description": "Logo horizontal positivo na cor roxo da marca Thera. Formato SVG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": "roxo",
+      "format": "svg",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "thera",
+        "horizontal",
+        "positivo",
+        "svg",
+        "roxo",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "web-otimizado",
+        "vetor-escalavel"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/logos/thera/horizontal-positivo-roxo.svg",
+      "display_name": "Logo Horizontal Positivo Roxo",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "svg",
+        "has_alpha": true,
+        "width": 768,
+        "height": 316,
+        "transparent_fraction": 0.908,
+        "aspect_ratio": 2.43,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/unihealth/horizontal-box.png",
+      "brand": "unihealth",
+      "category": "logo",
+      "description": "Logo Unihealth Gestão Hospitalar. Horizontal com box verde-escuro. Texto 'Unihealth' branco, subtexto 'Gestão Hospitalar' branco. Ícone raio laranja/verde no canto direito. Formato PNG. Fundo transparente. 791x261px.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "unihealth",
+        "gestao-hospitalar",
+        "horizontal",
+        "box",
+        "verde-escuro",
+        "raio",
+        "laranja",
+        "negativo",
+        "png",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "fundo-claro",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/unihealth/horizontal-box.png",
+      "legacy": {
+        "description": "Logo Unihealth Gestao Hospitalar. Horizontal com box verde-escuro. Texto 'Unihealth' branco, subtexto 'Gestao Hospitalar' branco. Icone raio laranja/verde no canto direito. Formato PNG. Fundo transparente. 791x261px."
+      },
+      "display_name": "Logo Horizontal Box",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 791,
+        "height": 261,
+        "transparent_fraction": 0.316,
+        "aspect_ratio": 3.031,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/unihealth/horizontal-box-governador-valadares.jpg",
+      "brand": "unihealth",
+      "category": "logo",
+      "description": "Logo Unihealth Governador Valadares. Horizontal com box verde-escuro, texto 'Unihealth' branco, subtexto 'Gestão Hospitalar' branco, ícone raio laranja/verde. Texto 'Governador Valadares' verde-escuro abaixo do box. Formato JPG. Fundo branco. 1121x438px.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "unihealth",
+        "gestao-hospitalar",
+        "governador-valadares",
+        "horizontal",
+        "box",
+        "verde-escuro",
+        "raio",
+        "laranja",
+        "negativo",
+        "jpg",
+        "localizado"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "fundo-claro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/unihealth/horizontal-box-governador-valadares.jpg",
+      "legacy": {
+        "description": "Logo Unihealth Governador Valadares. Horizontal com box verde-escuro, texto 'Unihealth' branco, subtexto 'Gestao Hospitalar' branco, icone raio laranja/verde. Texto 'Governador Valadares' verde-escuro abaixo do box. Formato JPG. Fundo branco. 1121x438px."
+      },
+      "display_name": "Logo Horizontal Box Governador Valadares",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 1121,
+        "height": 438,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 2.559,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/unihealth/logo-unihealth-thera.png",
+      "brand": "unihealth",
+      "category": "logo",
+      "description": "Logo Unihealth usada na página Thera",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "thera",
+        "logo",
+        "png",
+        "migrado"
+      ],
+      "use_cases": [
+        "web"
+      ],
+      "added": "2026-06-16",
+      "url": "https://assets.grupocsv.com/logos/unihealth/logo-unihealth-thera.png",
+      "legacy": {
+        "description": "Logo Unihealth usada na pagina Thera"
+      },
+      "display_name": "Logo Unihealth Thera®",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 500,
+        "height": 200,
+        "transparent_fraction": 0.489,
+        "aspect_ratio": 2.5,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "email-assets/banner-provimento-saude.jpg",
+      "brand": "unimed-gv",
+      "category": "email",
+      "description": "Banner header do Provimento de Saúde. Fundo teal escuro com texto PROVIMENTO DE SAÚDE em dourado e logo Unimed GV.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "email",
+        "banner",
+        "unimed",
+        "provimento-de-saude",
+        "header",
+        "teal",
+        "dourado"
+      ],
+      "use_cases": [
+        "email-institucional"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/email-assets/banner-provimento-saude.jpg",
+      "legacy": {
+        "description": "Banner header do Provimento de Saude. Fundo teal escuro com texto PROVIMENTO DE SAUDE em dourado e logo Unimed GV."
+      },
+      "display_name": "Banner Provimento Saúde",
+      "purpose": "comunicacao-recorrente",
+      "asset_type": "cabecalho-de-email",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 1271,
+        "height": 155,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 8.2,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "email-assets/selo-escritorio-valor-saude.jpg",
+      "brand": "unimed-gv",
+      "category": "email",
+      "description": "Selo do Escritório de Valor em Saúde. Emblema institucional usado na assinatura de e-mail.",
+      "orientation": "square",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "jpg",
+      "transparent": false,
+      "tags": [
+        "email",
+        "selo",
+        "escritorio-de-valor",
+        "unimed",
+        "assinatura"
+      ],
+      "use_cases": [
+        "email-institucional",
+        "assinatura"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/email-assets/selo-escritorio-valor-saude.jpg",
+      "legacy": {
+        "description": "Selo do Escritorio de Valor em Saude. Emblema institucional usado na assinatura de e-mail."
+      },
+      "display_name": "Selo Escritório Valor Saúde",
+      "purpose": "identidade-de-marca",
+      "asset_type": "selo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "jpeg",
+        "has_alpha": false,
+        "width": 117,
+        "height": 60,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 1.95,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/unimed-gv/box.png",
+      "brand": "unimed-gv",
+      "category": "logo",
+      "description": "Logo Unimed Governador Valadares com box verde. Texto branco sobre fundo verde arredondado. Sem pinheiro. Formato PNG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "unimed",
+        "unimed-gv",
+        "governador-valadares",
+        "box",
+        "sem-pinheiro",
+        "png",
+        "transparente",
+        "negativo",
+        "verde"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/unimed-gv/box.png",
+      "display_name": "Wordmark Box",
+      "purpose": "identidade-de-marca",
+      "asset_type": "wordmark",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1140,
+        "height": 460,
+        "transparent_fraction": 0.009,
+        "aspect_ratio": 2.478,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/unimed-gv/box-pinheiro.png",
+      "brand": "unimed-gv",
+      "category": "logo",
+      "description": "Logo Unimed Governador Valadares com box verde e pinheiro. Texto branco e símbolo pinheiro sobre fundo verde arredondado. Formato PNG. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "negativo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "logo",
+        "unimed",
+        "unimed-gv",
+        "governador-valadares",
+        "box",
+        "pinheiro",
+        "png",
+        "transparente",
+        "negativo",
+        "verde"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao",
+        "email",
+        "fundo-escuro"
+      ],
+      "added": "2026-03-30",
+      "url": "https://assets.grupocsv.com/logos/unimed-gv/box-pinheiro.png",
+      "legacy": {
+        "description": "Logo Unimed Governador Valadares com box verde e pinheiro. Texto branco e simbolo pinheiro sobre fundo verde arredondado. Formato PNG. Fundo transparente."
+      },
+      "display_name": "Logo Box com Pinheiro",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1140,
+        "height": 420,
+        "transparent_fraction": 0.01,
+        "aspect_ratio": 2.714,
+        "preview_bg": "escuro"
+      }
+    },
+    {
+      "key": "logos/gabi/simbolo-gabi-1024.png",
+      "brand": "gabi-care",
+      "category": "logo",
+      "description": "Símbolo laranja da marca Gabi em PNG com fundo transparente.",
+      "orientation": "quadrado",
+      "polarity": "positivo",
+      "color_variant": "laranja",
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "gabi",
+        "logo",
+        "simbolo",
+        "coracao",
+        "laranja",
+        "png",
+        "transparente"
+      ],
+      "use_cases": [
+        "web",
+        "documento",
+        "apresentacao"
+      ],
+      "added": "2026-08-26",
+      "url": "https://assets.grupocsv.com/logos/gabi/simbolo-gabi-1024.png",
+      "legacy": {
+        "brand": "gabi"
+      },
+      "display_name": "Símbolo Gabi 1024",
+      "purpose": "identidade-de-marca",
+      "asset_type": "simbolo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1024,
+        "height": 1024,
+        "transparent_fraction": 0.678,
+        "aspect_ratio": 1.0,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/criale/icon-borda-2048.png",
+      "brand": "criale",
+      "category": "logo",
+      "description": "Logo Crialê com borda gradiente magenta-laranja. Ícone quadrado 2048x2048. Fundo branco.",
+      "orientation": "quadrada",
+      "polarity": "positivo",
+      "color_variant": "gradiente",
+      "format": "png",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "criale",
+        "icone",
+        "borda",
+        "gradiente",
+        "email",
+        "header"
+      ],
+      "use_cases": [
+        "email",
+        "web",
+        "social"
+      ],
+      "added": "2026-04-01",
+      "url": "https://assets.grupocsv.com/logos/criale/icon-borda-2048.png",
+      "display_name": "Ícone Borda 2048",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "canonical_of": "logos/criale/quadrada-borda.png",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 2048,
+        "height": 2048,
+        "aspect_ratio": 1.0,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/criale/quadrada-borda.png",
+      "brand": "criale",
+      "category": "logo",
+      "description": "Logo quadrada do Crialê com borda gradiente magenta-laranja. Formato PNG. Fundo branco.",
+      "orientation": "quadrada",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "criale",
+        "quadrada",
+        "borda",
+        "gradiente",
+        "png"
+      ],
+      "use_cases": [
+        "web",
+        "email",
+        "social-media",
+        "documento"
+      ],
+      "added": "2026-03-27",
+      "url": "https://assets.grupocsv.com/logos/criale/quadrada-borda.png",
+      "legacy": {
+        "description": "Logo quadrada do Criale com borda gradiente magenta-laranja. Formato PNG. Fundo branco."
+      },
+      "display_name": "Logo Quadrada Borda",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 2048,
+        "height": 2048,
+        "aspect_ratio": 1.0,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "institucional/2im/design-system-completo-v1.zip",
+      "brand": "2im",
+      "category": "institucional",
+      "description": "Pacote completo e autossuficiente do Design System 2iM v1, com documentação, tokens, fontes, logotipos, avatares, imagens, componentes, modelos e referências.",
+      "orientation": "nao-aplicavel",
+      "polarity": "nao-aplicavel",
+      "color_variant": null,
+      "format": "zip",
+      "transparent": false,
+      "tags": [
+        "2im",
+        "design-system",
+        "skill",
+        "brand-kit",
+        "tokens",
+        "componentes",
+        "fontes",
+        "avatares",
+        "zip",
+        "v1"
+      ],
+      "use_cases": [
+        "skill",
+        "design-system",
+        "documento",
+        "apresentacao",
+        "web",
+        "interface",
+        "referencia"
+      ],
+      "added": "2026-09-04",
+      "url": "https://assets.grupocsv.com/institucional/2im/design-system-completo-v1.zip",
+      "display_name": "Pacote Design System Completo v1",
+      "purpose": "documentacao",
+      "asset_type": "pacote-ou-documento",
+      "review_status": "ok",
+      "tech": {
+        "has_alpha": false,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "criativos/soluu00e7u00e3o-axia.png",
+      "brand": "axiacare",
+      "category": "logo",
+      "description": "Assinatura horizontal “Uma solução AxiaCare®” com o símbolo e o nome AxiaCare e o texto “Gestão em Saúde”, em branco, para fundo escuro. Formato PNG 978x194. Fundo transparente.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "criativo"
+      ],
+      "use_cases": [
+        "marketing",
+        "web",
+        "social-media"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/criativos/soluu00e7u00e3o-axia.png",
+      "legacy": {
+        "brand": "grupo-csv",
+        "category": "criativo",
+        "description": "Criativo: Solu#U00e7#U00e3o Axia.png"
+      },
+      "display_name": "Assinatura “Uma Solução AxiaCare®”",
+      "purpose": "identidade-de-marca",
+      "asset_type": "logo-completo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 978,
+        "height": 194,
+        "transparent_fraction": 0.855,
+        "aspect_ratio": 5.041,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "criativos/selo-powered-thera.png",
+      "brand": "thera",
+      "category": "logo",
+      "description": "Selo Powered by Thera.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": null,
+      "format": "png",
+      "transparent": true,
+      "tags": [
+        "criativo",
+        "selo",
+        "thera",
+        "powered"
+      ],
+      "use_cases": [
+        "marketing",
+        "web",
+        "social-media"
+      ],
+      "added": "2026-03-21",
+      "url": "https://assets.grupocsv.com/criativos/selo-powered-thera.png",
+      "legacy": {
+        "brand": "grupo-csv",
+        "category": "criativo"
+      },
+      "display_name": "Selo Powered Thera®",
+      "purpose": "identidade-de-marca",
+      "asset_type": "selo",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": true,
+        "width": 1335,
+        "height": 430,
+        "transparent_fraction": 0.814,
+        "aspect_ratio": 3.105,
+        "preview_bg": "claro"
+      }
+    },
+    {
+      "key": "logos/qualix/horizontal-fundo-branco.png",
+      "brand": "qualix",
+      "category": "logo",
+      "description": "Logo horizontal do Programa Qualix (Unimed Federação Minas) isolada, extraída da arte combinada FEMG+Qualix. Fundo branco. Formato PNG.",
+      "orientation": "horizontal",
+      "polarity": "positivo",
+      "color_variant": "verde",
+      "format": "png",
+      "transparent": false,
+      "tags": [
+        "logo",
+        "qualix",
+        "programa-qualix",
+        "unimed",
+        "federacao-minas",
+        "femg",
+        "caminhos-brilhantes",
+        "horizontal",
+        "fundo-branco",
+        "png"
+      ],
+      "use_cases": [
+        "email",
+        "documento",
+        "apresentacao",
+        "web"
+      ],
+      "added": "2026-07-28",
+      "url": "https://assets.grupocsv.com/logos/qualix/horizontal-fundo-branco.png",
+      "legacy": {
+        "description": "Logo horizontal do Programa Qualix (Unimed Federacao Minas) isolada, extraida da arte combinada FEMG+Qualix. Fundo branco. Formato PNG."
+      },
+      "display_name": "Wordmark Horizontal Fundo Branco",
+      "purpose": "identidade-de-marca",
+      "asset_type": "wordmark",
+      "review_status": "ok",
+      "tech": {
+        "real_format": "png",
+        "has_alpha": false,
+        "width": 508,
+        "height": 185,
+        "transparent_fraction": 0.0,
+        "aspect_ratio": 2.746,
+        "preview_bg": "claro"
+      }
+    }
+  ]
+}
