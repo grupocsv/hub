@@ -121,9 +121,39 @@ onMounted(() => {
 
 Repositório oficial de marcas, logotipos, wallpapers e elementos visuais do ecossistema Grupo CSV.
 
-> **Atualizado:** 24/01/2026 - Todos os ZIPs extraídos e organizados
+> **Atualizado:** 28/10/2026 — Catálogo v2 em `assets.grupocsv.com`. As seções a partir de "Acervo Original" registram a extração de 24/01/2026 e são mantidas como histórico.
 
 ---
+
+## Catálogo Oficial (assets.grupocsv.com)
+
+Para usar um asset, referencie sempre a URL pública dele em `https://assets.grupocsv.com/`. O catálogo completo fica em [`/manifest.json`](https://assets.grupocsv.com/manifest.json) (schema 2.0.0) e, em 28/10/2026, reunia **476 assets** de 44 marcas, em 8 categorias e 5 grupos.
+
+| Grupo | Assets |
+| :--- | :--- |
+| Grupo CSV e Marcas Próprias | 278 |
+| Clientes e Instituições Parceiras | 100 |
+| Pessoas e Projetos Pessoais | 52 |
+| Sistema Unimed | 29 |
+| Terceiros | 17 |
+| **Total** | **476** |
+
+**Regra de URL:** nenhuma URL publicada é renomeada, movida ou apagada. Quando a marca, a categoria, a descrição ou a transparência de um arquivo é corrigida, o valor anterior fica no campo `legacy` e os filtros antigos continuam funcionando.
+
+| Consulta | Endereço |
+| :--- | :--- |
+| Busca | `https://assets.grupocsv.com/api/search?q=axiacare&category=logo` |
+| Totais | `https://assets.grupocsv.com/api/meta` |
+| Por marca | `https://assets.grupocsv.com/api/brands/thera` |
+| Especificação | `https://assets.grupocsv.com/api/openapi.json` |
+
+**Consulta visual:** aba **Central de Assets** do [Painel Admin](https://hub.grupocsv.com/admin/), com cards das marcas em destaque, catálogo com busca e filtros, prévia em fundo claro ou escuro e botão para copiar a URL e a referência de cada arquivo.
+
+---
+
+## Acervo Original (Janeiro de 2026)
+
+Os caminhos `_backup_vitepress/` citados abaixo são da época da extração. No repositório atual, o acervo fica em `_infra/uploads_usuario/upload_001/` e em `docs/_infra/uploads_usuario/upload_001/`. Para uso em páginas, e-mails e documentos, prefira a URL do catálogo oficial.
 
 ## Logos Extraídos (Acesso Direto)
 

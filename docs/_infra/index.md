@@ -584,7 +584,7 @@ Copiar página
 <tr><td>PIN local</td><td>Deck™</td><td>PIN 4 dígitos (SHA-256 no localStorage)</td></tr>
 </tbody>
 </table>
-<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.5.0, com slot de montagem <code>#hub-auth-slot</code> / <code>data-hub-auth-theme="dark"</code> para o widget de logout) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (8 abas: usuários, senhas, links, logs, deck, feedback, admins, datasets).</p>
+<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.5.0, com slot de montagem <code>#hub-auth-slot</code> / <code>data-hub-auth-theme="dark"</code> para o widget de logout) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (18 abas em 6 seções: Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets).</p>
 </div>
 
 <!-- 11. REPOSITORIOS -->
@@ -619,27 +619,40 @@ Copiar página
 <!-- 12. ASSETS -->
 <div class="frame">
 <h2 class="section-title">12. Assets Visuais</h2>
-<p class="section-desc">Repositório centralizado de assets em <code>assets.grupocsv.com</code> (Cloudflare R2 + Worker csv-assets). Total: <strong>284 assets</strong>, 22 marcas, 8 categorias. API de busca: <code>/api/search</code>, <code>/api/brands/:brand</code>, <code>/api/meta</code>.</p>
+<p class="section-desc">Repositório centralizado de assets em <code>assets.grupocsv.com</code> (Cloudflare R2 + Worker csv-assets). O catálogo é o <code>manifest.json</code> (schema 2.0.0): <strong>476 assets</strong>, 44 marcas com arquivos (45 no cadastro de marcas), 8 categorias e 5 grupos. Contagem conferida em 28/10/2026 no manifesto e em <code>/api/meta</code>.</p>
+<p class="section-desc">Nenhuma URL publicada muda. Correções de marca, categoria, descrição ou transparência ficam em campos novos, com o valor anterior em <code>legacy</code>, e os filtros antigos continuam funcionando. Exemplo: Gabi passou a ser exibida como Gabi Care, e <code>brand=gabi</code> segue retornando os seus 3 arquivos.</p>
 <table class="infra-table">
-<thead><tr><th>Marca</th><th>Qtd</th><th>Cor Principal</th></tr></thead>
+<thead><tr><th>Grupo</th><th>Assets</th><th>Marcas em Destaque</th></tr></thead>
 <tbody>
-<tr><td>thera</td><td>64</td><td>#6B5B95 (roxo)</td></tr>
-<tr><td>medvalor</td><td>49</td><td>Azul + Laranja</td></tr>
-<tr><td>guilherme-thome</td><td>38</td><td>#196396 (azul)</td></tr>
-<tr><td>axiacare</td><td>34</td><td>#196396 (azul)</td></tr>
-<tr><td>grupo-csv</td><td>25</td><td>#196396 (azul) + #2DBF7F (verde)</td></tr>
-<tr><td>unimed-gv</td><td>19</td><td>#00995d (verde)</td></tr>
-<tr><td>evs</td><td>16</td><td>#00995d (verde)</td></tr>
-<tr><td>icds</td><td>6</td><td>#013d19 (verde escuro)</td></tr>
-<tr><td>naline-rocha</td><td>5</td><td>—</td></tr>
-<tr><td>unimed-leste-nordeste</td><td>5</td><td>#00995d (verde)</td></tr>
-<tr><td>panta</td><td>4</td><td>#196396 (azul)</td></tr>
-<tr><td>criale</td><td>4</td><td>#F472B6 (rosa)</td></tr>
-<tr><td>unimed-federacao-minas</td><td>4</td><td>#00995d (verde)</td></tr>
-<tr><td>unihealth</td><td>3</td><td>#013d19 (verde escuro)</td></tr>
-<tr><td>Outras (8 marcas)</td><td>8</td><td>—</td></tr>
+<tr><td>Grupo CSV e Marcas Próprias</td><td>278</td><td>Grupo CSV (94), Thera® (56), MedValor® (53), AxiaCare® (37), Gabi Care (20)</td></tr>
+<tr><td>Clientes e Instituições Parceiras</td><td>100</td><td>Unimed Governador Valadares (34), Escritório de Valor em Saúde (16), 2iM (14), Caminhos Brilhantes (14), Unihealth GV (12), ICDS (8)</td></tr>
+<tr><td>Pessoas e Projetos Pessoais</td><td>52</td><td>Guilherme Thomé (41)</td></tr>
+<tr><td>Sistema Unimed</td><td>29</td><td>—</td></tr>
+<tr><td>Terceiros</td><td>17</td><td>—</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>476</strong></td><td>12 marcas em destaque (399 assets) e 32 demais marcas (77)</td></tr>
 </tbody>
 </table>
+<table class="infra-table">
+<thead><tr><th>Endpoint</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>/api/search</code></td><td>Busca por <code>q</code> (sem distinção de acentos; acento na URL deve ir codificado, ex.: <code>sa%C3%BAde</code>) e filtros <code>brand</code>, <code>category</code>, <code>format</code>, <code>orientation</code>, <code>polarity</code>, <code>transparent</code>, <code>use_case</code>, <code>purpose</code>, <code>asset_type</code>, <code>review_status</code>, <code>brand_group</code>, <code>parent_brand</code>. Até 200 por página (<code>limit</code>, <code>offset</code>). <code>fields=all</code> inclui os campos v2.</td></tr>
+<tr><td><code>/api/meta</code></td><td>Totais por marca, categoria, formato, finalidade, tipo e grupo.</td></tr>
+<tr><td><code>/api/brands/:brand</code></td><td>Assets de uma marca; aceita também o nome anterior da marca.</td></tr>
+<tr><td><code>/manifest.json</code></td><td>Catálogo completo; cache de 5 minutos, com resposta 304 quando não mudou.</td></tr>
+</tbody>
+</table>
+<table class="infra-table">
+<thead><tr><th>Entidade</th><th>Cor Principal</th></tr></thead>
+<tbody>
+<tr><td>Grupo CSV</td><td>#196396 (azul) + #2DBF7F (verde)</td></tr>
+<tr><td>AxiaCare®</td><td>#196396 (azul)</td></tr>
+<tr><td>MedValor®</td><td>Azul + Laranja</td></tr>
+<tr><td>Thera®</td><td>#6B5B95 (roxo)</td></tr>
+<tr><td>Unimed GV</td><td>#00995d (verde)</td></tr>
+<tr><td>Unihealth GV</td><td>#013d19 (verde escuro)</td></tr>
+</tbody>
+</table>
+<p class="section-desc">Consulta visual: aba <strong>Central de Assets</strong> do Painel Admin (cards das marcas em destaque, catálogo com busca e filtros, cópia de URL e referência de cada arquivo, abas Qualidade e Reconciliação). A tela é somente leitura.</p>
 <div class="resource-grid">
 <a class="resource-btn secondary" href="/_infra/csv-core/identity-system">Sistema de Identidade Visual</a>
 <a class="resource-btn secondary" href="/_infra/csv-core/assets">Central de Assets</a>
@@ -959,7 +972,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 | Login individual da aplicacao | Themis™ | Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorizacao previa |
 | PIN local | Deck | PIN 4 digitos (SHA-256 no localStorage) |
 
-Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de logout). Painel Admin: hub.grupocsv.com/admin/ (8 abas).
+Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de logout). Painel Admin: hub.grupocsv.com/admin/ (18 abas em 6 seções: Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets).
 
 ---
 
@@ -979,16 +992,29 @@ Pipeline: push na main → (1) Build VitePress + deploy GitHub Pages; (2) Sync R
 
 ## 12. Assets Visuais
 
-Repositorio centralizado em assets.grupocsv.com (Cloudflare R2 + Worker csv-assets).
+Repositório centralizado em assets.grupocsv.com (Cloudflare R2 + Worker csv-assets). Catálogo: manifest.json (schema 2.0.0) com 476 assets, 44 marcas com arquivos (45 no cadastro), 8 categorias e 5 grupos. Contagem conferida em 28/10/2026 no manifesto e em /api/meta.
+
+Nenhuma URL publicada muda. Correções de marca, categoria, descrição ou transparência ficam em campos novos, com o valor anterior em legacy, e os filtros antigos continuam funcionando (ex.: brand=gabi retorna os 3 arquivos hoje exibidos como Gabi Care).
+
+| Grupo | Assets |
+|---|---|
+| Grupo CSV e Marcas Próprias | 278 |
+| Clientes e Instituições Parceiras | 100 |
+| Pessoas e Projetos Pessoais | 52 |
+| Sistema Unimed | 29 |
+| Terceiros | 17 |
+| Total | 476 |
+
+API: /api/search (q sem distinção de acentos, acento codificado na URL; filtros brand, category, format, orientation, polarity, transparent, use_case, purpose, asset_type, review_status, brand_group, parent_brand; limit até 200; fields=all), /api/meta, /api/brands/:brand, /manifest.json (cache de 5 minutos, 304 quando não mudou). Consulta visual: aba Central de Assets do Painel Admin (somente leitura).
 
 | Entidade | Cor Principal |
 |---|---|
 | Grupo CSV | #196396 (azul) + #2DBF7F (verde) |
-| AxiaCare | #196396 (azul) |
-| MedValor | Azul + Laranja |
-| Thera | #6B5B95 (roxo) |
+| AxiaCare® | #196396 (azul) |
+| MedValor® | Azul + Laranja |
+| Thera® | #6B5B95 (roxo) |
 | Unimed GV | #00995d (verde) |
-| Unihealth | #013d19 (verde escuro) |
+| Unihealth GV | #013d19 (verde escuro) |
 
 ---
 
