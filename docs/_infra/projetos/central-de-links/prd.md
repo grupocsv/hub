@@ -5,7 +5,7 @@
 | Versão | 1.1 |
 | Data | 22/10/2026 |
 | Revisão | 1.1 (22/10/2026): token da API administrativa (seções 4, 8.2 e 10.1), campos da listagem `GET /links` (seção 9) e saúde de csv.online antes da virada (seção 10.5) |
-| Situação | Aprovado para implementação |
+| Situação | Em produção desde 25/10/2026 (virada do `csv.online/blog`). Em 30/10/2026, o item do Admin passou para a seção "Links e Páginas", sem mudança de mecanismo |
 | Repositórios afetados | grupocsv/backend, grupocsv/hub, grupocsv/csv-open-pages |
 | Documento público | Sim. Este arquivo fica no repositório público grupocsv/hub. IDs de recursos, registros DNS, contas e credenciais ficam fora dele, no handoff privado da VPS-CSV |
 
@@ -77,6 +77,8 @@ As decisões abaixo vieram de uma sabatina com Guilherme Thomé, de P1 a P46, e 
 | D35 | As imagens de prévia frágeis são corrigidas sem mudar o visual. A do Hub ganha uma versão leve em JPEG neste projeto; a do grupocsv.com é tratada fora do GitHub pelo revisor-publicador | P46 |
 
 ## 4. Estado atual verificado (22/10/2026)
+
+> Registro histórico da situação anterior à implantação. Para a situação vigente, consulte [Links e Páginas — Visão Unificada](/_infra/links-e-paginas) e o [guia de operação](/_infra/projetos/central-de-links/operacao).
 
 | Item | Estado | Como foi verificado |
 |---|---|---|
@@ -153,6 +155,8 @@ Comportamento observável documentado para o usuário: em até cerca de 90 segun
 Nunca se usa 301 nem 308, porque a RFC 9110 permite que o navegador guarde esses códigos por conta própria. Nenhuma resposta de csv.online grava cookie. HSTS e outras políticas que valem para o domínio inteiro ficam fora deste projeto.
 
 ### 5.5 Relação com Links Públicos, Open Pages e hospedagem
+
+> Atualização de 30/10/2026: a aba "Links Públicos" passou a se chamar "Páginas Públicas" e fica com a Central de Links na seção "Links e Páginas" do Admin. O aviso de revogação passou a citar "Páginas Públicas". A separação de funções descrita abaixo não mudou.
 
 A aba existente "Links Públicos" do Admin revoga e restaura páginas do Hub (`/p/`) e Open Pages. Ela não cria links curtos. A Central de Links não duplica essa função:
 
@@ -300,7 +304,7 @@ Limites de taxa (binding de rate limiting do Workers, mesma técnica do csv-auth
 
 ### 10.1 Navegação
 
-- Item novo "Central de Links" no menu lateral, na seção "Comunicação", com `data-tab="central-links"`.
+- Item novo "Central de Links" no menu lateral, na seção "Comunicação", com `data-tab="central-links"`. Atualização de 30/10/2026: o item passou para a seção "Links e Páginas", ao lado de "Páginas Públicas" (antiga "Links Públicos"), com o mesmo `data-tab`; o aviso de revogação passou a citar "Páginas Públicas".
 - Dentro da aba, um seletor de seções com Visão geral, Rotativos, Estáticos, Domínios, Métricas e csv.email (D1). A seção do histórico geral fica dentro de Métricas, com o título "Histórico e Métricas".
 - A aba usa os estilos, as variáveis de cor, o tema e os componentes que o Admin já tem. Não há CSS de outra marca nem framework novo.
 - A constante `LINKS_API = 'https://links-api.grupocsv.com/v1'` fica junto das constantes de API existentes. O token é a sessão do Admin, lida por `getToken()`, e nunca o `op_admin_token`.

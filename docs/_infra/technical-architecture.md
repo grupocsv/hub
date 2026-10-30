@@ -666,6 +666,17 @@ Envia os dados por e-mail para <code>contato@thera.tech</code> via Resend.
 <strong style="font-size:0.82rem; color:#1e293b;">Bindings:</strong>
 <span style="font-size:0.82rem; color:#5b6470;"> Secret (RESEND_API_KEY)</span>
 </div>
+<div class="worker-card">
+<div class="worker-card-header">
+<span class="worker-card-name">csv-links</span>
+<span class="worker-card-version">v1.0.0</span>
+</div>
+<div class="worker-card-desc">
+Central de Links: redireciona os endereços curtos de <code>csv.online</code> (rotativos e estáticos) e atende a API administrativa usada pelo Admin, em <code>links-api.grupocsv.com/v1</code>. Não hospeda conteúdo; só encaminha para URLs HTTPS já publicadas. Tarefa diária às 09:00 UTC testa os destinos. Repositório: <code>grupocsv/backend</code>, em <code>workers/csv-links</code>. Operação em <a href="/_infra/projetos/central-de-links/operacao">Central de Links — operação</a>.
+</div>
+<strong style="font-size:0.82rem; color:#1e293b;">Bindings:</strong>
+<span style="font-size:0.82rem; color:#5b6470;"> D1 (csv-links), KV (rotas publicadas), Service (csv-auth), Rate limiters</span>
+</div>
 </div>
 <div class="frame">
 <h2 class="section-title">4. Sistema de Autenticação</h2>
@@ -816,7 +827,7 @@ Armazenamento de objetos compatível com S3, distribuído globalmente.
 <h2 class="section-title">6. Painel Administrativo</h2>
 <p class="section-desc">
 Acessível em <code>hub.grupocsv.com/admin/</code>, protegido por autenticação de admin.
-Permite gerenciar todo o sistema de autenticação e links públicos.
+Permite gerenciar o sistema de autenticação, as páginas públicas e os links curtos de <code>csv.online</code>. Desde 30/10/2026, Central de Links e Páginas Públicas ficam juntas na seção Links e Páginas; veja a <a href="/_infra/links-e-paginas">visão unificada</a>.
 </p>
 <table class="tech-table">
 <thead><tr><th>Aba</th><th>Funcionalidade</th></tr></thead>
@@ -830,8 +841,12 @@ Permite gerenciar todo o sistema de autenticação e links públicos.
 <td>Aprovar/rejeitar solicitações de acesso. Listar usuários aprovados com seus portais vinculados. Revogar acesso.</td>
 </tr>
 <tr>
-<td><strong>Links Públicos</strong></td>
-<td>Listar páginas publicadas em <code>/p/</code>. Revogar ou restaurar links públicos (altera o <code>registry.json</code> via commit no GitHub).</td>
+<td><strong>Páginas Públicas</strong> (seção Links e Páginas; antiga "Links Públicos")</td>
+<td>Listar páginas publicadas em <code>/p/</code>, <code>open.grupocsv.com</code> e <code>hub.unimedgv.com</code>. Revogar ou restaurar páginas <code>/p/</code> (altera o <code>registry.json</code> via commit no GitHub) e publicar ou alternar Open Pages com o token próprio das Open Pages.</td>
+</tr>
+<tr>
+<td><strong>Central de Links</strong> (seção Links e Páginas)</td>
+<td>Criar, trocar, restaurar e acompanhar os links curtos rotativos e estáticos de <code>csv.online</code>, com métricas, domínios e a preparação do <code>csv.email</code>. Usa a sessão do Admin e só carrega quando a aba é aberta.</td>
 </tr>
 <tr>
 <td><strong>Log de Acessos Externos</strong></td>
@@ -922,14 +937,26 @@ para a infraestrutura do Hub estão listados abaixo.
 <td>192.0.2.1</td>
 <td>Worker csv-webhook</td>
 </tr>
+<tr>
+<td><code>csv.online</code> e <code>www.csv.online</code></td>
+<td>AAAA</td>
+<td>100::</td>
+<td>Links curtos (rotas do Worker csv-links)</td>
+</tr>
+<tr>
+<td><code>links-api.grupocsv.com</code></td>
+<td>Custom Domain</td>
+<td>Worker csv-links</td>
+<td>API administrativa da Central de Links</td>
+</tr>
 </tbody>
 </table>
 <h3 class="subsection-title">Zonas Cloudflare</h3>
 <p class="section-desc">
-O ecossistema utiliza 9 zonas DNS no Cloudflare: <code>axcare.ai</code>, <code>axcare.app</code>,
-<code>axcare.com.br</code>, <code>grupocsv.com</code>, <code>guithome.com.br</code>,
-<code>medvalor.med.br</code>, <code>theramed.ai</code>, <code>thera.med.br</code> e <code>thera.tech</code>.
-Todas utilizam Google Workspace para e-mail corporativo (MX records).
+Em 30/10/2026, o ecossistema utiliza 15 zonas DNS no Cloudflare: <code>axcare.ai</code>, <code>axcare.app</code>,
+<code>axcare.com.br</code>, <code>criale.app</code>, <code>csv.email</code>, <code>csv.online</code>, <code>gabi.care</code>, <code>gabialvim.com.br</code>, <code>grupocsv.com</code>, <code>guithome.com.br</code>,
+<code>medvalor.med.br</code>, <code>theramed.ai</code>, <code>thera.med.br</code>, <code>thera.tech</code> e <code>unimedgv.com</code>.
+As nove zonas registradas originalmente nesta página utilizam Google Workspace para e-mail corporativo (MX records). <code>csv.online</code> e <code>csv.email</code> não recebem e-mail (MX nulo, SPF <code>-all</code> e DMARC <code>reject</code>); <code>csv.email</code> está em standby.
 </p>
 </div>
 <div class="frame">
@@ -986,8 +1013,8 @@ Consulte o <a href="/_infra/manuais/nfse-axiacare">Manual da NFS-e AxiaCare</a> 
 <td>Tokens de sessão têm validade de 24 horas. A limpeza automática de sessões expiradas ocorre semanalmente (domingo 03:00 BRT).</td>
 </tr>
 <tr>
-<td><strong>Links Públicos</strong></td>
-<td>Open Pages e páginas legadas <code>/p/</code> são independentes da Central. Links públicos documentais nativos pertencem ao control plane <code>csv-documents</code>, estão produtivos e mantêm o R2 privado; criação, expiração e revogação são mediadas pela API.</td>
+<td><strong>Páginas e Links Públicos</strong></td>
+<td>Open Pages e páginas legadas <code>/p/</code> são independentes da Central. Links públicos documentais nativos pertencem ao control plane <code>csv-documents</code>, estão produtivos e mantêm o R2 privado; criação, expiração e revogação são mediadas pela API. Os links curtos de <code>csv.online</code> pertencem ao Worker <code>csv-links</code> e apenas encaminham para endereços já publicados.</td>
 </tr>
 </tbody>
 </table>

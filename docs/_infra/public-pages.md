@@ -43,6 +43,10 @@ Documentação da infraestrutura de publicação de páginas públicas do Hub Gr
 Open Pages publica páginas HTML e assets; não publica documentos da Central de Documentos. Links públicos documentais nativos já integram o control plane `csv-documents`, com produção verificada em 24/08/2026: criação explícita por slug, versão fixada, ativação/inativação e entrega mediada, mantendo o R2 privado. Eles não dependem da ativação do Panta v2. Consulte [Central de Documentos](/_infra/central-documentos#links-publicos-nativos).
 :::
 
+::: tip Links e Páginas
+No Admin do Hub, esta área aparece como **Páginas Públicas**, na seção **Links e Páginas**, ao lado da **Central de Links** (endereços curtos em `csv.online`). Até 30/10/2026, o item se chamava "Links Públicos" e ficava em Geral. Para saber qual recurso usar em cada caso, consulte [Links e Páginas — Visão Unificada](/_infra/links-e-paginas).
+:::
+
 Para compartilhar um arquivo, siga o [manual da Central — Links públicos](/_infra/manuais/central-documentos#links-publicos). Para entender a pesquisa, consulte o [manual do Panta v2](/_infra/manuais/panta-v2): indexar um documento não o torna público.
 
 A validação produtiva da busca Panta v2 pela Central/Extensio em 16/09/2026 não muda o contrato de compartilhamento. Esta versão do Hub habilita a busca nas Centrais, mas links públicos e Open Pages continuam sendo capacidades distintas e independentes dela. A sessão humana da nova busca no navegador permanece não aferida.
@@ -68,7 +72,7 @@ O Hub Grupo CSV possui uma infraestrutura independente para publicação rápida
 - **Estado:** Cloudflare KV (Namespace `hub-unimedgv-kv`)
 - **Roteamento:** Cloudflare Worker (`hub-unimedgv`)
 - **Domínio:** `hub.unimedgv.com`
-- **Repositório:** `grupocsv/hub-unimedgv` (privado)
+- **Repositório:** a confirmar. O repositório citado anteriormente, `grupocsv/hub-unimedgv`, não foi encontrado no GitHub em 27/10/2026.
 
 ---
 
@@ -106,7 +110,16 @@ Além dos painéis, o servidor MCP do **Extensio** expõe duas tools para operar
 ### 4. Legado (Diretório `/p/` no Hub)
 Anteriormente, as páginas públicas eram armazenadas no diretório `/p/` do repositório principal do Hub e servidas via GitHub Pages. Este modelo foi descontinuado em favor da arquitetura independente (Open Pages) para permitir toggles instantâneos sem necessidade de novos deploys.
 
-Páginas legadas (como o `tea-dataset`) foram migradas para o R2. O diretório `/p/` no repositório `grupocsv/hub` pode ser mantido temporariamente para fins de histórico ou redirecionamento (301), mas novas publicações devem ser feitas exclusivamente via Open Pages — por qualquer das três vias da seção anterior: aba Links Públicos do `/admin/`, painel `open.grupocsv.com/_admin/` ou tools MCP do Extensio.
+Páginas legadas (como o `tea-dataset`) foram migradas para o R2. O diretório `/p/` no repositório `grupocsv/hub` pode ser mantido temporariamente para fins de histórico ou redirecionamento (301), mas novas publicações devem ser feitas exclusivamente via Open Pages — por qualquer das três vias da seção anterior: item **Páginas Públicas** do `/admin/` (seção Links e Páginas), painel `open.grupocsv.com/_admin/` ou tools MCP do Extensio.
+
+**Situação verificada em 30/10/2026:** o `p/registry.json` publicado lista duas páginas, ambas ativas: `tea-dataset` (15/02/2026) e `painel-tea` (11/07/2026, criada depois da migração). A orientação para páginas novas continua sendo Open Pages; a situação oficial do `/p/`, se ainda aceita páginas ou fica congelado, aguarda decisão.
+
+### 5. Relação com a Central de Links
+A Central de Links não hospeda páginas: ela cria endereços curtos em `csv.online` que levam a um endereço já publicado, inclusive Open Pages e páginas `/p/`.
+
+- Quando o destino de um link curto é uma página desta área, a Central mostra o aviso **A revogação desta página é feita em Páginas Públicas**.
+- Revogar a página não apaga o link curto, e desativar o link curto não revoga a página. Ao revogar uma página que tenha link curto, revise o link na Central.
+- No topo de Páginas Públicas, o botão **Abrir Central de Links** leva à Central sem chamar nenhuma API.
 
 ---
 
@@ -173,6 +186,7 @@ Os menus dos portais **Unimed, Unihealth, ICDS e 2iM** são gerados automaticame
 | 2026-03-18 | **Migração para Open Pages:** Nova arquitetura independente com Cloudflare Worker, R2 e KV no domínio `open.grupocsv.com`. Painel admin próprio e toggle instantâneo. |
 | 2026-05-30 | **Hub Unimed GV:** Infraestrutura paralela exclusiva para a Unimed GV em `hub.unimedgv.com` (Worker + KV + R2 próprios). |
 | 2026-06-11 | **Auth Gate:** Worker `csv-open-auth` implementado para proteger Open Pages com login dinâmico sem recompilar HTML. |
+| 2026-10-30 | **Links e Páginas:** no Admin, "Links Públicos" passa a "Páginas Públicas" e fica na seção "Links e Páginas", ao lado da Central de Links. Criada a página [Visão Unificada](/_infra/links-e-paginas). Nenhum mecanismo alterado. |
 
 ---
 
@@ -181,7 +195,7 @@ Os menus dos portais **Unimed, Unihealth, ICDS e 2iM** são gerados automaticame
 | Item | Tipo | Descrição |
 |---|---|---|
 | `grupocsv/csv-open-pages` | Repositório | Código-fonte do Worker e do painel admin (open.grupocsv.com) |
-| `grupocsv/hub-unimedgv` | Repositório | Código-fonte do Worker e infraestrutura (hub.unimedgv.com) |
+| `grupocsv/hub-unimedgv` | Repositório (a confirmar) | Citado como origem do Worker de hub.unimedgv.com; não encontrado no GitHub em 27/10/2026 |
 | `csv-open-pages` | CF Worker | Roteamento, API, Auth Gate e bloqueio na borda |
 | `csv-open-auth` | CF Worker | Validação de credenciais do Auth Gate |
 | `hub-unimedgv` | CF Worker | Roteamento e injeção de `<head>` para Unimed GV |

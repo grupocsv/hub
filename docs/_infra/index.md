@@ -257,6 +257,7 @@ Copiar página
 <tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle e auth gate</td></tr>
 <tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages (Auth Gate)</td></tr>
 <tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com/*</td><td>KV: hub-unimedgv-kv, R2: hub-unimedgv</td><td>Páginas públicas exclusivas Unimed GV</td></tr>
+<tr><td><code>csv-links</code></td><td>csv.online/*, www.csv.online/*, links-api.grupocsv.com</td><td>D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diário 09:00 UTC</td><td>Central de Links: links curtos rotativos e estáticos e API administrativa do Admin</td></tr>
 <tr><td><code>csv-documents</code></td><td>documentos-api.grupocsv.com</td><td>Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP</td><td>Control plane privado e multi-tenant da Central de Documentos</td></tr>
 <tr><td><code>csv-documents-monitor</code></td><td>Cron Trigger; sem rota pública</td><td>D1: csv-documents, APIs de observabilidade e notificação</td><td>Monitor independente do Worker, Queue, DLQ, processador e ClamAV</td></tr>
 </tbody>
@@ -460,6 +461,8 @@ Copiar página
 <tr><td>mail-api.grupocsv.com</td><td>Worker csv-mail</td><td>E-mail agêntico</td></tr>
 <tr><td>webhook.grupocsv.com</td><td>Worker whatsapp-webhook</td><td>Webhook WhatsApp</td></tr>
 <tr><td>open.grupocsv.com</td><td>Worker csv-open-pages</td><td>Páginas públicas</td></tr>
+<tr><td>csv.online, www.csv.online</td><td>Worker csv-links</td><td>Links curtos (Central de Links)</td></tr>
+<tr><td>links-api.grupocsv.com</td><td>Worker csv-links</td><td>API administrativa da Central de Links</td></tr>
 <tr><td>assets.grupocsv.com</td><td>Worker csv-assets</td><td>Assets estáticos</td></tr>
 <tr><td>documentos-api.grupocsv.com</td><td>Worker csv-documents</td><td>API privada da Central de Documentos</td></tr>
 <tr><td>documentos-processor.grupocsv.com</td><td>Processador isolado</td><td>Validação, antivírus, extração e derivados documentais</td></tr>
@@ -584,7 +587,7 @@ Copiar página
 <tr><td>PIN local</td><td>Deck™</td><td>PIN 4 dígitos (SHA-256 no localStorage)</td></tr>
 </tbody>
 </table>
-<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.5.0, com slot de montagem <code>#hub-auth-slot</code> / <code>data-hub-auth-theme="dark"</code> para o widget de logout) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (18 abas em 6 seções: Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets).</p>
+<p class="section-desc">Script client-side: <code>hub-auth.js</code> (v2.5.0, com slot de montagem <code>#hub-auth-slot</code> / <code>data-hub-auth-theme="dark"</code> para o widget de logout) incluído em toda página protegida via <code>&lt;script src="/scripts/hub-auth.js" data-portal="{id}"&gt;</code>. Painel Admin: <code>hub.grupocsv.com/admin/</code> (18 abas em 7 seções: Geral, Links e Páginas, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets e, em Links e Páginas, a Central de Links e as Páginas Públicas).</p>
 </div>
 
 <!-- 11. REPOSITORIOS -->
@@ -677,6 +680,7 @@ Copiar página
 <div class="frame">
 <h2 class="section-title">14. Recursos Transversais</h2>
 <div class="resource-grid tri">
+<a class="resource-btn secondary" href="/_infra/links-e-paginas">Links e Páginas (Visão Unificada)</a>
 <a class="resource-btn secondary" href="/_infra/public-pages">Páginas Públicas (Open Pages)</a>
 <a class="resource-btn secondary" href="/compliance/">Central de Compliance</a>
 <a class="resource-btn secondary" href="/_infra/standards/footer">Padrão de Footer</a>
@@ -748,6 +752,7 @@ Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos
 | csv-propostas | csv-propostas.guilherme-thom.workers.dev | R2: csv-propostas, Secret | Propostas comerciais |
 | csv-assets | assets.grupocsv.com/* | R2: csv-open-pages | Servico de assets estaticos |
 | csv-open-pages | open.grupocsv.com/* | KV: csv-open-pages, R2: csv-open-pages | Paginas publicas com toggle |
+| csv-links | csv.online/*, www.csv.online/*, links-api.grupocsv.com | D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diario 09:00 UTC | Central de Links: links curtos rotativos e estaticos e API administrativa do Admin |
 | csv-documents | documentos-api.grupocsv.com | Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP | Control plane privado e multi-tenant da Central de Documentos |
 | csv-documents-monitor | Cron Trigger; sem rota publica | D1: csv-documents, APIs de observabilidade e notificacao | Monitor independente do Worker, Queue, DLQ, processador e ClamAV |
 
@@ -874,6 +879,8 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 | mail-api.grupocsv.com | Worker csv-mail | E-mail agentico |
 | webhook.grupocsv.com | Worker whatsapp-webhook | Webhook WhatsApp |
 | open.grupocsv.com | Worker csv-open-pages | Paginas publicas |
+| csv.online, www.csv.online | Worker csv-links | Links curtos (Central de Links) |
+| links-api.grupocsv.com | Worker csv-links | API administrativa da Central de Links |
 | assets.grupocsv.com | Worker csv-assets | Assets estaticos |
 | documentos-api.grupocsv.com | Worker csv-documents | API privada da Central de Documentos |
 | documentos-processor.grupocsv.com | Processador isolado | Validacao, antivirus, extracao e derivados documentais |
@@ -972,7 +979,7 @@ O Extensio (OpenClaw) gerencia o WhatsApp do Grupo CSV via WABA. Webhook: webhoo
 | Login individual da aplicacao | Themis™ | Convite individual, e-mail, senha e TOTP pelo Supabase Auth; perfil ativo e autorizacao previa |
 | PIN local | Deck | PIN 4 digitos (SHA-256 no localStorage) |
 
-Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de logout). Painel Admin: hub.grupocsv.com/admin/ (18 abas em 6 seções: Geral, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets).
+Script client-side: hub-auth.js (v2.5.0, slot #hub-auth-slot para o widget de logout). Painel Admin: hub.grupocsv.com/admin/ (18 abas em 7 seções: Geral, Links e Páginas, Deck, Infraestrutura, Comunicação, Conteúdo e Sistema; inclui a Central de Assets e, em Links e Páginas, a Central de Links e as Páginas Públicas).
 
 ---
 

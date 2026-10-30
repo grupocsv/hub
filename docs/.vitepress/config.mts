@@ -160,6 +160,14 @@ export default defineConfig({
             { text: 'Central de Documentos', link: '/_infra/central-documentos' },
             { text: 'Arquitetura T\u00e9cnica', link: '/_infra/technical-architecture' },
             { text: 'AI Search', link: '/_infra/ai-search' },
+          ]
+        },
+        {
+          text: 'Links e P\u00e1ginas',
+          collapsed: false,
+          items: [
+            { text: 'Vis\u00e3o Unificada', link: '/_infra/links-e-paginas' },
+            { text: 'Central de Links \u2014 Opera\u00e7\u00e3o', link: '/_infra/projetos/central-de-links/operacao' },
             { text: 'P\u00e1ginas P\u00fablicas', link: '/_infra/public-pages' },
           ]
         },
@@ -213,7 +221,6 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Central de Links (PRD)', link: '/_infra/projetos/central-de-links/prd' },
-            { text: 'Central de Links — operação', link: '/_infra/projetos/central-de-links/operacao' },
           ]
         },
         {
