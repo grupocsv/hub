@@ -4,11 +4,11 @@
 >
 > **Para criar NOVAS páginas públicas, use o Open Pages** (`open.grupocsv.com` — Worker `csv-open-pages` + R2 + KV, com toggle instantâneo ativo/inativo). Três vias de publicação:
 >
-> 1. **Aba "Links Públicos" do `/admin/index.html`:** o botão **"Nova Página"** abre o modal "Publicar Nova Página" (slug, título, descrição, upload de arquivos), que envia os arquivos para a API do Worker (`POST /api/upload`). Há um bloco para `open.grupocsv.com` e outro para `hub.unimedgv.com`.
+> 1. **Item "Páginas Públicas" do `/admin/index.html` (seção "Links e Páginas"; até 30/10/2026, aba "Links Públicos"):** o botão **"Nova Página"** abre o modal "Publicar Nova Página" (slug, título, descrição, upload de arquivos), que envia os arquivos para a API do Worker (`POST /api/upload`). Há um bloco para `open.grupocsv.com` e outro para `hub.unimedgv.com`.
 > 2. **Painel dedicado:** `https://open.grupocsv.com/_admin/` (upload, listagem, toggle ativo/inativo, cópia rápida do link).
 > 3. **Tools MCP do Extensio:** `open_page_publish` (publica ou atualiza uma página a partir do HTML — parâmetros `slug`, `html_content`, `title`, `description`) e `open_page_list` (lista as páginas com slug, título, URL e status).
 >
-> Referência completa da arquitetura: `docs/_infra/public-pages.md`.
+> Referência completa da arquitetura: `docs/_infra/public-pages.md`. Visão unificada de links e páginas (inclui a Central de Links de `csv.online`): `docs/_infra/links-e-paginas.md`.
 
 ## Sincronização com o menu do portal (extras.json)
 
@@ -61,7 +61,7 @@ A pasta `/p/` abriga copias publicas dessas paginas. Cada pagina publica fica em
 |---|---|
 | `/p/registry.json` | Catalogo de todas as paginas publicas (schema abaixo) |
 | `/scripts/public-link-btn.js` | Botao admin-only que exibe link publico nas paginas dos portais |
-| `/admin/index.html` | Aba "Links Publicos" que lista o registry.json |
+| `/admin/index.html` | Item "Paginas Publicas" (secao "Links e Paginas") que lista o registry.json |
 | `/docs/_infra/public-pages.md` | Documentacao completa da infraestrutura |
 
 ---
@@ -200,7 +200,7 @@ Apos o push, aguarde o deploy no GitHub Pages e verifique:
 - `https://hub.grupocsv.com/p/{slug}/` carrega corretamente
 - OpenGraph funciona (testar em https://www.opengraph.xyz/)
 - Hub back button aparece e leva ao hub
-- A pagina aparece na aba "Links Publicos" do admin
+- A pagina aparece no item "Paginas Publicas" (secao "Links e Paginas") do admin
 
 ---
 
