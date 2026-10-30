@@ -52,7 +52,7 @@ async function start(page, options) {
   return state;
 }
 
-test("T20: item na Comunicação e carga apenas quando a aba abre", async ({
+test("T20: item em Links e Páginas e carga apenas quando a aba abre", async ({
   page,
 }) => {
   const state = await mockApi(page);
@@ -65,7 +65,7 @@ test("T20: item na Comunicação e carga apenas quando a aba abre", async ({
   const menuSection = page
     .locator(".sidebar-section")
     .filter({ has: page.locator('[data-tab="central-links"]') });
-  await expect(menuSection).toContainText("Comunicação");
+  await expect(menuSection).toContainText("Links e Páginas");
   await page.locator('.sidebar-item[data-tab="central-links"]').click();
   await expect(root(page)).toBeVisible();
   await expect
@@ -292,7 +292,7 @@ test("valores de administradores permanecem texto e destinos têm proteção de 
   await expect(root(page).locator('img[src="x"]')).toHaveCount(0);
   expect(await page.evaluate(() => window.executouInjecao)).toBeUndefined();
   await expect(root(page)).toContainText(
-    "A revogação desta página é feita em Links Públicos",
+    "A revogação desta página é feita em Páginas Públicas",
   );
   const externalLinks = root(page).locator('a[target="_blank"]');
   for (const link of await externalLinks.all()) {
