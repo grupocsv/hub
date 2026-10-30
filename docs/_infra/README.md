@@ -25,6 +25,7 @@ Estruturas específicas de cada braço do grupo, herdando princípios do núcleo
 - **`/toolkits`**: Ferramentas práticas e templates.
 - **`/ferramentas/compass.md`**: Arquitetura, motor v2, backend, downloads, Admin, release e rollback do Compass™.
 - **`/manuais/nfse-axiacare.md`**: Operação, perfis fiscais, cálculos, segurança, arquitetura e gates da NFS-e AxiaCare v3.
+- **`/links-e-paginas.md`**: Visão unificada da Central de Links (`csv.online`), das Open Pages, do legado `/p/` e dos links de documentos.
 
 ### 4. Compass™
 

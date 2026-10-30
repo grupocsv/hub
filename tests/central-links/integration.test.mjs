@@ -4,11 +4,11 @@ import fs from "node:fs";
 import YAML from "yaml";
 const read = (p) =>
   fs.readFileSync(new URL("../../" + p, import.meta.url), "utf8");
-test("Central de Links integra Comunicação, carrega sob demanda e mantém autenticação do Admin", () => {
+test("Central de Links integra Links e Páginas, carrega sob demanda e mantém autenticação do Admin", () => {
   const html = read("admin/index.html");
   assert.match(
     html,
-    /Comunicação<\/div>\s*<button[^>]+data-tab="central-links"/,
+    /Links e Páginas<\/div>\s*<button[^>]+data-tab="central-links"/,
   );
   assert.match(
     html,

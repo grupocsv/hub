@@ -206,6 +206,7 @@ Aplicações web completas com autenticação, persistência e lógica de negóc
 | `csv-ai` | Assistente de IA contextual | D1, AI Gateway |
 | `csv-email` | Envio de e-mails e persistência de formulários | D1, Resend |
 | `csv-documents` | Control plane documental, versões, links públicos e catálogo Compass™ | D1, R2 privado, Queue/DLQ, `csv-auth` |
+| `csv-links` | Central de Links: links curtos de `csv.online` e API administrativa (repositório `grupocsv/backend`) | D1, KV, `csv-auth` |
 | `tnumm` | WebApp, API e atualização governada do CMM | D1 `tnumm-control`, R2 `tnumm-evidence` |
 | `themis` | WebApp interno para análise documental e processamento durável; piloto limitado a dados sintéticos | Workflow `themis-processing`, R2 `themis-private`, Supabase, Workers AI e AI Gateway `themis-generation` |
 

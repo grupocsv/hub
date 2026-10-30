@@ -251,7 +251,7 @@
         parent.append(
           el(
             "p",
-            "A revogação desta página é feita em Links Públicos",
+            "A revogação desta página é feita em Páginas Públicas",
             "cl-note",
           ),
         );
@@ -646,7 +646,7 @@
         credential.checked = false;
         credential.parentElement.hidden = true;
         pageMessage.textContent = pageWarning(url.value)
-          ? "A revogação desta página é feita em Links Públicos"
+          ? "A revogação desta página é feita em Páginas Públicas"
           : "";
       }
       url.addEventListener("input", invalidate);

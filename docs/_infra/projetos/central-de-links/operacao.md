@@ -9,7 +9,7 @@ head:
 
 # Central de Links — operação
 
-A Central de Links administra os endereços curtos de `csv.online`. No Admin do Hub, abra **Comunicação → Central de Links**. A sessão é a mesma do Admin; as ações disponíveis dependem do papel confirmado pelo servidor.
+A Central de Links administra os endereços curtos de `csv.online`. No Admin do Hub, abra **Links e Páginas → Central de Links**. Desde 30/10/2026, a Central fica nessa seção, ao lado de **Páginas Públicas**; a [visão unificada](/_infra/links-e-paginas) explica quando usar cada recurso. A sessão é a mesma do Admin; as ações disponíveis dependem do papel confirmado pelo servidor.
 
 | Tipo | Quando usar | Quem pode alterar o destino |
 |---|---|---|
@@ -49,6 +49,17 @@ Se outra pessoa publicar enquanto você edita, o painel informa:
 
 Clique em **Recarregar**, confira a versão atual e decida se a alteração ainda deve ser feita. A mesma proteção vale para outras edições do link.
 
+## Atualizar o csv.online/blog depois de um post novo
+
+A publicação de um post não muda o `csv.online/blog`. Depois de publicar o post em grupocsv.com/blog:
+
+1. Abra **Links e Páginas → Central de Links → Rotativos** e, no link `blog`, clique em **Detalhes**.
+2. Escolha **Trocar destino** e selecione o post novo na lista **Post do blog**. A lista vem da API pública do blog, ordenada do mais recente para o mais antigo, e pode levar até um minuto para mostrar um post recém-publicado.
+3. Clique em **Testar destino**, confira o endereço final e publique.
+4. Aguarde o estado **Confirmado**, cerca de 90 segundos depois da publicação. Para conferir de fora, abra `https://csv.online/blog` em uma janela anônima.
+
+Se a troca não for feita, o link continua levando ao post escolhido da última vez, mesmo que haja posts mais recentes.
+
 ## Acompanhar a propagação
 
 Após uma publicação, o link aparece **Em propagação**. Durante cerca de 90 segundos, alguns acessos ainda podem chegar ao destino anterior, conforme a região da rede.
@@ -80,7 +91,7 @@ Informe o novo destino, escreva um motivo com pelo menos 10 caracteres e digite 
 
 A exclusão libera o nome curto imediatamente. Um novo link com esse nome começa com histórico e métricas próprios; os registros do link excluído continuam consultáveis em **Histórico e Métricas**. Confira materiais e QR Codes já distribuídos antes de reutilizar o nome, pois eles também apontarão para o novo link.
 
-Quando o destino for uma Open Page ou uma página pública do Hub, o painel mostra: **A revogação desta página é feita em Links Públicos**. Desativar ou excluir o link curto não revoga a página de destino. Se a página for revogada em **Links Públicos**, o teste diário poderá marcar o link curto como **Destino com falha**.
+Quando o destino for uma Open Page ou uma página pública do Hub, o painel mostra: **A revogação desta página é feita em Páginas Públicas**. Desativar ou excluir o link curto não revoga a página de destino. Se a página for revogada em **Links Públicos**, o teste diário poderá marcar o link curto como **Destino com falha**.
 
 ## Gerar um QR Code
 
