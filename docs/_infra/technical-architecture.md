@@ -938,10 +938,10 @@ para a infraestrutura do Hub estão listados abaixo.
 <td>Worker csv-webhook</td>
 </tr>
 <tr>
-<td><code>csv.online</code> e <code>www.csv.online</code></td>
+<td><code>csv.online</code>, <code>www.csv.online</code> e <code>pre.csv.online</code></td>
 <td>AAAA</td>
 <td>100::</td>
-<td>Links curtos (rotas do Worker csv-links)</td>
+<td>Links curtos (rotas do Worker csv-links). <code>pre.csv.online</code> serviu à validação antes da virada; a remoção do registro e da rota está prevista a partir de 01/11/2026, com aprovação (PRD, seção 16.3)</td>
 </tr>
 <tr>
 <td><code>links-api.grupocsv.com</code></td>

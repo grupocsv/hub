@@ -112,14 +112,14 @@ Anteriormente, as páginas públicas eram armazenadas no diretório `/p/` do rep
 
 Páginas legadas (como o `tea-dataset`) foram migradas para o R2. O diretório `/p/` no repositório `grupocsv/hub` pode ser mantido temporariamente para fins de histórico ou redirecionamento (301), mas novas publicações devem ser feitas exclusivamente via Open Pages — por qualquer das três vias da seção anterior: item **Páginas Públicas** do `/admin/` (seção Links e Páginas), painel `open.grupocsv.com/_admin/` ou tools MCP do Extensio.
 
-**Situação verificada em 30/10/2026:** o `p/registry.json` publicado lista duas páginas, ambas ativas: `tea-dataset` (15/02/2026) e `painel-tea` (11/07/2026, criada depois da migração). A orientação para páginas novas continua sendo Open Pages; a situação oficial do `/p/`, se ainda aceita páginas ou fica congelado, aguarda decisão.
+**Situação verificada em 30/10/2026:** o `p/registry.json` publicado lista duas páginas, ambas ativas: `tea-dataset` (15/02/2026) e `painel-tea` (11/07/2026, criada depois da migração). O `tea-dataset` responde nos dois endereços, `open.grupocsv.com/tea-dataset/` e `hub.grupocsv.com/p/tea-dataset/`. A orientação para páginas novas continua sendo Open Pages; a situação oficial do `/p/`, se ainda aceita páginas ou fica congelado, aguarda decisão.
 
 ### 5. Relação com a Central de Links
 A Central de Links não hospeda páginas: ela cria endereços curtos em `csv.online` que levam a um endereço já publicado, inclusive Open Pages e páginas `/p/`.
 
 - Quando o destino de um link curto é uma página desta área, a Central mostra o aviso **A revogação desta página é feita em Páginas Públicas**.
 - Revogar a página não apaga o link curto, e desativar o link curto não revoga a página. Ao revogar uma página que tenha link curto, revise o link na Central.
-- No topo de Páginas Públicas, o botão **Abrir Central de Links** leva à Central sem chamar nenhuma API.
+- No topo de Páginas Públicas, o botão **Abrir Central de Links** leva à Central; ele só aciona o item do menu e não faz chamada própria.
 
 ---
 
