@@ -61,7 +61,7 @@ A pasta `/p/` abriga copias publicas dessas paginas. Cada pagina publica fica em
 |---|---|
 | `/p/registry.json` | Catalogo de todas as paginas publicas (schema abaixo) |
 | `/scripts/public-link-btn.js` | Botao admin-only que exibe link publico nas paginas dos portais |
-| `/admin/index.html` | Item "Paginas Publicas" (secao "Links e Paginas") que lista o registry.json |
+| `/admin/index.html` | Item "Páginas Públicas" (seção "Links e Páginas") que lista o registry.json |
 | `/docs/_infra/public-pages.md` | Documentacao completa da infraestrutura |
 
 ---
@@ -200,7 +200,7 @@ Apos o push, aguarde o deploy no GitHub Pages e verifique:
 - `https://hub.grupocsv.com/p/{slug}/` carrega corretamente
 - OpenGraph funciona (testar em https://www.opengraph.xyz/)
 - Hub back button aparece e leva ao hub
-- A pagina aparece no item "Paginas Publicas" (secao "Links e Paginas") do admin
+- A pagina aparece no item "Páginas Públicas" (seção "Links e Páginas") do Admin
 
 ---
 

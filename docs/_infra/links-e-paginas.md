@@ -43,7 +43,7 @@ O card **Páginas Públicas** da Visão Geral do Admin soma as páginas ativas d
 
 - Um link curto pode ter como destino uma Open Page ou uma página `/p/`. Nesse caso, a Central mostra o aviso **A revogação desta página é feita em Páginas Públicas**.
 - Desativar ou excluir o link curto não tira a página do ar. Revogar a página não apaga o link curto: ele continua existindo e passa a levar a uma página indisponível. Ao revogar uma página que tenha link curto, revise o link na Central.
-- No topo de Páginas Públicas, o botão **Abrir Central de Links** leva direto à Central. Ele apenas aciona o item do menu; não chama nenhuma API.
+- No topo de Páginas Públicas, o botão **Abrir Central de Links** leva direto à Central. Ele apenas aciona o item do menu e não faz chamada própria; ao abrir, a Central carrega seus dados como faria pelo menu.
 - "Links Públicos" da Central de Documentos é outro mecanismo: links de compartilhamento de arquivos, com regras próprias de acesso, descritos no [manual da Central](/_infra/manuais/central-documentos#links-publicos).
 
 ## csv.online/blog: Como o Destino Muda

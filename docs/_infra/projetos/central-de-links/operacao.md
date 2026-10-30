@@ -91,7 +91,7 @@ Informe o novo destino, escreva um motivo com pelo menos 10 caracteres e digite 
 
 A exclusão libera o nome curto imediatamente. Um novo link com esse nome começa com histórico e métricas próprios; os registros do link excluído continuam consultáveis em **Histórico e Métricas**. Confira materiais e QR Codes já distribuídos antes de reutilizar o nome, pois eles também apontarão para o novo link.
 
-Quando o destino for uma Open Page ou uma página pública do Hub, o painel mostra: **A revogação desta página é feita em Páginas Públicas**. Desativar ou excluir o link curto não revoga a página de destino. Se a página for revogada em **Links Públicos**, o teste diário poderá marcar o link curto como **Destino com falha**.
+Quando o destino for uma Open Page ou uma página pública do Hub, o painel mostra: **A revogação desta página é feita em Páginas Públicas**. Desativar ou excluir o link curto não revoga a página de destino. Se a página for revogada em **Páginas Públicas**, o teste diário poderá marcar o link curto como **Destino com falha**.
 
 ## Gerar um QR Code
 
