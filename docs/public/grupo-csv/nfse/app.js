@@ -55,18 +55,18 @@ async function api(path, { body, key, signal } = {}) {
     throw error;
   } finally {clearTimeout(timer);}
 }
-function clearData(){state.meta=null;state.overview=null;state.companies=[];state.requests=[];state.calendar=[];state.operations=[];state.documents=[];state.events=[];state.clients=[];state.occurrences=[];state.selectedOccurrences.clear();state.selectedRequests.clear();state.cursors={};state.form=null;state.formKey=null;$('editor').close();$('editor-fields').replaceChildren();}
+function clearData(){state.meta=null;state.overview=null;state.companies=[];state.requests=[];state.calendar=[];state.operations=[];state.documents=[];state.events=[];state.clients=[];state.occurrences=[];state.selectedOccurrences.clear();state.selectedRequests.clear();state.cursors={};state.form=null;state.formKey=null;$('content').inert=false;$('editor').close();$('editor-fields').replaceChildren();}
 function expireSession(){state.valid=false;state.generation++;state.loading=false;clearData();$('prepare').disabled=true;$('company-filter').disabled=true;$('refresh').disabled=true;$('content').setAttribute('aria-busy','false');render();}
 async function load() {
   if(!state.valid)return;
-  const generation=++state.generation;state.loading=true;note('Atualizando informações…');$('content').setAttribute('aria-busy','true');$('refresh').disabled=true;
+  const generation=++state.generation;state.loading=true;note('Atualizando informações…');$('content').inert=true;$('content').setAttribute('aria-busy','true');$('refresh').disabled=true;
   const q=state.company?`?company_id=${encodeURIComponent(state.company)}`:'';
   const names=['meta','companies','overview','requests','calendar','operations','documents','events','clients','occurrences'];
   const paths=['/v2/meta','/v2/companies','/v2/overview'+q,listPath('requests','/v2/requests'),'/v2/calendar-rules'+q,'/v2/operations'+q,listPath('documents','/v2/documents'),'/v2/events'+q,'/v2/clients',listPath('occurrences','/v2/calendar-occurrences')];
   const results=await Promise.allSettled(paths.map(path=>api(path)));
   if(generation!==state.generation)return;
   const failed=results.find(x=>x.status==='rejected');
-  state.loading=false;$('refresh').disabled=false;$('content').setAttribute('aria-busy','false');
+  state.loading=false;$('refresh').disabled=false;$('content').inert=false;$('content').setAttribute('aria-busy','false');
   if(failed){clearData();note(failed.reason?.message??'Não foi possível atualizar os dados.',true);render();return;}
   results.forEach((result,i)=>{state[names[i]]=result.value.data;state.cursors[names[i]]=result.value.meta?.next_cursor??null;});
   const select=$('company-filter');select.replaceChildren(new Option('Todas as empresas',''));
