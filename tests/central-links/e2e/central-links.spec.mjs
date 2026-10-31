@@ -747,7 +747,7 @@ test("listas paginam em 25 itens e enviam busca, etiqueta, situação e ordenaç
   });
 });
 
-test("regra provisória 302 usa fallback de versão e mostra aviso explícito", async ({
+test("regra provisória 302 mostra aviso explícito e não confirma sem a versão pública", async ({
   page,
 }) => {
   const state = await start(page, { provisional: true });
@@ -755,9 +755,11 @@ test("regra provisória 302 usa fallback de versão e mostra aviso explícito", 
   await expect(root(page)).toContainText(
     "A regra provisória ainda responde em csv.online",
   );
-  await expect(root(page)).toContainText("Confirmado");
+  await expect(root(page)).toContainText("Propagação não confirmada");
   expect(state.external).toContain("https://csv.online/_csv/v/blog");
-  expect(state.external).toContain("https://pre.csv.online/_csv/v/blog");
+  expect(
+    state.external.some((url) => new URL(url).hostname === "pre.csv.online"),
+  ).toBe(false);
 });
 
 test("alerta de credencial no destino exige reconhecimento antes de publicar", async ({

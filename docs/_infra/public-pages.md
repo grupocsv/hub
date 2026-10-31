@@ -72,7 +72,8 @@ O Hub Grupo CSV possui uma infraestrutura independente para publicação rápida
 - **Estado:** Cloudflare KV (Namespace `hub-unimedgv-kv`)
 - **Roteamento:** Cloudflare Worker (`hub-unimedgv`)
 - **Domínio:** `hub.unimedgv.com`
-- **Repositório:** a confirmar. O repositório citado anteriormente, `grupocsv/hub-unimedgv`, não foi encontrado no GitHub em 27/10/2026.
+- **Repositório:** não há repositório próprio; `grupocsv/hub-unimedgv` não existe. O código em produção está versionado em `grupocsv/hub`, pasta `scripts/hub-tea/acesso-institucional/`: `production/hub-unimedgv-20260921.mjs` é a captura da versão ativa em 21/09/2026 e `worker.mjs` é a extensão mínima publicada sobre ela. Em 30/10/2026, os dois arquivos conferiram com o código implantado. O código anterior à captura não está no Git. A publicação de conteúdo segue o `README.md` dessa pasta.
+- **Páginas públicas em 30/10/2026** (`/api/public-list`): `cuidado-coordenado` (Coordenação do Cuidado) e `tea` (Caminhos Brilhantes).
 
 ---
 
@@ -195,7 +196,7 @@ Os menus dos portais **Unimed, Unihealth, ICDS e 2iM** são gerados automaticame
 | Item | Tipo | Descrição |
 |---|---|---|
 | `grupocsv/csv-open-pages` | Repositório | Código-fonte do Worker e do painel admin (open.grupocsv.com) |
-| `grupocsv/hub-unimedgv` | Repositório (a confirmar) | Citado como origem do Worker de hub.unimedgv.com; não encontrado no GitHub em 27/10/2026 |
+| `grupocsv/hub` → `scripts/hub-tea/acesso-institucional/` | Repositório | Código em produção do Worker de hub.unimedgv.com (conferido em 30/10/2026); não existe repositório `grupocsv/hub-unimedgv` |
 | `csv-open-pages` | CF Worker | Roteamento, API, Auth Gate e bloqueio na borda |
 | `csv-open-auth` | CF Worker | Validação de credenciais do Auth Gate |
 | `hub-unimedgv` | CF Worker | Roteamento e injeção de `<head>` para Unimed GV |
