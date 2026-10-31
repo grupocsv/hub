@@ -4,6 +4,7 @@ docs/.vitepress/dist/
 .DS_Store
 *.log
 *.local
+test-results/
 __pycache__/
 
 # dados sensíveis TEA — o bruto JAMAIS entra no repo (PRD painel-tea-v2 §6.1)

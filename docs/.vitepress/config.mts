@@ -84,6 +84,7 @@ export default defineConfig({
           { text: 'Compliance', link: '/compliance/' },
           { text: 'Infraestrutura', link: '/_infra/' },
           { text: 'Fundador', link: '/founder/' },
+          { text: 'NFS-e Grupo CSV', link: '/grupo-csv/nfse/' },
         ]
       },
     ],
@@ -179,6 +180,7 @@ export default defineConfig({
             { text: 'Central de Documentos', link: '/_infra/manuais/central-documentos' },
             { text: 'Panta v2', link: '/_infra/manuais/panta-v2' },
             { text: 'NFS-e AxiaCare', link: '/_infra/manuais/nfse-axiacare' },
+            { text: 'NFS-e Grupo CSV', link: '/_infra/manuais/nfse-grupo-csv' },
           ]
         },
         {

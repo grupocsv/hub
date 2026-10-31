@@ -230,6 +230,7 @@ Copiar página
 <a class="resource-btn" href="/_infra/ferramentas/panta-v2">Panta v2 documental</a>
 <a class="resource-btn dark-btn" href="/_infra/central-documentos">Central de Documentos</a>
 <a class="resource-btn axia" href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>
+<a class="resource-btn" href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV — construção</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
 <p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a> e <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
