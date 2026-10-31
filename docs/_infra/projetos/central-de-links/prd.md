@@ -523,6 +523,7 @@ Condição prévia: o card genérico está publicado no bucket (seção 12.1) e 
 5. Desativar as duas Redirect Rules provisórias (`enabled: false`), sem apagá-las. Como elas rodam antes dos Workers, só então o csv-links passa a responder em `csv.online` e `www.csv.online`.
 6. Repetir os testes da seção 17.2 em `csv.online` e `www.csv.online`, por http e https e com `utm_`.
 7. Depois de 7 dias sem incidente, apagar as regras provisórias e o registro `pre.csv.online`, e retirar a rota `pre.csv.online/*` num release.
+   Execução em 31/10/2026, com aprovação do Guilherme: registro `pre.csv.online` e rota `pre.csv.online/*` apagados na Cloudflare, e o host retirado do código do `csv-links` (backend, PR #104). As duas regras provisórias continuam desativadas, sem exclusão, como caminho de reversão.
 
 ### 16.4 Rollback
 

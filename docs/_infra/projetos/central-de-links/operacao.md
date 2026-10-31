@@ -51,7 +51,12 @@ Clique em **Recarregar**, confira a versão atual e decida se a alteração aind
 
 ## Atualizar o csv.online/blog depois de um post novo
 
-A publicação de um post não muda o `csv.online/blog`. Depois de publicar o post em grupocsv.com/blog:
+A publicação de um post não muda o `csv.online/blog`. O caminho mais curto é o botão da aba do blog:
+
+1. Abra **Conteúdo → Blog grupocsv.com**. O cartão **Link csv.online/blog**, acima do painel do blog, mostra o destino atual, o post publicado mais recente e a situação (**Em dia** ou **Desatualizado**).
+2. Se estiver desatualizado, clique em **Apontar para o último post**, confira o post na confirmação e confirme. O cartão usa a mesma troca de destino da Central, com teste do destino, e acompanha a propagação até **Confirmado** (no mínimo 90 segundos). Se a confirmação não vier em 5 minutos, siga a seção Acompanhar a propagação.
+
+Para escolher um post que não seja o mais recente, use a Central:
 
 1. Abra **Links e Páginas → Central de Links → Rotativos** e, no link `blog`, clique em **Detalhes**.
 2. Escolha **Trocar destino** e selecione o post novo na lista **Post do blog**. A lista vem da API pública do blog, ordenada do mais recente para o mais antigo, e pode levar até um minuto para mostrar um post recém-publicado.

@@ -48,9 +48,17 @@ O card **Páginas Públicas** da Visão Geral do Admin soma as páginas ativas d
 
 ## csv.online/blog: Como o Destino Muda
 
-O `blog` é um link rotativo com troca manual. A publicação de um post novo em grupocsv.com/blog não altera o destino: alguém precisa escolher o post em **Detalhes → Trocar destino**, testar e publicar. Essa foi a decisão P4 do PRD, que deixou a troca automática para o último post fora do escopo da primeira versão. O passo a passo está em [Central de Links — operação](/_infra/projetos/central-de-links/operacao#atualizar-o-csv-online-blog-depois-de-um-post-novo).
+O `blog` é um link rotativo com troca manual. A publicação de um post novo em grupocsv.com/blog não altera o destino: alguém precisa pedir a troca. Essa foi a decisão P4 do PRD, que deixou a troca automática para o último post fora do escopo da primeira versão.
 
-Qualquer automação dessa troca exige uma decisão nova e mudança no Worker `csv-links`; ela não faz parte da organização desta página.
+Desde 31/10/2026 há três caminhos para a troca, todos sob demanda e pela mesma API da Central, com teste do destino e registro da versão no histórico:
+
+| Caminho | Onde | O que faz |
+|---|---|---|
+| Botão **Apontar para o último post** | Admin → Conteúdo → Blog grupocsv.com, cartão **Link csv.online/blog** | Mostra para onde o link aponta, se está em dia e, com confirmação, aponta para o post publicado mais recente |
+| Troca manual | Admin → Links e Páginas → Central de Links → Rotativos → `blog` → **Detalhes → Trocar destino** | Permite escolher qualquer post publicado |
+| Skill `csv-online-blog` | Usada pelos agentes, a pedido | Mesmo efeito do botão; a skill do blog pergunta ao final de cada publicação se a troca deve ser feita |
+
+Nenhum dos caminhos roda sozinho. Uma troca automática, sem pedido, continua fora do escopo e exigiria decisão nova. O passo a passo está em [Central de Links — operação](/_infra/projetos/central-de-links/operacao#atualizar-o-csv-online-blog-depois-de-um-post-novo).
 
 ## Quem Publica por Fora do Admin
 
@@ -67,8 +75,8 @@ Em 30/10/2026, o `p/registry.json` publicado lista duas páginas, ambas ativas: 
 
 | Pendência | Situação |
 |---|---|
-| Código-fonte do Worker `hub-unimedgv` | O repositório citado na documentação (`grupocsv/hub-unimedgv`) não foi encontrado no GitHub em 27/10/2026. Origem a confirmar. |
-| Limpeza do redirecionamento provisório de `csv.online` | Prevista no PRD para depois de 01/11/2026. Mexe em configuração de produção e depende de aprovação própria. |
+| Código-fonte do Worker `hub-unimedgv` | Esclarecida em 30/10/2026: não existe repositório próprio. O código em produção está em `grupocsv/hub`, pasta `scripts/hub-tea/acesso-institucional/` (`worker.mjs` e `production/hub-unimedgv-20260921.mjs`), e conferiu com o código implantado. O código anterior à captura de 21/09/2026 não está no Git. Detalhes em [Páginas Públicas](/_infra/public-pages). |
+| Limpeza do redirecionamento provisório de `csv.online` | Em 31/10/2026, com aprovação do Guilherme, o endereço de validação `pre.csv.online` foi removido (registro DNS e rota do Worker) e saiu do código do `csv-links`. As duas regras provisórias de redirecionamento seguem desativadas, sem exclusão, como caminho de reversão. |
 | csv.email | Em standby, sem ação prevista. |
 
 ## Documentos Relacionados
