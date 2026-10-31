@@ -88,6 +88,9 @@ jobs:
       - name: Test Hub Documentos contracts
         run: npm run documentos:test
 
+      - name: Testar contratos fiscais
+        run: npm run nfse:test
+
       - name: Testar contratos da Central de Links
         run: npm run central-links:test
       - name: Testar contratos da Central de Assets
@@ -234,6 +237,10 @@ jobs:
             manifest.json \
             scripts/hub-auth.js \
             scripts/hub-auth.css \
+            grupo-csv/nfse/index.html \
+            grupo-csv/nfse/app.js \
+            grupo-csv/nfse/model.js \
+            grupo-csv/nfse/style.css \
             admin/index.html \
             admin/central-links.js \
             admin/central-links-sections.js \
@@ -383,6 +390,11 @@ jobs:
             echo "Smoke test FALHOU: artefato incompleto — deploy abortado."
             exit 1
           fi
+
+      - name: Testar aplicativo fiscal publicado no Chromium
+        env:
+          NFSE_PUBLIC_ROOT: docs/.vitepress/dist
+        run: npm run nfse:e2e
 
       - name: Validate published Terapias Especiais artifact
         run: python3 scripts/check-tea-artifacts.py --root docs/.vitepress/dist
