@@ -187,7 +187,8 @@ title: Infraestrutura — Índice Canônico
       Consolida os componentes verificados e aponta para as páginas técnicas que registram contratos,
       estado de entrega e fontes primárias. Não substitui a verificação do runtime antes de uma operação.
 </p>
-<p class="version" id="page-version">Atualizada em 7 de outubro de 2026 — NFS-e AxiaCare v3.2 com emissão controlada em produção</p>
+<p class="version" id="page-version">Base histórica do inventário: 7 de outubro de 2026 — NFS-e AxiaCare v3.2 com emissão controlada em produção</p>
+<p class="section-desc"><strong>Atualização Fiscal de 31 de Outubro de 2026:</strong> API NFS-e 4.0.0, autenticação 4.2.0, MCP e emissor privado publicados; migrações fiscais <code>0004</code> a <code>0009</code> aplicadas. A emissão v2 permanece desabilitada, com AxiaCare, TheraTech e MedValor em <code>pending_configuration</code>. Legado preservado e nenhuma operação fiscal real realizada nesta publicação. A nova <a href="https://hub.grupocsv.com/grupo-csv/nfse/">área NFS-e Grupo CSV</a> foi publicada no GitHub Pages e teve seus arquivos conferidos; o <a href="https://nfse-mcp.grupocsv.com/mcp">endpoint MCP</a> está publicado. Consulte o <a href="/_infra/manuais/nfse-grupo-csv">manual e as condições de ativação</a>. Esta nota atualiza somente a frente fiscal.</p>
 </div>
 
 <div class="copy-bar">
@@ -215,6 +216,7 @@ Copiar página
 <tr><td><strong>Panta v2 documental</strong></td><td>Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub</td><td><a href="/_infra/ferramentas/panta-v2">Guia da pesquisa documental</a></td><td>VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents</td></tr>
 <tr><td><strong>Central de Documentos</strong></td><td>Catálogo documental privado e multi-tenant</td><td><a href="https://hub.grupocsv.com/documentos/?portal=grupo-csv">hub.grupocsv.com/documentos/</a></td><td>GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue</td></tr>
 <tr><td><strong>NFS-e AxiaCare</strong></td><td>Emissão controlada de NFS-e com prévia oficial, aprovação pelo valor líquido, DANFSe NT 008/2026 e integração de agentes</td><td><a href="https://hub.grupocsv.com/axia/nota-fiscal.html">hub.grupocsv.com/axia/nota-fiscal.html</a></td><td>GitHub Pages + Worker nfse-api + D1 csv-hub + R2 privado + emissor privado na VPS-CSV</td></tr>
+<tr><td><strong>NFS-e Grupo CSV</strong></td><td>Área multiempresa publicada; emissão v2 desabilitada e legado preservado</td><td><a href="https://hub.grupocsv.com/grupo-csv/nfse/">hub.grupocsv.com/grupo-csv/nfse/</a><br><a href="https://nfse-mcp.grupocsv.com/mcp">nfse-mcp.grupocsv.com/mcp</a></td><td>GitHub Pages, API privada, MCP e emissor privado</td></tr>
 <tr><td><strong>Discovery™</strong></td><td>Diagnóstico estratégico para OPSS</td><td><a href="https://discovery.axcare.app">discovery.axcare.app</a></td><td>Manus (React + TS + Tailwind)</td></tr>
 </tbody>
 </table>
@@ -230,10 +232,10 @@ Copiar página
 <a class="resource-btn" href="/_infra/ferramentas/panta-v2">Panta v2 documental</a>
 <a class="resource-btn dark-btn" href="/_infra/central-documentos">Central de Documentos</a>
 <a class="resource-btn axia" href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>
-<a class="resource-btn" href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV — construção</a>
+<a class="resource-btn" href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV — Estado de Ativação</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
-<p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a> e <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
+<p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a>, <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a> e <a href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
 </div>
 
 <!-- 2. BACKEND SERVERLESS -->
@@ -316,7 +318,7 @@ Copiar página
 <tr><td><code>drg-data-proxy</code></td><td>drg-data-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de dados DRG Brasil</td></tr>
 <tr><td><code>drg-ai-proxy</code></td><td>drg-ai-proxy.guilherme-thom.workers.dev</td><td>Secrets</td><td>Proxy de IA para DRG</td></tr>
 <tr><td><code>spectra-api</code></td><td>spectra-api.guilherme-thom.workers.dev</td><td>D1: spectra-db, KV: spectra-sessions, KV: spectra-config, R2: spectra-assets, R2: spectra-knowledge</td><td>API Principal Spectra</td></tr>
-<tr><td><code>nfse-api</code></td><td>api.grupocsv.com/nfse/*</td><td>Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs</td><td>Emissão controlada da NFS-e AxiaCare: perfis, simulações, solicitações, aprovações, emissão, DANFSe e chaves de agentes; cancelamento desabilitado</td></tr>
+<tr><td><code>nfse-api</code></td><td>api.grupocsv.com/nfse/*</td><td>Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs</td><td>API NFS-e 4.0.0: legado AxiaCare preservado e plataforma multiempresa publicada, com emissão v2 desabilitada; cancelamento desabilitado e substituição indisponível</td></tr>
 </tbody>
 </table>
 
@@ -458,7 +460,7 @@ Copiar página
 <tbody>
 <tr><td>hub.grupocsv.com</td><td>grupocsv.github.io</td><td>Hub principal (GitHub Pages)</td></tr>
 <tr><td>api.grupocsv.com</td><td>Worker csv-gateway</td><td>API gateway</td></tr>
-<tr><td>api.grupocsv.com/nfse/*</td><td>Worker nfse-api</td><td>API privada da NFS-e AxiaCare; somente o health check é público</td></tr>
+<tr><td>api.grupocsv.com/nfse/*</td><td>Worker nfse-api</td><td>API privada de NFS-e, com legado AxiaCare preservado e v2 desabilitada; somente o health check geral é público</td></tr>
 <tr><td>mail-api.grupocsv.com</td><td>Worker csv-mail</td><td>E-mail agêntico</td></tr>
 <tr><td>webhook.grupocsv.com</td><td>Worker whatsapp-webhook</td><td>Webhook WhatsApp</td></tr>
 <tr><td>open.grupocsv.com</td><td>Worker csv-open-pages</td><td>Páginas públicas</td></tr>
@@ -711,7 +713,9 @@ onMounted(() => {
   btn.addEventListener('click', () => {
   const md = `# Infraestrutura do Ecossistema Grupo CSV
 
-Índice canônico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primárias; não substitui a verificação do runtime. Atualizada em 7 de outubro de 2026 — NFS-e AxiaCare v3.2 com emissão controlada em produção.
+Índice canônico da infraestrutura documentada do Grupo CSV. Consolida componentes verificados e suas fontes primárias; não substitui a verificação do runtime. Base histórica do inventário: 7 de outubro de 2026 — NFS-e AxiaCare v3.2 com emissão controlada em produção.
+
+Atualização Fiscal de 31 de Outubro de 2026: API NFS-e 4.0.0, autenticação 4.2.0, MCP e emissor privado publicados; migrações fiscais 0004 a 0009 aplicadas. Emissão v2 desabilitada, AxiaCare, TheraTech e MedValor em pending_configuration, legado preservado e nenhuma operação fiscal real nesta publicação. A nova [área NFS-e Grupo CSV](https://hub.grupocsv.com/grupo-csv/nfse/) foi publicada no GitHub Pages e teve seus arquivos conferidos; o [endpoint MCP](https://nfse-mcp.grupocsv.com/mcp) está publicado. Consulte o [manual e as condições de ativação](/_infra/manuais/nfse-grupo-csv). Esta nota atualiza somente a frente fiscal.
 
 ---
 
@@ -730,9 +734,10 @@ onMounted(() => {
 | Panta v2 documental | Pesquisa textual autorizada da Central; API/MCP validados, busca habilitada nesta versão do Hub | /_infra/ferramentas/panta-v2 | VPS-CSV, Docker isolado e SQLite privado; acesso interno pelo csv-documents |
 | Central de Documentos | Catalogo documental privado e multi-tenant | hub.grupocsv.com/documentos/ | GitHub Pages + Cloudflare Worker, D1, R2 privado e Queue |
 | NFS-e AxiaCare | Emissao controlada de NFS-e com previa oficial, aprovacao pelo valor liquido, DANFSe NT 008/2026 e integracao de agentes | hub.grupocsv.com/axia/nota-fiscal.html | GitHub Pages + Worker nfse-api + D1 csv-hub + R2 privado + emissor privado na VPS-CSV |
+| NFS-e Grupo CSV | Área multiempresa publicada; emissão v2 desabilitada e legado preservado | https://hub.grupocsv.com/grupo-csv/nfse/ e https://nfse-mcp.grupocsv.com/mcp | GitHub Pages, API privada, MCP e emissor privado |
 | Discovery™ | Diagnostico estrategico para OPSS | discovery.axcare.app | Manus (React + TS + Tailwind) |
 
-Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos), [Panta v2](/_infra/manuais/panta-v2) e [NFS-e AxiaCare](/_infra/manuais/nfse-axiacare). O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.
+Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos), [Panta v2](/_infra/manuais/panta-v2), [NFS-e AxiaCare](/_infra/manuais/nfse-axiacare) e [NFS-e Grupo CSV](/_infra/manuais/nfse-grupo-csv). O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.
 
 ---
 
@@ -793,7 +798,7 @@ Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos
 
 | Worker | Rota / Dominio | Bindings | Funcao |
 |---|---|---|---|
-| nfse-api | api.grupocsv.com/nfse/* | Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs | Emissao controlada da NFS-e AxiaCare: perfis, simulacoes, solicitacoes, aprovacoes, emissao, DANFSe e chaves de agentes; cancelamento desabilitado |
+| nfse-api | api.grupocsv.com/nfse/* | Service Binding: csv-auth; D1: csv-hub; R2: nfse-pdfs | API NFS-e 4.0.0: legado AxiaCare preservado e plataforma multiempresa publicada, com emissão v2 desabilitada; cancelamento desabilitado e substituição indisponível |
 
 ---
 
@@ -876,7 +881,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 |---|---|---|
 | hub.grupocsv.com | grupocsv.github.io | Hub principal (GitHub Pages) |
 | api.grupocsv.com | Worker csv-gateway | API gateway |
-| api.grupocsv.com/nfse/* | Worker nfse-api | API privada da NFS-e AxiaCare; somente o health check e publico |
+| api.grupocsv.com/nfse/* | Worker nfse-api | API privada de NFS-e, com legado AxiaCare preservado e v2 desabilitada; somente o health check geral é público |
 | mail-api.grupocsv.com | Worker csv-mail | E-mail agentico |
 | webhook.grupocsv.com | Worker whatsapp-webhook | Webhook WhatsApp |
 | open.grupocsv.com | Worker csv-open-pages | Paginas publicas |

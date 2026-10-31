@@ -5,6 +5,8 @@ title: Manual da NFS-e AxiaCare
 
 # Manual da NFS-e AxiaCare
 
+> Atualização de 31/10/2026: este manual descreve o caminho legado. A [nova área NFS-e Grupo CSV](/_infra/manuais/nfse-grupo-csv) foi publicada com emissão v2 desabilitada. O contrato legado NT004 encerra novas transmissões em 01/12/2026, às 00h de São Paulo; consultas e conciliação de resultados existentes são preservadas. NT009 exige validação e homologação próprias.
+
 - **Versão operacional:** 3.2.0
 - **Estado:** Emissão controlada em produção
 - **Atualização:** 7 de outubro de 2026
