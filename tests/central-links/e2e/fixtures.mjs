@@ -162,7 +162,7 @@ export async function mockApi(page, options = {}) {
       return route.continue();
     }
     state.external.push(url.origin + url.pathname);
-    if (url.hostname === "csv.online" || url.hostname === "pre.csv.online") {
+    if (url.hostname === "csv.online") {
       if (url.pathname === "/_csv/health")
         return state.healthFailure
           ? route.abort("failed")
