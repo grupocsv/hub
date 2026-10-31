@@ -355,10 +355,45 @@ test('filtra solicitações e acervo no servidor e mostra linha do tempo da nota
   f.state.fiscalRequests.push(f.state.makeRequest('one',{company_id:'axiacare',profile_id:'synthetic',gross_amount_cents:10000,competence:'2026-10',competence_date:'2026-10-31'}));
   f.state.documents.push({document_id:'doc-timeline',company_id:'axiacare',access_key:'7'.repeat(50),status:'cancelled',competence:'2026-10-31',issuer_document:'12345678000195',customer_document:'11222333000181',gross_amount_cents:10000,net_amount_cents:9900,artifacts:[],timeline:[{event_type:'cancelled',created_at:'2026-10-31T15:00:00Z',message:'Evento oficial recebido'}]});
   await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.locator('[data-view="requests"]').click();
+  await f.page.waitForFunction(()=>document.getElementById('content').getAttribute('aria-busy')==='false');
+  const requestsResponse=f.page.waitForResponse(response=>{const url=new URL(response.url());return url.pathname==='/nfse/v2/requests'&&url.searchParams.get('status')==='prepared'&&url.searchParams.get('competence')==='2026-10';});
   const requests=f.page.getByRole('form',{name:'Filtros de solicitações'});await requests.getByLabel('Situação',{exact:true}).selectOption('prepared');await requests.getByLabel('Competência do filtro').fill('2026-10');await requests.getByRole('button',{name:'Aplicar filtros'}).click();
+  assert.equal((await requestsResponse).status(),200);await f.page.waitForFunction(()=>document.getElementById('content').getAttribute('aria-busy')==='false');
   await f.page.getByRole('button',{name:'Conferir',exact:true}).waitFor();assert.ok(f.state.gets.some(path=>path.includes('/requests?')&&path.includes('status=prepared')&&path.includes('competence=2026-10')));
+  const archiveResponse=f.page.waitForResponse(response=>{const url=new URL(response.url());return url.pathname==='/nfse/v2/documents'&&url.searchParams.get('customer_document')==='11222333000181'&&url.searchParams.get('access_key')==='7'.repeat(50)&&url.searchParams.get('issued_from')==='2026-10-01'&&url.searchParams.get('issued_to')==='2026-10-31';});
   const archive=f.page.getByRole('form',{name:'Filtros do acervo'});await archive.getByLabel('Emitida a partir de').fill('2026-10-01');await archive.getByLabel('Emitida até').fill('2026-10-31');await archive.getByLabel('CNPJ ou CPF do tomador').fill('11.222.333/0001-81');await archive.getByLabel('Chave de acesso').fill('7'.repeat(50));await archive.getByRole('button',{name:'Aplicar filtros'}).click();
+  assert.equal((await archiveResponse).status(),200);await f.page.waitForFunction(()=>document.getElementById('content').getAttribute('aria-busy')==='false');
   await f.page.getByRole('button',{name:'Abrir nota',exact:true}).click();await f.page.getByRole('heading',{name:'Linha do tempo',exact:true}).waitFor();await f.page.getByText('Cancelamento registrado',{exact:true}).waitFor();
   assert.ok(f.state.gets.some(path=>path.includes('/documents?')&&path.includes('customer_document=11222333000181')&&path.includes('access_key='+'7'.repeat(50))&&path.includes('issued_from=2026-10-01')&&path.includes('issued_to=2026-10-31')));assert.deepEqual(f.errors,[]);
  }finally{await f.context.close();}
+});
+
+test('atualização retida impede editar filtros antigos e conserva a entrada feita depois',async()=>{
+ const f=await pageFixture();let release;try{
+  await f.page.getByText('Seu calendário começa aqui').waitFor();await f.page.locator('[data-view="requests"]').click();
+  let started;const entered=new Promise(resolve=>{started=resolve;}),gate=new Promise(resolve=>{release=resolve;});
+  await f.page.route('https://api.grupocsv.com/nfse/v2/requests?*',async route=>{started();await gate;await route.fallback();});
+  const requests=f.page.getByRole('form',{name:'Filtros de solicitações'});await requests.getByLabel('Situação',{exact:true}).selectOption('prepared');await requests.getByRole('button',{name:'Aplicar filtros'}).click();await entered;
+  const customer=f.page.locator('form[aria-label="Filtros do acervo"] input[name="customer_document"]');
+  await customer.evaluate(input=>input.focus());
+  await f.page.keyboard.type('11222333000181');
+  assert.equal(await customer.inputValue(),'');
+  const response=f.page.waitForResponse(r=>r.url().includes('/nfse/v2/requests?')&&new URL(r.url()).searchParams.get('status')==='prepared');release();await response;
+  await f.page.waitForFunction(()=>document.getElementById('content').getAttribute('aria-busy')==='false');
+  await f.page.getByRole('form',{name:'Filtros do acervo'}).getByLabel('CNPJ ou CPF do tomador').fill('11222333000181');
+  assert.equal(await f.page.getByRole('form',{name:'Filtros do acervo'}).getByLabel('CNPJ ou CPF do tomador').inputValue(),'11222333000181');assert.deepEqual(f.errors,[]);
+ }finally{release?.();await f.context.close();}
+});
+
+test('resposta de atualização anterior não libera a tela enquanto a atual está pendente',async()=>{
+ const f=await pageFixture();const releases=[];try{
+  await f.page.getByText('Seu calendário começa aqui').waitFor();await f.page.locator('[data-view="requests"]').click();
+  const starts=[];await f.page.route('https://api.grupocsv.com/nfse/v2/requests?*',async route=>{const index=starts.length;let release;const gate=new Promise(resolve=>{release=resolve;});releases[index]=release;starts.push(route.request().url());await gate;await route.fallback();});
+  const first=f.page.waitForRequest(r=>r.url().includes('/nfse/v2/requests?')&&new URL(r.url()).searchParams.get('status')==='prepared');
+  const filters=f.page.getByRole('form',{name:'Filtros de solicitações'});await filters.getByLabel('Situação',{exact:true}).selectOption('prepared');await filters.getByRole('button',{name:'Aplicar filtros'}).click();await first;
+  const second=f.page.waitForRequest(r=>r.url().includes('/nfse/v2/requests?')&&new URL(r.url()).searchParams.get('company_id')==='axiacare');await f.page.locator('#company-filter').selectOption('axiacare');await second;
+  const oldResponse=f.page.waitForResponse(r=>r.url()===starts[0]);releases[0]();await (await oldResponse).finished();await f.page.evaluate(()=>new Promise(requestAnimationFrame));
+  assert.equal(await f.page.locator('#content').evaluate(content=>content.inert),true);
+  const currentResponse=f.page.waitForResponse(r=>r.url()===starts[1]);releases[1]();await (await currentResponse).finished();await f.page.waitForFunction(()=>!document.getElementById('content').inert&&document.getElementById('content').getAttribute('aria-busy')==='false');assert.deepEqual(f.errors,[]);
+ }finally{releases.forEach(release=>release());await f.context.close();}
 });
