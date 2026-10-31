@@ -15,6 +15,12 @@ O caminho legado da [NFS-e AxiaCare](https://hub.grupocsv.com/axia/nota-fiscal.h
 
 O escopo é emitir e acompanhar NFS-e de AxiaCare, TheraTech e MedValor. O acesso fiscal é exclusivo do proprietário. As regras do calendário podem ser criadas, editadas, pausadas e arquivadas, mesmo enquanto uma empresa aguarda configuração fiscal. O calendário não transmite notas automaticamente.
 
+## Acesso pelo Hub
+
+A área usa o componente nativo de autenticação do Hub (`hub-auth.js`) e a conta individual já cadastrada. Não exige uma nova senha para NFS-e. As permissões administrativas continuam no painel Admin; os cadastros fiscais são separados dessas permissões.
+
+A política de conexão da página inclui explicitamente `https://csv-auth.guilherme-thom.workers.dev`, origem do login e da validação de sessão nativos. Em 31/10/2026, a revisão corrigiu sua ausência na CSP e acrescentou teste de navegador com o componente nativo, além do contrato estático. O teste usa serviços interceptados e credenciais sintéticas; não comprova uma entrada com a conta real do proprietário.
+
 ## Fluxo de Operação
 
 1. Selecionar a empresa e o perfil fiscal validado.
