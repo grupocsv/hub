@@ -21,7 +21,8 @@ O escopo é emitir e acompanhar NFS-e de AxiaCare, TheraTech e MedValor. O acess
 2. Informar valor, competência e os campos exigidos pelo perfil.
 3. Conferir a prévia com os dados do emitente, tomador, serviço, tributos e líquido.
 4. Aprovar a nota ou lote discriminado.
-5. Acompanhar o resultado oficial e obter os arquivos disponíveis.
+5. Solicitar a emissão da nota aprovada; a aprovação, isoladamente, não transmite.
+6. Acompanhar o resultado oficial e obter os arquivos disponíveis.
 
 Pelo MCP, a confirmação explícita na conversa é registrada pelo cliente autenticado. Não há segunda confirmação obrigatória em outro canal. Uma concessão de acesso ao cliente não representa aprovação de todas as notas futuras.
 
