@@ -1,0 +1,18 @@
+{
+  "edition": "S44",
+  "period": "23 a 30 de outubro de 2026",
+  "generated": "31/10/2026",
+  "dictionary_version": "v4.23",
+  "facts": [
+    {"tag": "LINHAS DE CUIDADO", "titulo": "Programa Cuidar Passa à Operação Assistida", "resumo": "A Unimed Governador Valadares encerrou, em 30 de outubro, a etapa presencial do piloto do Programa Cuidar, com diretriz adaptada, capacitação prática e visitas domiciliares acompanhadas. O piloto passou à operação assistida, com acompanhamento remoto. Ajustes de agendas e registros, além da consolidação dos indicadores, permanecem em andamento."},
+    {"tag": "ASSISTENCIAL", "titulo": "Score GCE v1.1 Validado como Referência de Elegibilidade", "resumo": "A validação comunicada em 26 de outubro adotou a versão 1.1 do Score GCE como referência para a lista mensal de elegíveis do Gerenciamento de Casos Especiais (GCE), com corte de 40 pontos ou mais no recorte avaliado. A conclusão é de validade convergente; casos discordantes e avaliações ausentes seguem em conferência."},
+    {"tag": "LINHAS DE CUIDADO", "titulo": "Jornada TEA Distingue Diagnóstico e Reavaliação Terapêutica", "resumo": "Na reunião de 28 de outubro, a Unimed Governador Valadares e o EVS discutiram o Núcleo de Acesso ao Cuidado (NAC) e distinguiram as funções do Ambulatório de Avaliação Diagnóstica TEA (AAD) e do Ambulatório de Reavaliação Terapêutica (ART). O desenho prevê navegação pela Central de Coordenação do Cuidado; pactuação dos fluxos e abertura da agenda do ART permaneciam como próximos passos."},
+    {"tag": "GOVERNANÇA", "titulo": "Contratos de Ressonância Magnética Encaminhados para Assinatura", "resumo": "A aprovação dos contratos vinculados à Ressonância Magnética do Hospital Unihealth GV foi comunicada em 26 de outubro, seguida do encaminhamento para assinaturas eletrônicas. Em 30 de outubro, o processo ainda tinha assinaturas pendentes. O avanço é documental, sem comprovação de conclusão contratual, entrega, instalação ou início de atendimento."},
+    {"tag": "OPERAÇÕES", "titulo": "Abastecimento da Hemodinâmica Mantém Pendências de OPME", "resumo": "A contagem de 28 de outubro e a comunicação de 29 de outubro registraram grade incompleta de Órteses, Próteses e Materiais Especiais (OPME) na Hemodinâmica do Hospital Unihealth GV, apesar de reposição parcial. Foi solicitado o acionamento do fornecedor e o início da prospecção de alternativas conforme indicação técnica. A regularização final não foi comprovada."},
+    {"tag": "DADOS", "titulo": "Relatório GCE Aponta Oportunidade na Comunicação de Altas", "resumo": "O relatório GCE comunicado em 27 de outubro registrou que 88% dos e-mails hospitalares enviados no dia da alta saíram depois do horário da alta médica: 36 de 41 solicitações com ambos os horários disponíveis, de julho a 25 de outubro. O achado sinaliza uma oportunidade de antecipação na transição do cuidado do Hospital Unihealth GV, sem demonstrar causa ou impacto assistencial."}
+  ],
+  "movements": [
+    {"titulo": "Medicamentos", "resumo": "O EVS comunicou, em 29 de outubro, a conclusão e a disponibilidade do painel de tickets de solicitação de medicamentos no WeKnow, sem indicadores de uso ou resultados apresentados."},
+    {"titulo": "Indicadores Hospitalares", "resumo": "O Resumo Executivo DRG do Hospital Unihealth GV foi atualizado em 29 de outubro, com séries clínicas e cirúrgicas referentes a janeiro de 2024 a junho de 2026 e limites metodológicos preservados."}
+  ]
+}
