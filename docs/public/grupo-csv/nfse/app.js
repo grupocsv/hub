@@ -92,7 +92,7 @@ function historySummary(company){
   if(history)section.append(el('p','muted','Consulta ao fluxo disponível do ADN; histórico integral não comprovado.'));
   return section;
 }
-function companyRow(c){const row=el('div','company-row'),identity=el('div','identity'),text=el('div');text.append(el('h3','',c.name),el('p','',readinessText(c)),historySummary(c));identity.append(el('span','initial',c.name.slice(0,1)),text);row.append(identity,badge(c.status));return row;}
+function companyRow(c){const row=el('div','company-row'),identity=el('div','identity'),text=el('div'),history=historySummary(c);row.style.flexWrap='wrap';row.style.rowGap='8px';identity.style.flex='1 1 150px';history.style.flex='0 0 100%';text.append(el('h3','',c.name),el('p','',readinessText(c)));identity.append(el('span','initial',c.name.slice(0,1)),text);row.append(identity,badge(c.status),history);return row;}
 function renderOverview(root){
   const o=state.overview,stats=el('div','stats');
   [['Preparadas',o.counts.prepared,'Prontas para conferência'],['Aprovadas',o.counts.approved,'Com aprovação registrada'],['Em processamento',o.counts.processing,'Aguardando resultado'],['Autorizadas',o.counts.authorized,'Confirmadas nesta base']].forEach(([label,value,help])=>{const s=el('article','stat');s.append(el('span','',label),el('strong','',value),el('small','',help));stats.append(s);});root.append(stats);
