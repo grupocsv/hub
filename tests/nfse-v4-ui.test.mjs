@@ -28,17 +28,19 @@ before(async () => {
 });
 after(async()=>{await browser?.close();await new Promise(r=>server?.close(r));});
 
-async function pageFixture({valid=true, fail=false, mobile=false}={}) {
+async function pageFixture({valid=true, fail=false, mobile=false, profilesFail=false, canSimulate=false}={}) {
   const context=await browser.newContext({locale:'pt-BR',viewport:mobile?{width:390,height:844}:{width:1440,height:1000}}),page=await context.newPage();
   page.setDefaultTimeout(6000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const state={rules:[],clients:[],requests:0,posts:[]};
-  const companies=['AxiaCare','TheraTech','MedValor'].map((name,i)=>({company_id:['axiacare','theratech','medvalor'][i],name,status:'pending_configuration',readiness:{can_simulate:false,can_emit:false,blockers:[{code:'profile_missing',message:'Cadastro fiscal aguardando validação.'}]}}));
+  const state={rules:[],clients:[],documents:[],operations:[],requests:0,posts:[],authExpired:false};
+  const companies=['AxiaCare','TheraTech','MedValor'].map((name,i)=>({company_id:['axiacare','theratech','medvalor'][i],name,status:'pending_configuration',readiness:{can_simulate:canSimulate,can_emit:false,blockers:[{code:'profile_missing',message:'Cadastro fiscal aguardando validação.'}]}}));
   await page.route('**/scripts/hub-auth.js',route=>route.fulfill({contentType:'text/javascript',body:`window.HUB_AUTH_API={fetch:(u,o)=>fetch(u,o)};window.HUB_AUTH_READY=Promise.resolve({status:'${valid?'valid':'required'}'});`}));
   await page.route('https://api.grupocsv.com/**',async route=>{
     state.requests++;
     const request=route.request(),headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type,idempotency-key','Access-Control-Allow-Methods':'GET,POST,OPTIONS'};
     if(request.method()==='OPTIONS'){await route.fulfill({status:204,headers});return;}
+    if(state.authExpired){await route.fulfill({status:401,headers,json:{error:{message:'Sessão expirada.'}}});return;}
+    if(profilesFail&&request.url().includes('/profiles')){await route.fulfill({status:503,headers,json:{error:{message:'Perfis temporariamente indisponíveis.'}}});return;}
     if(fail){await route.fulfill({status:503,headers,json:{error:{message:'Serviço temporariamente indisponível.'}}});return;}
     const url=new URL(request.url()),path=url.pathname.replace('/nfse/v2/','');let data;
     if(request.method()==='POST'){
@@ -53,6 +55,9 @@ async function pageFixture({valid=true, fail=false, mobile=false}={}) {
     else if(path==='overview')data={counts:{prepared:0,approved:0,processing:0,authorized:0,pending:0},amounts:{gross_amount_cents:0,federal_total_cents:0,net_amount_cents:0},history_coverage:{status:'not_synchronized',last_synced_at:null},emission_enabled:false};
     else if(path==='calendar-rules')data=state.rules.filter(r=>!url.searchParams.get('company_id')||r.company_id===url.searchParams.get('company_id'));
     else if(path==='clients')data=state.clients;
+    else if(path==='operations')data=state.operations;
+    else if(path==='documents')data=state.documents;
+    else if(path.startsWith('documents/'))data=state.documents.find(d=>path==='documents/'+d.document_id);
     else data=[];
     await route.fulfill({status:200,headers,json:{data,meta:{request_id:'synthetic-request',next_cursor:null}}});
   });
@@ -124,10 +129,61 @@ test('layout móvel preserva conteúdo e não habilita emissão sem configuraç�
     await f.page.getByText('Seu calendário começa aqui').waitFor();assert.equal(await f.page.locator('#prepare').isDisabled(),true);
     assert.equal(await f.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
     await f.page.locator('[data-view="companies"]').click();await f.page.getByRole('heading',{name:'TheraTech',exact:true}).waitFor();
+    for(const sync of await f.page.getByRole('button',{name:'Sincronizar notas',exact:true}).all())assert.equal(await sync.isDisabled(),false);
     assert.equal(await f.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);assert.deepEqual(f.errors,[]);
   }finally{await f.context.close();}
 });
 
 test('gera evidência visual local com configuração pendente e sem dados reais',async()=>{
   const f=await pageFixture();try{await f.page.getByText('Seu calendário começa aqui').waitFor();const out=resolve(root,process.env.NFSE_SCREENSHOT_DIR || 'test-results/nfse');await mkdir(out,{recursive:true});await f.page.screenshot({path:resolve(out,'Previa-local-NFSe-Grupo-CSV.png'),fullPage:true});assert.deepEqual(f.errors,[]);}finally{await f.context.close();}
+});
+
+
+test('edição do calendário conserva perfil existente quando a consulta dos perfis falha',async()=>{
+  const f=await pageFixture({profilesFail:true});try{
+    await f.page.getByText('Seu calendário começa aqui').waitFor();
+    f.state.rules.push({rule_id:'rule-test-1',version:1,company_id:'axiacare',title:'Cobrança com perfil',profile_id:'perfil-preservado',day_of_month:5,frequency:'monthly',start_date:'2026-10-01',end_date:null,amount_mode:'variable',gross_amount_cents:null,competence_rule:'previous_month',missing_day_policy:'last_day',notes:null,status:'active'});
+    await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.getByText('Cobrança com perfil',{exact:true}).waitFor();
+    await f.page.locator('[data-view="calendar"]').click();await f.page.getByRole('button',{name:'Editar',exact:true}).click();
+    await f.page.getByText('Perfis temporariamente indisponíveis.',{exact:true}).waitFor();
+    await f.page.getByLabel('Nome da emissão').fill('Somente título alterado');await f.page.getByRole('button',{name:'Salvar regra',exact:true}).click();
+    await f.page.getByText('Somente título alterado',{exact:true}).waitFor();
+    assert.equal(f.state.posts.at(-1).body.profile_id,'perfil-preservado');assert.deepEqual(f.errors,[]);
+  }finally{await f.context.close();}
+});
+
+test('nova regra pode ser salva depois de fechar preparação sem perfil disponível',async()=>{
+  const f=await pageFixture({canSimulate:true});try{
+    await f.page.getByText('Seu calendário começa aqui').waitFor();await f.page.getByRole('button',{name:'Preparar nota'}).click();
+    await f.page.waitForFunction(()=>document.querySelector('[name="profile_id"]')?.disabled===false&&document.getElementById('editor-save').disabled===true);
+    await f.page.getByRole('button',{name:'Fechar',exact:true}).click();await f.page.locator('[data-view="calendar"]').click();await f.page.getByRole('button',{name:'Nova regra',exact:true}).click();
+    assert.equal(await f.page.getByRole('button',{name:'Salvar regra',exact:true}).isDisabled(),false);
+    await f.page.getByLabel('Nome da emissão').fill('Calendário continua editável');await f.page.getByRole('button',{name:'Salvar regra',exact:true}).click();
+    await f.page.getByText('Calendário continua editável',{exact:true}).waitFor();assert.deepEqual(f.errors,[]);
+  }finally{await f.context.close();}
+});
+
+test('expiração durante download fecha o modal e limpa dados privados da tela',async()=>{
+  const f=await pageFixture();try{
+    await f.page.getByText('Seu calendário começa aqui').waitFor();
+    f.state.documents.push({document_id:'doc-test',company_id:'axiacare',access_key:'7'.repeat(50),status:'authorized',competence:'2026-10-31',issued_at:'2026-10-31T10:00:00Z',issuer_document:'12345678000195',customer_document:'11222333000181',gross_amount_cents:10000,net_amount_cents:9385,source:'adn',artifacts:[{kind:'xml'}]});
+    await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.locator('[data-view="requests"]').click();await f.page.getByRole('button',{name:'Abrir nota',exact:true}).click();
+    await f.page.getByRole('heading',{name:'Nota fiscal preservada',exact:true}).waitFor();f.state.authExpired=true;
+    await f.page.getByRole('button',{name:'Baixar XML',exact:true}).click();
+    await f.page.getByText('Entre para acessar suas emissões',{exact:true}).waitFor();
+    assert.equal(await f.page.locator('dialog[open]').count(),0);assert.equal(await f.page.locator('#editor-fields').textContent(),'');assert.deepEqual(f.errors,[]);
+  }finally{await f.context.close();}
+});
+
+
+test('nota autorizada exibe diferenças oficiais sem perder o status nem solicitar reemissão',async()=>{
+ const f=await pageFixture();try{
+  await f.page.getByText('Seu calendário começa aqui').waitFor();
+  f.state.operations.push({operation_id:'operacao-teste',company_id:'axiacare',status:'authorized',created_at:'2026-10-31T10:00:00Z',result:{reconciliation_warnings:[{field:'net_amount_cents',approved:93849,official:93850}]}});
+  await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.locator('[data-view="activity"]').click();
+  await f.page.getByText('Os dados oficiais diferem da prévia aprovada.',{exact:true}).waitFor();
+  await f.page.getByText('Conferir diferenças',{exact:true}).click();
+  assert.equal(await f.page.getByText('Autorizada',{exact:true}).count(),1);
+  const detail=await f.page.locator('details').textContent();assert.match(detail,/938,49/);assert.match(detail,/938,50/);assert.equal(f.state.posts.length,0);assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
 });

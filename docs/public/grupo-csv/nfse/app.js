@@ -44,17 +44,19 @@ async function api(path, { body, key, signal } = {}) {
   if(signal) signal.addEventListener('abort',() => controller.abort(),{once:true});
   try {
     const response=await window.HUB_AUTH_API.fetch(API+path,{method:body===undefined?'GET':'POST',signal:controller.signal,headers:body===undefined?{}:{'Content-Type':'application/json','Idempotency-Key':key??crypto.randomUUID()},...(body===undefined?{}:{body:JSON.stringify(body)})});
-    if(response.status===401){state.valid=false;state.generation++;clearData();render();throw new Error('Sua sessão expirou. Entre novamente para continuar.');}
+    if(response.status===401){expireSession();throw new Error('Sua sessão expirou. Entre novamente para continuar.');}
     let payload;try{payload=await response.json();}catch{throw new Error('O serviço retornou uma resposta inválida. Tente atualizar.');}
     if(!response.ok) throw new Error(payload.error?.message ?? 'Não foi possível concluir a solicitação.');
     if(!payload || !Object.hasOwn(payload,'data')) throw new Error('A resposta não contém os dados esperados.');
     return payload;
   } catch(error) {
+    if(error.name==='NotAllowedError'){expireSession();throw new Error('Sua sessão expirou. Entre novamente para continuar.');}
     if(error.name==='AbortError')throw new Error('O serviço demorou para responder. Atualize para conferir o resultado antes de repetir uma ação.');
     throw error;
   } finally {clearTimeout(timer);}
 }
 function clearData(){state.meta=null;state.overview=null;state.companies=[];state.requests=[];state.calendar=[];state.operations=[];state.documents=[];state.events=[];state.clients=[];state.cursors={};state.form=null;state.formKey=null;$('editor').close();$('editor-fields').replaceChildren();}
+function expireSession(){state.valid=false;state.generation++;state.loading=false;clearData();$('prepare').disabled=true;$('company-filter').disabled=true;$('refresh').disabled=true;$('content').setAttribute('aria-busy','false');render();}
 async function load() {
   if(!state.valid)return;
   const generation=++state.generation;state.loading=true;note('Atualizando informações…');$('content').setAttribute('aria-busy','true');$('refresh').disabled=true;
@@ -100,14 +102,26 @@ function renderCalendar(root){
   })));pagination(root,'calendar','/v2/calendar-rules');
   root.append(el('p','safe-note','Se o dia não existir no mês, valerá a regra escolhida: último dia do mês ou definição manual. As regras podem ser editadas mesmo com o cadastro fiscal pendente.'));
 }
-function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(el('div','initial',c.name.slice(0,1)),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list);const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});sync.disabled=c.status!=='active';card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','Os dados fiscais serão preenchidos a partir das fontes validadas. Os certificados e suas senhas são recebidos por procedimento privado; não os envie aos agentes ou às conversas.'));}
+function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(el('div','initial',c.name.slice(0,1)),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list);const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','Os dados fiscais serão preenchidos a partir das fontes validadas. Os certificados e suas senhas são recebidos por procedimento privado; não os envie aos agentes ou às conversas.'));}
 function renderRequests(root){root.append(heading('Solicitações','Prepare e confira cada nota antes de autorizar a emissão.'));if(!state.requests.length)root.append(empty('Nenhuma solicitação nesta área','Prepare uma nota após configurar a empresa. O histórico anterior continua disponível no emissor atual.'));
   else root.append(table(['Nota','Empresa','Competência','Valor bruto','Valor líquido','Situação','Detalhes'],state.requests.map(r=>{const d=r.snapshot?.data??{},a=d.amounts??{};return[r.snapshot?.data?.profile?.name??r.snapshot?.data?.profile?.profile_id??r.request_id.slice(0,8),companyName(r.company_id),d.input?.competence??'—',money(a.gross_amount_cents),money(a.net_amount_cents),badge(r.status),button('Conferir','quiet',()=>openRequest(r))];})));pagination(root,'requests','/v2/requests');
   root.append(heading('Acervo de notas','Documentos oficiais preservados e eventos acompanhados.'));
   if(!state.documents.length)root.append(empty('Nenhuma nota no acervo','O histórico será preenchido pelas emissões e pela sincronização.'));
   else root.append(table(['Chave de acesso','Empresa','Competência','Valor bruto','Valor líquido','Situação','Arquivos'],state.documents.map(d=>[d.access_key,companyName(d.company_id),dateLabel(d.competence),money(d.gross_amount_cents),money(d.net_amount_cents),badge(d.status),button('Abrir nota','quiet',()=>openDocument(d))])));pagination(root,'documents','/v2/documents');
 }
-function renderActivity(root){root.append(heading('Operações','Resultados confirmados e consultas em andamento.'));if(!state.operations.length)root.append(empty('Nenhuma operação registrada','As operações aparecerão aqui quando uma emissão for solicitada.'));else root.append(table(['Operação','Empresa','Situação','Registro'],state.operations.map(o=>[o.operation_id,companyName(o.company_id),badge(o.status),dateLabel(o.created_at)])));pagination(root,'operations','/v2/operations');
+function operationStatus(operation){
+  const cell=el('div');cell.append(badge(operation.status));
+  const warnings=operation.result?.reconciliation_warnings;
+  if(Array.isArray(warnings)&&warnings.length){
+    cell.append(el('p','safe-note','Os dados oficiais diferem da prévia aprovada.'));
+    const detail=el('details'),labels={gross_amount_cents:'Valor bruto',net_amount_cents:'Valor líquido',competence_date:'Data da competência',customer_document:'Documento do tomador',description:'Descrição'};
+    detail.append(el('summary','','Conferir diferenças'));
+    for(const warning of warnings){const field=warning?.field;if(!Object.hasOwn(labels,field))continue;const format=value=>field.endsWith('_cents')?money(value):field==='competence_date'?dateLabel(value):String(value??'Não informado');const row=el('div');row.append(el('strong','',labels[field]),el('p','',`Aprovado: ${format(warning.approved)} · Oficial: ${format(warning.official)}`));detail.append(row);}
+    cell.append(detail);
+  }
+  return cell;
+}
+function renderActivity(root){root.append(heading('Operações','Resultados confirmados e consultas em andamento.'));if(!state.operations.length)root.append(empty('Nenhuma operação registrada','As operações aparecerão aqui quando uma emissão for solicitada.'));else root.append(table(['Operação','Empresa','Situação','Registro'],state.operations.map(o=>[o.operation_id,companyName(o.company_id),operationStatus(o),dateLabel(o.created_at)])));pagination(root,'operations','/v2/operations');
   if(state.events.length){const names={prepared:'Prévia preparada',approved:'Aprovação registrada',calendar_created:'Regra criada',calendar_updated:'Regra atualizada',calendar_archived:'Regra arquivada',operation_queued:'Emissão solicitada',authorized:'Nota autorizada',rejected:'Nota rejeitada',unknown:'Resultado aguardando consulta'};root.append(heading('Histórico de atividade','Alterações registradas pela plataforma.'),table(['Evento','Empresa','Registro'],state.events.map(e=>[names[e.event_type]??e.event_type,companyName(e.company_id),dateLabel(e.created_at)])));pagination(root,'events','/v2/events');}}
 function renderConnections(root){root.append(heading('Conexões MCP','Configure uma chave para cada aplicativo.',{text:'Nova conexão',run:()=>openClient()}));
   if(!state.clients.length)root.append(empty('Seus agentes ainda não estão conectados','Crie uma conexão para Claude Cowork, Codex, Manus, Hermes ou OpenClaw.'));
@@ -124,7 +138,8 @@ function pagination(root,key,path){if(!state.cursors[key])return;const div=el('d
 function field(label,name,type='text',value='',wide=false){const l=el('label',wide?'wide':'');l.append(document.createTextNode(label));const input=el(type==='textarea'?'textarea':'input');input.name=name;if(type!=='textarea')input.type=type;input.value=value??'';l.append(input);$('editor-fields').append(l);return input;}
 function selectField(label,name,options,value,wide=false){const l=el('label',wide?'wide':'');l.append(document.createTextNode(label));const input=el('select');input.name=name;input.setAttribute('aria-label',label);options.forEach(([v,t])=>input.add(new Option(t,v)));input.value=value??'';l.append(input);$('editor-fields').append(l);return input;}
 function displayMoneyInput(cents){return Number.isSafeInteger(cents)?`${Math.floor(cents/100)},${String(cents%100).padStart(2,'0')}`:'';}
-function openEditor(title,kind,save,form){state.form=form;state.formKey=crypto.randomUUID();$('editor-title').textContent=title;$('editor-kind').textContent=kind;$('editor-save').textContent=save;$('editor-save').hidden=false;$('editor-error').textContent='';$('editor-fields').replaceChildren();$('editor').showModal();}
+function openEditor(title,kind,save,form){state.form=form;state.formKey=crypto.randomUUID();$('editor-title').textContent=title;$('editor-kind').textContent=kind;$('editor-save').textContent=save;$('editor-save').hidden=false;$('editor-save').disabled=false;$('editor-error').textContent='';$('editor-fields').replaceChildren();$('editor').showModal();}
+function closeEditor(){const secret=state.form?.type==='secret';$('editor').close();if(secret){$('editor-fields').replaceChildren();state.form=null;state.formKey=null;}}
 function setBusy(busy){state.busy=busy;for(const id of ['editor-save','editor-cancel','editor-close'])$(id).disabled=busy;}
 function calendarPayload(rule){const {company_id,title,profile_id,day_of_month,frequency,start_date,end_date,amount_mode,gross_amount_cents,competence_rule,missing_day_policy,notes,status}=rule;return{company_id,title,profile_id,day_of_month,frequency,start_date,end_date,amount_mode,gross_amount_cents,competence_rule,missing_day_policy,notes,status};}
 function openCalendar(rule){
@@ -170,9 +185,10 @@ async function openDocument(document){
 }
 async function downloadDocument(doc,kind,button){button.disabled=true;try{
   const response=await window.HUB_AUTH_API.fetch(`${API}/v2/documents/${encodeURIComponent(doc.document_id)}/${kind}`);
+  if(response.status===401){expireSession();throw new Error('Sua sessão expirou. Entre novamente para continuar.');}
   if(!response.ok){const body=await response.json();throw new Error(body.error?.message??'Não foi possível obter o arquivo.');}
   const blob=await response.blob(),url=URL.createObjectURL(blob),link=el('a');link.href=url;link.download=`NFSe-${doc.access_key}.${kind}`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}catch(e){$('editor-error').textContent=e.message;}finally{button.disabled=false;}}
+}catch(e){if(e.name==='NotAllowedError')expireSession();if(state.valid)$('editor-error').textContent=e.message;else note('Sua sessão expirou. Entre novamente para continuar.',true);}finally{button.disabled=false;}}
 async function openPrepare(){
   const companies=state.companies.filter(c=>c.readiness?.can_simulate);
   if(!companies.length){setView('companies');return;}
@@ -210,7 +226,7 @@ async function saveForm(event){event.preventDefault();if(state.busy||!state.form
   } else if(form.type==='client'){
     const scopes=({read:['read'],prepare:['read','simulate','request','calendar'],full:['read','simulate','request','approve','emit','calendar']})[data.access];
     const payload={name:data.name,company_ids:new FormData($('editor-form')).getAll('company_ids'),scopes,expires_at:data.expires_at?`${data.expires_at}T23:59:59.000Z`:null};
-    const result=await api('/v2/clients'+(form.client?'/'+encodeURIComponent(form.client.client_id):''),{body:payload,key:state.formKey});$('editor').close();await load();if(!form.client)openSecret(result.data);return;
+    const result=await api('/v2/clients'+(form.client?'/'+encodeURIComponent(form.client.client_id):''),{body:payload,key:state.formKey});$('editor').close();await load();if(!form.client&&state.valid)openSecret(result.data);return;
   } else if(form.type==='revoke'){
     await api(`/v2/clients/${encodeURIComponent(form.client.client_id)}/revoke`,{body:{},key:state.formKey});
   } else if(form.type==='approve'){
@@ -229,7 +245,7 @@ $('company-filter').addEventListener('change',()=>{state.company=$('company-filt
 $('planning-month').value=state.month;
 $('planning-month').addEventListener('change',()=>{if($('planning-month').checkValidity() && /^\d{4}-\d{2}$/.test($('planning-month').value)){state.month=$('planning-month').value;render();}});
 $('editor-form').addEventListener('submit',saveForm);$('editor-form').addEventListener('input',()=>{if(!state.busy)state.formKey=crypto.randomUUID();});
-for(const id of ['editor-cancel','editor-close'])$(id).addEventListener('click',()=>{if(!state.busy)$('editor').close();});$('editor').addEventListener('cancel',event=>{if(state.busy)event.preventDefault();});
+for(const id of ['editor-cancel','editor-close'])$(id).addEventListener('click',()=>{if(!state.busy)closeEditor();});$('editor').addEventListener('cancel',event=>{event.preventDefault();if(!state.busy)closeEditor();});
 $('editor').addEventListener('close',()=>{if(!$('editor').open&&state.form?.type==='secret'){$('editor-fields').replaceChildren();state.form=null;}});
 function observeSession(){const ready=window.HUB_AUTH_READY;if(!ready||ready===state.ready)return;state.ready=ready;ready.then(result=>{if(ready!==state.ready)return;state.valid=result?.status==='valid';if(state.valid){load();}else{state.generation++;clearData();$('prepare').disabled=true;$('company-filter').disabled=true;render();}}).catch(()=>{state.valid=false;clearData();render();});}
 if(window.top!==window.self){document.body.replaceChildren(empty('Abra o aplicativo diretamente','A área fiscal não pode ser aberta dentro de outro site.'));}else{observeSession();const watcher=setInterval(observeSession,250);window.addEventListener('pagehide',()=>clearInterval(watcher),{once:true});window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});}
