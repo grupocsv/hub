@@ -7,7 +7,7 @@ description: Construção da área fiscal unificada e condições de liberação
 
 ## Estado desta versão
 
-Área em construção em `/grupo-csv/nfse/`. O código da nova interface consulta a API `/nfse/v2`. A publicação de arquivos não habilita emissões nem migra os dados anteriores automaticamente. A área anterior da AxiaCare permanece disponível em `/axia/nota-fiscal.html` até o corte aprovado.
+Candidata a publicação em `/grupo-csv/nfse/`, com validação local e PR própria. O código da nova interface consulta a API `/nfse/v2`. A publicação de arquivos não habilita emissões nem migra os dados anteriores automaticamente. A área anterior da AxiaCare permanece disponível em `/axia/nota-fiscal.html` até o corte aprovado.
 
 O escopo é emitir e acompanhar NFS-e de AxiaCare, TheraTech e MedValor. O acesso fiscal é exclusivo do proprietário. As regras do calendário podem ser criadas, editadas, pausadas e arquivadas, mesmo enquanto uma empresa aguarda configuração fiscal. O calendário não transmite notas automaticamente.
 
@@ -21,7 +21,7 @@ O escopo é emitir e acompanhar NFS-e de AxiaCare, TheraTech e MedValor. O acess
 
 Pelo MCP, a confirmação explícita na conversa é registrada pelo cliente autenticado. Não há segunda confirmação obrigatória em outro canal. Uma concessão de acesso ao cliente não representa aprovação de todas as notas futuras.
 
-## Limites do primeiro recorte
+## Condições de ativação
 
 A base nova começa sem histórico sincronizado e sem ativar automaticamente os cadastros fiscais. A tela distingue configuração pendente, indisponibilidade do serviço e ausência de registros. Simulação local não é homologação governamental. Operações de emissão permanecem bloqueadas enquanto o executor, o certificado, o perfil e o contrato governamental não estiverem liberados.
 
@@ -45,4 +45,28 @@ Antes de publicar: executar os testes pertinentes, revisar o artefato final, con
 
 ## Operações ainda não disponíveis
 
-Cancelamento e substituição fiscal não integram o catálogo executável desta versão. O acompanhamento de eventos externos será incorporado ao histórico. Também não há contas a pagar/receber, controle de pagamentos ou envio automático de documentos a terceiros.
+Cancelamento e substituição fiscal não integram o catálogo executável desta versão. O acompanhamento de eventos externos integra o histórico do acervo, conforme a cobertura disponível da distribuição. Também não há contas a pagar/receber, controle de pagamentos ou envio automático de documentos a terceiros.
+
+## Calendário, lotes e revisão
+
+As regras geram ocorrências mensais preservadas. É possível adiar ou dispensar uma ocorrência com motivo, preparar uma nota avulsa ou preparar até vinte itens em lote. Cada item precisa de data fiscal explícita; uma resposta parcial permite corrigir somente os pendentes. Editar uma prévia cria nova revisão e invalida sua autorização anterior.
+
+O acervo filtra empresa, competência, situação, documento do tomador, chave e intervalo de emissão. As datas inicial/final são dias civis em America/Sao_Paulo. A visão geral distingue valores dos documentos autorizados e valores das prévias; documentos importados ou sincronizados entram nas contagens sem duplicar uma operação da plataforma.
+
+## Importação e arquivos
+
+A importação aceita até vinte XMLs e histórico JSON no formato fiscal permitido. O total de XML é limitado a 2 MiB; a requisição completa, a 3 MiB. Primeiro é apresentada a conferência. Somente a confirmação do mesmo manifesto grava os registros. A evidência histórica não se converte em autorização atual, e vínculos com o legado não são inventados.
+
+XML original e PDFs permanecem privados. A regeneração deriva um PDF do XML preservado e acrescenta uma versão, sem mudar a nota fiscal. A versão original continua disponível. Repetições usam a mesma chave; chamadas concorrentes não criam versões diferentes para a mesma intenção.
+
+## Saúde e recuperação
+
+A API/MCP expõem diagnóstico de banco, presença/tamanho de uma amostra de arquivos e emissor privado. A amostra não constitui auditoria integral de hashes, validação de certificado ou homologação governamental.
+
+O código de recuperação foi ensaiado com D1/R2 locais e journal SQLite sintético. O pacote privado verifica manifestos, dados e arquivos; não inclui credenciais nem restaura concessões de acesso. Os helpers de restauração exigem destino vazio de teste e emissão desabilitada. A recuperação de produção segue o plano operacional autorizado; o teste local não comprova a existência de backup de produção.
+
+Após qualquer transmissão v2, um rollback deve primeiro bloquear o caminho legado, preservar o journal/reservas e reconciliar o resultado. O binário antigo não conhece as novas travas de corte. Não reabrir emissão com dois contadores nem restaurar configuração antiga com mutações ativas.
+
+## Evidências de aceite
+
+A validação inclui modelo e documentação, navegador em desktop/celular, sessão expirada com respostas tardias, preparação/aprovação/revisão por API real e importação/PDF por serviços locais. O aceite de produção e dos cinco clientes MCP permanece separado da prova local. Nunca usar uma emissão real para testar conectividade.
