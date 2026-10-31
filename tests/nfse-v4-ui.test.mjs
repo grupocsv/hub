@@ -32,7 +32,7 @@ async function pageFixture({valid=true, fail=false, mobile=false, profilesFail=f
   const context=await browser.newContext({locale:'pt-BR',viewport:mobile?{width:390,height:844}:{width:1440,height:1000}}),page=await context.newPage();
   page.setDefaultTimeout(6000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const state={rules:[],clients:[],documents:[],operations:[],fiscalRequests:[],occurrences:[],failPrepare:new Set(),gets:[],requests:0,posts:[],authExpired:false,importInvalid:false,importCommitFailures:0,versions:[],documentGate:null};
+  const state={rules:[],clients:[],documents:[],operations:[],fiscalRequests:[],occurrences:[],failPrepare:new Set(),gets:[],requests:0,posts:[],authExpired:false,importInvalid:false,importCommitFailures:0,versions:[],documentGate:null,historyCoverage:{status:'not_synchronized',last_synced_at:null,companies:[]},overviewFail:false};
   const companies=['AxiaCare','TheraTech','MedValor'].map((name,i)=>({company_id:['axiacare','theratech','medvalor'][i],name,status:'pending_configuration',readiness:{can_simulate:canSimulate,can_emit:false,blockers:[{code:'profile_missing',message:'Cadastro fiscal aguardando validação.'}]}}));
   await page.route('**/scripts/hub-auth.js',route=>route.fulfill({contentType:'text/javascript',body:`window.HUB_AUTH_API={fetch:(u,o)=>fetch(u,o)};window.HUB_AUTH_READY=Promise.resolve({status:'${valid?'valid':'required'}'});`}));
   await page.route('https://api.grupocsv.com/**',async route=>{
@@ -43,6 +43,7 @@ async function pageFixture({valid=true, fail=false, mobile=false, profilesFail=f
     if(profilesFail&&request.url().includes('/profiles')){await route.fulfill({status:503,headers,json:{error:{message:'Perfis temporariamente indisponíveis.'}}});return;}
     if(fail){await route.fulfill({status:503,headers,json:{error:{message:'Serviço temporariamente indisponível.'}}});return;}
     const url=new URL(request.url()),path=url.pathname.replace('/nfse/v2/','');let data;
+    if(path==='overview'&&state.overviewFail){await route.fulfill({status:503,headers,json:{error:{message:'Cobertura temporariamente indisponível.'}}});return;}
     if(request.method()==='GET')state.gets.push(url.pathname+url.search);
     if(request.method()==='GET'&&/^documents\/[^/]+\/pdf$/.test(path)){await route.fulfill({status:200,headers:{...headers,'Content-Type':'application/pdf'},body:'%PDF-1.4\nsynthetic'});return;}
     if(request.method()==='POST'){
@@ -65,7 +66,7 @@ async function pageFixture({valid=true, fail=false, mobile=false, profilesFail=f
       else {await route.fulfill({status:400,headers,json:{error:{message:'Ação não prevista no teste.'}}});return;}
     }else if(path==='meta')data={environment:'test',capabilities:{emit:false,approve:true,request:true}};
     else if(path==='companies')data=companies;
-    else if(path==='overview')data={counts:{prepared:0,approved:0,processing:0,authorized:0,pending:0},amounts:{gross_amount_cents:0,federal_total_cents:0,net_amount_cents:0},history_coverage:{status:'not_synchronized',last_synced_at:null},emission_enabled:false};
+    else if(path==='overview')data={counts:{prepared:0,approved:0,processing:0,authorized:0,pending:0},amounts:{gross_amount_cents:0,federal_total_cents:0,net_amount_cents:0},history_coverage:state.historyCoverage,emission_enabled:false};
     else if(path==='calendar-rules')data=state.rules.filter(r=>!url.searchParams.get('company_id')||r.company_id===url.searchParams.get('company_id'));
     else if(path==='clients')data=state.clients;
     else if(path==='calendar-occurrences')data=state.occurrences.filter(o=>o.month===url.searchParams.get('month')&&(!url.searchParams.get('company_id')||o.company_id===url.searchParams.get('company_id')));
@@ -116,6 +117,29 @@ test('cria, edita e pausa regra mantendo a persistência ao recarregar',async()=
 
 test('erro de API não é apresentado como ausência de notas',async()=>{
   const f=await pageFixture({fail:true});try{await f.page.getByText('Informações indisponíveis',{exact:true}).waitFor();assert.equal(await f.page.getByText('Seu calendário começa aqui').count(),0);assert.deepEqual(f.errors,[]);}finally{await f.context.close();}
+});
+
+test('mostra cobertura parcial e última sincronização por empresa sem atribuir data a quem nunca sincronizou',async()=>{
+ const f=await pageFixture();try{
+  await f.page.getByText('Seu calendário começa aqui').waitFor();
+  f.state.historyCoverage={status:'partially_synchronized',last_synced_at:'2099-01-01T00:00:00Z',companies:[{company_id:'axiacare',status:'up_to_date',last_success_at:'2026-10-31T01:30:00Z'},{company_id:'theratech',status:'more_available',last_synced_at:'2026-10-30T13:00:00Z'},{company_id:'medvalor',status:'never_synced',last_success_at:null}]};
+  await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.getByText('O histórico está parcialmente sincronizado. Confira a cobertura de cada empresa.',{exact:true}).waitFor();
+  const axia=f.page.getByRole('region',{name:'Histórico de AxiaCare'}),thera=f.page.getByRole('region',{name:'Histórico de TheraTech'}),med=f.page.getByRole('region',{name:'Histórico de MedValor'});
+  assert.match(await axia.textContent(),/Sem páginas pendentes na última consulta/);assert.match(await axia.textContent(),/30\/10\/2026, 22:30/);
+  assert.match(await thera.textContent(),/Sincronização parcial/);assert.match(await thera.textContent(),/30\/10\/2026, 10:00/);
+  assert.match(await med.textContent(),/Ainda não sincronizado/);assert.match(await med.textContent(),/Última sincronização: não registrada/);assert.doesNotMatch(await med.textContent(),/2099|2026/);
+  await f.page.locator('[data-view="companies"]').click();assert.match(await f.page.getByRole('region',{name:'Histórico de AxiaCare'}).textContent(),/30\/10\/2026, 22:30/);assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+test('cobertura ausente não inventa data e falha da API remove informação anterior',async()=>{
+ const f=await pageFixture();try{
+  await f.page.getByText('Seu calendário começa aqui').waitFor();await f.page.locator('[data-view="companies"]').click();
+  assert.match(await f.page.getByRole('region',{name:'Histórico de AxiaCare'}).textContent(),/Cobertura não informada/);assert.match(await f.page.getByRole('region',{name:'Histórico de AxiaCare'}).textContent(),/Última sincronização: não registrada/);
+  f.state.historyCoverage={status:'up_to_date',companies:[{company_id:'axiacare',status:'up_to_date',last_success_at:'2026-10-31T13:00:00Z'}]};await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.getByText('Última sincronização: 31/10/2026, 10:00',{exact:true}).waitFor();
+  f.state.overviewFail=true;await f.page.getByRole('button',{name:'Atualizar',exact:true}).click();await f.page.getByText('Informações indisponíveis',{exact:true}).waitFor();
+  assert.equal(await f.page.getByRole('region',{name:'Histórico de AxiaCare'}).count(),0);assert.equal(await f.page.getByText('Última sincronização: 31/10/2026, 10:00',{exact:true}).count(),0);assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
 });
 
 test('altera mês de planejamento e arquiva regra sem apagar seu histórico',async()=>{

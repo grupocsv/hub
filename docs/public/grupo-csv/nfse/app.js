@@ -74,13 +74,25 @@ async function load() {
   const environment=state.meta?.environment;
   $('environment').textContent=environment==='production'?'Produção':environment==='test'||environment==='development'?'Ambiente de teste':'Ambiente não informado';
   $('prepare').disabled=!state.companies.some(c=>c.readiness?.can_simulate);
-  note(state.overview?.history_coverage?.status==='not_synchronized'?'O histórico oficial ainda não foi sincronizado nesta área. As contagens abaixo representam somente os dados disponíveis aqui.':null);
+  const coverageStatus=state.overview?.history_coverage?.status;
+  note(coverageStatus==='not_synchronized'?'O histórico oficial ainda não foi sincronizado nesta área. As contagens abaixo representam somente os dados disponíveis aqui.':coverageStatus==='partially_synchronized'?'O histórico está parcialmente sincronizado. Confira a cobertura de cada empresa.':null);
   render();
 }
 function listPath(kind,path,extra={}){const filters=kind==='requests'?state.requestFilters:kind==='documents'?state.documentFilters:kind==='occurrences'?{month:state.month}:{};const q=new URLSearchParams();if(state.company)q.set('company_id',state.company);for(const [key,value]of Object.entries({...filters,...extra}))if(value)q.set(key,value);return path+(q.size?'?'+q:'');}
 function filteredCompanies(){return state.companies.filter(c=>!state.company||c.company_id===state.company);}
 function readinessText(c){return c.readiness?.can_emit?'Habilitada para emissão':'Aguardando configuração fiscal';}
-function companyRow(c){const row=el('div','company-row'),identity=el('div','identity'),text=el('div');text.append(el('h3','',c.name),el('p','',readinessText(c)));identity.append(el('span','initial',c.name.slice(0,1)),text);row.append(identity,badge(c.status));return row;}
+function historySummary(company){
+  const coverage=state.overview?.history_coverage,history=Array.isArray(coverage?.companies)?coverage.companies.find(item=>item.company_id===company.company_id):null;
+  const labels={never_synced:'Ainda não sincronizado',not_synchronized:'Ainda não sincronizado',more_available:'Sincronização parcial — há páginas pendentes',partially_synchronized:'Sincronização parcial',up_to_date:'Sem páginas pendentes na última consulta'};
+  const section=el('section');section.setAttribute('aria-label',`Histórico de ${company.name}`);
+  section.append(el('p','',labels[history?.status]??'Cobertura não informada'));
+  const value=history?.last_success_at??history?.last_synced_at,date=typeof value==='string'?new Date(value):null;
+  const stamp=date&&Number.isFinite(date.getTime())?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'}).format(date):'não registrada';
+  section.append(el('p','',`Última sincronização: ${stamp}`));
+  if(history)section.append(el('p','muted','Consulta ao fluxo disponível do ADN; histórico integral não comprovado.'));
+  return section;
+}
+function companyRow(c){const row=el('div','company-row'),identity=el('div','identity'),text=el('div');text.append(el('h3','',c.name),el('p','',readinessText(c)),historySummary(c));identity.append(el('span','initial',c.name.slice(0,1)),text);row.append(identity,badge(c.status));return row;}
 function renderOverview(root){
   const o=state.overview,stats=el('div','stats');
   [['Preparadas',o.counts.prepared,'Prontas para conferência'],['Aprovadas',o.counts.approved,'Com aprovação registrada'],['Em processamento',o.counts.processing,'Aguardando resultado'],['Autorizadas',o.counts.authorized,'Confirmadas nesta base']].forEach(([label,value,help])=>{const s=el('article','stat');s.append(el('span','',label),el('strong','',value),el('small','',help));stats.append(s);});root.append(stats);
@@ -119,7 +131,7 @@ function renderCalendar(root){
   })));pagination(root,'calendar','/v2/calendar-rules');
   root.append(el('p','safe-note','Editar uma regra preserva as ocorrências já preparadas, adiadas ou dispensadas. Cada emissão depende da aprovação da prévia.'));
 }
-function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(el('div','initial',c.name.slice(0,1)),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list);const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','Os dados fiscais serão preenchidos a partir das fontes validadas. Os certificados e suas senhas são recebidos por procedimento privado; não os envie aos agentes ou às conversas.'));}
+function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(el('div','initial',c.name.slice(0,1)),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list,historySummary(c));const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','Os dados fiscais serão preenchidos a partir das fontes validadas. Os certificados e suas senhas são recebidos por procedimento privado; não os envie aos agentes ou às conversas.'));}
 function listFilters(kind){
   const form=el('form','list-filters');form.setAttribute('aria-label',kind==='requests'?'Filtros de solicitações':'Filtros do acervo');const filters=kind==='requests'?state.requestFilters:state.documentFilters;
   const add=(label,name,type,choices)=>{const wrapper=el('label');wrapper.append(document.createTextNode(label));const input=el(choices?'select':'input');input.name=name;input.setAttribute('aria-label',label);if(choices)choices.forEach(([value,text])=>input.add(new Option(text,value)));else input.type=type;input.value=filters[name]??'';wrapper.append(input);form.append(wrapper);return input;};
