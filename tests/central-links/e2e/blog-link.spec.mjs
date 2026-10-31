@@ -72,7 +72,7 @@ test("Blog: o clique confirmado publica o post mais recente e confirma no ar", a
   await expect(card(page).locator('[data-role="badge"]')).toHaveText("Em dia");
   await expect(card(page).getByRole("button", { name: "Apontar para o último post" })).toBeDisabled();
   expect(state.external).toContain("https://csv.online/_csv/v/blog");
-  expect(state.external.some((u) => u.startsWith("https://pre.csv.online"))).toBe(false);
+  expect(state.external.some((u) => new URL(u).hostname === "pre.csv.online")).toBe(false);
   assertRequests(state);
 });
 

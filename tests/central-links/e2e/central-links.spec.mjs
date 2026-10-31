@@ -758,7 +758,7 @@ test("regra provisória 302 mostra aviso explícito e não confirma sem a versã
   await expect(root(page)).toContainText("Propagação não confirmada");
   expect(state.external).toContain("https://csv.online/_csv/v/blog");
   expect(
-    state.external.some((url) => url.startsWith("https://pre.csv.online")),
+    state.external.some((url) => new URL(url).hostname === "pre.csv.online"),
   ).toBe(false);
 });
 
