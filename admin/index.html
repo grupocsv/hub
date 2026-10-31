@@ -1156,6 +1156,7 @@
                         Abrir em nova aba
                     </a>
                 </div>
+                <div id="blogLinkCard"></div>
                 <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
                     Painel de administra&ccedil;&atilde;o do blog institucional. Gerencie posts, coment&aacute;rios e conte&uacute;do diretamente abaixo ou abra em nova aba para tela cheia.
                 </p>
@@ -1659,6 +1660,7 @@
 <script src="/admin/central-links-sections.js"></script>
 <script src="/admin/central-links.js"></script>
 <script src="/admin/central-assets.js"></script>
+<script src="/admin/blog-link.js"></script>
 <script>
 function toggleAdminPw() {
     const pw = document.getElementById('admin-password');
@@ -1794,7 +1796,7 @@ function toggleAdminPw() {
             if (tabName === 'waba') loadWaba();
             if (tabName === 'cooperados-ugv') loadCooperadosUGV();
             if (tabName === 'panta') loadPanta();
-            if (tabName === 'blog-admin') loadBlogAdmin();
+            if (tabName === 'blog-admin') { loadBlogAdmin(); blogLink.open(); }
             // Close mobile sidebar
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('open');
@@ -3485,6 +3487,10 @@ function toggleAdminPw() {
 
     const centralLinks = window.createCentralLinks({ apiBase: LINKS_API, getToken, clearAuth, showAuth });
     const centralAssets = window.createCentralAssets({ root: document.getElementById('centralAssets'), showToast });
+    // Cartão opcional: se o módulo não carregar, o restante do Admin segue igual.
+    const blogLink = typeof window.createBlogLink === 'function'
+        ? window.createBlogLink({ root: document.getElementById('blogLinkCard'), apiBase: LINKS_API, getToken, clearAuth, showAuth })
+        : { open() {} };
 
     // ===== Start =====
     init();

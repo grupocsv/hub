@@ -289,15 +289,17 @@ export async function mockApi(page, options = {}) {
         page_size: 25,
       });
     if (pathname === "/blog/posts")
-      return json([
-        {
-          id: 7,
-          slug: "cuidado",
-          title: "Organizar o cuidado",
-          publishedAt: Date.parse(oldDate),
-          url: "https://grupocsv.com/blog/cuidado",
-        },
-      ]);
+      return json(
+        state.blogPosts ?? [
+          {
+            id: 7,
+            slug: "cuidado",
+            title: "Organizar o cuidado",
+            publishedAt: Date.parse(oldDate),
+            url: "https://grupocsv.com/blog/cuidado",
+          },
+        ],
+      );
     if (pathname === "/domains")
       return json({
         at: NOW,
