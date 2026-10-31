@@ -247,6 +247,7 @@ jobs:
             admin/central-links.css \
             admin/central-assets.js \
             admin/central-assets.css \
+            admin/blog-link.js \
             admin/vendor/README.md \
             admin/vendor/qrcode-generator-1.4.4.js \
             admin/vendor/qrcode-generator-LICENSE \

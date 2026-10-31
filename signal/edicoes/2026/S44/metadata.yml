@@ -1,0 +1,14 @@
+edition: S44
+year: 2026
+period: "23 a 30 de outubro de 2026"
+generated: "2026-10-31"
+dictionary_version: "v4.23"
+scope: unimed
+facts_count: 6
+new_terms: 21
+restored_terms: 1
+updated_terms: 10
+dictionary_movements: 32
+sources:
+  notion_pages: 3
+  gmail_threads: 5

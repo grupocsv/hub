@@ -1003,11 +1003,8 @@
               redirect: "manual",
               signal: AbortSignal.timeout(7000),
             };
-          let response = await fetch("https://csv.online" + path, request);
-          if (response.type === "opaqueredirect") {
-            provisional = true;
-            response = await fetch("https://pre.csv.online" + path, request);
-          }
+          const response = await fetch("https://csv.online" + path, request);
+          if (response.type === "opaqueredirect") provisional = true;
           if (response.ok) {
             const v = await response.json();
             observed = v.found ? Number(v.version) : null;

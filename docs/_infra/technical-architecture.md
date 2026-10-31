@@ -849,6 +849,10 @@ Permite gerenciar o sistema de autenticação, as páginas públicas e os links 
 <td>Criar, trocar, restaurar e acompanhar os links curtos rotativos e estáticos de <code>csv.online</code>, com métricas, domínios e a preparação do <code>csv.email</code>. Usa a sessão do Admin e só carrega quando a aba é aberta.</td>
 </tr>
 <tr>
+<td><strong>Blog grupocsv.com</strong> (seção Conteúdo)</td>
+<td>Abre o painel administrativo do blog (<code>grupocsv.com/blog/admin</code>) dentro do Admin. Acima dele, o cartão <strong>Link csv.online/blog</strong> mostra para onde o link aponta e, com confirmação, aponta para o post publicado mais recente pela API da Central de Links (<code>admin/blog-link.js</code>). Só consulta a API quando a aba é aberta.</td>
+</tr>
+<tr>
 <td><strong>Log de Acessos Externos</strong></td>
 <td>Histórico de logins em portais externos, ordenado do mais recente ao mais antigo. Exibe e-mail, nome, portal e data.</td>
 </tr>
@@ -938,10 +942,10 @@ para a infraestrutura do Hub estão listados abaixo.
 <td>Worker csv-webhook</td>
 </tr>
 <tr>
-<td><code>csv.online</code>, <code>www.csv.online</code> e <code>pre.csv.online</code></td>
+<td><code>csv.online</code> e <code>www.csv.online</code></td>
 <td>AAAA</td>
 <td>100::</td>
-<td>Links curtos (rotas do Worker csv-links). <code>pre.csv.online</code> serviu à validação antes da virada; a remoção do registro e da rota está prevista a partir de 01/11/2026, com aprovação (PRD, seção 16.3)</td>
+<td>Links curtos (rotas do Worker csv-links). O endereço de validação <code>pre.csv.online</code> foi removido em 31/10/2026 (registro DNS, rota e código)</td>
 </tr>
 <tr>
 <td><code>links-api.grupocsv.com</code></td>
