@@ -4,6 +4,7 @@
 /package-lock.json -text whitespace=cr-at-eol
 /docs/public/documentos/** text eol=lf
 /docs/public/documentos/vendor/** -text -diff
+/docs/public/manuais/documentos/*.pdf -text -diff
 /docs/public/scripts/hub-auth.js text eol=lf
 /docs/public/scripts/hub-auth.css text eol=lf
 /scripts/documentos-* text eol=lf

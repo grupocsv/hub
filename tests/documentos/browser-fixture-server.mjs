@@ -71,7 +71,7 @@ const RUNTIME_SOURCE = `globalThis.HUB_DOCUMENTOS_CONFIG = Object.freeze(${JSON.
   schemaVersion: 1,
   enabled: true,
   apiBaseUrl: 'https://documentos-api.grupocsv.com',
-  enabledPortals: ['unimed'],
+  enabledPortals: ['grupo-csv', 'unimed', 'unihealth', 'icds', '2im'],
   features: {
     favorites: true,
     offline: false,
@@ -85,7 +85,8 @@ const RUNTIME_INTEGRITY =
 
 const BOOTSTRAP_SOURCE = `
 (() => {
-  const portal = 'unimed';
+  const requestedPortal = new URLSearchParams(location.search).get('portal');
+  const portal = ['grupo-csv', 'unimed', 'unihealth', 'icds', '2im'].includes(requestedPortal) ? requestedPortal : 'unimed';
   const expires = '2099-01-01T00:00:00.000Z';
   localStorage.setItem('hub_auth_' + portal + '_token', 'sessao-local-sem-valor');
   localStorage.setItem('hub_auth_' + portal + '_email', 'teste.local@example.invalid');
@@ -126,6 +127,7 @@ const BOOTSTRAP_SOURCE = `
     },
   ];
   const favoriteDocumentIds = new Set(['document-privacy']);
+  const documentTags = new Map();
   const publicLinks = [
     {
       link_id: 'link-global-active',
@@ -199,6 +201,7 @@ const BOOTSTRAP_SOURCE = `
   function catalogItem(item) {
     return {
       ...item,
+      mimeType: 'application/pdf',
       favorite: favoriteDocumentIds.has(item.documentId),
     };
   }
@@ -604,6 +607,16 @@ const BOOTSTRAP_SOURCE = `
       return json({ items: [uploadedVersion(uploadJobPoll > 1)] });
     }
 
+    const tagsMatch = /^\\/v1\\/documents\\/([^/]+)\\/tags$/u.exec(url.pathname);
+    if (tagsMatch && method === 'PUT') {
+      const documentId = decodeURIComponent(tagsMatch[1]);
+      const documentItem = documentById(documentId);
+      if (!documentItem || documentId !== 'document-pdf') return json({ error: { code: 'not_found' } }, 404);
+      if (!headers.has('if-match') || !headers.has('idempotency-key')) return json({ error: { code: 'invalid_request' } }, 422);
+      const tags = requestBody(init).tags.map((name, index) => ({ tagId: 'tag-new-' + index, name, slug: name.toLowerCase() }));
+      documentTags.set(documentId, tags);
+      return json({ document: { ...documentItem, indexingPolicy: 'metadata_only', currentVersionId: 'version-pdf' }, tags }, 200, { etag: '"tags-updated"' });
+    }
     const detailMatch = /^\\/v1\\/documents\\/([^/]+)$/u.exec(url.pathname);
     if (detailMatch) {
       const documentId = decodeURIComponent(detailMatch[1]);
@@ -624,8 +637,9 @@ const BOOTSTRAP_SOURCE = `
           },
           permissions:
             documentId === 'document-pdf'
-              ? ['read', 'create_version', 'manage_public_links']
+              ? ['read', 'create_version', 'manage_public_links', 'update_metadata']
               : ['read'],
+          tags: documentTags.get(documentId) || [],
         },
         200,
         { etag: '"document-' + documentId + '-e2e-etag"' },
@@ -635,19 +649,28 @@ const BOOTSTRAP_SOURCE = `
       return json({
         items: [{
           versionId: 'version-pdf',
-          versionNumber: 1,
+          versionNumber: 2,
           publicationStatus: 'eligible',
           uploadStatus: 'uploaded',
           securityStatus: 'clean',
           mimeDetected: 'application/pdf',
           sizeBytes: pdfSize,
           originalName: 'manual-seguro.pdf',
+        }, {
+          versionId: 'version-pdf-previous',
+          versionNumber: 1,
+          publicationStatus: 'superseded',
+          uploadStatus: 'uploaded',
+          securityStatus: 'clean',
+          mimeDetected: 'application/pdf',
+          sizeBytes: pdfSize,
+          originalName: 'manual-anterior.pdf',
+          createdAt: '2026-06-01T12:00:00.000Z',
         }],
       });
     }
     if (
-      url.pathname ===
-      '/v1/documents/document-pdf/versions/version-pdf/viewer-tickets'
+      ['/v1/documents/document-pdf/versions/version-pdf/viewer-tickets', '/v1/documents/document-pdf/versions/version-pdf-previous/viewer-tickets'].includes(url.pathname)
     ) {
       return json({
         viewer_ticket: {
@@ -657,8 +680,7 @@ const BOOTSTRAP_SOURCE = `
       }, 201);
     }
     if (
-      url.pathname ===
-      '/v1/documents/document-pdf/versions/version-pdf/bytes'
+      ['/v1/documents/document-pdf/versions/version-pdf/bytes', '/v1/documents/document-pdf/versions/version-pdf-previous/bytes'].includes(url.pathname)
     ) {
       if (headers.get('x-viewer-ticket') !== ticket) {
         return json({ error: { code: 'not_found', message: 'Recurso não encontrado.' } }, 404);

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" role="img" aria-labelledby="title desc">
+  <title id="title">Uma aplicação, cinco acervos separados</title>
+  <desc id="desc">Grupo CSV, Unimed Governador Valadares, Unihealth, ICDS e 2iM usam o mesmo módulo de documentos. Cada organização tem seus arquivos, versões, tags, links e permissões. Acesso a uma Central não concede acesso às demais.</desc>
+  <rect width="1000" height="480" rx="20" fill="#F4F6F8"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#1B1E24">
+    <text x="36" y="48" font-size="26" font-weight="700">Mesma aplicação. Acervos separados.</text>
+    <rect x="260" y="84" width="480" height="86" rx="12" fill="#196396"/>
+    <text x="500" y="120" font-size="25" text-anchor="middle" fill="#fff" font-weight="700">Central de Documentos</text>
+    <text x="500" y="149" font-size="18" text-anchor="middle" fill="#fff">Envio · versões · consulta · compartilhamento</text>
+    <g fill="none" stroke="#196396" stroke-width="3"><path d="M500 170V210M120 210H880M120 210V238M310 210V238M500 210V238M690 210V238M880 210V238"/></g>
+    <g fill="#fff" stroke="#c8d6df" stroke-width="2">
+      <rect x="34" y="238" width="172" height="134" rx="12"/><rect x="224" y="238" width="172" height="134" rx="12"/><rect x="414" y="238" width="172" height="134" rx="12"/><rect x="604" y="238" width="172" height="134" rx="12"/><rect x="794" y="238" width="172" height="134" rx="12"/>
+    </g>
+    <g text-anchor="middle" font-size="20" font-weight="700"><text x="120" y="275">Grupo CSV</text><text x="310" y="275">Unimed GV</text><text x="500" y="275">Unihealth</text><text x="690" y="275">ICDS</text><text x="880" y="275">2iM</text></g>
+    <g text-anchor="middle" font-size="17"><text x="120" y="307">Corporativo</text><text x="310" y="307">Operadora</text><text x="500" y="307">Hospital</text><text x="690" y="307">Institucional</text><text x="880" y="307">Parceria</text></g>
+    <g text-anchor="middle" font-size="15" fill="#196396"><text x="120" y="348">grupo-csv</text><text x="310" y="348">unimed</text><text x="500" y="348">unihealth</text><text x="690" y="348">icds</text><text x="880" y="348">2im</text></g>
+    <path d="M36 409H964" stroke="#2DBF7F" stroke-width="4"/>
+    <text x="36" y="446" font-size="18">Cada acervo tem documentos e permissões próprios. Um link não concede acesso cruzado.</text>
+  </g>
+</svg>

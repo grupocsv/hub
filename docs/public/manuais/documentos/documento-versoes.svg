@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 450" role="img" aria-labelledby="title desc">
+  <title id="title">Um documento mantém suas versões no mesmo cartão</title>
+  <desc id="desc">O documento Manual de Atendimento conserva um único identificador. A versão 3 é a vigente; versões 2 e 1 ficam no histórico para consulta autorizada. Enviar nova versão não cria outro cartão. A busca textual usa a versão vigente.</desc>
+  <rect width="1000" height="450" rx="20" fill="#F4F6F8"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#1B1E24">
+    <text x="36" y="46" font-size="26" font-weight="700">Atualize o arquivo. Preserve o documento.</text>
+    <rect x="36" y="90" width="320" height="242" rx="14" fill="#196396"/>
+    <g fill="#fff"><text x="60" y="131" font-size="23" font-weight="700">Manual de Atendimento</text><text x="60" y="167" font-size="18">Um cartão no catálogo</text><text x="60" y="197" font-size="18">O mesmo identificador</text><rect x="60" y="244" width="272" height="52" rx="8" fill="#2DBF7F"/><text x="196" y="277" font-size="18" text-anchor="middle" fill="#102D26" font-weight="700">Enviar Nova Versão</text></g>
+    <g fill="none" stroke="#196396" stroke-width="3"><path d="M356 208H404M404 130V292M404 130H444M404 212H444M404 292H444"/></g>
+    <rect x="444" y="90" width="520" height="80" rx="12" fill="#e3f5ec" stroke="#2DBF7F" stroke-width="2"/>
+    <rect x="444" y="184" width="520" height="66" rx="12" fill="#fff" stroke="#c8d6df" stroke-width="2"/>
+    <rect x="444" y="264" width="520" height="66" rx="12" fill="#fff" stroke="#c8d6df" stroke-width="2"/>
+    <text x="466" y="123" font-size="21" font-weight="700">Versão 3 · vigente</text><text x="466" y="150" font-size="17">Arquivo consultado pela busca textual do Panta</text>
+    <text x="466" y="224" font-size="21">Versão 2 · histórico</text><text x="466" y="304" font-size="21">Versão 1 · histórico</text>
+    <text x="36" y="387" font-size="18">O histórico permite abrir e baixar versões autorizadas, sem sobrescrever os arquivos anteriores.</text>
+    <text x="36" y="417" font-size="17" fill="#52626e">Exemplo ilustrativo. A busca no corpo de todas as versões antigas não está disponível.</text>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Centrais de Documentos"
+  short_description: "Consulta, versões e importação segura para as Centrais"
+  default_prompt: "Use $central-documentos para analisar uma pasta e propor sua integração à Central correta, preservando documentos e versões."
+policy:
+  allow_implicit_invocation: true

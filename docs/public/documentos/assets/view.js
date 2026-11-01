@@ -5,8 +5,8 @@ const CLASSIFICATION_LABELS = Object.freeze({
   confidential: "Confidencial",
 });
 const LIFECYCLE_LABELS = Object.freeze({
-  draft: "Rascunho",
-  active: "Ativo",
+  draft: "Aguardando disponibilização",
+  active: "",
   archived: "Arquivado",
   deletion_requested: "Exclusão Solicitada",
   deleting: "Em Exclusão",
@@ -66,6 +66,30 @@ const ACTIONS = Object.freeze([
   Object.freeze({ id: "requestDeletion", label: "Solicitar Exclusão" }),
 ]);
 
+const FILE_FORMAT_LABELS = Object.freeze({
+  "application/pdf": "PDF",
+  "text/markdown": "MD",
+  "text/plain": "TXT",
+  "image/png": "PNG",
+  "image/jpeg": "JPG",
+  "image/webp": "WEBP",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
+});
+
+export function documentFormatLabel(value) {
+  const mime = typeof value === "string" ? value.split(";", 1)[0].trim().toLowerCase() : "";
+  return FILE_FORMAT_LABELS[mime] ?? "Formato não informado";
+}
+
+export function filterDocumentVersions(versions, query = "") {
+  const normalize = (value) => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/gu, "").toLowerCase();
+  const needle = normalize(query.trim());
+  return versions.filter((version) => normalize([
+    version.versionNumber, version.originalName, version.createdAt,
+    documentFormatLabel(version.mimeDetected ?? version.mimeType),
+  ].join(" ")).includes(needle));
+}
+
 function plainObject(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -97,6 +121,7 @@ function catalogItem(value) {
     lifecycleLabel: searchResult
       ? ""
       : (LIFECYCLE_LABELS[value.lifecycleStatus] ?? "Estado Indisponível"),
+    formatLabel: documentFormatLabel(value.mimeType ?? value.mimeDetected),
     isSearchResult: searchResult,
   });
 }
@@ -186,6 +211,12 @@ export function buildDetailViewModel(state, versions = [], capabilities = {}) {
     }
     return Object.freeze({
       ...version,
+      canOpen:
+        actions.open === true &&
+        capabilities.viewer === true &&
+        capabilities.openViewer === true &&
+        version.securityStatus === "clean" &&
+        version.uploadStatus === "uploaded",
       canPromote:
         actions.promoteVersion === true &&
         version.publicationStatus === "eligible",
@@ -349,6 +380,23 @@ function button(documentRef, label, action, options = {}) {
   return element;
 }
 
+function decorateFavoriteButton(documentRef, element, selected, title) {
+  element.textContent = "";
+  element.classList.add("docs-favorite");
+  element.setAttribute("aria-label", `${selected ? "Remover dos favoritos" : "Favoritar"}: ${title}`);
+  element.setAttribute("title", selected ? "Remover dos favoritos" : "Favoritar");
+  element.setAttribute("aria-pressed", String(selected));
+  element.dataset.favorite = String(selected);
+  const svg = documentRef.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const path = documentRef.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "m12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91L12 3Z");
+  svg.append(path);
+  element.append(svg);
+}
+
 export function shouldRestoreCatalogFocus(origin, activeElement, body) {
   return Boolean(
     activeElement === origin ||
@@ -420,6 +468,7 @@ export function createDocumentosView(options = {}) {
     "#docs-public-link-create",
   );
   const versionList = documentRef.querySelector("#docs-version-list");
+  const versionFilter = documentRef.querySelector("#docs-version-filter");
   const viewerRoot = documentRef.querySelector("#docs-viewer");
   const viewerPanel = viewerRoot?.querySelector(".docs-viewer__panel");
   const viewerTitle = documentRef.querySelector("#docs-viewer-title");
@@ -816,6 +865,10 @@ export function createDocumentosView(options = {}) {
       }
       article.append(header);
 
+      if (!item.isSearchResult) {
+        appendTextElement(documentRef, header, "span", "docs-card__format", item.formatLabel);
+      }
+
       appendTextElement(documentRef, article, "h3", "", item.title);
       appendTextElement(
         documentRef,
@@ -861,8 +914,7 @@ export function createDocumentosView(options = {}) {
             ariaLabel: `${item.favorite ? "Remover dos favoritos" : "Favoritar"}: ${item.title}`,
           },
         );
-        favoriteButton.dataset.favorite = String(item.favorite);
-        favoriteButton.setAttribute("aria-pressed", String(item.favorite));
+        decorateFavoriteButton(documentRef, favoriteButton, item.favorite, item.title);
         actions.append(favoriteButton);
       }
       article.append(actions);
@@ -1462,28 +1514,74 @@ export function createDocumentosView(options = {}) {
           openUpload: typeof boundHandlers?.openUpload === "function",
         })
       : null;
-    for (const version of model?.versions ?? versions) {
+    const filteredVersions = filterDocumentVersions(model?.versions ?? versions, versionFilter?.value ?? "");
+    for (const version of filteredVersions) {
       const item = documentRef.createElement("li");
+      const status = version.securityStatus === "rejected" ? "Rejeitado pela segurança"
+        : version.securityStatus === "error" ? "Falha na verificação"
+        : version.securityStatus !== "clean" ? "Em processamento"
+        : version.versionId === model?.document?.currentVersionId ? "Versão atual"
+        : version.publicationStatus === "superseded" ? "Versão anterior" : "Arquivo verificado";
       appendTextElement(
         documentRef,
         item,
         "span",
         "",
-        `Versão ${version.versionNumber ?? version.versionId} — ${version.publicationStatus}`,
+        `Versão ${version.versionNumber ?? version.versionId} · ${documentFormatLabel(version.mimeDetected ?? version.mimeType)} · ${status}${version.originalName ? ` · ${version.originalName}` : ""}${version.createdAt ? ` · ${formatDate(version.createdAt)}` : ""}`,
       );
+      const versionActions = documentRef.createElement("div");
+      versionActions.className = "docs-version-actions";
+      if (version.canOpen) {
+        versionActions.append(button(documentRef, "Abrir esta versão", "open-version", {
+          versionId: version.versionId,
+          documentId: version.documentId,
+          disabled: model?.actionsDisabled === true,
+          ariaLabel: `Abrir versão ${version.versionNumber ?? version.versionId}`,
+        }));
+      }
       if (version.canPromote) {
-        item.append(
-          button(documentRef, "Promover", "promote-version", {
+        versionActions.append(
+          button(documentRef, "Usar como versão atual", "promote-version", {
             versionId: version.versionId,
             documentId: version.documentId,
             disabled: model?.actionsDisabled === true,
-            ariaLabel: `Promover versão ${version.versionNumber ?? version.versionId}`,
+            ariaLabel: `Usar versão ${version.versionNumber ?? version.versionId} como atual`,
           }),
         );
       }
+      item.append(versionActions);
       list.append(item);
     }
+    if (filteredVersions.length === 0) appendTextElement(documentRef, list, "li", "docs-muted", "Nenhuma versão corresponde ao filtro.");
     versionList.append(list);
+  }
+
+  function renderTags(document, disabled = false, pending = null) {
+    const section = documentRef.createElement("section");
+    section.className = "docs-tags";
+    appendTextElement(documentRef, section, "h3", "", "Tags");
+    const names = (document.tags ?? []).map((tag) => tag.name ?? tag.label).filter((name) => typeof name === "string");
+    appendTextElement(documentRef, section, "p", "docs-muted", names.length ? names.join(" · ") : "Nenhuma tag adicionada.");
+    if (lastDetailState?.actions?.edit === true && typeof boundHandlers?.updateTags === "function") {
+      const form = documentRef.createElement("form");
+      form.id = "docs-tags-form";
+      form.className = "docs-inline-form";
+      const label = appendTextElement(documentRef, form, "label", "", "Adicionar ou editar tags");
+      const input = documentRef.createElement("input");
+      input.name = "tags";
+      input.type = "text";
+      input.value = (pending ?? names).join(", ");
+      input.placeholder = "Ex.: contrato, planejamento, relatório";
+      input.maxLength = 2430;
+      input.disabled = disabled;
+      input.setAttribute("aria-describedby", "docs-tags-help");
+      label.append(input);
+      const help = appendTextElement(documentRef, form, "p", "docs-muted", "Separe os nomes por vírgula. Apague um nome para retirar a tag deste documento.");
+      help.id = "docs-tags-help";
+      form.append(button(documentRef, "Salvar Tags", "save-tags", { type: "submit", disabled }));
+      section.append(form);
+    }
+    detailContent.append(section);
   }
 
   function renderVersionsError() {
@@ -1984,6 +2082,7 @@ export function createDocumentosView(options = {}) {
         ? (documentRef.activeElement?.dataset?.action ?? null)
         : null) ?? pendingActionFocus;
     if (state.status === "loading") {
+      if (versionFilter && state.documentId !== lastDetailState?.detail?.document?.documentId) versionFilter.value = "";
       versions = Object.freeze([]);
       renderVersions([]);
       renderPublicLinks({
@@ -2064,11 +2163,9 @@ export function createDocumentosView(options = {}) {
       "Classificação",
       CLASSIFICATION_LABELS[model.document.classification],
     );
-    detailField(
-      list,
-      "Estado",
-      LIFECYCLE_LABELS[model.document.lifecycleStatus],
-    );
+    if (LIFECYCLE_LABELS[model.document.lifecycleStatus]) {
+      detailField(list, "Situação", LIFECYCLE_LABELS[model.document.lifecycleStatus]);
+    }
     detailField(list, "Política de Indexação", model.document.indexingPolicy);
     detailField(
       list,
@@ -2076,6 +2173,7 @@ export function createDocumentosView(options = {}) {
       formatDate(model.document.updatedAt),
     );
     detailContent.append(list);
+    renderTags(model.document, model.actionsDisabled, model.pending?.type === "tags" ? model.pending.values.tags : null);
 
     detailActions.replaceChildren();
     for (const action of model.actions) {
@@ -2088,8 +2186,7 @@ export function createDocumentosView(options = {}) {
             : "docs-button docs-button--secondary",
       });
       if (action.id === "favorite") {
-        actionButton.dataset.favorite = String(model.favorite);
-        actionButton.setAttribute("aria-pressed", String(model.favorite));
+        decorateFavoriteButton(documentRef, actionButton, model.favorite, model.document.title);
       }
       detailActions.append(actionButton);
     }
@@ -2180,6 +2277,8 @@ export function createDocumentosView(options = {}) {
     boundHandlers = handlers;
     selectNavigation("documentos");
     syncFeatureControls();
+
+    listen(versionFilter, "input", () => renderVersions());
 
     listen(searchForm, "submit", (event) => {
       event.preventDefault();
@@ -2377,11 +2476,11 @@ export function createDocumentosView(options = {}) {
             : {};
         dispatch(() => handlers.openDocument(documentId, loadOptions));
       }
-      if (action === "open") {
+      if (action === "open" || action === "open-version") {
         viewerOpenedFromDetail = true;
         viewerPreviousFocus = target;
         hideDetailForViewer();
-        dispatch(() => handlers.openViewer?.(documentId));
+        dispatch(() => handlers.openViewer?.(documentId, 1, target.dataset.versionId ?? null));
       }
       if (action === "favorite") {
         if (!favoritesEnabled) return;
@@ -2444,6 +2543,10 @@ export function createDocumentosView(options = {}) {
     listen(detailRoot, "submit", (event) => {
       event.preventDefault();
       const data = new FormData(event.target);
+      if (event.target.id === "docs-tags-form") {
+        const tags = String(data.get("tags") ?? "").split(",").map((tag) => tag.trim()).filter(Boolean);
+        dispatch(() => handlers.updateTags?.(tags, lastDetailState?.detail?.document?.documentId));
+      }
       if (event.target.id === "docs-edit-form") {
         pendingActionFocus = "edit";
         const documentId =

@@ -11,9 +11,9 @@ head:
 
 **A Central organiza e administra os arquivos. O Panta v2 ajuda a encontrá-los.** Não é necessário criar uma segunda cópia no Panta para usar os documentos da Central.
 
-Este manual acompanha a versão de 16/09/2026. A integração foi validada pela API em produção: busca no conteúdo nas cinco Centrais, isolamento entre organizações, políticas somente metadados e desabilitada, substituição da versão antiga por uma nova e reconstrução do índice de um documento de teste.
+Manual revisado em 1º de novembro de 2026. A configuração compartilhada habilita a busca no Grupo CSV, Unimed Governador Valadares, Unihealth, ICDS e 2iM. Cada consulta continua limitada ao acervo e às permissões de quem a executa.
 
-Esta versão do Hub habilita a busca nas cinco Centrais após a validação produtiva pela API. A demonstração com sessão humana ainda não foi realizada. O estado operacional está na [página técnica do Panta v2](/_infra/ferramentas/panta-v2). As ilustrações abaixo são diagramas de funcionamento, não capturas da interface em produção.
+O estado operacional e os registros datados de validação estão na [página técnica do Panta v2](/_infra/ferramentas/panta-v2). As ilustrações abaixo são diagramas de funcionamento, não capturas da interface em produção. O [manual das Centrais](./central-documentos) reúne os capítulos por organização e o arquivo PDF para leitura humana.
 
 ## 1. Panta v1, Panta v2 e Central: quem faz o quê?
 
@@ -33,9 +33,9 @@ Não há um novo login ou painel próprio de usuário da v2. A entrada é a mesm
 
 A VPS é o computador servidor onde os serviços Panta executam. A v1 e a v2 ficam separadas nesse servidor. O acesso externo chega a elas por um túnel protegido; uma falha nesse caminho pode tornar o serviço inacessível mesmo que o processo interno ainda esteja ligado.
 
-O índice da v2 é uma cópia derivada para pesquisa. Os arquivos originais continuam no armazenamento privado da Central, e as permissões e a versão vigente continuam sob controle dela.
+O índice da v2 é uma cópia derivada para pesquisa. Os arquivos originais ficam no **R2 privado**, e o catálogo, as permissões e a versão vigente ficam no **D1** da Central. A VPS não é a pasta de destino em que você precisa copiar manualmente seus arquivos. O envio pela Central ou por integração autorizada cuida dessa transferência.
 
-Foi validada a reconstrução da entrada de um documento de teste. Isso não equivale a testar a recuperação integral do volume de armazenamento depois de uma perda: esse cenário de restauração completa não foi validado nesta rodada.
+O registro de 16/09/2026 comprova a reconstrução da entrada de um documento de teste. Isso não equivale a um ensaio de recuperação integral do volume depois de uma perda; não se deve usar aquela evidência como prova de restauração completa.
 
 Se a v2 ficar indisponível, a pesquisa textual pode falhar ou atrasar. Isso não apaga documentos nem muda quem pode abri-los. Catálogo, filtros e operações documentais não passam pelo motor de busca. A Central também tem um processador próprio de arquivos; problemas nesse processador devem ser investigados separadamente, não atribuídos automaticamente ao Panta.
 
@@ -52,13 +52,13 @@ Quando **Buscar Documentos** estiver disponível na Central:
 
 Use palavras específicas, como `protocolo atendimento`, em vez de esperar uma resposta redigida para uma pergunta longa. A implementação atual faz pesquisa textual; não é um chat, não produz respostas narrativas e não promete equivalência por significado ou sinônimos.
 
-Os filtros de **Coleção**, **Tag**, **Classificação** e **Estado** pertencem ao catálogo. Eles não são combinados com essa pesquisa textual. A consulta continua restrita à Central atual e às permissões do usuário.
+Os filtros de **Coleção**, **Tag**, **Classificação** e **Disponibilidade** pertencem ao catálogo. Eles não são combinados com essa pesquisa textual. A consulta continua restrita à Central atual e às permissões do usuário.
 
 A tela solicita até 20 trechos por busca; um documento pode gerar mais de um resultado. Isso não representa necessariamente 20 documentos diferentes nem todo o acervo que menciona o assunto.
 
 ## 4. O que pode aparecer nos resultados? {#politicas}
 
-Um documento precisa estar ativo, ter versão vigente segura, permitir indexação e estar sincronizado. Além disso, você precisa ter autorização para consultá-lo.
+Um documento precisa estar disponível, ter versão vigente segura, permitir indexação e estar sincronizado. Além disso, você precisa ter autorização para consultá-lo. A retirada dos rótulos de rascunho/ativo da interface não elimina essas verificações técnicas.
 
 | Política de indexação | O que a busca utiliza | Exemplo |
 |---|---|---|
@@ -75,6 +75,8 @@ Texto completo depende de uma extração válida. A presença de um PDF ou de um
 **Indexar não é publicar.** Um documento pesquisável pode continuar privado. A entrega a alguém sem login só ocorre mediante um [link público criado explicitamente](./central-documentos#links-publicos) e permitido pelas regras documentais.
 
 ## 5. Atualizações, versões e retirada da busca
+
+**Histórico de versões e pesquisa no conteúdo são recursos diferentes.** A Central conserva versões anteriores para consulta autorizada no mesmo documento. O campo de busca do Panta usa a versão vigente; não pesquisa o corpo de todas as versões antigas. Para localizar uma revisão anterior, use o histórico, filtre por número, nome ou data e abra essa versão.
 
 O fluxo é assíncrono: salvar uma alteração e aparecer na busca não são o mesmo instante. A sincronização usa o estado atual da Central, não uma cópia antiga enviada por um agente.
 
@@ -136,10 +138,10 @@ A busca não envia, promove, compartilha ou exclui arquivos. Para essas ações,
 
 1. Selecionar explicitamente a Central e usar uma credencial com os escopos necessários.
 2. Enviar o documento ou a nova versão por `documents_publish` e acompanhar `documents_status`.
-3. Promover a versão elegível por `documents_manage`, quando necessário e autorizado.
+3. Promover a versão elegível por `documents_manage`, quando necessário e autorizado. O conector MCP atual não expõe a opção HTTP `auto_publish`; não se deve presumir publicação automática apenas pelo nome `documents_publish`.
 4. Aguardar sincronização e pesquisar por `documents_search`.
 5. Conferir o documento de origem antes de citar ou reutilizar seu conteúdo.
 
 Integrações não devem escrever diretamente no índice da VPS para contornar a Central. Também não devem tratar um trecho antigo guardado em cache como autorização permanente.
 
-O [OpenAPI publicado](https://documentos-api.grupocsv.com/docs/openapi.json) é a referência HTTP. A [documentação técnica do Panta v2](/_infra/ferramentas/panta-v2) detalha arquitetura, operação e limites; o [manual da Central](./central-documentos) cobre as ações de usuário.
+O [OpenAPI publicado](https://documentos-api.grupocsv.com/docs/openapi.json) é a referência HTTP. A [documentação técnica do Panta v2](/_infra/ferramentas/panta-v2) detalha arquitetura, operação e limites; o [manual da Central](./central-documentos) cobre as ações de usuário e o [guia para agentes](./central-documentos-agentes) descreve importação, identidade documental e versionamento sem duplicatas.

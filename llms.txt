@@ -33,6 +33,14 @@
 - `skills/public-pages.md` (caminho no repositório; não é servido no site): skill do fluxo LEGADO /p/ (cópia estática servida pelo GitHub Pages). Vale SOMENTE para manutenção de páginas já existentes em /p/; não usar para novas páginas.
 - [/p/registry.json](/p/registry.json): Catálogo das páginas públicas legadas em /p/. Atualizar apenas em manutenção do legado.
 
+## Centrais de Documentos e Panta v2
+
+- [Manual humano das Centrais](https://hub.grupocsv.com/_infra/manuais/central-documentos): uso, acervos separados, versões, tags, links internos e públicos.
+- [Guia operacional para agentes](https://hub.grupocsv.com/_infra/manuais/central-documentos-agentes): comandos documents_* do Extensio, importação de pastas, idempotência e permissões.
+- [Panta v2 documental](https://hub.grupocsv.com/_infra/manuais/panta-v2): busca autorizada da versão vigente; não substitui a Central nem equivale a toda a busca federada Panta v1.
+- [Contrato HTTP](https://documentos-api.grupocsv.com/docs/openapi.json): conferir a versão publicada antes de usar novas operações.
+- A skill `skills/central-documentos/SKILL.md` está versionada neste repositório. Atualizações de um documento preservam seu document_id e criam versões; não devem criar cartões duplicados.
+
 ## Opcional (Contexto Adicional)
 
 - [/docs/compass/](/docs/compass/): Linha editorial estratégica (Compass™).

@@ -1,178 +1,325 @@
 ---
-title: Manual da Central de Documentos
-description: Como consultar, enviar, versionar, compartilhar e administrar documentos nas Centrais do Grupo CSV e dos parceiros.
+title: Manual das Centrais de Documentos
+description: Guia humano das Centrais do Grupo CSV, Unimed Governador Valadares, Unihealth, ICDS e 2iM, com versões, acesso, compartilhamento e uso por agentes.
 head:
   - - meta
     - name: robots
       content: noindex, nofollow
 ---
 
-# Manual da Central de Documentos
+# Manual das Centrais de Documentos
 
-A Central reúne os arquivos de uma organização, suas versões e as permissões de acesso. Você usa a mesma aplicação no Grupo CSV e nos parceiros, mas cada Central tem seu próprio acervo. Entrar em uma delas não dá acesso automático às outras.
+Guia de uso do Grupo CSV - Cuidados em Saúde com Valor. Revisão de 1º de novembro de 2026.
 
-Este manual acompanha a versão de 16/09/2026. Esta versão do Hub habilita a busca nas cinco Centrais após a validação produtiva pela API. As opções exibidas também dependem da sua permissão. Consulte o [manual do Panta v2](./panta-v2) para os detalhes da busca.
+[Baixar este manual em PDF](/manuais/documentos/manual-centrais-documentos.pdf) · [Guia técnico para agentes](./central-documentos-agentes) · [Entender o Panta](./panta-v2)
 
-A demonstração com sessão humana ainda não foi realizada. As ilustrações deste guia são diagramas de funcionamento, não capturas da interface em produção.
+## 1. Entender em um minuto {#entender}
 
-## 1. Entrar na Central certa {#acesso}
+A Central é o lugar para **guardar, organizar, consultar e compartilhar documentos**, mantendo o histórico das versões. Há uma Central do Grupo CSV e Centrais próprias dos parceiros. Todas usam a mesma aplicação; os acervos não são misturados.
 
-No Hub, use o acesso corporativo para os arquivos do Grupo CSV. Para arquivos de um parceiro, use **Central de Documentos** no cabeçalho da instituição. Dentro do portal do parceiro, o acesso também é próprio da instituição.
+**Tenant** é o nome técnico dessa separação por organização. Na prática, significa escolher a Central certa antes de enviar, procurar ou compartilhar um arquivo.
 
-| Acervo | Acesso direto |
+| Conceito | Em palavras simples |
 |---|---|
-| Grupo CSV | [Abrir Central corporativa](/documentos/?portal=grupo-csv) |
-| Unimed Governador Valadares | [Abrir Central da Unimed](/documentos/?portal=unimed) |
-| Unihealth — hospital gerido pelo ICDS | [Abrir Central da Unihealth](/documentos/?portal=unihealth) |
-| ICDS | [Abrir Central do ICDS](/documentos/?portal=icds) |
-| 2iM | [Abrir Central da 2iM](/documentos/?portal=2im) |
+| Central | A aplicação em que você trabalha com os documentos. |
+| Tenant | O acervo e as permissões de uma organização. |
+| Documento | O registro que aparece em um único cartão, com título, descrição e histórico. |
+| Versão | Um arquivo enviado para esse mesmo documento, sem apagar o anterior. |
+| Coleção | Um agrupamento para organizar documentos de um assunto ou projeto. |
+| Tag | Uma palavra-chave que ajuda a classificar e filtrar documentos. |
+| Panta v2 | O motor que pesquisa o conteúdo autorizado da Central. Não é outro lugar para enviar cópias. |
 
-Faça o login do Hub quando solicitado. Antes de enviar ou compartilhar algo, confira a organização identificada na página. Um nome no endereço não substitui a autorização: o servidor confirma o acesso ao acervo.
+![Uma aplicação compartilhada, com acervos separados para Grupo CSV, Unimed Governador Valadares, Unihealth, ICDS e 2iM.](/manuais/documentos/centrais-tenants.svg)
 
-## 2. Entender a tela {#interface}
+As ilustrações deste manual são diagramas explicativos. Não apresentam documentos reais nem representam uma comprovação de acesso a acervos de terceiros.
 
-| Controle | Para que serve |
+## 2. Entrar na Central certa {#acesso}
+
+No início do Hub, o acesso corporativo leva à Central do Grupo CSV. Na seção de instituições parceiras e dentro do portal de cada parceiro, use o botão **Central de Documentos** da própria instituição.
+
+Faça login quando solicitado. Confira a logomarca e o nome da organização antes de continuar. O endereço seleciona o acervo; o servidor ainda verifica se você pode acessá-lo.
+
+### 2.1. Grupo CSV: o acervo corporativo {#grupo-csv}
+
+[Abrir a Central do Grupo CSV](/documentos/?portal=grupo-csv)
+
+É o espaço dos documentos corporativos do Grupo CSV. Exemplos de organização, não um inventário do que já foi enviado: manuais internos, referências institucionais e documentos comuns à operação do grupo.
+
+Um arquivo da Unimed Governador Valadares não deve ir para este acervo apenas porque foi produzido por uma pessoa do Grupo CSV. A organização responsável pelo documento e o público autorizado orientam o destino.
+
+Identificador para agentes: `grupo-csv`.
+
+### 2.2. Unimed Governador Valadares: a operadora {#unimed}
+
+[Abrir a Central da Unimed Governador Valadares](/documentos/?portal=unimed)
+
+É o acervo da Unimed Governador Valadares. O EVS - Escritório de Valor em Saúde - vinculado à operadora está nesse contexto institucional. Exemplos possíveis: documentos de gestão, protocolos e entregáveis autorizados da operadora.
+
+Este acervo **não é** o acervo do hospital Unihealth. Um título parecido ou a participação das mesmas pessoas não torna os dois destinos intercambiáveis.
+
+Identificador para agentes: `unimed`.
+
+### 2.3. Unihealth: o hospital {#unihealth}
+
+[Abrir a Central da Unihealth](/documentos/?portal=unihealth)
+
+A Unihealth é o hospital gerido pelo ICDS. Sua Central separa os documentos do contexto hospitalar dos documentos da operadora e dos documentos institucionais próprios do ICDS.
+
+Exemplos possíveis: documentos operacionais do hospital e entregáveis hospitalares cujo acesso tenha sido autorizado. Dados pessoais ou clínicos exigem a classificação e as permissões adequadas; este manual não autoriza sua inclusão.
+
+Identificador para agentes: `unihealth`.
+
+### 2.4. ICDS: o acervo institucional {#icds}
+
+[Abrir a Central do ICDS](/documentos/?portal=icds)
+
+O ICDS - Instituto de Cooperação para o Desenvolvimento da Saúde - tem um acervo próprio. Ele não é uma pasta que abre automaticamente todos os documentos do hospital Unihealth.
+
+Um documento institucional do ICDS e um documento operacional do hospital podem ter destinos diferentes. Se houver dúvida, confirme o responsável e o público antes de enviar; não publique cópias nos dois acervos como solução automática.
+
+Identificador para agentes: `icds`.
+
+### 2.5. 2iM: o acervo da parceria {#2im}
+
+[Abrir a Central da 2iM](/documentos/?portal=2im)
+
+É o espaço separado dos documentos autorizados da relação com a 2iM. Exemplos possíveis: entregáveis, referências e documentos de projeto. O acesso continua vinculado à organização, ao usuário e às permissões do documento.
+
+Identificador para agentes: `2im`. Na interface, a grafia da marca é **2iM**.
+
+### As Centrais são iguais? {#equivalencia}
+
+**Sim quanto à aplicação e ao conjunto compartilhado de funcionalidades. Não quanto aos arquivos ou às permissões de cada pessoa.** A configuração desta revisão habilita os mesmos recursos nas cinco Centrais.
+
+| Recurso compartilhado | Grupo CSV | Unimed GV | Unihealth | ICDS | 2iM |
+|---|---|---|---|---|---|
+| Catálogo, coleções e tags | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo |
+| Envio e histórico de versões | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo |
+| Visualização e download | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo |
+| Estrela de favorito | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo | Mesmo módulo |
+| Busca documental do Panta v2 | Habilitada | Habilitada | Habilitada | Habilitada | Habilitada |
+| Links públicos e exclusões | Conforme permissão | Conforme permissão | Conforme permissão | Conforme permissão | Conforme permissão |
+
+Um botão ausente pode refletir o papel do usuário, uma restrição no documento ou uma operação ainda em processamento. Esta equivalência de implementação não significa que todo usuário seja administrador, nem que todos os arquivos tenham sido testados individualmente.
+
+## 3. Conhecer a tela {#interface}
+
+| Controle | Uso |
 |---|---|
-| **Documentos** | Voltar ao catálogo de arquivos autorizados. |
-| **Coleções** | Navegar pelos agrupamentos existentes; em uma coleção, clicar em **Ver Documentos**. |
-| **Favoritos** | Rever os documentos que você marcou com **Favoritar**. |
-| **Recentes** | Retomar documentos carregados nesta sessão, ordenados pela atualização do documento. Não é um histórico permanente nem a ordem exata dos seus cliques. |
-| **Links Públicos** | Administrar os links compartilháveis da Central atual, quando seu perfil permite. |
-| **Exclusões** | Consultar e decidir solicitações de exclusão, conforme sua permissão. |
-| **Enviar Documento** | Cadastrar um documento novo e enviar seu arquivo. |
+| **Documentos** | Voltar ao catálogo do acervo selecionado. |
+| **Coleções** | Navegar pelos agrupamentos existentes e abrir seus documentos. |
+| **Favoritos** | Rever os documentos que você marcou com a estrela. |
+| **Recentes** | Retomar documentos carregados nesta sessão, ordenados pela atualização do documento. Não é um histórico permanente dos seus cliques. |
+| **Links Públicos** | Administrar os endereços compartilháveis deste acervo, se autorizado. |
+| **Exclusões** | Acompanhar e decidir solicitações de exclusão, conforme o papel. |
+| **Enviar Documento** | Criar um documento novo. Para atualizar um existente, entre primeiro em seus detalhes. |
 
-Para navegar pelo catálogo, combine **Coleção**, **Tag**, **Classificação** e **Estado**, depois clique em **Aplicar Filtros**. Use **Limpar** para remover os filtros e **Carregar Mais** quando houver outra página de resultados.
+O cartão identifica o documento e o formato de seu arquivo, quando essa informação está disponível. **PDF**, **MD**, **TXT** ou uma extensão de imagem descrevem o arquivo; não são uma classificação de sigilo. O formato vem dos metadados do arquivo, não de palavras incluídas no título.
 
-Um catálogo vazio pode significar que os filtros não encontraram documentos ou que você não tem acesso aos itens esperados. Não significa, por si só, que os arquivos foram apagados.
+A estrela vazia permite adicionar aos favoritos; a estrela preenchida permite remover. O nome acessível do botão informa a ação para leitores de tela. Favoritar não cria cópia, não compartilha o documento e não altera permissões.
 
-## 3. Consultar e baixar um documento {#visualizador}
+Combine **Coleção**, **Tag**, **Classificação** e **Disponibilidade** e clique em **Aplicar Filtros**. O filtro de disponibilidade permite consultar documentos arquivados ou em exclusão sem expor a antiga escolha entre rascunho e ativo. Use **Limpar** para recomeçar e **Carregar Mais** quando houver outra página de resultados. Um catálogo vazio pode significar que os filtros não encontraram documentos ou que você não tem acesso aos itens esperados.
 
-1. No cartão do documento, clique em **Ver Detalhes**.
-2. Confira título, descrição, classificação, estado, política de indexação e versões.
-3. Clique em **Abrir Documento**, quando disponível.
-4. No visualizador, use **Página Anterior** e **Próxima Página** para PDFs com mais de uma página.
-5. Use **Baixar Arquivo** se essa ação estiver autorizada. Clique em **Fechar** para voltar.
+### Procurar pelo conteúdo
 
-PDFs, imagens e arquivos de texto têm apresentação própria no visualizador. A disponibilidade da visualização depende do formato, do processamento e da autorização. A ausência de uma prévia não autoriza contornar o controle de acesso.
+No campo **Buscar Documentos**, digite termos específicos e clique em **Buscar**. Para sair dos resultados, use **Voltar ao Catálogo**. A busca é textual e autorizada; não é uma conversa que produz uma resposta resumida.
 
-**Favoritar** facilita o retorno ao documento; não cria cópia, não altera sua classificação e não o compartilha.
+Os filtros de navegação do catálogo não se combinam automaticamente com a busca textual. A pesquisa usa o conteúdo da versão vigente e a política de indexação de cada documento. Veja [o que o Panta pesquisa](./panta-v2#politicas).
 
-## 4. Enviar um documento novo {#envio}
+## 4. Consultar, abrir e baixar {#visualizador}
 
-![Fluxo de um documento: enviar arquivo, concluir a verificação, promover a versão e consultar ou compartilhar explicitamente.](/manuais/documentos/ciclo-documental.svg)
+1. No cartão, clique em **Ver Detalhes**.
+2. Confira título, descrição, classificação e versão do documento.
+3. Use **Abrir Documento** para consultar a versão vigente.
+4. No visualizador de PDF, avance e volte pelas páginas. O layout se adapta à tela disponível.
+5. Use **Baixar Arquivo**, se autorizado, para salvar uma cópia. Clique em **Fechar** para retornar.
 
-1. Confira se está na Central correta e clique em **Enviar Documento**.
-2. Preencha **Título** e, se útil, **Descrição** e **Coleção**.
-3. Escolha a **Classificação** apropriada: Público, Interno, Restrito ou Confidencial. Não escolha Público para tentar resolver uma falta de acesso.
-4. Defina a **Política de Indexação** entre as opções disponíveis. O padrão **Somente Metadados** permite pesquisar informações como título e descrição. Com a busca habilitada, **Texto completo e metadados** permite incluir também o texto extraído do arquivo, por escolha explícita. **Desabilitada** retira o documento da busca do Panta; não remove o arquivo do catálogo autorizado.
-5. Selecione o **Arquivo** e clique em **Enviar**.
-6. Aguarde a conclusão do envio e do processamento. A mensagem **Documento processado com sucesso.** confirma o processamento, não a publicação como versão vigente.
-7. Abra **Ver Detalhes** e, na seção **Versões**, use **Promover** na versão elegível, se seu perfil tiver permissão de publicação.
+Uma versão antiga deve ser aberta a partir do **Histórico de Versões**, não confundida com a versão vigente. A disponibilidade da prévia depende do formato e do processamento. Ausência de prévia não autoriza contornar o controle de acesso; use o download somente quando a aplicação o oferecer.
 
-O formulário aceita PDF, PNG, JPG, JPEG, WEBP, TXT ou MD, com até 50 MiB por arquivo. DOCX e XLSX não são formatos aceitos nesse formulário.
+## 5. Enviar um documento novo {#envio}
 
-O arquivo passa por verificação de segurança antes de ficar apto à publicação. Se aparecer rejeição de segurança, não tente tornar o arquivo público como alternativa. Se o acompanhamento demorar ou falhar, confira o estado do documento antes de repetir o envio; **Tentar Novamente** só aparece quando o fluxo permite essa retomada.
+Antes de enviar, procure o documento. Se ele já existe e você tem uma atualização, siga [o procedimento de nova versão](#versoes).
 
-Escolher texto completo em um novo envio não altera a política dos documentos existentes. A opção só aparece quando a busca está habilitada; cada novo formulário começa novamente em **Somente Metadados**.
+1. Confira a Central e clique em **Enviar Documento**.
+2. Preencha **Título**, uma **Descrição** útil e, quando aplicável, a **Coleção**.
+3. Escolha a **Classificação** adequada: Público, Interno, Restrito ou Confidencial.
+4. Defina a **Política de Indexação**. O padrão é **Somente Metadados**; **Texto completo e metadados** inclui o texto extraído autorizado. **Desabilitada** mantém o arquivo fora da busca do Panta.
+5. Selecione o arquivo e envie. Acompanhe a verificação e o resultado.
+6. Confira o documento e a versão disponibilizada. Depois, inclua ou ajuste as tags nos detalhes.
 
-O processamento pode continuar no servidor depois que a tela deixa de acompanhá-lo. Fechar a janela não é uma confirmação de exclusão do arquivo já enviado.
+![Envio de arquivo, verificação de segurança, disponibilização autorizada e consulta. O compartilhamento público é uma ação opcional separada.](/manuais/documentos/ciclo-documental.svg)
 
-## 5. Atualizar sem perder as versões anteriores {#versoes}
+No envio pela interface, quem tem permissão de disponibilizar versões aciona essa etapa automaticamente após a verificação. O servidor mantém a intenção registrada mesmo que a aba seja fechada e confirma novamente as condições de acesso antes de concluir. Para quem só pode enviar, a disponibilização depende de uma pessoa autorizada. **Simplificar a interface não concede uma permissão que o usuário não possui.**
 
-Para substituir o conteúdo de um documento existente, use **Ver Detalhes → Enviar Nova Versão**. Não crie outro documento apenas para atualizar o arquivo.
+Os termos técnicos `draft` e `active` ainda podem aparecer em integrações antigas. Eles não são duas pastas que você precise administrar. O que importa no uso é saber se o arquivo está sendo verificado, se está disponível, se houve uma falha ou se foi retirado de uso.
 
-1. Envie o novo arquivo e acompanhe seu processamento.
-2. Na seção **Versões**, identifique a versão recém-processada.
-3. Clique em **Promover** quando a ação estiver disponível.
-4. Confira se a versão passou a ser a vigente.
+### Formatos e limites {#formatos}
 
-Alguns estados de versão aparecem com os identificadores técnicos: `eligible` significa apta à promoção, `current` significa vigente e `superseded` significa substituída por outra versão. O botão **Promover** só aparece para uma versão elegível e para quem pode publicá-la.
+| Formato enviado | Como usar |
+|---|---|
+| PDF | Consulta em páginas e download autorizado. |
+| PNG, JPG/JPEG, WEBP | Consulta de imagem e download autorizado. |
+| TXT e MD | Consulta de texto com renderização segura. |
+| XLSX, DOCX e outros não listados | Não são aceitos diretamente por este fluxo. Não basta trocar a extensão. |
 
-**Editar Metadados** permite alterar o título e a descrição na interface atual. Essa edição não substitui o arquivo. Mudanças de classificação, coleção, tags ou política de indexação podem exigir a integração administrativa; não estão todas nesse formulário.
+O formulário humano aceita até **50 MiB por arquivo**. O envio por MCP aceita até **8 MiB de conteúdo decodificado** por operação. Arquivos maiores que o limite MCP exigem o fluxo da API documental, dentro dos limites da Central.
 
-Um link público já criado continua apontando para a versão que foi escolhida na criação. Promover outra versão não atualiza esse link automaticamente.
+Uma planilha convertida em PDF passa a ser um PDF: não preserva as fórmulas e a edição do XLSX. Preserve o original fora da conversão. Decida explicitamente se quer guardar uma representação de leitura enquanto o formato original não é suportado.
 
-## 6. Criar e administrar um link público {#links-publicos}
+Se houver falha, consulte o resultado antes de reenviar. O mesmo arquivo não deve virar outro documento apenas porque o primeiro processamento demorou. Um arquivo reprovado na verificação não fica disponível ao público.
 
-Um link público permite que alguém abra a versão compartilhada sem entrar no Hub. Use-o somente para conteúdo que pode ser entregue a qualquer pessoa que receba o endereço.
+## 6. Atualizar no mesmo cartão {#versoes}
 
-**Marcar a classificação como Público não cria um link nem publica o arquivo automaticamente.** O compartilhamento é uma ação explícita e separada.
+**Um documento, um cartão, várias versões.** Para substituir o conteúdo sem perder o histórico, use **Ver Detalhes → Enviar Nova Versão**.
 
-### Criar
+![Um cartão reúne a versão vigente e versões anteriores. Enviar uma atualização no documento existente mantém o mesmo identificador.](/manuais/documentos/documento-versoes.svg)
 
-1. Abra **Ver Detalhes** de um documento ativo, com versão vigente liberada pela verificação de segurança.
-2. Na seção **Compartilhamento Externo → Links Públicos**, clique em **Criar Link**.
-3. Preencha **Endereço Curto**, por exemplo `manual-institucional`. Use de 3 a 48 caracteres: letras minúsculas sem acentos, números e hífens simples entre palavras. O endereço precisa estar disponível; não é exclusivo apenas dentro da sua Central.
+1. Abra o documento que será atualizado e confira sua identidade.
+2. Envie a nova versão dentro dele.
+3. Aguarde a verificação e a disponibilização autorizada.
+4. Confira no **Histórico de Versões** qual versão está vigente e quais são anteriores. Use **Localizar versão** para filtrar por número, nome ou data.
+5. Use **Abrir esta versão** na versão desejada; o download fica no visualizador, quando permitido.
+
+O arquivo anterior não é sobrescrito. A nova versão mantém o documento e seu cartão, mas recebe um identificador de versão próprio.
+
+Um documento sem versão atual pode aparecer como **Aguardando disponibilização**. Para um envio antigo já verificado que ainda dependa dessa etapa, o histórico pode oferecer **Usar como versão atual** a quem tem permissão. Isso não autoriza abrir um arquivo reprovado nem elimina versões anteriores.
+
+**Arquivos iguais não são necessariamente documentos diferentes.** Na importação de uma pasta, compare os bytes e a identidade documental. Cópia idêntica deve ser identificada como duplicata; atualização real do mesmo documento deve virar nova versão. Nome parecido, sozinho, não prova que dois arquivos sejam versões do mesmo documento.
+
+### Histórico não é a mesma coisa que busca no conteúdo antigo
+
+O histórico permite localizar, abrir e baixar versões anteriores. A pesquisa textual do Panta v2 trabalha com a **versão vigente**. Ela não pesquisa simultaneamente o conteúdo de todas as versões antigas. Para consultar o corpo de uma versão anterior, abra o arquivo correspondente no histórico.
+
+Um link público já criado fica associado à versão escolhida na criação. Enviar ou disponibilizar outra versão **não atualiza esse link automaticamente**.
+
+## 7. Organizar com coleções e tags {#tags}
+
+Coleção e tag cumprem papéis diferentes. Uma coleção agrupa documentos de um projeto ou assunto; uma tag acrescenta uma palavra-chave que pode atravessar vários agrupamentos.
+
+Exemplo de organização, não uma classificação já aplicada: coleção `Manuais de operação`, com tags `atendimento` e `revisao-anual`.
+
+Para ajustar as tags de um documento:
+
+1. Abra **Ver Detalhes** e localize a seção **Tags**.
+2. Se seu perfil permitir edição, informe os nomes separados por vírgula: até 20 tags, com até 120 caracteres por nome.
+3. Use palavras-chave curtas, evitando nomes de pessoas ou dados sensíveis desnecessários.
+4. Clique em **Salvar Tags** e confira o resultado. A lista informada substitui o conjunto de tags do documento.
+5. Volte ao catálogo e use o filtro **Tag** para localizar os documentos associados.
+
+As tags são próprias de cada Central. Usar a mesma palavra em duas organizações não conecta seus acervos nem concede acesso cruzado. O filtro mostra tags existentes; filtrar não é o mesmo que cadastrar uma tag.
+
+## 8. Link interno ou link público? {#links}
+
+![O link interno leva à Central e exige acesso. O link público permite abrir uma versão sem login, até expirar ou ser inativado.](/manuais/documentos/links-internos-publicos.svg)
+
+| | Link interno | Link público |
+|---|---|---|
+| Destino | Documento ou visualizador dentro da Central. | Uma versão compartilhada pelo endereço curto. |
+| Login | Exigido, com permissão no acervo e no documento. | Não é exigido do destinatário. |
+| Como obter | Abrir o visualizador na Central e copiar o endereço da barra do navegador. | Criar explicitamente em **Links Públicos**. |
+| Quem pode abrir | Usuário autorizado. Ter a URL não concede acesso. | Qualquer pessoa que tenha o link, enquanto válido. |
+| Troca de versão | Confira se o endereço aponta para uma versão específica. | O link permanece fixo na versão escolhida. |
+| Interromper acesso | Revogar o acesso ao documento ou retirá-lo de uso, conforme permissão. | Inativar o link, deixar expirar ou retirar o documento de uso. |
+
+Copiar a URL interna **não publica** o documento. Abra o visualizador antes de copiar, para que o endereço identifique o documento e, quando aplicável, a versão. Se você quer que um destinatário externo sem conta o abra, precisa criar um link público autorizado.
+
+### Criar um link público {#links-publicos}
+
+1. Abra **Ver Detalhes** de um documento disponível, com versão segura.
+2. Em **Compartilhamento Externo → Links Públicos**, clique em **Criar Link**.
+3. Defina o **Endereço Curto**, por exemplo `manual-atendimento`. Use de 3 a 48 caracteres: letras minúsculas sem acentos, números e hífens simples entre palavras. O nome precisa estar disponível no serviço, não apenas na sua Central.
 4. Se necessário, informe uma **Expiração Opcional**.
-5. Marque **Forçar download ao abrir** se quiser que o navegador baixe o arquivo em vez de tentar exibi-lo.
-6. Clique em **Criar Link Público** e use **Copiar URL** para compartilhar o endereço devolvido pela aplicação.
+5. Marque **Forçar download ao abrir** se preferir o download à abertura no navegador.
+6. Confirme em **Criar Link Público** e compartilhe a URL devolvida pela aplicação.
 
-Documentos Restritos ou Confidenciais não são elegíveis para esse compartilhamento. Também não basta possuir o endereço de um documento arquivado, excluído ou com versão bloqueada: a entrega pública continua sujeita às verificações do servidor.
+**Classificação Público não cria um link nem publica o arquivo automaticamente.** O link é uma decisão separada. Documentos Restritos ou Confidenciais não admitem esse compartilhamento.
 
-Desmarcar **Forçar download ao abrir** não impede que o destinatário salve uma cópia. Inativar um link interrompe novos acessos por ele, mas não apaga cópias já baixadas.
+### Acompanhar e interromper
 
-### Ver todos e interromper o acesso
+No menu **Links Públicos**, consulte os links da Central atual. Use os filtros disponíveis e as ações **Inativar** ou **Ativar**. Confira a expiração: um link marcado como ativo pode já estar vencido.
 
-Abra **Links Públicos** no menu da Central. O painel lista os links desse acervo e permite filtrar por **Estado**, **Slug** ou **ID do Documento**. Ele não mistura os links de todas as instituições.
+Inativar interrompe novos acessos pelo endereço, mas não apaga cópias que alguém já baixou. A opção de abrir no navegador também não impede que o destinatário salve uma cópia.
 
-Use **Inativar** para interromper o acesso pelo link e confirme a ação. Use **Ativar** para reabilitá-lo, desde que o documento, a versão e a expiração ainda permitam a entrega. **Ativo** não substitui a conferência da data de expiração.
+Arquivar um documento ou solicitar sua exclusão inativa os links. Restaurar o documento, rejeitar a exclusão ou cancelar o pedido não os reativa automaticamente.
 
-Arquivar um documento ou solicitar sua exclusão inativa seus links públicos. Restaurar o documento, rejeitar a exclusão ou cancelar o pedido não reativa os links automaticamente. Revise-os antes de compartilhar novamente.
+## 9. Retirar de uso ou excluir {#exclusoes}
 
-## 7. Arquivar ou excluir: são ações diferentes {#exclusoes}
-
-| O que você quer fazer | Ação |
+| Necessidade | Caminho |
 |---|---|
-| Retirar um documento de uso, mantendo a possibilidade de retorno | **Arquivar**; depois, quando cabível, **Restaurar**. |
-| Encaminhar a retirada definitiva do uso na Central | **Solicitar Exclusão** e aguardar a decisão administrativa. |
-| Confirmar a exclusão de um pedido recebido | **Exclusões → Aprovar Exclusão Lógica**, se você for administrador autorizado. |
+| Retirar de uso com possibilidade de retorno | **Ver Detalhes → Arquivar**. Quando cabível, use **Restaurar**. |
+| Solicitar a retirada por exclusão | **Ver Detalhes → Solicitar Exclusão**, informando o motivo. |
+| Confirmar a exclusão solicitada | Menu **Exclusões → Aprovar Exclusão Lógica**, para administrador autorizado. |
 
-### Solicitar
+Em **Exclusões**, confira documento, motivo e solicitante. Um pedido ainda pode ser rejeitado; o solicitante original pode cancelá-lo enquanto isso for permitido. O rótulo de exclusão solicitada não significa que a exclusão foi concluída.
 
-Em **Ver Detalhes**, clique em **Solicitar Exclusão**, preencha **Motivo da Solicitação** e clique em **Confirmar Solicitação**. O documento passa a ter uma solicitação registrada. O rótulo **Exclusão Solicitada** não significa que a exclusão já foi aprovada.
+A aprovação cabe ao administrador documental autorizado do acervo; não depende de uma pessoa nominal específica.
 
-### Aprovar, rejeitar ou cancelar
+**A exclusão disponível é lógica.** O documento deixa de estar disponível pela aplicação, mas os bytes e as versões são preservados conforme a retenção. O botão **Restaurar** do arquivamento não desfaz uma exclusão lógica já aprovada.
 
-O local de confirmação é o menu **Exclusões** da própria Central. No painel **Solicitações de Exclusão**, confira o documento, o motivo e o solicitante.
+## 10. Trazer uma pasta do computador {#importacao}
 
-- **Aprovar Exclusão Lógica**: confirme a mensagem. O documento fica indisponível no Hub e o pedido aparece como **Excluído Logicamente**.
-- **Rejeitar**: recusa o pedido e devolve o documento ao estado anterior aplicável.
-- **Cancelar Solicitação**: pode ser usado pelo solicitante original enquanto o pedido ainda admite cancelamento e sua permissão continua válida.
+Você não precisa anexar os arquivos um a um. Para um agente com acesso ao seu computador, informe o **caminho completo da pasta** e a **Central de destino**. Se o material estiver apenas no Google Drive, informe a URL da pasta e a conta pertinente.
 
-A aprovação cabe aos administradores documentais autorizados da Central; não depende de uma pessoa nominal específica. A ausência do botão pode refletir seu papel ou o estado do pedido.
+O primeiro passo é analisar, não enviar tudo indiscriminadamente:
 
-**A exclusão disponível é lógica: os bytes físicos e as versões são preservados.** Este painel não executa destruição definitiva do armazenamento. Não conte com **Restaurar** para desfazer uma exclusão lógica já aprovada; essa ação de restauração é própria do arquivamento.
+1. Inventariar arquivos e subpastas sem alterar os originais.
+2. Separar duplicatas idênticas, versões prováveis e documentos distintos.
+3. Comparar com os documentos já existentes na Central escolhida.
+4. Propor título, descrição, coleção, tags, classificação e política de indexação.
+5. Apontar formatos não suportados e documentos que exigem cuidado com sigilo.
+6. Após a aprovação do lote, enviar cada item para o documento correto e conferir o resultado.
 
-## 8. Uso por agentes e automações {#agentes}
+Texto para copiar:
 
-As integrações usam a mesma Central e as mesmas regras de acesso. Elas não devem criar um acervo paralelo no Panta nem usar a sessão pessoal de alguém.
+```text
+Analise a pasta [CAMINHO COMPLETO], incluindo as subpastas,
+para integração à Central da Unimed Governador Valadares
+(tenant unimed). Preserve os originais. Identifique duplicatas,
+versões do mesmo documento e correspondências com o acervo.
+Proponha a organização e informe os formatos não suportados.
+Nesta primeira etapa, não envie, não exclua e não crie links públicos.
+```
 
-| Tarefa | Ferramenta no Extensio MCP |
+Se a pasta mistura organizações, classifique o destino antes do envio. Não presuma que o local no computador define sozinho a titularidade do arquivo. A importação não é uma sincronização contínua: arquivos novos ou alterados depois precisam de nova integração.
+
+## 11. Operação por agentes {#agentes}
+
+Os agentes usam a mesma Central, por ferramentas documentais ou pela API. O pedido pode ser simples, mas a execução deve manter a organização certa, as permissões e o histórico.
+
+Exemplos de comandos humanos:
+
+- “Localize o manual de atendimento na Central da Unimed Governador Valadares.”
+- “Atualize este documento com o arquivo anexo, mantendo o mesmo cartão e o histórico.”
+- “Analise esta pasta e proponha o que cadastrar ou versionar; não envie ainda.”
+- “Crie um link público para esta versão, com o endereço curto e a validade que informei.”
+
+Quando produzir ou revisar um documento relacionado a uma Central e a intenção de arquivamento não estiver definida, o agente deve perguntar se você quer incorporá-lo. **Produzir um arquivo não é autorização automática para enviá-lo ou torná-lo público.** Uma aprovação clara de lote pode abranger os itens descritos, sem exigir a mesma pergunta para cada arquivo.
+
+O [guia para agentes](./central-documentos-agentes) documenta os comandos `documents_*`, o uso de identificadores, os limites de transporte e a prevenção de duplicidades. Ele não contém credenciais. As integrações não devem usar cookies pessoais nem escrever diretamente no índice do Panta.
+
+## 12. Central, Panta e VPS {#panta}
+
+**A Central é a biblioteca; o Panta v2 é o mecanismo de busca dessa biblioteca.** Essa é uma comparação funcional: quem controla o documento e o acesso continua sendo a Central.
+
+- Os arquivos enviados ficam no **armazenamento privado R2**, não em uma pasta pública da VPS.
+- O catálogo, as permissões e os identificadores das versões ficam no **D1**, o banco da Central.
+- A **VPS** executa serviços de processamento e busca. O Panta v2 mantém um índice derivado, para localizar o conteúdo autorizado.
+- O **Panta v1 federado** é o serviço anterior de busca e relações entre fontes. Ele não foi integralmente substituído pelo Panta v2 documental.
+
+Você não precisa transportar manualmente a pasta do computador para a VPS. Envie pela Central ou por uma integração autorizada. A aplicação cuida da transferência e do processamento.
+
+Se a busca falhar, isso não significa que os arquivos foram apagados. Catálogo e armazenamento não são o índice do Panta. Saiba mais no [manual do Panta v2](./panta-v2).
+
+## 13. Resolver situações comuns {#duvidas}
+
+| Situação | O que fazer |
 |---|---|
-| Listar e consultar documentos | `documents_list`, `documents_get` |
-| Enviar documento ou nova versão e iniciar processamento | `documents_publish` |
-| Acompanhar processamento | `documents_status` |
-| Recuperar o arquivo autorizado | `documents_download` |
-| Editar metadados, promover, arquivar, restaurar ou solicitar exclusão | `documents_manage` |
-| Administrar links compartilháveis | `documents_public_links` |
-| Listar e decidir pedidos de exclusão | `documents_deletion_requests` |
-| Pesquisar com o Panta v2, quando habilitado | `documents_search` |
+| Falta um botão de envio, edição ou exclusão | Confira Central, sessão e permissão. Os recursos são compartilhados, mas os papéis não precisam ser iguais. |
+| Envio terminou, mas o documento não está disponível | Confira processamento, segurança e autorização de disponibilização; não crie outro cartão para tentar resolver. |
+| Não encontro um documento | Confira Central, filtros, permissão, retirada de uso e política de indexação. |
+| A versão antiga não aparece na busca textual | Consulte o histórico do documento; o Panta pesquisa a versão vigente. |
+| Quero enviar um XLSX | O formato não é aceito diretamente. Preserve o original e avalie uma representação em PDF, sem fingir que ela conserva fórmulas. |
+| O link público abriu um conteúdo anterior | Ele fica vinculado à versão escolhida. Uma atualização do documento não altera o link. |
+| A aplicação informa que o documento mudou | Recarregue os detalhes antes de repetir a alteração, evitando sobrescrever uma edição recente. |
 
-Informe o `tenant_id` correto em cada operação. O agente precisa de uma credencial de serviço com os escopos necessários; as operações administrativas não são liberadas por uma credencial somente de leitura. Em repetições de uma mesma mutação, mantenha a mesma chave de idempotência para não duplicá-la.
-
-Não confunda o nome `documents_publish` com a conclusão do ciclo: após o envio, acompanhe o job e confira a versão; promova a versão elegível quando necessário. O envio pelo MCP aceita até 8 MiB por publicação. Para arquivos maiores, use a API documental; o formulário humano mantém o limite de 50 MiB.
-
-Para implementar uma integração, consulte o [contrato OpenAPI](https://documentos-api.grupocsv.com/docs/openapi.json) e a [documentação técnica da Central](/_infra/central-documentos#api-openapi-e-mcp). Nunca coloque tokens em mensagens, links públicos, capturas de tela ou arquivos de exemplo.
-
-## 9. Resolver dúvidas comuns
-
-| Situação | O que conferir |
-|---|---|
-| Não vejo o botão de envio, de links ou de exclusões | Central selecionada, sessão e permissão documental. Ser usuário do Hub não equivale a ser administrador. |
-| Enviei, mas o documento não aparece como ativo | Processamento e promoção da versão. No catálogo, confira também **Estado → Rascunho**. |
-| Não encontro um arquivo | Central, filtros, permissões, estado e, se estiver usando busca, a política de indexação. |
-| O link público parou de funcionar | Estado do link, expiração, arquivamento/exclusão e disponibilidade da versão vinculada. |
-| O visualizador não abre | Estado de segurança, formato, processamento e permissão. Use download apenas se oferecido. |
-| Uma ação informa que o documento mudou | Recarregue os detalhes e confira o estado atual antes de repetir. |
-
-Para entender o que o Panta acrescenta sem substituir esta aplicação, siga para o [manual do Panta v2](./panta-v2).
+Para arquitetura, contratos e registros de verificação, consulte a [documentação técnica da Central](/_infra/central-documentos). Este manual explica o uso; não substitui a verificação do resultado de cada operação.

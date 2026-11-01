@@ -78,10 +78,11 @@ function viewerErrorState(error) {
   });
 }
 
-export function formatViewerFragment(documentId, page = 1) {
+export function formatViewerFragment(documentId, page = 1, versionId = null) {
   const params = new URLSearchParams();
   params.set("document", identifier(documentId, "Documento"));
   params.set("page", String(pageNumber(page)));
+  if (versionId !== null) params.set("version", identifier(versionId, "Versão"));
   return `#${params.toString()}`;
 }
 
@@ -99,9 +100,10 @@ export function parseViewerFragment(hash) {
   }
   const keys = [...params.keys()];
   if (
-    keys.length !== 2 ||
+    (keys.length !== 2 && keys.length !== 3) ||
     keys.filter((key) => key === "document").length !== 1 ||
-    keys.filter((key) => key === "page").length !== 1
+    keys.filter((key) => key === "page").length !== 1 ||
+    (keys.length === 3 && keys.filter((key) => key === "version").length !== 1)
   ) {
     return null;
   }
@@ -109,6 +111,7 @@ export function parseViewerFragment(hash) {
     return Object.freeze({
       documentId: identifier(params.get("document"), "Documento"),
       page: pageNumber(params.get("page")),
+      ...(params.has("version") ? { versionId: identifier(params.get("version"), "Versão") } : {}),
     });
   } catch {
     return null;
@@ -188,16 +191,17 @@ export function createViewerRouteController(options = {}) {
       }
       return synchronize();
     },
-    async open(documentId, page = 1) {
+    async open(documentId, page = 1, versionId = null) {
       if (destroyed) return null;
       navigationGeneration += 1;
       const parsed = Object.freeze({
         documentId: identifier(documentId, "Documento"),
         page: pageNumber(page),
+        ...(versionId !== null ? { versionId: identifier(versionId, "Versão") } : {}),
       });
       const alreadyOpen = Boolean(current);
       current = parsed;
-      const fragment = formatViewerFragment(parsed.documentId, parsed.page);
+      const fragment = formatViewerFragment(parsed.documentId, parsed.page, parsed.versionId ?? null);
       if (alreadyOpen) replace(fragment);
       else {
         push(fragment);
@@ -209,7 +213,7 @@ export function createViewerRouteController(options = {}) {
     setPage(page) {
       if (destroyed || !current) return null;
       current = Object.freeze({ ...current, page: pageNumber(page) });
-      replace(formatViewerFragment(current.documentId, current.page));
+      replace(formatViewerFragment(current.documentId, current.page, current.versionId ?? null));
       return current;
     },
     async close() {
@@ -263,7 +267,7 @@ function versionOrder(value) {
   return Number.isSafeInteger(value?.versionNumber) ? value.versionNumber : 0;
 }
 
-export function selectViewerVersion(document, versions) {
+export function selectViewerVersion(document, versions, requestedVersionId = null) {
   if (!plainObject(document) || !Array.isArray(versions)) return null;
   const documentId =
     typeof document.documentId === "string" ? document.documentId : null;
@@ -273,6 +277,9 @@ export function selectViewerVersion(document, versions) {
       (documentId === null || version.documentId === documentId),
   );
   if (eligible.length === 0) return null;
+  if (requestedVersionId !== null) {
+    return eligible.find((version) => version.versionId === requestedVersionId) ?? null;
+  }
   if (typeof document.currentVersionId === "string") {
     const current = eligible.find(
       (version) => version.versionId === document.currentVersionId,

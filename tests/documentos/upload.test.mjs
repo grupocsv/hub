@@ -157,6 +157,19 @@ function controllerFixture(options = {}) {
   return { controller, states };
 }
 
+test("solicita disponibilização automática apenas com permissão publish", async () => {
+  for (const publish of [true, false]) {
+    const { client, calls } = successClient();
+    const { controller } = controllerFixture({ client });
+    await controller.start({
+      documentId: "document-a", file: fileFixture(),
+      permissions: publish ? ["create_version", "publish"] : ["create_version"],
+    });
+    const complete = calls.find(([target]) => target.endsWith("/complete"));
+    assert.deepEqual(complete[1].body, publish ? { auto_publish: true } : undefined);
+  }
+});
+
 test("valida no cliente nome, extensão, MIME e limite canônico antes da rede", () => {
   assert.deepEqual(validateUploadFile(fileFixture()), {
     name: "relatorio.pdf",

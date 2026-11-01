@@ -702,6 +702,7 @@ export function createDocumentUploadController(options = {}) {
             headers: {
               "Idempotency-Key": attempt.completionIdempotencyKey,
             },
+            ...(normalized.permissions.includes("publish") ? { body: { auto_publish: true } } : {}),
           },
           context,
         );
