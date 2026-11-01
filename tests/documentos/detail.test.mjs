@@ -41,6 +41,31 @@ function responseHeaders(etag = 'W/"metadata-1"') {
   return new Headers({ ETag: etag });
 }
 
+test('tags usam permissão de edição, ETag e chave idempotente sem alterar outro documento', async () => {
+  const calls = [];
+  const controller = createDocumentDetailController({
+    createRequestId: () => 'tags-operation',
+    client: { async request(target, options = {}) {
+      calls.push({ target, options });
+      return {
+        data: { document: metadata(), permissions: ['read', 'update_metadata'], tags: options.method === 'PUT' ? [{ tagId: 'tag-a', name: 'Gestão Clínica', slug: 'gestao-clinica' }] : [] },
+        headers: responseHeaders(),
+      };
+    } },
+  });
+  await controller.load('document-a');
+  await controller.updateTags([' Gestão  Clínica ']);
+  assert.equal(calls[1].target, '/v1/documents/document-a/tags');
+  assert.equal(calls[1].options.method, 'PUT');
+  assert.equal(calls[1].options.headers['If-Match'], 'W/"metadata-1"');
+  assert.equal(calls[1].options.headers['Idempotency-Key'], 'tags-operation');
+  assert.deepEqual(calls[1].options.body, { tags: ['Gestão Clínica'] });
+  assert.equal(controller.getDetail().document.tags[0].name, 'Gestão Clínica');
+  await assert.rejects(controller.updateTags(Array(21).fill('tag')), /Tags inválidas/);
+  await assert.rejects(controller.updateTags(['linha\nsecreta']), /Tags inválidas/);
+  assert.equal(calls.length, 2);
+});
+
 test('normaliza detalhe e deriva ações somente das permissões efetivas', () => {
   const detail = normalizeDocumentDetail(
     {
@@ -71,6 +96,14 @@ test('normaliza detalhe e deriva ações somente das permissões efetivas', () =
     requestDeletion: false,
     promoteVersion: false,
   });
+});
+
+test('preserva tags em resposta parcial de metadados, mas aceita remoção explícita', () => {
+  const tags = [{ tagId: 'tag-a', name: 'Gestão', slug: 'gestao' }];
+  const partial = normalizeDocumentDetail({ document: metadata() }, responseHeaders(), [], 'document-a', tags);
+  assert.deepEqual(partial.document.tags, tags);
+  const cleared = normalizeDocumentDetail({ document: metadata(), tags: [] }, responseHeaders(), [], 'document-a', tags);
+  assert.deepEqual(cleared.document.tags, []);
 });
 
 test('bloqueia ação não autorizada antes de qualquer request', async () => {

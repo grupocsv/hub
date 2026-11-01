@@ -56,6 +56,7 @@ export function normalizeDocumentDetail(
   headers,
   fallbackPermissions = [],
   expectedDocumentId = null,
+  fallbackTags = [],
 ) {
   if (!plainObject(payload) || !plainObject(payload.document)) {
     throw new TypeError('Resposta de detalhe inválida.');
@@ -70,7 +71,7 @@ export function normalizeDocumentDetail(
     throw new TypeError('ETag documental inválido.');
   }
   return Object.freeze({
-    document,
+    document: Object.freeze({ ...document, tags: Object.freeze(Array.isArray(payload.tags) ? payload.tags : fallbackTags) }),
     permissions: normalizePermissions(payload.permissions, fallbackPermissions),
     etag,
   });
@@ -350,6 +351,7 @@ export function createDocumentDetailController(options = {}) {
           response.headers,
           context.detail.permissions,
           context.documentId,
+          context.detail.document.tags,
         );
         return { value: current };
       },
@@ -385,6 +387,30 @@ export function createDocumentDetailController(options = {}) {
     }
   }
 
+  async function updateTags(tags) {
+    if (!Array.isArray(tags) || tags.length > 20 || tags.some((tag) => typeof tag !== 'string' || !tag.trim() || tag.trim().length > 120 || CONTROL_CHARACTER_PATTERN.test(tag))) {
+      throw new TypeError('Tags inválidas. Use até 20 nomes com no máximo 120 caracteres cada.');
+    }
+    const values = [...new Set(tags.map((tag) => tag.trim().replace(/\s+/gu, ' ')))];
+    const key = identifier(createRequestId(), 'Idempotência');
+    return runMutation(
+      'edit',
+      (context) => ({
+        target: documentTarget(context.documentId, '/tags'),
+        options: {
+          method: 'PUT',
+          headers: { 'If-Match': context.detail.etag, 'Idempotency-Key': key },
+          body: { tags: values },
+        },
+      }),
+      (response, context) => {
+        current = normalizeDocumentDetail(response.data, response.headers, context.detail.permissions, context.documentId);
+        return { value: current };
+      },
+      Object.freeze({ type: 'tags', values: { tags: values } }),
+    );
+  }
+
   async function transition(action) {
     return runMutation(
       action,
@@ -401,6 +427,7 @@ export function createDocumentDetailController(options = {}) {
           response.headers,
           context.detail.permissions,
           context.documentId,
+          context.detail.document.tags,
         );
         return { value: current };
       },
@@ -514,6 +541,7 @@ export function createDocumentDetailController(options = {}) {
     load,
     refresh,
     updateMetadata,
+    updateTags,
     setFavorite,
     archive: () => transition('archive'),
     restore: () => transition('restore'),

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460" role="img" aria-labelledby="title desc">
+  <title id="title">Link interno e link público têm destinatários diferentes</title>
+  <desc id="desc">O link interno exige login e permissão para a Central e o documento. O link público é criado explicitamente, fica vinculado a uma versão, não exige login do destinatário e pode expirar ou ser inativado. A classificação Público sozinha não cria acesso anônimo.</desc>
+  <rect width="1000" height="460" rx="20" fill="#F4F6F8"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#1B1E24">
+    <text x="36" y="47" font-size="26" font-weight="700">O destinatário precisa entrar no Hub?</text>
+    <rect x="36" y="87" width="446" height="280" rx="14" fill="#fff" stroke="#196396" stroke-width="2"/>
+    <rect x="518" y="87" width="446" height="280" rx="14" fill="#fff" stroke="#2DBF7F" stroke-width="2"/>
+    <path d="M56 107H462" stroke="#196396" stroke-width="5"/><path d="M538 107H944" stroke="#2DBF7F" stroke-width="5"/>
+    <text x="60" y="153" font-size="25" font-weight="700">Link interno</text><text x="542" y="153" font-size="25" font-weight="700">Link público</text>
+    <g font-size="20"><text x="60" y="198">Exige login e autorização.</text><text x="542" y="198">Não exige login.</text></g>
+    <g font-size="18"><text x="60" y="239">Copie o endereço do documento</text><text x="60" y="267">ou do visualizador na Central.</text><text x="60" y="318">Ter a URL não concede permissão.</text>
+      <text x="542" y="239">Crie um endereço curto para</text><text x="542" y="267">uma versão escolhida.</text><text x="542" y="318">Inative ou defina uma expiração.</text></g>
+    <text x="36" y="416" font-size="19" font-weight="700">Classificação “Público” não cria um link nem publica o arquivo por si só.</text>
+  </g>
+</svg>

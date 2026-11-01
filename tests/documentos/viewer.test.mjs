@@ -130,7 +130,10 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-test("fragmento canônico guarda somente documento e página e rejeita contexto sensível", () => {
+test("fragmento canônico guarda documento, página e versão opcional sem contexto sensível", () => {
+  assert.equal(formatViewerFragment("document-a", 2, "version-old"), "#document=document-a&page=2&version=version-old");
+  assert.deepEqual(parseViewerFragment("#document=document-a&page=2&version=version-old"), { documentId: "document-a", page: 2, versionId: "version-old" });
+  assert.equal(parseViewerFragment("#document=document-a&page=2&version=../secret"), null);
   assert.equal(
     formatViewerFragment("documento opaco:1", 7),
     "#document=documento+opaco%3A1&page=7",
@@ -342,6 +345,9 @@ test("seleciona somente versão pronta e prefere a versão vigente do documento"
     selectViewerVersion({ currentVersionId: "version-1" }, versions).versionId,
     "version-1",
   );
+  assert.equal(selectViewerVersion({ currentVersionId: "version-2" }, versions, "version-1").versionId, "version-1");
+  assert.equal(selectViewerVersion({ currentVersionId: "version-2" }, versions, "unknown-version"), null);
+  assert.equal(selectViewerVersion({ currentVersionId: "version-2" }, versions, "version-3"), null);
   assert.equal(
     selectViewerVersion({ currentVersionId: null }, versions).versionId,
     "version-2",

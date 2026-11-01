@@ -11,12 +11,28 @@ import {
   buildDetailViewModel,
   buildPublicLinksAdminViewModel,
   buildPublicLinksViewModel,
+  documentFormatLabel,
+  filterDocumentVersions,
   resolveCatalogFocusIntent,
   shouldRestoreCatalogFocus,
 } from "../../docs/public/documentos/assets/view.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HUB_ROOT = path.resolve(HERE, "../..");
+
+test("formato vem do MIME e histórico filtra metadados sem inventar busca no conteúdo", () => {
+  assert.equal(documentFormatLabel("application/pdf"), "PDF");
+  assert.equal(documentFormatLabel("text/markdown; charset=utf-8"), "MD");
+  assert.equal(documentFormatLabel(undefined), "Formato não informado");
+  assert.equal(documentFormatLabel("arquivo.xlsx"), "Formato não informado");
+  const versions = [
+    { versionNumber: 1, originalName: "Relatório inicial.pdf", createdAt: "2026-10-15", mimeDetected: "application/pdf" },
+    { versionNumber: 2, originalName: "Revisão.md", createdAt: "2026-11-01", mimeDetected: "text/markdown" },
+  ];
+  assert.deepEqual(filterDocumentVersions(versions, "relatorio"), [versions[0]]);
+  assert.deepEqual(filterDocumentVersions(versions, "2026-11"), [versions[1]]);
+  assert.deepEqual(filterDocumentVersions(versions, "texto interno"), []);
+});
 
 test("busca diferencia indisponibilidade, acervo excedido e limite explícito sem expor erro bruto", () => {
   assert.equal(buildSearchStatus({ mode: "catalog", status: "ready" }), "");
@@ -50,7 +66,7 @@ test("constrói modelo de catálogo verificável para pronto, vazio, erro e pagi
   });
   assert.equal(ready.status, "ready");
   assert.equal(ready.items[0].classificationLabel, "Interno");
-  assert.equal(ready.items[0].lifecycleLabel, "Ativo");
+  assert.equal(ready.items[0].lifecycleLabel, "");
   assert.equal(ready.hasNextPage, true);
 
   assert.equal(
@@ -171,6 +187,19 @@ test("modela links públicos e fila de exclusão sem inferir permissões", () =>
   assert.equal(deletions.capabilities.review, true);
   assert.equal(deletions.capabilities.cancel, false);
   assert.equal(deletions.busy, false);
+});
+
+test("versão histórica só oferece abertura com leitura efetiva e verificação segura", () => {
+  const state = {
+    status: "ready",
+    detail: { document: catalogItem() },
+    actions: { open: true },
+  };
+  const version = { documentId: "document-a", versionId: "version-old", uploadStatus: "uploaded", securityStatus: "clean", publicationStatus: "superseded" };
+  const capabilities = { viewer: true, openViewer: true };
+  assert.equal(buildDetailViewModel(state, [version], capabilities).versions[0].canOpen, true);
+  assert.equal(buildDetailViewModel({ ...state, actions: {} }, [version], capabilities).versions[0].canOpen, false);
+  assert.equal(buildDetailViewModel(state, [{ ...version, securityStatus: "scanning" }], capabilities).versions[0].canOpen, false);
 });
 
 test("rejeita versão sem vínculo ou vinculada a outro documento", () => {
@@ -471,7 +500,7 @@ test("camada DOM não usa HTML arbitrário e shell contém filtros e painel sem�
   assert.match(source, /handlers\.cancelUpload\?\./);
   assert.match(source, /handlers\.retryUpload\?\./);
   assert.match(source, /ariaLabel:\s*`Ver detalhes de \$\{item\.title\}`/);
-  assert.match(source, /ariaLabel:\s*`Promover versão \$\{/);
+  assert.match(source, /ariaLabel:\s*`Usar versão \$\{/);
   assert.match(
     source,
     /ariaLabel:\s*`Ver documentos da coleção \$\{item\.name\}`/,

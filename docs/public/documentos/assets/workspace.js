@@ -1131,7 +1131,7 @@ export function createDocumentosWorkspace(options = {}) {
       if (!isCurrent() || activeDocumentId !== route.documentId) {
         return null;
       }
-      const version = selectViewerVersion(loaded.document, activeVersions);
+      const version = selectViewerVersion(loaded.document, activeVersions, route.versionId ?? null);
       if (!version) {
         renderUnavailable();
         return null;
@@ -1140,7 +1140,7 @@ export function createDocumentosWorkspace(options = {}) {
       const result = await viewer.open({
         documentId: route.documentId,
         versionId: version.versionId,
-        title: loaded.document.title,
+        title: route.versionId ? `${loaded.document.title} — versão ${version.versionNumber ?? "selecionada"}` : loaded.document.title,
         fileName: version.originalName,
         page: route.page,
       });
@@ -1339,6 +1339,21 @@ export function createDocumentosWorkspace(options = {}) {
     closeDocument,
     updateMetadata: (patch, documentId) =>
       mutate(() => detail.updateMetadata(patch), documentId),
+    async updateTags(tags, documentId) {
+      const result = await mutate(() => detail.updateTags(tags), documentId);
+      if (result && acceptsCallbacks()) {
+        try {
+          const refreshed = await catalog.loadMetadata();
+          if (refreshed && acceptsCallbacks()) {
+            metadata = refreshed;
+            view.setMetadata(metadata);
+          }
+        } catch {
+          // As tags foram salvas; a atualização dos filtros pode ser repetida ao abrir o catálogo.
+        }
+      }
+      return result;
+    },
     setFavorite: (value, documentId) =>
       favoritesEnabled
         ? mutate(() => detail.setFavorite(value), documentId, {
@@ -1385,9 +1400,9 @@ export function createDocumentosWorkspace(options = {}) {
         refreshDocument: true,
         refreshVersions: true,
       }),
-    openViewer: (documentId, page = 1) =>
+    openViewer: (documentId, page = 1, versionId = null) =>
       viewerEnabled && acceptsCallbacks()
-        ? viewerRoute.open(documentId, page)
+        ? viewerRoute.open(documentId, page, versionId)
         : null,
     async viewerGoToPage(page) {
       if (!viewerEnabled || !acceptsCallbacks()) return null;

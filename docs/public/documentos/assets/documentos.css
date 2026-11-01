@@ -701,6 +701,7 @@ textarea:focus-visible {
 }
 
 .docs-filters__form label,
+.docs-version-filter,
 .docs-inline-form label {
   min-width: 0;
   display: grid;
@@ -711,6 +712,7 @@ textarea:focus-visible {
 }
 
 .docs-filters__form select,
+.docs-version-filter input,
 .docs-inline-form input,
 .docs-inline-form textarea {
   min-width: 0;
@@ -765,6 +767,53 @@ textarea:focus-visible {
 
 .docs-card__header {
   justify-content: space-between;
+}
+
+.docs-card__format {
+  color: var(--csv-body);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.docs-button.docs-favorite {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.625rem;
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.docs-favorite svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.docs-favorite[aria-pressed="true"] {
+  color: #ffdc73;
+}
+
+.docs-favorite[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+.docs-tags {
+  margin-block: 1rem;
+}
+
+.docs-version-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.docs-version-list li > span {
+  overflow-wrap: anywhere;
 }
 
 .docs-badge,

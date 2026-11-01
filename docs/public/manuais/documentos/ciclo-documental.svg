@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" role="img" aria-labelledby="title desc">
   <title id="title">Da entrada do arquivo à versão vigente</title>
-  <desc id="desc">O arquivo é enviado à Central e passa por processamento e segurança. Uma versão elegível pode ser promovida por pessoa ou integração autorizada. Depois, o documento pode ser consultado; um link público exige uma ação explícita separada.</desc>
+  <desc id="desc">O arquivo é enviado à Central e passa por processamento e segurança. O envio autorizado pode disponibilizar automaticamente uma versão segura; quem só pode enviar depende de um gestor. Um link público exige uma ação explícita separada.</desc>
   <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#0b7187"/></marker></defs>
   <rect width="960" height="480" rx="20" fill="#f3f7fa"/>
   <g font-family="Arial, Helvetica, sans-serif" fill="#14384b">
-    <text x="32" y="43" font-size="23" font-weight="700">Arquivo enviado não é o mesmo que versão publicada</text>
-    <text x="32" y="72" font-size="17">O envio, a verificação e a promoção são etapas distintas.</text>
+    <text x="32" y="43" font-size="23" font-weight="700">Enviar, verificar e disponibilizar com segurança</text>
+    <text x="32" y="72" font-size="17">A etapa final pode ser automática para quem já tem permissão.</text>
     <g fill="#fff" stroke="#b8cbd6" stroke-width="2">
       <rect x="32" y="112" width="264" height="124" rx="12"/>
       <rect x="348" y="112" width="264" height="124" rx="12"/>
@@ -14,13 +14,13 @@
       <rect x="664" y="304" width="264" height="124" rx="12"/>
     </g>
     <g font-size="20" font-weight="700">
-      <text x="54" y="146">1. Enviar</text><text x="370" y="146">2. Verificar</text><text x="686" y="146">3. Promover</text>
+      <text x="54" y="146">1. Enviar</text><text x="370" y="146">2. Verificar</text><text x="686" y="146">3. Disponibilizar</text>
       <text x="370" y="338">Consultar</text><text x="686" y="338">Compartilhar</text>
     </g>
     <g font-size="17">
       <text x="54" y="180">Documento novo</text><text x="54" y="206">ou nova versão.</text>
       <text x="370" y="180">Processar o arquivo</text><text x="370" y="206">e conferir a segurança.</text>
-      <text x="686" y="180">Tornar a versão elegível</text><text x="686" y="206">a versão vigente.</text>
+      <text x="686" y="180">Versão segura e</text><text x="686" y="206">publicação autorizada.</text>
       <text x="370" y="372">Abrir e baixar conforme</text><text x="370" y="398">a permissão do usuário.</text>
       <text x="686" y="372">Criar um link público,</text><text x="686" y="398">somente se autorizado.</text>
     </g>

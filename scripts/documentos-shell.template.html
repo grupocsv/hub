@@ -89,11 +89,9 @@
             </select>
           </label>
           <label>
-            <span>Estado</span>
+            <span>Disponibilidade</span>
             <select id="docs-lifecycle-filter" name="lifecycleStatus" disabled>
-              <option value="">Todos os Estados</option>
-              <option value="draft">Rascunho</option>
-              <option value="active">Ativo</option>
+              <option value="">Todos os Documentos</option>
               <option value="archived">Arquivado</option>
               <option value="deletion_requested">Exclusão Solicitada</option>
               <option value="deleting">Em Exclusão</option>
@@ -147,7 +145,11 @@
           <div id="docs-public-links-list"></div>
         </section>
         <section class="docs-versions" aria-labelledby="docs-versions-title">
-          <h3 id="docs-versions-title">Versões</h3>
+          <h3 id="docs-versions-title">Histórico de Versões</h3>
+          <label class="docs-version-filter">Localizar versão
+            <input id="docs-version-filter" type="search" placeholder="Número, nome do arquivo ou data" aria-describedby="docs-version-help">
+          </label>
+          <p class="docs-muted" id="docs-version-help">Todas as versões ficam no mesmo documento. Este filtro localiza versões pelo número, nome ou data; não pesquisa o conteúdo dos arquivos anteriores.</p>
           <div id="docs-version-list"></div>
         </section>
       </section>
@@ -206,6 +208,7 @@
             <input id="docs-upload-file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md" required>
             <small>PDF, PNG, JPG, JPEG, WEBP, TXT ou MD; até 50 MiB.</small>
           </label>
+          <p class="docs-muted">Quando seu acesso permite publicação, o arquivo fica disponível automaticamente após a verificação de segurança. Uma nova versão permanece no mesmo documento.</p>
 
           <div id="docs-upload-status" class="docs-upload__status" role="status" aria-live="polite" aria-atomic="true"></div>
           <dl id="docs-upload-processing" class="docs-upload__processing" hidden></dl>
