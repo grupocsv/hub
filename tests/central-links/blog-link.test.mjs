@@ -21,7 +21,7 @@ test("Cartão csv.online/blog: carregado na aba Blog e incluído no artefato do 
   assert.ok(read(".github/workflows/deploy.yml").includes("admin/blog-link.js"));
 });
 
-test("Cartão csv.online/blog: só troca sob demanda, pela API da Central, com confirmação", () => {
+test("Cartão csv.online/blog: troca só no clique, pela API da Central, com confirmação", () => {
   const js = read("admin/blog-link.js");
   assert.match(js, /"\/links\/" \+ encodeURIComponent\(link\.id\) \+ "\/destination"/);
   assert.match(js, /source: "blog"/);

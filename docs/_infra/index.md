@@ -260,7 +260,7 @@ Copiar página
 <tr><td><code>csv-open-pages</code></td><td>open.grupocsv.com/*</td><td>KV: csv-open-pages, R2: csv-open-pages</td><td>Páginas públicas com toggle e auth gate</td></tr>
 <tr><td><code>csv-open-auth</code></td><td>csv-open-auth.guilherme-thom.workers.dev</td><td>KV: csv-open-auth</td><td>Autenticação para Open Pages (Auth Gate)</td></tr>
 <tr><td><code>hub-unimedgv</code></td><td>hub.unimedgv.com/*</td><td>KV: hub-unimedgv-kv, R2: hub-unimedgv</td><td>Páginas públicas exclusivas Unimed GV</td></tr>
-<tr><td><code>csv-links</code></td><td>csv.online/*, www.csv.online/*, links-api.grupocsv.com</td><td>D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diário 09:00 UTC</td><td>Central de Links: links curtos rotativos e estáticos e API administrativa do Admin</td></tr>
+<tr><td><code>csv-links</code></td><td>csv.online/*, www.csv.online/*, links-api.grupocsv.com</td><td>D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diário 09:00 UTC e Cron a cada 5 minutos (link <code>blog</code> no post mais recente)</td><td>Central de Links: links curtos rotativos e estáticos e API administrativa do Admin</td></tr>
 <tr><td><code>csv-documents</code></td><td>documentos-api.grupocsv.com</td><td>Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP</td><td>Control plane privado e multi-tenant da Central de Documentos</td></tr>
 <tr><td><code>csv-documents-monitor</code></td><td>Cron Trigger; sem rota pública</td><td>D1: csv-documents, APIs de observabilidade e notificação</td><td>Monitor independente do Worker, Queue, DLQ, processador e ClamAV</td></tr>
 </tbody>
@@ -758,7 +758,7 @@ Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos
 | csv-propostas | csv-propostas.guilherme-thom.workers.dev | R2: csv-propostas, Secret | Propostas comerciais |
 | csv-assets | assets.grupocsv.com/* | R2: csv-open-pages | Servico de assets estaticos |
 | csv-open-pages | open.grupocsv.com/* | KV: csv-open-pages, R2: csv-open-pages | Paginas publicas com toggle |
-| csv-links | csv.online/*, www.csv.online/*, links-api.grupocsv.com | D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diario 09:00 UTC | Central de Links: links curtos rotativos e estaticos e API administrativa do Admin |
+| csv-links | csv.online/*, www.csv.online/*, links-api.grupocsv.com | D1: csv-links, KV: rotas publicadas, Service Binding: csv-auth; Cron diario 09:00 UTC e Cron a cada 5 minutos (link blog no post mais recente) | Central de Links: links curtos rotativos e estaticos e API administrativa do Admin |
 | csv-documents | documentos-api.grupocsv.com | Service Binding: csv-auth, D1: csv-documents, R2: csv-documents-private, Queue; integração Panta v2 validada por API/MCP | Control plane privado e multi-tenant da Central de Documentos |
 | csv-documents-monitor | Cron Trigger; sem rota publica | D1: csv-documents, APIs de observabilidade e notificacao | Monitor independente do Worker, Queue, DLQ, processador e ClamAV |
 

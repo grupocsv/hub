@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 1.1 |
+| Versão | 1.2 |
 | Data | 22/10/2026 |
-| Revisão | 1.1 (22/10/2026): token da API administrativa (seções 4, 8.2 e 10.1), campos da listagem `GET /links` (seção 9) e saúde de csv.online antes da virada (seção 10.5) |
-| Situação | Em produção desde 25/10/2026 (virada do `csv.online/blog`). Em 30/10/2026, o item do Admin passou para a seção "Links e Páginas", sem mudança de mecanismo |
+| Revisão | 1.1 (22/10/2026): token da API administrativa (seções 4, 8.2 e 10.1), campos da listagem `GET /links` (seção 9) e saúde de csv.online antes da virada (seção 10.5). 1.2 (01/11/2026): troca automática do `csv.online/blog` para o post mais recente, decidida em 31/10/2026 (seções 1, 2, 3 e 15.4) |
+| Situação | Em produção desde 25/10/2026 (virada do `csv.online/blog`). Em 30/10/2026, o item do Admin passou para a seção "Links e Páginas", sem mudança de mecanismo. Desde 31/10/2026, o `csv.online/blog` acompanha sozinho o post publicado mais recente (seção 15.4) |
 | Repositórios afetados | grupocsv/backend, grupocsv/hub, grupocsv/csv-open-pages |
 | Documento público | Sim. Este arquivo fica no repositório público grupocsv/hub. IDs de recursos, registros DNS, contas e credenciais ficam fora dele, no handoff privado da VPS-CSV |
 
@@ -13,7 +13,7 @@
 
 Criar, dentro do Painel Admin do Hub CSV, uma central para administrar links curtos próprios em `csv.online`. Ela separa dois tipos:
 
-- **Rotativo**: o endereço público fica o mesmo, e o destino pode ser trocado. O caso obrigatório é `csv.online/blog`, que sempre leva ao post do blog escolhido no momento.
+- **Rotativo**: o endereço público fica o mesmo, e o destino pode ser trocado. O caso obrigatório é `csv.online/blog`, que sempre leva ao post do blog escolhido no momento. Desde 31/10/2026, esse post é sempre o publicado mais recente, escolhido por uma rotina automática (seção 15.4).
 - **Estático**: uma referência curta a um conteúdo específico, que não muda de destino, salvo por correção excepcional e registrada.
 
 A central também inclui uma área de preparação do `csv.email` que não ativa nenhum serviço de e-mail, e um card genérico de prévia (Open Graph) para os endereços do Grupo CSV que ainda não têm imagem própria.
@@ -24,7 +24,7 @@ A central também inclui uma área de preparação do `csv.email` que não ativa
 
 | Dentro do escopo | Fora do escopo |
 |---|---|
-| Links rotativos e estáticos em csv.online e www.csv.online | Troca automática para o último post publicado (decisão P4) |
+| Links rotativos e estáticos em csv.online e www.csv.online | Troca automática para o último post publicado (decisão P4). Incluída em 31/10/2026 por decisão de Guilherme Thomé (seção 15.4) |
 | Escolha do post do blog numa lista vinda da API do blog, com a opção de digitar outra URL | Link estático gerado automaticamente a partir de cada post (P12) |
 | Histórico completo, restauração de destino anterior e controle de edição simultânea | Sorteio, alternância, teste A/B e regras condicionais de destino |
 | Métricas diárias, sem dado pessoal | Envio, recebimento, encaminhamento ou caixas postais no csv.email |
@@ -43,7 +43,7 @@ As decisões abaixo vieram de uma sabatina com Guilherme Thomé, de P1 a P46, e 
 | D1 | A "Central de Links" é um item novo no menu lateral do Admin, com as seções Visão geral, Rotativos, Estáticos, Domínios, Métricas e csv.email | P1 |
 | D2 | O destino do csv.online/blog é escolhido numa lista dos posts publicados (API do blog). Também há um campo para digitar outra URL | P2 |
 | D3 | O primeiro destino é o post "Organizar o cuidado por condição: por onde começar" | P3 |
-| D4 | Nesta versão, a troca é só manual | P4 |
+| D4 | Nesta versão, a troca é só manual. Substituída em 31/10/2026: por decisão de Guilherme Thomé, o `csv.online/blog` passou a acompanhar sozinho o post publicado mais recente (seção 15.4) | P4; decisão de 31/10/2026 |
 | D5 | O csv.online/blog serve para qualquer uso e sempre leva ao post do momento. Para indicar um post específico, usa-se o endereço normal do blog | P5, P12 |
 | D6 | Os links estáticos continuam na central, para documentos, materiais e outros conteúdos fixos | P13 |
 | D7 | Cada endereço tem um nome curto escolhido pelo admin (csv.online/nome). O servidor bloqueia nomes repetidos e reservados | P6 |
@@ -487,6 +487,17 @@ Cada etapa grava o resultado em `job_runs`. Os crons existentes de outros Worker
 | Cópia além de 30 dias | `GET /v1/admin/export` (superadmin), guardada pelo revisor-publicador fora do repositório público | Reimportação por script do implementador (`scripts/import-export.mjs`), testada contra uma base local |
 | KV | Derivado do D1 | `POST /v1/admin/rebuild-kv` ou a conciliação diária |
 | Código | Repositórios no GitHub e versões do Worker na Cloudflare | `wrangler rollback` pelo workflow, ou novo release de um SHA anterior |
+
+### 15.4 Link `blog` no post mais recente (Cron a cada 5 minutos, desde 31/10/2026)
+
+Decisão de Guilherme Thomé em 31/10/2026, que substitui a D4. Um segundo Cron Trigger do csv-links, `*/5 * * * *` (`BLOG_SYNC_CRON` em `src/blog-sync.ts`), executa somente esta sincronização. Ele entrou pelo PR #107 do grupocsv/backend (commit `d089cf7`), com release em 31/10/2026, às 12h23.
+
+1. Lê o link `blog` ativo (rotativo, não arquivado, não expirado e com roteamento ligado). Sem link ou com link inativo, não faz nada.
+2. Consulta a lista de `/blog/posts` (posts publicados, ordenados por data de publicação) e compara o primeiro post com o destino vigente.
+3. Se forem diferentes, publica o post novo pelo mesmo caminho do botão **Apontar para o último post** do Admin: teste do destino, evento `destino_publicado`, destino com `source: "blog"` e `blog_post_id` e rota regravada no KV. O autor no histórico é `Rotina automática · post mais recente`.
+4. Se a lista falhar, vier vazia ou o teste do post novo falhar, o destino atual permanece e a execução seguinte tenta de novo. A rotina nunca usa "Publicar mesmo assim".
+
+Diferentemente da tarefa diária, a sincronização não grava em `job_runs`; o log do Worker registra só as execuções que publicam ou falham. Com o link em dia, nada é gravado. Na operação, um post novo chega ao link em até cerca de 5 minutos, somados ao cache de 60 segundos da lista e ao de 30 segundos da rota; despublicar o post mais recente faz o link voltar ao anterior; e uma troca manual para um destino que não seja o post mais recente é desfeita na execução seguinte. O botão do Admin continua disponível para antecipar a troca. Voltar ao comportamento só manual exige decisão nova: o Cron `*/5 * * * *` sai do `wrangler.jsonc` e do `wrangler.production.jsonc`, e uma versão nova é publicada.
 
 ## 16. Implantação
 
