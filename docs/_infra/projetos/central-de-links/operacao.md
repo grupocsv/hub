@@ -13,7 +13,7 @@ A Central de Links administra os endereços curtos de `csv.online`. No Admin do 
 
 | Tipo | Quando usar | Quem pode alterar o destino |
 |---|---|---|
-| Rotativo | Um endereço permanente que acompanha o conteúdo escolhido no momento, como `csv.online/blog`. | Admin e superadmin, por troca manual. |
+| Rotativo | Um endereço permanente que acompanha o conteúdo escolhido no momento, como `csv.online/blog`. | Admin e superadmin, por troca manual. O `csv.online/blog` também muda sozinho para o post mais recente, como descrito abaixo. |
 | Estático | Uma referência a um documento, material ou conteúdo específico. | Somente superadmin, em uma correção com motivo registrado. |
 
 O link curto leva a uma URL já publicada. A central não recebe arquivos e não altera a proteção do destino: páginas que exigem login continuam exigindo login. Os dois tipos usam redirecionamento temporário, sem armazenamento em cache pelo navegador.
@@ -37,7 +37,7 @@ As sugestões `compass`, `evento`, `material` e `agenda` preenchem o nome no for
 
 Um teste com falha não prova que o destino está incorreto: o serviço pode estar temporariamente indisponível ou exigir login. Confira o endereço antes de confirmar. A confirmação não libera endereços proibidos pela validação de segurança.
 
-O rotativo `blog` só muda quando alguém escolhe e publica outro destino. A publicação de um post novo no blog não altera o link automaticamente. Para indicar sempre um post específico, compartilhe o endereço desse post.
+O rotativo `blog` acompanha sozinho o post publicado mais recente do blog, como descrito em [Atualizar o csv.online/blog depois de um post novo](#atualizar-o-csv-online-blog-depois-de-um-post-novo). Para indicar sempre um post específico, compartilhe o endereço desse post.
 
 ## Trocar o destino de um rotativo
 
@@ -51,19 +51,16 @@ Clique em **Recarregar**, confira a versão atual e decida se a alteração aind
 
 ## Atualizar o csv.online/blog depois de um post novo
 
-A publicação de um post não muda o `csv.online/blog`. O caminho mais curto é o botão da aba do blog:
+Desde 31/10/2026, não é preciso fazer nada: o `csv.online/blog` passa sozinho ao post publicado mais recente. Uma rotina do serviço de links roda a cada 5 minutos, compara o post mais recente com o destino vigente e, se forem diferentes, publica o post novo pela mesma troca de destino da Central, com teste do destino e nova versão no histórico. Nessas versões, o autor aparece como **Rotina automática · post mais recente**. O post novo chega ao link em até cerca de 5 minutos, somados ao cache de 60 segundos da lista de posts e ao de 30 segundos da rota. Despublicar o post mais recente faz o link voltar ao post publicado anterior na execução seguinte.
 
-1. Abra **Conteúdo → Blog grupocsv.com**. O cartão **Link csv.online/blog**, acima do painel do blog, mostra o destino atual, o post publicado mais recente e a situação (**Em dia** ou **Desatualizado**).
-2. Se estiver desatualizado, clique em **Apontar para o último post**, confira o post na confirmação e confirme. O cartão usa a mesma troca de destino da Central, com teste do destino, e acompanha a propagação até **Confirmado** (no mínimo 90 segundos). Se a confirmação não vier em 5 minutos, siga a seção Acompanhar a propagação.
+Para conferir ou antecipar a troca, use o botão da aba do blog:
 
-Para escolher um post que não seja o mais recente, use a Central:
+1. Abra **Conteúdo → Blog grupocsv.com**. O cartão **Link csv.online/blog**, acima do painel do blog, mostra o destino atual, o post publicado mais recente e a situação (**Em dia** ou **Desatualizado**). Logo depois da publicação de um post, o cartão pode mostrar **Desatualizado** até a execução seguinte da rotina.
+2. Para não esperar, clique em **Apontar para o último post**, confira o post na confirmação e confirme. O cartão usa a mesma troca de destino da Central, com teste do destino, e acompanha a propagação até **Confirmado** (no mínimo 90 segundos). Se a confirmação não vier em 5 minutos, siga a seção Acompanhar a propagação.
 
-1. Abra **Links e Páginas → Central de Links → Rotativos** e, no link `blog`, clique em **Detalhes**.
-2. Escolha **Trocar destino** e selecione o post novo na lista **Post do blog**. A lista vem da API pública do blog, ordenada do mais recente para o mais antigo, e pode levar até um minuto para mostrar um post recém-publicado.
-3. Clique em **Testar destino**, confira o endereço final e publique.
-4. Aguarde o estado **Confirmado**, cerca de 90 segundos depois da publicação. Para conferir de fora, abra `https://csv.online/blog` em uma janela anônima.
+Uma troca manual para um destino que não seja o post mais recente, por **Detalhes → Trocar destino** ou **Restaurar este destino**, é desfeita na execução seguinte da rotina, em até cerca de 5 minutos. Para divulgar um post específico de forma duradoura, use o endereço do próprio post ou crie um link estático.
 
-Se a troca não for feita, o link continua levando ao post escolhido da última vez, mesmo que haja posts mais recentes.
+Se a lista do blog falhar, vier vazia ou o teste do post novo falhar, a rotina mantém o destino atual e tenta de novo na execução seguinte; ela nunca usa **Publicar mesmo assim**. Com o link desativado, arquivado ou expirado, a rotina não o altera. Voltar à troca só manual exige decisão nova e a retirada do agendamento pelo responsável técnico, conforme o README do `csv-links` no `grupocsv/backend`.
 
 ## Acompanhar a propagação
 

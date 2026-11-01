@@ -1,7 +1,8 @@
 /* Cartão "Link csv.online/blog" na aba Blog grupocsv.com do Admin.
- * Busca o post publicado mais recente e, sob demanda, troca o destino
- * do link rotativo csv.online/blog pela mesma API da Central de Links.
- * Não há busca automática em segundo plano: a troca só acontece no clique.
+ * Mostra o destino atual e o post publicado mais recente e, com confirmação,
+ * antecipa a troca do link rotativo csv.online/blog pela mesma API da Central de Links.
+ * O cartão não faz busca em segundo plano: desde 31/10/2026, a troca automática,
+ * a cada 5 minutos, é feita pelo Worker csv-links (grupocsv/backend, src/blog-sync.ts).
  */
 (function () {
   "use strict";
@@ -162,7 +163,7 @@
       el(
         "p",
         { id: "blog-link-help", style: "margin:0 0 12px 0;font-size:13px;color:#475569;" },
-        "Quem abre csv.online/blog vai direto ao post escolhido. O link não muda sozinho quando um post novo é publicado: use o botão abaixo para apontá-lo ao post mais recente.",
+        "Quem abre csv.online/blog vai direto ao post publicado mais recente. O link muda sozinho em até cerca de 5 minutos depois da publicação de um post novo; use o botão abaixo para conferir ou antecipar a troca.",
       ),
       el(
         "dl",

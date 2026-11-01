@@ -9,7 +9,7 @@ head:
 
 # Links e Páginas — Visão Unificada
 
-**Atualizada em 30 de outubro de 2026.** Esta página reúne os recursos do ecossistema que publicam conteúdo para fora do Hub ou encaminham alguém até ele. A organização é só de leitura e de manuseio: cada recurso mantém o seu serviço, a sua autenticação e a sua forma de administração.
+**Atualizada em 1º de novembro de 2026.** Esta página reúne os recursos do ecossistema que publicam conteúdo para fora do Hub ou encaminham alguém até ele. A organização é só de leitura e de manuseio: cada recurso mantém o seu serviço, a sua autenticação e a sua forma de administração.
 
 No Admin do Hub, os dois itens ficam juntos na seção **Links e Páginas**, logo abaixo de Geral: **Central de Links** e **Páginas Públicas**.
 
@@ -48,17 +48,18 @@ O card **Páginas Públicas** da Visão Geral do Admin soma as páginas ativas d
 
 ## csv.online/blog: Como o Destino Muda
 
-O `blog` é um link rotativo com troca manual. A publicação de um post novo em grupocsv.com/blog não altera o destino: alguém precisa pedir a troca. Essa foi a decisão P4 do PRD, que deixou a troca automática para o último post fora do escopo da primeira versão.
+Desde 31/10/2026, o `blog` acompanha sozinho o post publicado mais recente de grupocsv.com/blog. A decisão é de Guilherme Thomé e substitui a decisão P4 do PRD, que previa só troca manual. Uma rotina do Worker `csv-links` roda a cada 5 minutos (Cron `*/5 * * * *`, publicado pelo PR #107 do `grupocsv/backend`), compara o post publicado mais recente com o destino vigente e, se forem diferentes, publica o post novo pela mesma troca de destino da Central: teste do destino, nova versão e entrada no histórico com o autor **Rotina automática · post mais recente**. A primeira troca automática ocorreu em 31/10/2026, às 12h35, da versão 5 para a 6.
 
-Desde 31/10/2026 há três caminhos para a troca, todos sob demanda e pela mesma API da Central, com teste do destino e registro da versão no histórico:
+Um post novo chega ao link em até cerca de 5 minutos, somados ao cache de 60 segundos da lista de posts e ao de 30 segundos da rota. Se a lista do blog falhar, vier vazia ou o teste do post novo falhar, o destino atual permanece e a execução seguinte tenta de novo; a rotina nunca usa "Publicar mesmo assim". Com o link em dia, a rotina não grava nada.
 
-| Caminho | Onde | O que faz |
+| Ação | Onde | Efeito |
 |---|---|---|
-| Botão **Apontar para o último post** | Admin → Conteúdo → Blog grupocsv.com, cartão **Link csv.online/blog** | Mostra para onde o link aponta, se está em dia e, com confirmação, aponta para o post publicado mais recente |
-| Troca manual | Admin → Links e Páginas → Central de Links → Rotativos → `blog` → **Detalhes → Trocar destino** | Permite escolher qualquer post publicado |
-| Skill `csv-online-blog` | Usada pelos agentes, a pedido | Mesmo efeito do botão; a skill do blog pergunta ao final de cada publicação se a troca deve ser feita |
+| Publicar um post novo | Painel do blog | O link passa ao post novo na execução seguinte da rotina |
+| Despublicar o post mais recente | Painel do blog | O link volta ao post publicado anterior na execução seguinte |
+| Botão **Apontar para o último post** | Admin → Conteúdo → Blog grupocsv.com, cartão **Link csv.online/blog** | Antecipa a troca que a rotina faria e mostra se o link está em dia |
+| **Trocar destino** ou **Restaurar este destino** para outro endereço | Admin → Links e Páginas → Central de Links → Rotativos → `blog` → **Detalhes** | Vale só até a execução seguinte da rotina, em até cerca de 5 minutos, quando o link volta ao post mais recente |
 
-Nenhum dos caminhos roda sozinho. Uma troca automática, sem pedido, continua fora do escopo e exigiria decisão nova. O passo a passo está em [Central de Links — operação](/_infra/projetos/central-de-links/operacao#atualizar-o-csv-online-blog-depois-de-um-post-novo).
+Nenhuma skill de agente faz essa troca. Para divulgar um post específico de forma duradoura, use o endereço do próprio post ou um link estático. Se o link `blog` for desativado, arquivado ou expirar, a rotina deixa de atualizá-lo. Voltar ao comportamento só manual exige decisão nova: o Cron `*/5 * * * *` sai das duas configurações do `csv-links` e uma versão nova é publicada. O passo a passo está em [Central de Links — operação](/_infra/projetos/central-de-links/operacao#atualizar-o-csv-online-blog-depois-de-um-post-novo).
 
 ## Quem Publica por Fora do Admin
 

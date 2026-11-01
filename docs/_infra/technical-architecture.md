@@ -672,7 +672,7 @@ Envia os dados por e-mail para <code>contato@thera.tech</code> via Resend.
 <span class="worker-card-version">v1.0.0</span>
 </div>
 <div class="worker-card-desc">
-Central de Links: redireciona os endereços curtos de <code>csv.online</code> (rotativos e estáticos) e atende a API administrativa usada pelo Admin, em <code>links-api.grupocsv.com/v1</code>. Não hospeda conteúdo; só encaminha para URLs HTTPS já publicadas. Tarefa diária às 09:00 UTC testa os destinos. Repositório: <code>grupocsv/backend</code>, em <code>workers/csv-links</code>. Operação em <a href="/_infra/projetos/central-de-links/operacao">Central de Links — operação</a>.
+Central de Links: redireciona os endereços curtos de <code>csv.online</code> (rotativos e estáticos) e atende a API administrativa usada pelo Admin, em <code>links-api.grupocsv.com/v1</code>. Não hospeda conteúdo; só encaminha para URLs HTTPS já publicadas. Tarefa diária às 09:00 UTC testa os destinos; desde 31/10/2026, um segundo Cron, a cada 5 minutos, mantém o <code>csv.online/blog</code> no post publicado mais recente. Repositório: <code>grupocsv/backend</code>, em <code>workers/csv-links</code>. Operação em <a href="/_infra/projetos/central-de-links/operacao">Central de Links — operação</a>.
 </div>
 <strong style="font-size:0.82rem; color:#1e293b;">Bindings:</strong>
 <span style="font-size:0.82rem; color:#5b6470;"> D1 (csv-links), KV (rotas publicadas), Service (csv-auth), Rate limiters</span>
@@ -850,7 +850,7 @@ Permite gerenciar o sistema de autenticação, as páginas públicas e os links 
 </tr>
 <tr>
 <td><strong>Blog grupocsv.com</strong> (seção Conteúdo)</td>
-<td>Abre o painel administrativo do blog (<code>grupocsv.com/blog/admin</code>) dentro do Admin. Acima dele, o cartão <strong>Link csv.online/blog</strong> mostra para onde o link aponta e, com confirmação, aponta para o post publicado mais recente pela API da Central de Links (<code>admin/blog-link.js</code>). Só consulta a API quando a aba é aberta.</td>
+<td>Abre o painel administrativo do blog (<code>grupocsv.com/blog/admin</code>) dentro do Admin. Acima dele, o cartão <strong>Link csv.online/blog</strong> mostra para onde o link aponta e, com confirmação, aponta para o post publicado mais recente pela API da Central de Links (<code>admin/blog-link.js</code>). Desde 31/10/2026, essa troca também é feita sozinha pelo <code>csv-links</code> a cada 5 minutos; o botão serve para conferir e antecipar. Só consulta a API quando a aba é aberta.</td>
 </tr>
 <tr>
 <td><strong>Log de Acessos Externos</strong></td>
