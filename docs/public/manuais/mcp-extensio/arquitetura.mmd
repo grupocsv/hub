@@ -1,0 +1,61 @@
+flowchart LR
+  classDef client fill:#ffffff,stroke:#196396,stroke-width:1.5px,color:#1b1e24
+  classDef core fill:#196396,stroke:#124B73,stroke-width:2px,color:#ffffff
+  classDef facade fill:#e8f1f8,stroke:#196396,stroke-width:1.5px,color:#1b1e24
+  classDef data fill:#eaf8f1,stroke:#2DBF7F,stroke-width:1.5px,color:#1b1e24
+  classDef ext fill:#f4f6f8,stroke:#98A0AD,stroke-width:1px,color:#1b1e24
+
+  subgraph C["Consumidores"]
+    direction TB
+    C1["Claude web, Desktop<br/>e Cowork"]:::client
+    C2["ChatGPT e Codex"]:::client
+    C3["Conector Manus, Claude Code,<br/>OpenClaw, Hermes, ECC, Cue"]:::client
+  end
+
+  F["extensio-mcp-anthropic<br/>Fachada OAuth 2.1<br/>Access + PKCE + DCR"]:::facade
+  P["extensio-daily-pipeline<br/>cron 09:00 UTC"]:::facade
+
+  M["extensio-mcp<br/>88 tools<br/>JSON-RPC /mcp/standard"]:::core
+
+  subgraph D["Dados Cloudflare"]
+    direction TB
+    D1["D1 whatsapp-brain"]:::data
+    D2["D1 csv-hub"]:::data
+    K1["KV OPEN_PAGES_KV<br/>KV OPEN_AUTH_KV"]:::data
+  end
+
+  subgraph S["Service Bindings"]
+    direction TB
+    S1["csv-mail"]:::data
+    S2["csv-documents"]:::data
+  end
+
+  subgraph E["APIs Externas"]
+    direction TB
+    E1["Google Workspace (8 contas)"]:::ext
+    E2["Notion, GitHub, Stripe,<br/>Hostinger, Resend"]:::ext
+    E3["Supabase (extensio-brain,<br/>csv-brain, axiacare, criale)"]:::ext
+    E4["Gemini, Manus API,<br/>Deck, Design Service"]:::ext
+    E5["Cloudflare API<br/>(D1, KV, R2, DNS, AI Search)"]:::ext
+  end
+
+  W["whatsapp-webhook<br/>(Evolution API)"]:::ext
+  A["whatsapp-source-agent<br/>(OpenRouter)"]:::ext
+
+  C1 -->|OAuth| F
+  C2 -->|OAuth| F
+  C3 -->|Bearer| M
+  F -->|Service Binding + Bearer| M
+  P -->|Service Binding MCP_SERVICE| M
+  M --> D1
+  M --> D2
+  M --> K1
+  M --> S1
+  M --> S2
+  M --> E1
+  M --> E2
+  M --> E3
+  M --> E4
+  M --> E5
+  W --> D1
+  A --> D1

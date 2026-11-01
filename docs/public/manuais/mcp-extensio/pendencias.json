@@ -1,0 +1,91 @@
+{
+  "fotografia_em": "2026-11-01",
+  "total": 14,
+  "pendencias": [
+    {
+      "id": "PEND-01",
+      "prioridade": "P0",
+      "ação": "Restabelecer o provedor de LLM do pipeline e dos embeddings (créditos do Gemini ou troca de provedor)",
+      "critério_de_conclusão": "Briefing do dia gerado; fila `extensio-enrichment` sem falhas 402; `retrieve_memory` semântico"
+    },
+    {
+      "id": "PEND-02",
+      "prioridade": "P0",
+      "ação": "Reconciliar código e produção: localizar e commitar a fonte da versão `c5c4afcc`, levar as 4 tools `whatsapp_agent_*` para main e decidir sobre `whatsapp_agent_get_evidence`; fechar ou mergear o PR #18",
+      "critério_de_conclusão": "Deploy de main gera 88 tools (ou contagem decidida) com `catalog_sha` esperado"
+    },
+    {
+      "id": "PEND-03",
+      "prioridade": "P0",
+      "ação": "Mergear o PR #1 da fachada OAuth em main",
+      "critério_de_conclusão": "main da fachada igual à versão `8a22ef65`"
+    },
+    {
+      "id": "PEND-04",
+      "prioridade": "P0",
+      "ação": "Corrigir os achados de segurança de severidade alta em aberto, parte 1 de 2 (detalhe na versão completa)",
+      "critério_de_conclusão": "Critério definido na versão completa"
+    },
+    {
+      "id": "PEND-05",
+      "prioridade": "P0",
+      "ação": "Corrigir os achados de segurança de severidade alta em aberto, parte 2 de 2 (detalhe na versão completa)",
+      "critério_de_conclusão": "Critério definido na versão completa"
+    },
+    {
+      "id": "PEND-06",
+      "prioridade": "P1",
+      "ação": "Versionar o `whatsapp-source-agent` no GitHub",
+      "critério_de_conclusão": "Branch com o código do bundle `fd0b3698` e `wrangler.toml`"
+    },
+    {
+      "id": "PEND-07",
+      "prioridade": "P1",
+      "ação": "Habilitar Workers Logs no `extensio-mcp`, com redação de argumentos",
+      "critério_de_conclusão": "Logs disponíveis para chamadas de tools"
+    },
+    {
+      "id": "PEND-08",
+      "prioridade": "P1",
+      "ação": "Endurecer a autenticação do MCP (detalhe na versão completa)",
+      "critério_de_conclusão": "Revogar um consumidor sem afetar os demais"
+    },
+    {
+      "id": "PEND-09",
+      "prioridade": "P1",
+      "ação": "Configurar ou retirar as 11 tools inoperantes (Instagram, Crialê, WABA, portal do Hub, Claude Design) e esclarecer gabi-care e spectra",
+      "critério_de_conclusão": "Nenhuma tool do catálogo falha por configuração"
+    },
+    {
+      "id": "PEND-10",
+      "prioridade": "P1",
+      "ação": "Corrigir a fonte de `memory_sync_status` e o filtro de `search_hub_knowledge`",
+      "critério_de_conclusão": "Status com a execução mais recente; busca com resultados para termos conhecidos"
+    },
+    {
+      "id": "PEND-11",
+      "prioridade": "P2",
+      "ação": "Atualizar a skill extensio (62 tools, VPS e endpoints antigos), `docs/STATUS.md`, `docs/ARCHITECTURE.md` e o README do pacote, tomando este manual como base",
+      "critério_de_conclusão": "Documentos com 88 tools, VPS-CSV atual e fachada OAuth"
+    },
+    {
+      "id": "PEND-12",
+      "prioridade": "P2",
+      "ação": "Higiene: remover secrets sem uso, arquivos de backup versionados, as variáveis legadas da fachada e o alias `icds`; alinhar `package.json` à versão anunciada",
+      "critério_de_conclusão": "Inventário sem itens órfãos"
+    },
+    {
+      "id": "PEND-13",
+      "prioridade": "P2",
+      "ação": "Tornar o `health_check` honesto: sonda real do próprio MCP e do csv-assets-bucket por Service Binding",
+      "critério_de_conclusão": "Nenhum serviço reportado sem verificação"
+    },
+    {
+      "id": "PEND-14",
+      "prioridade": "P2",
+      "ação": "Avaliar a atualização do `protocolVersion` (hoje 2024-11-05) frente às versões aceitas pelos clientes",
+      "critério_de_conclusão": "Decisão registrada no ACB"
+    }
+  ],
+  "versao_do_pacote": "sanitizada"
+}

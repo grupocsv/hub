@@ -41,6 +41,11 @@
 - [Contrato HTTP](https://documentos-api.grupocsv.com/docs/openapi.json): conferir a versão publicada antes de usar novas operações.
 - A skill `skills/central-documentos/SKILL.md` está versionada neste repositório. Atualizações de um documento preservam seu document_id e criam versões; não devem criar cartões duplicados.
 
+## MCP Extensio
+- [Manual técnico para agentes](https://hub.grupocsv.com/_infra/manuais/mcp-extensio): arquitetura, autenticação e fachada OAuth, catálogo das 88 tools, deploy, operação, diagnóstico e regras para agentes. Edição de 01/11/2026, versão sanitizada.
+- [MANUAL.md](https://hub.grupocsv.com/manuais/mcp-extensio/MANUAL.md), [catalogo-tools.json](https://hub.grupocsv.com/manuais/mcp-extensio/catalogo-tools.json) e [pendencias.json](https://hub.grupocsv.com/manuais/mcp-extensio/pendencias.json): mesmo conteúdo em formatos para máquina; o manifest.json traz os SHA-256.
+- Antes de agir, revalidar contagem e catalog_sha em https://mcp-extensio.grupocsv.com/health; a fonte ao vivo prevalece sobre o manual.
+
 ## Opcional (Contexto Adicional)
 
 - [/docs/compass/](/docs/compass/): Linha editorial estratégica (Compass™).

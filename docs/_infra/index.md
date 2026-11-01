@@ -235,7 +235,7 @@ Copiar página
 <a class="resource-btn" href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV — Estado de Ativação</a>
 <a class="resource-btn axia" href="/_infra/ferramentas/discovery">Discovery™</a>
 </div>
-<p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a>, <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a> e <a href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
+<p class="section-desc">Manuais operacionais: <a href="/_infra/manuais/central-documentos">Central de Documentos</a>, <a href="/_infra/manuais/panta-v2">Panta v2</a>, <a href="/_infra/manuais/mcp-extensio">MCP Extensio</a>, <a href="/_infra/manuais/nfse-axiacare">NFS-e AxiaCare</a> e <a href="/_infra/manuais/nfse-grupo-csv">NFS-e Grupo CSV</a>. O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.</p>
 </div>
 
 <!-- 2. BACKEND SERVERLESS -->
@@ -510,7 +510,7 @@ Copiar página
 <p class="section-desc">A comunicação entre agentes é feita via Agent Context Bridge (ACB) no Supabase do OpenClaw. O Worker <code>agent-context-bridge</code> expõe ferramentas MCP: <code>log_activity</code>, <code>log_file</code>, <code>log_decision</code>, <code>get_recent_activities</code>, <code>get_project_context</code>, <code>search_activities</code>.</p>
 
 <h3 class="subsection-title">Extensio (MCP Server)</h3>
-<p class="section-desc">O Worker <code>extensio-mcp</code> é o servidor MCP do Extensio, com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e à Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explícito e credencial de serviço revogável; a API revalida os escopos. O <code>extensio-daily-pipeline</code> executa o pipeline diário com envio de e-mail via csv-mail.</p>
+<p class="section-desc">O Worker <code>extensio-mcp</code> é o servidor MCP do Extensio, com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e à Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explícito e credencial de serviço revogável; a API revalida os escopos. O <code>extensio-daily-pipeline</code> executa o pipeline diário com envio de e-mail via csv-mail. Manual técnico para agentes: <a href="/_infra/manuais/mcp-extensio">MCP Extensio</a> (edição de 01/11/2026).</p>
 </div>
 
 <!-- 7. AI SEARCH -->
@@ -737,7 +737,7 @@ Atualização Fiscal de 31 de Outubro de 2026: API NFS-e 4.0.0, autenticação 4
 | NFS-e Grupo CSV | Área multiempresa publicada; emissão v2 desabilitada e legado preservado | https://hub.grupocsv.com/grupo-csv/nfse/ e https://nfse-mcp.grupocsv.com/mcp | GitHub Pages, API privada, MCP e emissor privado |
 | Discovery™ | Diagnostico estrategico para OPSS | discovery.axcare.app | Manus (React + TS + Tailwind) |
 
-Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos), [Panta v2](/_infra/manuais/panta-v2), [NFS-e AxiaCare](/_infra/manuais/nfse-axiacare) e [NFS-e Grupo CSV](/_infra/manuais/nfse-grupo-csv). O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.
+Manuais operacionais: [Central de Documentos](/_infra/manuais/central-documentos), [Panta v2](/_infra/manuais/panta-v2), [MCP Extensio](/_infra/manuais/mcp-extensio), [NFS-e AxiaCare](/_infra/manuais/nfse-axiacare) e [NFS-e Grupo CSV](/_infra/manuais/nfse-grupo-csv). O estado de ativação, os limites e as fontes técnicas constam nas páginas correspondentes.
 
 ---
 
@@ -923,7 +923,7 @@ grupocsv.com (8a8f9adb4965260df64447c732f9ebbd), guithome.com.br (63a6c58d3f7aec
 
 Ponte de contexto (ACB): Worker agent-context-bridge com ferramentas MCP (log_activity, log_file, log_decision, get_recent_activities, get_project_context, search_activities).
 
-Extensio MCP Server: Worker extensio-mcp com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e a Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explicito e credencial de servico revogavel; a API revalida os escopos. Pipeline diario via extensio-daily-pipeline.
+Extensio MCP Server: Worker extensio-mcp com acesso a D1 (csv-hub, whatsapp-brain), AI Search, Notion, OpenAI, Gemini e a Central de Documentos por Service Binding. As ferramentas documentais exigem tenant explicito e credencial de servico revogavel; a API revalida os escopos. Pipeline diario via extensio-daily-pipeline. Manual técnico para agentes: [MCP Extensio](/_infra/manuais/mcp-extensio) (edição de 01/11/2026).
 <h3 class="subsection-title">Memória de Longo Prazo (Hindsight Cloud)</h3>
 <p class="section-desc">Vectorize.io Memory Bank (<code>hindsight_extensio</code>). 27 ferramentas MCP: retain, recall, reflect, mental models, directives, entities, documentos. Endpoint: <code>https://api.hindsight.vectorize.io/mcp/hindsight_extensio/</code>.</p>
 <h3 class="subsection-title">VPS-CSV (Infraestrutura de Orquestração)</h3>

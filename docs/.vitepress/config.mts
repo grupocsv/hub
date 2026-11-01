@@ -180,6 +180,7 @@ export default defineConfig({
             { text: 'Central de Documentos', link: '/_infra/manuais/central-documentos' },
             { text: 'Central de Documentos — agentes', link: '/_infra/manuais/central-documentos-agentes' },
             { text: 'Panta v2', link: '/_infra/manuais/panta-v2' },
+            { text: 'MCP Extensio — agentes', link: '/_infra/manuais/mcp-extensio' },
             { text: 'NFS-e AxiaCare', link: '/_infra/manuais/nfse-axiacare' },
             { text: 'NFS-e Grupo CSV', link: '/_infra/manuais/nfse-grupo-csv' },
           ]
