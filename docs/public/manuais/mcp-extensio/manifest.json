@@ -1,0 +1,41 @@
+{
+  "pacote": "Pacote para Agentes: MCP Extensio",
+  "edicao": "2026-11-01",
+  "variante": "sanitizada",
+  "classificacao": "publicação no Hub (sanitizada)",
+  "fonte": "Manual Técnico do MCP Extensio, edição de 01/11/2026 (PDF, 22 páginas)",
+  "fotografia": {
+    "worker": "extensio-mcp",
+    "versao_ativa": "c5c4afcc-d80c-436b-8a9a-c9b1690be22f",
+    "tools": 88,
+    "catalog_sha": "415233a9f562",
+    "fachada_oauth_versao": "8a22ef65"
+  },
+  "arquivos": [
+    {
+      "nome": "README.md",
+      "bytes": 2847,
+      "sha256": "2818d31b9749f24205036676e7d037f35480c6b6a3a01d7677989bd0d200276d"
+    },
+    {
+      "nome": "MANUAL.md",
+      "bytes": 53198,
+      "sha256": "2e0d9e8f51b32d2a7bc75617ce5c41cc0c9c9cd442b249bc15738f18e112e68c"
+    },
+    {
+      "nome": "catalogo-tools.json",
+      "bytes": 22530,
+      "sha256": "f5b39ffdd755fe1ebb7dd89595d34efc9a9db442b91ef57dbb607ac13f501cce"
+    },
+    {
+      "nome": "pendencias.json",
+      "bytes": 3948,
+      "sha256": "ec61c20516f14eef17fd75e4d9f202cc54f8f5e30002331cc8c26a3e95c0d409"
+    },
+    {
+      "nome": "arquitetura.mmd",
+      "bytes": 1842,
+      "sha256": "853762644be8984a462a45a666f382292d22a8a9cf5fdf043bd841267c4f092e"
+    }
+  ]
+}

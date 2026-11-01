@@ -1,0 +1,830 @@
+{
+  "gerado_de": "Manual Técnico do MCP Extensio, edição de 01/11/2026",
+  "fotografia_em": "2026-11-01",
+  "fonte_ao_vivo": "tools/list em https://mcp-extensio.grupocsv.com/mcp/standard (Bearer)",
+  "versao_ativa_auditada": "c5c4afcc-d80c-436b-8a9a-c9b1690be22f",
+  "catalog_sha": "415233a9f562",
+  "total": 88,
+  "legenda_estado": {
+    "OK": "testada ao vivo nesta auditoria",
+    "Teste Unitário": "coberta pela suíte de main, sem chamada ao vivo",
+    "Degradada": "responde com perda de função",
+    "Afetada pelo 402": "depende do Gemini, sem créditos desde 27/10/2026",
+    "Erro": "falha ou depende de configuração ausente",
+    "Não Testada": "escrita ou dado pessoal, não exercitada",
+    "Fora de main": "existe em produção, ausente da branch main"
+  },
+  "tools": [
+    {
+      "nome": "get_whatsapp_context",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Mensagens recentes do WhatsApp pessoal com remetente, direção e conversa",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "get_whatsapp_triggers",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Gatilhos de volume alto e palavras-chave críticas",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "get_conversation_insights",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Conversas agrupadas por JID, com resumo em cache no D1",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "store_conversation_summary",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "E",
+      "funcao": "Grava resumo enriquecido: sentimento, urgência, decisões e ações",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "manage_alerts",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L/E",
+      "funcao": "Lista, cria e reconhece alertas (`trigger_events`)",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "whatsapp_agent_search",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Busca em resumos derivados, com IDs das mensagens de origem",
+      "estado_01_11_2026": [
+        "Não Testada",
+        "Fora de main"
+      ]
+    },
+    {
+      "nome": "whatsapp_agent_get_daily_summary",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Resumo diário na data de Brasília",
+      "estado_01_11_2026": [
+        "Não Testada",
+        "Fora de main"
+      ]
+    },
+    {
+      "nome": "whatsapp_agent_open_items",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Itens possivelmente abertos e dias sem fechamento",
+      "estado_01_11_2026": [
+        "Não Testada",
+        "Fora de main"
+      ]
+    },
+    {
+      "nome": "whatsapp_agent_status",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Fila, totais e custo do agente, sem conteúdo de mensagens",
+      "estado_01_11_2026": [
+        "OK",
+        "Fora de main"
+      ]
+    },
+    {
+      "nome": "whatsapp_agent_get_change_feed",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Log incremental de mudanças por cursor, sem conteúdo",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "waba_context",
+      "dominio": "WhatsApp Brain e Inteligência",
+      "modo": "L",
+      "funcao": "Histórico de um contato no D1 `whatsapp-brain`",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "search_hub_knowledge",
+      "dominio": "Memória e Conhecimento",
+      "modo": "L",
+      "funcao": "Busca semântica no AI Search `hub-csv`",
+      "estado_01_11_2026": [
+        "Degradada"
+      ]
+    },
+    {
+      "nome": "store_memory",
+      "dominio": "Memória e Conhecimento",
+      "modo": "E",
+      "funcao": "Memória no Supabase extensio-brain com embedding Gemini",
+      "estado_01_11_2026": [
+        "Afetada pelo 402"
+      ]
+    },
+    {
+      "nome": "retrieve_memory",
+      "dominio": "Memória e Conhecimento",
+      "modo": "L",
+      "funcao": "Busca textual e vetorial de memórias",
+      "estado_01_11_2026": [
+        "Degradada"
+      ]
+    },
+    {
+      "nome": "unified_memory_search",
+      "dominio": "Memória e Conhecimento",
+      "modo": "L",
+      "funcao": "Busca federada em `csv_facts`, ACB, Deck e Notion",
+      "estado_01_11_2026": [
+        "Degradada"
+      ]
+    },
+    {
+      "nome": "extensio_inbox",
+      "dominio": "Memória e Conhecimento",
+      "modo": "E",
+      "funcao": "Classifica texto livre com `gemini-2.5-flash` e roteia para a tool",
+      "estado_01_11_2026": [
+        "Afetada pelo 402"
+      ]
+    },
+    {
+      "nome": "notion_search",
+      "dominio": "Notion",
+      "modo": "L",
+      "funcao": "Busca páginas e bases, devolvendo todas as propriedades",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "notion_read",
+      "dominio": "Notion",
+      "modo": "L",
+      "funcao": "Lê página por ID: propriedades e conteúdo",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "notion_query_database",
+      "dominio": "Notion",
+      "modo": "L",
+      "funcao": "Consulta base com filtros e ordenação",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "notion_write",
+      "dominio": "Notion",
+      "modo": "E",
+      "funcao": "Cria página, atualiza propriedades e acrescenta blocos",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "github_repos",
+      "dominio": "GitHub",
+      "modo": "L",
+      "funcao": "Repositórios por organização ou usuário",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "github_issues",
+      "dominio": "GitHub",
+      "modo": "L",
+      "funcao": "Issues, pull requests e commits de um repositório",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "github_issues·github_prs·github_commits"
+    },
+    {
+      "nome": "github_prs",
+      "dominio": "GitHub",
+      "modo": "L",
+      "funcao": "Issues, pull requests e commits de um repositório",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "github_issues·github_prs·github_commits"
+    },
+    {
+      "nome": "github_commits",
+      "dominio": "GitHub",
+      "modo": "L",
+      "funcao": "Issues, pull requests e commits de um repositório",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "github_issues·github_prs·github_commits"
+    },
+    {
+      "nome": "cloudflare_status",
+      "dominio": "Cloudflare",
+      "modo": "L",
+      "funcao": "Lista Workers, D1, KV e R2 da conta",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "d1_query",
+      "dominio": "Cloudflare",
+      "modo": "L/E",
+      "funcao": "SQL em qualquer D1 da conta, inclusive escrita e DDL",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "kv_operate",
+      "dominio": "Cloudflare",
+      "modo": "L/E",
+      "funcao": "list, get, put e delete em KV",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "r2_operate",
+      "dominio": "Cloudflare",
+      "modo": "L",
+      "funcao": "Lista objetos e obtém URL pública",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "dns_manage",
+      "dominio": "Cloudflare",
+      "modo": "L/E",
+      "funcao": "list, create, update e delete de registros DNS",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "zones_list",
+      "dominio": "Cloudflare",
+      "modo": "L",
+      "funcao": "Zonas da conta, com IDs e nameservers",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "supabase_query",
+      "dominio": "Supabase",
+      "modo": "L/E",
+      "funcao": "select, insert, update e upsert nos projetos configurados",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "supabase_list_projects",
+      "dominio": "Supabase",
+      "modo": "L",
+      "funcao": "Projetos e estado de configuração: 4 de 7 configurados",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "gmail_search",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Busca nas 8 contas",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "gmail_read",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Mensagem ou thread completa de uma conta",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "gmail_send",
+      "dominio": "Google Workspace",
+      "modo": "E",
+      "funcao": "Envio pela conta escolhida (padrão `grupocsv`)",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "calendar_events",
+      "dominio": "Google Workspace",
+      "modo": "L/E",
+      "funcao": "list, get, create, update e delete de eventos",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "drive_search",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Busca no Drive em 3 contas: grupocsv, pessoal e unimed",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "drive_read",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Exporta Docs, Sheets e Slides; lê texto e XLSX",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "drive_list_folders",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Estrutura de pastas do Drive",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "tasks_lists",
+      "dominio": "Google Workspace",
+      "modo": "L",
+      "funcao": "Listas do Google Tasks da conta pessoal",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "tasks_manage",
+      "dominio": "Google Workspace",
+      "modo": "L/E",
+      "funcao": "list, get, create, update e complete de tarefas",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "ymunity_sheet_propose",
+      "dominio": "Ymunity",
+      "modo": "L",
+      "funcao": "Prévia de alteração na Planilha Oficial Ymunity, sem escrita",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "ymunity_sheet_commit",
+      "dominio": "Ymunity",
+      "modo": "E",
+      "funcao": "Autoriza prévia confirmada e delega a escrita; bloqueia expiração, replay e conflito",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "ymunity_sheet_status",
+      "dominio": "Ymunity",
+      "modo": "L",
+      "funcao": "Valida o resultado estruturado da escrita delegada",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "mail_send",
+      "dominio": "Comunicação",
+      "modo": "E",
+      "funcao": "Envio pelo csv-mail via Service Binding `MAIL`",
+      "estado_01_11_2026": [
+        "Validada em 10/07"
+      ]
+    },
+    {
+      "nome": "mail_status",
+      "dominio": "Comunicação",
+      "modo": "L",
+      "funcao": "Último evento de entrega de um e-mail",
+      "estado_01_11_2026": [
+        "Validada em 10/07"
+      ]
+    },
+    {
+      "nome": "mail_logs",
+      "dominio": "Comunicação",
+      "modo": "L",
+      "funcao": "Últimos envios do csv-mail; o erro 500 de julho não ocorre mais",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "resend_context",
+      "dominio": "Comunicação",
+      "modo": "L/E",
+      "funcao": "Visão geral do Resend, status e envio direto",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "waba_send",
+      "dominio": "Comunicação",
+      "modo": "E",
+      "funcao": "WhatsApp Business via Zapier",
+      "estado_01_11_2026": [
+        "Sem ZAPIER_MCP_API_KEY"
+      ]
+    },
+    {
+      "nome": "stripe_context",
+      "dominio": "Serviços Externos",
+      "modo": "L",
+      "funcao": "Saldo, clientes, assinaturas e pagamentos recentes",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "vps_status",
+      "dominio": "Serviços Externos",
+      "modo": "L",
+      "funcao": "VM Hostinger do OpenClaw (em execução, 8 vCPU, 32 GB)",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "instagram_insights",
+      "dominio": "Serviços Externos",
+      "modo": "L",
+      "funcao": "Métricas da conta e dos posts",
+      "estado_01_11_2026": [
+        "Sem INSTAGRAM_TOKEN"
+      ]
+    },
+    {
+      "nome": "criale_tasks",
+      "dominio": "Serviços Externos",
+      "modo": "L/E",
+      "funcao": "Tarefas do Crialê Core",
+      "estado_01_11_2026": [
+        "Erro: resposta não JSON"
+      ]
+    },
+    {
+      "nome": "manus_create_task",
+      "dominio": "Agentes e Orquestração",
+      "modo": "E",
+      "funcao": "Tarefa Manus pela API v2 com harness completo e `origin`",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "manus_task_status",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L",
+      "funcao": "Status, perfil, última resposta e créditos de uma tarefa",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "manus_list_tasks",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L",
+      "funcao": "Tarefas recentes",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "acb_log",
+      "dominio": "Agentes e Orquestração",
+      "modo": "E",
+      "funcao": "Registra atividade, decisão ou arquivo no ACB",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "acb_search",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L",
+      "funcao": "Busca atividades e decisões por texto, projeto e agente",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "deck_card",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L/E",
+      "funcao": "Cards, notas do dia e memórias do Deck (D1 `csv-hub`)",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "deck_card·deck_note·deck_memory"
+    },
+    {
+      "nome": "deck_note",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L/E",
+      "funcao": "Cards, notas do dia e memórias do Deck (D1 `csv-hub`)",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "deck_card·deck_note·deck_memory"
+    },
+    {
+      "nome": "deck_memory",
+      "dominio": "Agentes e Orquestração",
+      "modo": "L/E",
+      "funcao": "Cards, notas do dia e memórias do Deck (D1 `csv-hub`)",
+      "estado_01_11_2026": [
+        "Não Testadas"
+      ],
+      "linha_agrupada_no_manual": "deck_card·deck_note·deck_memory"
+    },
+    {
+      "nome": "open_page_publish",
+      "dominio": "Hub e Open Pages",
+      "modo": "E",
+      "funcao": "Publica HTML no R2 e metadados no KV, com verificação da gravação",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "open_page_list",
+      "dominio": "Hub e Open Pages",
+      "modo": "L",
+      "funcao": "Open Pages com slug, título, URL e estado (33 registros)",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "hub_portal_access",
+      "dominio": "Hub e Open Pages",
+      "modo": "L",
+      "funcao": "Senha de portal de parceiro do Hub",
+      "estado_01_11_2026": [
+        "Sem CSV_CONFIG_KV"
+      ]
+    },
+    {
+      "nome": "open_auth_set_password",
+      "dominio": "Hub e Open Pages",
+      "modo": "E",
+      "funcao": "Senha do portão de uma Open Page, sem exibi-la",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "open_auth_logins",
+      "dominio": "Hub e Open Pages",
+      "modo": "L",
+      "funcao": "Logins do portão: e-mail, página, horário e IP",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "documents_list",
+      "dominio": "Central de Documentos",
+      "modo": "L",
+      "funcao": "Lista e metadados de documentos por tenant",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ],
+      "linha_agrupada_no_manual": "documents_list·documents_get"
+    },
+    {
+      "nome": "documents_get",
+      "dominio": "Central de Documentos",
+      "modo": "L",
+      "funcao": "Lista e metadados de documentos por tenant",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ],
+      "linha_agrupada_no_manual": "documents_list·documents_get"
+    },
+    {
+      "nome": "documents_search",
+      "dominio": "Central de Documentos",
+      "modo": "L",
+      "funcao": "Busca, conforme a capacidade da Central",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "documents_status",
+      "dominio": "Central de Documentos",
+      "modo": "L",
+      "funcao": "Estado de job de processamento; exige `tenant_id`",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "documents_download",
+      "dominio": "Central de Documentos",
+      "modo": "L",
+      "funcao": "Até 8 MiB em Base64, sem revelar bucket ou chave do objeto",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "documents_publish",
+      "dominio": "Central de Documentos",
+      "modo": "E",
+      "funcao": "Cria documento ou nova versão, com chave de idempotência",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "documents_manage",
+      "dominio": "Central de Documentos",
+      "modo": "E",
+      "funcao": "Metadados, versões, arquivamento e exclusão lógica",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "documents_public_links",
+      "dominio": "Central de Documentos",
+      "modo": "L/E",
+      "funcao": "Links públicos curtos mediados pela API",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "documents_deletion_requests",
+      "dominio": "Central de Documentos",
+      "modo": "L/E",
+      "funcao": "Pedidos de exclusão lógica e decisão",
+      "estado_01_11_2026": [
+        "Teste Unitário"
+      ]
+    },
+    {
+      "nome": "pipeline_run",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "E",
+      "funcao": "Dispara manualmente o Daily Pipeline",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "pipeline_status",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "L",
+      "funcao": "Último briefing gerado (26/10, 13h24 UTC)",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "memory_sync_run",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "E",
+      "funcao": "Dispara o CSV Memory Sync",
+      "estado_01_11_2026": [
+        "Não Testada"
+      ]
+    },
+    {
+      "nome": "memory_sync_status",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "L",
+      "funcao": "Lê `csv_sync_log`, cuja última linha é de 23/08",
+      "estado_01_11_2026": [
+        "Desatualizada"
+      ]
+    },
+    {
+      "nome": "health_check",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "L",
+      "funcao": "Saúde de 12 serviços do ecossistema, com latência",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "ecosystem_status",
+      "dominio": "Pipeline e Observabilidade",
+      "modo": "L",
+      "funcao": "Saúde e contagens de fatos, sessões e atividades",
+      "estado_01_11_2026": [
+        "OK"
+      ]
+    },
+    {
+      "nome": "claude_design_status",
+      "dominio": "Claude Design",
+      "modo": "L",
+      "funcao": "Estado do Design Service na VPS-CSV",
+      "estado_01_11_2026": [
+        "Erro 401"
+      ]
+    },
+    {
+      "nome": "claude_design_list_systems",
+      "dominio": "Claude Design",
+      "modo": "L",
+      "funcao": "Design Systems e projetos disponíveis",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_list_systems·_list_projects"
+    },
+    {
+      "nome": "claude_design_list_projects",
+      "dominio": "Claude Design",
+      "modo": "L",
+      "funcao": "Design Systems e projetos disponíveis",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_list_systems·_list_projects"
+    },
+    {
+      "nome": "claude_design_generate",
+      "dominio": "Claude Design",
+      "modo": "E",
+      "funcao": "Geração, iteração, acompanhamento e exportação de artefatos",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_generate·_iterate·_get_status·_export"
+    },
+    {
+      "nome": "claude_design_iterate",
+      "dominio": "Claude Design",
+      "modo": "E",
+      "funcao": "Geração, iteração, acompanhamento e exportação de artefatos",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_generate·_iterate·_get_status·_export"
+    },
+    {
+      "nome": "claude_design_get_status",
+      "dominio": "Claude Design",
+      "modo": "E",
+      "funcao": "Geração, iteração, acompanhamento e exportação de artefatos",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_generate·_iterate·_get_status·_export"
+    },
+    {
+      "nome": "claude_design_export",
+      "dominio": "Claude Design",
+      "modo": "E",
+      "funcao": "Geração, iteração, acompanhamento e exportação de artefatos",
+      "estado_01_11_2026": [
+        "Dependem do Serviço"
+      ],
+      "linha_agrupada_no_manual": "claude_design_generate·_iterate·_get_status·_export"
+    }
+  ],
+  "versao_do_pacote": "sanitizada"
+}
