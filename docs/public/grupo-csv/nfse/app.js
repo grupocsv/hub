@@ -3,14 +3,14 @@ import { parseMoney, money, occurrence, currentMonth, dateLabel } from './model.
 const API = 'https://api.grupocsv.com/nfse';
 const $ = id => document.getElementById(id);
 const titles = {
-  overview:['Visão geral','Suas emissões, da preparação à confirmação.'],
-  requests:['Notas','Solicitações, prévias e acompanhamento fiscal.'],
-  calendar:['Calendário','Organize quando preparar cada emissão.'],
+  overview:['Visão geral','Acompanhe suas notas e próximas cobranças.'],
+  requests:['Notas','Prepare, confira e consulte suas notas fiscais.'],
+  calendar:['Calendário','Datas e valores das suas cobranças recorrentes.'],
   companies:['Empresas','Cadastros e condições para emitir.'],
-  connections:['Conexões','Acesse a plataforma pelos seus clientes MCP.'],
-  activity:['Atividade','Acompanhe o processamento das operações.'],
+  connections:['Conexões','Acesso dos seus aplicativos por MCP.'],
+  activity:['Atividade','Emissões e alterações recentes.'],
 };
-const statusNames = { prepared:'Preparada', approved:'Aprovada', queued:'Na fila', preparing:'Preparando', ready_to_send:'Pronta para envio', sending:'Enviando', authorized:'Autorizada', rejected:'Rejeitada', unknown:'Aguardando confirmação', reconciling:'Consultando resultado', active:'Ativa', paused:'Pausada', pending_configuration:'Configuração pendente', suspended:'Suspensa', pending:'Pendente', postponed:'Adiada', skipped:'Dispensada', cancelled:'Cancelada', substituted:'Substituída' };
+const statusNames = { prepared:'Preparada', approved:'Aprovada', queued:'Na fila', preparing:'Preparando', ready_to_send:'Pronta para envio', sending:'Enviando', authorized:'Autorizada', rejected:'Rejeitada', unknown:'Aguardando confirmação', reconciling:'Consultando resultado', active:'Ativa', paused:'Pausada', pending_configuration:'Configuração pendente', suspended:'Suspensa', pending:'Pendente', postponed:'Adiada', skipped:'Dispensada', cancelled:'Cancelada', substituted:'Substituída', revoked:'Revogada', expired:'Expirada' };
 const state = { view:'overview', company:'', month:currentMonth(), valid:false, loading:false, generation:0, meta:null, companies:[], overview:null, requests:[], calendar:[], operations:[], documents:[], events:[], clients:[], occurrences:[], selectedOccurrences:new Set(), selectedRequests:new Set(), requestFilters:{status:'',competence:''}, documentFilters:{status:'',competence:'',issued_from:'',issued_to:'',customer_document:'',access_key:''}, cursors:{}, busy:false, form:null, formKey:null, ready:null };
 
 function el(tag, className, text) {
@@ -21,23 +21,43 @@ function el(tag, className, text) {
 }
 function button(text, className, action) { const b = el('button',className,text); b.type='button'; b.addEventListener('click',event=>{if(!state.busy)action(event);}); return b; }
 function companyName(id) { return state.companies.find(x => x.company_id === id)?.name ?? id; }
+const companyBrands={
+  axiacare:{name:'AxiaCare',path:'axiacare/logo/webp/axiacare_logo_horizontal_full-color_positive.webp'},
+  medvalor:{name:'MedValor',path:'medvalor/logo/webp/medvalor_logo_horizontal_orange_positive.webp'},
+  theratech:{name:'Thera',path:'thera/logo/webp/thera_logo_horizontal_purple_positive.webp'},
+};
+function companyLogo(id){
+  const brand=Object.hasOwn(companyBrands,id)?companyBrands[id]:null;if(!brand)return document.createTextNode('');
+  const img=el('img','company-logo');img.src='/assets/visual-identity/'+brand.path;img.alt=brand.name;img.width=150;img.height=55;img.decoding='async';
+  img.addEventListener('error',()=>img.hidden=true,{once:true});return img;
+}
 function badge(status) { return el('span',`pill ${['active','authorized'].includes(status) ? 'good' : ['rejected','suspended'].includes(status) ? 'bad' : 'pending'}`,statusNames[status] ?? status); }
 function note(message, error = false) {
   $('notice').replaceChildren();
   if (message) $('notice').append(el('div',`notice${error ? ' error' : ''}`,message));
 }
 function empty(title, description, action) {
-  const d=el('div','empty');d.append(el('div','empty-symbol','NF'),el('h2','',title),el('p','',description));
+  const d=el('div','empty');d.append(el('h2','',title),el('p','',description));
   if(action)d.append(button(action.text,'secondary',action.run));return d;
 }
 function panel(title, subtitle, action) {
   const p=el('section','panel'),h=el('header','panel-header'),text=el('div');text.append(el('h2','',title));if(subtitle)text.append(el('p','',subtitle));h.append(text);if(action)h.append(button(action.text,'quiet',action.run));p.append(h);return p;
 }
-function setView(view) {
-  if(!titles[view])return;state.view=view;
+function setView(view, {navigate = true} = {}) {
+  if(!Object.hasOwn(titles,view))return;state.view=view;
+  if(navigate && location.hash !== '#'+view)history.pushState(null,'','#'+view);
+  $('planning-filter').hidden=!['overview','calendar'].includes(view);
+  closeMenu();
   $('page-title').textContent=titles[view][0];$('page-subtitle').textContent=titles[view][1];
   document.querySelectorAll('#nav button').forEach(b => b.dataset.view===view ? b.setAttribute('aria-current','page') : b.removeAttribute('aria-current'));
   render();
+}
+function closeMenu(returnFocus = false){
+  const toggle=$('menu-toggle');
+  const wasOpen=toggle.getAttribute('aria-expanded')==='true';
+  toggle.setAttribute('aria-expanded','false');
+  document.querySelector('.sidebar').classList.remove('is-open');
+  if(returnFocus&&wasOpen)toggle.focus();
 }
 async function api(path, { body, key, signal } = {}) {
   const controller=new AbortController(),timer=setTimeout(() => controller.abort(),20000);
@@ -52,6 +72,7 @@ async function api(path, { body, key, signal } = {}) {
   } catch(error) {
     if(error.name==='NotAllowedError'){expireSession();throw new Error('Sua sessão expirou. Entre novamente para continuar.');}
     if(error.name==='AbortError')throw new Error('O serviço demorou para responder. Atualize para conferir o resultado antes de repetir uma ação.');
+    if(error instanceof TypeError)throw new Error('Não foi possível acessar o serviço. Confira sua conexão e atualize para verificar o resultado.');
     throw error;
   } finally {clearTimeout(timer);}
 }
@@ -73,7 +94,7 @@ async function load() {
   state.companies.forEach(c=>select.add(new Option(c.name,c.company_id)));select.value=state.company;select.disabled=false;
   const environment=state.meta?.environment;
   $('environment').textContent=environment==='production'?'Produção':environment==='test'||environment==='development'?'Ambiente de teste':'Ambiente não informado';
-  $('prepare').disabled=!state.companies.some(c=>c.readiness?.can_simulate);
+  $('prepare').disabled=!state.companies.some(c=>(!state.company||c.company_id===state.company)&&c.readiness?.can_simulate);
   const coverageStatus=state.overview?.history_coverage?.status;
   note(coverageStatus==='not_synchronized'?'O histórico oficial ainda não foi sincronizado nesta área. As contagens abaixo representam somente os dados disponíveis aqui.':coverageStatus==='partially_synchronized'?'O histórico está parcialmente sincronizado. Confira a cobertura de cada empresa.':null);
   render();
@@ -89,28 +110,33 @@ function historySummary(company){
   const value=history?.last_success_at??history?.last_synced_at,date=typeof value==='string'?new Date(value):null;
   const stamp=date&&Number.isFinite(date.getTime())?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'}).format(date):'não registrada';
   section.append(el('p','',`Última sincronização: ${stamp}`));
-  if(history)section.append(el('p','muted','Consulta ao fluxo disponível do ADN; histórico integral não comprovado.'));
+  if(history)section.append(el('p','muted','A consulta pode não incluir notas anteriores à integração.'));
   return section;
 }
-function companyRow(c){const row=el('div','company-row'),identity=el('div','identity'),text=el('div'),history=historySummary(c);row.style.flexWrap='wrap';row.style.rowGap='8px';identity.style.flex='1 1 150px';history.style.flex='0 0 100%';text.append(el('h3','',c.name),el('p','',readinessText(c)));identity.append(el('span','initial',c.name.slice(0,1)),text);row.append(identity,badge(c.status),history);return row;}
+function companyRow(c){
+  const row=el('div','company-row'),identity=el('div','identity'),text=el('div');
+  text.append(el('h3','',c.name),el('p','',readinessText(c)));
+  identity.append(companyLogo(c.company_id),text);row.append(identity);
+  const history=el('details','history-details');history.append(el('summary','','Histórico de notas'),historySummary(c));row.append(history);return row;
+}
 function renderOverview(root){
   const o=state.overview,stats=el('div','stats');
-  [['Preparadas',o.counts.prepared,'Prontas para conferência'],['Aprovadas',o.counts.approved,'Com aprovação registrada'],['Em processamento',o.counts.processing,'Aguardando resultado'],['Autorizadas',o.counts.authorized,'Confirmadas nesta base']].forEach(([label,value,help])=>{const s=el('article','stat');s.append(el('span','',label),el('strong','',value),el('small','',help));stats.append(s);});root.append(stats);
-  const columns=el('div','columns'),schedule=panel('Calendário de emissões','Planejamento de '+state.month.split('-').reverse().join('/'),{text:'Ver calendário →',run:()=>setView('calendar')}),companies=panel('Suas empresas','Condições de emissão por empresa');
+  [['Preparadas',o.counts.prepared,'Prontas para conferência'],['Aprovadas',o.counts.approved,'Com aprovação registrada'],['Em processamento',o.counts.processing,'Aguardando resultado'],['Autorizadas',o.counts.authorized,'Notas confirmadas']].forEach(([label,value,help])=>{const s=el('article','stat');s.append(el('span','',label),el('strong','',value),el('small','',help));stats.append(s);});root.append(stats);
+  const columns=el('div','columns'),schedule=panel('Calendário de emissões','Planejamento de '+state.month.split('-').reverse().join('/'),{text:'Ver calendário',run:()=>setView('calendar')}),companies=panel('Suas empresas','Condições de emissão por empresa');
   const occurrences=(state.occurrences.length?state.occurrences.map(o=>({rule:o,item:{date:o.planned_date,competence:o.competence,needsDate:!o.planned_date},status:o.status})):state.calendar.map(rule=>({rule,item:occurrence(rule,state.month)})).filter(x=>x.item)).sort((a,b)=>(a.item.date??'9999').localeCompare(b.item.date??'9999'));
-  if(!occurrences.length)schedule.append(empty('Seu calendário começa aqui','Cadastre as emissões recorrentes. Você poderá editar as regras a qualquer momento.',{text:'Configurar calendário',run:()=>openCalendar()}));
+  if(!occurrences.length)schedule.append(empty('Nenhuma emissão programada','Cadastre suas cobranças recorrentes para organizar as próximas notas.',{text:'Configurar calendário',run:()=>openCalendar()}));
   else occurrences.slice(0,5).forEach(({rule,item,status})=>{const row=el('div','schedule-row'),identity=el('div','identity'),text=el('div'),value=el('div','text-end');text.append(el('h3','',rule.title),el('p','',companyName(rule.company_id)));if(status)text.append(badge(status));identity.append(el('div','date-block',item.date?.slice(-2)??'—'),text);value.append(el('strong','amount',rule.amount_mode==='fixed'?money(rule.gross_amount_cents):'Valor a informar'),el('p','',item.needsDate?'Definir data':'Competência '+item.competence));row.append(identity,value);schedule.append(row);});
   filteredCompanies().forEach(c=>companies.append(companyRow(c)));columns.append(schedule,companies);root.append(columns);
   const small=el('p','subnote');small.append(el('span'),document.createTextNode('O calendário organiza a preparação. Cada emissão continua dependendo da sua aprovação.'));root.append(small);
 }
 function heading(title,description,action){const h=el('div','section-title'),d=el('div');d.append(el('h2','',title));if(description)d.append(el('p','muted',description));h.append(d);if(action)h.append(button(action.text,'primary',action.run));return h;}
 function table(headers,rows){const wrap=el('div','panel table-wrap'),t=el('table'),thead=el('thead'),tr=el('tr'),body=el('tbody');headers.forEach(h=>{const th=el('th','',h);th.scope='col';tr.append(th);});thead.append(tr);rows.forEach(cells=>{const row=el('tr');cells.forEach((cell,i)=>{const td=el('td');td.dataset.label=headers[i];td.append(cell instanceof Node?cell:document.createTextNode(String(cell??'—')));row.append(td);});body.append(row);});t.append(thead,body);wrap.append(t);return wrap;}
-function selectionBox(set,value,label){const box=el('input');box.type='checkbox';box.checked=set.has(value);box.setAttribute('aria-label',label);box.addEventListener('change',()=>{box.checked?set.add(value):set.delete(value);render();});return box;}
+function selectionBox(set,value,label){const box=el('input');box.type='checkbox';box.dataset.selectionId=value;box.checked=set.has(value);box.setAttribute('aria-label',label);box.addEventListener('change',()=>{box.checked?set.add(value):set.delete(value);render();const replacement=[...$('content').querySelectorAll('input[type="checkbox"]')].find(input=>input.dataset.selectionId===value);replacement?.focus({preventScroll:true});});const target=el('label','checkbox-target');target.append(box);return target;}
 function canChangeOccurrence(o){return ['pending','postponed'].includes(o.status);}
 function canPrepareOccurrence(o){return canChangeOccurrence(o)&&Boolean(o.planned_date);}
 function renderCalendar(root){
   const current=el('section');current.setAttribute('aria-label','Ocorrências do mês');
-  current.append(heading('Ocorrências de '+state.month.split('-').reverse().join('/'),'Planejamento preservado por mês; gerar ocorrências não emite notas.',{text:'Gerar ocorrências do mês',run:generateOccurrences}));
+  current.append(heading('Ocorrências de '+state.month.split('-').reverse().join('/'),'Cobranças previstas para este mês. A preparação e a aprovação vêm depois.',{text:'Gerar ocorrências do mês',run:generateOccurrences}));
   if(!state.occurrences.length)current.append(empty('Nenhuma ocorrência gerada','Depois de configurar as regras, gere as ocorrências deste mês para preparar e acompanhar cada cobrança.'));
   else{
     const selected=state.occurrences.filter(o=>state.selectedOccurrences.has(o.occurrence_id)&&canPrepareOccurrence(o)),actions=el('div','batch-actions');
@@ -122,7 +148,7 @@ function renderCalendar(root){
     })));
   }
   root.append(current);
-  root.append(heading('Regras de emissão','Defina datas e valores sem agendar transmissões automáticas.',{text:'Nova regra',run:()=>openCalendar()}));
+  root.append(heading('Regras de emissão','Cadastre as cobranças que se repetem a cada mês.',{text:'Nova regra',run:()=>openCalendar()}));
   if(!state.calendar.length){root.append(el('section','panel'));root.lastChild.append(empty('Nenhuma regra cadastrada','Comece por uma emissão recorrente. Você também poderá preparar notas avulsas.'));return;}
   root.append(table(['Emissão','Empresa','Previsão','Valor bruto','Situação','Ações'],state.calendar.map(rule=>{
     const name=el('div');name.append(el('strong','',rule.title),el('small','',rule.competence_rule==='previous_month'?'Competência do mês anterior':'Competência do mesmo mês'));
@@ -131,21 +157,31 @@ function renderCalendar(root){
   })));pagination(root,'calendar','/v2/calendar-rules');
   root.append(el('p','safe-note','Editar uma regra preserva as ocorrências já preparadas, adiadas ou dispensadas. Cada emissão depende da aprovação da prévia.'));
 }
-function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(el('div','initial',c.name.slice(0,1)),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list,historySummary(c));const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','Os dados fiscais serão preenchidos a partir das fontes validadas. Os certificados e suas senhas são recebidos por procedimento privado; não os envie aos agentes ou às conversas.'));}
+function renderCompanies(root){const grid=el('div','grid-cards');filteredCompanies().forEach(c=>{const card=el('article','panel company-card');card.append(companyLogo(c.company_id),el('h2','',c.name),badge(c.status));const list=el('ul');(c.readiness?.blockers??[]).forEach(b=>list.append(el('li','',b.message)));card.append(list,historySummary(c));const sync=button('Sincronizar notas','secondary',async()=>{sync.disabled=true;try{await api('/v2/sync',{body:{company_id:c.company_id}});await load();note('Consulta de distribuição concluída. O acervo pode não cobrir todo o histórico anterior.');}catch(e){note(e.message,true);}finally{sync.disabled=false;}});card.append(sync);grid.append(card);});root.append(grid);root.append(el('p','safe-note','A emissão de cada empresa será liberada após a validação do cadastro fiscal e do certificado digital.'));}
 function listFilters(kind){
   const form=el('form','list-filters');form.setAttribute('aria-label',kind==='requests'?'Filtros de solicitações':'Filtros do acervo');const filters=kind==='requests'?state.requestFilters:state.documentFilters;
   const add=(label,name,type,choices)=>{const wrapper=el('label');wrapper.append(document.createTextNode(label));const input=el(choices?'select':'input');input.name=name;input.setAttribute('aria-label',label);if(choices)choices.forEach(([value,text])=>input.add(new Option(text,value)));else input.type=type;input.value=filters[name]??'';wrapper.append(input);form.append(wrapper);return input;};
   add('Situação','status','',[['','Todas'],...(kind==='requests'?[['prepared','Preparadas'],['approved','Aprovadas'],['processing','Em processamento'],['authorized','Autorizadas'],['rejected','Rejeitadas'],['unknown','Aguardando confirmação']]:[['authorized','Autorizadas'],['cancelled','Canceladas'],['substituted','Substituídas']])]);add('Competência do filtro','competence','month');
   if(kind==='documents'){add('Emitida a partir de','issued_from','date');add('Emitida até','issued_to','date');add('CNPJ ou CPF do tomador','customer_document','text');add('Chave de acesso','access_key','text');}
   const apply=button('Aplicar filtros','secondary',()=>form.requestSubmit()),clear=button('Limpar filtros','quiet',()=>{for(const key of Object.keys(filters))filters[key]='';state.selectedRequests.clear();load();});form.append(apply,clear);
-  form.addEventListener('submit',event=>{event.preventDefault();const data=Object.fromEntries(new FormData(form));if(kind==='documents'){if(data.issued_from&&data.issued_to&&data.issued_from>data.issued_to){note('A data inicial deve ser anterior ou igual à data final.',true);return;}data.customer_document=data.customer_document.toUpperCase().replace(/[^A-Z0-9]/g,'');data.access_key=data.access_key.trim();if(data.customer_document&&!/^(?:[A-Z0-9]{12}\d{2}|\d{11})$/.test(data.customer_document)||data.access_key&&!/^[A-Z0-9]{50}$/.test(data.access_key)){note('Confira o documento do tomador e a chave de acesso.',true);return;}}Object.assign(filters,data);state.selectedRequests.clear();load();});return form;
+  form.addEventListener('submit',event=>{event.preventDefault();const data=Object.fromEntries(new FormData(form));if(kind==='documents'){if(data.issued_from&&data.issued_to&&data.issued_from>data.issued_to){note('A data inicial deve ser anterior ou igual à data final.',true);return;}data.customer_document=data.customer_document.toUpperCase().replace(/[^A-Z0-9]/g,'');data.access_key=data.access_key.trim();if(data.customer_document&&!/^(?:[A-Z0-9]{12}\d{2}|\d{11})$/.test(data.customer_document)||data.access_key&&!/^[A-Z0-9]{50}$/.test(data.access_key)){note('Confira o documento do tomador e a chave de acesso.',true);return;}}Object.assign(filters,data);state.selectedRequests.clear();load();});
+  const disclosure=el('details','list-filter-panel'),applied=Object.values(filters).filter(Boolean).length;
+  disclosure.open=window.matchMedia('(min-width: 761px)').matches;
+  disclosure.append(el('summary','',applied?`Filtros · ${applied} ${applied===1?'aplicado':'aplicados'}`:'Filtros'),form);
+  return disclosure;
+}
+function requestIdentity(request){
+  const data=request.snapshot?.data??{},identity=el('div','note-identity');
+  identity.append(el('strong','',data.profile?.customer?.legal_name??data.profile?.name??'Solicitação '+request.request_id.slice(0,8)));
+  if(data.profile?.customer?.legal_name&&data.profile?.name)identity.append(el('small','',data.profile.name));
+  return identity;
 }
 function mayApproveRequest(r){return state.meta?.capabilities?.approve&&(r.status==='prepared'||r.status==='approved'&&!r.active_approval);}
 function renderRequests(root){
   const section=el('section');section.setAttribute('aria-label','Solicitações');section.append(heading('Solicitações','Prepare e confira cada nota antes de autorizar a emissão.'),listFilters('requests'));
   const selected=state.requests.filter(r=>state.selectedRequests.has(r.request_id)&&mayApproveRequest(r));const actions=el('div','batch-actions');actions.append(el('p','',`${selected.length} prévia(s) selecionada(s)`));const approve=button('Aprovar selecionadas','primary',()=>openApprovalBatch(selected));approve.disabled=!selected.length;actions.append(approve);section.append(actions);
   if(!state.requests.length)section.append(empty('Nenhuma solicitação neste filtro','Ajuste os filtros ou prepare notas pelo calendário e pelo botão Preparar nota.'));
-  else section.append(table(['Selecionar','Nota','Empresa','Competência','Valor bruto','Valor líquido','Situação','Detalhes'],state.requests.map(r=>{const d=r.snapshot?.data??{},a=d.amounts??{};return[mayApproveRequest(r)?selectionBox(state.selectedRequests,r.request_id,`Selecionar prévia ${r.request_id}`):'—',d.profile?.name??d.profile?.profile_id??r.request_id.slice(0,8),companyName(r.company_id),d.input?.competence??'—',money(a.gross_amount_cents),money(a.net_amount_cents),badge(r.status),button('Conferir','quiet',()=>openRequest(r))];})));pagination(section,'requests','/v2/requests');root.append(section);
+  else section.append(table(['Selecionar','Nota','Empresa','Competência','Valor bruto','Valor líquido','Situação','Detalhes'],state.requests.map(r=>{const d=r.snapshot?.data??{},a=d.amounts??{};return[mayApproveRequest(r)?selectionBox(state.selectedRequests,r.request_id,`Selecionar prévia ${r.request_id}`):'—',requestIdentity(r),companyName(r.company_id),d.input?.competence??'—',money(a.gross_amount_cents),money(a.net_amount_cents),badge(r.status),button('Conferir','quiet',()=>openRequest(r))];})));pagination(section,'requests','/v2/requests');root.append(section);
   const archive=el('section');archive.setAttribute('aria-label','Acervo de notas');archive.append(heading('Acervo de notas','Documentos oficiais preservados e eventos acompanhados.',{text:'Importar XMLs',run:openImport}),listFilters('documents'));
   if(!state.documents.length)archive.append(empty('Nenhuma nota neste filtro','Ajuste os filtros ou sincronize o acervo da empresa.'));
   else archive.append(table(['Chave de acesso','Empresa','Competência','Valor bruto','Valor líquido','Situação','Arquivos'],state.documents.map(d=>[d.access_key,companyName(d.company_id),dateLabel(d.competence),money(d.gross_amount_cents),money(d.net_amount_cents),badge(d.status),button('Abrir nota','quiet',()=>openDocument(d))])));pagination(archive,'documents','/v2/documents');root.append(archive);
@@ -165,13 +201,13 @@ function operationStatus(operation){
 function renderActivity(root){root.append(heading('Operações','Resultados confirmados e consultas em andamento.'));if(!state.operations.length)root.append(empty('Nenhuma operação registrada','As operações aparecerão aqui quando uma emissão for solicitada.'));else root.append(table(['Operação','Empresa','Situação','Registro'],state.operations.map(o=>[o.operation_id,companyName(o.company_id),operationStatus(o),dateLabel(o.created_at)])));pagination(root,'operations','/v2/operations');
   if(state.events.length){const names={prepared:'Prévia preparada',approved:'Aprovação registrada',calendar_created:'Regra criada',calendar_updated:'Regra atualizada',calendar_archived:'Regra arquivada',operation_queued:'Emissão solicitada',queued:'Emissão solicitada',occurrence_postponed:'Ocorrência adiada',occurrence_skipped:'Ocorrência dispensada',occurrence_prepared:'Ocorrência preparada',document_registered:'Nota registrada',archive_imported:'Acervo importado',pdf_generated:'PDF gerado',authorized:'Nota autorizada',rejected:'Nota rejeitada',unknown:'Resultado aguardando consulta'};root.append(heading('Histórico de atividade','Alterações registradas pela plataforma.'),table(['Evento','Empresa','Registro'],state.events.map(e=>[names[e.event_type]??e.event_type,companyName(e.company_id),dateLabel(e.created_at)])));pagination(root,'events','/v2/events');}}
 function renderConnections(root){root.append(heading('Conexões MCP','Configure uma chave para cada aplicativo.',{text:'Nova conexão',run:()=>openClient()}));
-  if(!state.clients.length)root.append(empty('Seus agentes ainda não estão conectados','Crie uma conexão para Claude Cowork, Codex, Manus, Hermes ou OpenClaw.'));
-  else root.append(table(['Conexão','Empresas','Permissões','Validade','Situação','Ações'],state.clients.map(c=>{const actions=el('div','row-actions');if(c.status!=='revoked')actions.append(button('Editar','quiet',()=>openClient(c)),button('Revogar','quiet',()=>openRevoke(c)));return[c.name,c.company_ids.map(companyName).join(', '),c.scopes.includes('emit')?'Preparar e emitir com aprovação':'Consulta e preparação',c.expires_at?dateLabel(c.expires_at):'Sem prazo definido',badge(c.status),actions];})));
+  if(!state.clients.length)root.append(empty('Nenhum aplicativo conectado','Crie uma conexão para Claude Cowork, Codex, Manus, Hermes ou OpenClaw.'));
+  else root.append(table(['Conexão','Empresas','Permissões','Validade','Situação','Ações'],state.clients.map(c=>{const actions=el('div','row-actions');if(c.status!=='revoked')actions.append(button('Editar','quiet',()=>openClient(c)),button('Revogar','quiet',()=>openRevoke(c)));return[c.name,c.company_ids.map(companyName).join(', '),c.scopes.includes('emit')?'Preparar e emitir com aprovação':c.scopes.includes('request')?'Consulta e preparação':'Somente consulta',c.expires_at?dateLabel(c.expires_at):'Sem prazo definido',badge(c.status),actions];})));
   root.append(el('p','safe-note',state.meta?.mcp?.url?`Endereço MCP: ${state.meta.mcp.url}`:'O endereço MCP será informado após a implantação. As conexões usam uma chave individual; a compatibilidade de cada cliente é verificada na configuração.'));
   root.append(el('p','subnote','Você aprova a nota ou o lote na conversa. Conectar um aplicativo não autoriza emissões futuras automaticamente.'));}
 function render(){
   const root=$('content');root.replaceChildren();
-  if(!state.valid){root.append(empty('Entre para acessar suas emissões','Use sua conta individual do Hub. Nenhum dado fiscal é carregado antes da autenticação.'));return;}
+  if(!state.valid){root.append(empty('Entre para acessar suas emissões','Entre com seu e-mail e senha do Hub Grupo CSV.'));return;}
   if(!state.overview){root.append(empty('Informações indisponíveis','Não foi possível carregar esta área. Isso não significa que não existam notas.',{text:'Tentar novamente',run:load}));return;}
   ({overview:renderOverview,calendar:renderCalendar,companies:renderCompanies,requests:renderRequests,activity:renderActivity,connections:renderConnections})[state.view](root);
 }
@@ -179,7 +215,7 @@ function pagination(root,key,path){if(!state.cursors[key])return;const div=el('d
 function field(label,name,type='text',value='',wide=false){const l=el('label',wide?'wide':'');l.append(document.createTextNode(label));const input=el(type==='textarea'?'textarea':'input');input.name=name;if(type!=='textarea')input.type=type;input.value=value??'';l.append(input);$('editor-fields').append(l);return input;}
 function selectField(label,name,options,value,wide=false){const l=el('label',wide?'wide':'');l.append(document.createTextNode(label));const input=el('select');input.name=name;input.setAttribute('aria-label',label);options.forEach(([v,t])=>input.add(new Option(t,v)));input.value=value??'';l.append(input);$('editor-fields').append(l);return input;}
 function displayMoneyInput(cents){return Number.isSafeInteger(cents)?`${Math.floor(cents/100)},${String(cents%100).padStart(2,'0')}`:'';}
-function openEditor(title,kind,save,form){state.form=form;state.formKey=crypto.randomUUID();$('editor-title').textContent=title;$('editor-kind').textContent=kind;$('editor-save').textContent=save;$('editor-save').hidden=false;$('editor-save').disabled=false;$('editor-error').textContent='';$('editor-fields').replaceChildren();$('editor').showModal();}
+function openEditor(title,kind,save,form){if(!$('editor').open)state.dialogTrigger=document.activeElement;state.form=form;state.formKey=crypto.randomUUID();$('editor-title').textContent=title;$('editor-kind').textContent=kind;$('editor-save').textContent=save;$('editor-save').hidden=false;$('editor-save').disabled=false;$('editor-error').textContent='';$('editor-cancel').textContent='Cancelar';$('editor-fields').replaceChildren();$('editor').showModal();$('editor-form').scrollTop=0;$('editor').scrollTop=0;}
 function closeEditor(){const secret=state.form?.type==='secret';$('editor').close();if(secret){$('editor-fields').replaceChildren();state.form=null;state.formKey=null;}}
 function setBusy(busy){state.busy=busy;$('editor-fields').inert=busy;for(const id of ['editor-save','editor-cancel','editor-close'])$(id).disabled=busy;}
 function calendarPayload(rule){const {company_id,title,profile_id,day_of_month,frequency,start_date,end_date,amount_mode,gross_amount_cents,competence_rule,missing_day_policy,notes,status}=rule;return{company_id,title,profile_id,day_of_month,frequency,start_date,end_date,amount_mode,gross_amount_cents,competence_rule,missing_day_policy,notes,status};}
@@ -213,7 +249,7 @@ function openClient(client){
 }
 function openRevoke(client){openEditor('Revogar conexão','ACESSO MCP','Revogar acesso',{type:'revoke',client});$('editor-fields').append(el('p','wide',`A conexão “${client.name}” deixará de acessar o sistema. O histórico de notas e aprovações será preservado.`));}
 function openSecret(result){
-  openEditor('Chave da conexão','ACESSO MCP','Concluir',{type:'secret'});$('editor-save').hidden=true;
+  openEditor('Chave da conexão','ACESSO MCP','Concluir',{type:'secret'});$('editor-save').hidden=true;$('editor-cancel').textContent='Fechar';
   if(!result.secret_available){$('editor-fields').append(el('p','wide','A conexão foi criada. A chave já foi exibida na resposta original e não pode ser recuperada. Se você não a guardou, revogue esta conexão e crie outra.'));return;}
   const input=field('Chave de acesso (exibida uma vez)','connection_secret','password',result.secret,true);input.readOnly=true;input.autocomplete='off';
   const actions=el('div','wide row-actions');actions.append(button('Exibir','secondary',event=>{input.type=input.type==='password'?'text':'password';event.currentTarget.textContent=input.type==='password'?'Exibir':'Ocultar';}),button('Copiar chave','primary',async event=>{try{await navigator.clipboard.writeText(input.value);event.currentTarget.textContent='Chave copiada';}catch{$('editor-error').textContent='Selecione e copie a chave manualmente.';}}));$('editor-fields').append(actions,el('p','safe-note wide','Guarde a chave no campo de autenticação do cliente MCP. Ela não será exibida novamente após fechar esta janela.'));
@@ -221,7 +257,7 @@ function openSecret(result){
 async function openDocument(document){
   const generation=state.generation;let d;try{d=(await api(`/v2/documents/${encodeURIComponent(document.document_id)}`)).data;}catch(e){note(e.message,true);return;}
   if(!state.valid||generation!==state.generation)return;
-  const form={type:'document',document:d};openEditor('Nota fiscal preservada','ACERVO','Fechar',form);$('editor-save').hidden=true;
+  const form={type:'document',document:d};openEditor('Nota fiscal preservada','ACERVO','Fechar',form);$('editor-save').hidden=true;$('editor-cancel').textContent='Fechar';
   const grid=el('div','detail-grid wide');[['Empresa',companyName(d.company_id)],['Situação',({authorized:'Autorizada',cancelled:'Cancelada',substituted:'Substituída'})[d.status]??d.status],['Emitente',d.issuer_document],['Tomador',d.customer_document??'Não identificado'],['Emissão',dateLabel(d.issued_at)],['Competência',dateLabel(d.competence)],['Valor bruto',money(d.gross_amount_cents)],['Valor líquido',money(d.net_amount_cents)],['Chave',d.access_key],['Origem',({platform:'Plataforma',adn:'Distribuição nacional',import:'Importação'})[d.source]??d.source]].forEach(([name,value])=>{const item=el('div');item.append(el('small','',name),el('strong','',value));grid.append(item);});$('editor-fields').append(grid);
   appendTimeline($('editor-fields'),d.timeline);
   const files=el('div','wide row-actions');for(const artifact of d.artifacts??[])files.append(button(`Baixar ${artifact.kind.toUpperCase()}`,'secondary',event=>downloadDocument(d,artifact.kind,event.currentTarget)));if(d.artifacts?.some(a=>a.kind==='xml'))files.append(button('Gerar nova versão do PDF','secondary',()=>openPdfRegeneration(d)));$('editor-fields').append(files);
@@ -268,7 +304,7 @@ async function commitImport(form){
  const result=await api('/v2/imports/commit',{body:{...form.payload,preview_hash:form.preview.preview_hash},key:state.formKey});
  if(result.data.status!=='complete'){throw new Error('A importação está parcial. Confirme novamente o mesmo lote para retomar os itens pendentes.');}
  closeEditor();await load();if(!state.valid)return;
- openEditor('Importação concluída','ACERVO HISTÓRICO','Fechar',{type:'import_result'});$('editor-save').hidden=true;
+ openEditor('Importação concluída','ACERVO HISTÓRICO','Fechar',{type:'import_result'});$('editor-save').hidden=true;$('editor-cancel').textContent='Fechar';
  $('editor-fields').append(el('p','wide',`Lote ${result.data.batch_id}`),el('p','safe-note wide','Os documentos e registros históricos foram preservados. Nenhuma aprovação importada autoriza uma nova emissão.'),table(['Arquivo','Resultado','Chave'],(result.data.items??[]).map(item=>[form.names.get(item.source_id)??item.source_id,item.status==='duplicate'?'Já preservado':'Importado',item.access_key??'—'])));$('editor-fields').lastChild.classList.add('wide');
 }
 async function generateOccurrences(){if(state.busy)return;state.busy=true;try{await api('/v2/calendar-occurrences/generate',{body:{month:state.month,...(state.company?{company_id:state.company}:{})}});await load();note('Ocorrências do mês atualizadas. Nenhuma nota foi emitida.');}catch(error){note(error.message,true);}finally{state.busy=false;}}
@@ -309,12 +345,12 @@ async function openApprovalBatch(requests){
 async function openPrepare(argument){
   const revision=argument?.request_id?argument:null;
   const companies=state.companies.filter(c=>c.readiness?.can_simulate);
-  if(!companies.length){setView('companies');return;}
+  if(!companies.length||(!revision&&state.company&&!companies.some(c=>c.company_id===state.company))){setView('companies');return;}
   openEditor(revision?'Revisar prévia':'Preparar uma nota',revision?'NOVA REVISÃO':'NOVA SOLICITAÇÃO',revision?'Salvar nova revisão':'Preparar prévia',{type:revision?'revise':'prepare',request:revision});
   const original=revision?.snapshot?.data?.input;
-  const company=selectField('Empresa','company_id',companies.map(c=>[c.company_id,c.name]),revision?.company_id??(state.company||companies[0].company_id));company.disabled=Boolean(revision);
+  const company=selectField('Empresa','company_id',companies.map(c=>[c.company_id,c.name]),revision?.company_id??(companies.some(c=>c.company_id===state.company)?state.company:companies[0].company_id));company.disabled=Boolean(revision);
   const profiles=selectField('Perfil de serviço e tomador','profile_id',[['','Carregando perfis…']],'');profiles.required=true;
-  field('Valor bruto (R$)','gross_amount','text',displayMoneyInput(original?.gross_amount_cents)).required=true;
+  const amount=field('Valor bruto (R$)','gross_amount','text',displayMoneyInput(original?.gross_amount_cents));amount.required=true;amount.inputMode='decimal';amount.placeholder='0,00';
   field('Competência','competence','month',original?.competence??state.month).required=true;
   field('Data da competência','competence_date','date',original?.competence_date??'').required=true;
   const purchaseOrder=field('Ordem de compra (quando exigida)','purchase_order','text',original?.purchase_order??'');const description=field('Descrição (conforme o perfil)','description','textarea','',true);
@@ -328,7 +364,7 @@ async function openRequest(request){
   if(!state.valid||generation!==state.generation)return;
   const mayApprove=state.meta?.capabilities?.approve&&(r.status==='prepared'||(r.status==='approved'&&!r.active_approval));
   const mayEmit=r.status==='approved'&&r.active_approval&&state.meta?.capabilities?.emit&&state.companies.find(c=>c.company_id===r.company_id)?.readiness?.can_emit;
-  openEditor('Conferir solicitação','PRÉVIA',mayEmit?'Emitir nota aprovada':'Aprovar nota',{type:mayEmit?'emit':mayApprove?'approve':'detail',request:r});$('editor-save').hidden=!mayApprove&&!mayEmit;
+  openEditor('Conferir solicitação','PRÉVIA',mayEmit?'Emitir nota aprovada':'Aprovar nota',{type:mayEmit?'emit':mayApprove?'approve':'detail',request:r});$('editor-save').hidden=!mayApprove&&!mayEmit;if(!mayApprove&&!mayEmit)$('editor-cancel').textContent='Fechar';
   const d=r.snapshot?.data??{},a=d.amounts??{},grid=el('div','detail-grid wide');
   [['Empresa',d.company_name??companyName(r.company_id)],['CNPJ emitente',d.establishment?.document],['Tomador',d.profile?.customer?.legal_name],['CNPJ tomador',d.profile?.customer?.document],['Ambiente',d.environment==='production'?'Produção':'Teste'],['Situação',statusNames[r.status]??r.status],['Competência',d.input?.competence],['Data da competência',dateLabel(d.input?.competence_date)],['Serviço',d.profile?.service_code],['Ordem de compra',d.input?.purchase_order],['Valor bruto',money(a.gross_amount_cents)],['IRRF',money(a.irrf_cents)],['PIS',money(a.pis_cents)],['Cofins',money(a.cofins_cents)],['CSLL',money(a.csll_cents)],['Retenções federais',money(a.federal_total_cents)],['ISS destacado',money(a.iss_highlight_cents)],['ISS retido',d.profile?.iss_retained?'Sim':'Não'],['Valor líquido',money(a.net_amount_cents)],['Descrição',d.input?.description]].forEach(([name,value])=>{const item=el('div');item.append(el('small','',name),el('strong','',value??'—'));grid.append(item);});
   const identity=el('details','wide'),summary=el('summary','','Identificação da prévia');identity.append(summary,el('p','subnote',`Solicitação ${r.request_id} · Revisão ${r.revision}`),el('code','snapshot-hash',r.snapshot?.hash));
@@ -370,12 +406,29 @@ async function saveForm(event){event.preventDefault();if(state.busy||!state.form
   $('editor').close();await load();setView(state.view);if(form.type==='approve')note('Aprovação registrada');if(form.type==='emit')note('Emissão solicitada. Acompanhe o resultado em Atividade.');if(form.type==='approve_batch')note(`Aprovação registrada para ${form.requests.length} ${form.requests.length===1?'nota':'notas'}.`);if(form.type==='revise')note('Nova revisão preparada. A aprovação anterior não autoriza esta revisão.');
 }catch(e){$('editor-error').textContent=e.message;}finally{setBusy(false);if(state.form?.type==='import_commit'&&!state.form.preview.can_commit)$('editor-save').disabled=true;}}
 
-$('nav').addEventListener('click',event=>{const b=event.target.closest('button[data-view]');if(b)setView(b.dataset.view);});
+$('menu-toggle').addEventListener('click',()=>{const open=$('menu-toggle').getAttribute('aria-expanded')!=='true';$('menu-toggle').setAttribute('aria-expanded',String(open));document.querySelector('.sidebar').classList.toggle('is-open',open);if(open)document.querySelector('#nav button[aria-current]')?.focus();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('editor').open)closeMenu(true);});
+document.addEventListener('pointerdown',event=>{if(!event.target.closest('.sidebar, #menu-toggle'))closeMenu();});
+document.addEventListener('focusin',event=>{if(!event.target.closest('.sidebar, #menu-toggle'))closeMenu();});
+window.matchMedia('(min-width: 761px)').addEventListener('change',()=>closeMenu());
+$('nav').addEventListener('click',event=>{const b=event.target.closest('button[data-view]');if(b){setView(b.dataset.view);$('page-title').focus();}});
+function restoreView(){const view=location.hash.slice(1);if(view==='workspace')return;setView(Object.hasOwn(titles,view)?view:'overview',{navigate:false});}
+document.querySelector('.skip').addEventListener('click',event=>{event.preventDefault();$('workspace').focus();});
+window.addEventListener('popstate',restoreView);
+window.addEventListener('hashchange',restoreView);
 $('company-filter').addEventListener('change',()=>{state.company=$('company-filter').value;load();});$('refresh').addEventListener('click',load);$('prepare').addEventListener('click',openPrepare);
 $('planning-month').value=state.month;
 $('planning-month').addEventListener('change',()=>{if($('planning-month').checkValidity() && /^\d{4}-\d{2}$/.test($('planning-month').value)){state.month=$('planning-month').value;state.selectedOccurrences.clear();load();}});
+$('editor').addEventListener('keydown',event=>{
+  if(event.key!=='Tab')return;
+  const controls=[...$('editor').querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]')].filter(node=>!node.disabled&&node.tabIndex>=0&&!node.closest('[inert]')&&node.getClientRects().length);
+  if(!controls.length){event.preventDefault();return;}
+  const first=controls[0],last=controls[controls.length-1],active=document.activeElement;
+  if(event.shiftKey&&(active===first||!controls.includes(active))){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&(active===last||!controls.includes(active))){event.preventDefault();first.focus();}
+});
 $('editor-form').addEventListener('submit',saveForm);$('editor-form').addEventListener('input',()=>{if(!state.busy)state.formKey=crypto.randomUUID();});
 for(const id of ['editor-cancel','editor-close'])$(id).addEventListener('click',()=>{if(!state.busy)closeEditor();});$('editor').addEventListener('cancel',event=>{event.preventDefault();if(!state.busy)closeEditor();});
-$('editor').addEventListener('close',()=>{if(!$('editor').open&&state.form?.type==='secret'){$('editor-fields').replaceChildren();state.form=null;}});
+$('editor').addEventListener('close',()=>{if(!$('editor').open){if(state.dialogTrigger?.isConnected)state.dialogTrigger.focus({preventScroll:true});else $('page-title').focus({preventScroll:true});}if(!$('editor').open&&state.form?.type==='secret'){$('editor-fields').replaceChildren();state.form=null;}});
 function observeSession(){const ready=window.HUB_AUTH_READY;if(!ready||ready===state.ready)return;state.ready=ready;ready.then(result=>{if(ready!==state.ready)return;state.valid=result?.status==='valid';if(state.valid){load();}else{state.generation++;clearData();$('prepare').disabled=true;$('company-filter').disabled=true;render();}}).catch(()=>{state.valid=false;clearData();render();});}
-if(window.top!==window.self){document.body.replaceChildren(empty('Abra o aplicativo diretamente','A área fiscal não pode ser aberta dentro de outro site.'));}else{observeSession();const watcher=setInterval(observeSession,250);window.addEventListener('pagehide',()=>clearInterval(watcher),{once:true});window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});}
+if(window.top!==window.self){document.body.replaceChildren(empty('Abra o aplicativo diretamente','A área fiscal não pode ser aberta dentro de outro site.'));}else{restoreView();observeSession();const watcher=setInterval(observeSession,250);window.addEventListener('pagehide',()=>clearInterval(watcher),{once:true});window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});}
