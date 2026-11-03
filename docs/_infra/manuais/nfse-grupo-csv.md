@@ -49,6 +49,8 @@ O acervo oferece consulta de documentos, arquivos XML/PDF autenticados e verific
 - Interface: `docs/public/grupo-csv/nfse/`.
 - Testes de calendário/valores: `tests/nfse-v4-model.test.mjs`.
 - Testes de interface no Chromium com API sintética: `tests/nfse-v4-ui.test.mjs`.
+- Testes de responsividade, teclado e acessibilidade: `tests/nfse-responsive.test.mjs` (360, 390, 768, 1280 e 1440 px).
+- Login nativo com serviços sintéticos: `tests/nfse-native-auth.test.mjs` (390 e 1440 px).
 - O build VitePress copia a área pública para o artefato final.
 - A API e o MCP são mantidos no repositório privado do backend.
 
@@ -89,3 +91,9 @@ Em 7 de outubro de 2026, a documentação registrava a NFS-e AxiaCare v3.2 com e
 ## Corte do Leiaute Legado
 
 A partir de 01/12/2026, às 00h em America/Sao_Paulo, novas transmissões ou retransmissões com o contrato NT004 ficam bloqueadas. Consultas e conciliação de uma DPS já aceita continuam disponíveis. Esse limite não habilita o contrato NT009: sua ativação exige os artefatos aplicáveis, parâmetros validados e homologação. O aplicativo mantém as empresas pendentes até essas condições serem comprovadas.
+
+## Revisão de Usabilidade — 2 de Novembro de 2026
+
+A revisão, datada em America/Sao_Paulo, organiza a navegação e a leitura em celulares, com menu recolhível, filtros por seção, faixa de estatísticas e diálogos com rolagem e retorno de foco. Usa Inter com fallback do sistema, cantos de 4 a 6 px e os logos oficiais do Grupo CSV, AxiaCare, MedValor e Thera. As marcas das empresas usam WebP; o logo do Grupo CSV permanece em PNG. O ID técnico `theratech` continua identificando a mesma empresa; sua marca visual é Thera.
+
+Os ativos existentes foram conferidos no repositório e no catálogo oficial, sem redesenho. A especificação está em [Identidade e Direção da Interface](https://github.com/grupocsv/hub/blob/main/docs/public/grupo-csv/nfse/brand-spec.md). A revisão preserva a configuração fiscal, as permissões e o estado do caminho legado.

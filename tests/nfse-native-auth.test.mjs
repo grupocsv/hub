@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {readFile,stat} from 'node:fs/promises';
+import {readFile,stat,mkdir} from 'node:fs/promises';
 import {extname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from '@playwright/test';
@@ -9,19 +9,19 @@ import {chromium} from '@playwright/test';
 const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
 const publicRoot=resolve(root,process.env.NFSE_PUBLIC_ROOT||'docs/public');
 
-test('login nativo atravessa a CSP da NFS-e e inicia a sessão individual',async()=>{
+for(const width of [390,1440])test(`login nativo em ${width}px atravessa a CSP e inicia a sessão individual`,async()=>{
  const server=createServer(async(req,res)=>{
   try{
    let path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(path.endsWith('/'))path+='index.html';
    let file=resolve(publicRoot,'.'+path);if(!file.startsWith(publicRoot+'/'))throw Error('path');
    try{await stat(file);}catch(error){if(process.env.NFSE_PUBLIC_ROOT)throw error;file=resolve(root,'.'+path);}
    if(!file.startsWith(root+'/'))throw Error('path');
-   res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.otf':'font/otf'})[extname(file)]??'application/octet-stream'});res.end(await readFile(file));
+   res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.otf':'font/otf','.svg':'image/svg+xml','.webp':'image/webp'})[extname(file)]??'application/octet-stream'});res.end(await readFile(file));
   }catch{res.writeHead(404);res.end('Not found');}
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- const context=await browser.newContext({locale:'pt-BR'}),page=await context.newPage();
+ const context=await browser.newContext({locale:'pt-BR',viewport:{width,height:900}}),page=await context.newPage();
  page.setDefaultTimeout(5000);
  const calls=[],errors=[],token='synthetic_native_individual_session_token',email='owner@example.test';
  try{
@@ -55,8 +55,11 @@ test('login nativo atravessa a CSP da NFS-e e inicia a sessão individual',async
   await page.waitForFunction(()=>!document.getElementById('hub-auth-overlay')||Boolean(document.getElementById('ha-error')?.textContent));
   assert.equal(calls.filter(call=>call.path==='/login').length,1,'O login nativo precisa alcançar a rota sintética através da CSP.');
   assert.equal(calls.filter(call=>call.path==='/verify').length,1,'A sessão retornada precisa ser validada antes de abrir a área fiscal.');
-  await page.getByText('Seu calendário começa aqui',{exact:true}).waitFor();
+  await page.getByText('Nenhuma emissão programada',{exact:true}).waitFor();
   assert.equal(await page.locator('#hub-auth-overlay').count(),0);
+  const screenshotDir=resolve(process.env.NFSE_UX_OUTPUT_DIR||resolve(root,'test-results/nfse-responsive'));await mkdir(screenshotDir,{recursive:true});await page.screenshot({path:resolve(screenshotDir,`native-auth-${width}.png`),fullPage:true});
+  assert.equal(await page.getByRole('button',{name:'Sair',exact:true}).isVisible().catch(()=>false)||await page.getByRole('link',{name:'Sair',exact:true}).isVisible().catch(()=>false),true);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.equal(await page.evaluate(async()=>(await window.HUB_AUTH_READY).status),'valid');
   assert.ok(calls.some(call=>call.path==='/nfse/v2/overview'&&call.token===token));
   assert.deepEqual(await page.evaluate(()=>window.nativeAuthCspViolations),[]);assert.deepEqual(errors,[]);
