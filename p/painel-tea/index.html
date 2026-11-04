@@ -1044,6 +1044,10 @@ html,body{max-width:100%;overflow-x:hidden}
   };
   const TIPO_ORDEM = ['tudo', 'ano', 'semestre', 'trimestre', 'mes'];
   const TIPO_ROTULO = { tudo: 'Tudo', ano: 'Ano', semestre: 'Semestre', trimestre: 'Trimestre', mes: 'Mês' };
+  const MESES_NOMINAIS = { ano: 12, semestre: 6, trimestre: 3, mes: 1 };
+  const mesesDe = p => asArray(p && p.meses).length;
+  const periodoParcial = p => { const nominal = MESES_NOMINAIS[p && p.tipo]; const m = mesesDe(p); return Boolean(nominal && m && m < nominal); };
+  const rotuloPeriodo = p => !p ? 'Período não informado' : (periodoParcial(p) ? p.rotulo + ' · parcial (' + mesesDe(p) + ' de ' + MESES_NOMINAIS[p.tipo] + ' meses)' : p.rotulo);
   const VIEW_SLUGS = ['inicio', 'visao', 'evolucao', 'especialidades', 'prestadores', 'pacientes', 'canais', 'metodo'];
   const KITS = [
     { id: 'tripe', rotulo: 'Psicologia + Fonoaudiologia + Terapia Ocupacional', curto: 'Psicologia + Fono + T.O.', composicao: ['Psicologia', 'Fonoaudiologia', 'Terapia Ocupacional'], descricao: 'As três terapias centrais em conjunto' },
@@ -1155,7 +1159,12 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!atual || atual.tipo === 'tudo') return null;
     const irmaos = PERIODOS.filter(p => p.tipo === atual.tipo).sort((a, b) => a.id.localeCompare(b.id, 'pt-BR', { numeric: true }));
     const idx = irmaos.findIndex(p => p.id === id);
-    return idx > 0 ? irmaos[idx - 1] : null;
+    const anterior = idx > 0 ? irmaos[idx - 1] : null;
+    // Períodos de duração diferente (ex.: ano em curso com 6 meses contra um ano cheio) não são comparáveis;
+    // sem anterior comparável, o painel usa a comparação interna por metades, declarada em Método e Fontes.
+    if (!anterior) return null;
+    if (mesesDe(anterior) && mesesDe(atual) && mesesDe(anterior) !== mesesDe(atual)) return null;
+    return anterior;
   }
   function recorteAnterior(id) {
     const p = periodoAnterior(id || state.periodId);
@@ -1746,7 +1755,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <p><strong>Desvio de faixa:</strong> diferença percentual do R$/sessão do prestador contra a mediana da faixa do seu canal. Desvio acima de +10% recebe destaque; composição de serviço e contrato explicam parte das diferenças.</p>
         <p><strong>Decomposição da variação:</strong> a variação do pagamento entre períodos é decomposta em efeito população ((pac₁−pac₀)×spm₀×preço₀), efeito sessões por criança (pac₁×(spm₁−spm₀)×preço₀) e efeito preço (pac₁×spm₁×(preço₁−preço₀)), onde spm é sessões por criança e preço é R$/sessão. A soma dos três efeitos reproduz exatamente a variação total.</p>
         <p><strong>Sinais do período:</strong> preço acima de P75 + 10% da faixa do canal com pagamento ≥ R$ 50 mil; intensidade ≥ 1,5× a mediana da rede contratada com o mesmo piso; dispersão de preço do reembolso acima de 3× o IQR da rede contratada.</p>
-        <p><strong>Comparação interna (metades):</strong> quando o recorte não tem período anterior de mesma duração (ex.: o período completo), as variações e a decomposição comparam a metade mais recente da série mensal com a metade anterior, com o rótulo indicando os meses envolvidos; a população de cada metade é a média mensal de crianças ativas.</p>
+        <p><strong>Comparação interna (metades):</strong> quando o recorte não tem período anterior de mesma duração (ex.: o período completo, ou um ano, semestre ou trimestre ainda parcial — identificado no seletor e no cabeçalho pelo número de meses disponíveis), as variações e a decomposição comparam a metade mais recente da série mensal com a metade anterior, com o rótulo indicando os meses envolvidos; a população de cada metade é a média mensal de crianças ativas.</p>
         <p><strong>Quadrantes da matriz intensidade × preço:</strong> as medianas das principais clínicas dividem o plano em A (preço acima, intensidade abaixo), B (ambos acima), C (ambos abaixo) e D (preço abaixo, intensidade acima).</p>
         <p><strong>Escopo assistencial:</strong> no escopo por disciplina, os números de cada prestador vêm do corte prestador×disciplina da consolidação de dados; quando um recorte não traz esse corte, os valores por prestador são totais, com indicação na própria tabela. Faixas, desvios, quadrantes e sinais de prestador são calculados dentro de um escopo de disciplina. As combinações de terapias derivam das combinações registradas por criança no período; o plano terapêutico é individual (SBP, Ministério da Saúde 2025, SBNI 2025). Pela regulação vigente (RN 469/2021, RN 539/2022 e RN 541/2022), as sessões dessas terapias não têm limite de cobertura — intensidade alta não constitui, por si, irregularidade.</p>
         <p><strong>Cenário entre canais:</strong> o quadro de oportunidade da aba Canais é um teto de sensibilidade (diferencial de preço × volume), sem considerar capacidade instalada, perfil clínico ou custo marginal.</p>
@@ -1770,7 +1779,7 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function popularValoresPeriodo(tipo) {
     const value = $('period_value'), lista = PERIODOS.filter(p => p.tipo === tipo);
-    value.replaceChildren(...lista.map(p => { const o = el('option', null, p.rotulo); o.value = p.id; return o; }));
+    value.replaceChildren(...lista.map(p => { const o = el('option', null, rotuloPeriodo(p)); o.value = p.id; return o; }));
     value.value = lista.some(p => p.id === state.periodId) ? state.periodId : (lista[0] ? lista[0].id : '');
   }
   function selecionarPeriodo(id) {
@@ -1795,7 +1804,7 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function atualizarCabecalho() {
     const p = PERIODOS.find(x => x.id === state.periodId), meta = DATA && DATA.meta ? DATA.meta : {};
-    const label = p ? p.rotulo : 'Período não informado';
+    const label = rotuloPeriodo(p);
     $('tb_periodo').textContent = label;
     if ($('tb_datas')) $('tb_datas').textContent = datasPeriodo(p) || '–';
     if ($('tb_escopo')) $('tb_escopo').textContent = rotuloEscopo();
