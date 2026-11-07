@@ -72,6 +72,7 @@ O objetivo é fornecer à alta gestão uma visão panorâmica, curada e de alta 
 
 | Edição | Período | Fatos | Status |
 |--------|---------|-------|--------|
+| [S45/2026](edicoes/2026/S45/) | 30 de outubro a 6 de novembro | 5 | Publicado |
 | [S44/2026](edicoes/2026/S44/) | 23 a 30 de outubro | 6 | Publicado |
 | [S42/2026](edicoes/2026/S42/) | 12 a 16 de outubro | 6 | Publicado |
 | [S41/2026](edicoes/2026/S41/) | 5 a 9 de outubro | 6 | Publicado |
