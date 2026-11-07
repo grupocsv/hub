@@ -1,0 +1,27 @@
+# Signal™ S45/2026
+
+**Período:** 30 de outubro a 6 de novembro de 2026<br>
+**Gerado em:** 07/11/2026<br>
+**Versão Dicionário:** v4.25
+
+## Fatos Estratégicos
+
+1. **[LINHAS DE CUIDADO] EVS Inicia Captação Ativa da Linha TEA.** Em 4 de novembro, o EVS e a Coordenação do Cuidado receberam o primeiro lote de encaminhamentos de busca de rede por neuropediatria, oriundos da Regulação do Cuidado Coordenado (RCC), para a linha do Transtorno do Espectro Autista (TEA). Iniciaram triagem, sensibilização das famílias e agendamento da clusterização. O fluxo segue em andamento, sem resultados consolidados de consultas realizadas ou adesão familiar.
+
+2. **[LINHAS DE CUIDADO] Jornada TEA Define Sequência de Reavaliação Terapêutica.** A memória compartilhada em 6 de novembro registra a deliberação da Unimed Governador Valadares e do IBRAVS para que o Ambulatório de Reavaliação Terapêutica (ART) priorize atendimento médico, acolhimento e alinhamento de conduta antes da clusterização. Segunda opinião de auditoria e contestações de prescrições devem seguir para o ART, não para o Ambulatório de Avaliação Diagnóstica TEA (AAD). A resposta institucional de 4 de novembro ainda informava ausência de abertura da agenda do ART.
+
+3. **[DADOS] Monitoramento Hospitalar Integra Complexidade e Experiência.** O EVS concluiu o pacote de monitoramento de outubro do Hospital Unihealth GV, com Report DRG, análise PPE-15 e Mortalidade Ajustada por Risco, consolidados na janela de 5 a 6 de novembro. O pacote reporta o maior Casemix global do ciclo janeiro–outubro e score PPE-15 de 98,54%, com 132 coletas válidas e cobertura de 18,33% das altas elegíveis. A cobertura limita a extrapolação da experiência; as readmissões de outubro permanecem preliminares.
+
+4. **[FINANCEIRO] EVS Comunica Levantamento de Despesas do GCE.** Em 3 de novembro, o EVS comunicou a conclusão do levantamento de despesas assistenciais da população de referência de outubro do Gerenciamento de Casos Especiais (GCE). A leitura utiliza competência de pagamento, que pode reunir atendimentos de meses diferentes. Outubro ainda estava aberto, e agosto, setembro e outubro permaneciam sujeitos à reapuração; não há resultado econômico validado nesta síntese.
+
+5. **[GOVERNANÇA] EVS Presta Contas dos Instrumentos de Governança à Direx.** Na prestação de contas de 3 de novembro, a Superintendência Médica informou à Diretoria Executiva da Unimed Governador Valadares a conclusão do mapa de processos, do manual, do plano de contingência e das fichas de indicadores do EVS. O registro informa alinhamento com a Gestão da Qualidade e integração ao Interact. A apresentação tratou das entregas de outubro, sem comprovação de implantação de todas as rotinas.
+
+## Demais Movimentações
+
+- **Linha de Cuidado DM2:** A inclusão das datas de nascimento nos relatórios laboratoriais da demanda foi informada em 4 de novembro, e o laboratório comunicou sua verificação e validação em 5 de novembro, sem confirmação de início assistencial da linha.
+
+- **Agenda Institucional:** A Diretoria Executiva da Unimed Governador Valadares autorizou, em 3 de novembro, a participação de Guilherme Thomé no Seminário Internacional “Qualidade e Valor na Saúde Suplementar”, previsto para 17 de novembro; participação ainda futura.
+
+## PDF
+
+[Baixar o Signal™ S45/2026 em PDF](./Signal_S45_2026.pdf)
