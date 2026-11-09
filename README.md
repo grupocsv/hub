@@ -48,7 +48,7 @@ O inventário canônico dos produtos exibidos na página inicial está em `_infr
 | Relatórios de Oncologia | `unimed/relatorios-onco.html` | **Painel BI** | Unimed GV | Ativo |
 | Cuidado Coordenado | `unimed/cuidadocoordenado.html` | **Painel BI** | Unimed GV | Ativo |
 | Especialidades | `unimed/especialidades.html` | **Painel BI** | Unimed GV | Ativo |
-| GCE | `unimed/gce.html` | **Painel BI** | Unimed GV | Ativo |
+| GCE | `unimed/gce.html` | **Painel BI** | Unimed GV | Substituído em 08/11/2026 pelo aplicativo do GCE (https://gce.unimedgv.com), que o card do portal Unimed passou a abrir; a página continua no repositório como registro |
 | Terapias Especiais (Unimed) | `unimed/tea.html` | **Painel BI** | Unimed GV | Ativo |
 | Psiquiatria | `unimed/psiquiatria.html` | **Painel BI** | Unimed GV | Ativo |
 | Pediatria Ambulatorial | `unimed/ped-amb.html` | **Painel BI** | Unimed GV | Ativo |
