@@ -32,10 +32,13 @@
             "note": "Migrar para Open Page slug scg100"
           },
           {
-            "file": "gce.html",
-            "title": "Painel Gerenciamento Casos Especiais",
+            "file": "//gce.unimedgv.com",
+            "title": "Aplicativo do GCE",
+            "description": "Gerenciamento de Casos Especiais: pacientes, indicadores e desembolso.",
             "created": "2026-01-24T03:24:45+00:00",
-            "lastModified": "2026-03-07T08:44:14-05:00"
+            "lastModified": "2026-11-09T16:15:25+00:00",
+            "note": "Aplicativo do GCE em gce.unimedgv.com, com login individual (o painel de 2025, gce.html, saiu do portal)",
+            "external": true
           },
           {
             "file": "ped-amb.html",
@@ -70,7 +73,7 @@
           }
         ]
       },
-      "unmanagedOutputSha256": "b60629b15a6fb30a4fee88f2b472fc993e0390c02ac612420de9bfa4ff5df74f"
+      "unmanagedOutputSha256": "6ca4f97a13a5f8599ec22c7f5b62037dd25fa7d2df4a66aee66903c6ade2eb78"
     },
     "unihealth": {
       "sourceSha256": "ea0df38154f65576d2c7f2113f52bbce25f91bc5d5a47093bee402e1d23e8d7c",
@@ -149,5 +152,5 @@
       "unmanagedOutputSha256": "ddbf0873cefa3926ad29d88d76c94267079762f9cef81ea790762af6fc74b725"
     }
   },
-  "manifestSha256": "d197ace835dca5f1a0636c051758c0183fea018f6f9ebd8aced659d1f1c90141"
+  "manifestSha256": "75ccaa0824d67c5f410157e3ee4616324d31e95d7021aeffb08d8a89e6b31682"
 }
