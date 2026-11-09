@@ -98,6 +98,8 @@ head:
 .documents-entry__title { display: block; font-size: 0.92rem; font-weight: 750; line-height: 1.2; }
 .documents-entry__hint { display: block; margin-top: 3px; color: rgba(255,255,255,0.67); font-size: 0.72rem; line-height: 1.3; }
 .documents-entry__arrow { font-size: 1.15rem; opacity: .68; }
+.app-entry { margin-top: 12px; background: #004e4c; border-color: #0a5956; border-left-color: #b1d34b; box-shadow: 0 12px 28px rgba(0,78,76,0.2); }
+.app-entry:hover { background: #0a5956; box-shadow: 0 16px 34px rgba(0,78,76,0.28); }
 
 .tools-grid {
   display: grid;
@@ -213,6 +215,11 @@ head:
     <a href="/documentos/?portal=unimed" class="documents-entry" target="_self">
       <span class="documents-entry__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H10l2 2h5.5A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M8 10h8M8 13h6"/></svg></span>
       <span class="documents-entry__copy"><strong class="documents-entry__title">Central de Documentos</strong><span class="documents-entry__hint">Acesse o acervo institucional da Unimed GV</span></span>
+      <span class="documents-entry__arrow" aria-hidden="true">→</span>
+    </a>
+    <a href="https://gce.unimedgv.com/" class="documents-entry app-entry" target="_self">
+      <span class="documents-entry__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <span class="documents-entry__copy"><strong class="documents-entry__title">Aplicativo do GCE</strong><span class="documents-entry__hint">Gerenciamento de Casos Especiais: pacientes, indicadores e desembolso</span></span>
       <span class="documents-entry__arrow" aria-hidden="true">→</span>
     </a>
   </div>
