@@ -3300,11 +3300,15 @@ html,body{max-width:100%;overflow-x:hidden}
   });
   observadorLogout.observe(document.documentElement, { childList: true, subtree: true });
   // Saída em outra aba ou em outra página do portal: o token some do armazenamento sem nenhuma mudança
-  // no DOM desta aba. A validação da sessão em outra aba também o apaga por instantes; por isso a
-  // conferência espera o prazo dela antes de contar a ausência como saída.
+  // no DOM desta aba. A validação da sessão em outra aba também o apaga por instantes; por isso só conta
+  // como saída a ausência que dura o prazo inteiro da validação: a volta do token cancela a espera.
+  let esperaDaSaida = null;
   window.addEventListener('storage', ev => {
-    if (paginaAberta() || !DATA || (ev.key !== HUB_TOKEN_KEY && ev.key !== null) || tokenHub()) return;
-    window.setTimeout(() => {
+    if (paginaAberta() || (ev.key !== HUB_TOKEN_KEY && ev.key !== null)) return;
+    if (tokenHub()) { window.clearTimeout(esperaDaSaida); esperaDaSaida = null; return; }
+    if (esperaDaSaida) return;
+    esperaDaSaida = window.setTimeout(() => {
+      esperaDaSaida = null;
       if (DATA && !tokenHub()) { DATA = null; window.location.reload(); }
     }, PRAZO_VALIDACAO_MS);
   });
