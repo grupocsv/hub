@@ -3541,6 +3541,20 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                     f"{formatar_numero(ponto['sessoes'])} | "
                     f"{formatar_brl(ponto['pagamento'])}"
                 )
+        serie_mensal = dados["recortes"]["tudo"]["serie_mensal"]
+        referencia = statistics.median(
+            [p["sessoes"] for p in serie_mensal if p["m"] <= base["fim"]][-6:]
+        )
+        for ponto in serie_mensal:
+            if ponto["m"] > base["fim"] and ponto["sessoes"] < 0.75 * referencia:
+                print(
+                    f"Volume {ponto['m']}         : "
+                    f"{formatar_numero(ponto['sessoes'])} sessões, "
+                    f"{formatar_pct(pct(ponto['sessoes'], referencia))} do "
+                    "volume mensal recente da base "
+                    f"({formatar_numero(referencia)}) — pode ser faturamento "
+                    "ainda entrando; confirme se a competência está fechada"
+                )
         for item in meta["competencias_novas"]:
             if item["terapias_sem_lancamento"]:
                 print(
@@ -4800,6 +4814,32 @@ def selftest():
             and dados_seg["meta"]["blocos_fonte"][1]["cedidas_a"] == [],
             "planilha seguinte que repete o último mês deve ficar com ele",
         )
+        # Três blocos encadeados: o mês repetido fica com o que vence todos.
+        bloco_ponte = raiz / "blocos" / "bloco-082026-102026.xlsx"
+        criar_bloco_sintetico(bloco_ponte, ("2026/08", "2026/09", "2026/10"))
+        for ordem in (
+            [bloco_q3, bloco_ponte, bloco_seguinte],
+            [bloco_seguinte, bloco_ponte, bloco_q3],
+        ):
+            dados_tres, _a3, _r3, _t3, _e3 = montar_release(
+                fontes, matriz, None, ordem, "2026/12", exigir_referencias=False
+            )
+            por_arquivo = {
+                b["arquivo"]: b for b in dados_tres["meta"]["blocos_fonte"]
+            }
+            exigir_teste(
+                por_arquivo[bloco_q3.name]["competencias_na_janela"] == ["2026/07"]
+                and por_arquivo[bloco_ponte.name]["competencias_na_janela"]
+                == ["2026/08"]
+                and por_arquivo[bloco_ponte.name]["cedidas_a"]
+                == [bloco_seguinte.name]
+                and por_arquivo[bloco_seguinte.name]["competencias_na_janela"]
+                == ["2026/09", "2026/10", "2026/11", "2026/12"]
+                and por_arquivo[bloco_q3.name]["cedidas_a"]
+                == sorted([bloco_ponte.name, bloco_seguinte.name]),
+                "competência repetida em três blocos deve ficar com o que "
+                "vence todos",
+            )
         # Competência nova com volume ínfimo não é publicada.
         bloco_escasso = raiz / "blocos" / "bloco-com-mes-escasso.xlsx"
         criar_bloco_sintetico(
@@ -4818,6 +4858,54 @@ def selftest():
         montar_release(
             fontes, matriz, None, [bloco_escasso], "2026/08",
             exigir_referencias=False,
+        )
+        # A trava mede sessões, não linhas: mês com registros e sem sessões
+        # não é publicado; mês com metade do volume passa, com aviso.
+        from openpyxl import load_workbook
+
+        def bloco_com_setembro_reduzido(nome, manter_uma_a_cada):
+            caminho = raiz / "blocos" / nome
+            criar_bloco_sintetico(caminho, ("2026/07", "2026/08", "2026/09"))
+            planilha = load_workbook(caminho)
+            ordem_linha = 0
+            for linha in planilha.active.iter_rows(min_row=2):
+                if linha[0].value == "2026/09":
+                    ordem_linha += 1
+                    if not manter_uma_a_cada or ordem_linha % manter_uma_a_cada:
+                        linha[17].value = 0
+            planilha.save(caminho)
+            return caminho
+
+        bloco_sem_sessoes = bloco_com_setembro_reduzido(
+            "bloco-com-mes-sem-sessoes.xlsx", 0
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_sem_sessoes], "2026/09",
+                exigir_referencias=False,
+            ),
+            "competência 2026/09: 0 sessões agregadas, menos de 25% do volume "
+            "mensal recente da base (125)",
+            "competência com registros e sem sessões foi publicada",
+        )
+        bloco_meio_volume = bloco_com_setembro_reduzido(
+            "bloco-com-mes-pela-metade.xlsx", 2
+        )
+        dados_mv, auditoria_mv, reconc_mv, _tmv, extensao_mv = montar_release(
+            fontes, matriz, None, [bloco_meio_volume], "2026/09",
+            exigir_referencias=False,
+        )
+        relatorio_mv = io.StringIO()
+        with contextlib.redirect_stdout(relatorio_mv):
+            imprimir_relatorio(
+                dados_mv, auditoria_mv, reconc_mv, raiz / "nao-gravado.json",
+                extensao_mv,
+            )
+        exigir_teste(
+            "Volume 2026/09         : 57 sessões, 45,6% do volume mensal "
+            "recente da base (125)" in relatorio_mv.getvalue()
+            and "Volume 2026/08" not in relatorio_mv.getvalue(),
+            "relatório não avisou a competência com volume abaixo do habitual",
         )
         # Registro sem data de nascimento em competência cedida não conta no
         # bloco que a cedeu.

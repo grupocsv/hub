@@ -97,7 +97,9 @@ O corte etário padrão é o último dia da última competência publicada.
   varredura anti-vazamento, e uma linha inválida neles também para o build.
 - Competência nova com menos de 25% das sessões de um mês recente da base
   (mediana dos seis últimos) não é publicada: é faturamento ainda entrando ou
-  competência digitada errada.
+  competência digitada errada. Entre 25% e 75% o build passa e o relatório
+  avisa ("Volume AAAA/MM"): cabe ao operador confirmar se a competência está
+  fechada.
 - Depois de estender a janela, todo recorte fechado da base precisa sair
   idêntico ao do build só-base feito com o mesmo corte etário
   (`exigir_base_inalterada`); mudam apenas o período completo e o ano em

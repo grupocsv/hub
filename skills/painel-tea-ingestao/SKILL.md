@@ -130,6 +130,10 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
      Confira se esse é mesmo o arquivo novo.
    - **Crianças já vistas antes**, por competência nova: o normal é ficar
      acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
+   - **Volume**: a linha só aparece quando uma competência nova tem menos de
+     75% das sessões de um mês recente da base. Se é a última competência,
+     o faturamento ainda está entrando: refaça com `--ate` no mês anterior e
+     diga isso ao usuário. Abaixo de 25% o build nem publica.
    - **Sem lançamento**: terapias do painel sem registro no mês — aparecem
      com zero. Se o mês é o último, pode ser faturamento atrasado.
    - **Base conferida** e **recortes fechados idênticos**.
