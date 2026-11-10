@@ -345,6 +345,10 @@ MIN_VOLUME = Decimal("0.25")
 # é o que uma linha com o mês digitado errado produz. O mês recém-aberto da
 # planilha seguinte (em geral 10% ou mais) continua contando.
 MIN_BORDA = Decimal("0.05")
+# Mês com menos de 25% das linhas do mês mais cheio da própria planilha é mês
+# parcial: recém-aberto quando ela foi extraída, ou começado no meio. Na
+# disputa por uma competência, perde para a planilha que a traz cheia.
+MIN_MES_CHEIO = Decimal("0.25")
 MAX_GRAFIA_FIXO = 5
 MAX_GRAFIA_PROPORCAO = Decimal("0.01")
 DISC_PSI = "Psicologia"
@@ -948,6 +952,13 @@ def ler_blocos(caminhos):
     de borda abaixo disso continua sendo lido (pode ser faturamento mal
     começado), mas não faz a planilha passar por mais recente, perde o mês
     para quem o traz dentro do intervalo firme e sai apontado no relatório.
+
+    Entre os que trazem a competência dentro do intervalo firme, quem a traz
+    cheia tem precedência sobre quem a traz parcial — com menos de 25% das
+    linhas do mês mais cheio da própria planilha. É o mês ainda aberto quando
+    a planilha foi extraída: a seguinte, que o repete fechado, fica com ele,
+    tenha o mês novo dela passado ou não dos 5%.
+
     Registros além da janela publicada não são agregados. A ordem dos blocos
     na linha de comando não altera o resultado.
     """
@@ -993,6 +1004,10 @@ def ler_blocos(caminhos):
         (inicio_p, fim_p), (inicio_q, fim_q) = brutos[p][3], brutos[q][3]
         return fim_p > fim_q and inicio_p >= inicio_q
 
+    def mes_cheio(p, mes):
+        linhas_por_mes = brutos[p][4]
+        return linhas_por_mes[mes] >= MIN_MES_CHEIO * max(linhas_por_mes.values())
+
     def intervalo(p):
         return f"{brutos[p][0].name} ({brutos[p][2][0]} a {brutos[p][2][-1]})"
 
@@ -1021,6 +1036,11 @@ def ler_blocos(caminhos):
         ]
         if de_verdade:
             concorrentes = de_verdade
+        # Entre eles, quem traz o mês cheio tem precedência sobre quem o traz
+        # parcial (ainda aberto na extração, ou começado no meio).
+        cheios = [p for p in concorrentes if mes_cheio(p, mes)]
+        if cheios:
+            concorrentes = cheios
         donos = [
             p for p in concorrentes
             if all(p == q or mais_recente(p, q) for q in concorrentes)
@@ -4792,8 +4812,37 @@ def selftest():
                         conteudo = conteudo[: len(conteudo) // 2]
                     saida.writestr(item.filename, conteudo)
 
+        def estragar_fluxo(arquivo, destino, membro):
+            # Primeiro byte do fluxo comprimido do membro vira 0xFF: tipo de
+            # bloco inválido, erro de descompressão já na primeira leitura.
+            bruto = bytearray(arquivo.read_bytes())
+            with zipfile.ZipFile(arquivo) as pacote:
+                item = pacote.getinfo(membro)
+            inicio = (
+                item.header_offset + 30 + len(item.filename.encode())
+                + len(item.extra)
+            )
+            bruto[inicio] = 0xFF
+            destino.write_bytes(bytes(bruto))
+
+        def levanta_erro_de_descompressao(arquivo, membro):
+            try:
+                with zipfile.ZipFile(arquivo) as pacote:
+                    pacote.read(membro)
+            except zlib.error:
+                return True
+            except zipfile.BadZipFile:
+                return False
+            return False
+
         bloco_estragado = raiz / "blocos" / "bloco-estragado-por-dentro.xlsx"
         estragar_por_dentro(bloco, bloco_estragado)
+        bloco_fluxo = raiz / "blocos" / "bloco-com-fluxo-invalido.xlsx"
+        estragar_fluxo(bloco, bloco_fluxo, "docProps/core.xml")
+        exigir_teste(
+            levanta_erro_de_descompressao(bloco_fluxo, "docProps/core.xml"),
+            "a planilha de teste devia levantar erro de descompressão",
+        )
         bloco_docx = raiz / "blocos" / "documento-renomeado.xlsx"
         with zipfile.ZipFile(bloco_docx, "w") as pacote:
             pacote.writestr("[Content_Types].xml", "<Types/>")
@@ -4801,7 +4850,8 @@ def selftest():
         sem_fontes = raiz / "pasta-sem-fontes"
         sem_fontes.mkdir()
         for ilegivel in (
-            bloco_truncado, bloco_com_senha, bloco_estragado, bloco_docx
+            bloco_truncado, bloco_com_senha, bloco_estragado, bloco_fluxo,
+            bloco_docx,
         ):
             exigir_erro(
                 lambda ilegivel=ilegivel: montar_release(
@@ -4894,7 +4944,15 @@ def selftest():
         estragar_por_dentro(matriz, matriz_estragada)
         matriz_malformada = raiz / "matriz-com-aba-malformada.xlsx"
         regravar_cortando(matriz, matriz_malformada, maior_aba(matriz).filename)
-        for ilegivel in (matriz_pela_metade, matriz_estragada, matriz_malformada):
+        matriz_fluxo = raiz / "matriz-com-fluxo-invalido.xlsx"
+        estragar_fluxo(matriz, matriz_fluxo, "docProps/core.xml")
+        exigir_teste(
+            levanta_erro_de_descompressao(matriz_fluxo, "docProps/core.xml"),
+            "a Matriz de teste devia levantar erro de descompressão",
+        )
+        for ilegivel in (
+            matriz_pela_metade, matriz_estragada, matriz_malformada, matriz_fluxo
+        ):
             exigir_erro(
                 lambda ilegivel=ilegivel: reconciliar_matriz(
                     ilegivel, registros_todos
@@ -5309,6 +5367,141 @@ def selftest():
                 planilha.active.delete_rows(indice)
             planilha.save(caminho)
 
+        # O limiar conta linhas, não sessões: as mesmas 6 linhas de outubro,
+        # com dez sessões cada, continuam sendo mês de borda.
+        bloco_seis_sessoes = (
+            raiz / "blocos" / "bloco-072026-102026-outubro-com-6-linhas-de-10-sessoes.xlsx"
+        )
+        criar_bloco_sintetico(
+            bloco_seis_sessoes, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/10": 23},
+        )
+        planilha_sessoes = abrir_para_editar(bloco_seis_sessoes)
+        coluna_quantidade = CABECALHO_FONTE.index("Quantidade Procedimento")
+        for linha in planilha_sessoes.active.iter_rows(min_row=2):
+            if linha[0].value == "2026/10":
+                linha[coluna_quantidade].value = linha[coluna_quantidade].value * 10
+        planilha_sessoes.save(bloco_seis_sessoes)
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_seis_sessoes], "2026/09",
+                exigir_referencias=False,
+            ),
+            "mês de borda com volume ínfimo não conta: 2026/10 tem 6 "
+            "registros em " + bloco_seis_sessoes.name,
+            "o limiar do intervalo firme usou sessões em vez de linhas",
+        )
+
+        def donos_dos_blocos(caminhos, ate_):
+            """Só a leitura dos blocos: quem fica com cada competência."""
+            definir_janela(ate_)
+            try:
+                return {b["arquivo"]: b for b in ler_blocos(caminhos)[1]}
+            finally:
+                definir_janela(FIM_BASE)
+
+        # Série encadeada em que o mês recém-aberto de uma planilha passa dos
+        # 5% e o da seguinte não: agosto fica com a planilha que o traz
+        # cheio, nas duas ordens, e o build completo passa.
+        bloco_e1 = raiz / "blocos" / "encadeada-072026-082026.xlsx"
+        bloco_e2 = raiz / "blocos" / "encadeada-082026-092026.xlsx"
+        criar_bloco_sintetico(bloco_e1, ("2026/07", "2026/08"))
+        aparar(bloco_e1, {"2026/08": 10})
+        criar_bloco_sintetico(bloco_e2, ("2026/08", "2026/09"))
+        aparar(bloco_e2, {"2026/09": 4})
+        for ordem in ([bloco_e1, bloco_e2], [bloco_e2, bloco_e1]):
+            dados_enc = montar_release(
+                fontes, matriz, None, ordem, "2026/08", exigir_referencias=False
+            )[0]
+            por_arquivo = {
+                b["arquivo"]: b for b in dados_enc["meta"]["blocos_fonte"]
+            }
+            exigir_teste(
+                por_arquivo[bloco_e1.name]["competencias_na_janela"] == ["2026/07"]
+                and por_arquivo[bloco_e1.name]["competencias_cedidas"] == ["2026/08"]
+                and por_arquivo[bloco_e1.name]["cedidas_a"] == [bloco_e2.name]
+                and por_arquivo[bloco_e1.name]["borda_fraca"] == []
+                and por_arquivo[bloco_e2.name]["competencias_na_janela"]
+                == ["2026/08"]
+                and por_arquivo[bloco_e2.name]["borda_fraca"]
+                == [{"m": "2026/09", "registros": 4}],
+                "mês ainda aberto em uma planilha não ficou com a seguinte, "
+                "que o traz cheio",
+            )
+        # Três planilhas, alternando acima e abaixo dos 5%, em todas as ordens.
+        bloco_s1 = raiz / "blocos" / "mista-072026-092026.xlsx"
+        bloco_s2 = raiz / "blocos" / "mista-092026-102026.xlsx"
+        bloco_s3 = raiz / "blocos" / "mista-102026-112026.xlsx"
+        criar_bloco_sintetico(bloco_s1, ("2026/07", "2026/08", "2026/09"))
+        aparar(bloco_s1, {"2026/09": 10})
+        criar_bloco_sintetico(bloco_s2, ("2026/09", "2026/10"))
+        aparar(bloco_s2, {"2026/10": 4})
+        criar_bloco_sintetico(bloco_s3, ("2026/10", "2026/11"))
+        aparar(bloco_s3, {"2026/11": 10})
+        for a, b, c in (
+            (bloco_s1, bloco_s2, bloco_s3), (bloco_s1, bloco_s3, bloco_s2),
+            (bloco_s2, bloco_s1, bloco_s3), (bloco_s2, bloco_s3, bloco_s1),
+            (bloco_s3, bloco_s1, bloco_s2), (bloco_s3, bloco_s2, bloco_s1),
+        ):
+            por_arquivo = donos_dos_blocos([a, b, c], "2026/10")
+            exigir_teste(
+                por_arquivo[bloco_s1.name]["competencias_na_janela"]
+                == ["2026/07", "2026/08"]
+                and por_arquivo[bloco_s2.name]["competencias_na_janela"]
+                == ["2026/09"]
+                and por_arquivo[bloco_s2.name]["borda_fraca"]
+                == [{"m": "2026/10", "registros": 4}]
+                and por_arquivo[bloco_s3.name]["competencias_na_janela"]
+                == ["2026/10"],
+                "série que alterna mês recém-aberto acima e abaixo de 5% não "
+                "ficou com cada mês na planilha que o traz cheio",
+            )
+        # Planilha mais nova que começa no meio de setembro: setembro fica com
+        # a anterior, que o traz inteiro, e o build completo passa.
+        bloco_meio = raiz / "blocos" / "comeca-no-meio-092026-102026.xlsx"
+        criar_bloco_sintetico(bloco_meio, ("2026/09", "2026/10"))
+        aparar(bloco_meio, {"2026/09": 13})
+        for ordem in ([bloco_q3, bloco_meio], [bloco_meio, bloco_q3]):
+            dados_meio = montar_release(
+                fontes, matriz, None, ordem, "2026/10", exigir_referencias=False
+            )[0]
+            por_arquivo = {
+                b["arquivo"]: b for b in dados_meio["meta"]["blocos_fonte"]
+            }
+            exigir_teste(
+                por_arquivo[bloco_q3.name]["competencias_na_janela"]
+                == ["2026/07", "2026/08", "2026/09"]
+                and por_arquivo[bloco_meio.name]["competencias_na_janela"]
+                == ["2026/10"]
+                and por_arquivo[bloco_meio.name]["competencias_cedidas"]
+                == ["2026/09"]
+                and por_arquivo[bloco_meio.name]["cedidas_a"] == [bloco_q3.name],
+                "mês começado no meio em uma planilha não ficou com a que o "
+                "traz inteiro",
+            )
+        # Fronteira dos 25%: agosto com 30 linhas em 120 é mês cheio, e as
+        # duas planilhas que terminam em agosto pedem decisão; com 29, é
+        # parcial e perde para a que o traz cheio.
+        bloco_25 = raiz / "blocos" / "encadeada-072026-082026-agosto-a-25-por-cento.xlsx"
+        criar_bloco_sintetico(bloco_25, ("2026/07", "2026/08"))
+        aparar(bloco_25, {"2026/07": 120, "2026/08": 30})
+        exigir_erro(
+            lambda: donos_dos_blocos([bloco_25, bloco_e2], "2026/08"),
+            "trazem a competência 2026/08 e não há como saber qual é a "
+            "planilha mais recente",
+            "mês com exatamente 25% das linhas do mês mais cheio não contou "
+            "como mês cheio",
+        )
+        bloco_24 = raiz / "blocos" / "encadeada-072026-082026-agosto-a-24-por-cento.xlsx"
+        criar_bloco_sintetico(bloco_24, ("2026/07", "2026/08"))
+        aparar(bloco_24, {"2026/07": 120, "2026/08": 29})
+        por_arquivo = donos_dos_blocos([bloco_24, bloco_e2], "2026/08")
+        exigir_teste(
+            por_arquivo[bloco_24.name]["competencias_na_janela"] == ["2026/07"]
+            and por_arquivo[bloco_e2.name]["competencias_na_janela"] == ["2026/08"],
+            "mês com menos de 25% das linhas do mês mais cheio contou como "
+            "mês cheio",
+        )
         # Exatamente 5% (6 linhas em 120): conta.
         bloco_exato = raiz / "blocos" / "bloco-072026-102026-outubro-a-5-por-cento.xlsx"
         criar_bloco_sintetico(

@@ -98,7 +98,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    novas, é um bloco adicional, mesmo que repita o último mês do bloco
    anterior: quando a mesma competência vem em dois blocos, vale a da
    planilha mais recente — a que começa no mesmo mês ou depois e termina
-   depois, sem contar mês de borda com volume ínfimo —, e o relatório diz
+   depois, sem contar mês de borda com volume ínfimo —, o mês ainda aberto
+   em uma planilha fica com a que o traz cheio, e o relatório diz
    quais competências foram cedidas e a qual arquivo. Planilha com meses até
    2026/06 não tem encaixe: peça à origem a planilha a partir de 2026/07.
 
@@ -139,14 +140,17 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    - **Fechamento do bloco**: lidos = agregados + terapia descartada + sem
      data de nascimento. O descarte e os registros sem data saem também em
      sessões e em reais, para fechar a conta em qualquer unidade.
-   - **Competências cedidas**: meses que um bloco mais antigo deixou para o
-     mais recente, com o nome e o intervalo do arquivo que ficou com eles.
-     Confira se esse é mesmo o arquivo novo.
+   - **Competências cedidas**: meses que um bloco deixou para outro — o mais
+     recente, ou o que traz o mês cheio quando este o traz parcial —, com o
+     nome e o intervalo do arquivo que ficou com eles. Confira se é mesmo
+     esse o arquivo que deve ficar com cada mês.
    - **Mês de borda com volume ínfimo** (menos de 5% das linhas do mês mais
      cheio da planilha) e **Além da janela**: uma ou poucas linhas em um mês
-     vizinho do começo ou do fim da planilha. Quase sempre é competência
-     digitada errada na origem — e o mês certo ficou com essas linhas a
-     menos. Avise o usuário; a correção é na origem.
+     vizinho do começo ou do fim da planilha. No fim, pode ser só o mês novo,
+     aberto no dia da extração: nada a corrigir, ele virá inteiro na próxima
+     planilha. Fora isso, é competência digitada errada na origem — e o mês
+     certo ficou com essas linhas a menos. Avise o usuário; a correção é na
+     origem.
    - **Crianças já vistas antes**, por competência nova: o normal é ficar
      acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
    - **Volume**: a linha só aparece quando uma competência nova tem menos de
@@ -248,7 +252,7 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
 | `todas as competências do bloco vêm também de` | Um bloco foi inteiramente substituído por outro, ou por outros; a mensagem diz que arquivos ficaram com as competências e o intervalo de cada um | Conferir se são mesmo os arquivos novos; então retirar o antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
 | `competências não contíguas` | A planilha tem uma competência isolada, antes ou depois de uma lacuna (por exemplo 2026/07 a 2026/09 e uma linha em 2027/06): mês digitado errado | Correção na origem; o bruto não se edita |
-| `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Se a mensagem cita um `mês de borda com volume ínfimo`, um dos arquivos só "termina depois" por uma ou poucas linhas — quase sempre competência digitada errada | Ficar com um deles — o que o usuário confirmar como o mais novo — e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir uma planilha única |
+| `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês, os dois o trazem cheio (ou os dois parcial) e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Se a mensagem cita um `mês de borda com volume ínfimo`, um dos arquivos só "termina depois" por poucas linhas: competência digitada errada, ou o mês novo aberto no próprio dia da extração | Ficar com um deles — o que o usuário confirmar como o mais novo — e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir uma planilha única (ou a planilha nova extraída de novo, com o mês seguinte já em andamento) |
 | `menos de 25% do volume mensal recente da base` | A competência tem pouquíssimas sessões: faturamento ainda entrando ou competência digitada errada | Publicar até a competência anterior (`--ate`) ou conferir a planilha na origem |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem, ou falta o bloco do começo da janela | Corrigir o `--ate`; se a competência que falta já está publicada, guardar no cofre a planilha que a publicou (o `baixar` lista os blocos do release no ar) |
 | `exige ao menos um --bloco` | `--ate` passa de 2026/06 e nenhum bloco foi informado | Informar os blocos que cobrem a janela; se não estão no cofre, guardar as planilhas que publicaram essas competências |
