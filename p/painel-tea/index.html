@@ -3312,7 +3312,8 @@ html,body{max-width:100%;overflow-x:hidden}
     if (esperaDaSaida) return;
     esperaDaSaida = window.setTimeout(() => {
       esperaDaSaida = null;
-      if (DATA && tokenHub() !== TOKEN_DA_CARGA) { DATA = null; window.location.reload(); }
+      // Vale também com a carga em andamento: dados pedidos com o token que saiu não podem chegar à tela.
+      if ((DATA || TOKEN_DA_CARGA) && tokenHub() !== TOKEN_DA_CARGA) { DATA = null; window.location.reload(); }
     }, PRAZO_VALIDACAO_MS);
   });
   document.addEventListener('DOMContentLoaded', () => {
