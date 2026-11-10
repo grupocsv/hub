@@ -793,7 +793,7 @@ def comando_cofre_restaurar(args):
         if item.get("papel") == "matriz":
             matriz = nome
     # Ordem de chegada, só para a leitura: no pipeline, a competência
-    # repetida fica com o bloco que vai mais longe no tempo, em qualquer ordem.
+    # repetida fica com o bloco mais recente, em qualquer ordem de comando.
     vigentes = sorted(
         (b for b in manifesto["blocos"] if b.get("vigente")),
         key=lambda b: (str(b.get("recebido_em") or ""), str(b.get("chave") or "")),

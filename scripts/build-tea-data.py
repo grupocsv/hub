@@ -335,6 +335,9 @@ MAX_SEM_NASCIMENTO_PROPORCAO = Decimal("0.002")
 # aparecido antes; e as que só diferem de uma criança conhecida pela grafia
 # são contadas à parte — poucas são informadas, muitas param o build.
 MIN_CONTINUIDADE = Decimal("0.5")
+# Competência nova com menos de um quarto do volume mensal recente da base é
+# faturamento ainda entrando ou competência digitada errada: não se publica.
+MIN_VOLUME = Decimal("0.25")
 MAX_GRAFIA_FIXO = 5
 MAX_GRAFIA_PROPORCAO = Decimal("0.01")
 DISC_PSI = "Psicologia"
@@ -871,13 +874,17 @@ def ler_blocos(caminhos):
 
     Cada bloco traz vários códigos no mesmo arquivo e só pode conter
     competências posteriores ao período-base. Quando a mesma competência vem
-    em mais de um bloco, vale a do bloco que vai mais longe no tempo — a
-    planilha extraída depois. Os registros dessa competência nos demais
-    blocos são cedidos: não são agregados nem servem de evidência; continuam
-    apenas na varredura anti-vazamento. Dois blocos que repetem uma
-    competência e terminam no mesmo mês não têm desempate: o build para.
-    Registros além da janela publicada também não são agregados. A ordem dos
-    blocos na linha de comando não altera o resultado.
+    em mais de um bloco, vale a do bloco mais recente: o que começa no mesmo
+    mês ou depois e termina depois — a planilha seguinte da série. Vale o
+    intervalo inteiro do arquivo, inclusive além da janela publicada, para
+    que o dono de um mês não mude quando a janela cresce. Os registros dessa
+    competência nos demais blocos são cedidos: não são agregados nem servem
+    de evidência; continuam apenas na varredura anti-vazamento. Quando o
+    intervalo não permite dizer qual é o mais recente (mesmo mês final, ou um
+    arquivo que começa antes e termina depois do outro — o que uma única
+    linha com a competência digitada errada produz), o build para. Registros
+    além da janela publicada não são agregados. A ordem dos blocos na linha
+    de comando não altera o resultado.
     """
     brutos = []
     for real in conferir_caminhos_blocos(caminhos):
@@ -895,19 +902,37 @@ def ler_blocos(caminhos):
     for posicao, (_real, _registros, meses) in enumerate(brutos):
         for mes in meses:
             candidatos[mes].append(posicao)
+
+    def mais_recente(p, q):
+        return (
+            brutos[p][2][-1] > brutos[q][2][-1]
+            and brutos[p][2][0] >= brutos[q][2][0]
+        )
+
+    def intervalo(p):
+        return f"{brutos[p][0].name} ({brutos[p][2][0]} a {brutos[p][2][-1]})"
+
     dono_da_competencia = {}
     for mes in sorted(candidatos):
-        alcance = max(brutos[p][2][-1] for p in candidatos[mes])
-        mais_longe = [p for p in candidatos[mes] if brutos[p][2][-1] == alcance]
-        if len(mais_longe) > 1:
-            nomes = " e ".join(brutos[p][0].name for p in mais_longe[:2])
-            raise ErroPipeline(
-                f"{nomes}: os blocos trazem a competência {mes} e terminam no "
-                f"mesmo mês ({alcance}); sem saber qual é o mais recente, o "
-                "painel não escolhe — informe só um deles ou peça à origem "
-                "uma planilha única"
+        concorrentes = candidatos[mes]
+        donos = [
+            p for p in concorrentes
+            if all(p == q or mais_recente(p, q) for q in concorrentes)
+        ]
+        if not donos:
+            a, b = next(
+                (p, q)
+                for i, p in enumerate(concorrentes)
+                for q in concorrentes[i + 1:]
+                if not mais_recente(p, q) and not mais_recente(q, p)
             )
-        dono_da_competencia[mes] = mais_longe[0]
+            raise ErroPipeline(
+                f"{intervalo(a)} e {intervalo(b)} trazem a competência {mes} "
+                "e não há como saber qual é a planilha mais recente (a mais "
+                "recente começa no mesmo mês ou depois e termina depois); "
+                "fique com uma delas ou peça à origem uma planilha única"
+            )
+        dono_da_competencia[mes] = donos[0]
     lidos = []
     for posicao, (real, registros, meses) in enumerate(brutos):
         proprias = [m for m in meses if dono_da_competencia[m] == posicao]
@@ -947,6 +972,9 @@ def ler_blocos(caminhos):
                     "competencias": meses,
                     "competencias_na_janela": sorted(por_mes),
                     "competencias_cedidas": cedidas,
+                    "cedidas_a": sorted(
+                        {brutos[dono_da_competencia[m]][0].name for m in cedidas}
+                    ),
                     # Totais como lidos da planilha, antes de qualquer
                     # exclusão: é o que se confere com o total da origem.
                     "totais_lidos": [
@@ -1074,6 +1102,8 @@ def conferir_blocos(incluidos, registros_blocos, manifesto_blocos, descartadas, 
     3. Grafia: criança nova que só difere de uma já vista por caixa, acento
        ou espaços no nome segue contada como nova (regra Nome + Nascimento),
        mas é informada; acima da tolerância o build para.
+    4. Volume: competência nova com menos de um quarto das sessões de um mês
+       recente da base (mediana dos seis últimos) não é publicada.
 
     Devolve, por competência nova, crianças, já vistas, grafia divergente e
     terapias mantidas sem lançamento — publicado em meta.competencias_novas.
@@ -1111,19 +1141,33 @@ def conferir_blocos(incluidos, registros_blocos, manifesto_blocos, descartadas, 
 
     por_mes = defaultdict(set)
     terapias_por_mes = defaultdict(set)
+    sessoes_por_mes = defaultdict(Decimal)
     vistas = set()
     for r in incluidos:
+        sessoes_por_mes[r["anomes"]] += r["qtd"]
         if r["anomes"] in MESES_BASE_SET:
             vistas.add(r["paciente"])
         else:
             por_mes[r["anomes"]].add(r["paciente"])
             terapias_por_mes[r["anomes"]].add(r["terapia_id"])
+    recentes = sorted(sessoes_por_mes[m] for m in MESES_BASE[-6:])
+    volume_de_referencia = (recentes[2] + recentes[3]) / 2
     frouxas = {chave_frouxa(p) for p in vistas}
     competencias_novas = []
     for mes in MESES_CANONICOS:
         if mes in MESES_BASE_SET:
             continue
         do_mes = por_mes.get(mes, set())
+        if sessoes_por_mes[mes] < volume_de_referencia * MIN_VOLUME:
+            raise ErroPipeline(
+                f"competência {mes}: {formatar_numero(numero(sessoes_por_mes[mes]))} "
+                f"{'sessão agregada' if sessoes_por_mes[mes] == 1 else 'sessões agregadas'}"
+                f", menos de {int(MIN_VOLUME * 100)}% do volume "
+                "mensal recente da base "
+                f"({formatar_numero(numero(volume_de_referencia))}); faturamento "
+                "ainda entrando ou competência digitada errada — publique até "
+                "a competência anterior ou confira a planilha"
+            )
         novas = do_mes - vistas
         ja_vistas = len(do_mes) - len(novas)
         grafia = sum(1 for p in novas if chave_frouxa(p) in frouxas)
@@ -3384,6 +3428,10 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
     )
     print(f"Corte etário           : {meta['data_corte_idade']}")
     print(f"Fontes                 : {len(meta['manifesto_fontes'])}")
+    intervalos = {
+        b["arquivo"]: f"{b['competencias'][0]} a {b['competencias'][-1]}"
+        for b in meta["blocos_fonte"]
+    }
     for bloco in meta["blocos_fonte"]:
         print(
             "Bloco complementar     : "
@@ -3394,8 +3442,10 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
             print(
                 "                         "
                 f"{formatar_inteiro(bloco['registros_cedidos'])} registros de "
-                f"{', '.join(bloco['competencias_cedidas'])} cedidos a bloco "
-                "mais recente"
+                f"{', '.join(bloco['competencias_cedidas'])} cedidos a "
+                + "; ".join(
+                    f"{nome} ({intervalos[nome]})" for nome in bloco["cedidas_a"]
+                )
             )
         for total in bloco["totais_lidos"]:
             print(
@@ -3595,7 +3645,9 @@ CODIGO_SEM_MOVIMENTO = "50005197"  # terapia mantida que deixa de ter lançament
 CODIGO_DISCIPLINA_SEM_MOVIMENTO = "50005278"
 
 
-def criar_bloco_sintetico(caminho, meses, sem_nascimento=1, renomear=None):
+def criar_bloco_sintetico(
+    caminho, meses, sem_nascimento=1, renomear=None, escassas=()
+):
     """Planilha complementar consolidada: vários códigos em uma única aba.
 
     Exercita o que a planilha real traz: paciente novo, prestador novo,
@@ -3603,6 +3655,7 @@ def criar_bloco_sintetico(caminho, meses, sem_nascimento=1, renomear=None):
     lançamentos, PECS com poucos registros (continua descartada) e registros
     sem data de nascimento — um recuperável pela matrícula e pelo nome do
     mesmo beneficiário na base e ``sem_nascimento`` irrecuperáveis.
+    ``escassas`` são competências em que a planilha traz uma única linha.
     """
     try:
         from openpyxl import Workbook
@@ -3637,6 +3690,8 @@ def criar_bloco_sintetico(caminho, meses, sem_nascimento=1, renomear=None):
                     continue
                 # A criança 15 só existe na competência além da janela.
                 if i == 14 and mes != "2026/10":
+                    continue
+                if mes in escassas and (indice_codigo or i):
                     continue
                 if codigo == COD_AT:
                     prestador = PEDIAKIDS
@@ -4469,7 +4524,8 @@ def selftest():
             "nenhuma competência do bloco está na janela publicada",
             "bloco inteiro além da janela não foi bloqueado",
         )
-        # Competência repetida: vale a do bloco que vai mais longe no tempo.
+        # Competência repetida: vale a do bloco mais recente (começa no mesmo
+        # mês ou depois e termina depois).
         # O bloco 07–10 foi publicado até 2026/09; a planilha seguinte começa
         # em 2026/10 e fica com esse mês, em qualquer ordem de comando.
         dados_sobre, _as, _rs, texto_sobre, extensao_sobre = montar_release(
@@ -4489,13 +4545,14 @@ def selftest():
             dados_sobre["recortes"] == dados_ano["recortes"]
             and cedente["arquivo"] == bloco.name
             and cedente["competencias_cedidas"] == ["2026/10"]
+            and cedente["cedidas_a"] == [bloco_q4.name]
             and cedente["competencias_na_janela"]
             == ["2026/07", "2026/08", "2026/09"]
             and cedente["registros_cedidos"]
             == cedente["registros"] - cedente["registros_na_janela"]
             and dados_sobre["meta"]["blocos_fonte"][1]["registros_cedidos"] == 0
             and extensao_sobre["registros_fora_da_janela"] == 0,
-            "competência repetida deve ficar com o bloco que vai mais longe",
+            "competência repetida deve ficar com o bloco mais recente",
         )
         # Registros além da janela, inclusive uma data de nascimento que só
         # aparece em 2026/10, não alteram os meses publicados.
@@ -4650,10 +4707,68 @@ def selftest():
                 fontes, matriz, None, [bloco, bloco_copia], "2026/09",
                 exigir_referencias=False,
             ),
-            "bloco-sintetico-072026-102026.xlsx e bloco-sintetico-copia.xlsx: "
-            "os blocos trazem a competência 2026/07 e terminam no mesmo mês "
-            "(2026/10)",
+            "bloco-sintetico-072026-102026.xlsx (2026/07 a 2026/10) e "
+            "bloco-sintetico-copia.xlsx (2026/07 a 2026/10) trazem a "
+            "competência 2026/07 e não há como saber qual é a planilha mais "
+            "recente",
             "blocos sem desempate para a competência repetida não foram apontados",
+        )
+        # Uma linha com a competência digitada errada estica o intervalo da
+        # planilha antiga; ela não pode passar por mais recente que a nova.
+        bloco_esticado = raiz / "blocos" / "bloco-q3-com-mes-futuro.xlsx"
+        criar_bloco_sintetico(
+            bloco_esticado, ("2026/07", "2026/08", "2026/09", "2027/06"),
+            escassas=("2027/06",),
+        )
+        bloco_seguinte = raiz / "blocos" / "bloco-092026-122026.xlsx"
+        criar_bloco_sintetico(
+            bloco_seguinte, ("2026/09", "2026/10", "2026/11", "2026/12")
+        )
+        for ordem in (
+            [bloco_esticado, bloco_seguinte], [bloco_seguinte, bloco_esticado]
+        ):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/12",
+                    exigir_referencias=False,
+                ),
+                "bloco-q3-com-mes-futuro.xlsx (2026/07 a 2027/06) e "
+                "bloco-092026-122026.xlsx (2026/09 a 2026/12) trazem a "
+                "competência 2026/09 e não há como saber qual é a planilha "
+                "mais recente",
+                "planilha antiga com mês futuro avulso passou por mais recente",
+            )
+        # A planilha seguinte repete setembro e fica com ele, nas duas ordens.
+        dados_seg, _a2, _r2, _t2, _e2 = montar_release(
+            fontes, matriz, None, [bloco_seguinte, bloco_q3], "2026/12",
+            exigir_referencias=False,
+        )
+        cedente_q3 = dados_seg["meta"]["blocos_fonte"][0]
+        exigir_teste(
+            cedente_q3["arquivo"] == bloco_q3.name
+            and cedente_q3["competencias_cedidas"] == ["2026/09"]
+            and cedente_q3["cedidas_a"] == [bloco_seguinte.name]
+            and dados_seg["meta"]["blocos_fonte"][1]["cedidas_a"] == [],
+            "planilha seguinte que repete o último mês deve ficar com ele",
+        )
+        # Competência nova com volume ínfimo não é publicada.
+        bloco_escasso = raiz / "blocos" / "bloco-com-mes-escasso.xlsx"
+        criar_bloco_sintetico(
+            bloco_escasso, ("2026/07", "2026/08", "2026/09"),
+            escassas=("2026/09",),
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_escasso], "2026/09",
+                exigir_referencias=False,
+            ),
+            "competência 2026/09: 1 sessão agregada, menos de 25% do volume "
+            "mensal recente da base (125)",
+            "competência nova com volume ínfimo foi publicada",
+        )
+        montar_release(
+            fontes, matriz, None, [bloco_escasso], "2026/08",
+            exigir_referencias=False,
         )
         for ordem in ([bloco_q3, bloco], [bloco, bloco_q3]):
             exigir_erro(

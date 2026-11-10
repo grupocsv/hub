@@ -79,15 +79,22 @@ O corte etário padrão é o último dia da última competência publicada.
   registros, bloco inteiro além da janela, bloco inteiramente substituído por
   outro ou dois blocos com o mesmo nome abortam o build. Os caminhos dos
   blocos são validados antes da leitura da base.
-- Competência presente em mais de um bloco fica com o bloco que vai mais
-  longe no tempo — a planilha extraída depois. Os registros dessa competência
-  nos demais blocos são cedidos (`registros_cedidos`, `competencias_cedidas`):
-  não são agregados nem servem de evidência. Dois blocos que repetem uma
-  competência e terminam no mesmo mês não têm desempate, e o build para. A
-  ordem dos blocos no comando não altera o JSON.
-- Registros de bloco além de `--ate` não são agregados nem influenciam os
-  meses publicados. Continuam lidos por inteiro: entram na varredura
-  anti-vazamento, e uma linha inválida neles também para o build.
+- Competência presente em mais de um bloco fica com o bloco mais recente: o
+  que começa no mesmo mês ou depois e termina depois — a planilha seguinte da
+  série. Vale o intervalo inteiro de cada arquivo, inclusive além de `--ate`,
+  para que o dono de um mês não mude quando a janela cresce. Os registros
+  dessa competência nos demais blocos são cedidos (`registros_cedidos`,
+  `competencias_cedidas`, `cedidas_a`): não são agregados nem servem de
+  evidência. Quando o intervalo não diz qual é o mais recente (mesmo mês
+  final, ou um arquivo que começa antes e termina depois do outro — o que uma
+  linha com a competência digitada errada produz), o build para. A ordem dos
+  blocos no comando não altera o JSON.
+- Registros de bloco além de `--ate` não são agregados nem servem de
+  evidência de data de nascimento. Continuam lidos por inteiro: entram na
+  varredura anti-vazamento, e uma linha inválida neles também para o build.
+- Competência nova com menos de 25% das sessões de um mês recente da base
+  (mediana dos seis últimos) não é publicada: é faturamento ainda entrando ou
+  competência digitada errada.
 - Depois de estender a janela, todo recorte fechado da base precisa sair
   idêntico ao do build só-base feito com o mesmo corte etário
   (`exigir_base_inalterada`); mudam apenas o período completo e o ano em

@@ -80,14 +80,16 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    $TR cofre-enviar ~/tea-privado/chegada/<planilha.xlsx> --papel bloco
    ```
 
-   Se ela **substitui** um bloco vigente — cobre as mesmas competências e
-   mais, como `072026_102026` no lugar de `072026_092026` — acrescente
+   Se ela **substitui** um bloco vigente — cobre as mesmas competências,
+   corrigidas, ou as mesmas e mais, como `072026_102026` no lugar de
+   `072026_092026` — acrescente
    `--substitui <nome original do bloco antigo>`. Se cobre competências
    novas, é um bloco adicional, mesmo que repita o último mês do bloco
    anterior: quando a mesma competência vem em dois blocos, vale a da
-   planilha que vai mais longe no tempo, e o relatório diz quais competências
-   foram cedidas. Planilha com meses até 2026/06 não tem encaixe: peça à
-   origem a planilha a partir de 2026/07.
+   planilha mais recente — a que começa no mesmo mês ou depois e termina
+   depois —, e o relatório diz quais competências foram cedidas e a qual
+   arquivo. Planilha com meses até 2026/06 não tem encaixe: peça à origem a
+   planilha a partir de 2026/07.
 
 2. **Restaurar os insumos.**
 
@@ -124,7 +126,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
      data de nascimento. O descarte e os registros sem data saem também em
      sessões e em reais, para fechar a conta em qualquer unidade.
    - **Competências cedidas**: meses que um bloco mais antigo deixou para o
-     mais recente. Confira se é o que se esperava.
+     mais recente, com o nome e o intervalo do arquivo que ficou com eles.
+     Confira se esse é mesmo o arquivo novo.
    - **Crianças já vistas antes**, por competência nova: o normal é ficar
      acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
    - **Sem lançamento**: terapias do painel sem registro no mês — aparecem
@@ -211,7 +214,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `Tipo Prestador desconhecido` | Canal novo na origem | Idem: o mapa de canais é auditável, muda por decisão |
 | `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
 | `todas as competências do bloco vêm também de um bloco mais recente` | Um bloco foi inteiramente substituído por outro | Retirar o bloco antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
-| `os blocos trazem a competência … e terminam no mesmo mês` | Dois arquivos repetem um mês e nenhum vai mais longe: não há como saber qual é o mais recente | Ficar com um deles e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir à origem uma planilha única |
+| `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Mês final fora do esperado na mensagem (por exemplo 2027/06) é linha com a competência digitada errada | Ficar com um deles e tirar o outro do comando e do cofre (`cofre-retirar`); linha com competência errada se corrige na origem; se os dois são necessários, pedir uma planilha única |
+| `menos de 25% do volume mensal recente da base` | A competência tem pouquíssimas sessões: faturamento ainda entrando ou competência digitada errada | Publicar até a competência anterior (`--ate`) ou conferir a planilha na origem |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem | Corrigir o `--ate` |
 | `nenhuma competência do bloco está na janela publicada` | Um bloco inteiro é posterior ao `--ate` | Retirar o bloco do comando ou avançar o `--ate` |
 | `registros sem data de nascimento … acima da tolerância` | Problema de cadastro em volume | Devolver à origem; não contornar |
