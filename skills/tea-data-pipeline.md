@@ -118,12 +118,14 @@ O corte etário padrão é o último dia da última competência publicada.
   (`cedidas_com_menos_registros`, com os dois números) e o relatório avisa:
   lançamento cancelado na origem, ou planilha incompleta nesse mês.
 - Bloco sem nenhuma competência própria — em todo o intervalo, ou só até
-  `--ate` — para o build. O erro repete os avisos sobre os meses da janela
-  (mês parcial cedido a um bloco mais antigo; mês que ficou com quem traz
-  menos registros): o relatório não chega a sair, e os avisos não podem
-  depender dele. Quando o bloco só não tem mês próprio até `--ate`, o erro
-  diz também com quem ficou cada mês dele que está na janela, com os
-  registros do mês em cada um.
+  `--ate` — para o build, e o erro repete os avisos (mês parcial cedido a um
+  bloco mais antigo; mês que ficou com quem traz menos registros): o
+  relatório não chega a sair, e os avisos não podem depender dele. O bloco
+  sem competência própria em todo o intervalo sai de vez do comando e do
+  cofre: o erro fala de todos os meses dele, publicados agora ou depois. O
+  que só não tem mês próprio até `--ate` volta quando a janela crescer: o
+  erro fala dos meses da janela e diz com quem ficou cada um, com os
+  registros do mês em cada arquivo.
 - Registros de bloco além de `--ate` não são agregados nem servem de
   evidência de data de nascimento. Continuam lidos por inteiro: entram na
   varredura anti-vazamento, e uma linha inválida neles também para o build.
