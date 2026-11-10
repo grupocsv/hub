@@ -142,14 +142,22 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
      sessões e em reais, para fechar a conta em qualquer unidade.
    - **Competências cedidas**: meses que um bloco deixou para outro — o mais
      recente, ou o que traz o mês cheio quando este o traz parcial (só o
-     primeiro ou o último mês de uma planilha pode ser parcial) —, com o
-     nome e o intervalo do arquivo que ficou com eles. Confira se é mesmo
-     esse o arquivo que deve ficar com cada mês.
+     primeiro ou o último mês de uma planilha pode ser parcial, sem contar
+     mês de borda com volume ínfimo) —, com o nome e o intervalo do arquivo
+     que ficou com eles. Confira se é mesmo esse o arquivo que deve ficar
+     com cada mês.
    - **Mês parcial nesta planilha … ficou com … mais antiga**: a planilha
      mais nova cedeu um mês a uma mais antiga, que o traz cheio. É o normal
      quando a nova começa no meio do mês. Se ela foi enviada para corrigir
      esse mês, a correção não entrou: avise o usuário e peça à origem a
      planilha com o mês inteiro antes de publicar.
+   - **… que ficou com o mês, traz menos registros dele … do que esta
+     planilha**: o mês repetido ficou com uma planilha que tem menos
+     lançamentos dele do que esta. Diferença pequena costuma ser lançamento
+     cancelado ou glosado na origem; diferença grande, planilha incompleta
+     nesse mês (começada no meio, ou extraída por outro critério). Diga os
+     dois números ao usuário e só publique esse mês com o aceite dele ou
+     depois de confirmar com a origem.
    - **Mês de borda com volume ínfimo** (menos de 5% das linhas do mês mais
      cheio da planilha) e **Além da janela**: uma ou poucas linhas em um mês
      vizinho do começo ou do fim da planilha. No fim, pode ser só o mês novo,
@@ -256,13 +264,13 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `código fora do catálogo` | Apareceu um procedimento novo | Ver o código na linha indicada (pasta privada); decisão de produto: avisar o usuário, não mapear por conta própria |
 | `Tipo Prestador desconhecido` | Canal novo na origem | Idem: o mapa de canais é auditável, muda por decisão |
 | `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
-| `todas as competências do bloco vêm também de` | Um bloco ficou sem nenhuma competência própria: foi substituído por outro mais recente, ou cada mês dele ficou com outro arquivo; a mensagem diz que arquivos ficaram com as competências e o intervalo de cada um | Conferir se são mesmo esses os arquivos a usar; então retirar este do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
+| `todas as competências do bloco vêm também de` | Um bloco ficou sem nenhuma competência própria: foi substituído por outro mais recente, ou cada mês dele ficou com outro arquivo; a mensagem diz que arquivos ficaram com as competências e o intervalo de cada um | Conferir se são mesmo esses os arquivos a usar; então retirar este do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo. Se a mensagem traz `mês parcial nesta planilha`, a planilha mais nova cedeu esse mês a uma mais antiga, que o traz cheio: se ela foi enviada para corrigir o mês, a correção não entra — avise o usuário e peça à origem a planilha com o mês inteiro antes de retirar. Se traz `traz menos registros dele do que este bloco`, o arquivo que ficou com o mês tem menos lançamentos dele: diga os dois números ao usuário e só retire o bloco com o aceite dele ou depois de confirmar com a origem |
 | `competências não contíguas` | A planilha tem uma competência isolada, antes ou depois de uma lacuna (por exemplo 2026/07 a 2026/09 e uma linha em 2027/06): mês digitado errado | Correção na origem; o bruto não se edita |
 | `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês, os dois o trazem cheio (ou os dois parcial) e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Se a mensagem cita um `mês de borda com volume ínfimo`, um dos arquivos só "termina depois" por poucas linhas: competência digitada errada, ou o mês novo aberto no próprio dia da extração | Ficar com um deles — o que o usuário confirmar como o mais novo — e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir uma planilha única (ou a planilha nova extraída de novo, com o mês seguinte já em andamento) |
 | `menos de 25% do volume mensal recente da base` | A competência tem pouquíssimas sessões: faturamento ainda entrando ou competência digitada errada | Publicar até a competência anterior (`--ate`) ou conferir a planilha na origem |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem, ou falta o bloco do começo da janela | Corrigir o `--ate`; se a competência que falta já está publicada, guardar no cofre a planilha que a publicou (o `baixar` lista os blocos do release no ar) |
 | `exige ao menos um --bloco` | `--ate` passa de 2026/06 e nenhum bloco foi informado | Informar os blocos que cobrem a janela; se não estão no cofre, guardar as planilhas que publicaram essas competências |
-| `nenhuma competência do bloco está na janela publicada` | Um bloco inteiro é posterior ao `--ate` | Retirar o bloco do comando ou avançar o `--ate` |
+| `nenhuma competência do bloco entra na janela publicada` | Nada do bloco entra na publicação: ele é inteiro posterior ao `--ate`, ou os meses dele até o `--ate` ficaram com outro arquivo — a mensagem diz com qual, e quantos registros do mês cada um traz | Retirar o bloco do comando ou avançar o `--ate`. Se a mensagem traz `mês parcial nesta planilha`, a planilha mais nova cedeu esse mês a uma mais antiga, que o traz cheio: se ela foi enviada para corrigir o mês, a correção não entra — avise o usuário e peça à origem a planilha com o mês inteiro antes de publicar. Se traz `traz menos registros dele do que este bloco`, vale o mesmo do bloco substituído: diga os dois números ao usuário antes de retirar |
 | `registros sem data de nascimento … acima da tolerância` | Problema de cadastro em volume | Devolver à origem; não contornar |
 | `Data Nascimento inválida (formato …)` | Célula com data ilegível, mesmo em mês ainda não publicado | Correção na origem |
 | `já apareciam em competências anteriores` | Menos da metade das crianças do mês é conhecida: nome ou nascimento vieram em outro formato | Não publicar; pedir a planilha no formato da base |

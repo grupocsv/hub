@@ -345,10 +345,11 @@ MIN_VOLUME = Decimal("0.25")
 # é o que uma linha com o mês digitado errado produz. O mês recém-aberto da
 # planilha seguinte (em geral 10% ou mais) continua contando.
 MIN_BORDA = Decimal("0.05")
-# O primeiro ou o último mês de uma planilha, com menos de 25% das linhas do
-# mês mais cheio dela, é mês parcial: começado no meio, ou ainda aberto quando
-# ela foi extraída. Na disputa por uma competência, perde para a planilha que
-# a traz cheia. Mês do meio nunca é parcial: pouco volume ali é dado.
+# O primeiro ou o último mês do intervalo firme de uma planilha (sem contar
+# mês de borda com volume ínfimo), com menos de 25% das linhas do mês mais
+# cheio dela, é mês parcial: começado no meio, ou ainda aberto quando ela foi
+# extraída. Na disputa por uma competência, perde para a planilha que a traz
+# cheia. Mês do meio nunca é parcial: pouco volume ali é dado.
 MIN_MES_CHEIO = Decimal("0.25")
 MAX_GRAFIA_FIXO = 5
 MAX_GRAFIA_PROPORCAO = Decimal("0.01")
@@ -963,6 +964,12 @@ def ler_blocos(caminhos):
     pouco volume não é parcial: é dado da planilha, e a mais recente fica
     com ele.
 
+    Dois avisos acompanham o que foi cedido, para nada se perder calado: o
+    mês parcial que o bloco mais recente cedeu a um mais antigo (se ele
+    corrige o mês, a correção não entra) e o mês da janela que ficou com um
+    bloco que traz menos registros dele do que o que cedeu (lançamento
+    cancelado na origem, ou planilha incompleta nesse mês).
+
     Registros além da janela publicada não são agregados. A ordem dos blocos
     na linha de comando não altera o resultado.
     """
@@ -1077,6 +1084,58 @@ def ler_blocos(caminhos):
     for posicao, (real, registros, meses, _firme, linhas_do_bloco) in enumerate(brutos):
         proprias = [m for m in meses if dono_da_competencia[m] == posicao]
         cedidas = [m for m in meses if dono_da_competencia[m] != posicao]
+        # Mês parcial que este bloco, mais recente, cedeu a um mais antigo
+        # que o traz cheio: se a planilha nova corrige o mês, a correção não
+        # entra.
+        parciais_cedidas = [
+            {
+                "m": m,
+                "registros": linhas_do_bloco[m],
+                "a": brutos[dono_da_competencia[m]][0].name,
+            }
+            for m in cedidas
+            if not mes_cheio(posicao, m)
+            and mais_recente(posicao, dono_da_competencia[m])
+        ]
+        # Mês da janela que ficou com um bloco que traz menos registros dele
+        # do que este: lançamento cancelado na origem, ou planilha incompleta
+        # nesse mês.
+        cedidas_com_menos_registros = [
+            {
+                "m": m,
+                "registros": linhas_do_bloco[m],
+                "a": brutos[dono_da_competencia[m]][0].name,
+                "registros_no_dono": brutos[dono_da_competencia[m]][4][m],
+            }
+            for m in cedidas
+            if m in MESES_CANONICOS_SET
+            and brutos[dono_da_competencia[m]][4][m] < linhas_do_bloco[m]
+        ]
+        # O relatório só sai quando o build termina: os erros que mandam
+        # retirar o bloco repetem os avisos sobre os meses da janela.
+        parciais_na_janela = [
+            parcial["m"] for parcial in parciais_cedidas
+            if parcial["m"] in MESES_CANONICOS_SET
+        ]
+        avisos = (
+            "; " + ", ".join(parciais_na_janela) + ": mês parcial nesta "
+            "planilha, mais nova do que a que ficou com ele — se esta planilha "
+            "corrige o mês, a correção não entra: confirme com a origem antes "
+            "de retirar o bloco"
+            if parciais_na_janela else ""
+        ) + (
+            "; quem ficou com o mês traz menos registros dele do que este "
+            "bloco — "
+            + "; ".join(
+                f"{menor['m']}: {formatar_inteiro(menor['registros_no_dono'])} "
+                f"em {menor['a']}, {formatar_inteiro(menor['registros'])} "
+                "neste bloco"
+                for menor in cedidas_com_menos_registros
+            )
+            + " — lançamento cancelado na origem, ou planilha incompleta nesse "
+            "mês: confirme com a origem antes de retirar o bloco"
+            if cedidas_com_menos_registros else ""
+        )
         if not proprias:
             donos_do_bloco = sorted({dono_da_competencia[m] for m in meses})
             vencedores = "; ".join(intervalo(p) for p in donos_do_bloco)
@@ -1101,7 +1160,7 @@ def ler_blocos(caminhos):
             raise ErroPipeline(
                 f"{real.name}: todas as competências do bloco vêm também de "
                 f"{quem} — {vencedores}; confira se {conferir} e retire este "
-                "do comando"
+                "do comando" + avisos
             )
         for r in registros:
             if dono_da_competencia[r["anomes"]] != posicao:
@@ -1111,9 +1170,22 @@ def ler_blocos(caminhos):
             if not r.get("cedido") and r["anomes"] in MESES_CANONICOS_SET
         ]
         if not na_janela:
+            # Nada do bloco entra na publicação: ele é todo posterior à
+            # janela, ou os meses dele dentro dela ficaram com outro bloco —
+            # e o erro diz com quem ficou cada um.
+            ficaram = [
+                f"{m} ficou com {brutos[dono_da_competencia[m]][0].name} "
+                "(registros do mês: "
+                f"{formatar_inteiro(brutos[dono_da_competencia[m]][4][m])} "
+                f"nele, {formatar_inteiro(linhas_do_bloco[m])} neste bloco)"
+                for m in cedidas if m in MESES_CANONICOS_SET
+            ]
             raise ErroPipeline(
-                f"{real.name}: nenhuma competência do bloco está na janela "
-                f"publicada (até {FIM_CANONICO}); retire o bloco ou ajuste --ate"
+                f"{real.name}: nenhuma competência do bloco entra na janela "
+                f"publicada (até {FIM_CANONICO})"
+                + (": " + "; ".join(ficaram) if ficaram else "")
+                + "; retire o bloco ou ajuste --ate"
+                + avisos
             )
         por_mes = grupos(na_janela, lambda r: r["anomes"])
         lidos.append(
@@ -1139,19 +1211,8 @@ def ler_blocos(caminhos):
                     # Meses de borda com volume ínfimo: lidos, mas fora do
                     # intervalo que decide qual planilha é a mais recente.
                     "borda_fraca": borda_fraca(posicao),
-                    # Mês parcial que este bloco, mais recente, cedeu a um
-                    # mais antigo que o traz cheio: se a planilha nova
-                    # corrige o mês, a correção não entra.
-                    "parciais_cedidas": [
-                        {
-                            "m": m,
-                            "registros": linhas_do_bloco[m],
-                            "a": brutos[dono_da_competencia[m]][0].name,
-                        }
-                        for m in cedidas
-                        if not mes_cheio(posicao, m)
-                        and mais_recente(posicao, dono_da_competencia[m])
-                    ],
+                    "parciais_cedidas": parciais_cedidas,
+                    "cedidas_com_menos_registros": cedidas_com_menos_registros,
                     # Totais como lidos da planilha, antes de qualquer
                     # exclusão: é o que se confere com o total da origem.
                     "totais_lidos": [
@@ -3643,6 +3704,15 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                 "esta planilha corrige o mês, a correção não entrou: confirme "
                 "com a origem"
             )
+        for menor in bloco["cedidas_com_menos_registros"]:
+            print(
+                "                         "
+                f"{menor['m']}: {menor['a']}, que ficou com o mês, traz menos "
+                f"registros dele ({formatar_inteiro(menor['registros_no_dono'])}) "
+                f"do que esta planilha ({formatar_inteiro(menor['registros'])}) — "
+                "lançamento cancelado na origem, ou planilha incompleta nesse "
+                "mês: confirme com a origem"
+            )
         for total in bloco["totais_lidos"]:
             print(
                 f"  lido da planilha {total['m']}: "
@@ -4739,7 +4809,8 @@ def selftest():
                 fontes, matriz, None, [bloco_q3, bloco_q4], "2026/09",
                 exigir_referencias=False,
             ),
-            "nenhuma competência do bloco está na janela publicada",
+            f"{bloco_q4.name}: nenhuma competência do bloco entra na janela "
+            "publicada (até 2026/09); retire o bloco ou ajuste --ate",
             "bloco inteiro além da janela não foi bloqueado",
         )
         # Competência repetida: vale a do bloco mais recente (começa no mesmo
@@ -5443,6 +5514,17 @@ def selftest():
             finally:
                 definir_janela(FIM_BASE)
 
+        def exigir_erro_exato(funcao, texto, mensagem):
+            """A mensagem inteira: nada a mais pode entrar nela."""
+            try:
+                funcao()
+            except ErroPipeline as exc:
+                exigir_teste(
+                    str(exc) == texto, f"{mensagem} (mensagem inesperada)"
+                )
+            else:
+                raise ErroPipeline(f"selftest: {mensagem}")
+
         # Série encadeada em que o mês recém-aberto de uma planilha passa dos
         # 5% e o da seguinte não: agosto fica com a planilha que o traz
         # cheio, nas duas ordens, e o build completo passa.
@@ -5541,6 +5623,206 @@ def selftest():
                 "mês parcial cedido por uma planilha mais nova a uma mais "
                 "antiga não foi avisado no manifesto e no relatório",
             )
+            exigir_teste(
+                por_arquivo[bloco_meio.name]["cedidas_com_menos_registros"] == []
+                and por_arquivo[bloco_q3.name]["cedidas_com_menos_registros"]
+                == [],
+                "mês cedido a quem traz mais registros dele foi apontado como "
+                "cedido a quem traz menos",
+            )
+            # Publicando só até setembro, a planilha mais nova fica sem mês
+            # próprio na janela e o relatório não sai: o erro diz com quem
+            # ficou o mês e repete o aviso do mês parcial.
+            exigir_erro_exato(
+                lambda: donos_dos_blocos(ordem, "2026/09"),
+                f"{bloco_meio.name}: nenhuma competência do bloco entra na "
+                f"janela publicada (até 2026/09): 2026/09 ficou com "
+                f"{bloco_q3.name} (registros do mês: 114 nele, 13 neste bloco); "
+                "retire o bloco ou ajuste --ate; 2026/09: mês parcial nesta "
+                "planilha, mais nova do que a que ficou com ele — se esta "
+                "planilha corrige o mês, a correção não entra: confirme com a "
+                "origem antes de retirar o bloco",
+                "bloco só com mês parcial cedido na janela não disse com quem "
+                "o mês ficou nem repetiu o aviso",
+            )
+        # Mês parcial na borda do intervalo firme, e não da planilha: a linha
+        # avulsa de julho não faz de agosto um mês do meio. Agosto, com 10
+        # linhas, vai para a planilha que o traz cheio, com a própria contagem
+        # no aviso.
+        bloco_y = raiz / "blocos" / "y-072026-082026.xlsx"
+        bloco_x = (
+            raiz / "blocos" / "x-072026-102026-linha-em-julho-agosto-parcial.xlsx"
+        )
+        criar_bloco_sintetico(bloco_y, ("2026/07", "2026/08"))
+        criar_bloco_sintetico(
+            bloco_x, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            escassas=("2026/07",),
+        )
+        aparar(bloco_x, {"2026/08": 10})
+        for ordem in ([bloco_y, bloco_x], [bloco_x, bloco_y]):
+            por_arquivo = donos_dos_blocos(ordem, "2026/10")
+            exigir_teste(
+                por_arquivo[bloco_x.name]["competencias_na_janela"]
+                == ["2026/09", "2026/10"]
+                and por_arquivo[bloco_x.name]["parciais_cedidas"]
+                == [{"m": "2026/08", "registros": 10, "a": bloco_y.name}]
+                and por_arquivo[bloco_x.name]["borda_fraca"]
+                == [{"m": "2026/07", "registros": 2}]
+                and por_arquivo[bloco_x.name]["cedidas_com_menos_registros"]
+                == [],
+                "mês parcial na borda do intervalo firme (não da planilha) não "
+                "foi cedido e avisado com a própria contagem",
+            )
+            # Só até agosto, nada do bloco entra: o erro lista os dois meses,
+            # cada um com quem ficou com ele, e avisa só do parcial. Outubro,
+            # cedido a um bloco mais novo, está além da janela e não aparece.
+            ate_agosto = (
+                f"{bloco_x.name}: nenhuma competência do bloco entra na janela "
+                f"publicada (até 2026/08): 2026/07 ficou com {bloco_y.name} "
+                "(registros do mês: 133 nele, 2 neste bloco); 2026/08 ficou "
+                f"com {bloco_y.name} (registros do mês: 127 nele, 10 neste "
+                "bloco); retire o bloco ou ajuste --ate; 2026/08: mês parcial "
+                "nesta planilha, mais nova do que a que ficou com ele — se "
+                "esta planilha corrige o mês, a correção não entra: confirme "
+                "com a origem antes de retirar o bloco"
+            )
+            exigir_erro_exato(
+                lambda: donos_dos_blocos(ordem, "2026/08"),
+                ate_agosto,
+                "bloco sem mês próprio na janela não listou os meses cedidos "
+                "com quem ficou com cada um",
+            )
+            exigir_erro_exato(
+                lambda: donos_dos_blocos([*ordem, bloco_q4], "2026/08"),
+                ate_agosto,
+                "mês cedido além da janela entrou na mensagem do bloco sem "
+                "mês próprio na janela",
+            )
+            # Só até julho, o mês parcial está além da janela: o erro fala da
+            # linha de julho e não repete o aviso.
+            exigir_erro_exato(
+                lambda: donos_dos_blocos(ordem, "2026/07"),
+                f"{bloco_x.name}: nenhuma competência do bloco entra na janela "
+                f"publicada (até 2026/07): 2026/07 ficou com {bloco_y.name} "
+                "(registros do mês: 133 nele, 2 neste bloco); retire o bloco "
+                "ou ajuste --ate",
+                "aviso de mês parcial além da janela entrou na mensagem do "
+                "bloco sem mês próprio na janela",
+            )
+        # A planilha mais nova fica com o mês repetido mesmo trazendo menos
+        # registros dele: o manifesto e o relatório dizem os dois números, só
+        # para os meses da janela; com o mesmo número, não há aviso.
+        bloco_a4 = raiz / "blocos" / "menos-072026-102026.xlsx"
+        bloco_b3 = raiz / "blocos" / "menos-092026-112026-um-registro-a-menos.xlsx"
+        bloco_b3_igual = (
+            raiz / "blocos" / "menos-092026-112026-mesmos-registros.xlsx"
+        )
+        criar_bloco_sintetico(
+            bloco_a4, ("2026/07", "2026/08", "2026/09", "2026/10")
+        )
+        criar_bloco_sintetico(bloco_b3, ("2026/09", "2026/10", "2026/11"))
+        aparar(bloco_b3, {"2026/09": 113, "2026/10": 115})
+        criar_bloco_sintetico(bloco_b3_igual, ("2026/09", "2026/10", "2026/11"))
+        aparar(bloco_b3_igual, {"2026/09": 114, "2026/10": 116})
+        menos_em_setembro = {
+            "m": "2026/09", "registros": 114, "a": bloco_b3.name,
+            "registros_no_dono": 113,
+        }
+        menos_em_outubro = {
+            "m": "2026/10", "registros": 116, "a": bloco_b3.name,
+            "registros_no_dono": 115,
+        }
+        for ordem in ([bloco_a4, bloco_b3], [bloco_b3, bloco_a4]):
+            ate_setembro = donos_dos_blocos(ordem, "2026/09")
+            ate_outubro = donos_dos_blocos(ordem, "2026/10")
+            exigir_teste(
+                ate_setembro[bloco_a4.name]["competencias_cedidas"]
+                == ["2026/09", "2026/10"]
+                and ate_setembro[bloco_a4.name]["cedidas_com_menos_registros"]
+                == [menos_em_setembro]
+                and ate_outubro[bloco_a4.name]["cedidas_com_menos_registros"]
+                == [menos_em_setembro, menos_em_outubro]
+                and ate_outubro[bloco_b3.name]["cedidas_com_menos_registros"]
+                == []
+                and ate_outubro[bloco_a4.name]["parciais_cedidas"] == [],
+                "mês que ficou com a planilha que traz menos registros dele "
+                "não foi apontado no manifesto, só para os meses da janela",
+            )
+        exigir_teste(
+            donos_dos_blocos([bloco_a4, bloco_b3_igual], "2026/10")[
+                bloco_a4.name
+            ]["cedidas_com_menos_registros"]
+            == [],
+            "mês cedido a uma planilha com o mesmo número de registros foi "
+            "apontado como cedido a quem traz menos",
+        )
+        # Bloco inteiramente substituído por uma planilha acumulada que traz
+        # um registro a menos em setembro: o erro que manda retirá-lo diz os
+        # dois números; com setembro além da janela, ou com os mesmos
+        # registros, não diz nada.
+        bloco_acumulada_menos = (
+            raiz / "blocos" / "acumulada-072026-102026-setembro-com-113-linhas.xlsx"
+        )
+        criar_bloco_sintetico(
+            bloco_acumulada_menos, ("2026/07", "2026/08", "2026/09", "2026/10")
+        )
+        aparar(bloco_acumulada_menos, {"2026/09": 113})
+        substituido = (
+            f"{bloco_q3.name}: todas as competências do bloco vêm também de um "
+            f"bloco mais recente — {bloco_acumulada_menos.name} (2026/07 a "
+            "2026/10); confira se esse é mesmo o arquivo novo e retire este do "
+            "comando"
+        )
+        for ordem in (
+            [bloco_q3, bloco_acumulada_menos], [bloco_acumulada_menos, bloco_q3]
+        ):
+            exigir_erro_exato(
+                lambda: donos_dos_blocos(ordem, "2026/10"),
+                substituido
+                + "; quem ficou com o mês traz menos registros dele do que este "
+                f"bloco — 2026/09: 113 em {bloco_acumulada_menos.name}, 114 "
+                "neste bloco — lançamento cancelado na origem, ou planilha "
+                "incompleta nesse mês: confirme com a origem antes de retirar o "
+                "bloco",
+                "bloco substituído por uma planilha com menos registros em um "
+                "mês não disse os dois números",
+            )
+            exigir_erro_exato(
+                lambda: donos_dos_blocos(ordem, "2026/08"),
+                substituido,
+                "mês além da janela entrou no aviso de menos registros do "
+                "bloco substituído",
+            )
+        exigir_erro_exato(
+            lambda: donos_dos_blocos([bloco_q3, bloco_a4], "2026/10"),
+            f"{bloco_q3.name}: todas as competências do bloco vêm também de um "
+            f"bloco mais recente — {bloco_a4.name} (2026/07 a 2026/10); confira "
+            "se esse é mesmo o arquivo novo e retire este do comando",
+            "bloco substituído por uma planilha com os mesmos registros ganhou "
+            "aviso de menos registros",
+        )
+        dados_menos, _amn, _rmn, _tmn, extensao_menos = montar_release(
+            fontes, matriz, None, [bloco_a4, bloco_b3], "2026/10",
+            exigir_referencias=False,
+        )
+        relatorio_menos = io.StringIO()
+        with contextlib.redirect_stdout(relatorio_menos):
+            imprimir_relatorio(
+                dados_menos, _amn, _rmn, raiz / "nao-gravado.json", extensao_menos
+            )
+        exigir_teste(
+            all(
+                f"{mes}: {bloco_b3.name}, que ficou com o mês, traz menos "
+                f"registros dele ({no_dono}) do que esta planilha ({aqui}) — "
+                "lançamento cancelado na origem, ou planilha incompleta nesse "
+                "mês: confirme com a origem" in relatorio_menos.getvalue()
+                for mes, no_dono, aqui in (
+                    ("2026/09", 113, 114), ("2026/10", 115, 116),
+                )
+            ),
+            "mês que ficou com a planilha que traz menos registros dele não "
+            "foi avisado no relatório",
+        )
         # Fronteira dos 25%: agosto com 30 linhas em 120 é mês cheio, e as
         # duas planilhas que terminam em agosto pedem decisão; com 29, é
         # parcial e perde para a que o traz cheio.
@@ -5629,15 +5911,31 @@ def selftest():
         criar_bloco_sintetico(bloco_v1, ("2026/08", "2026/09"))
         aparar(bloco_v1, {"2026/08": 30})
         criar_bloco_sintetico(bloco_v2, ("2026/09", "2026/10"))
-        exigir_erro(
-            lambda: donos_dos_blocos([bloco_t1, bloco_v1, bloco_v2], "2026/10"),
+        vizinhos_sem_aviso = (
             "vizinhos-082026-092026-agosto-parcial.xlsx: todas as competências "
             "do bloco vêm também de outros blocos, que ficam com elas — "
             "tres-072026-082026.xlsx (2026/07 a 2026/08); "
             "vizinhos-092026-102026.xlsx (2026/09 a 2026/10); confira se esses "
-            "são mesmo os arquivos a usar e retire este do comando",
+            "são mesmo os arquivos a usar e retire este do comando"
+        )
+        # Agosto, parcial neste bloco, ficou com um mais antigo: o erro repete
+        # o aviso do relatório, que não chega a sair.
+        exigir_erro_exato(
+            lambda: donos_dos_blocos([bloco_t1, bloco_v1, bloco_v2], "2026/10"),
+            vizinhos_sem_aviso
+            + "; 2026/08: mês parcial nesta planilha, mais nova do que a que "
+            "ficou com ele — se esta planilha corrige o mês, a correção não "
+            "entra: confirme com a origem antes de retirar o bloco",
             "bloco que perdeu um mês para um mais antigo foi descrito como "
-            "substituído só por blocos mais recentes",
+            "substituído só por blocos mais recentes, ou sem o aviso do mês "
+            "parcial",
+        )
+        # Só até julho, agosto está além da janela: nada a avisar.
+        exigir_erro_exato(
+            lambda: donos_dos_blocos([bloco_t1, bloco_v1, bloco_v2], "2026/07"),
+            vizinhos_sem_aviso,
+            "aviso de mês parcial além da janela entrou na mensagem do bloco "
+            "sem competência própria",
         )
         # Exatamente 5% (6 linhas em 120): conta.
         bloco_exato = raiz / "blocos" / "bloco-072026-102026-outubro-a-5-por-cento.xlsx"
