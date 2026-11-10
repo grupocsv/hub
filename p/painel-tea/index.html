@@ -3310,7 +3310,11 @@ html,body{max-width:100%;overflow-x:hidden}
   window.addEventListener('storage', ev => {
     if (paginaAberta() || (ev.key !== HUB_TOKEN_KEY && ev.key !== null)) return;
     if (tokenHub() === TOKEN_DA_CARGA) { window.clearTimeout(esperaDaSaida); esperaDaSaida = null; return; }
-    if (esperaDaSaida) return;
+    // A volta do token nem sempre gera evento: o widget desta aba o regrava ao fim da própria validação,
+    // e regravar o mesmo valor não avisa ninguém. Se o token da carga estava guardado até este instante,
+    // a contagem recomeça daqui.
+    if (esperaDaSaida && !(TOKEN_DA_CARGA && ev.oldValue === TOKEN_DA_CARGA)) return;
+    window.clearTimeout(esperaDaSaida);
     esperaDaSaida = window.setTimeout(() => {
       esperaDaSaida = null;
       // Vale também com a carga em andamento: dados pedidos com o token que saiu não podem chegar à tela.
