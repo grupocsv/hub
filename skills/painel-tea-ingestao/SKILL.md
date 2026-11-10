@@ -261,7 +261,7 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `a extensão da janela alterou recortes fechados` | Defeito no pipeline | Parar e investigar; nunca publicar assim |
 | `validações reprovadas` com os números de aceite (1.416, 81.217…) | A base restaurada não é a auditada | Conferir o cofre; a base não se troca sem decisão |
 | `não é uma planilha .xlsx legível` | O arquivo não abre: baixado pela metade, corrompido ou protegido por senha | Pedir a planilha de novo, sem senha; o bruto não se edita |
-| `esperadas exatamente 19 fontes xlsx` | A pasta da base não tem as 19 planilhas diretamente nela: subpasta do zip, arquivo a mais ou a menos | Deixar na pasta só as 19 fontes e a Matriz, sem subpastas |
+| `esperadas exatamente 19 fontes xlsx` | A pasta da base não tem as 19 planilhas diretamente nela: subpasta do zip, arquivo a mais ou a menos | Conferir com `ls -A` e deixar na pasta só as 19 fontes e a Matriz, sem subpastas |
 
 ## Desfazer uma publicação
 
@@ -294,9 +294,9 @@ install -d -m 700 ~/tea-privado/chegada/zip ~/tea-privado/chegada/base
 for z in ~/tea-privado/chegada/*.zip; do
   python3 -I -m zipfile -e "$z" ~/tea-privado/chegada/zip
 done
-find ~/tea-privado/chegada/zip -name '*.xlsx' \
+find ~/tea-privado/chegada/zip -name '*.xlsx' ! -name '._*' \
   -exec mv -n {} ~/tea-privado/chegada/base/ \;
-ls ~/tea-privado/chegada/base | wc -l     # tem de dar 20
+ls -A ~/tea-privado/chegada/base | wc -l     # tem de dar 20
 $TR ponteiro          # imprime o SELECT; execute no D1 csv-hub e anote o sha256
 $TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json   # informa janela e corte
 python3 -I scripts/build-tea-data.py ~/tea-privado/chegada/base \

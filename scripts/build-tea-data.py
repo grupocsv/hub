@@ -800,7 +800,9 @@ def descobrir_fontes(diretorio, matriz=None, ignorar=()):
     if not raiz.is_dir():
         raise ErroPipeline(f"entrada deve ser um diretório: {raiz}")
     # A Matriz e os blocos complementares podem estar na mesma pasta das 19
-    # fontes; não contam como fonte.
+    # fontes; não contam como fonte. Também não contam o arquivo de trava do
+    # Excel (~$…) nem o arquivo oculto que o zip feito no Mac acrescenta a
+    # cada planilha (._…).
     fora = {Path(p).resolve(strict=True) for p in ignorar}
     if matriz:
         fora.add(Path(matriz).resolve(strict=True))
@@ -810,7 +812,7 @@ def descobrir_fontes(diretorio, matriz=None, ignorar=()):
             for p in raiz.iterdir()
             if p.is_file()
             and p.suffix.lower() == ".xlsx"
-            and not p.name.startswith("~$")
+            and not p.name.startswith(("~$", "._"))
             and p.resolve(strict=True) not in fora
         ),
         key=lambda p: p.name.casefold(),
@@ -4726,6 +4728,19 @@ def selftest():
             lambda: ler_registros_xlsx(fonte_truncada, "base"),
             "fonte-50005103.xlsx: não é uma planilha .xlsx legível",
             "fonte ilegível não virou erro claro",
+        )
+        # Arquivo de trava do Excel e arquivo oculto de zip feito no Mac não
+        # são fontes.
+        fontes_com_ocultos = raiz / "fontes-com-ocultos"
+        fontes_com_ocultos.mkdir()
+        for fonte in fontes.iterdir():
+            (fontes_com_ocultos / fonte.name).write_bytes(fonte.read_bytes())
+        (fontes_com_ocultos / "._fonte-50005103.xlsx").write_bytes(b"\0\5\x16\7")
+        (fontes_com_ocultos / "~$fonte-50005103.xlsx").write_bytes(b"trava")
+        exigir_teste(
+            [p.name for p in descobrir_fontes(fontes_com_ocultos)[1]]
+            == [p.name for p in descobrir_fontes(fontes)[1]],
+            "arquivo oculto na pasta das fontes foi contado como fonte",
         )
         exigir_teste(
             bloco_meta[0]["totais_lidos"]

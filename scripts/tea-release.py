@@ -40,6 +40,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import sys
 import urllib.error
 import urllib.parse
@@ -137,7 +138,7 @@ def ler_segredo(arquivo, variavel, rotulo):
             f"{rotulo} em formato inesperado (linha CHAVE=valor); esperado "
             "só o valor, sem rótulo"
         )
-    if valor[0] in "\"'" or valor[-1] in "\"'":
+    if valor[0] in "\"'`" or valor[-1] in "\"'`":
         raise Erro(
             f"{rotulo} em formato inesperado (entre aspas); esperado só o valor"
         )
@@ -587,6 +588,11 @@ def ler_manifesto(r2):
         raise Erro(f"{MANIFESTO_COFRE}: seção base em formato inesperado")
     if not isinstance(manifesto.setdefault("blocos", []), list):
         raise Erro(f"{MANIFESTO_COFRE}: seção blocos em formato inesperado")
+    if not all(
+        isinstance(entrada, dict)
+        for entrada in manifesto["blocos"] + base["itens"] + base.get("retirados", [])
+    ):
+        raise Erro(f"{MANIFESTO_COFRE}: entrada em formato inesperado")
     return manifesto
 
 
@@ -632,8 +638,6 @@ def situacoes_do_cofre(manifesto):
             nome_de_restauracao(item),
         )
     for bloco in manifesto["blocos"]:
-        if not isinstance(bloco, dict):
-            continue
         if bloco.get("vigente"):
             situacao = "bloco vigente"
         elif bloco.get("substituido_em"):
@@ -855,7 +859,7 @@ def comando_cofre_enviar_base(args):
             p for p in pasta.iterdir()
             if p.is_file()
             and p.suffix.lower() == ".xlsx"
-            and not p.name.startswith("~$")
+            and not p.name.startswith(("~$", "._"))
             and p.resolve() != matriz
         ),
         key=lambda p: p.name.casefold(),
@@ -984,16 +988,22 @@ def comando_cofre_restaurar(args):
     print(f"blocos vigentes em {pasta_blocos}: {len(nomes_blocos)}")
     for bloco, nome, _conteudo in dos_blocos:
         print(
-            f"  {nome} — SHA-256 {sha_do_item(bloco)[:12]}…, recebido em "
-            f"{bloco.get('recebido_em') or 'data não anotada'}"
+            f"  {nome} — "
+            + (
+                f"SHA-256 {sha_do_item(bloco)[:12]}…"
+                if sha_do_item(bloco) else "SHA-256 não anotado"
+            )
+            + f", recebido em {bloco.get('recebido_em') or 'data não anotada'}"
         )
     print("comando do build (ajuste --ate para a última competência fechada):")
     print(
-        f"  python3 -I scripts/build-tea-data.py '{pasta_base}' "
-        f"--matriz '{pasta_base / matriz}' "
-        + "".join(f"--bloco '{pasta_blocos / nome}' " for nome in nomes_blocos)
+        f"  python3 -I scripts/build-tea-data.py {shlex.quote(str(pasta_base))} "
+        f"--matriz {shlex.quote(str(pasta_base / matriz))} "
+        + "".join(
+            f"--bloco {shlex.quote(str(pasta_blocos / nome))} " for nome in nomes_blocos
+        )
         + ("--ate AAAA/MM " if nomes_blocos else "")
-        + f"--saida '{raiz / 'tea.json'}'"
+        + f"--saida {shlex.quote(str(raiz / 'tea.json'))}"
     )
 
 
@@ -1199,9 +1209,10 @@ def selftest():
             rotulado.write_text("CLOUDFLARE_API_TOKEN=" + token + "\n", encoding="utf-8")
             rodar("--token-file", rotulado, "cofre-listar", codigo=1,
                   contem="formato inesperado (linha CHAVE=valor)")
-            rotulado.write_text('"' + token + '"\n', encoding="utf-8")
-            rodar("--token-file", rotulado, "cofre-listar", codigo=1,
-                  contem="formato inesperado (entre aspas)")
+            for envolto in ('"' + token + '"', "'" + token + "'", "`" + token + "`"):
+                rotulado.write_text(envolto + "\n", encoding="utf-8")
+                rodar("--token-file", rotulado, "cofre-listar", codigo=1,
+                      contem="formato inesperado (entre aspas)")
             # preenchimento "=" no fim é parte do valor, não rótulo
             rotulado.write_text(token + "==\n", encoding="utf-8")
             if ler_segredo(rotulado, "X", "token") != token + "==":
@@ -1398,12 +1409,24 @@ def selftest():
             rodar("cofre-restaurar", outro, codigo=1, contem="diverge do SHA-256 do manifesto")
             if any(outro.iterdir()):
                 raise Erro("autoteste: restauração recusada deixou arquivos na pasta")
+            del objetos[chave_05]
+            rodar("cofre-restaurar", outro, codigo=1, contem="objeto ausente no cofre")
+            if any(outro.iterdir()):
+                raise Erro("autoteste: restauração recusada deixou arquivos na pasta")
             objetos[chave_05] = b"fonte-5"
-            # a listagem funciona mesmo com o manifesto ilegível
+            # a listagem funciona mesmo com o manifesto ilegível; os demais
+            # comandos param com erro legível, sem gravar
             integro = objetos[(BUCKET_COFRE, MANIFESTO_COFRE)]
-            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro[: len(integro) // 2]
-            rodar("cofre-listar", contem=("[manifesto ilegível]",
-                                          "[situação desconhecida: manifesto ilegível]"))
+            com_lixo = json.loads(integro)
+            com_lixo["blocos"].append("lixo")
+            for ilegivel in (integro[: len(integro) // 2], json.dumps(com_lixo).encode()):
+                objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = ilegivel
+                rodar("cofre-listar", contem=("[manifesto ilegível]",
+                                              "[situação desconhecida: manifesto ilegível]"))
+            rodar("cofre-restaurar", outro, codigo=1,
+                  contem="entrada em formato inesperado")
+            if any(outro.iterdir()):
+                raise Erro("autoteste: restauração recusada deixou arquivos na pasta")
             objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro
             avulso = raiz / "avulso"
             avulso.mkdir()
@@ -1420,6 +1443,15 @@ def selftest():
             # cofre: a base inteira em um comando, com a Matriz na pasta das fontes
             (origem / "Fonte 05 - çã.xlsx").write_bytes(b"fonte-5")
             rodar("cofre-enviar-base", origem, "--matriz", matriz,
+                  contem="base no cofre: completa")
+            # arquivo de trava do Excel e arquivo oculto de zip feito no Mac não são fontes
+            com_ocultos = raiz / "com-ocultos"
+            com_ocultos.mkdir()
+            for i in range(FONTES_BASE):
+                (com_ocultos / f"Fonte {i:02d} - çã.xlsx").write_bytes(f"fonte-{i}".encode())
+            (com_ocultos / "._Fonte 00 - çã.xlsx").write_bytes(b"oculto")
+            (com_ocultos / "~$Fonte 00 - çã.xlsx").write_bytes(b"trava")
+            rodar("cofre-enviar-base", com_ocultos, "--matriz", matriz,
                   contem="base no cofre: completa")
             incompleta = raiz / "incompleta"
             incompleta.mkdir()
