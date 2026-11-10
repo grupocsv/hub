@@ -877,7 +877,14 @@ html,body{max-width:100%;overflow-x:hidden}
   .tb-voltar-nome{display:none}
 }
 @media (max-width:380px){
+  /* Celular estreito: o título ocupa até duas linhas em vez de ser cortado; a altura da
+     linha continua sendo a do botão de método. */
   .tb-brand-m img{height:20px}
+  .tb-title{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+}
+@media (max-width:340px){
+  .tb-brand-m img{height:18px}
+  .tb-title{font-size:15.5px}
 }
 @media (pointer:coarse){
   button,.nav-item,.tab-item,.period-control select,.filter-field select,.filter-field input,.provider-picker select,.pager button{min-height:44px;min-width:44px}
@@ -2601,7 +2608,10 @@ html,body{max-width:100%;overflow-x:hidden}
     const ant = ctx.prev.get(row.nome);
     const points = pontosPrestador(r, row.nome);
     let decompModal = ant ? decomposicaoPagamento(row, ant) : null, ctxModal = ctx.anterior ? 'Comparação com ' + ctx.anterior.periodo.rotulo + '. ' : '', rotModal;
-    if (disciplinaAtiva() && row._fatiaExata) ctxModal = 'Os indicadores acima são da disciplina ' + disciplinaAtiva() + '; a série mensal e a decomposição referem-se ao total do prestador. ' + ctxModal;
+    // No escopo de disciplina, indicadores e comparação com o período anterior vêm da fatia da
+    // disciplina; a série mensal (e a comparação interna, feita sobre ela) é do prestador inteiro.
+    const daDisciplina = !!(disciplinaAtiva() && row._fatiaExata);
+    let decompDaSerie = false;
     if (!decompModal && points.length >= 4) {
       const metade = Math.floor(points.length / 2);
       const soma = fatia => fatia.reduce((a, x) => { const s = n(x.sessoes) || 0, pr = n(x.custo_sessao); return { s: a.s + s, p: a.p + (pr !== null ? s * pr : 0) }; }, { s: 0, p: 0 });
@@ -2609,8 +2619,13 @@ html,body{max-width:100%;overflow-x:hidden}
       decompModal = decomposicaoVolumePreco(rec.s, rec.p, antz.s, antz.p);
       ctxModal = 'Comparação interna: últimos ' + metade + ' meses vs ' + metade + ' anteriores. ';
       rotModal = { base: metade + ' m anteriores', fim: 'últimos ' + metade + ' m' };
+      decompDaSerie = !!decompModal;
     }
-    waterfallChart('c_modal_waterfall', decompModal, null, 'modal_wf_note', ctxModal, rotModal);
+    const avisoDisciplina = !daDisciplina ? ''
+      : decompDaSerie ? 'Os indicadores acima são da disciplina ' + disciplinaAtiva() + '; a série mensal e a decomposição referem-se ao total do prestador. '
+      : decompModal ? 'Os indicadores acima e a decomposição são da disciplina ' + disciplinaAtiva() + '; a série mensal refere-se ao total do prestador. '
+      : 'Os indicadores acima são da disciplina ' + disciplinaAtiva() + '; a série mensal refere-se ao total do prestador. ';
+    waterfallChart('c_modal_waterfall', decompModal, null, 'modal_wf_note', avisoDisciplina + ctxModal, rotModal, avisoDisciplina);
     lineChart('c_modal_serie', points, 'sessoes', 'Sessões', fmtN, GREEN);
     const faixa = ctx.faixas[nomeCanal(row)];
     lineChart('c_modal_preco', points, 'custo_sessao', 'R$/sessão', brl, ORANGE, faixa ? { refY: faixa.mediana, refRotulo: 'mediana ' + nomeCanal(row) + ' ' + brl(faixa.mediana) } : undefined);
@@ -2673,11 +2688,11 @@ html,body{max-width:100%;overflow-x:hidden}
     renderProviderTable(); renderProviderMatrix(r); renderProviderDispersion(r); renderIntensityDeviation(r); renderSolicitantes(r);
   }
 
-  function waterfallChart(id, decomp, tituloId, notaId, contexto, rotulos) {
+  function waterfallChart(id, decomp, tituloId, notaId, contexto, rotulos, notaSemDecomposicao) {
     if (!decomp) {
       prepararCanvas(id, false, 'A série deste recorte é curta demais para decompor a variação.');
       if (tituloId && $(tituloId)) $(tituloId).textContent = 'Decomposição da Variação do Pagamento';
-      if (notaId && $(notaId)) $(notaId).textContent = '';
+      if (notaId && $(notaId)) $(notaId).textContent = (notaSemDecomposicao || '').trim();
       return;
     }
     const passos = [
@@ -3257,7 +3272,7 @@ html,body{max-width:100%;overflow-x:hidden}
     sources.forEach((row, i) => sourceRow(dl, 'Fonte ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · código ' + (row.codigo || '—') + ' · ' + fmtN(asArray(row.competencias).length) + ' competências · SHA-256 ' + (row.sha256 || 'não informado')));
     asArray(meta.blocos_fonte).filter(isObject).forEach((row, i) => {
       const mesesBloco = asArray(row.competencias_na_janela);
-      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + (n(pick(row, 'registros_na_janela')) === 1 ? ' registro em ' : ' registros em ') + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + (n(pick(row, 'registros_agregados')) === null ? '' : ', dos quais ' + fmtN(row.registros_agregados) + ' integram o painel') + (n(pick(row, 'registros_cedidos')) > 0 ? ' · ' + asArray(row.competencias_cedidas).join(', ') + (asArray(row.competencias_cedidas).length === 1 ? ' vem de ' : ' vêm de ') + (asArray(row.cedidas_a).length ? asArray(row.cedidas_a).join(' e ') : 'bloco mais recente') : '') + ' · ' + fmtN(asArray(row.codigos).length) + (asArray(row.codigos).length === 1 ? ' código' : ' códigos') + ' · SHA-256 ' + (row.sha256 || 'não informado'));
+      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + (n(pick(row, 'registros_na_janela')) === 1 ? ' registro em ' : ' registros em ') + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + (n(pick(row, 'registros_agregados')) === null ? '' : ', dos quais ' + fmtN(row.registros_agregados) + (n(row.registros_agregados) === 1 ? ' integra o painel' : ' integram o painel')) + (n(pick(row, 'registros_cedidos')) > 0 ? ' · ' + asArray(row.competencias_cedidas).join(', ') + (asArray(row.competencias_cedidas).length === 1 ? ' vem de ' : ' vêm de ') + (asArray(row.cedidas_a).length ? asArray(row.cedidas_a).join(' e ') : 'bloco mais recente') : '') + ' · ' + fmtN(asArray(row.codigos).length) + (asArray(row.codigos).length === 1 ? ' código' : ' códigos') + ' · SHA-256 ' + (row.sha256 || 'não informado'));
       const sem = isObject(row.sem_nascimento) ? row.sem_nascimento : null;
       if (sem && n(sem.registros) > 0) sourceRow(dl, 'Registros sem data de nascimento', fmtN(sem.registros) + (n(sem.registros) === 1 ? ' registro do bloco chegou' : ' registros do bloco chegaram') + ' sem data de nascimento' + (asArray(sem.competencias).length ? ' (' + sem.competencias.join(', ') + ')' : '') + ': ' + fmtN(sem.recuperados) + ' com a data recuperada de outro registro do mesmo beneficiário e ' + fmtN(sem.fora_do_painel) + ' fora do painel' + (n(sem.fora_do_painel) > 0 ? ' (' + fmtN(sem.sessoes_fora_do_painel) + (n(sem.sessoes_fora_do_painel) === 1 ? ' sessão, ' : ' sessões, ') + brl(sem.pagamento_fora_do_painel) + ')' : '') + '. O paciente é identificado por nome e data de nascimento; sem a data, o registro não é atribuído a nenhuma criança.');
     });
