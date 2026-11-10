@@ -47,10 +47,12 @@ import sys
 import tempfile
 import unicodedata
 import zipfile
+import zlib
 from collections import Counter, defaultdict, deque
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
+from xml.etree.ElementTree import ParseError as ErroXml
 
 
 VERSAO = "5.1.0"
@@ -338,6 +340,11 @@ MIN_CONTINUIDADE = Decimal("0.5")
 # Competência nova com menos de um quarto do volume mensal recente da base é
 # faturamento ainda entrando ou competência digitada errada: não se publica.
 MIN_VOLUME = Decimal("0.25")
+# Mês de borda de um bloco com menos de 5% das linhas do mês mais cheio da
+# planilha não conta para o intervalo que decide qual bloco é o mais recente:
+# é o que uma linha com o mês digitado errado produz. O mês recém-aberto da
+# planilha seguinte (em geral 10% ou mais) continua contando.
+MIN_BORDA = Decimal("0.05")
 MAX_GRAFIA_FIXO = 5
 MAX_GRAFIA_PROPORCAO = Decimal("0.01")
 DISC_PSI = "Psicologia"
@@ -737,6 +744,18 @@ def planilha_ilegivel(caminho):
     )
 
 
+# O que a leitura levanta quando o pacote xlsx abre e se estraga no meio: zip
+# danificado ou XML interno malformado. O openpyxl analisa a pasta de trabalho
+# com a biblioteca padrão ou com o lxml, conforme o ambiente.
+ERROS_DE_PACOTE = (zipfile.BadZipFile, zlib.error, EOFError, ErroXml)
+try:
+    from lxml.etree import XMLSyntaxError as _ErroXmlLxml
+except ImportError:
+    pass
+else:
+    ERROS_DE_PACOTE += (_ErroXmlLxml,)
+
+
 def abrir_planilha(caminho):
     """Abre um .xlsx só para leitura; arquivo que não abre vira erro claro."""
     try:
@@ -746,8 +765,21 @@ def abrir_planilha(caminho):
         raise ErroPipeline("openpyxl não instalado") from exc
     try:
         return openpyxl.load_workbook(caminho, data_only=True, read_only=True)
-    except (zipfile.BadZipFile, InvalidFileException, KeyError) as exc:
+    except (FileNotFoundError, PermissionError):
+        raise
+    except (InvalidFileException, KeyError, OSError, *ERROS_DE_PACOTE) as exc:
+        # OSError: pacote zip que não é uma pasta de trabalho (um .docx
+        # renomeado, por exemplo).
         raise planilha_ilegivel(caminho) from exc
+
+
+def pacote_integro(caminho):
+    """Diz se o pacote do arquivo se lê até o fim (todos os membros conferem)."""
+    try:
+        with zipfile.ZipFile(caminho) as pacote:
+            return pacote.testzip() is None
+    except (zipfile.BadZipFile, zlib.error, EOFError, OSError):
+        return False
 
 
 def ler_registros_xlsx(caminho, origem):
@@ -777,6 +809,9 @@ def ler_registros_xlsx(caminho, origem):
             )
             registro["origem"] = origem
             registros.append(registro)
+    except ERROS_DE_PACOTE as exc:
+        # Pacote que abre e se estraga no meio da aba.
+        raise planilha_ilegivel(caminho) from exc
     finally:
         wb.close()
 
@@ -882,8 +917,10 @@ def conferir_caminhos_blocos(caminhos):
             raise ErroPipeline(
                 f"dois blocos complementares com o mesmo nome: {real.name}"
             )
-        if not zipfile.is_zipfile(real):
+        # O pacote se lê até o fim e abre como pasta de trabalho.
+        if not pacote_integro(real):
             raise planilha_ilegivel(real)
+        abrir_planilha(real).close()
         reais.append(real)
     return reais
 
@@ -906,8 +943,9 @@ def ler_blocos(caminhos):
     do resto, ela deixa a planilha com competências não contíguas, e o build
     para. Vizinha do começo ou do fim, ela estica o intervalo em um mês com
     volume ínfimo; por isso o intervalo que conta é o firme — do primeiro ao
-    último mês com pelo menos 25% das linhas do mês mais cheio da planilha.
-    O mês de borda abaixo disso continua sendo lido (pode ser faturamento mal
+    último mês com pelo menos 5% das linhas do mês mais cheio da planilha: o
+    mês recém-aberto da planilha seguinte conta, a linha avulsa não. O mês
+    de borda abaixo disso continua sendo lido (pode ser faturamento mal
     começado), mas não faz a planilha passar por mais recente, perde o mês
     para quem o traz dentro do intervalo firme e sai apontado no relatório.
     Registros além da janela publicada não são agregados. A ordem dos blocos
@@ -939,7 +977,7 @@ def ler_blocos(caminhos):
                 "origem"
             )
         linhas_por_mes = Counter(r["anomes"] for r in registros)
-        limiar = MIN_VOLUME * max(linhas_por_mes.values())
+        limiar = MIN_BORDA * max(linhas_por_mes.values())
         firmes = [m for m in meses if linhas_por_mes[m] >= limiar]
         brutos.append(
             (real, registros, meses, (firmes[0], firmes[-1]), linhas_por_mes)
@@ -1013,13 +1051,18 @@ def ler_blocos(caminhos):
         proprias = [m for m in meses if dono_da_competencia[m] == posicao]
         cedidas = [m for m in meses if dono_da_competencia[m] != posicao]
         if not proprias:
-            vencedores = "; ".join(
-                intervalo(p) for p in sorted({dono_da_competencia[m] for m in meses})
-            )
+            donos_do_bloco = sorted({dono_da_competencia[m] for m in meses})
+            vencedores = "; ".join(intervalo(p) for p in donos_do_bloco)
+            varios = len(donos_do_bloco) > 1
             raise ErroPipeline(
                 f"{real.name}: todas as competências do bloco vêm também de "
-                f"um bloco mais recente — {vencedores}; confira se esse é "
-                "mesmo o arquivo novo e retire este do comando"
+                + ("blocos mais recentes" if varios else "um bloco mais recente")
+                + f" — {vencedores}; confira se "
+                + (
+                    "esses são mesmo os arquivos novos" if varios
+                    else "esse é mesmo o arquivo novo"
+                )
+                + " e retire este do comando"
             )
         for r in registros:
             if dono_da_competencia[r["anomes"]] != posicao:
@@ -2692,6 +2735,8 @@ def reconciliar_matriz(caminho, registros):
             raise ErroPipeline(
                 "Matriz, Rede_por_Terapia: conjunto de linhas divergente"
             )
+    except ERROS_DE_PACOTE as exc:
+        raise planilha_ilegivel(matriz) from exc
     finally:
         wb.close()
 
@@ -4710,7 +4755,54 @@ def selftest():
         bloco_truncado.write_bytes(bloco.read_bytes()[:3000])
         bloco_com_senha = raiz / "blocos" / "bloco-com-senha.xlsx"
         bloco_com_senha.write_bytes(bytes.fromhex("d0cf11e0a1b11ae1") + b"\0" * 4096)
-        for ilegivel in (bloco_truncado, bloco_com_senha):
+        # Pacote que abre e se estraga no meio da aba (diretório intacto), e
+        # pacote zip que não é pasta de trabalho (um .docx renomeado).
+        def maior_aba(arquivo):
+            with zipfile.ZipFile(arquivo) as pacote:
+                return max(
+                    (
+                        i for i in pacote.infolist()
+                        if i.filename.startswith("xl/worksheets/")
+                    ),
+                    key=lambda i: i.compress_size,
+                )
+
+        def estragar_por_dentro(arquivo, destino):
+            # Inverte 64 bytes no meio do fluxo comprimido da maior aba; o
+            # diretório do zip fica intacto.
+            bruto = bytearray(arquivo.read_bytes())
+            aba = maior_aba(arquivo)
+            inicio = (
+                aba.header_offset + 30 + len(aba.filename.encode())
+                + len(aba.extra)
+            )
+            meio = inicio + aba.compress_size // 2
+            bruto[meio:meio + 64] = bytes(b ^ 0xFF for b in bruto[meio:meio + 64])
+            destino.write_bytes(bytes(bruto))
+
+        def regravar_cortando(arquivo, destino, membro):
+            # Mesmo pacote, com um membro cortado pela metade: zip íntegro,
+            # XML malformado.
+            with zipfile.ZipFile(arquivo) as origem, zipfile.ZipFile(
+                destino, "w", zipfile.ZIP_DEFLATED
+            ) as saida:
+                for item in origem.infolist():
+                    conteudo = origem.read(item.filename)
+                    if item.filename == membro:
+                        conteudo = conteudo[: len(conteudo) // 2]
+                    saida.writestr(item.filename, conteudo)
+
+        bloco_estragado = raiz / "blocos" / "bloco-estragado-por-dentro.xlsx"
+        estragar_por_dentro(bloco, bloco_estragado)
+        bloco_docx = raiz / "blocos" / "documento-renomeado.xlsx"
+        with zipfile.ZipFile(bloco_docx, "w") as pacote:
+            pacote.writestr("[Content_Types].xml", "<Types/>")
+            pacote.writestr("word/document.xml", "<document/>")
+        sem_fontes = raiz / "pasta-sem-fontes"
+        sem_fontes.mkdir()
+        for ilegivel in (
+            bloco_truncado, bloco_com_senha, bloco_estragado, bloco_docx
+        ):
             exigir_erro(
                 lambda ilegivel=ilegivel: montar_release(
                     fontes, matriz, None, [ilegivel], "2026/09",
@@ -4718,6 +4810,97 @@ def selftest():
                 ),
                 f"{ilegivel.name}: não é uma planilha .xlsx legível",
                 "bloco ilegível não foi barrado com mensagem clara",
+            )
+            # antes da leitura da base: a pasta de fontes vazia nem é olhada
+            exigir_erro(
+                lambda ilegivel=ilegivel: montar_release(
+                    sem_fontes, matriz, None, [ilegivel], "2026/09",
+                    exigir_referencias=False,
+                ),
+                f"{ilegivel.name}: não é uma planilha .xlsx legível",
+                "bloco ilegível só foi barrado depois da leitura da base",
+            )
+            # como fonte da base, o mesmo arquivo dá a mesma mensagem
+            exigir_erro(
+                lambda ilegivel=ilegivel: ler_registros_xlsx(ilegivel, "base"),
+                f"{ilegivel.name}: não é uma planilha .xlsx legível",
+                "fonte ilegível não virou erro claro",
+            )
+        # Pacote íntegro como zip, com XML interno malformado (planilha gravada
+        # com defeito): a conferência do zip não vê; a leitura para com a
+        # mesma mensagem, como fonte da base e como bloco.
+        for nome, membro in (
+            ("bloco-com-aba-malformada.xlsx", maior_aba(bloco).filename),
+            ("bloco-com-pasta-malformada.xlsx", "xl/workbook.xml"),
+        ):
+            malformado = raiz / "blocos" / nome
+            regravar_cortando(bloco, malformado, membro)
+            exigir_teste(
+                pacote_integro(malformado),
+                "o pacote com XML malformado deveria estar íntegro como zip",
+            )
+            for origem_dos_dados in ("base", "bloco"):
+                exigir_erro(
+                    lambda malformado=malformado, origem_dos_dados=origem_dos_dados: (
+                        ler_registros_xlsx(malformado, origem_dos_dados)
+                    ),
+                    f"{nome}: não é uma planilha .xlsx legível",
+                    "planilha com XML interno malformado não virou erro claro",
+                )
+        # Pasta de trabalho malformada é barrada antes da leitura da base.
+        exigir_erro(
+            lambda: montar_release(
+                sem_fontes, matriz, None,
+                [raiz / "blocos" / "bloco-com-pasta-malformada.xlsx"],
+                "2026/09", exigir_referencias=False,
+            ),
+            "bloco-com-pasta-malformada.xlsx: não é uma planilha .xlsx legível",
+            "bloco com a pasta de trabalho malformada só foi barrado depois "
+            "da leitura da base",
+        )
+        # Planilha válida cuja pasta de trabalho tem outro nome interno não é
+        # recusada: quem decide é a abertura, não o nome do membro.
+        bloco_outro_nome = raiz / "blocos" / "bloco-com-outro-nome-interno.xlsx"
+        with zipfile.ZipFile(bloco) as origem, zipfile.ZipFile(
+            bloco_outro_nome, "w", zipfile.ZIP_DEFLATED
+        ) as saida:
+            for item in origem.infolist():
+                conteudo = origem.read(item.filename)
+                nome_interno = {
+                    "xl/workbook.xml": "xl/pasta.xml",
+                    "xl/_rels/workbook.xml.rels": "xl/_rels/pasta.xml.rels",
+                }.get(item.filename, item.filename)
+                if item.filename in ("_rels/.rels", "[Content_Types].xml"):
+                    conteudo = conteudo.replace(b"xl/workbook.xml", b"xl/pasta.xml")
+                saida.writestr(nome_interno, conteudo)
+
+        def sem_arquivo(registros):
+            return [
+                {k: v for k, v in r.items() if k != "arquivo"} for r in registros
+            ]
+
+        exigir_teste(
+            conferir_caminhos_blocos([bloco_outro_nome]) == [bloco_outro_nome]
+            and sem_arquivo(ler_registros_xlsx(bloco_outro_nome, "bloco"))
+            == sem_arquivo(ler_registros_xlsx(bloco, "bloco")),
+            "planilha válida com outro nome interno da pasta de trabalho foi "
+            "recusada ou lida diferente",
+        )
+        # Matriz ilegível: a mesma mensagem, com o nome dela.
+        matriz_pela_metade = raiz / "matriz-baixada-pela-metade.xlsx"
+        conteudo_matriz = matriz.read_bytes()
+        matriz_pela_metade.write_bytes(conteudo_matriz[: len(conteudo_matriz) // 2])
+        matriz_estragada = raiz / "matriz-estragada-por-dentro.xlsx"
+        estragar_por_dentro(matriz, matriz_estragada)
+        matriz_malformada = raiz / "matriz-com-aba-malformada.xlsx"
+        regravar_cortando(matriz, matriz_malformada, maior_aba(matriz).filename)
+        for ilegivel in (matriz_pela_metade, matriz_estragada, matriz_malformada):
+            exigir_erro(
+                lambda ilegivel=ilegivel: reconciliar_matriz(
+                    ilegivel, registros_todos
+                ),
+                f"{ilegivel.name}: não é uma planilha .xlsx legível",
+                "Matriz ilegível não virou erro claro",
             )
         fonte_truncada = raiz / "fonte-truncada" / "fonte-50005103.xlsx"
         fonte_truncada.parent.mkdir()
@@ -5071,38 +5254,147 @@ def selftest():
                 "linha avulsa no mês anterior ao começo tirou o mês de quem o "
                 "traz inteiro",
             )
-        # Fronteira dos 25%: último mês com 40 das 133 linhas do mês mais
-        # cheio ainda conta, e a acumulada parcial vence a anterior; com 30,
-        # não conta, e o build pede decisão.
-        bloco_terco = raiz / "blocos" / "bloco-072026-102026-outubro-a-um-terco.xlsx"
+        # Fronteira dos 5%: último mês com 7 das 133 linhas do mês mais cheio
+        # ainda conta, e a acumulada recém-aberta vence a anterior; com 6, não
+        # conta, e o build pede decisão.
+        bloco_sete = raiz / "blocos" / "bloco-072026-102026-outubro-com-7-linhas.xlsx"
         criar_bloco_sintetico(
-            bloco_terco, ("2026/07", "2026/08", "2026/09", "2026/10"),
-            rarefeitas={"2026/10": 3},
+            bloco_sete, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/10": 20},
         )
         exigir_erro(
             lambda: montar_release(
-                fontes, matriz, None, [bloco_q3, bloco_terco], "2026/09",
+                fontes, matriz, None, [bloco_q3, bloco_sete], "2026/09",
                 exigir_referencias=False,
             ),
             "bloco-q3.xlsx: todas as competências do bloco vêm também de um "
             "bloco mais recente — "
-            "bloco-072026-102026-outubro-a-um-terco.xlsx (2026/07 a 2026/10)",
-            "último mês com um terço das linhas deixou de contar para o intervalo",
+            "bloco-072026-102026-outubro-com-7-linhas.xlsx (2026/07 a 2026/10)",
+            "último mês recém-aberto deixou de contar para o intervalo",
         )
-        bloco_quarto = raiz / "blocos" / "bloco-072026-102026-outubro-a-um-quarto.xlsx"
+        bloco_seis = raiz / "blocos" / "bloco-072026-102026-outubro-com-6-linhas.xlsx"
         criar_bloco_sintetico(
-            bloco_quarto, ("2026/07", "2026/08", "2026/09", "2026/10"),
-            rarefeitas={"2026/10": 4},
+            bloco_seis, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/10": 23},
         )
         exigir_erro(
             lambda: montar_release(
-                fontes, matriz, None, [bloco_q3, bloco_quarto], "2026/09",
+                fontes, matriz, None, [bloco_q3, bloco_seis], "2026/09",
                 exigir_referencias=False,
             ),
-            "mês de borda com volume ínfimo não conta: 2026/10 tem 30 "
-            "registros em bloco-072026-102026-outubro-a-um-quarto.xlsx",
-            "último mês com menos de 25% das linhas do mês mais cheio contou "
+            "mês de borda com volume ínfimo não conta: 2026/10 tem 6 "
+            "registros em bloco-072026-102026-outubro-com-6-linhas.xlsx",
+            "último mês com menos de 5% das linhas do mês mais cheio contou "
             "para o intervalo",
+        )
+        from openpyxl import load_workbook as abrir_para_editar
+
+        def aparar(caminho, linhas_por_competencia):
+            """Deixa em cada competência só as primeiras N linhas."""
+            planilha = abrir_para_editar(caminho)
+            por_competencia = defaultdict(list)
+            for indice, linha in enumerate(
+                planilha.active.iter_rows(min_row=2), start=2
+            ):
+                por_competencia[linha[0].value].append(indice)
+            sobram = sorted(
+                (
+                    indice
+                    for competencia, manter in linhas_por_competencia.items()
+                    for indice in por_competencia[competencia][manter:]
+                ),
+                reverse=True,
+            )
+            for indice in sobram:
+                planilha.active.delete_rows(indice)
+            planilha.save(caminho)
+
+        # Exatamente 5% (6 linhas em 120): conta.
+        bloco_exato = raiz / "blocos" / "bloco-072026-102026-outubro-a-5-por-cento.xlsx"
+        criar_bloco_sintetico(
+            bloco_exato, ("2026/07", "2026/08", "2026/09", "2026/10")
+        )
+        aparar(bloco_exato, {"2026/07": 120, "2026/08": 120, "2026/10": 6})
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_exato], "2026/09",
+                exigir_referencias=False,
+            ),
+            "bloco-q3.xlsx: todas as competências do bloco vêm também de um "
+            "bloco mais recente — "
+            "bloco-072026-102026-outubro-a-5-por-cento.xlsx (2026/07 a 2026/10)",
+            "mês de borda com exatamente 5% das linhas do mês mais cheio não contou",
+        )
+        # A referência é o mês mais cheio da planilha, não a mediana.
+        bloco_queda = raiz / "blocos" / "bloco-072026-102026-queda-depois-de-julho.xlsx"
+        criar_bloco_sintetico(
+            bloco_queda, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/08": 4, "2026/09": 4, "2026/10": 23},
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_queda], "2026/09",
+                exigir_referencias=False,
+            ),
+            "mês de borda com volume ínfimo não conta: 2026/10 tem 6 "
+            "registros em bloco-072026-102026-queda-depois-de-julho.xlsx",
+            "o limiar do intervalo firme não usou o mês mais cheio da planilha",
+        )
+        # Série em que cada planilha repete o último mês da anterior, ainda
+        # aberto quando ela foi extraída: 07–09 (setembro aberto), 09–10
+        # (outubro aberto) e 10–11 (novembro recém-aberto, 14%). Cada mês fica
+        # com a planilha que o traz fechado, em qualquer ordem.
+        bloco_r1 = raiz / "blocos" / "serie-072026-092026.xlsx"
+        bloco_r2 = raiz / "blocos" / "serie-092026-102026.xlsx"
+        bloco_r3 = raiz / "blocos" / "serie-102026-112026.xlsx"
+        criar_bloco_sintetico(
+            bloco_r1, ("2026/07", "2026/08", "2026/09"), rarefeitas={"2026/09": 2}
+        )
+        criar_bloco_sintetico(
+            bloco_r2, ("2026/09", "2026/10"), rarefeitas={"2026/10": 2}
+        )
+        criar_bloco_sintetico(
+            bloco_r3, ("2026/10", "2026/11"), rarefeitas={"2026/11": 7}
+        )
+        for ordem in (
+            [bloco_r1, bloco_r2, bloco_r3], [bloco_r3, bloco_r2, bloco_r1],
+            [bloco_r2, bloco_r3, bloco_r1],
+        ):
+            dados_serie = montar_release(
+                fontes, matriz, None, ordem, "2026/10", exigir_referencias=False
+            )[0]
+            por_arquivo = {
+                b["arquivo"]: b for b in dados_serie["meta"]["blocos_fonte"]
+            }
+            exigir_teste(
+                por_arquivo[bloco_r1.name]["competencias_na_janela"]
+                == ["2026/07", "2026/08"]
+                and por_arquivo[bloco_r1.name]["cedidas_a"] == [bloco_r2.name]
+                and por_arquivo[bloco_r2.name]["competencias_na_janela"]
+                == ["2026/09"]
+                and por_arquivo[bloco_r2.name]["cedidas_a"] == [bloco_r3.name]
+                and por_arquivo[bloco_r3.name]["competencias_na_janela"]
+                == ["2026/10"]
+                and all(b["borda_fraca"] == [] for b in por_arquivo.values()),
+                "série que repete o último mês com o mês novo recém-aberto não "
+                "ficou com cada mês na planilha que o traz fechado",
+            )
+        # Bloco substituído por dois outros: a mensagem concorda no plural.
+        bloco_x = raiz / "blocos" / "bloco-x-092026-102026.xlsx"
+        bloco_p1 = raiz / "blocos" / "bloco-p1-092026-112026.xlsx"
+        criar_bloco_sintetico(bloco_x, ("2026/09", "2026/10"))
+        criar_bloco_sintetico(bloco_p1, ("2026/09", "2026/10", "2026/11"))
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_x, bloco_p1, bloco_q4],
+                "2026/12", exigir_referencias=False,
+            ),
+            "bloco-x-092026-102026.xlsx: todas as competências do bloco vêm "
+            "também de blocos mais recentes — "
+            "bloco-p1-092026-112026.xlsx (2026/09 a 2026/11); "
+            "bloco-q4.xlsx (2026/10 a 2026/12); confira se esses são mesmo os "
+            "arquivos novos",
+            "bloco substituído por dois outros não foi apontado no plural",
         )
         # A planilha seguinte repete setembro e fica com ele, nas duas ordens.
         dados_seg, _a2, _r2, _t2, _e2 = montar_release(

@@ -96,11 +96,12 @@ O corte etário padrão é o último dia da última competência publicada.
   lacuna, é linha com o mês digitado errado e para o build — ela mudaria o
   intervalo que decide qual planilha é a mais recente.
 - O intervalo que decide é o **firme**: do primeiro ao último mês com pelo
-  menos 25% das linhas do mês mais cheio da planilha. Mês de borda abaixo
-  disso — uma linha com o mês digitado errado, vizinho do começo ou do fim, ou
-  faturamento mal começado — continua sendo lido, mas não faz a planilha
-  passar por mais recente, perde o mês para o bloco que o traz dentro do
-  intervalo firme e sai apontado no relatório e em `borda_fraca`.
+  menos 5% das linhas do mês mais cheio da planilha. O mês recém-aberto da
+  planilha seguinte (em geral 10% ou mais) conta; mês de borda abaixo de 5% —
+  uma linha com o mês digitado errado, vizinho do começo ou do fim — continua
+  sendo lido, mas não faz a planilha passar por mais recente, perde o mês
+  para o bloco que o traz dentro do intervalo firme e sai apontado no
+  relatório e em `borda_fraca`.
 - Registros de bloco além de `--ate` não são agregados nem servem de
   evidência de data de nascimento. Continuam lidos por inteiro: entram na
   varredura anti-vazamento, e uma linha inválida neles também para o build.
