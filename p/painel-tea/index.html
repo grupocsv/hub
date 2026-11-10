@@ -789,10 +789,13 @@ html,body{max-width:100%;overflow-x:hidden}
    seletor de lugar. Os limites têm folga para a fonte de reserva, mais larga que a
    Source Sans. */
 .period-control select{text-overflow:ellipsis}
-@media (min-width:1181px) and (max-width:1919px){
+@media (min-width:1024px) and (max-width:1919px){
   .topbar{flex-wrap:wrap;row-gap:6px}
   .period-control{order:3;width:100%;padding-top:2px}
-  .period-control select{max-width:340px}
+  /* Seletores do tamanho do texto, alinhados à esquerda; se faltar espaço, o de recorte
+     encolhe com reticências (as datas ao lado trazem o marcador de período parcial). */
+  .period-control select{flex:0 1 auto;max-width:340px;min-width:0}
+  #period_type{flex:0 0 auto}
 }
 @media (min-width:1500px) and (max-width:1919px){
   .sem-sessao .topbar{flex-wrap:nowrap}
@@ -870,10 +873,11 @@ html,body{max-width:100%;overflow-x:hidden}
   .pc-datas{grid-column:1/-1;justify-self:start}
 }
 @media (max-width:640px){
+  .topbar{column-gap:12px}
   .tb-voltar-nome{display:none}
 }
 @media (max-width:380px){
-  .tb-brand-m img{height:21px}
+  .tb-brand-m img{height:20px}
 }
 @media (pointer:coarse){
   button,.nav-item,.tab-item,.period-control select,.filter-field select,.filter-field input,.provider-picker select,.pager button{min-height:44px;min-width:44px}
