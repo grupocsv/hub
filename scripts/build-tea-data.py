@@ -881,10 +881,11 @@ def ler_blocos(caminhos):
     competência nos demais blocos são cedidos: não são agregados nem servem
     de evidência; continuam apenas na varredura anti-vazamento. Quando o
     intervalo não permite dizer qual é o mais recente (mesmo mês final, ou um
-    arquivo que começa antes e termina depois do outro — o que uma única
-    linha com a competência digitada errada produz), o build para. Registros
-    além da janela publicada não são agregados. A ordem dos blocos na linha
-    de comando não altera o resultado.
+    arquivo que começa antes e termina depois do outro), o build para; e
+    planilha com competências não contíguas — o que uma linha com o mês
+    digitado errado produz — nem chega a concorrer. Registros além da janela
+    publicada não são agregados. A ordem dos blocos na linha de comando não
+    altera o resultado.
     """
     brutos = []
     for real in conferir_caminhos_blocos(caminhos):
@@ -895,6 +896,21 @@ def ler_blocos(caminhos):
                 f"{real.name}: bloco complementar contém competência do "
                 f"período-base ou anterior ({meses[0]}); a base auditada só "
                 "muda com um novo conjunto completo de fontes"
+            )
+        # Uma planilha cobre meses seguidos. Competência isolada, antes ou
+        # depois de uma lacuna, é linha com o mês digitado errado — e ela
+        # mudaria o intervalo que decide qual planilha é a mais recente.
+        seguidos = sequencia_meses(meses[0], meses[-1])
+        if list(seguidos) != meses:
+            antes, depois = next(
+                (a, b) for a, b in zip(meses, meses[1:])
+                if seguidos[seguidos.index(a) + 1] != b
+            )
+            raise ErroPipeline(
+                f"{real.name}: competências não contíguas (depois de {antes} "
+                f"vem {depois}); uma planilha cobre meses seguidos — a "
+                "competência isolada parece digitada errada e se corrige na "
+                "origem"
             )
         brutos.append((real, registros, meses))
     brutos.sort(key=lambda item: (item[2][0], item[2][-1], item[0].name))
@@ -4726,7 +4742,9 @@ def selftest():
                 "depende da ordem de comando",
             )
         # Uma linha com a competência digitada errada estica o intervalo da
-        # planilha antiga; ela não pode passar por mais recente que a nova.
+        # planilha antiga; ela não pode passar por mais recente que a nova —
+        # nem contra a seguinte (09–12), nem contra a acumulada (07–12), que
+        # começa no mesmo mês.
         bloco_esticado = raiz / "blocos" / "bloco-q3-com-mes-futuro.xlsx"
         criar_bloco_sintetico(
             bloco_esticado, ("2026/07", "2026/08", "2026/09", "2027/06"),
@@ -4736,19 +4754,38 @@ def selftest():
         criar_bloco_sintetico(
             bloco_seguinte, ("2026/09", "2026/10", "2026/11", "2026/12")
         )
+        bloco_acumulado = raiz / "blocos" / "bloco-072026-122026.xlsx"
+        criar_bloco_sintetico(
+            bloco_acumulado, tuple(sequencia_meses("2026/07", "2026/12"))
+        )
         for ordem in (
-            [bloco_esticado, bloco_seguinte], [bloco_seguinte, bloco_esticado]
+            [bloco_esticado, bloco_seguinte], [bloco_seguinte, bloco_esticado],
+            [bloco_esticado, bloco_acumulado], [bloco_esticado],
         ):
             exigir_erro(
                 lambda ordem=ordem: montar_release(
                     fontes, matriz, None, ordem, "2026/12",
                     exigir_referencias=False,
                 ),
-                "bloco-q3-com-mes-futuro.xlsx (2026/07 a 2027/06) e "
-                "bloco-092026-122026.xlsx (2026/09 a 2026/12) trazem a "
-                "competência 2026/09 e não há como saber qual é a planilha "
+                "bloco-q3-com-mes-futuro.xlsx: competências não contíguas "
+                "(depois de 2026/09 vem 2027/06)",
+                "planilha com competência isolada depois de uma lacuna foi aceita",
+            )
+        # Um arquivo que começa antes e termina depois do outro: o intervalo
+        # não diz qual é o mais recente.
+        bloco_meio = raiz / "blocos" / "bloco-082026-092026.xlsx"
+        criar_bloco_sintetico(bloco_meio, ("2026/08", "2026/09"))
+        for ordem in ([bloco_meio, bloco_acumulado], [bloco_acumulado, bloco_meio]):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/12",
+                    exigir_referencias=False,
+                ),
+                "bloco-072026-122026.xlsx (2026/07 a 2026/12) e "
+                "bloco-082026-092026.xlsx (2026/08 a 2026/09) trazem a "
+                "competência 2026/08 e não há como saber qual é a planilha "
                 "mais recente",
-                "planilha antiga com mês futuro avulso passou por mais recente",
+                "bloco contido em outro passou sem pedir decisão",
             )
         # A planilha seguinte repete setembro e fica com ele, nas duas ordens.
         dados_seg, _a2, _r2, _t2, _e2 = montar_release(

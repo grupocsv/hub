@@ -87,9 +87,11 @@ O corte etário padrão é o último dia da última competência publicada.
   dessa competência nos demais blocos são cedidos (`registros_cedidos`,
   `competencias_cedidas`, `cedidas_a`): não são agregados nem servem de
   evidência. Quando o intervalo não diz qual é o mais recente (mesmo mês
-  final, ou um arquivo que começa antes e termina depois do outro — o que uma
-  linha com a competência digitada errada produz), o build para. A ordem dos
-  blocos no comando não altera o JSON.
+  final, ou um arquivo que começa antes e termina depois do outro), o build
+  para. A ordem dos blocos no comando não altera o JSON.
+- Um bloco cobre meses seguidos: competência isolada, antes ou depois de uma
+  lacuna, é linha com o mês digitado errado e para o build — ela mudaria o
+  intervalo que decide qual planilha é a mais recente.
 - Registros de bloco além de `--ate` não são agregados nem servem de
   evidência de data de nascimento. Continuam lidos por inteiro: entram na
   varredura anti-vazamento, e uma linha inválida neles também para o build.
