@@ -1,0 +1,49 @@
+# PRD v5.1 — Painel Terapias Especiais · Atualização por Competência
+
+**Complementa:** `prd-2026-07-painel-v5-consolidacao.md` (v5) e os PRDs v3 e v4, vigentes no que este documento não altera.
+**Motivação:** o painel nasceu com um período fixo (jan/2025 a jun/2026). A operação segue faturando todo mês, e o painel precisa acompanhar: chega uma planilha com as competências novas e o painel passa a mostrá-las, sem refazer o que já foi auditado.
+**Data:** Novembro de 2026 · **Autor:** Grupo CSV / EVS · AxiaCare
+
+---
+
+## 1. Princípio
+
+> **A base auditada não se mexe; o que chega depois entra por cima.**
+
+O período-base (2025/01 a 2026/06) é o que foi conferido com a Matriz Analítica 2025 e validado pelos critérios de aceite. Ele fica congelado. As competências seguintes chegam em **blocos complementares** e apenas estendem a janela publicada.
+
+## 2. Decisões
+
+| # | Decisão | Razão |
+|---|---|---|
+| D1 | **Período-base congelado.** As 19 fontes e a Matriz 2025 continuam sendo lidas e validadas em todo build, pelo mesmo caminho de sempre. | Os números de aceite (1.416 crianças, 81.217 sessões, R$ 13.919.882,74) deixam de depender de memória: são exigidos a cada publicação. |
+| D2 | **Blocos complementares** (`--bloco`): planilhas consolidadas, com vários códigos na mesma aba e o cabeçalho padrão de 19 colunas, apenas com competências posteriores a 2026/06. | É o formato em que a operadora entrega as competências novas. |
+| D3 | **Janela publicada explícita** (`--ate AAAA/MM`): a última competência **fechada**. Registros além dela são lidos e ignorados. | Competência ainda em faturamento distorce o mês mais recente. |
+| D4 | **Conjunto de terapias congelado na base** (17 terapias). Terapia mantida sem lançamento em uma competência nova aparece com zero. Método PECS — Fonoaudiologia segue fora; seus registros posteriores são contados no descarte. | Reavaliar a cobertura a cada mês faria terapias de baixo volume entrarem e saírem de toda a série histórica. |
+| D5 | **Períodos fechados não mudam.** Depois de estender a janela, todo recorte da base que não recebeu competência nova precisa sair idêntico ao do build só-base. Mudam o período completo e o ano em curso. | Um número já apresentado não pode se alterar em silêncio. |
+| D6 | **Corte etário** = último dia da última competência publicada (antes: 30/06/2026 fixo). | Mantém a regra original — idade ao fim da janela — conforme a janela cresce. |
+| D7 | **Registro sem data de nascimento** em bloco: a data é recuperada quando a mesma matrícula e o mesmo nome têm uma única data em outro registro; se não, o registro fica fora do painel, contado e declarado em Método e Fontes. Tolerância: 5 registros ou 0,2% do bloco, o que for maior; acima disso o build para. | Sem a data não há chave de paciente (Nome + Nascimento). Um cadastro incompleto não pode travar a atualização, e um problema em volume não pode passar. |
+| D8 | **Mensagens de erro sem conteúdo de célula**: descrevem o formato (`99/99/9999`), nunca o valor. | O pipeline passa a rodar também em sessões assistidas; erro não pode carregar nome ou nascimento. |
+| D9 | **Cliente com contrato estrutural**: o painel aceita qualquer número de recortes, desde que cada período declarado tenha o seu. Textos fixos de período saem do HTML. | O cliente precisa estar no ar antes dos dados novos e não pode exigir "30 recortes". |
+| D10 | **Cofre dos brutos** no bucket privado `csv-dados-sensiveis` (`unimed-tea/raw/`), como o PRD v2 já previa, e **release com histórico** (`releases/historico.json`). | Atualizar deixa de depender de onde a planilha foi parar; desfazer uma publicação é uma troca de ponteiro. |
+
+## 3. O que o painel passa a mostrar
+
+- Seletor com as competências novas, o trimestre correspondente e os períodos parciais identificados ("2º semestre de 2026 · parcial (3 de 6 meses)").
+- Comparações só entre períodos de mesma duração; parcial usa a comparação interna por metades (regra já vigente).
+- Método e Fontes: período publicado e período-base; cada bloco complementar com arquivo, registros, competências e SHA-256; registros sem data de nascimento, quando houver; motivo do descarte de PECS referido ao período-base.
+
+## 4. Critérios de aceite
+
+1. Build sem blocos reproduz o release do período-base: todos os recortes idênticos.
+2. Build com blocos: critérios de aceite da base aprovados, Matriz 2025 reconciliada e todos os recortes fechados idênticos aos do build só-base.
+3. Soma de sessões e de pagamento das competências novas = soma da planilha menos o que o relatório declara fora (PECS, sem data de nascimento, além da janela).
+4. Painel abre com o release anterior e com o novo, em computador e celular, sem erro de console.
+5. Nenhum identificador de beneficiário no JSON, no relatório do build ou em mensagem de erro.
+
+## 5. Fora do escopo
+
+- Revisão da regra de descarte por cobertura e do conjunto de terapias.
+- Serviço próprio com banco de dados e página de envio de planilha (próxima etapa do produto).
+
+Rito operacional: `skills/painel-tea-ingestao/SKILL.md`. Regras e contrato: `skills/tea-data-pipeline.md`.

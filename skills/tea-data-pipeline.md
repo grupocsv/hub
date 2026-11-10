@@ -23,9 +23,22 @@ somente em memória para deduplicação.
 São obrigatórios:
 
 1. diretório externo com exatamente 19 arquivos `.xlsx`, um por código de
-   origem;
+   origem — o **período-base**, 2025/01 a 2026/06;
 2. Matriz Analítica 2025 externa;
 3. arquivo de saída `.json` em diretório privado fora de qualquer Git.
+
+Para publicar competências posteriores a 2026/06, acrescente:
+
+4. um ou mais **blocos complementares** (`--bloco`): planilhas consolidadas,
+   com vários códigos na mesma aba e o mesmo cabeçalho de 19 colunas;
+5. `--ate AAAA/MM`: a última competência fechada a publicar.
+
+Os brutos ficam guardados no cofre privado (R2 `csv-dados-sensiveis`, prefixo
+`unimed-tea/raw/`) e são restaurados para uma pasta privada a cada build:
+
+    python scripts/tea-release.py cofre-listar
+    python scripts/tea-release.py cofre-baixar unimed-tea/raw/base/2025-01_2026-06/ <pasta>
+    python scripts/tea-release.py cofre-enviar <planilha.xlsx> --papel bloco
 
 Exemplo de organização:
 
@@ -40,12 +53,40 @@ contorno. O diretório pai de `--saida` deve existir antes da execução.
 
     python scripts/build-tea-data.py "C:\dev\GitHub\dados-brutos-te\Análises Intensidade - Terapias Especiais" --matriz "C:\dev\GitHub\dados-brutos-te\Matriz_Analítica_Terapias_Especiais_2025.xlsx" --saida "C:\dev\dados-privados-te\tea-2025-2026.json" --corte 2026-06-30
 
+Com competências novas:
+
+    python scripts/build-tea-data.py "<base>" --matriz "<matriz>" --bloco "<Terapias_Especiais_072026_092026.xlsx>" --ate 2026/09 --saida "<privado>\tea.json"
+
+O corte etário padrão é o último dia da última competência publicada.
+
+### Base congelada e janela estendida
+
+- O período-base é sempre construído e validado primeiro, pelo mesmo caminho
+  de um build sem blocos: critérios de aceite e Matriz 2025.
+- O conjunto de terapias é o da base. Uma terapia mantida sem lançamentos em
+  uma competência nova aparece com zero; Método PECS — Fonoaudiologia continua
+  fora, e os registros posteriores dele são contados no descarte.
+- Fontes-base só contribuem com o período-base; blocos, só com competências
+  posteriores. Bloco com competência da base, competência repetida em dois
+  blocos, competência da janela sem registros ou dois blocos com o mesmo nome
+  abortam o build.
+- Depois de estender a janela, todo recorte fechado da base precisa sair
+  idêntico ao do build só-base (`exigir_base_inalterada`); mudam apenas o
+  período completo e o ano em curso.
+- Registro de bloco sem data de nascimento: a data é recuperada quando a mesma
+  matrícula e o mesmo nome têm uma única data em outro registro; caso
+  contrário o registro fica fora do painel, contado em
+  `meta.blocos_fonte[].sem_nascimento` e declarado em Método e Fontes. Acima da
+  tolerância (5 registros ou 0,2% do bloco, o que for maior) o build para.
+- Mensagens de erro descrevem o formato da célula (`99/99/9999`), nunca o
+  conteúdo.
+
 O build real:
 
 - exige as 19 fontes e os 19 códigos esperados;
 - localiza a aba pelo cabeçalho `Ano/Mês` e valida o schema literal de 19
   colunas;
-- restringe o universo a 2025/01–2026/06;
+- restringe o universo à janela publicada (2025/01–2026/06 sem blocos);
 - mede cobertura e descarta programaticamente apenas Método PECS —
   Fonoaudiologia;
 - integra o código 50000519 à ABA — Psicologia somente para PEDIAKIDS;
@@ -66,15 +107,21 @@ O build real:
 - 81.217 sessões;
 - R$ 13.919.882,74;
 - Matriz 2025 reconciliada em 2.247 campos;
-- 30 recortes de período: tudo, ano, semestre, trimestre e mês;
+- 30 recortes de período na base: tudo, ano, semestre, trimestre e mês; com a
+  janela estendida, um recorte por período da janela (35 até 2026/09);
 - nenhum identificador individual de beneficiário no JSON.
+
+Os números acima são do período-base e continuam exigidos em todo build, com
+ou sem blocos.
 
 ## Contrato privado
 
 O JSON mantém:
 
     meta
-      periodo_canonico
+      periodo_canonico      janela publicada
+      periodo_base          2025/01 a 2026/06
+      blocos_fonte          manifesto dos blocos complementares (vazio na base)
       periodos
       terapias
       terapias_descartadas
@@ -108,7 +155,11 @@ endpoint autenticado; métricas, nomes, hashes de fonte e recortes são proibido
 O selftest cria 19 fontes e uma Matriz sintética fora do repositório. Ele cobre
 schema/aba, cobertura e descarte, exceção AT, deduplicação, consolidação de
 CNPJ, métricas raras exatas, anti-vazamento, 30 períodos, pagamento zero,
-reconciliação e bloqueio de entrada/saída dentro de Git.
+reconciliação e bloqueio de entrada/saída dentro de Git. Cobre também a janela
+estendida com um bloco sintético: 35 recortes, 28 recortes fechados idênticos,
+terapia sem movimento zerada, criança e prestador novos, nascimento em texto,
+nascimento ausente (recuperado e fora do painel), competência além da janela,
+guardas de bloco e mensagens de erro sem conteúdo de célula.
 
 O checker público exige a ausência de
 `unimed/data/tea-2025-2026.json`, do bloco `tea-data` e de qualquer payload com
@@ -131,3 +182,29 @@ se ainda encontrar um bloco `tea-data` no HTML interno.
 Antes do deploy, revisar o diff e executar o checker. O JSON privado é publicado
 fora do Git pelo rito da infraestrutura autenticada; nunca deve ser adicionado
 ao commit, anexado ao PR ou servido como arquivo estático.
+
+## Release
+
+`scripts/tea-release.py` conduz a publicação do JSON privado (credenciais pelo
+ambiente: `CLOUDFLARE_ACCOUNT_ID` e `CLOUDFLARE_API_TOKEN`, ou `--token-file`):
+
+    python scripts/tea-release.py baixar <SHA-vigente> <privado>/vigente.json
+    python scripts/tea-release.py comparar <privado>/vigente.json <privado>/tea.json
+    python scripts/tea-release.py enviar <privado>/tea.json
+    python scripts/tea-release.py sql <privado>/tea.json --anterior-sha <SHA-vigente>
+    python scripts/tea-release.py registrar <privado>/tea.json --anterior-sha <SHA-vigente>
+    python scripts/tea-release.py verificar <SHA-novo>
+
+- `comparar` mostra recortes fechados idênticos, os que mudaram só na faixa
+  etária (corte etário novo), os ampliados, os novos e, se houver, os
+  **alterados** — reapresentação de dados que precisa ser entendida antes de
+  publicar.
+- `enviar` grava `releases/<SHA-256 em maiúsculas>.json` e confere por
+  releitura. O painel só muda na troca do ponteiro.
+- `sql` imprime o `UPDATE` condicional ao SHA vigente (precisa alterar
+  exatamente uma linha) e o `SELECT` de conferência, para execução no D1
+  `csv-hub`. O rollback é o mesmo `UPDATE` com os valores anteriores.
+- `registrar` anota a ativação em `releases/historico.json`.
+
+O painel no ar precisa aceitar a janela nova **antes** da troca do ponteiro: o
+contrato de boot do cliente é estrutural desde a versão 5.1 do pipeline.

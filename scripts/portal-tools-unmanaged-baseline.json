@@ -4,7 +4,7 @@
   "integrityAuthority": "Git e revisão obrigatória são a âncora de autoridade; manifestSha256 é apenas checksum de integridade.",
   "portals": {
     "unimed": {
-      "sourceSha256": "16287559783b97b8121d8c446b4b71115b38ec524442c0ea44b392c3acd9d4b5",
+      "sourceSha256": "2c202bff44a0c333981ef0e24ce72fa0c8e943b5d4a372800cc208d5a78dee72",
       "unmanagedOutput": {
         "portal": "unimed",
         "generatedAt": "2026-09-28T09:45:25.784229+00:00",
@@ -152,5 +152,5 @@
       "unmanagedOutputSha256": "ddbf0873cefa3926ad29d88d76c94267079762f9cef81ea790762af6fc74b725"
     }
   },
-  "manifestSha256": "75ccaa0824d67c5f410157e3ee4616324d31e95d7021aeffb08d8a89e6b31682"
+  "manifestSha256": "215e2a0c4680c389dbdca08c2d01d93b465008b46f5209d232abfba4008c4422"
 }

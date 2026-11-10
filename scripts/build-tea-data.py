@@ -6,13 +6,25 @@ Pipeline auditável do Painel Terapias Especiais — Unimed Governador Valadares
 Entrada de produção (artefato privado, fora de qualquer Git):
   python scripts/build-tea-data.py <diretorio-com-19-fontes-xlsx>
     --matriz <Matriz_Analitica_Terapias_Especiais_2025.xlsx>
-    --saida <diretorio-privado>/tea-2025-2026.json
-    --corte 2026-06-30
+    --saida <diretorio-privado>/tea.json
 
-O diretório, a Matriz e a saída devem estar fora de qualquer repositório Git.
-O pipeline emite agregados completos para a camada privada autenticada, mantém
-os 19 hashes de origem e reconcilia 2025 com a Matriz. Nome, matrícula, data de
-nascimento e guia de beneficiário nunca integram o JSON.
+Competências posteriores ao período-base (2025/01 a 2026/06) entram por blocos
+complementares — planilhas consolidadas com vários códigos no mesmo arquivo:
+  python scripts/build-tea-data.py <diretorio-com-19-fontes-xlsx>
+    --matriz <Matriz_Analitica_Terapias_Especiais_2025.xlsx>
+    --bloco <Terapias_Especiais_072026_092026.xlsx>
+    --ate 2026/09
+    --saida <diretorio-privado>/tea.json
+
+O período-base é congelado: a cada build ele é refeito e conferido contra os
+critérios de aceite e a Matriz 2025, e nenhum recorte fechado da base pode
+mudar quando a janela é estendida. O conjunto de terapias é o da base.
+
+O diretório, a Matriz, os blocos e a saída devem estar fora de qualquer
+repositório Git. O pipeline emite agregados completos para a camada privada
+autenticada, mantém os hashes de origem e reconcilia 2025 com a Matriz. Nome,
+matrícula, data de nascimento e guia de beneficiário nunca integram o JSON nem
+as mensagens de erro.
 
 Comandos auxiliares:
   python scripts/build-tea-data.py --selftest
@@ -20,6 +32,8 @@ Comandos auxiliares:
 """
 
 import argparse
+import calendar
+import copy
 import hashlib
 import json
 import math
@@ -35,21 +49,28 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 
-VERSAO = "5.0.0"
+VERSAO = "5.1.0"
 
 # Contrato v4 (PRD escopos comparáveis): parâmetros das referências por
 # disciplina — mesmos limiares publicados em Método e Fontes.
 MIN_SESSOES_REFERENCIA = Decimal(100)
 MIN_PRESTADORES_REFERENCIA = 5
-JSON_MAX_BYTES = 8 * 1024 * 1024
+# O artefato cresce cerca de 0,3 MB por competência publicada (um recorte
+# mensal a mais, além do crescimento de trimestre, semestre, ano e período
+# completo). O teto protege contra inchaço acidental, não contra o calendário.
+JSON_MAX_BYTES = 16 * 1024 * 1024
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HTML_ALVO = REPO_ROOT / "unimed" / "tea.html"
 P_DIR = REPO_ROOT / "p" / "painel-tea"
 
-CORTE_PADRAO = date(2026, 6, 30)
+# Período-base auditado (congelado): as 19 fontes e a Matriz Analítica 2025
+# definem o conjunto de terapias, os critérios de aceite e a conferência
+# cruzada. Competências posteriores chegam por blocos complementares (--bloco)
+# e apenas estendem a janela publicada (--ate).
 INICIO_CANONICO = "2025/01"
-FIM_CANONICO = "2026/06"
+FIM_BASE = "2026/06"
+FIM_CANONICO = FIM_BASE
 
 
 def sequencia_meses(inicio, fim):
@@ -65,8 +86,37 @@ def sequencia_meses(inicio, fim):
     return tuple(meses)
 
 
-MESES_CANONICOS = sequencia_meses(INICIO_CANONICO, FIM_CANONICO)
+MESES_BASE = sequencia_meses(INICIO_CANONICO, FIM_BASE)
+MESES_BASE_SET = frozenset(MESES_BASE)
+# Janela publicada: nasce igual à base e só cresce por definir_janela().
+MESES_CANONICOS = MESES_BASE
 MESES_CANONICOS_SET = set(MESES_CANONICOS)
+
+
+def ultimo_dia(anomes):
+    ano, mes = map(int, anomes.split("/"))
+    return date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+
+CORTE_PADRAO = ultimo_dia(FIM_BASE)
+
+
+def definir_janela(fim):
+    """Define a última competência publicada; nunca anterior ao fim da base."""
+    global FIM_CANONICO, MESES_CANONICOS, MESES_CANONICOS_SET
+    if not re.fullmatch(r"\d{4}/(0[1-9]|1[0-2])", str(fim)):
+        raise ErroPipeline("--ate deve ter o formato AAAA/MM")
+    if fim < FIM_BASE:
+        raise ErroPipeline(
+            f"--ate não pode ser anterior ao fim do período-base ({FIM_BASE})"
+        )
+    FIM_CANONICO = fim
+    MESES_CANONICOS = sequencia_meses(INICIO_CANONICO, fim)
+    MESES_CANONICOS_SET = set(MESES_CANONICOS)
+
+
+def janela_estendida():
+    return FIM_CANONICO != FIM_BASE
 MESES_PECS_ESPERADOS = {
     "2025/01", "2025/02", "2025/03", "2025/05", "2025/08",
     "2025/09", "2025/11", "2025/12", "2026/01", "2026/02",
@@ -265,6 +315,14 @@ CANAL_CASA_UNIMED = "Casa Unimed"
 # mutuamente exclusivos e exaustivos por construção. Célula com menos de
 # K_MINIMO_KIT crianças não publica (k-anonimato).
 K_MINIMO_KIT = 5
+# Um bloco complementar pode trazer poucos registros sem data de nascimento
+# (cadastro incompleto no momento da extração). Sem a data não existe chave de
+# paciente: o registro só é agregado se a data puder ser recuperada de outro
+# registro do mesmo beneficiário (mesma matrícula e mesmo nome, data única).
+# O restante fica fora do painel, contado e declarado; acima da tolerância o
+# build para, porque aí o problema é da planilha e não de um cadastro.
+MAX_SEM_NASCIMENTO_FIXO = 5
+MAX_SEM_NASCIMENTO_PROPORCAO = Decimal("0.002")
 DISC_PSI = "Psicologia"
 DISC_FONO = "Fonoaudiologia"
 DISC_TO = "Terapia Ocupacional"
@@ -327,6 +385,24 @@ def texto_celula(valor):
     return str(valor).strip()
 
 
+def forma_celula(valor):
+    """Descreve o formato de uma célula sem reproduzir o conteúdo.
+
+    Mensagens de erro circulam por terminais, logs e conversas, e a célula
+    pode conter nome, data de nascimento ou matrícula. Dígitos viram 9 e
+    letras viram A — o suficiente para diagnosticar o formato.
+    """
+    texto = texto_celula(valor)
+    if texto == "":
+        return "célula vazia"
+    mascara = "".join(
+        "9" if c.isdigit() else "A" if c.isalpha() else c for c in texto[:24]
+    )
+    if len(texto) > 24:
+        mascara += "…"
+    return f"formato {mascara}, {len(texto)} caracteres"
+
+
 def codigo_procedimento(valor):
     if isinstance(valor, (int, float, Decimal)) and not isinstance(valor, bool):
         d = Decimal(str(valor))
@@ -335,7 +411,9 @@ def codigo_procedimento(valor):
     texto = texto_celula(valor)
     if re.fullmatch(r"\d{8}(?:\.0+)?", texto):
         return texto.split(".")[0]
-    raise ErroPipeline(f"código de procedimento inválido: {texto!r}")
+    raise ErroPipeline(
+        f"código de procedimento inválido ({forma_celula(valor)})"
+    )
 
 
 def normalizar_anomes(valor):
@@ -348,10 +426,10 @@ def normalizar_anomes(valor):
     else:
         m = re.fullmatch(r"(\d{1,2})[/-](\d{4})", texto)
         if not m:
-            raise ErroPipeline(f"competência inválida: {texto!r}")
+            raise ErroPipeline(f"competência inválida ({forma_celula(valor)})")
         mes, ano = int(m.group(1)), int(m.group(2))
     if not 1 <= mes <= 12:
-        raise ErroPipeline(f"competência inválida: {texto!r}")
+        raise ErroPipeline(f"competência inválida ({forma_celula(valor)})")
     return f"{ano:04d}/{mes:02d}"
 
 
@@ -366,7 +444,7 @@ def normalizar_data(valor, campo):
             return datetime.strptime(texto[:10], formato).date().isoformat()
         except ValueError:
             pass
-    raise ErroPipeline(f"{campo} inválida: {texto!r}")
+    raise ErroPipeline(f"{campo} inválida ({forma_celula(valor)})")
 
 
 def decimal_celula(valor, campo):
@@ -385,7 +463,9 @@ def decimal_celula(valor, campo):
     try:
         return Decimal(texto)
     except InvalidOperation as exc:
-        raise ErroPipeline(f"{campo} inválido: {valor!r}") from exc
+        raise ErroPipeline(
+            f"{campo} inválido ({forma_celula(valor)})"
+        ) from exc
 
 
 def dinheiro(valor):
@@ -527,11 +607,21 @@ def localizar_aba_dados(wb, arquivo):
     return candidatas[0]
 
 
-def normalizar_registro(valores, arquivo, numero_linha):
+def normalizar_registro(
+    valores, arquivo, numero_linha, nascimento_opcional=False
+):
     bruto = dict(zip(CHAVES_FONTE, valores))
     try:
         anomes = normalizar_anomes(bruto["anomes"])
-        nasc = normalizar_data(bruto["nasc"], "Data Nascimento")
+        if nascimento_opcional and not re.search(
+            r"\d", texto_celula(bruto["nasc"])
+        ):
+            # Ausente (vazio, traço, "não informado"): resolvido depois por
+            # resolver_nascimentos(). Qualquer célula com dígitos precisa ser
+            # uma data válida.
+            nasc = ""
+        else:
+            nasc = normalizar_data(bruto["nasc"], "Data Nascimento")
         codigo = codigo_procedimento(bruto["cod_proc"])
         qtd = decimal_celula(bruto["qtd"], "Quantidade Procedimento")
         valor = decimal_celula(bruto["valor"], "Pagamento/Despesa")
@@ -550,7 +640,12 @@ def normalizar_registro(valores, arquivo, numero_linha):
     nome = texto_celula(bruto["nome"])
     nome_prestador_fonte = d_nome(bruto["nome_prest"])
     tipo_prestador = texto_celula(bruto["tipo_prest"])
-    if not nome or not nasc or not nome_prestador_fonte or not tipo_prestador:
+    if (
+        not nome
+        or (not nasc and not nascimento_opcional)
+        or not nome_prestador_fonte
+        or not tipo_prestador
+    ):
         raise ErroPipeline(
             f"{arquivo.name}, linha {numero_linha}: chave obrigatória ausente"
         )
@@ -607,7 +702,7 @@ def normalizar_registro(valores, arquivo, numero_linha):
     return registro
 
 
-def ler_fonte_xlsx(caminho):
+def ler_registros_xlsx(caminho, origem):
     try:
         import openpyxl
     except ImportError as exc:
@@ -631,12 +726,24 @@ def ler_fonte_xlsx(caminho):
                     f"{caminho.name}, linha {numero_linha}: dados além das 19 colunas"
                 )
             valores = (valores + [None] * len(CABECALHO_FONTE))[:len(CABECALHO_FONTE)]
-            registros.append(normalizar_registro(valores, caminho, numero_linha))
+            registro = normalizar_registro(
+                valores,
+                caminho,
+                numero_linha,
+                nascimento_opcional=(origem == "bloco"),
+            )
+            registro["origem"] = origem
+            registros.append(registro)
     finally:
         wb.close()
 
     if not registros:
         raise ErroPipeline(f"{caminho.name}: nenhuma linha de dados")
+    return registros
+
+
+def ler_fonte_xlsx(caminho):
+    registros = ler_registros_xlsx(caminho, "base")
     codigos = {r["cod_proc"] for r in registros}
     if len(codigos) != 1:
         raise ErroPipeline(
@@ -683,7 +790,9 @@ def ler_diretorio_fontes(diretorio, matriz=None):
         codigo_por_arquivo[codigo] = fonte.name
         todos.extend(registros)
         meses = sorted({r["anomes"] for r in registros})
-        dentro = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+        # As fontes-base só contribuem com o período-base, qualquer que seja
+        # a janela publicada: o manifesto das 19 fontes é o mesmo em todo build.
+        dentro = [r for r in registros if r["anomes"] in MESES_BASE_SET]
         manifesto.append(
             {
                 "arquivo": fonte.name,
@@ -706,31 +815,198 @@ def ler_diretorio_fontes(diretorio, matriz=None):
     return todos, manifesto
 
 
+def ler_blocos(caminhos):
+    """Lê os blocos complementares: planilhas consolidadas pós-base.
+
+    Cada bloco traz vários códigos no mesmo arquivo e só pode conter
+    competências posteriores ao período-base. Uma competência pertence a um
+    único bloco; registros além da janela publicada são lidos (entram na
+    varredura anti-vazamento), mas não são agregados.
+    """
+    todos = []
+    manifesto = []
+    dono_da_competencia = {}
+    for caminho in caminhos:
+        real = exigir_fora_de_git(caminho, "bloco complementar")
+        if not real.is_file() or real.suffix.lower() != ".xlsx":
+            raise ErroPipeline(
+                f"bloco complementar deve ser um arquivo .xlsx: {real.name}"
+            )
+        if any(real.name == item["arquivo"] for item in manifesto):
+            raise ErroPipeline(
+                f"dois blocos complementares com o mesmo nome: {real.name}"
+            )
+        registros = ler_registros_xlsx(real, "bloco")
+        meses = sorted({r["anomes"] for r in registros})
+        if meses[0] <= FIM_BASE:
+            raise ErroPipeline(
+                f"{real.name}: bloco complementar contém competência do "
+                f"período-base ou anterior ({meses[0]}); a base auditada só "
+                "muda com um novo conjunto completo de fontes"
+            )
+        for mes in meses:
+            if mes in dono_da_competencia:
+                raise ErroPipeline(
+                    f"competência {mes} aparece em dois blocos "
+                    f"({dono_da_competencia[mes]} e {real.name}); informe "
+                    "apenas o bloco vigente de cada competência"
+                )
+            dono_da_competencia[mes] = real.name
+        todos.extend(registros)
+        na_janela = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+        manifesto.append(
+            {
+                "arquivo": real.name,
+                "sha256": sha256_arquivo(real),
+                "codigos": sorted({r["cod_proc"] for r in registros}),
+                "registros": len(registros),
+                "registros_na_janela": len(na_janela),
+                "competencias": meses,
+                "competencias_na_janela": sorted(
+                    {r["anomes"] for r in na_janela}
+                ),
+            }
+        )
+    faltantes = [
+        m for m in MESES_CANONICOS
+        if m not in MESES_BASE_SET and m not in dono_da_competencia
+    ]
+    if faltantes:
+        raise ErroPipeline(
+            "competências da janela publicada sem registros em nenhum bloco: "
+            + ", ".join(faltantes)
+        )
+    return todos, manifesto
+
+
+def resolver_nascimentos(registros_base, registros_blocos, manifesto_blocos):
+    """Trata os registros de bloco sem data de nascimento.
+
+    Recupera a data quando a mesma matrícula e o mesmo nome têm uma única
+    data em outro registro (base ou blocos). O que não for recuperável sai da
+    agregação e é contado no manifesto do bloco; acima da tolerância, para.
+    """
+    conhecidos = defaultdict(set)
+    for r in registros_base:
+        conhecidos[(r["matricula"], r["nome"])].add(r["nasc"])
+    for r in registros_blocos:
+        if r["nasc"]:
+            conhecidos[(r["matricula"], r["nome"])].add(r["nasc"])
+    resumo = {
+        bloco["arquivo"]: {
+            "registros": 0,
+            "recuperados": 0,
+            "fora_do_painel": 0,
+            "sessoes_fora_do_painel": Decimal(0),
+            "pagamento_fora_do_painel": Decimal(0),
+            "competencias": set(),
+        }
+        for bloco in manifesto_blocos
+    }
+    for r in registros_blocos:
+        if r["nasc"]:
+            continue
+        datas = conhecidos.get((r["matricula"], r["nome"]), set())
+        recuperavel = bool(r["matricula"]) and len(datas) == 1
+        if recuperavel:
+            r["nasc"] = next(iter(datas))
+            r["paciente"] = chave_paciente(r)
+        else:
+            r["sem_nascimento"] = True
+        if r["anomes"] not in MESES_CANONICOS_SET:
+            continue
+        item = resumo[r["arquivo"]]
+        item["registros"] += 1
+        item["competencias"].add(r["anomes"])
+        if recuperavel:
+            item["recuperados"] += 1
+        else:
+            item["fora_do_painel"] += 1
+            item["sessoes_fora_do_painel"] += r["qtd"]
+            item["pagamento_fora_do_painel"] += r["valor"]
+    for bloco in manifesto_blocos:
+        item = resumo[bloco["arquivo"]]
+        limite = max(
+            MAX_SEM_NASCIMENTO_FIXO,
+            int(bloco["registros_na_janela"] * MAX_SEM_NASCIMENTO_PROPORCAO),
+        )
+        if item["fora_do_painel"] > limite:
+            raise ErroPipeline(
+                f"{bloco['arquivo']}: {item['fora_do_painel']} registros sem "
+                "data de nascimento nas competências publicadas, acima da "
+                f"tolerância de {limite}; a planilha precisa ser corrigida na "
+                "origem"
+            )
+        bloco["sem_nascimento"] = {
+            "registros": item["registros"],
+            "recuperados": item["recuperados"],
+            "fora_do_painel": item["fora_do_painel"],
+            "sessoes_fora_do_painel": numero(item["sessoes_fora_do_painel"]),
+            "pagamento_fora_do_painel": dinheiro(
+                item["pagamento_fora_do_painel"]
+            ),
+            "competencias": sorted(item["competencias"]),
+        }
+
+
+def na_janela_publicada(registro):
+    """Fontes-base cobrem só o período-base; blocos, só o que vem depois."""
+    if registro.get("sem_nascimento"):
+        return False
+    mes = registro["anomes"]
+    if registro.get("origem") == "bloco":
+        return mes in MESES_CANONICOS_SET and mes not in MESES_BASE_SET
+    return mes in MESES_BASE_SET
+
+
 def preparar_universo(registros):
-    canonicos = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+    canonicos = [r for r in registros if na_janela_publicada(r)]
+    # A regra de cobertura é avaliada somente no período-base: o conjunto de
+    # terapias fica congelado e uma competência nova sem lançamentos aparece
+    # como zero, em vez de retirar a terapia de toda a série histórica.
     cobertura = defaultdict(set)
     por_terapia = defaultdict(list)
+    pos_base = defaultdict(list)
     for r in canonicos:
-        cobertura[r["terapia_id"]].add(r["anomes"])
-        por_terapia[r["terapia_id"]].append(r)
+        if r["anomes"] in MESES_BASE_SET:
+            cobertura[r["terapia_id"]].add(r["anomes"])
+            por_terapia[r["terapia_id"]].append(r)
+        else:
+            pos_base[r["terapia_id"]].append(r)
 
     descartadas = []
     mantidas = []
     for terapia_id, definicao in sorted(CATALOGO_TERAPIAS.items()):
         meses = cobertura.get(terapia_id, set())
-        faltantes = sorted(MESES_CANONICOS_SET - meses)
+        faltantes = sorted(MESES_BASE_SET - meses)
         item = {
             "id": terapia_id,
             "terapia": definicao["terapia"],
             "codigos": list(definicao["codigos"]),
             "competencias_encontradas": len(meses),
-            "competencias_esperadas": len(MESES_CANONICOS),
+            "competencias_esperadas": len(MESES_BASE),
             "competencias_faltantes": faltantes,
         }
         if faltantes:
             item["motivo"] = (
-                f"cobertura incompleta ({len(meses)}/{len(MESES_CANONICOS)} competências)"
+                f"cobertura incompleta ({len(meses)}/{len(MESES_BASE)} competências)"
             )
+            if janela_estendida():
+                posteriores = pos_base.get(terapia_id, [])
+                item["motivo"] = (
+                    f"cobertura incompleta no período-base de {INICIO_CANONICO} "
+                    f"a {FIM_BASE} ({len(meses)}/{len(MESES_BASE)} competências)"
+                    + (
+                        "; os registros das competências posteriores também "
+                        "ficam fora do painel"
+                        if posteriores
+                        else ""
+                    )
+                )
+                item["registros_pos_base"] = len(posteriores)
+                item["competencias_pos_base"] = sorted(
+                    {r["anomes"] for r in posteriores}
+                )
             item["pacientes"] = len(
                 {r["paciente"] for r in por_terapia.get(terapia_id, [])}
             )
@@ -1594,6 +1870,7 @@ def construir_dados(
     terapias_mantidas,
     terapias_descartadas,
     corte,
+    blocos=None,
 ):
     periodos = gerar_periodos()
     recortes = {}
@@ -1636,11 +1913,17 @@ def construir_dados(
                 "fim": FIM_CANONICO,
                 "competencias": len(MESES_CANONICOS),
             },
+            "periodo_base": {
+                "inicio": INICIO_CANONICO,
+                "fim": FIM_BASE,
+                "competencias": len(MESES_BASE),
+            },
             "periodos": periodos,
             "terapias": catalogo_publico,
             "terapias_descartadas": terapias_descartadas,
             "contagens": contagens,
             "manifesto_fontes": manifesto,
+            "blocos_fonte": [dict(bloco) for bloco in (blocos or [])],
             "excecao_at": {
                 "codigo": COD_AT,
                 "prestador": PEDIAKIDS,
@@ -2177,8 +2460,36 @@ def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
         erros.append("JSON não contém exatamente 17 terapias")
     if len(meta["manifesto_fontes"]) != 19:
         erros.append("manifesto não contém exatamente 19 fontes")
-    if len(meta["periodos"]) != 30 or len(dados["recortes"]) != 30:
-        erros.append("contrato de períodos deve conter 30 recortes")
+    periodos_esperados = [p["id"] for p in gerar_periodos()]
+    if (
+        [p["id"] for p in meta["periodos"]] != periodos_esperados
+        or set(dados["recortes"]) != set(periodos_esperados)
+    ):
+        erros.append(
+            "contrato de períodos diverge da janela publicada "
+            f"({len(periodos_esperados)} recortes esperados)"
+        )
+    if (
+        meta["periodo_canonico"]["fim"] != FIM_CANONICO
+        or meta["periodo_canonico"]["competencias"] != len(MESES_CANONICOS)
+        or meta["periodo_base"]["competencias"] != len(MESES_BASE)
+    ):
+        erros.append("período declarado diverge da janela publicada")
+    blocos = meta.get("blocos_fonte")
+    if not isinstance(blocos, list) or bool(blocos) != janela_estendida():
+        erros.append("blocos complementares incoerentes com a janela publicada")
+    else:
+        cobertas = {
+            mes for bloco in blocos for mes in bloco["competencias_na_janela"]
+        }
+        if cobertas != set(MESES_CANONICOS) - MESES_BASE_SET:
+            erros.append(
+                "blocos complementares não cobrem exatamente as competências "
+                "posteriores ao período-base"
+            )
+    for ponto in dados["recortes"].get("tudo", {}).get("serie_mensal", []):
+        if not ponto["registros"]:
+            erros.append(f"competência {ponto['m']} publicada sem registros")
     descartadas = meta["terapias_descartadas"]
     if len(descartadas) != 1 or descartadas[0]["id"] != ID_PECS:
         erros.append("descarte programático de PECS não está único")
@@ -2505,6 +2816,130 @@ def validar_saida(dados, auditoria, reconciliacao, exigir_referencias):
     return texto
 
 
+def exigir_base_inalterada(dados_base, dados):
+    """Estender a janela não pode alterar nenhum recorte fechado da base.
+
+    Compara, chave a chave, todo recorte da base cujo conjunto de meses não
+    recebeu competência nova (ficam de fora o período completo e o ano em
+    curso, que crescem por definição). Devolve quantos recortes conferiu.
+    """
+    periodos = {p["id"]: p for p in dados["meta"]["periodos"]}
+    meses_base = {m for p in dados_base["meta"]["periodos"] for m in p["meses"]}
+    meses_novos = {m for p in periodos.values() for m in p["meses"]} - meses_base
+    divergentes = []
+    conferidos = 0
+    for periodo_id, recorte_base in dados_base["recortes"].items():
+        periodo = periodos.get(periodo_id)
+        if periodo is None:
+            divergentes.append(f"{periodo_id}: ausente na janela estendida")
+            continue
+        if set(periodo["meses"]) & meses_novos:
+            continue
+        conferidos += 1
+        recorte = dados["recortes"][periodo_id]
+        if recorte != recorte_base:
+            chaves = sorted(
+                chave
+                for chave in set(recorte_base) | set(recorte)
+                if recorte.get(chave) != recorte_base.get(chave)
+            )
+            divergentes.append(f"{periodo_id}: {', '.join(chaves)}")
+    if divergentes:
+        raise ErroPipeline(
+            "a extensão da janela alterou recortes fechados da base:\n  - "
+            + "\n  - ".join(divergentes)
+        )
+    if dados["meta"]["manifesto_fontes"] != dados_base["meta"]["manifesto_fontes"]:
+        raise ErroPipeline("manifesto das 19 fontes mudou ao estender a janela")
+    return conferidos
+
+
+def montar_release(
+    diretorio, matriz, corte=None, blocos=(), ate=None, exigir_referencias=True
+):
+    """Lê as fontes, agrega e valida; nada é gravado aqui.
+
+    O período-base é sempre construído e validado primeiro, pelo mesmo caminho
+    de um build sem blocos — é nele que valem os critérios de aceite e a
+    Matriz 2025. Havendo blocos, a janela é estendida até ``ate`` e o resultado
+    só é aceito se nenhum recorte fechado da base mudar.
+    """
+    blocos = list(blocos or [])
+    fim = ate or FIM_BASE
+    if blocos and not ate:
+        raise ErroPipeline(
+            "--bloco exige --ate AAAA/MM: a última competência fechada a publicar"
+        )
+    try:
+        definir_janela(fim)
+        if janela_estendida() and not blocos:
+            raise ErroPipeline(
+                "--ate posterior ao período-base exige ao menos um --bloco"
+            )
+        if blocos and not janela_estendida():
+            raise ErroPipeline(
+                f"--ate deve ser posterior ao período-base ({FIM_BASE}) "
+                "quando há --bloco"
+            )
+        if corte is None:
+            corte = ultimo_dia(fim)
+
+        def construir(registros_todos, manifesto_blocos):
+            incluidos, mantidas, descartadas = preparar_universo(registros_todos)
+            dados, auditoria = construir_dados(
+                registros_todos,
+                incluidos,
+                manifesto,
+                mantidas,
+                descartadas,
+                corte,
+                manifesto_blocos,
+            )
+            dados["meta"]["matriz_2025"] = reconciliacao
+            return dados, auditoria
+
+        definir_janela(FIM_BASE)
+        registros_base, manifesto = ler_diretorio_fontes(diretorio, matriz)
+        # A Matriz valida as 18 terapias de origem, inclusive PECS. A publicação
+        # continua usando apenas as 17 terapias com 18/18 competências na base.
+        reconciliacao = reconciliar_matriz(matriz, registros_base)
+        dados, auditoria = construir(registros_base, [])
+        texto_json = validar_saida(
+            dados, auditoria, reconciliacao, exigir_referencias
+        )
+        extensao = None
+        if fim != FIM_BASE:
+            dados_base = dados
+            definir_janela(fim)
+            registros_blocos, manifesto_blocos = ler_blocos(blocos)
+            resolver_nascimentos(
+                registros_base, registros_blocos, manifesto_blocos
+            )
+            dados, auditoria = construir(
+                registros_base + registros_blocos, manifesto_blocos
+            )
+            texto_json = validar_saida(
+                dados, auditoria, reconciliacao, exigir_referencias=False
+            )
+            conferidos = exigir_base_inalterada(dados_base, dados)
+            resumo_base = dados_base["recortes"]["tudo"]["resumo"]
+            fora_da_janela = sum(
+                b["registros"] - b["registros_na_janela"]
+                for b in manifesto_blocos
+            )
+            extensao = {
+                "recortes_base_conferidos": conferidos,
+                "base": {
+                    chave: resumo_base[chave]
+                    for chave in ("pacientes", "sessoes", "pagamento")
+                },
+                "registros_fora_da_janela": fora_da_janela,
+            }
+        return dados, auditoria, reconciliacao, texto_json, extensao
+    finally:
+        definir_janela(FIM_BASE)
+
+
 # ---------------- saídas atômicas ----------------
 
 
@@ -2674,20 +3109,84 @@ def formatar_distribuicao(distribuicao):
     )
 
 
-def imprimir_relatorio(dados, auditoria, reconciliacao, saida):
+def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
     global_audit = auditoria["recortes"]["tudo"]
     m = global_audit["metricas"]
     l = global_audit["linhas_cuidado"]
+    meta = dados["meta"]
+    publicado = meta["periodo_canonico"]
+    base = meta["periodo_base"]
     print("=" * 78)
     print("RELATÓRIO DO BUILD — PAINEL TERAPIAS ESPECIAIS")
-    print(f"Período canônico       : {INICIO_CANONICO} a {FIM_CANONICO}")
-    print(f"Fontes                 : {len(dados['meta']['manifesto_fontes'])}")
-    print(f"Terapias mantidas      : {len(dados['meta']['terapias'])}")
-    descarte = dados["meta"]["terapias_descartadas"][0]
     print(
-        "Terapia descartada     : "
-        f"{descarte['terapia']} — {descarte['motivo']}"
+        f"Período publicado      : {publicado['inicio']} a {publicado['fim']} "
+        f"({publicado['competencias']} competências)"
     )
+    print(
+        f"Período-base auditado  : {base['inicio']} a {base['fim']} "
+        f"({base['competencias']} competências)"
+    )
+    print(f"Corte etário           : {meta['data_corte_idade']}")
+    print(f"Fontes                 : {len(meta['manifesto_fontes'])}")
+    for bloco in meta["blocos_fonte"]:
+        print(
+            "Bloco complementar     : "
+            f"{bloco['arquivo']} — {formatar_inteiro(bloco['registros_na_janela'])} "
+            f"registros em {', '.join(bloco['competencias_na_janela'])}"
+        )
+        sem = bloco["sem_nascimento"]
+        if sem["registros"]:
+            print(
+                "Sem data de nascimento : "
+                f"{formatar_inteiro(sem['registros'])} registros em "
+                f"{', '.join(sem['competencias'])} — "
+                f"{formatar_inteiro(sem['recuperados'])} com data recuperada "
+                "do mesmo beneficiário, "
+                f"{formatar_inteiro(sem['fora_do_painel'])} fora do painel "
+                f"({formatar_inteiro(sem['sessoes_fora_do_painel'])} sessões, "
+                f"{formatar_brl(sem['pagamento_fora_do_painel'])})"
+            )
+    print(f"Terapias mantidas      : {len(meta['terapias'])}")
+    for descarte in meta["terapias_descartadas"]:
+        print(
+            "Terapia descartada     : "
+            f"{descarte['terapia']} — {descarte['motivo']}"
+        )
+        if descarte.get("registros_pos_base"):
+            print(
+                "                         "
+                f"{formatar_inteiro(descarte['registros_pos_base'])} registros "
+                "pós-base fora do painel em "
+                f"{', '.join(descarte['competencias_pos_base'])}"
+            )
+    if extensao:
+        b = extensao["base"]
+        print(
+            "Base conferida         : "
+            f"{formatar_inteiro(b['pacientes'])} crianças, "
+            f"{formatar_inteiro(b['sessoes'])} sessões, "
+            f"{formatar_brl(b['pagamento'])} — critérios de aceite e Matriz 2025"
+        )
+        print(
+            "Recortes fechados      : "
+            f"{extensao['recortes_base_conferidos']} recortes da base idênticos "
+            "após a extensão da janela"
+        )
+        if extensao["registros_fora_da_janela"]:
+            print(
+                "Além da janela         : "
+                f"{formatar_inteiro(extensao['registros_fora_da_janela'])} "
+                "registros de blocos em competências não publicadas"
+            )
+        print("Competências novas     : mês | crianças | sessões | pagamento")
+        for ponto in dados["recortes"]["tudo"]["serie_mensal"]:
+            if ponto["m"] > base["fim"]:
+                print(
+                    f"                         {ponto['m']} | "
+                    f"{formatar_inteiro(ponto['pacientes'])} | "
+                    f"{formatar_inteiro(ponto['sessoes'])} | "
+                    f"{formatar_brl(ponto['pagamento'])}"
+                )
     print(f"Crianças únicas        : {formatar_inteiro(m['n_pacientes'])}")
     print(
         "Prestadores            : "
@@ -2755,6 +3254,8 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida):
     print("Hashes SHA-256:")
     for item in dados["meta"]["manifesto_fontes"]:
         print(f"  {item['sha256']}  {item['arquivo']}")
+    for item in dados["meta"]["blocos_fonte"]:
+        print(f"  {item['sha256']}  {item['arquivo']}")
     print(f"  {reconciliacao['sha256']}  {reconciliacao['arquivo']}")
     print(f"JSON privado           : {saida}")
     print("HTML/repositório       : nenhum dado gravado")
@@ -2776,6 +3277,124 @@ def valor_excel(valor):
     return valor
 
 
+def pacientes_sinteticos(quantidade):
+    return [
+        {
+            "nome": f"CRIANCA SINTETICA {i + 1}",
+            "nasc": date(1990, 1, 1) if i == 5 else date(2014, i % 12 + 1, 1),
+            "genero": "FEMININO" if i % 2 else "MASCULINO",
+        }
+        for i in range(quantidade)
+    ]
+
+
+CODIGO_SEM_MOVIMENTO = "50005197"  # terapia mantida que deixa de ter lançamentos
+
+
+def criar_bloco_sintetico(caminho, meses, sem_nascimento=1):
+    """Planilha complementar consolidada: vários códigos em uma única aba.
+
+    Exercita o que a planilha real traz: paciente novo, prestador novo,
+    nascimento digitado como texto, terapia mantida que deixa de ter
+    lançamentos, PECS com poucos registros (continua descartada) e registros
+    sem data de nascimento — um recuperável pela matrícula e pelo nome do
+    mesmo beneficiário na base e ``sem_nascimento`` irrecuperáveis.
+    """
+    try:
+        from openpyxl import Workbook
+    except ImportError as exc:
+        raise ErroPipeline("openpyxl não instalado") from exc
+
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    pacientes = pacientes_sinteticos(15)
+    fontes_tripe = {"50005103", "50005189", "50005170"}
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Desembolso"
+    ws.append(CABECALHO_FONTE)
+    for mes in meses:
+        ano, numero_mes = map(int, mes.split("/"))
+        for indice_codigo, codigo in enumerate(MAPA_CODIGOS):
+            # A partir da terceira competência do bloco a terapia para.
+            if codigo == CODIGO_SEM_MOVIMENTO and meses.index(mes) >= 2:
+                continue
+            if codigo == "50005146" and mes != meses[0]:
+                continue
+            for i, paciente in enumerate(pacientes):
+                if 6 <= i <= 10 and codigo not in fontes_tripe:
+                    continue
+                if i >= 11 and codigo != "50005103":
+                    continue
+                # A criança 15 só existe na competência além da janela.
+                if i == 14 and mes != "2026/10":
+                    continue
+                if codigo == COD_AT:
+                    prestador = PEDIAKIDS
+                elif codigo == "50005170" and i == 1:
+                    prestador = "PRESTADOR NOVO DO BLOCO LTDA"
+                else:
+                    prestador = f"PRESTADOR {codigo} LTDA"
+                tipo_prestador = (
+                    "ATENDIMENTO ESPECIALIZADO"
+                    if i == 0 and codigo not in (COD_AT, "50005189")
+                    else "CLINICA ESPECIALIZADA"
+                )
+                nascimento = (
+                    paciente["nasc"].strftime("%d/%m/%Y")
+                    if i == 2
+                    else paciente["nasc"]
+                )
+                ws.append(
+                    [
+                        mes,
+                        f"MAT-{i + 1}-{codigo}",
+                        paciente["nome"],
+                        nascimento,
+                        paciente["genero"],
+                        f"GUIA-{codigo}-{mes.replace('/', '')}-{i + 1}",
+                        date(ano, numero_mes, 15),
+                        f"SOL-{i + 1}",
+                        "SOLICITANTE RARO" if i == 0 else "SOLICITANTE COMUM",
+                        "Psicologo clinico",
+                        "SPSADT",
+                        int(codigo),
+                        f"PROCEDIMENTO {codigo}",
+                        "SESSAO",
+                        f"PREST-{codigo}-{i + 1}",
+                        prestador,
+                        tipo_prestador,
+                        1,
+                        120 + indice_codigo,
+                    ]
+                )
+
+    def linha_sem_nascimento(mes, matricula, nome, guia, valor):
+        ano, numero_mes = map(int, mes.split("/"))
+        ws.append(
+            [
+                mes, matricula, nome, "-", "FEMININO", guia,
+                date(ano, numero_mes, 20), "SOL-2", "SOLICITANTE COMUM",
+                "Psicologo clinico", "SPSADT", 50005103,
+                "PROCEDIMENTO 50005103", "SESSAO", "PREST-50005103-2",
+                "CRIAR E CRESCER TEEN LTDA", "CLINICA ESPECIALIZADA", 1, valor,
+            ]
+        )
+
+    # Mesma matrícula e mesmo nome da criança 4 na fonte-base: recuperável.
+    linha_sem_nascimento(
+        meses[0], "MAT-4-50005103", pacientes[3]["nome"], "GUIA-REC-1", 55
+    )
+    for indice in range(sem_nascimento):
+        linha_sem_nascimento(
+            meses[1],
+            f"MAT-SEM-NASCIMENTO-{indice + 1}",
+            f"CRIANCA SEM NASCIMENTO {indice + 1}",
+            f"GUIA-SEM-NASCIMENTO-{indice + 1}",
+            77,
+        )
+    wb.save(caminho)
+
+
 def criar_fontes_sinteticas(diretorio):
     try:
         from openpyxl import Workbook
@@ -2786,14 +3405,7 @@ def criar_fontes_sinteticas(diretorio):
     # Pacientes 1–6 frequentam todas as fontes (kit tripé ampliado); 7–11
     # existem só nas três fontes das disciplinas principais (kit tripé, k==5);
     # 12–13 existem só em Psicologia (kit "unica", k<5 — não publica).
-    pacientes = [
-        {
-            "nome": f"CRIANCA SINTETICA {i + 1}",
-            "nasc": date(1990, 1, 1) if i == 5 else date(2014, i % 12 + 1, 1),
-            "genero": "FEMININO" if i % 2 else "MASCULINO",
-        }
-        for i in range(13)
-    ]
+    pacientes = pacientes_sinteticos(13)
     fontes_tripe = {"50005103", "50005189", "50005170"}
     for indice_codigo, codigo in enumerate(MAPA_CODIGOS):
         wb = Workbook()
@@ -3260,37 +3872,283 @@ def selftest():
             "rollback não restaurou o par de saídas",
         )
 
+        # ---- Janela estendida: base congelada + bloco complementar ----
+        def exigir_erro(funcao, trecho, mensagem):
+            try:
+                funcao()
+            except ErroPipeline as exc:
+                exigir_teste(
+                    trecho in str(exc), f"{mensagem} (mensagem inesperada)"
+                )
+            else:
+                raise ErroPipeline(f"selftest: {mensagem}")
+            exigir_teste(
+                FIM_CANONICO == FIM_BASE and len(MESES_CANONICOS) == 18,
+                "janela não voltou ao período-base após erro",
+            )
+
+        corte_ext = ultimo_dia("2026/09")
+        bloco = raiz / "blocos" / "bloco-sintetico-072026-102026.xlsx"
+        criar_bloco_sintetico(
+            bloco, ("2026/07", "2026/08", "2026/09", "2026/10")
+        )
+        dados_base, _a, _r, texto_base, extensao_base = montar_release(
+            fontes, matriz, corte_ext, exigir_referencias=False
+        )
+        exigir_teste(
+            extensao_base is None
+            and len(dados_base["meta"]["periodos"]) == 30
+            and dados_base["meta"]["blocos_fonte"] == []
+            and dados_base["meta"]["periodo_canonico"]
+            == dados_base["meta"]["periodo_base"],
+            "build sem blocos deve publicar exatamente o período-base",
+        )
+        dados_ext, auditoria_ext, _r, texto_ext, extensao = montar_release(
+            fontes, matriz, None, [bloco], "2026/09", exigir_referencias=False
+        )
+        meta_ext = dados_ext["meta"]
+        ids_ext = [p["id"] for p in meta_ext["periodos"]]
+        exigir_teste(
+            FIM_CANONICO == FIM_BASE and len(MESES_CANONICOS) == 18,
+            "janela não voltou ao período-base após o build estendido",
+        )
+        exigir_teste(
+            len(ids_ext) == 35
+            and set(ids_ext) == set(dados_ext["recortes"])
+            and {
+                "mes-2026-07", "mes-2026-08", "mes-2026-09",
+                "trimestre-2026-T3", "semestre-2026-S2",
+            } <= set(ids_ext)
+            and "mes-2026-10" not in ids_ext,
+            "janela estendida deve gerar 35 recortes até 2026/09",
+        )
+        exigir_teste(
+            meta_ext["periodo_canonico"]
+            == {"inicio": "2025/01", "fim": "2026/09", "competencias": 21}
+            and meta_ext["periodo_base"]
+            == {"inicio": "2025/01", "fim": "2026/06", "competencias": 18}
+            and meta_ext["data_corte_idade"] == "2026-09-30",
+            "período publicado, período-base ou corte etário incorretos",
+        )
+        exigir_teste(
+            extensao["recortes_base_conferidos"] == 28
+            and meta_ext["manifesto_fontes"]
+            == dados_base["meta"]["manifesto_fontes"],
+            "extensão deve conferir 28 recortes fechados e manter o manifesto",
+        )
+        semestre_parcial = next(
+            p for p in meta_ext["periodos"] if p["id"] == "semestre-2026-S2"
+        )
+        ano_corrente = next(
+            p for p in meta_ext["periodos"] if p["id"] == "ano-2026"
+        )
+        exigir_teste(
+            len(semestre_parcial["meses"]) == 3
+            and len(ano_corrente["meses"]) == 9
+            and len(dados_ext["recortes"]["tudo"]["serie_mensal"]) == 21,
+            "períodos parciais ou série completa com meses incorretos",
+        )
+        descarte_ext = meta_ext["terapias_descartadas"]
+        exigir_teste(
+            len(meta_ext["terapias"]) == 17
+            and len(descarte_ext) == 1
+            and descarte_ext[0]["id"] == ID_PECS
+            and descarte_ext[0]["competencias_encontradas"] == 13
+            and descarte_ext[0]["competencias_esperadas"] == 18
+            and descarte_ext[0]["registros_pos_base"] == 6
+            and descarte_ext[0]["competencias_pos_base"] == ["2026/07"]
+            and "período-base" in descarte_ext[0]["motivo"],
+            "conjunto de terapias deve permanecer o da base, com PECS fora",
+        )
+        exigir_teste(
+            auditoria_ext["recortes"]["tudo"]["metricas"]["n_pacientes"] == 14
+            and dados_ext["recortes"]["mes-2026-09"]["resumo"]["pacientes"] == 14
+            and dados_ext["recortes"]["ano-2025"]["resumo"]["pacientes"] == 13,
+            "criança nova do bloco, nascimento em texto ou competência além "
+            "da janela contados de forma incorreta",
+        )
+        sem_movimento = next(
+            t for t in dados_ext["recortes"]["mes-2026-09"]["terapias"]
+            if CODIGO_SEM_MOVIMENTO in t["codigos"]
+        )
+        exigir_teste(
+            sem_movimento["pacientes"] == 0
+            and sem_movimento["sessoes"] == 0
+            and sem_movimento["pagamento"] == 0.0
+            and sem_movimento["custo_sessao"] is None
+            and len(dados_ext["recortes"]["mes-2026-09"]["terapias"]) == 17,
+            "terapia mantida sem lançamentos no mês deve aparecer zerada",
+        )
+        bloco_meta = meta_ext["blocos_fonte"]
+        exigir_teste(
+            len(bloco_meta) == 1
+            and bloco_meta[0]["arquivo"] == bloco.name
+            and bloco_meta[0]["competencias_na_janela"]
+            == ["2026/07", "2026/08", "2026/09"]
+            and bloco_meta[0]["registros"] > bloco_meta[0]["registros_na_janela"]
+            and extensao["registros_fora_da_janela"]
+            == bloco_meta[0]["registros"] - bloco_meta[0]["registros_na_janela"],
+            "manifesto do bloco complementar incorreto",
+        )
+        exigir_teste(
+            bloco_meta[0]["sem_nascimento"]
+            == {
+                "registros": 2,
+                "recuperados": 1,
+                "fora_do_painel": 1,
+                "sessoes_fora_do_painel": 1,
+                "pagamento_fora_do_painel": 77.0,
+                "competencias": ["2026/07", "2026/08"],
+            },
+            "registros sem data de nascimento tratados de forma incorreta",
+        )
+        registros_julho = [
+            r for r in auditoria_ext["registros_incluidos"]
+            if r["anomes"] == "2026/07" and r["cod_proc"] == "50005103"
+        ]
+        exigir_teste(
+            sum(1 for r in registros_julho if r["valor"] == Decimal("55")) == 1
+            and all(r["nasc"] for r in auditoria_ext["registros_incluidos"])
+            and "CRIANCA SEM NASCIMENTO" not in texto_ext,
+            "data recuperada deve entrar na agregação; a irrecuperável, não",
+        )
+        bloco_ruim = raiz / "blocos" / "bloco-sem-nascimento.xlsx"
+        criar_bloco_sintetico(
+            bloco_ruim, ("2026/07", "2026/08", "2026/09"), sem_nascimento=6
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_ruim], "2026/09",
+                exigir_referencias=False,
+            ),
+            "acima da tolerância de 5",
+            "excesso de registros sem data de nascimento não foi bloqueado",
+        )
+        exigir_teste(
+            any(
+                x["nome"] == "PRESTADOR NOVO DO BLOCO LTDA"
+                for x in dados_ext["recortes"]["tudo"]["prestadores"]
+            )
+            and not any(
+                x["nome"] == "PRESTADOR NOVO DO BLOCO LTDA"
+                for x in dados_ext["recortes"]["ano-2025"]["prestadores"]
+            ),
+            "prestador novo do bloco deve existir só nos recortes novos",
+        )
+        exigir_teste(
+            "CRIANCA SINTETICA" not in texto_ext
+            and "CRIANCA SINTETICA" not in texto_base,
+            "nome sintético vazou no JSON da janela estendida",
+        )
+        mutado = copy.deepcopy(dados_ext)
+        mutado["recortes"]["mes-2025-01"]["resumo"]["sessoes"] += 1
+        exigir_erro(
+            lambda: exigir_base_inalterada(dados_base, mutado),
+            "mes-2025-01: resumo",
+            "alteração em recorte fechado da base não foi bloqueada",
+        )
+        bloco_base = raiz / "blocos" / "bloco-com-base.xlsx"
+        criar_bloco_sintetico(bloco_base, ("2026/06", "2026/07"))
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_base], "2026/07",
+                exigir_referencias=False,
+            ),
+            "período-base",
+            "bloco com competência do período-base não foi bloqueado",
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco, bloco], "2026/09",
+                exigir_referencias=False,
+            ),
+            "mesmo nome",
+            "bloco informado duas vezes não foi bloqueado",
+        )
+        bloco_copia = raiz / "blocos" / "bloco-sintetico-copia.xlsx"
+        bloco_copia.write_bytes(bloco.read_bytes())
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco, bloco_copia], "2026/09",
+                exigir_referencias=False,
+            ),
+            "aparece em dois blocos",
+            "competência repetida em dois blocos não foi bloqueada",
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco], "2026/11",
+                exigir_referencias=False,
+            ),
+            "sem registros em nenhum bloco: 2026/11",
+            "competência sem dados na janela não foi bloqueada",
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco], exigir_referencias=False
+            ),
+            "--bloco exige --ate",
+            "bloco sem --ate não foi bloqueado",
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [], "2026/09", exigir_referencias=False
+            ),
+            "exige ao menos um --bloco",
+            "janela estendida sem bloco não foi bloqueada",
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco], "2026/06",
+                exigir_referencias=False,
+            ),
+            "deve ser posterior ao período-base",
+            "bloco com janela igual à base não foi bloqueado",
+        )
+        for celula, campo, funcao in (
+            ("31/02/2015", "Data Nascimento", normalizar_data),
+            ("MARIA 12,5O", "Pagamento/Despesa", decimal_celula),
+        ):
+            try:
+                funcao(celula, campo)
+            except ErroPipeline as exc:
+                exigir_teste(
+                    celula not in str(exc) and "formato" in str(exc),
+                    "mensagem de erro reproduziu o conteúdo da célula",
+                )
+            else:
+                raise ErroPipeline("selftest: célula inválida foi aceita")
+        try:
+            normalizar_anomes("13/2026")
+        except ErroPipeline as exc:
+            exigir_teste(
+                "13/2026" not in str(exc) and "99/9999" in str(exc),
+                "mensagem de competência inválida reproduziu a célula",
+            )
+        else:
+            raise ErroPipeline("selftest: competência inválida foi aceita")
+
     print(
         "selftest OK — 19 fontes xlsx, schema/aba, cobertura e descarte, "
         "AT, deduplicação, merge, métricas exatas, anti-vazamento, períodos, "
         "destino privado, pagamento zero, Matriz 2025, Casa Unimed "
         "(consolidação por registro, composição, caso misto, guarda), "
-        "disciplina × canal, resumo/pacientes por disciplina e kits (k>=5)"
+        "disciplina × canal, resumo/pacientes por disciplina e kits (k>=5); "
+        "janela estendida (base congelada + bloco complementar, 35 recortes, "
+        "28 recortes fechados idênticos, terapia sem movimento zerada, PECS "
+        "fora, nascimento ausente recuperado ou declarado, guardas de bloco e "
+        "mensagens de erro sem conteúdo de célula)"
     )
 
 
-def executar_build(diretorio, matriz, corte, saida):
+def executar_build(diretorio, matriz, corte, saida, blocos=(), ate=None):
     destino = exigir_saida_fora_de_git(saida)
     exigir_fora_de_git(matriz, "Matriz Analítica 2025")
-    registros_todos, manifesto = ler_diretorio_fontes(diretorio, matriz)
-    incluidos, mantidas, descartadas = preparar_universo(registros_todos)
-    dados, auditoria = construir_dados(
-        registros_todos,
-        incluidos,
-        manifesto,
-        mantidas,
-        descartadas,
-        corte,
-    )
-    # A Matriz valida as 18 terapias de origem, inclusive PECS. A publicação
-    # continua usando apenas ``incluidos`` (17 terapias com 18/18 competências).
-    reconciliacao = reconciliar_matriz(matriz, registros_todos)
-    dados["meta"]["matriz_2025"] = reconciliacao
-    texto_json = validar_saida(
-        dados, auditoria, reconciliacao, exigir_referencias=True
+    dados, auditoria, reconciliacao, texto_json, extensao = montar_release(
+        diretorio, matriz, corte, blocos, ate, exigir_referencias=True
     )
     escrita_atomica(destino, texto_json + "\n")
-    imprimir_relatorio(dados, auditoria, reconciliacao, destino)
+    imprimir_relatorio(dados, auditoria, reconciliacao, destino, extensao)
 
 
 def main():
@@ -3311,9 +4169,30 @@ def main():
         help="arquivo JSON privado, obrigatoriamente fora de qualquer Git",
     )
     ap.add_argument(
+        "--bloco",
+        action="append",
+        default=[],
+        metavar="XLSX",
+        help=(
+            "planilha complementar consolidada (vários códigos) com "
+            "competências posteriores ao período-base; repita a opção para "
+            "mais de um bloco"
+        ),
+    )
+    ap.add_argument(
+        "--ate",
+        metavar="AAAA/MM",
+        help=(
+            "última competência fechada a publicar; obrigatória com --bloco "
+            f"(sem blocos, a janela termina em {FIM_BASE})"
+        ),
+    )
+    ap.add_argument(
         "--corte",
-        default=CORTE_PADRAO.isoformat(),
-        help="data de corte etário AAAA-MM-DD (padrão: 2026-06-30)",
+        help=(
+            "data de corte etário AAAA-MM-DD (padrão: último dia da última "
+            "competência publicada)"
+        ),
     )
     ap.add_argument(
         "--emit-p",
@@ -3340,8 +4219,10 @@ def main():
             ap.error("--matriz é obrigatória no build real")
         if not args.saida:
             ap.error("--saida é obrigatória no build real e deve ficar fora de Git")
-        corte = date.fromisoformat(args.corte)
-        executar_build(args.diretorio, args.matriz, corte, args.saida)
+        corte = date.fromisoformat(args.corte) if args.corte else None
+        executar_build(
+            args.diretorio, args.matriz, corte, args.saida, args.bloco, args.ate
+        )
         if args.emit_p:
             emitir_p()
     except (ErroPipeline, ValueError, OSError) as exc:

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Painel Terapias Especiais | Unimed GV</title>
-<meta name="description" content="Painel multidisciplinar de Terapias Especiais da Unimed Governador Valadares: população, prestadores, especialidades, evolução e canais de pagamento — jan/2025 a jun/2026.">
+<meta name="description" content="Painel multidisciplinar de Terapias Especiais da Unimed Governador Valadares: população, prestadores, especialidades, evolução e canais de pagamento, por competência de faturamento desde jan/2025.">
 <meta name="hub-category" content="dashboard">
 <meta name="hub-entity" content="Unimed GV">
 
@@ -17,7 +17,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:title" content="Painel Terapias Especiais | Unimed GV">
-<meta property="og:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais — 18 competências oficiais.">
+<meta property="og:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais, por competência oficial de faturamento.">
 <meta property="og:url" content="https://hub.grupocsv.com/p/painel-tea/">
 <meta property="og:site_name" content="Unimed GV | Hub Grupo CSV">
 <meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
@@ -26,7 +26,7 @@
 <meta property="og:image:type" content="image/png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Painel Terapias Especiais | Unimed GV">
-<meta name="twitter:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais — 18 competências oficiais.">
+<meta name="twitter:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais, por competência oficial de faturamento.">
 <meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
 <meta name="theme-color" content="#004e4c">
 
@@ -1652,6 +1652,13 @@ html,body{max-width:100%;overflow-x:hidden}
     if (box) box.replaceChildren(el('div', 'empty-state', texto || 'Sem dados suficientes neste recorte para este gráfico.'));
   }
 
+  function intervaloCompleto() {
+    const p = PERIODOS.find(x => x.id === 'tudo');
+    const extenso = ym => { const m = String(ym || '').match(/^(\d{4})[\/-](\d{2})$/); return m ? mesRotulo(ym).split('/')[0] + '/' + m[1] : null; };
+    const ini = p ? extenso(p.inicio || asArray(p.meses)[0]) : null, fim = p ? extenso(p.fim || asArray(p.meses).slice(-1)[0]) : null;
+    return ini && fim ? ' (' + ini + ' a ' + fim + ')' : '';
+  }
+
   function montarViews() {
     $('view-prestadores').innerHTML = `
       <p class="v-lead">Concentração do pagamento, desvios de preço e de intensidade e variação de cada prestador no período.</p>
@@ -1691,7 +1698,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Como Usar</h2></div></div>
         <ol class="howto">
           <li><strong>Escolha o escopo assistencial</strong> abaixo — rede completa para o retrato geral, uma disciplina para comparar prestadores, uma combinação de terapias para analisar grupos de pacientes.</li>
-          <li><strong>Escolha o período</strong> no seletor do topo — o painel abre no período completo (jan/2025 a jun/2026) e desce até o mês; o recorte vale para todas as abas.</li>
+          <li><strong>Escolha o período</strong> no seletor do topo — o painel abre no período completo${intervaloCompleto()} e desce até o mês; o recorte vale para todas as abas.</li>
           <li><strong>Navegue pelas abas</strong> — em Prestadores, clique em qualquer linha para abrir a ficha; as tabelas têm busca, ordenação, paginação e exportação em CSV.</li>
           <li><strong>Consulte o método</strong> — todo indicador, faixa de referência e regra de cálculo está documentado em Método e Fontes.</li>
         </ol>
@@ -1895,9 +1902,10 @@ html,body{max-width:100%;overflow-x:hidden}
     const contratoValido = DATA
       && DATA.meta
       && asArray(DATA.meta.terapias).length === 17
-      && PERIODOS.length === 30
+      && PERIODOS.length >= 1
       && isObject(DATA.recortes)
-      && Object.keys(DATA.recortes).length === 30
+      && Object.keys(DATA.recortes).length === PERIODOS.length
+      && PERIODOS.every(p => isObject(DATA.recortes[p.id]))
       && isObject(DATA.recortes.tudo);
     if (!contratoValido) {
       estadoBoot('Não foi possível carregar os dados do painel.', 'Os dados recebidos não correspondem ao período e às terapias esperados.', true);
@@ -3112,7 +3120,10 @@ html,body{max-width:100%;overflow-x:hidden}
     const tbody = $('mt_codes').querySelector('tbody');
     tbody.replaceChildren(...codes.map(row => { const tr = el('tr'); [row.terapia, asArray(row.codigos).join(' + ') || row.codigo || '—', row.especialidade, row.metodo].forEach(x => tr.append(el('td', null, x || '—'))); return tr; }));
     const pc = meta.periodo_canonico || meta.periodo || {}, competencias = pick(pc, 'competencias');
-    $('mt_period').textContent = 'Período canônico: ' + String(pc.inicio || 'não informado') + ' a ' + String(pc.fim || 'não informado') + (competencias === null ? '' : ' · ' + fmtN(competencias) + ' competências') + '. A seleção global aplica o mesmo recorte a todas as abas.';
+    const pb = isObject(meta.periodo_base) ? meta.periodo_base : null;
+    const estendido = pb && pb.fim && pc.fim && String(pb.fim) !== String(pc.fim);
+    $('mt_period').textContent = 'Período canônico: ' + String(pc.inicio || 'não informado') + ' a ' + String(pc.fim || 'não informado') + (competencias === null ? '' : ' · ' + fmtN(competencias) + ' competências') + '. A seleção global aplica o mesmo recorte a todas as abas.'
+      + (estendido ? ' Período-base auditado: ' + String(pb.inicio) + ' a ' + String(pb.fim) + (pick(pb, 'competencias') === null ? '' : ' (' + fmtN(pick(pb, 'competencias')) + ' competências)') + ', conferido com a Matriz Analítica 2025; as competências posteriores chegam em blocos complementares, com o mesmo conjunto de terapias, e não alteram os períodos já fechados.' : '');
     const fullSummary = resumoDe(recorteTudo());
     $('mt_provider_method').innerHTML = '<strong>Prestadores:</strong> a base registra ' + fmtN(pick(fullSummary, 'prestadores_observados', 'prestadores')) + ' cadastros de prestador na origem e ' + fmtN(pick(fullSummary, 'prestadores_consolidados', 'prestadores')) + ' entidades após a consolidação oficial dos dois nomes do mesmo prestador.';
     const discarded = asArray(meta.terapias_descartadas), discardedBox = $('mt_discarded'); discardedBox.replaceChildren();
@@ -3127,6 +3138,12 @@ html,body{max-width:100%;overflow-x:hidden}
     sourceRow(dl, 'Origem assistencial', 'Origem oficial da operadora — guias SPSADT, por competência de faturamento.');
     sourceRow(dl, 'Planilhas-fonte', fmtN(sources.length) + ' arquivos processados fora do repositório; cada entrada possui SHA-256 e competências observadas.');
     sources.forEach((row, i) => sourceRow(dl, 'Fonte ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · código ' + (row.codigo || '—') + ' · ' + fmtN(asArray(row.competencias).length) + ' competências · SHA-256 ' + (row.sha256 || 'não informado')));
+    asArray(meta.blocos_fonte).forEach((row, i) => {
+      const mesesBloco = asArray(row.competencias_na_janela);
+      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + ' registros em ' + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + ' · ' + fmtN(asArray(row.codigos).length) + ' códigos · SHA-256 ' + (row.sha256 || 'não informado'));
+      const sem = isObject(row.sem_nascimento) ? row.sem_nascimento : null;
+      if (sem && n(sem.registros) > 0) sourceRow(dl, 'Registros sem data de nascimento', fmtN(sem.registros) + (n(sem.registros) === 1 ? ' registro do bloco chegou' : ' registros do bloco chegaram') + ' sem data de nascimento' + (asArray(sem.competencias).length ? ' (' + sem.competencias.join(', ') + ')' : '') + ': ' + fmtN(sem.recuperados) + ' com a data recuperada de outro registro do mesmo beneficiário e ' + fmtN(sem.fora_do_painel) + ' fora do painel' + (n(sem.fora_do_painel) > 0 ? ' (' + fmtN(sem.sessoes_fora_do_painel) + (n(sem.sessoes_fora_do_painel) === 1 ? ' sessão, ' : ' sessões, ') + brl(sem.pagamento_fora_do_painel) + ')' : '') + '. O paciente é identificado por nome e data de nascimento; sem a data, o registro não é atribuído a nenhuma criança.');
+    });
     const matriz = meta.matriz_2025;
     if (isObject(matriz)) sourceRow(dl, 'Matriz Analítica 2025', 'Status: ' + (matriz.status || 'não informado') + ' · ' + fmtN(pick(matriz, 'campos_comparados')) + ' campos comparados · SHA-256 ' + (matriz.sha256 || 'não informado') + '.');
     else sourceRow(dl, 'Matriz Analítica 2025', 'A base carregada não contém o resultado da conferência cruzada.');
