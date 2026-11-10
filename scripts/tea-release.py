@@ -137,6 +137,10 @@ def ler_segredo(arquivo, variavel, rotulo):
             f"{rotulo} em formato inesperado (linha CHAVE=valor); esperado "
             "só o valor, sem rótulo"
         )
+    if valor[0] in "\"'" or valor[-1] in "\"'":
+        raise Erro(
+            f"{rotulo} em formato inesperado (entre aspas); esperado só o valor"
+        )
     return valor
 
 
@@ -628,6 +632,8 @@ def situacoes_do_cofre(manifesto):
             nome_de_restauracao(item),
         )
     for bloco in manifesto["blocos"]:
+        if not isinstance(bloco, dict):
+            continue
         if bloco.get("vigente"):
             situacao = "bloco vigente"
         elif bloco.get("substituido_em"):
@@ -649,9 +655,18 @@ def situacoes_do_cofre(manifesto):
 def comando_cofre_listar(args):
     r2 = R2(args.token_file)
     objetos = sorted(r2.listar(BUCKET_COFRE, PREFIXO_COFRE), key=lambda x: x["key"])
-    situacoes = situacoes_do_cofre(ler_manifesto(r2))
+    # A listagem é o instrumento de diagnóstico: continua funcionando mesmo
+    # que o manifesto não possa ser lido.
+    try:
+        situacoes, sem_situacao = (
+            situacoes_do_cofre(ler_manifesto(r2)), "sem entrada no manifesto"
+        )
+    except (Erro, ValueError, TypeError, AttributeError, KeyError):
+        situacoes, sem_situacao = {MANIFESTO_COFRE: ("manifesto ilegível", "")}, (
+            "situação desconhecida: manifesto ilegível"
+        )
     for item in objetos:
-        situacao, nome = situacoes.get(item["key"], ("sem entrada no manifesto", ""))
+        situacao, nome = situacoes.get(item["key"], (sem_situacao, ""))
         original = (
             f" (nome original: {nome})"
             if nome and nome != item["key"].rsplit("/", 1)[-1]
@@ -911,18 +926,14 @@ def comando_cofre_retirar(args):
     r2.gravar_json(BUCKET_COFRE, MANIFESTO_COFRE, manifesto)
 
 
-def restaurar_item(r2, item, destino):
+def baixar_conferido(r2, item):
+    """Nome de restauração e conteúdo de um item, com o SHA-256 conferido."""
     conteudo = r2.baixar(BUCKET_COFRE, item["chave"])
     if conteudo is None:
         raise Erro(f"objeto ausente no cofre: {item['chave']}")
     if item.get("sha256") and hashlib.sha256(conteudo).hexdigest() != sha_do_item(item):
         raise Erro(f"{item['chave']}: conteúdo diverge do SHA-256 do manifesto")
-    nome = nome_seguro(item.get("arquivo_original") or item["chave"])
-    alvo = destino / nome
-    if alvo.exists():
-        raise Erro(f"já existe em {destino.name}/: {nome}")
-    alvo.write_bytes(conteudo)
-    return nome
+    return nome_seguro(item.get("arquivo_original") or item["chave"]), conteudo
 
 
 def comando_cofre_restaurar(args):
@@ -957,17 +968,25 @@ def comando_cofre_restaurar(args):
             )
     pasta_base, pasta_blocos = raiz / "base", raiz / "blocos"
     for pasta in (pasta_base, pasta_blocos):
-        pasta.mkdir(exist_ok=True)
-        if any(pasta.iterdir()):
+        if pasta.exists() and any(pasta.iterdir()):
             raise Erro(f"a pasta {pasta} precisa estar vazia")
-    matriz = None
-    for item in itens:
-        nome = restaurar_item(r2, item, pasta_base)
-        if item.get("papel") == "matriz":
-            matriz = nome
-    nomes_blocos = [restaurar_item(r2, bloco, pasta_blocos) for bloco in vigentes]
+    # Tudo é baixado e conferido antes da primeira gravação: objeto ausente
+    # ou adulterado não deixa a pasta de trabalho pela metade.
+    da_base = [(item, *baixar_conferido(r2, item)) for item in itens]
+    dos_blocos = [(bloco, *baixar_conferido(r2, bloco)) for bloco in vigentes]
+    matriz = next(nome for item, nome, _c in da_base if item.get("papel") == "matriz")
+    for pasta, grupo in ((pasta_base, da_base), (pasta_blocos, dos_blocos)):
+        pasta.mkdir(exist_ok=True)
+        for _item, nome, conteudo in grupo:
+            (pasta / nome).write_bytes(conteudo)
+    nomes_blocos = [nome for _bloco, nome, _c in dos_blocos]
     print(f"base restaurada em {pasta_base}: {FONTES_BASE} fontes + Matriz")
     print(f"blocos vigentes em {pasta_blocos}: {len(nomes_blocos)}")
+    for bloco, nome, _conteudo in dos_blocos:
+        print(
+            f"  {nome} — SHA-256 {sha_do_item(bloco)[:12]}…, recebido em "
+            f"{bloco.get('recebido_em') or 'data não anotada'}"
+        )
     print("comando do build (ajuste --ate para a última competência fechada):")
     print(
         f"  python3 -I scripts/build-tea-data.py '{pasta_base}' "
@@ -1180,6 +1199,13 @@ def selftest():
             rotulado.write_text("CLOUDFLARE_API_TOKEN=" + token + "\n", encoding="utf-8")
             rodar("--token-file", rotulado, "cofre-listar", codigo=1,
                   contem="formato inesperado (linha CHAVE=valor)")
+            rotulado.write_text('"' + token + '"\n', encoding="utf-8")
+            rodar("--token-file", rotulado, "cofre-listar", codigo=1,
+                  contem="formato inesperado (entre aspas)")
+            # preenchimento "=" no fim é parte do valor, não rótulo
+            rotulado.write_text(token + "==\n", encoding="utf-8")
+            if ler_segredo(rotulado, "X", "token") != token + "==":
+                raise Erro("autoteste: preenchimento '=' no fim foi recusado")
 
             # cofre: base não é sobrescrita; completa = 19 conteúdos + Matriz
             origem = raiz / "origem"
@@ -1203,7 +1229,9 @@ def selftest():
                 raise Erro("autoteste: envio com outro papel alterou a base")
             destino = raiz / "restaurado"
             destino.mkdir()
-            rodar("cofre-restaurar", destino, codigo=1, contem="ainda não está completa")
+            rodar("cofre-restaurar", destino, codigo=1,
+                  contem=("ainda não está completa",
+                          "cofre-enviar-base <pasta> --matriz"))
             ultima = origem / f"Fonte {FONTES_BASE - 1:02d} - çã.xlsx"
             # mesmo conteúdo com outro nome não conta como outra fonte
             copia = raiz / "copia-da-fonte-03.xlsx"
@@ -1321,6 +1349,11 @@ def selftest():
             # o antigo só volta ao uso no lugar do que o substituiu
             rodar("cofre-enviar", bloco_b, "--papel", "bloco", codigo=1,
                   contem=f"use --substitui {bloco_b.name}; nada foi gravado")
+            # vale o nome com que o item volta do cofre, não o do arquivo enviado
+            copia = raiz / "corrigida" / "copia com outro nome.xlsx"
+            copia.write_bytes(bloco_b.read_bytes())
+            rodar("cofre-enviar", copia, "--papel", "bloco", codigo=1,
+                  contem=f"já há um bloco vigente chamado {bloco_b.name}")
             rodar("cofre-enviar", bloco_b, "--papel", "bloco", "--substitui", bloco_b.name,
                   contem=("entrada reaproveitada", "deixou de ser vigente"))
             em_uso = [
@@ -1344,7 +1377,12 @@ def selftest():
             objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro
 
             # cofre: restauração com nomes originais e hash conferido
-            texto = rodar("cofre-restaurar", destino, contem=("--matriz", "--ate AAAA/MM"))
+            texto = rodar(
+                "cofre-restaurar", destino,
+                contem=("--matriz", "--ate AAAA/MM",
+                        f"{bloco_b.name} — SHA-256 "
+                        f"{hashlib.sha256(b'bloco-b').hexdigest()[:12]}…"),
+            )
             if (
                 sorted(p.name for p in (destino / "base").iterdir())
                 != sorted(p.name for p in origem.iterdir())
@@ -1358,7 +1396,15 @@ def selftest():
             chave_05 = (BUCKET_COFRE, PREFIXO_BASE + "Fonte 05 - çã.xlsx")
             objetos[chave_05] = b"adulterado"
             rodar("cofre-restaurar", outro, codigo=1, contem="diverge do SHA-256 do manifesto")
+            if any(outro.iterdir()):
+                raise Erro("autoteste: restauração recusada deixou arquivos na pasta")
             objetos[chave_05] = b"fonte-5"
+            # a listagem funciona mesmo com o manifesto ilegível
+            integro = objetos[(BUCKET_COFRE, MANIFESTO_COFRE)]
+            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro[: len(integro) // 2]
+            rodar("cofre-listar", contem=("[manifesto ilegível]",
+                                          "[situação desconhecida: manifesto ilegível]"))
+            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro
             avulso = raiz / "avulso"
             avulso.mkdir()
             rodar("cofre-baixar", PREFIXO_COFRE + "inexistente/", avulso, codigo=1,
