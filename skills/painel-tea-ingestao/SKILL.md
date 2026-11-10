@@ -63,9 +63,10 @@ site do usuário), crie um ambiente em `~/tea-privado/venv` e use o Python
 dele; não retire o `-I`.
 
 O estado do shell não acompanha de uma chamada para a outra. **Comece cada
-bloco de comandos** com:
+bloco de comandos** na raiz do clone, com:
 
 ```bash
+cd <raiz do clone de grupocsv/hub>
 export CLOUDFLARE_ACCOUNT_ID=da0c29123f448f3c3892f784cd9f7cac
 TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 ```
@@ -80,10 +81,17 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    $TR cofre-enviar ~/tea-privado/chegada/<planilha.xlsx> --papel bloco
    ```
 
+   O `cofre-listar` diz a situação de cada arquivo (em uso, bloco vigente,
+   substituído, retirado, sem entrada no manifesto). Se a planilha já aparece
+   como bloco vigente, siga para o passo 2: reenviar o mesmo conteúdo não
+   duplica nada.
+
    Se ela **substitui** um bloco vigente — cobre as mesmas competências,
    corrigidas, ou as mesmas e mais, como `072026_102026` no lugar de
    `072026_092026` — acrescente
-   `--substitui <nome original do bloco antigo>`. Se cobre competências
+   `--substitui <nome original do bloco antigo>`. Planilha corrigida que
+   chega com o **mesmo nome** da anterior só entra assim: sem `--substitui`
+   o cofre a recusa. Se cobre competências
    novas, é um bloco adicional, mesmo que repita o último mês do bloco
    anterior: quando a mesma competência vem em dois blocos, vale a da
    planilha mais recente — a que começa no mesmo mês ou depois e termina
@@ -232,6 +240,7 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `anti-vazamento bloqueou presença de …` | Um identificador coincidiria com texto do JSON | Não publicar; investigar a coincidência sem imprimir o valor |
 | `a extensão da janela alterou recortes fechados` | Defeito no pipeline | Parar e investigar; nunca publicar assim |
 | `validações reprovadas` com os números de aceite (1.416, 81.217…) | A base restaurada não é a auditada | Conferir o cofre; a base não se troca sem decisão |
+| `esperadas exatamente 19 fontes xlsx` | A pasta da base não tem as 19 planilhas diretamente nela: subpasta do zip, arquivo a mais ou a menos | Deixar na pasta só as 19 fontes e a Matriz, sem subpastas |
 
 ## Desfazer uma publicação
 
@@ -250,17 +259,22 @@ $TR registrar ~/tea-privado/trabalho/anterior.json --anterior-sha <SHA-no-ar> --
 ## Primeira vez: a base no cofre
 
 Se `cofre-restaurar` disser que a base não está completa, ela precisa entrar
-uma única vez. Peça ao usuário o zip da pasta `012025_062026` do Drive (as 19
-planilhas) e a `Matriz_Analítica_Terapias_Especiais_2025`. **Confira antes de
-guardar**: o cofre só recebe a base que reproduz o que está no ar.
+uma única vez. Peça ao usuário o zip da pasta `012025_062026` do Drive: são
+20 planilhas — as 19 fontes e a `Matriz_Analítica_Terapias_Especiais_2025`.
+O download de uma pasta do Drive vem em zip, às vezes em mais de uma parte e
+com uma subpasta dentro. Descompacte tudo (`python3 -I -m zipfile -e <zip>
+<destino>` serve) e deixe os 20 arquivos `.xlsx` **diretamente** em
+`~/tea-privado/chegada/base/`, sem subpastas. A Matriz fica na mesma pasta:
+o pipeline e o cofre a separam pelo `--matriz`. **Confira antes de guardar**:
+o cofre só recebe a base que reproduz o que está no ar.
 
 ```bash
 install -d -m 700 ~/tea-privado/chegada/base
-# as 19 planilhas em ~/tea-privado/chegada/base/ e a Matriz em ~/tea-privado/chegada/
-$TR ponteiro
-$TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json
+# os 20 .xlsx diretamente em ~/tea-privado/chegada/base/
+$TR ponteiro          # imprime o SELECT; execute no D1 csv-hub e anote o sha256
+$TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json   # informa janela e corte
 python3 -I scripts/build-tea-data.py ~/tea-privado/chegada/base \
-  --matriz ~/tea-privado/chegada/<Matriz>.xlsx --corte <corte no ar> \
+  --matriz ~/tea-privado/chegada/base/<Matriz>.xlsx --corte <corte no ar> \
   --saida ~/tea-privado/trabalho/base.json
 $TR comparar ~/tea-privado/trabalho/base.json ~/tea-privado/trabalho/no-ar.json \
     --exigir-fechados-inalterados
@@ -270,15 +284,22 @@ O build só passa com exatamente 19 fontes, os números de aceite e a Matriz
 reconciliada. A comparação toma o build da base como anterior e o release no
 ar como novo: todos os recortes até 2026/06 têm de sair idênticos; se o
 release no ar já tem competências posteriores, o período completo e o ano de
-2026 aparecem como ampliados. Então guarde, com os mesmos argumentos do build:
+2026 aparecem como ampliados.
+
+Se a comparação reprovar, **não guarde**: a pasta recebida não é a que gerou
+o painel no ar. Diga ao usuário quais recortes saíram diferentes — só os
+números — e peça a pasta certa; o que está no ar continua como está.
+
+Se passar, guarde, com os mesmos argumentos do build:
 
 ```bash
 $TR cofre-enviar-base ~/tea-privado/chegada/base \
-    --matriz ~/tea-privado/chegada/<Matriz>.xlsx
+    --matriz ~/tea-privado/chegada/base/<Matriz>.xlsx
 ```
 
 O comando envia as 19 planilhas e a Matriz e só termina bem com a base
-completa. Se a Matriz veio na mesma pasta das fontes, ele a separa.
+completa; interrompido no meio, basta rodá-lo de novo. Com a base guardada,
+volte ao passo 2.
 
 Se o release no ar vai além de 2026/06, o cofre precisa também das planilhas
 que o montaram: o `baixar` lista os arquivos e o começo do SHA-256 de cada
@@ -290,10 +311,13 @@ uma ("blocos deste release"). Peça-as ao usuário e envie cada uma com
 | Mensagem | O que significa | O que fazer |
 |---|---|---|
 | `a base já tem as 19 fontes` | O arquivo não é da base, ou outro arquivo ocupa uma vaga (a Matriz enviada como fonte, por exemplo) | `$TR cofre-listar`; o intruso sai com `cofre-retirar` e a fonte é reenviada. Planilha de competências novas entra com `--papel bloco` |
-| `o mesmo conteúdo já está na base` | Arquivo repetido com outro nome | Nada a fazer: já está guardado |
+| `o mesmo conteúdo já está na base` | Arquivo repetido com outro nome, ou o mesmo arquivo enviado com outro papel (a Matriz como fonte, por exemplo) | Nada a fazer: já está guardado, com o papel certo |
 | `a Matriz já está no cofre` | A base tem uma só Matriz e ela já foi guardada | Nada a fazer; se a guardada é a errada, retire-a com `cofre-retirar` e envie a certa |
 | `já existe no cofre com outro conteúdo` | Outra versão de um arquivo em uso na base | A base auditada não se troca sozinha: confirme com o usuário qual versão reproduz os números de aceite. Se a guardada é a errada, `cofre-retirar` e envie a certa — ela fica guardada ao lado, nada é apagado |
 | `--substitui deve indicar exatamente um bloco vigente` | Nome ou chave não confere | `$TR cofre-listar` e use o nome original do bloco |
+| `já há um bloco vigente chamado` | Chegou uma planilha com o nome de um bloco em uso e outro conteúdo | Se ela corrige a anterior, reenvie com `--substitui <nome>`; se é outra planilha, peça à origem um nome que diga as competências |
+| `há mais de um item em uso chamado` | O manifesto tem dois itens em uso com o mesmo nome de arquivo; nada foi restaurado | `$TR cofre-listar`, veja qual dos dois vale e tire o outro com `cofre-retirar <chave>` |
+| `indique exatamente um item em uso no cofre` | O nome não existe em uso, ou existe mais de uma vez | `$TR cofre-listar` e use a chave inteira do item |
 
 Item enviado por engano — base ou bloco — sai do uso com
 `$TR cofre-retirar <nome> --motivo "<por quê>"`. Nada é apagado: o objeto

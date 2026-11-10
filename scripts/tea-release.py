@@ -607,12 +607,53 @@ def nome_seguro(chave):
     return nome
 
 
+def nome_de_restauracao(item):
+    """Nome com que o item volta do cofre: o original; sem ele, o da chave."""
+    return str(item.get("arquivo_original") or item.get("chave") or "").rsplit("/", 1)[-1]
+
+
+def situacoes_do_cofre(manifesto):
+    """Chave do objeto -> (situação, nome original), segundo o manifesto."""
+    mapa = {MANIFESTO_COFRE: ("manifesto", "")}
+    for item in manifesto["base"].get("retirados", []):
+        mapa[item.get("chave")] = (
+            f"retirado da base em {item.get('retirado_em') or 'data não anotada'}",
+            nome_de_restauracao(item),
+        )
+    for bloco in manifesto["blocos"]:
+        if bloco.get("vigente"):
+            situacao = "bloco vigente"
+        elif bloco.get("substituido_em"):
+            situacao = f"bloco substituído em {bloco['substituido_em']}"
+        elif bloco.get("retirado_em"):
+            situacao = f"bloco retirado em {bloco['retirado_em']}"
+        else:
+            situacao = "bloco fora de uso"
+        mapa[bloco.get("chave")] = (situacao, nome_de_restauracao(bloco))
+    # Por último, para valer sobre a anotação de retirada da mesma chave.
+    for item in manifesto["base"]["itens"]:
+        mapa[item.get("chave")] = (
+            "em uso: Matriz" if item.get("papel") == "matriz" else "em uso: fonte da base",
+            nome_de_restauracao(item),
+        )
+    return mapa
+
+
 def comando_cofre_listar(args):
     r2 = R2(args.token_file)
-    for item in sorted(
-        r2.listar(BUCKET_COFRE, PREFIXO_COFRE), key=lambda x: x["key"]
-    ):
-        print(f"{item['size']:>10}  {item.get('last_modified', '')[:10]}  {item['key']}")
+    objetos = sorted(r2.listar(BUCKET_COFRE, PREFIXO_COFRE), key=lambda x: x["key"])
+    situacoes = situacoes_do_cofre(ler_manifesto(r2))
+    for item in objetos:
+        situacao, nome = situacoes.get(item["key"], ("sem entrada no manifesto", ""))
+        original = (
+            f" (nome original: {nome})"
+            if nome and nome != item["key"].rsplit("/", 1)[-1]
+            else ""
+        )
+        print(
+            f"{item['size']:>10}  {item.get('last_modified', '')[:10]}  "
+            f"{item['key']}  [{situacao}]{original}"
+        )
 
 
 def comando_cofre_enviar(args):
@@ -642,6 +683,25 @@ def comando_cofre_enviar(args):
                 )
             substituido = candidatos[0]
         existente = next((b for b in blocos if sha_do_item(b) == sha), None)
+        # O bloco volta do cofre com o nome original, e dois em uso com o
+        # mesmo nome não cabem na mesma pasta: planilha com o nome de um bloco
+        # vigente e outro conteúdo só entra dizendo que o substitui.
+        nome = nome_de_restauracao(existente) if existente is not None else real.name
+        xara = next(
+            (
+                b for b in blocos
+                if b.get("vigente")
+                and b is not existente
+                and b is not substituido
+                and nome_de_restauracao(b) == nome
+            ),
+            None,
+        )
+        if xara is not None:
+            raise Erro(
+                f"já há um bloco vigente chamado {nome} com outro conteúdo; "
+                f"se este o corrige, use --substitui {nome}; nada foi gravado"
+            )
         if existente is not None:
             # Mesmo conteúdo já guardado: reaproveita a entrada, sem duplicar.
             chave = existente["chave"]
@@ -674,6 +734,16 @@ def comando_cofre_enviar(args):
             print(f"deixou de ser vigente: {substituido['chave']}")
     else:
         em_uso = manifesto["base"]["itens"]
+        outro_papel = next(
+            (i for i in em_uso if sha_do_item(i) == sha and i.get("papel") != args.papel),
+            None,
+        )
+        if outro_papel is not None:
+            raise Erro(
+                "o mesmo conteúdo já está na base como "
+                f"{outro_papel.get('arquivo_original') or outro_papel.get('chave')} "
+                f"(papel {outro_papel.get('papel')}); nada foi gravado"
+            )
         homonimo = next(
             (
                 i for i in em_uso
@@ -859,9 +929,25 @@ def comando_cofre_restaurar(args):
         raise Erro(
             "a base ainda não está completa no cofre: "
             + descricao_da_base(itens).split(": ", 1)[1]
-            + "; envie as 19 planilhas com --papel base e a Matriz com "
-            "--papel matriz (item enviado por engano sai com cofre-retirar)"
+            + "; ela entra uma única vez, depois de conferida, com "
+            "cofre-enviar-base <pasta> --matriz <Matriz> (seção \"Primeira vez\" "
+            "do rito); item enviado por engano sai com cofre-retirar"
         )
+    # Ordem de chegada, só para a leitura: no pipeline, a competência
+    # repetida fica com o bloco mais recente, em qualquer ordem de comando.
+    vigentes = sorted(
+        (b for b in manifesto["blocos"] if b.get("vigente")),
+        key=lambda b: (str(b.get("recebido_em") or ""), str(b.get("chave") or "")),
+    )
+    for rotulo, grupo in (("base", itens), ("blocos", vigentes)):
+        nomes = [nome_de_restauracao(i) for i in grupo]
+        repetido = next((n for n in nomes if nomes.count(n) > 1), None)
+        if repetido is not None:
+            raise Erro(
+                f"há mais de um item em uso chamado {repetido} em {rotulo}/; "
+                "retire o que não vale com cofre-retirar <chave> (a chave "
+                "aparece no cofre-listar); nada foi restaurado"
+            )
     pasta_base, pasta_blocos = raiz / "base", raiz / "blocos"
     for pasta in (pasta_base, pasta_blocos):
         pasta.mkdir(exist_ok=True)
@@ -872,12 +958,6 @@ def comando_cofre_restaurar(args):
         nome = restaurar_item(r2, item, pasta_base)
         if item.get("papel") == "matriz":
             matriz = nome
-    # Ordem de chegada, só para a leitura: no pipeline, a competência
-    # repetida fica com o bloco mais recente, em qualquer ordem de comando.
-    vigentes = sorted(
-        (b for b in manifesto["blocos"] if b.get("vigente")),
-        key=lambda b: (str(b.get("recebido_em") or ""), str(b.get("chave") or "")),
-    )
     nomes_blocos = [restaurar_item(r2, bloco, pasta_blocos) for bloco in vigentes]
     print(f"base restaurada em {pasta_base}: {FONTES_BASE} fontes + Matriz")
     print(f"blocos vigentes em {pasta_blocos}: {len(nomes_blocos)}")
@@ -1102,6 +1182,15 @@ def selftest():
                 rodar("cofre-enviar", origem / f"Fonte {i:02d} - çã.xlsx", "--papel", "base")
             rodar("cofre-enviar", matriz, "--papel", "matriz",
                   contem="base no cofre: parcial (18 de 19 fontes, Matriz presente)")
+            # o mesmo arquivo com outro papel não troca de papel em silêncio
+            rodar("cofre-enviar", matriz, "--papel", "base", codigo=1,
+                  contem="(papel matriz); nada foi gravado")
+            rodar("cofre-enviar", origem / "Fonte 00 - çã.xlsx", "--papel", "matriz",
+                  codigo=1, contem="(papel base); nada foi gravado")
+            if descricao_da_base(
+                json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["base"]["itens"]
+            ) != "base no cofre: parcial (18 de 19 fontes, Matriz presente)":
+                raise Erro("autoteste: envio com outro papel alterou a base")
             destino = raiz / "restaurado"
             destino.mkdir()
             rodar("cofre-restaurar", destino, codigo=1, contem="ainda não está completa")
@@ -1208,6 +1297,41 @@ def selftest():
                   contem="bloco deixou de ser vigente")
             if objetos[(BUCKET_COFRE, chave_homonimo)] != b"bloco-homonimo":
                 raise Erro("autoteste: a retirada do bloco alterou o objeto guardado")
+            # planilha corrigida com o nome de um bloco vigente só entra com --substitui
+            corrigida = raiz / "corrigida" / bloco_b.name
+            corrigida.parent.mkdir()
+            corrigida.write_bytes(b"bloco-b-corrigido")
+            antes, quantos = objetos[(BUCKET_COFRE, MANIFESTO_COFRE)], len(objetos)
+            rodar("cofre-enviar", corrigida, "--papel", "bloco", codigo=1,
+                  contem=f"use --substitui {bloco_b.name}; nada foi gravado")
+            if objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] != antes or len(objetos) != quantos:
+                raise Erro("autoteste: bloco homônimo recusado deixou rastro no cofre")
+            rodar("cofre-enviar", corrigida, "--papel", "bloco", "--substitui", bloco_b.name,
+                  contem=("guardado e conferido", "deixou de ser vigente"))
+            # o antigo só volta ao uso no lugar do que o substituiu
+            rodar("cofre-enviar", bloco_b, "--papel", "bloco", codigo=1,
+                  contem=f"use --substitui {bloco_b.name}; nada foi gravado")
+            rodar("cofre-enviar", bloco_b, "--papel", "bloco", "--substitui", bloco_b.name,
+                  contem=("entrada reaproveitada", "deixou de ser vigente"))
+            em_uso = [
+                b for b in json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["blocos"]
+                if b["vigente"]
+            ]
+            if [b["sha256"].lower() for b in em_uso] != [hashlib.sha256(b"bloco-b").hexdigest()]:
+                raise Erro("autoteste: substituição entre blocos homônimos incorreta")
+            # dois blocos em uso com o mesmo nome (manifesto de fora): recusa antes de gravar
+            integro = objetos[(BUCKET_COFRE, MANIFESTO_COFRE)]
+            duplo = json.loads(integro)
+            duplo["blocos"].append(
+                dict(em_uso[0], chave=PREFIXO_BLOCOS + "outra-chave.xlsx", sha256="0" * 64)
+            )
+            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = json.dumps(duplo).encode()
+            rodar("cofre-restaurar", destino, codigo=1,
+                  contem=(f"mais de um item em uso chamado {bloco_b.name}",
+                          "nada foi restaurado"))
+            if (destino / "base").exists() or (destino / "blocos").exists():
+                raise Erro("autoteste: restauração recusada deixou pastas pela metade")
+            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = integro
 
             # cofre: restauração com nomes originais e hash conferido
             texto = rodar("cofre-restaurar", destino, contem=("--matriz", "--ate AAAA/MM"))
@@ -1247,6 +1371,15 @@ def selftest():
                 (incompleta / f"Fonte {i:02d} - çã.xlsx").write_bytes(f"fonte-{i}".encode())
             rodar("cofre-enviar-base", incompleta, "--matriz", matriz, codigo=1,
                   contem="encontradas 18; nada foi enviado")
+            excedente = raiz / "excedente"
+            excedente.mkdir()
+            for i in range(FONTES_BASE + 1):
+                (excedente / f"Fonte {i:02d} - çã.xlsx").write_bytes(f"fonte-{i}".encode())
+            antes = objetos[(BUCKET_COFRE, MANIFESTO_COFRE)]
+            rodar("cofre-enviar-base", excedente, "--matriz", matriz, codigo=1,
+                  contem="encontradas 20; nada foi enviado")
+            if objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] != antes:
+                raise Erro("autoteste: cofre-enviar-base gravou com 20 fontes na pasta")
 
             # cofre: arquivo errado com o nome do certo sai do uso e não trava o certo
             rodar("cofre-retirar", matriz.name, "--motivo", "Matriz errada",
@@ -1274,6 +1407,30 @@ def selftest():
             rodar("cofre-restaurar", terceiro, contem="19 fontes + Matriz")
             if (terceiro / "base" / matriz.name).read_bytes() != b"matriz-certa":
                 raise Erro("autoteste: a restauração não trouxe a Matriz em uso")
+            # a listagem diz o que está em uso, o que saiu e o que não tem entrada
+            linhas = {
+                linha[linha.index(PREFIXO_COFRE):linha.index("  [")]: linha
+                for linha in rodar("cofre-listar").splitlines()
+                if PREFIXO_COFRE in linha and "  [" in linha
+            }
+            esperado = {
+                PREFIXO_BASE + matriz.name: "[retirado da base em ",
+                chave_certa: f"[em uso: Matriz] (nome original: {matriz.name})",
+                PREFIXO_BASE + "Fonte 00 - çã.xlsx": "[em uso: fonte da base]",
+                # retirada e reenviada: vale a situação de agora
+                PREFIXO_BASE + ultima.name: "[em uso: fonte da base]",
+                MANIFESTO_COFRE: "[manifesto]",
+                PREFIXO_COFRE + "x/a/igual.xlsx": "[sem entrada no manifesto]",
+            }
+            for bloco in json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["blocos"]:
+                esperado[bloco["chave"]] = (
+                    "[bloco vigente]" if bloco["vigente"]
+                    else "[bloco substituído em " if bloco.get("substituido_em")
+                    else "[bloco retirado em "
+                )
+            for chave, marca in esperado.items():
+                if marca not in linhas.get(chave, ""):
+                    raise Erro("autoteste: cofre-listar sem a situação de " + chave)
 
             # releases: comparação
             privado = raiz / "privado"

@@ -45,9 +45,12 @@ Os brutos ficam guardados no cofre privado (R2 `csv-dados-sensiveis`, prefixo
 vigentes para `<pasta>/blocos` com os nomes originais, confere o SHA-256 de
 cada arquivo contra o manifesto e imprime o comando do build. A base guardada
 não é sobrescrita por arquivo de mesmo nome e conteúdo diferente, e o cofre
-recusa a vigésima fonte, uma segunda Matriz e conteúdo repetido. Item enviado
+recusa a vigésima fonte, uma segunda Matriz, conteúdo repetido e o mesmo
+arquivo com outro papel. Planilha com o nome de um bloco vigente e outro
+conteúdo só entra como substituição explícita (`--substitui`). Item enviado
 por engano sai do uso com `cofre-retirar <nome> --motivo <texto>`; o objeto
-continua guardado.
+continua guardado, e `cofre-listar` mostra a situação de cada arquivo (em
+uso, bloco vigente, substituído, retirado, sem entrada no manifesto).
 
 Exemplo de organização:
 
