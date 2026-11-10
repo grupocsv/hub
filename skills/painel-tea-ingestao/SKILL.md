@@ -95,9 +95,9 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    novas, é um bloco adicional, mesmo que repita o último mês do bloco
    anterior: quando a mesma competência vem em dois blocos, vale a da
    planilha mais recente — a que começa no mesmo mês ou depois e termina
-   depois —, e o relatório diz quais competências foram cedidas e a qual
-   arquivo. Planilha com meses até 2026/06 não tem encaixe: peça à origem a
-   planilha a partir de 2026/07.
+   depois, sem contar mês de borda com volume ínfimo —, e o relatório diz
+   quais competências foram cedidas e a qual arquivo. Planilha com meses até
+   2026/06 não tem encaixe: peça à origem a planilha a partir de 2026/07.
 
 2. **Restaurar os insumos.**
 
@@ -136,6 +136,10 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    - **Competências cedidas**: meses que um bloco mais antigo deixou para o
      mais recente, com o nome e o intervalo do arquivo que ficou com eles.
      Confira se esse é mesmo o arquivo novo.
+   - **Mês de borda com volume ínfimo** e **Além da janela**: uma ou poucas
+     linhas em um mês vizinho do começo ou do fim da planilha. Quase sempre
+     é competência digitada errada na origem — e o mês certo ficou com essas
+     linhas a menos. Avise o usuário; a correção é na origem.
    - **Crianças já vistas antes**, por competência nova: o normal é ficar
      acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
    - **Volume**: a linha só aparece quando uma competência nova tem menos de
@@ -188,7 +192,17 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    marca `ALTERADA`, algo já apresentado mudou. Explique ao usuário o que
    mudou e só publique com o aceite dele.
 
-6. **Publicar.**
+6. **Publicar.** Antes, confirme que o painel no ar entende o release novo.
+   O painel anterior à versão 5.1 exigia exatamente 30 recortes e mostra erro
+   de carga com um release maior: na primeira publicação além de 2026/06, o
+   deploy de `main` com o painel 5.1 precisa ter terminado e o cache da
+   página vencido (cerca de 15 minutos). As duas contagens abaixo têm de ser
+   maiores que zero:
+
+   ```bash
+   curl -s https://hub.grupocsv.com/unimed/tea.html | grep -c 'sem-sessao'
+   curl -s https://hub.grupocsv.com/p/painel-tea/ | grep -c 'sem-sessao'
+   ```
 
    ```bash
    $TR enviar ~/tea-privado/trabalho/tea.json
@@ -225,9 +239,9 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `código fora do catálogo` | Apareceu um procedimento novo | Ver o código na linha indicada (pasta privada); decisão de produto: avisar o usuário, não mapear por conta própria |
 | `Tipo Prestador desconhecido` | Canal novo na origem | Idem: o mapa de canais é auditável, muda por decisão |
 | `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
-| `todas as competências do bloco vêm também de um bloco mais recente` | Um bloco foi inteiramente substituído por outro | Retirar o bloco antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
+| `todas as competências do bloco vêm também de um bloco mais recente` | Um bloco foi inteiramente substituído por outro; a mensagem diz qual arquivo ficou com as competências e o intervalo dele | Conferir se esse é mesmo o arquivo novo; então retirar o antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
 | `competências não contíguas` | A planilha tem uma competência isolada, antes ou depois de uma lacuna (por exemplo 2026/07 a 2026/09 e uma linha em 2027/06): mês digitado errado | Correção na origem; o bruto não se edita |
-| `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro | Ficar com um deles e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir uma planilha única |
+| `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Se a mensagem cita um `mês de borda com volume ínfimo`, um dos arquivos só "termina depois" por uma ou poucas linhas — quase sempre competência digitada errada | Ficar com um deles — o que o usuário confirmar como o mais novo — e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir uma planilha única |
 | `menos de 25% do volume mensal recente da base` | A competência tem pouquíssimas sessões: faturamento ainda entrando ou competência digitada errada | Publicar até a competência anterior (`--ate`) ou conferir a planilha na origem |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem, ou falta o bloco do começo da janela | Corrigir o `--ate`; se a competência que falta já está publicada, guardar no cofre a planilha que a publicou (o `baixar` lista os blocos do release no ar) |
 | `exige ao menos um --bloco` | `--ate` passa de 2026/06 e nenhum bloco foi informado | Informar os blocos que cobrem a janela; se não estão no cofre, guardar as planilhas que publicaram essas competências |
@@ -240,6 +254,7 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `anti-vazamento bloqueou presença de …` | Um identificador coincidiria com texto do JSON | Não publicar; investigar a coincidência sem imprimir o valor |
 | `a extensão da janela alterou recortes fechados` | Defeito no pipeline | Parar e investigar; nunca publicar assim |
 | `validações reprovadas` com os números de aceite (1.416, 81.217…) | A base restaurada não é a auditada | Conferir o cofre; a base não se troca sem decisão |
+| `não é uma planilha .xlsx legível` | O arquivo não abre: baixado pela metade, corrompido ou protegido por senha | Pedir a planilha de novo, sem senha; o bruto não se edita |
 | `esperadas exatamente 19 fontes xlsx` | A pasta da base não tem as 19 planilhas diretamente nela: subpasta do zip, arquivo a mais ou a menos | Deixar na pasta só as 19 fontes e a Matriz, sem subpastas |
 
 ## Desfazer uma publicação
@@ -317,6 +332,7 @@ uma ("blocos deste release"). Peça-as ao usuário e envie cada uma com
 | `--substitui deve indicar exatamente um bloco vigente` | Nome ou chave não confere | `$TR cofre-listar` e use o nome original do bloco |
 | `já há um bloco vigente chamado` | Chegou uma planilha com o nome de um bloco em uso e outro conteúdo | Se ela corrige a anterior, reenvie com `--substitui <nome>`; se é outra planilha, peça à origem um nome que diga as competências |
 | `há mais de um item em uso chamado` | O manifesto tem dois itens em uso com o mesmo nome de arquivo; nada foi restaurado | `$TR cofre-listar`, veja qual dos dois vale e tire o outro com `cofre-retirar <chave>` |
+| `em formato inesperado` (token ou sessão) | O arquivo do segredo tem rótulo, mais de uma linha ou está como `CHAVE=valor` | Deixar no arquivo só o valor, em uma linha |
 | `indique exatamente um item em uso no cofre` | O nome não existe em uso, ou existe mais de uma vez | `$TR cofre-listar` e use a chave inteira do item |
 
 Item enviado por engano — base ou bloco — sai do uso com
@@ -326,9 +342,10 @@ continua no cofre e a retirada fica registrada no manifesto.
 ## Antes de mexer no cliente
 
 O painel (`unimed/tea.html`) aceita qualquer número de recortes desde a versão
-5.1 do pipeline. Se um dia o contrato de dados mudar, a versão compatível do
-painel precisa estar no ar — e o cache da página vencido, cerca de 15 minutos
-depois do deploy — **antes** da troca do ponteiro. Depois de editar
+5.1 do pipeline. Quando o contrato de dados muda — como na passagem para a
+5.1, cujo primeiro release tem mais de 30 recortes —, a versão compatível do
+painel precisa estar no ar, e o cache da página vencido, cerca de 15 minutos
+depois do deploy, **antes** da troca do ponteiro. Depois de editar
 `unimed/tea.html`, rode `python3 scripts/build-tea-data.py --emit-p` e os
 guardas do CI (`--selftest`, `check-tea-artifacts.py`,
 `generate-portal-tools.py .`).

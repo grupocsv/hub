@@ -730,13 +730,28 @@ def normalizar_registro(
     return registro
 
 
-def ler_registros_xlsx(caminho, origem):
+def planilha_ilegivel(caminho):
+    return ErroPipeline(
+        f"{Path(caminho).name}: não é uma planilha .xlsx legível (arquivo "
+        "incompleto, corrompido ou protegido por senha)"
+    )
+
+
+def abrir_planilha(caminho):
+    """Abre um .xlsx só para leitura; arquivo que não abre vira erro claro."""
     try:
         import openpyxl
+        from openpyxl.utils.exceptions import InvalidFileException
     except ImportError as exc:
         raise ErroPipeline("openpyxl não instalado") from exc
+    try:
+        return openpyxl.load_workbook(caminho, data_only=True, read_only=True)
+    except (zipfile.BadZipFile, InvalidFileException, KeyError) as exc:
+        raise planilha_ilegivel(caminho) from exc
 
-    wb = openpyxl.load_workbook(caminho, data_only=True, read_only=True)
+
+def ler_registros_xlsx(caminho, origem):
+    wb = abrir_planilha(caminho)
     try:
         ws, linha_cabecalho = localizar_aba_dados(wb, caminho)
         registros = []
@@ -865,6 +880,8 @@ def conferir_caminhos_blocos(caminhos):
             raise ErroPipeline(
                 f"dois blocos complementares com o mesmo nome: {real.name}"
             )
+        if not zipfile.is_zipfile(real):
+            raise planilha_ilegivel(real)
         reais.append(real)
     return reais
 
@@ -881,11 +898,18 @@ def ler_blocos(caminhos):
     competência nos demais blocos são cedidos: não são agregados nem servem
     de evidência; continuam apenas na varredura anti-vazamento. Quando o
     intervalo não permite dizer qual é o mais recente (mesmo mês final, ou um
-    arquivo que começa antes e termina depois do outro), o build para; e
-    planilha com competências não contíguas — o que uma linha com o mês
-    digitado errado produz — nem chega a concorrer. Registros além da janela
-    publicada não são agregados. A ordem dos blocos na linha de comando não
-    altera o resultado.
+    arquivo que começa antes e termina depois do outro), o build para.
+
+    Uma linha com o mês digitado errado não pode decidir essa disputa. Longe
+    do resto, ela deixa a planilha com competências não contíguas, e o build
+    para. Vizinha do começo ou do fim, ela estica o intervalo em um mês com
+    volume ínfimo; por isso o intervalo que conta é o firme — do primeiro ao
+    último mês com pelo menos 25% das linhas do mês mais cheio da planilha.
+    O mês de borda abaixo disso continua sendo lido (pode ser faturamento mal
+    começado), mas não faz a planilha passar por mais recente, perde o mês
+    para quem o traz dentro do intervalo firme e sai apontado no relatório.
+    Registros além da janela publicada não são agregados. A ordem dos blocos
+    na linha de comando não altera o resultado.
     """
     brutos = []
     for real in conferir_caminhos_blocos(caminhos):
@@ -912,25 +936,51 @@ def ler_blocos(caminhos):
                 "competência isolada parece digitada errada e se corrige na "
                 "origem"
             )
-        brutos.append((real, registros, meses))
+        linhas_por_mes = Counter(r["anomes"] for r in registros)
+        limiar = MIN_VOLUME * max(linhas_por_mes.values())
+        firmes = [m for m in meses if linhas_por_mes[m] >= limiar]
+        brutos.append(
+            (real, registros, meses, (firmes[0], firmes[-1]), linhas_por_mes)
+        )
     brutos.sort(key=lambda item: (item[2][0], item[2][-1], item[0].name))
     candidatos = defaultdict(list)
-    for posicao, (_real, _registros, meses) in enumerate(brutos):
-        for mes in meses:
+    for posicao, item in enumerate(brutos):
+        for mes in item[2]:
             candidatos[mes].append(posicao)
 
     def mais_recente(p, q):
-        return (
-            brutos[p][2][-1] > brutos[q][2][-1]
-            and brutos[p][2][0] >= brutos[q][2][0]
-        )
+        # Pelo intervalo firme: uma linha em mês vizinho não muda a ordem.
+        (inicio_p, fim_p), (inicio_q, fim_q) = brutos[p][3], brutos[q][3]
+        return fim_p > fim_q and inicio_p >= inicio_q
 
     def intervalo(p):
         return f"{brutos[p][0].name} ({brutos[p][2][0]} a {brutos[p][2][-1]})"
 
+    def borda_fraca(p):
+        real, _registros, meses, (inicio, fim), linhas_por_mes = brutos[p]
+        return [
+            {"m": m, "registros": linhas_por_mes[m]}
+            for m in meses if m < inicio or m > fim
+        ]
+
+    def bordas_por_extenso(p):
+        return [
+            f"{borda['m']} tem {formatar_inteiro(borda['registros'])} "
+            f"{'registro' if borda['registros'] == 1 else 'registros'} em "
+            f"{brutos[p][0].name}"
+            for borda in borda_fraca(p)
+        ]
+
     dono_da_competencia = {}
     for mes in sorted(candidatos):
         concorrentes = candidatos[mes]
+        # Quem traz o mês dentro do intervalo firme tem precedência sobre
+        # quem só o traz como borda de volume ínfimo.
+        de_verdade = [
+            p for p in concorrentes if brutos[p][3][0] <= mes <= brutos[p][3][1]
+        ]
+        if de_verdade:
+            concorrentes = de_verdade
         donos = [
             p for p in concorrentes
             if all(p == q or mais_recente(p, q) for q in concorrentes)
@@ -942,21 +992,32 @@ def ler_blocos(caminhos):
                 for q in concorrentes[i + 1:]
                 if not mais_recente(p, q) and not mais_recente(q, p)
             )
+            fracas = bordas_por_extenso(a) + bordas_por_extenso(b)
             raise ErroPipeline(
                 f"{intervalo(a)} e {intervalo(b)} trazem a competência {mes} "
                 "e não há como saber qual é a planilha mais recente (a mais "
-                "recente começa no mesmo mês ou depois e termina depois); "
-                "fique com uma delas ou peça à origem uma planilha única"
+                "recente começa no mesmo mês ou depois e termina depois"
+                + (
+                    "; mês de borda com volume ínfimo não conta: "
+                    + ", ".join(fracas)
+                    + " — competência digitada errada ou faturamento mal começado"
+                    if fracas else ""
+                )
+                + "); fique com uma delas ou peça à origem uma planilha única"
             )
         dono_da_competencia[mes] = donos[0]
     lidos = []
-    for posicao, (real, registros, meses) in enumerate(brutos):
+    for posicao, (real, registros, meses, _firme, _linhas) in enumerate(brutos):
         proprias = [m for m in meses if dono_da_competencia[m] == posicao]
         cedidas = [m for m in meses if dono_da_competencia[m] != posicao]
         if not proprias:
+            vencedores = "; ".join(
+                intervalo(p) for p in sorted({dono_da_competencia[m] for m in meses})
+            )
             raise ErroPipeline(
                 f"{real.name}: todas as competências do bloco vêm também de "
-                "um bloco mais recente; retire-o do comando"
+                f"um bloco mais recente — {vencedores}; confira se esse é "
+                "mesmo o arquivo novo e retire este do comando"
             )
         for r in registros:
             if dono_da_competencia[r["anomes"]] != posicao:
@@ -991,6 +1052,9 @@ def ler_blocos(caminhos):
                     "cedidas_a": sorted(
                         {brutos[dono_da_competencia[m]][0].name for m in cedidas}
                     ),
+                    # Meses de borda com volume ínfimo: lidos, mas fora do
+                    # intervalo que decide qual planilha é a mais recente.
+                    "borda_fraca": borda_fraca(posicao),
                     # Totais como lidos da planilha, antes de qualquer
                     # exclusão: é o que se confere com o total da origem.
                     "totais_lidos": [
@@ -2486,14 +2550,9 @@ def reconciliar_matriz(caminho, registros):
     matriz = exigir_fora_de_git(caminho, "Matriz Analítica 2025")
     if not matriz.is_file() or matriz.suffix.lower() != ".xlsx":
         raise ErroPipeline("Matriz Analítica deve ser um arquivo xlsx")
-    try:
-        import openpyxl
-    except ImportError as exc:
-        raise ErroPipeline("openpyxl não instalado") from exc
-
     esperados = agregados_matriz_esperados(registros)
     controle = {"campos_comparados": 0, "divergencias": []}
-    wb = openpyxl.load_workbook(matriz, data_only=True, read_only=True)
+    wb = abrir_planilha(matriz)
     try:
         obrigatorias = {"Resumo_Executivo", "Mensal", "Rede_por_Terapia"}
         faltantes = obrigatorias - set(wb.sheetnames)
@@ -3455,13 +3514,25 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
             f"registros em {', '.join(bloco['competencias_na_janela'])}"
         )
         if bloco["registros_cedidos"]:
+            um = bloco["registros_cedidos"] == 1
             print(
                 "                         "
-                f"{formatar_inteiro(bloco['registros_cedidos'])} registros de "
-                f"{', '.join(bloco['competencias_cedidas'])} cedidos a "
+                f"{formatar_inteiro(bloco['registros_cedidos'])} "
+                f"{'registro' if um else 'registros'} de "
+                f"{', '.join(bloco['competencias_cedidas'])} "
+                f"{'cedido' if um else 'cedidos'} a "
                 + "; ".join(
                     f"{nome} ({intervalos[nome]})" for nome in bloco["cedidas_a"]
                 )
+            )
+        for borda in bloco["borda_fraca"]:
+            print(
+                "                         "
+                f"{borda['m']}: só {formatar_inteiro(borda['registros'])} "
+                f"{'registro' if borda['registros'] == 1 else 'registros'} — "
+                "mês de borda com volume ínfimo (competência digitada errada "
+                "ou faturamento mal começado); não conta para decidir a "
+                "planilha mais recente"
             )
         for total in bloco["totais_lidos"]:
             print(
@@ -3524,7 +3595,8 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
             print(
                 "Além da janela         : "
                 f"{formatar_inteiro(extensao['registros_fora_da_janela'])} "
-                "registros de blocos em competências não publicadas"
+                f"{'registro' if extensao['registros_fora_da_janela'] == 1 else 'registros'} "
+                "de blocos em competências não publicadas"
             )
         print(
             "Competências novas     : mês | crianças (já vistas antes) | "
@@ -3676,7 +3748,7 @@ CODIGO_DISCIPLINA_SEM_MOVIMENTO = "50005278"
 
 
 def criar_bloco_sintetico(
-    caminho, meses, sem_nascimento=1, renomear=None, escassas=()
+    caminho, meses, sem_nascimento=1, renomear=None, escassas=(), rarefeitas=None
 ):
     """Planilha complementar consolidada: vários códigos em uma única aba.
 
@@ -3685,7 +3757,8 @@ def criar_bloco_sintetico(
     lançamentos, PECS com poucos registros (continua descartada) e registros
     sem data de nascimento — um recuperável pela matrícula e pelo nome do
     mesmo beneficiário na base e ``sem_nascimento`` irrecuperáveis.
-    ``escassas`` são competências em que a planilha traz uma única linha.
+    ``escassas`` são competências em que a planilha traz uma única linha;
+    ``rarefeitas`` (competência → N) grava só uma a cada N linhas do mês.
     """
     try:
         from openpyxl import Workbook
@@ -3698,6 +3771,8 @@ def criar_bloco_sintetico(
     for indice, nome in (renomear or {}).items():
         pacientes[indice]["nome"] = nome
     fontes_tripe = {"50005103", "50005189", "50005170"}
+    rarefeitas = rarefeitas or {}
+    linhas_do_mes = Counter()
     wb = Workbook()
     ws = wb.active
     ws.title = "Desembolso"
@@ -3723,6 +3798,10 @@ def criar_bloco_sintetico(
                     continue
                 if mes in escassas and (indice_codigo or i):
                     continue
+                if mes in rarefeitas:
+                    linhas_do_mes[mes] += 1
+                    if (linhas_do_mes[mes] - 1) % rarefeitas[mes]:
+                        continue
                 if codigo == COD_AT:
                     prestador = PEDIAKIDS
                 elif codigo == "50005170" and i == 1:
@@ -4623,6 +4702,31 @@ def selftest():
             "bloco complementar não encontrado: nao-existe.xlsx",
             "bloco inexistente não foi barrado antes do build da base",
         )
+        # Planilha baixada pela metade ou protegida por senha (contêiner que
+        # não é zip): erro claro, sem traceback, antes do build da base.
+        bloco_truncado = raiz / "blocos" / "bloco-baixado-pela-metade.xlsx"
+        bloco_truncado.write_bytes(bloco.read_bytes()[:3000])
+        bloco_com_senha = raiz / "blocos" / "bloco-com-senha.xlsx"
+        bloco_com_senha.write_bytes(bytes.fromhex("d0cf11e0a1b11ae1") + b"\0" * 4096)
+        for ilegivel in (bloco_truncado, bloco_com_senha):
+            exigir_erro(
+                lambda ilegivel=ilegivel: montar_release(
+                    fontes, matriz, None, [ilegivel], "2026/09",
+                    exigir_referencias=False,
+                ),
+                f"{ilegivel.name}: não é uma planilha .xlsx legível",
+                "bloco ilegível não foi barrado com mensagem clara",
+            )
+        fonte_truncada = raiz / "fonte-truncada" / "fonte-50005103.xlsx"
+        fonte_truncada.parent.mkdir()
+        fonte_truncada.write_bytes(
+            (fontes / "fonte-50005103.xlsx").read_bytes()[:3000]
+        )
+        exigir_erro(
+            lambda: ler_registros_xlsx(fonte_truncada, "base"),
+            "fonte-50005103.xlsx: não é uma planilha .xlsx legível",
+            "fonte ilegível não virou erro claro",
+        )
         exigir_teste(
             bloco_meta[0]["totais_lidos"]
             == [
@@ -4801,6 +4905,190 @@ def selftest():
                 "mais recente",
                 "bloco contido em outro passou sem pedir decisão",
             )
+        # Linha com o mês digitado errado VIZINHO do fim estica o intervalo em
+        # um mês com volume ínfimo. Esse mês não conta: a planilha antiga não
+        # passa por mais recente que a acumulada que a corrige, nem que a
+        # reextração do mesmo período.
+        bloco_q4_vizinho = raiz / "blocos" / "bloco-q4-com-linha-em-janeiro.xlsx"
+        criar_bloco_sintetico(
+            bloco_q4_vizinho, ("2026/10", "2026/11", "2026/12", "2027/01"),
+            escassas=("2027/01",),
+        )
+        for ordem in (
+            [bloco_q4_vizinho, bloco_acumulado],
+            [bloco_acumulado, bloco_q4_vizinho],
+        ):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/12",
+                    exigir_referencias=False,
+                ),
+                "bloco-072026-122026.xlsx (2026/07 a 2026/12) e "
+                "bloco-q4-com-linha-em-janeiro.xlsx (2026/10 a 2027/01) trazem "
+                "a competência 2026/10 e não há como saber qual é a planilha "
+                "mais recente (a mais recente começa no mesmo mês ou depois e "
+                "termina depois; mês de borda com volume ínfimo não conta: "
+                "2027/01 tem 1 registro em bloco-q4-com-linha-em-janeiro.xlsx",
+                "linha avulsa em mês vizinho fez a planilha antiga passar por "
+                "mais recente que a acumulada",
+            )
+        bloco_q3_vizinho = raiz / "blocos" / "bloco-q3-com-linha-em-outubro.xlsx"
+        criar_bloco_sintetico(
+            bloco_q3_vizinho, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            escassas=("2026/10",),
+        )
+        for ordem in ([bloco_q3_vizinho, bloco_q3], [bloco_q3, bloco_q3_vizinho]):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/09",
+                    exigir_referencias=False,
+                ),
+                "bloco-q3.xlsx (2026/07 a 2026/09) e "
+                "bloco-q3-com-linha-em-outubro.xlsx (2026/07 a 2026/10) trazem "
+                "a competência 2026/07 e não há como saber qual é a planilha "
+                "mais recente",
+                "planilha com linha avulsa venceu a reextração do mesmo período",
+            )
+        # A acumulada de verdade (outubro inteiro) vence a planilha com a
+        # linha avulsa, e a mensagem diz qual arquivo ficou com os meses.
+        for ordem in ([bloco_q3_vizinho, bloco], [bloco, bloco_q3_vizinho]):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/09",
+                    exigir_referencias=False,
+                ),
+                "bloco-q3-com-linha-em-outubro.xlsx: todas as competências do "
+                "bloco vêm também de um bloco mais recente — "
+                "bloco-sintetico-072026-102026.xlsx (2026/07 a 2026/10); "
+                "confira se esse é mesmo o arquivo novo",
+                "acumulada com o mês inteiro não venceu a planilha com linha "
+                "avulsa, ou a mensagem não diz quem ficou com os meses",
+            )
+        # Contra a planilha seguinte (10–12), as linhas avulsas (a fixture
+        # grava duas em outubro) são cedidas e apontadas no relatório.
+        for ordem in ([bloco_q3_vizinho, bloco_q4], [bloco_q4, bloco_q3_vizinho]):
+            dados_viz, auditoria_viz, reconc_viz, _tviz, extensao_viz = (
+                montar_release(
+                    fontes, matriz, None, ordem, "2026/12",
+                    exigir_referencias=False,
+                )
+            )
+            cedente_viz, dono_viz = dados_viz["meta"]["blocos_fonte"]
+            relatorio_viz = io.StringIO()
+            with contextlib.redirect_stdout(relatorio_viz):
+                imprimir_relatorio(
+                    dados_viz, auditoria_viz, reconc_viz,
+                    raiz / "nao-gravado.json", extensao_viz,
+                )
+            exigir_teste(
+                cedente_viz["arquivo"] == bloco_q3_vizinho.name
+                and cedente_viz["competencias_cedidas"] == ["2026/10"]
+                and cedente_viz["registros_cedidos"] == 2
+                and cedente_viz["borda_fraca"] == [{"m": "2026/10", "registros": 2}]
+                and dono_viz["borda_fraca"] == []
+                and f"2 registros de 2026/10 cedidos a {bloco_q4.name} "
+                "(2026/10 a 2026/12)" in relatorio_viz.getvalue()
+                and "2026/10: só 2 registros — mês de borda com volume ínfimo"
+                in relatorio_viz.getvalue(),
+                "linhas avulsas em mês vizinho não foram cedidas e apontadas",
+            )
+        # Uma linha só, além da janela e depois cedida: o relatório concorda
+        # no singular.
+        bloco_2027 = raiz / "blocos" / "bloco-012027-032027.xlsx"
+        criar_bloco_sintetico(bloco_2027, ("2027/01", "2027/02", "2027/03"))
+        for blocos_do_caso, ate, esperados in (
+            (
+                [bloco_q3, bloco_q4_vizinho], "2026/12",
+                (
+                    "Além da janela         : 1 registro de blocos em "
+                    "competências não publicadas",
+                    "2027/01: só 1 registro — mês de borda com volume ínfimo",
+                ),
+            ),
+            (
+                [bloco_q3, bloco_q4_vizinho, bloco_2027], "2027/03",
+                (
+                    f"1 registro de 2027/01 cedido a {bloco_2027.name} "
+                    "(2027/01 a 2027/03)",
+                    "2027/01: só 1 registro — mês de borda com volume ínfimo",
+                ),
+            ),
+        ):
+            dados_um, auditoria_um, reconc_um, _tum, extensao_um = montar_release(
+                fontes, matriz, None, blocos_do_caso, ate,
+                exigir_referencias=False,
+            )
+            relatorio_um = io.StringIO()
+            with contextlib.redirect_stdout(relatorio_um):
+                imprimir_relatorio(
+                    dados_um, auditoria_um, reconc_um,
+                    raiz / "nao-gravado.json", extensao_um,
+                )
+            exigir_teste(
+                all(trecho in relatorio_um.getvalue() for trecho in esperados),
+                "relatório não apontou a linha avulsa no singular",
+            )
+        # Linhas avulsas no mês ANTERIOR ao começo (a fixture grava duas): o
+        # mês fica com quem o traz de verdade, e elas são cedidas.
+        bloco_inicio = raiz / "blocos" / "bloco-082026-102026-com-linha-em-julho.xlsx"
+        criar_bloco_sintetico(
+            bloco_inicio, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            escassas=("2026/07",),
+        )
+        for ordem in ([bloco_q3, bloco_inicio], [bloco_inicio, bloco_q3]):
+            dados_ini = montar_release(
+                fontes, matriz, None, ordem, "2026/10", exigir_referencias=False
+            )[0]
+            por_arquivo = {
+                b["arquivo"]: b for b in dados_ini["meta"]["blocos_fonte"]
+            }
+            exigir_teste(
+                por_arquivo[bloco_q3.name]["competencias_na_janela"] == ["2026/07"]
+                and por_arquivo[bloco_q3.name]["competencias_cedidas"]
+                == ["2026/08", "2026/09"]
+                and por_arquivo[bloco_inicio.name]["competencias_na_janela"]
+                == ["2026/08", "2026/09", "2026/10"]
+                and por_arquivo[bloco_inicio.name]["competencias_cedidas"]
+                == ["2026/07"]
+                and por_arquivo[bloco_inicio.name]["registros_cedidos"] == 2
+                and por_arquivo[bloco_inicio.name]["borda_fraca"]
+                == [{"m": "2026/07", "registros": 2}],
+                "linha avulsa no mês anterior ao começo tirou o mês de quem o "
+                "traz inteiro",
+            )
+        # Fronteira dos 25%: último mês com 40 das 133 linhas do mês mais
+        # cheio ainda conta, e a acumulada parcial vence a anterior; com 30,
+        # não conta, e o build pede decisão.
+        bloco_terco = raiz / "blocos" / "bloco-072026-102026-outubro-a-um-terco.xlsx"
+        criar_bloco_sintetico(
+            bloco_terco, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/10": 3},
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_terco], "2026/09",
+                exigir_referencias=False,
+            ),
+            "bloco-q3.xlsx: todas as competências do bloco vêm também de um "
+            "bloco mais recente — "
+            "bloco-072026-102026-outubro-a-um-terco.xlsx (2026/07 a 2026/10)",
+            "último mês com um terço das linhas deixou de contar para o intervalo",
+        )
+        bloco_quarto = raiz / "blocos" / "bloco-072026-102026-outubro-a-um-quarto.xlsx"
+        criar_bloco_sintetico(
+            bloco_quarto, ("2026/07", "2026/08", "2026/09", "2026/10"),
+            rarefeitas={"2026/10": 4},
+        )
+        exigir_erro(
+            lambda: montar_release(
+                fontes, matriz, None, [bloco_q3, bloco_quarto], "2026/09",
+                exigir_referencias=False,
+            ),
+            "mês de borda com volume ínfimo não conta: 2026/10 tem 30 "
+            "registros em bloco-072026-102026-outubro-a-um-quarto.xlsx",
+            "último mês com menos de 25% das linhas do mês mais cheio contou "
+            "para o intervalo",
+        )
         # A planilha seguinte repete setembro e fica com ele, nas duas ordens.
         dados_seg, _a2, _r2, _t2, _e2 = montar_release(
             fontes, matriz, None, [bloco_seguinte, bloco_q3], "2026/12",
@@ -4906,6 +5194,32 @@ def selftest():
             "recente da base (125)" in relatorio_mv.getvalue()
             and "Volume 2026/08" not in relatorio_mv.getvalue(),
             "relatório não avisou a competência com volume abaixo do habitual",
+        )
+        # Dois terços do volume (entre 50% e 75% da referência): avisa também.
+        bloco_dois_tercos = raiz / "blocos" / "bloco-com-mes-a-dois-tercos.xlsx"
+        criar_bloco_sintetico(bloco_dois_tercos, ("2026/07", "2026/08", "2026/09"))
+        planilha = load_workbook(bloco_dois_tercos)
+        ordem_linha = 0
+        for linha in planilha.active.iter_rows(min_row=2):
+            if linha[0].value == "2026/09":
+                ordem_linha += 1
+                if ordem_linha % 3 == 0:
+                    linha[17].value = 0
+        planilha.save(bloco_dois_tercos)
+        dados_dt, auditoria_dt, reconc_dt, _tdt, extensao_dt = montar_release(
+            fontes, matriz, None, [bloco_dois_tercos], "2026/09",
+            exigir_referencias=False,
+        )
+        relatorio_dt = io.StringIO()
+        with contextlib.redirect_stdout(relatorio_dt):
+            imprimir_relatorio(
+                dados_dt, auditoria_dt, reconc_dt, raiz / "nao-gravado.json",
+                extensao_dt,
+            )
+        exigir_teste(
+            "Volume 2026/09         : 76 sessões, 60,8% do volume mensal "
+            "recente da base (125)" in relatorio_dt.getvalue(),
+            "relatório não avisou a competência entre 50% e 75% do volume",
         )
         # Registro sem data de nascimento em competência cedida não conta no
         # bloco que a cedeu.

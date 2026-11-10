@@ -112,8 +112,9 @@ def ler_segredo(arquivo, variavel, rotulo):
     """Lê um segredo de arquivo ou do ambiente sem jamais ecoar o valor.
 
     Um valor com quebra de linha ou espaço interno (arquivo com rótulo e
-    token, linha CHAVE=valor) é recusado aqui: a camada HTTP o rejeitaria com
-    uma mensagem que reproduz o próprio segredo.
+    token) é recusado aqui: a camada HTTP o rejeitaria com uma mensagem que
+    reproduz o próprio segredo. Linha no formato CHAVE=valor também é
+    recusada: o serviço responderia com um erro que não diz a causa.
     """
     if arquivo:
         bruto = fora_de_git(arquivo, f"arquivo de {rotulo}").read_text(
@@ -129,6 +130,12 @@ def ler_segredo(arquivo, variavel, rotulo):
             f"{rotulo} em formato inesperado ({len(valor.splitlines())} "
             f"linha(s), {len(valor)} caracteres); esperado um único valor, "
             "sem espaços nem rótulo"
+        )
+    # Um "=" que não é preenchimento do fim indica CHAVE=valor.
+    if "=" in valor.rstrip("="):
+        raise Erro(
+            f"{rotulo} em formato inesperado (linha CHAVE=valor); esperado "
+            "só o valor, sem rótulo"
         )
     return valor
 
@@ -1170,6 +1177,9 @@ def selftest():
             rotulado.write_text("Token do painel\n" + token + "\n", encoding="utf-8")
             rodar("--token-file", rotulado, "cofre-listar", codigo=1,
                   contem="formato inesperado (2 linha(s)")
+            rotulado.write_text("CLOUDFLARE_API_TOKEN=" + token + "\n", encoding="utf-8")
+            rodar("--token-file", rotulado, "cofre-listar", codigo=1,
+                  contem="formato inesperado (linha CHAVE=valor)")
 
             # cofre: base não é sobrescrita; completa = 19 conteúdos + Matriz
             origem = raiz / "origem"
