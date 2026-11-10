@@ -1266,11 +1266,19 @@ html,body{max-width:100%;overflow-x:hidden}
   function prestadoresElegiveis(r) {
     return populacaoEscopo(r).filter(x => canalContratado(x) && n(sessoes(x)) !== null && sessoes(x) >= MIN_SESSOES_FAIXA && custoSessao(x) !== null);
   }
+  // Disciplina selecionada sem nenhum lançamento no recorte: o recorte traz os cortes por disciplina,
+  // mas não esta. Acontece em competências novas, quando uma disciplina de baixo volume passa um mês
+  // sem registros. O painel mostra então o escopo vazio — nunca os números da rede completa.
+  function disciplinaSemRegistros(r) {
+    const disc = disciplinaAtiva();
+    return !!disc && !!r && isObject(r.resumo_disciplina) && !isObject(r.resumo_disciplina[disc]);
+  }
   function fatiasDisciplina(r) {
     const disc = disciplinaAtiva();
     if (!disc) return null;
     const fatias = asArray(r && r.prestador_disciplina).filter(f => f.disciplina === disc);
-    return fatias.length ? fatias : null;
+    if (fatias.length) return fatias;
+    return disciplinaSemRegistros(r) ? [] : null;
   }
   function referenciaDisciplina(r) {
     const disc = disciplinaAtiva();
@@ -1694,7 +1702,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
     $('view-inicio').innerHTML = `
       <section class="card intro-card"><div class="card-hd"><div><h2 class="card-title">Sobre o Painel</h2></div></div>
-        <p class="intro-text">O Painel Terapias Especiais consolida as terapias voltadas ao transtorno do espectro autista (TEA) e demais terapias especiais da carteira da Unimed Governador Valadares — 17 terapias com cobertura completa no período, envolvendo psicologia, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia, musicoterapia e demais especialidades — a partir das guias oficiais de faturamento, com a criança como unidade de análise (população deduplicada por nome e nascimento).</p>
+        <p class="intro-text">O Painel Terapias Especiais consolida as terapias voltadas ao transtorno do espectro autista (TEA) e demais terapias especiais da carteira da Unimed Governador Valadares — 17 terapias com cobertura completa de jan/2025 a jun/2026, envolvendo psicologia, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia, musicoterapia e demais especialidades — a partir das guias oficiais de faturamento, com a criança como unidade de análise (população deduplicada por nome e nascimento).</p>
         <p class="intro-text">Prestadores são comparados dentro da mesma disciplina; pacientes, dentro da mesma combinação de terapias.</p>
       </section>
       <section class="card"><div class="card-hd"><div><h2 class="card-title">Como Usar</h2></div></div>
@@ -1752,7 +1760,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
     $('view-metodo').innerHTML = `
       <p class="v-lead">Definições, fontes e limitações de todos os indicadores do painel.</p>
-      <section class="card metodo-block"><h3>Escopo clínico e códigos</h3><p>O painel considera 17 terapias clínicas com cobertura completa no período canônico. O código 50000519 é componente de faturamento de assistente terapêutica integrado à Terapia ABA — Psicologia; não constitui uma 18ª terapia.</p><div class="scroll-container"><table class="method-table" id="mt_codes"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th></tr></thead><tbody></tbody></table></div></section>
+      <section class="card metodo-block"><h3>Escopo clínico e códigos</h3><p>O painel considera 17 terapias clínicas com cobertura completa no período-base, de jan/2025 a jun/2026. O código 50000519 é componente de faturamento de assistente terapêutica integrado à Terapia ABA — Psicologia; não constitui uma 18ª terapia.</p><div class="scroll-container"><table class="method-table" id="mt_codes"><thead><tr><th>Terapia clínica</th><th>Código</th><th>Especialidade</th><th>Método</th></tr></thead><tbody></tbody></table></div></section>
       <div class="method-grid"><section class="card metodo-block"><h3>Período e cobertura</h3><p id="mt_period"></p><div id="mt_discarded"></div></section><section class="card metodo-block"><h3>Paciente, população e prestadores</h3><p><strong>Paciente único:</strong> Nome + Data de Nascimento. Matrícula não é chave de deduplicação.</p><p id="mt_provider_method"></p><p><strong>População e exposições:</strong> crianças únicas são deduplicadas entre terapias; exposições beneficiário-terapia são contagens por terapia e não podem ser somadas como população.</p></section></div>
       <section class="card metodo-block"><h3>Duas distribuições auditáveis do número de terapias por criança</h3><div id="mt_distributions"></div><p>A distribuição clínica usa as 17 terapias consolidadas. A publicação agrupa as faixas em “1 terapia” e “2 ou mais terapias” para impedir reconstrução de células raras. A reconciliação técnica usa componentes por código de faturamento para conferir a base; o código de assistente terapêutica permanece dentro de ABA — Psicologia e não recebe rótulo de terapia clínica.</p></section>
       <div class="method-grid"><section class="card metodo-block"><h3>Métricas e privacidade</h3><p><strong>Unidade:</strong> sessão faturada. Uma sessão faturada não equivale necessariamente a uma hora de atendimento.</p><p><strong>Intensidade:</strong> soma de sessões por criança no recorte; a média mensal considera os meses com atendimento da criança.</p><p><strong>Custo por sessão:</strong> pagamento dividido pelas sessões pagas; registros com pagamento zero ficam fora somente desse denominador.</p><p><strong>Completude:</strong> usuários autenticados visualizam contagens, custos, sessões e nomes de prestadores e solicitantes sem supressão, inclusive nos recortes raros.</p><p><strong>Assistente terapêutica:</strong> a parcela AT por prestador é apresentada integralmente em todos os períodos disponíveis.</p></section><section class="card metodo-block"><h3>Canais da rede</h3><p>ATENDIMENTO ESPECIALIZADO → Casa Unimed; ATENDIMENTOS FORNECEDORES → Negociação Direta; CLÍNICA ESPECIALIZADA → Rede Credenciada; OUTRAS ESPEC. EXCETO MÉDICO → Negociação Direta (P.F.); REEMBOLSO → Reembolso; UNIMED NACIONAL/REGIONAL → Intercâmbio.</p><p>RESINTO, PSICONEURO, ANIMA, CUIDARIM e AURORA seguem as reclassificações vigentes para Rede Credenciada.</p></section></div>
@@ -2540,8 +2548,15 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderPrestadores(refresh) {
     const r = recorteAtual(), resumo = resumoDe(r), all = providerRows(r), ctx = contextoPrestadores(r);
     notaEscopo('view-prestadores');
-    const spec = [...new Set(all.flatMap(x => especialidades(x)))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    if (state.specialty !== 'todas' && !spec.includes(state.specialty)) state.specialty = 'todas';
+    const discPr = disciplinaAtiva(), fatiasPr = fatiasDisciplina(r), secPr = $('view-prestadores');
+    let notaVazioPr = secPr.querySelector('.disc-vazio-note');
+    if (disciplinaSemRegistros(r)) {
+      if (!notaVazioPr) { notaVazioPr = el('div', 'metric-note disc-vazio-note'); secPr.prepend(notaVazioPr); }
+      notaVazioPr.replaceChildren(el('strong', null, 'Escopo ' + discPr + '.'), document.createTextNode(' Não há registros desta disciplina neste período.'));
+    } else if (notaVazioPr) notaVazioPr.remove();
+    const spec = [...new Set(all.flatMap(x => especialidades(x)).concat(discPr ? [discPr] : []))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    // Com o escopo por disciplina ativo, o filtro é o do escopo e não é desfeito por um recorte sem registros.
+    if (!discPr && state.specialty !== 'todas' && !spec.includes(state.specialty)) state.specialty = 'todas';
     const select = $('pr_specialty');
     if (!refresh || select.options.length === 0) {
       const todas = el('option', null, 'Todas as especialidades'); todas.value = 'todas';
@@ -2552,10 +2567,13 @@ html,body{max-width:100%;overflow-x:hidden}
     select.disabled = travado;
     select.title = travado ? 'Definido pelo escopo assistencial selecionado no Início' : '';
     const top10 = all.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0)).slice(0, 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
-    const totalPag = pagamento(resumo) || 0;
+    // No escopo por disciplina, o total é o da disciplina (soma das fatias prestador × disciplina):
+    // é sobre ele que se medem a concentração e o pagamento fora de faixa.
+    const totalEscopo = fatiasPr ? all.reduce((a, x) => a + (pagamento(x) || 0), 0) : null;
+    const totalPag = totalEscopo !== null ? totalEscopo : (pagamento(resumo) || 0);
     const foraFaixa = all.filter(x => desvioFaixa(x, ctx.faixas) !== null && desvioFaixa(x, ctx.faixas) > 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
     setKpis('pr_kpis', [
-      { label: 'Pagamento', valor: brlK(pagamento(resumo)), sub: escopoComparavel() ? 'total do recorte no escopo ' + rotuloEscopo() : null },
+      { label: 'Pagamento', valor: brlK(totalEscopo !== null ? totalEscopo : pagamento(resumo)), sub: escopoComparavel() ? 'total do recorte no escopo ' + rotuloEscopo() : null },
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
@@ -2951,13 +2969,14 @@ html,body{max-width:100%;overflow-x:hidden}
   function renderPacientes() {
     const r = recorteAtual(), resumo = resumoDe(r), pRede = pacientesDe(r), care = linhasRows(r);
     const pd = pacientesDisciplinaV5(r), rdPa = resumoDisciplinaV5(r), kitPa = kitInfoV5(r), discPa = disciplinaAtiva();
-    const p = pd || pRede, intensity = isObject(p.intensidade) ? p.intensidade : {};
+    const semDiscPa = disciplinaSemRegistros(r);
+    const p = pd || (semDiscPa ? {} : pRede), intensity = isObject(p.intensidade) ? p.intensidade : {};
     notaEscopo('view-pacientes');
     const secPa = $('view-pacientes');
     let notaPa = secPa.querySelector('.disc-note');
     if (discPa) {
       if (!notaPa) { notaPa = el('div', 'metric-note disc-note'); secPa.prepend(notaPa); }
-      notaPa.replaceChildren(el('strong', null, 'Escopo ' + discPa + '.'), document.createTextNode(pd ? ' Perfil das crianças da disciplina.' : ' O perfil por disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
+      notaPa.replaceChildren(el('strong', null, 'Escopo ' + discPa + '.'), document.createTextNode(pd ? ' Perfil das crianças da disciplina.' : semDiscPa ? ' Não há registros desta disciplina neste período.' : ' O perfil por disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
     } else if (notaPa) notaPa.remove();
     const contagemKits = kitsDoRecorte(r), totalKits = [...contagemKits.values()].reduce((a, b) => a + b, 0);
     const kitAtual = kitAtivo(), kitsBody = $('pa_kits') ? $('pa_kits').querySelector('tbody') : null;
@@ -2986,6 +3005,13 @@ html,body{max-width:100%;overflow-x:hidden}
         { label: 'Intensidade mediana', valor: fmt2(intensity.mediana), sub: 'sessões por criança na disciplina' },
         { label: 'Custo médio por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.media), sub: discPa },
         { label: 'Custo mediano por criança', valor: brl(p.custo_por_paciente && p.custo_por_paciente.mediana), sub: 'média acima da mediana indica concentração do custo em poucas crianças' }
+      ]);
+    } else if (semDiscPa) {
+      setKpis('pa_kpis', [
+        { label: 'Crianças da Disciplina', valor: fmtN(0), sub: 'sem registros neste período' },
+        { label: 'Intensidade mediana', valor: '—', sub: 'sessões por criança na disciplina' },
+        { label: 'Custo médio por criança', valor: '—', sub: discPa },
+        { label: 'Custo mediano por criança', valor: '—' }
       ]);
     } else if (kitPa) {
       setKpis('pa_kpis', [
@@ -3019,10 +3045,11 @@ html,body{max-width:100%;overflow-x:hidden}
     const discCanais = canaisDisciplinaV5(r);
     const kitDados = !discCanais ? kitInfoV5(r) : null;
     const kitCanais = kitDados && asArray(kitDados.canais).length ? asArray(kitDados.canais) : null;
-    const fonte = discCanais || kitCanais || canaisDe(r);
+    const semDiscCa = disciplinaSemRegistros(r);
+    const fonte = discCanais || kitCanais || (semDiscCa ? [] : canaisDe(r));
     const rows = fonte.map(x => Object.assign({}, x)).sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0));
     rows.forEach(x => { if (n(x.custo_sessao) === null && n(x.sessoes)) x.custo_sessao = (pagamento(x) || 0) / n(x.sessoes); });
-    const total = (discCanais || kitCanais) ? rows.reduce((a, x) => a + (pagamento(x) || 0), 0) : (pagamento(resumo) || 0);
+    const total = (discCanais || kitCanais || semDiscCa) ? rows.reduce((a, x) => a + (pagamento(x) || 0), 0) : (pagamento(resumo) || 0);
     notaEscopo('view-canais');
     const secCanais = $('view-canais');
     let notaDisc = secCanais.querySelector('.disc-note');
@@ -3030,12 +3057,12 @@ html,body{max-width:100%;overflow-x:hidden}
       if (!notaDisc) { notaDisc = el('div', 'metric-note disc-note'); secCanais.prepend(notaDisc); }
       if (discCanais) notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' Valores dos canais dentro da disciplina.'));
       else if (kitCanais) notaDisc.replaceChildren(el('strong', null, 'Combinação ' + rotuloEscopo() + '.'), document.createTextNode(' Valores dos canais dentro do grupo de crianças da combinação.'));
-      else notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(' O corte de canais desta disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
+      else notaDisc.replaceChildren(el('strong', null, 'Escopo ' + disciplinaAtiva() + '.'), document.createTextNode(semDiscCa ? ' Não há registros desta disciplina neste período.' : ' O corte de canais desta disciplina não está disponível neste recorte; abaixo, os números da rede completa.'));
     } else if (notaDisc) notaDisc.remove();
     const casa = rows.find(x => nomeCanal(x) === 'Casa Unimed');
     const casaPct = casa && total ? (pagamento(casa) || 0) / total * 100 : null;
     setKpis('ca_kpis', [
-      { label: 'Pagamento', valor: brlK((discCanais || kitCanais) ? total : pagamento(resumo)), sub: discCanais ? disciplinaAtiva() : (kitCanais ? rotuloEscopo() : null) },
+      { label: 'Pagamento', valor: brlK((discCanais || kitCanais || semDiscCa) ? total : pagamento(resumo)), sub: (discCanais || semDiscCa) ? disciplinaAtiva() : (kitCanais ? rotuloEscopo() : null) },
       { label: 'Participação Casa Unimed', valor: pct(casaPct), sub: 'parcela do pagamento no serviço próprio' },
       { label: 'R$/sessão Casa Unimed', valor: casa ? brl(custoSessao(casa)) : '—' },
       { label: 'R$/sessão da rede externa', valor: (() => { const ext = rows.filter(x => nomeCanal(x) !== 'Casa Unimed'); const s = ext.reduce((a, x) => a + (sessoes(x) || 0), 0), pgt = ext.reduce((a, x) => a + (pagamento(x) || 0), 0); return s ? brl(pgt / s) : '—'; })(), sub: 'média ponderada dos canais externos' }
@@ -3044,7 +3071,7 @@ html,body{max-width:100%;overflow-x:hidden}
     const rotuloPagto = rows.map(x => nomeCanal(x) + (total ? ' · ' + fmt1((pagamento(x) || 0) / total * 100) + '%' : ''));
     barChart('c_ca_payment', rotuloPagto, rows.map(pagamento), 'Pagamento', brlK, { colors });
     const lider = rows[0];
-    if ($('ca_pay_title') && lider && total) $('ca_pay_title').textContent = nomeCanal(lider) + ' concentra ' + fmt1((pagamento(lider) || 0) / total * 100) + '% do pagamento do recorte';
+    if ($('ca_pay_title')) $('ca_pay_title').textContent = lider && total ? nomeCanal(lider) + ' concentra ' + fmt1((pagamento(lider) || 0) / total * 100) + '% do pagamento do recorte' : 'Pagamento por Canal';
     const rotuloPreco = rows.map(x => nomeCanal(x) + ' · ' + fmtN(sessoes(x)) + ' sessões');
     const mediaPonderada = (() => { const s = rows.reduce((a, x) => a + (sessoes(x) || 0), 0), pgt = rows.reduce((a, x) => a + (pagamento(x) || 0), 0); return s ? pgt / s : null; })();
     if (prepararCanvas('c_ca_price', rows.some(x => custoSessao(x) !== null), 'Sem preço por canal neste recorte.')) {
@@ -3125,7 +3152,7 @@ html,body{max-width:100%;overflow-x:hidden}
     const pb = isObject(meta.periodo_base) ? meta.periodo_base : null;
     const estendido = pb && pb.fim && pc.fim && String(pb.fim) !== String(pc.fim);
     $('mt_period').textContent = 'Período canônico: ' + String(pc.inicio || 'não informado') + ' a ' + String(pc.fim || 'não informado') + (competencias === null ? '' : ' · ' + fmtN(competencias) + ' competências') + '. A seleção global aplica o mesmo recorte a todas as abas.'
-      + (estendido ? ' Período-base auditado: ' + String(pb.inicio) + ' a ' + String(pb.fim) + (pick(pb, 'competencias') === null ? '' : ' (' + fmtN(pick(pb, 'competencias')) + ' competências)') + ', conferido com a Matriz Analítica 2025; as competências posteriores chegam em blocos complementares, com o mesmo conjunto de terapias, e não alteram os períodos já fechados.' : '');
+      + (estendido ? ' Período-base auditado: ' + String(pb.inicio || pc.inicio || 'não informado') + ' a ' + String(pb.fim) + (pick(pb, 'competencias') === null ? '' : ' (' + fmtN(pick(pb, 'competencias')) + ' competências)') + ', com o ano de 2025 conferido contra a Matriz Analítica 2025. As competências posteriores chegam em blocos complementares, com o mesmo conjunto de terapias, e não alteram os números dos períodos já fechados — exceto a faixa etária, sempre calculada na data de corte do painel.' : '');
     const fullSummary = resumoDe(recorteTudo());
     $('mt_provider_method').innerHTML = '<strong>Prestadores:</strong> a base registra ' + fmtN(pick(fullSummary, 'prestadores_observados', 'prestadores')) + ' cadastros de prestador na origem e ' + fmtN(pick(fullSummary, 'prestadores_consolidados', 'prestadores')) + ' entidades após a consolidação oficial dos dois nomes do mesmo prestador.';
     const discarded = asArray(meta.terapias_descartadas), discardedBox = $('mt_discarded'); discardedBox.replaceChildren();
@@ -3142,10 +3169,15 @@ html,body{max-width:100%;overflow-x:hidden}
     sources.forEach((row, i) => sourceRow(dl, 'Fonte ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · código ' + (row.codigo || '—') + ' · ' + fmtN(asArray(row.competencias).length) + ' competências · SHA-256 ' + (row.sha256 || 'não informado')));
     asArray(meta.blocos_fonte).forEach((row, i) => {
       const mesesBloco = asArray(row.competencias_na_janela);
-      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + ' registros em ' + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + ' · ' + fmtN(asArray(row.codigos).length) + ' códigos · SHA-256 ' + (row.sha256 || 'não informado'));
+      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + ' registros em ' + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + (n(pick(row, 'registros_agregados')) === null ? '' : ', dos quais ' + fmtN(row.registros_agregados) + ' integram o painel') + ' · ' + fmtN(asArray(row.codigos).length) + ' códigos · SHA-256 ' + (row.sha256 || 'não informado'));
       const sem = isObject(row.sem_nascimento) ? row.sem_nascimento : null;
       if (sem && n(sem.registros) > 0) sourceRow(dl, 'Registros sem data de nascimento', fmtN(sem.registros) + (n(sem.registros) === 1 ? ' registro do bloco chegou' : ' registros do bloco chegaram') + ' sem data de nascimento' + (asArray(sem.competencias).length ? ' (' + sem.competencias.join(', ') + ')' : '') + ': ' + fmtN(sem.recuperados) + ' com a data recuperada de outro registro do mesmo beneficiário e ' + fmtN(sem.fora_do_painel) + ' fora do painel' + (n(sem.fora_do_painel) > 0 ? ' (' + fmtN(sem.sessoes_fora_do_painel) + (n(sem.sessoes_fora_do_painel) === 1 ? ' sessão, ' : ' sessões, ') + brl(sem.pagamento_fora_do_painel) + ')' : '') + '. O paciente é identificado por nome e data de nascimento; sem a data, o registro não é atribuído a nenhuma criança.');
     });
+    const novasComp = asArray(meta.competencias_novas).filter(isObject);
+    const semLancamento = novasComp.filter(c => asArray(c.terapias_sem_lancamento).length);
+    if (semLancamento.length) sourceRow(dl, 'Terapias sem lançamento', semLancamento.map(c => String(c.m) + ': ' + c.terapias_sem_lancamento.join('; ')).join(' · ') + '. Terapia do painel sem registro em uma competência aparece com zero naquele mês.');
+    const grafiaDivergente = novasComp.filter(c => n(c.grafia_divergente) > 0);
+    if (grafiaDivergente.length) sourceRow(dl, 'Grafia de nomes', grafiaDivergente.map(c => String(c.m) + ': ' + fmtN(c.grafia_divergente)).join(' · ') + ' — crianças cujo nome só difere do de uma criança já registrada por caixa, acento ou espaços. Pela regra de nome e data de nascimento, contam como crianças distintas.');
     const matriz = meta.matriz_2025;
     if (isObject(matriz)) sourceRow(dl, 'Matriz Analítica 2025', 'Status: ' + (matriz.status || 'não informado') + ' · ' + fmtN(pick(matriz, 'campos_comparados')) + ' campos comparados · SHA-256 ' + (matriz.sha256 || 'não informado') + '.');
     else sourceRow(dl, 'Matriz Analítica 2025', 'A base carregada não contém o resultado da conferência cruzada.');

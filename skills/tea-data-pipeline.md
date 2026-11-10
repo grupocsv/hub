@@ -37,8 +37,13 @@ Os brutos ficam guardados no cofre privado (R2 `csv-dados-sensiveis`, prefixo
 `unimed-tea/raw/`) e são restaurados para uma pasta privada a cada build:
 
     python scripts/tea-release.py cofre-listar
-    python scripts/tea-release.py cofre-baixar unimed-tea/raw/base/2025-01_2026-06/ <pasta>
     python scripts/tea-release.py cofre-enviar <planilha.xlsx> --papel bloco
+    python scripts/tea-release.py cofre-restaurar <pasta-privada>
+
+`cofre-restaurar` traz as 19 fontes e a Matriz para `<pasta>/base`, os blocos
+vigentes para `<pasta>/blocos` com os nomes originais, confere o SHA-256 de
+cada arquivo contra o manifesto e imprime o comando do build. A base guardada
+não é sobrescrita por arquivo de mesmo nome e conteúdo diferente.
 
 Exemplo de organização:
 
@@ -68,18 +73,45 @@ O corte etário padrão é o último dia da última competência publicada.
   fora, e os registros posteriores dele são contados no descarte.
 - Fontes-base só contribuem com o período-base; blocos, só com competências
   posteriores. Bloco com competência da base, competência repetida em dois
-  blocos, competência da janela sem registros ou dois blocos com o mesmo nome
-  abortam o build.
+  blocos, competência da janela sem registros, bloco inteiro além da janela
+  ou dois blocos com o mesmo nome abortam o build. Os caminhos dos blocos são
+  validados antes da leitura da base, e a ordem de leitura é a da primeira
+  competência de cada bloco: os mesmos insumos geram sempre o mesmo JSON.
+- Registros de bloco além de `--ate` não são agregados. Continuam lidos por
+  inteiro: valem para a varredura anti-vazamento e como fonte para recuperar
+  data de nascimento, e uma linha inválida neles também para o build.
 - Depois de estender a janela, todo recorte fechado da base precisa sair
-  idêntico ao do build só-base (`exigir_base_inalterada`); mudam apenas o
-  período completo e o ano em curso.
+  idêntico ao do build só-base feito com o mesmo corte etário
+  (`exigir_base_inalterada`); mudam apenas o período completo e o ano em
+  curso. A faixa etária acompanha o corte etário: de um release para o
+  seguinte ela muda em todos os recortes, e só ela.
 - Registro de bloco sem data de nascimento: a data é recuperada quando a mesma
   matrícula e o mesmo nome têm uma única data em outro registro; caso
   contrário o registro fica fora do painel, contado em
   `meta.blocos_fonte[].sem_nascimento` e declarado em Método e Fontes. Acima da
-  tolerância (5 registros ou 0,2% do bloco, o que for maior) o build para.
+  tolerância (5 registros ou 0,2% dos registros do bloco na janela, o que for
+  maior) o build para. Célula com dígitos que não forma data válida não é
+  "ausente": para o build.
+- Fechamento por bloco: registros lidos na janela = agregados + de terapia
+  descartada + sem data de nascimento fora do painel
+  (`registros_agregados`, `registros_terapia_descartada`). O relatório traz
+  também os totais lidos da planilha por competência (`totais_lidos`), para
+  conferência com o total informado pela origem.
+- Continuidade: em cada competência nova, ao menos metade das crianças tem de
+  já ter aparecido antes; abaixo disso o build para, porque nome ou
+  nascimento vieram em outro formato e as mesmas crianças contariam como
+  novas. Criança nova que só difere de uma já vista por caixa, acento ou
+  espaços continua contada como nova (regra Nome + Nascimento) e é informada
+  em `meta.competencias_novas[].grafia_divergente`; acima de 5 crianças ou 1%
+  do mês, o build para.
+- Terapias mantidas sem lançamento em uma competência nova são listadas em
+  `meta.competencias_novas[].terapias_sem_lancamento`. Disciplina sem nenhum
+  lançamento no mês sai dos cortes por disciplina daquele recorte; o painel
+  mostra o escopo vazio.
+- A leitura percorre a aba inteira mesmo quando a dimensão declarada no xlsx
+  é menor que a área usada.
 - Mensagens de erro descrevem o formato da célula (`99/99/9999`), nunca o
-  conteúdo.
+  conteúdo, e indicam arquivo e linha.
 
 O build real:
 
@@ -122,6 +154,8 @@ O JSON mantém:
       periodo_canonico      janela publicada
       periodo_base          2025/01 a 2026/06
       blocos_fonte          manifesto dos blocos complementares (vazio na base)
+      competencias_novas    por competência pós-base: crianças, já vistas,
+                            grafia divergente, terapias sem lançamento
       periodos
       terapias
       terapias_descartadas
@@ -156,10 +190,14 @@ O selftest cria 19 fontes e uma Matriz sintética fora do repositório. Ele cobr
 schema/aba, cobertura e descarte, exceção AT, deduplicação, consolidação de
 CNPJ, métricas raras exatas, anti-vazamento, 30 períodos, pagamento zero,
 reconciliação e bloqueio de entrada/saída dentro de Git. Cobre também a janela
-estendida com um bloco sintético: 35 recortes, 28 recortes fechados idênticos,
-terapia sem movimento zerada, criança e prestador novos, nascimento em texto,
-nascimento ausente (recuperado e fora do painel), competência além da janela,
-guardas de bloco e mensagens de erro sem conteúdo de célula.
+estendida com blocos sintéticos: 35 e 39 recortes, 28 recortes fechados
+idênticos, terapia e disciplina sem movimento, criança e prestador novos,
+nascimento em texto, nascimento ausente (recuperado, fora do painel,
+ambíguo, tolerância), competência além da janela, fechamento por bloco,
+continuidade e grafia, dimensão declarada truncada, guardas de bloco,
+critérios de aceite exigidos no build com bloco, linha de comando, relatório
+montado antes da gravação e mensagens de erro sem conteúdo de célula. Ao fim,
+roda o autoteste de `scripts/tea-release.py`, com a rede simulada.
 
 O checker público exige a ausência de
 `unimed/data/tea-2025-2026.json`, do bloco `tea-data` e de qualquer payload com
@@ -188,23 +226,32 @@ ao commit, anexado ao PR ou servido como arquivo estático.
 `scripts/tea-release.py` conduz a publicação do JSON privado (credenciais pelo
 ambiente: `CLOUDFLARE_ACCOUNT_ID` e `CLOUDFLARE_API_TOKEN`, ou `--token-file`):
 
-    python scripts/tea-release.py baixar <SHA-vigente> <privado>/vigente.json
-    python scripts/tea-release.py comparar <privado>/vigente.json <privado>/tea.json
+    python scripts/tea-release.py ponteiro
+    python scripts/tea-release.py baixar <SHA-no-ar> <privado>/no-ar.json
+    python scripts/tea-release.py comparar <privado>/no-ar.json <privado>/tea.json --exigir-fechados-inalterados
     python scripts/tea-release.py enviar <privado>/tea.json
-    python scripts/tea-release.py sql <privado>/tea.json --anterior-sha <SHA-vigente>
-    python scripts/tea-release.py registrar <privado>/tea.json --anterior-sha <SHA-vigente>
-    python scripts/tea-release.py verificar <SHA-novo>
+    python scripts/tea-release.py sql <privado>/tea.json --anterior-sha <SHA-no-ar>
+    python scripts/tea-release.py verificar <SHA-novo> --ponteiro <sha256 do SELECT>
+    python scripts/tea-release.py registrar <privado>/tea.json --anterior-sha <SHA-no-ar>
+    python scripts/tea-release.py historico
 
+- `ponteiro` imprime o `SELECT` que mostra, no D1 `csv-hub`, o release no ar.
 - `comparar` mostra recortes fechados idênticos, os que mudaram só na faixa
-  etária (corte etário novo), os ampliados, os novos e, se houver, os
-  **alterados** — reapresentação de dados que precisa ser entendida antes de
-  publicar.
+  etária (apenas quando o corte etário mudou), os ampliados, os novos e, se
+  houver, os **alterados** — algo já apresentado mudou e precisa ser
+  entendido antes de publicar. Com `--exigir-fechados-inalterados`, sai com
+  erro nesse caso.
 - `enviar` grava `releases/<SHA-256 em maiúsculas>.json` e confere por
   releitura. O painel só muda na troca do ponteiro.
-- `sql` imprime o `UPDATE` condicional ao SHA vigente (precisa alterar
-  exatamente uma linha) e o `SELECT` de conferência, para execução no D1
-  `csv-hub`. O rollback é o mesmo `UPDATE` com os valores anteriores.
-- `registrar` anota a ativação em `releases/historico.json`.
+- `sql` imprime o `UPDATE` condicional ao SHA no ar (precisa alterar
+  exatamente uma linha) e o `SELECT` de conferência.
+- `verificar` só aprova com o objeto íntegro, o serviço no ar, o dado fechado
+  para quem não tem sessão e o ponteiro conferido — pelo `sha256` devolvido
+  pelo `SELECT` (`--ponteiro`) ou pelo teste autenticado (`--sessao-file`).
+- `registrar` anota a ativação em `releases/historico.json`; `historico`
+  lista a sequência, de onde sai o SHA para desfazer uma publicação.
+- Segredos vêm de arquivo fora de Git ou do ambiente, nunca da linha de
+  comando; arquivo de token com mais de uma linha é recusado sem eco.
 
 O painel no ar precisa aceitar a janela nova **antes** da troca do ponteiro: o
 contrato de boot do cliente é estrutural desde a versão 5.1 do pipeline.

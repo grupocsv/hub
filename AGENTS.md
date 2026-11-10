@@ -78,7 +78,9 @@ repo — o pipeline **aborta** se o insumo estiver dentro de um git.
    programática, ver PRD §2.3). **Período-base 2025/01–2026/06, congelado**: define o
    conjunto de terapias, os critérios de aceite e a conferência com a Matriz 2025. A
    janela publicada cresce por competência (`--bloco` + `--ate`); o pipeline refaz e
-   confere a base a cada build e recusa qualquer mudança em período já fechado.
+   confere a base a cada build e recusa qualquer mudança em período fechado da base.
+   Mês novo já publicado que mude em uma planilha posterior é apontado por
+   `tea-release.py comparar --exigir-fechados-inalterados`, antes de publicar.
 
 ## 6. Fluxo de trabalho
 
@@ -103,8 +105,11 @@ python3 scripts/build-tea-data.py <base-fora-do-repo> --matriz <matriz> --saida 
 python3 scripts/build-tea-data.py <base-fora-do-repo> --matriz <matriz> \
         --bloco <planilha-nova.xlsx> --ate AAAA/MM --saida <json-privado>
 python3 scripts/build-tea-data.py --emit-p          # regenera p/painel-tea/index.html
-python3 scripts/tea-release.py comparar <release-anterior.json> <json-privado>
+python3 scripts/tea-release.py comparar <release-no-ar.json> <json-privado> --exigir-fechados-inalterados
 ```
+
+`--selftest` cobre as duas ferramentas: ao fim, roda também o autoteste de
+`scripts/tea-release.py` (rede simulada).
 
 Comece confirmando, em poucas linhas, seu entendimento do escopo e do período canônico
 antes de escrever código.

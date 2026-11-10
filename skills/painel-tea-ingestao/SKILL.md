@@ -25,7 +25,8 @@ segue existe para que isso aconteça sem atrito e sem número errado.
 - **Cofre** dos brutos: bucket privado `csv-dados-sensiveis`, prefixo
   `unimed-tea/raw/` (`base/2025-01_2026-06/`, `blocos/`, `manifesto.json`).
 
-Detalhes de regra e contrato: `skills/tea-data-pipeline.md`.
+Regras e contrato de dados: `skills/tea-data-pipeline.md`. Decisões:
+`docs/_infra/prd-2026-11-painel-atualizacao-por-competencia.md`.
 
 ## Conduta com os dados
 
@@ -35,99 +36,142 @@ As planilhas trazem nome, nascimento, matrícula e guia de crianças.
   qualquer Git (`~/tea-privado`, modo 700). O repositório `grupocsv/hub` é
   público: nada de bruto nem de JSON privado nele — o pipeline e a ferramenta
   de release abortam se tentarem.
+- **O bruto não se edita.** Se a planilha precisa de correção, a correção é na
+  origem; aqui ela entra como chegou.
 - Nunca escreva nome, nascimento, matrícula ou guia em mensagem, log, commit,
   PR ou relatório. Diagnósticos mostram contagens, competências, códigos e o
   **formato** da célula (`99/99/9999`), nunca o conteúdo.
 - Execute com `python3 -I` todo script que abre planilha recebida.
-- O token do Cloudflare fica em arquivo modo 600 fora de Git e nunca é
-  impresso. Está no Arsenal Técnico (Notion) como "Cloudflare Workers Token
-  (Manus)" — precisa de R2 com escrita. Não grave token em script.
+- Segredos nunca passam pela linha de comando. O token do Cloudflare fica em
+  arquivo modo 600 fora de Git, com uma única linha (só o token, sem rótulo).
+  Está no Arsenal Técnico (Notion) como "Cloudflare Workers Token (Manus)" e
+  precisa de R2 com escrita. Não grave token em script.
 
-## Preparação (uma vez por sessão)
+## Preparação
 
 Trabalhe em um clone do repositório `grupocsv/hub`: o pipeline e a ferramenta
 de release estão em `scripts/`.
 
 ```bash
 python3 -m pip install -q openpyxl==3.1.5
-install -d -m 700 ~/tea-privado/{base,blocos,saida}
-# token: ~/tea-privado/.cf-r2 (modo 600), obtido do Arsenal
-export CLOUDFLARE_ACCOUNT_ID=<conta Cloudflare — ver docs/_infra/index.md>
-TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
-$TR cofre-listar
-$TR cofre-baixar unimed-tea/raw/base/2025-01_2026-06/ ~/tea-privado/base
+install -d -m 700 ~/tea-privado ~/tea-privado/trabalho ~/tea-privado/chegada
+# token: ~/tea-privado/.cf-r2 (modo 600, uma linha), obtido do Arsenal
 ```
 
-A pasta `base` deve ficar com as 19 planilhas e a Matriz. Baixe também os
-blocos marcados como `vigente` em `unimed-tea/raw/manifesto.json` que não
-forem substituídos pela planilha nova.
+Se `python3 -I` não encontrar o `openpyxl` depois da instalação (pip gravou no
+site do usuário), crie um ambiente em `~/tea-privado/venv` e use o Python
+dele; não retire o `-I`.
 
-Se o cofre não tiver a base (`"estado": "ausente"` no manifesto), ela precisa
-entrar uma única vez: peça ao usuário o zip da pasta `012025_062026` do Drive
-(as 19 planilhas) e a `Matriz_Analítica_Terapias_Especiais_2025`, guarde cada
-arquivo com `cofre-enviar --papel base` (a Matriz com `--papel matriz`) e faça
-a conferência de origem: um build **sem blocos** comparado com o release no ar
-tem de dar todos os recortes idênticos.
+O estado do shell não acompanha de uma chamada para a outra. **Comece cada
+bloco de comandos** com:
+
+```bash
+export CLOUDFLARE_ACCOUNT_ID=da0c29123f448f3c3892f784cd9f7cac
+TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
+```
 
 ## Passo a passo
 
-1. **Guardar a planilha nova.** Copie-a para `~/tea-privado/blocos/` e envie
+1. **Guardar a planilha nova.** Copie-a para `~/tea-privado/chegada/` e envie
    ao cofre:
-   `$TR cofre-enviar <planilha.xlsx> --papel bloco [--substitui <chave antiga>]`.
-   Use `--substitui` quando a planilha nova cobre as mesmas competências de um
-   bloco anterior (por exemplo `072026_102026` no lugar de `072026_092026`);
-   se cobre competências novas e disjuntas, é um bloco adicional.
 
-2. **Decidir a última competência a publicar (`--ate`).** Publique só
-   competência fechada. Olhe o volume do último mês da planilha contra os
-   anteriores (registros, sessões, pagamento por mês — só agregados). Queda
-   forte no último mês costuma ser faturamento ainda entrando: publique até o
-   mês anterior e diga isso ao usuário. Em dúvida real, pergunte qual é a
-   última competência fechada.
-
-3. **Gerar o JSON.**
    ```bash
-   python3 -I scripts/build-tea-data.py ~/tea-privado/base \
-     --matriz ~/tea-privado/base/<Matriz>.xlsx \
-     --bloco ~/tea-privado/blocos/<planilha>.xlsx \
-     --ate AAAA/MM --saida ~/tea-privado/saida/tea.json
-   ```
-   O relatório final traz a base conferida, os recortes fechados idênticos, a
-   série das competências novas e o que ficou fora (PECS, registros sem data
-   de nascimento, competências além da janela).
-
-4. **Comparar com o release no ar.** Descubra o SHA vigente com o `SELECT` da
-   seção de publicação, e então:
-   ```bash
-   $TR baixar <SHA-vigente> ~/tea-privado/saida/vigente.json
-   $TR comparar ~/tea-privado/saida/vigente.json ~/tea-privado/saida/tea.json
-   ```
-   O esperado: recortes fechados idênticos (ou "idênticos exceto faixa
-   etária", efeito do corte etário novo), `tudo` e o ano em curso ampliados,
-   e os recortes novos. **Recorte fechado alterado** ou mês com a marca
-   `ALTERADA` significa que a planilha reapresentou dado antigo: explique ao
-   usuário o que mudou e confirme antes de publicar.
-
-5. **Publicar.**
-   ```bash
-   $TR enviar ~/tea-privado/saida/tea.json
-   $TR sql ~/tea-privado/saida/tea.json --anterior-sha <SHA-vigente>
-   ```
-   Execute o `UPDATE` impresso no D1 `csv-hub` (ferramenta de D1 disponível
-   na sessão) e confirme que alterou **exatamente uma linha**; rode o `SELECT`
-   de conferência. Depois:
-   ```bash
-   $TR registrar ~/tea-privado/saida/tea.json --anterior-sha <SHA-vigente> --nota "<o que entrou>"
-   $TR verificar <SHA-novo>
+   $TR cofre-listar
+   $TR cofre-enviar ~/tea-privado/chegada/<planilha.xlsx> --papel bloco
    ```
 
-6. **Conferir no ar e relatar.** Abra o painel real e veja o período completo
+   Se ela **substitui** um bloco vigente — cobre as mesmas competências e
+   mais, como `072026_102026` no lugar de `072026_092026` — acrescente
+   `--substitui <nome original do bloco antigo>`. Se cobre só competências
+   novas, é um bloco adicional. Uma competência só pode vir de um bloco:
+   planilha que repete parte de um bloco vigente sem substituí-lo por inteiro,
+   ou que traz meses até 2026/06, não tem encaixe — peça à origem a planilha
+   acumulada a partir de 2026/07.
+
+2. **Restaurar os insumos.**
+
+   ```bash
+   $TR cofre-restaurar ~/tea-privado/trabalho
+   ```
+
+   Traz as 19 fontes e a Matriz para `trabalho/base/`, os blocos vigentes para
+   `trabalho/blocos/` (com os nomes originais, hashes conferidos) e imprime o
+   comando do build. Se disser que a base não está completa, veja "Primeira
+   vez" no fim.
+
+3. **Decidir a última competência a publicar (`--ate`).** Publique só
+   competência fechada. Queda forte de volume no último mês da planilha
+   costuma ser faturamento ainda entrando: publique até o mês anterior e diga
+   isso ao usuário. Em dúvida real, pergunte qual é a última competência
+   fechada.
+
+4. **Gerar o JSON** com o comando impresso no passo 2, ajustando `--ate`:
+
+   ```bash
+   python3 -I scripts/build-tea-data.py ~/tea-privado/trabalho/base \
+     --matriz ~/tea-privado/trabalho/base/<Matriz>.xlsx \
+     --bloco ~/tea-privado/trabalho/blocos/<planilha>.xlsx \
+     --ate AAAA/MM --saida ~/tea-privado/trabalho/tea.json
+   ```
+
+   Leia o relatório inteiro antes de seguir:
+   - **Lido da planilha, por competência** (registros, sessões, pagamento):
+     confira com o total que a origem informa para a planilha ou com a soma
+     das colunas feita por outro meio. Diferença aqui é planilha lida pela
+     metade ou arquivo errado.
+   - **Fechamento do bloco**: lidos = agregados + terapia descartada + sem
+     data de nascimento.
+   - **Crianças já vistas antes**, por competência nova: o normal é ficar
+     acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
+   - **Sem lançamento**: terapias do painel sem registro no mês — aparecem
+     com zero. Se o mês é o último, pode ser faturamento atrasado.
+   - **Base conferida** e **recortes fechados idênticos**.
+
+5. **Comparar com o release no ar.**
+
+   ```bash
+   $TR ponteiro          # imprime o SELECT; execute no D1 csv-hub e anote o sha256
+   $TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json
+   $TR comparar ~/tea-privado/trabalho/no-ar.json ~/tea-privado/trabalho/tea.json \
+       --exigir-fechados-inalterados
+   ```
+
+   O esperado: recortes fechados idênticos ou "idênticos exceto faixa etária"
+   (a faixa etária é recalculada na data de corte nova), o período completo,
+   o ano e os períodos parciais em curso como ampliados, e os recortes novos.
+   Se o comando falhar por **recorte fechado alterado**, ou um mês sair com a
+   marca `ALTERADA`, algo já apresentado mudou: a planilha trouxe valor
+   diferente para um mês publicado, ou um registro que estava sem data de
+   nascimento agora foi identificado (compare `sem_nascimento` dos dois
+   releases). Explique ao usuário o que mudou e só publique com o aceite dele.
+
+6. **Publicar.**
+
+   ```bash
+   $TR enviar ~/tea-privado/trabalho/tea.json
+   $TR sql ~/tea-privado/trabalho/tea.json --anterior-sha <SHA-no-ar>
+   ```
+
+   Execute o `UPDATE` impresso no D1 `csv-hub` (ferramenta de D1 disponível na
+   sessão) e confirme que alterou **exatamente uma linha**. Rode o `SELECT`
+   de conferência e passe o `sha256` devolvido para a verificação:
+
+   ```bash
+   $TR verificar <SHA-novo> --ponteiro <sha256 devolvido pelo SELECT>
+   $TR registrar ~/tea-privado/trabalho/tea.json --anterior-sha <SHA-no-ar> --nota "<o que entrou>"
+   ```
+
+   `verificar` só aprova com o objeto íntegro, o serviço no ar, o dado
+   fechado para quem não tem sessão e o ponteiro no release novo.
+
+7. **Conferir no ar e relatar.** Abra o painel real e veja o período completo
    com a data final nova. Conte ao usuário, em poucas linhas: até que
    competência o painel vai, os números das competências novas, o que ficou
-   fora e por quê, e qualquer movimento que mereça atenção. Registre a
-   publicação no Agent Context Bridge.
+   fora e por quê, terapias sem lançamento e qualquer movimento que mereça
+   atenção. Informe o SHA novo e o anterior. Registre a publicação no Agent
+   Context Bridge.
 
-7. **Limpar.** Apague `~/tea-privado` ao terminar; o cofre guarda o que é
+8. **Limpar.** Apague `~/tea-privado` ao terminar; o cofre guarda o que é
    preciso para a próxima vez.
 
 ## Quando o pipeline para
@@ -135,29 +179,60 @@ tem de dar todos os recortes idênticos.
 | Mensagem | O que significa | O que fazer |
 |---|---|---|
 | `schema divergente` / `esperado um único cabeçalho 'Ano/Mês'` | A planilha não tem as 19 colunas esperadas | Conferir se é a aba certa; pedir a planilha no formato padrão |
-| `código fora do catálogo` | Apareceu um procedimento novo | Decisão de produto: avisar o usuário, não mapear por conta própria |
+| `código fora do catálogo` | Apareceu um procedimento novo | Ver o código na linha indicada (pasta privada); decisão de produto: avisar o usuário, não mapear por conta própria |
 | `Tipo Prestador desconhecido` | Canal novo na origem | Idem: o mapa de canais é auditável, muda por decisão |
-| `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | A base não muda por bloco; publicar só o que é posterior |
-| `competência … aparece em dois blocos` | Dois arquivos cobrem o mesmo mês | Usar só o bloco mais recente daquele mês |
+| `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
+| `competência … aparece em dois blocos` | Dois arquivos cobrem o mesmo mês | Guardar a planilha acumulada com `--substitui`; não há combinação parcial |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem | Corrigir o `--ate` |
+| `nenhuma competência do bloco está na janela publicada` | Um bloco inteiro é posterior ao `--ate` | Retirar o bloco do comando ou avançar o `--ate` |
 | `registros sem data de nascimento … acima da tolerância` | Problema de cadastro em volume | Devolver à origem; não contornar |
-| `Data Nascimento inválida (formato …)` | Célula com data ilegível | Ver a linha indicada na pasta privada; correção é na origem |
+| `Data Nascimento inválida (formato …)` | Célula com data ilegível, mesmo em mês ainda não publicado | Correção na origem |
+| `já apareciam em competências anteriores` | Menos da metade das crianças do mês é conhecida: nome ou nascimento vieram em outro formato | Não publicar; pedir a planilha no formato da base |
+| `só diferem de crianças já vistas` | Muitos nomes mudaram só em caixa, acento ou espaços | Idem: a grafia mudou na origem |
+| `não fecham com agregados` | Defeito de contagem | Parar e investigar |
 | `anti-vazamento bloqueou presença de …` | Um identificador coincidiria com texto do JSON | Não publicar; investigar a coincidência sem imprimir o valor |
-| `a extensão da janela alterou recortes fechados` | Defeito ou insumo-base trocado | Parar e investigar; nunca publicar assim |
-| critérios de aceite (1.416, 81.217…) | A base restaurada não é a auditada | Conferir os 19 arquivos contra os hashes do release vigente |
+| `a extensão da janela alterou recortes fechados` | Defeito no pipeline | Parar e investigar; nunca publicar assim |
+| `validações reprovadas` com os números de aceite (1.416, 81.217…) | A base restaurada não é a auditada | Conferir o cofre; a base não se troca sem decisão |
 
 ## Desfazer uma publicação
 
-Os releases antigos permanecem no bucket e `releases/historico.json` guarda a
-sequência. Para voltar: `sql` com o JSON do release anterior e
-`--anterior-sha` igual ao SHA que está no ar; execute o `UPDATE`, confira e
-rode `registrar` com a nota do motivo.
+Os releases antigos permanecem no bucket e o histórico guarda a sequência.
+
+```bash
+$TR historico                         # acha o SHA anterior
+$TR ponteiro                          # SELECT → confirma o SHA que está no ar
+$TR baixar <SHA-anterior> ~/tea-privado/trabalho/anterior.json
+$TR sql ~/tea-privado/trabalho/anterior.json --anterior-sha <SHA-no-ar>
+# UPDATE no D1 (exatamente uma linha) e SELECT de conferência
+$TR verificar <SHA-anterior> --ponteiro <sha256 devolvido pelo SELECT>
+$TR registrar ~/tea-privado/trabalho/anterior.json --anterior-sha <SHA-no-ar> --nota "rollback: <motivo>"
+```
+
+## Primeira vez: a base no cofre
+
+Se `cofre-restaurar` disser que a base não está completa, ela precisa entrar
+uma única vez. Peça ao usuário o zip da pasta `012025_062026` do Drive (as 19
+planilhas) e a `Matriz_Analítica_Terapias_Especiais_2025`, e guarde:
+
+```bash
+for f in ~/tea-privado/chegada/base/*.xlsx; do $TR cofre-enviar "$f" --papel base; done
+$TR cofre-enviar ~/tea-privado/chegada/<Matriz>.xlsx --papel matriz
+```
+
+Conferência de origem, antes de qualquer publicação: um build **sem blocos**
+comparado com o release no ar (`comparar <no-ar.json> <base.json>
+--exigir-fechados-inalterados`). Com o release só-base no ar, todos os
+recortes saem idênticos; com um release já estendido no ar, os fechados saem
+idênticos ou "exceto faixa etária". Os números de aceite já são exigidos pelo
+próprio build. A base guardada não é sobrescrita: reenviar um arquivo de
+mesmo nome com outro conteúdo é recusado.
 
 ## Antes de mexer no cliente
 
 O painel (`unimed/tea.html`) aceita qualquer número de recortes desde a versão
 5.1 do pipeline. Se um dia o contrato de dados mudar, a versão compatível do
-painel precisa estar no ar **antes** da troca do ponteiro; depois de editar
+painel precisa estar no ar — e o cache da página vencido, cerca de 15 minutos
+depois do deploy — **antes** da troca do ponteiro. Depois de editar
 `unimed/tea.html`, rode `python3 scripts/build-tea-data.py --emit-p` e os
 guardas do CI (`--selftest`, `check-tea-artifacts.py`,
 `generate-portal-tools.py .`).
