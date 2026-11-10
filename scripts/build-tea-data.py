@@ -5775,17 +5775,17 @@ def selftest():
             "apontado como cedido a quem traz menos",
         )
         # Bloco inteiramente substituído por uma planilha acumulada que traz
-        # um registro a menos em setembro: o erro que manda retirá-lo diz os
-        # dois números, esteja setembro na janela ou não — o bloco sai de vez,
-        # e a diferença não apareceria depois. Com os mesmos registros, não
-        # diz nada.
+        # um registro a menos em agosto e em setembro: o erro que manda
+        # retirá-lo diz os dois números de cada mês, estejam eles na janela ou
+        # não — o bloco sai de vez, e a diferença não apareceria depois. Com
+        # os mesmos registros, não diz nada.
         bloco_acumulada_menos = (
-            raiz / "blocos" / "acumulada-072026-102026-setembro-com-113-linhas.xlsx"
+            raiz / "blocos" / "acumulada-072026-102026-um-registro-a-menos.xlsx"
         )
         criar_bloco_sintetico(
             bloco_acumulada_menos, ("2026/07", "2026/08", "2026/09", "2026/10")
         )
-        aparar(bloco_acumulada_menos, {"2026/09": 113})
+        aparar(bloco_acumulada_menos, {"2026/08": 126, "2026/09": 113})
         substituido = (
             f"{bloco_q3.name}: todas as competências do bloco vêm também de um "
             f"bloco mais recente — {bloco_acumulada_menos.name} (2026/07 a "
@@ -5800,12 +5800,13 @@ def selftest():
                     lambda: donos_dos_blocos(ordem, ate_),
                     substituido
                     + "; quem ficou com o mês traz menos registros dele do que "
-                    f"este bloco — 2026/09: 113 em {bloco_acumulada_menos.name}, "
+                    f"este bloco — 2026/08: 126 em {bloco_acumulada_menos.name}, "
+                    f"127 neste bloco; 2026/09: 113 em {bloco_acumulada_menos.name}, "
                     "114 neste bloco — lançamento cancelado na origem, ou "
                     "planilha incompleta: confirme com a origem antes de "
                     "retirar o bloco",
                     "bloco substituído por uma planilha com menos registros em "
-                    f"um mês não disse os dois números (até {ate_})",
+                    f"dois meses não disse os dois números de cada um (até {ate_})",
                 )
         exigir_erro_exato(
             lambda: donos_dos_blocos([bloco_q3, bloco_a4], "2026/10"),
