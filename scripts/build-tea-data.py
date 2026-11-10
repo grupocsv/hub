@@ -345,9 +345,10 @@ MIN_VOLUME = Decimal("0.25")
 # é o que uma linha com o mês digitado errado produz. O mês recém-aberto da
 # planilha seguinte (em geral 10% ou mais) continua contando.
 MIN_BORDA = Decimal("0.05")
-# Mês com menos de 25% das linhas do mês mais cheio da própria planilha é mês
-# parcial: recém-aberto quando ela foi extraída, ou começado no meio. Na
-# disputa por uma competência, perde para a planilha que a traz cheia.
+# O primeiro ou o último mês de uma planilha, com menos de 25% das linhas do
+# mês mais cheio dela, é mês parcial: começado no meio, ou ainda aberto quando
+# ela foi extraída. Na disputa por uma competência, perde para a planilha que
+# a traz cheia. Mês do meio nunca é parcial: pouco volume ali é dado.
 MIN_MES_CHEIO = Decimal("0.25")
 MAX_GRAFIA_FIXO = 5
 MAX_GRAFIA_PROPORCAO = Decimal("0.01")
@@ -954,10 +955,13 @@ def ler_blocos(caminhos):
     para quem o traz dentro do intervalo firme e sai apontado no relatório.
 
     Entre os que trazem a competência dentro do intervalo firme, quem a traz
-    cheia tem precedência sobre quem a traz parcial — com menos de 25% das
-    linhas do mês mais cheio da própria planilha. É o mês ainda aberto quando
-    a planilha foi extraída: a seguinte, que o repete fechado, fica com ele,
-    tenha o mês novo dela passado ou não dos 5%.
+    cheia tem precedência sobre quem a traz parcial. Parcial é só o primeiro
+    ou o último mês do intervalo firme, com menos de 25% das linhas do mês
+    mais cheio da própria planilha: o mês começado no meio, ou ainda aberto
+    quando a planilha foi extraída — a seguinte, que o repete fechado, fica
+    com ele, tenha o mês novo dela passado ou não dos 5%. Mês do meio com
+    pouco volume não é parcial: é dado da planilha, e a mais recente fica
+    com ele.
 
     Registros além da janela publicada não são agregados. A ordem dos blocos
     na linha de comando não altera o resultado.
@@ -1005,7 +1009,10 @@ def ler_blocos(caminhos):
         return fim_p > fim_q and inicio_p >= inicio_q
 
     def mes_cheio(p, mes):
+        # Só a borda do intervalo firme pode ser mês parcial.
         linhas_por_mes = brutos[p][4]
+        if mes not in brutos[p][3]:
+            return True
         return linhas_por_mes[mes] >= MIN_MES_CHEIO * max(linhas_por_mes.values())
 
     def intervalo(p):
@@ -1074,15 +1081,27 @@ def ler_blocos(caminhos):
             donos_do_bloco = sorted({dono_da_competencia[m] for m in meses})
             vencedores = "; ".join(intervalo(p) for p in donos_do_bloco)
             varios = len(donos_do_bloco) > 1
-            raise ErroPipeline(
-                f"{real.name}: todas as competências do bloco vêm também de "
-                + ("blocos mais recentes" if varios else "um bloco mais recente")
-                + f" — {vencedores}; confira se "
-                + (
+            if all(mais_recente(p, posicao) for p in donos_do_bloco):
+                quem = "blocos mais recentes" if varios else "um bloco mais recente"
+                conferir = (
                     "esses são mesmo os arquivos novos" if varios
                     else "esse é mesmo o arquivo novo"
                 )
-                + " e retire este do comando"
+            else:
+                # Algum dono ficou com o mês por trazê-lo cheio, ou dentro do
+                # intervalo firme, e não por ser mais recente.
+                quem = (
+                    "outros blocos, que ficam com elas" if varios
+                    else "outro bloco, que fica com elas"
+                )
+                conferir = (
+                    "esses são mesmo os arquivos a usar" if varios
+                    else "esse é mesmo o arquivo a usar"
+                )
+            raise ErroPipeline(
+                f"{real.name}: todas as competências do bloco vêm também de "
+                f"{quem} — {vencedores}; confira se {conferir} e retire este "
+                "do comando"
             )
         for r in registros:
             if dono_da_competencia[r["anomes"]] != posicao:
@@ -5501,6 +5520,81 @@ def selftest():
             and por_arquivo[bloco_e2.name]["competencias_na_janela"] == ["2026/08"],
             "mês com menos de 25% das linhas do mês mais cheio contou como "
             "mês cheio",
+        )
+        # Só a borda pode ser parcial. Mês do meio de uma planilha mais nova,
+        # com pouco volume, é dado dela (uma correção na origem, por exemplo):
+        # não volta para a planilha antiga, que continua substituída.
+        bloco_meio_baixo = raiz / "blocos" / "acumulada-072026-122026-setembro-baixo.xlsx"
+        criar_bloco_sintetico(
+            bloco_meio_baixo,
+            ("2026/07", "2026/08", "2026/09", "2026/10", "2026/11", "2026/12"),
+        )
+        aparar(bloco_meio_baixo, {"2026/09": 30})
+        exigir_erro(
+            lambda: donos_dos_blocos([bloco_q3, bloco_meio_baixo], "2026/12"),
+            "bloco-q3.xlsx: todas as competências do bloco vêm também de um "
+            "bloco mais recente — "
+            "acumulada-072026-122026-setembro-baixo.xlsx (2026/07 a 2026/12)",
+            "mês do meio com pouco volume em planilha mais nova voltou para a "
+            "planilha antiga",
+        )
+        # Dois blocos com o mês cheio e um mais novo que o traz parcial: o mês
+        # fica com o mais recente entre os que o trazem cheio.
+        bloco_t1 = raiz / "blocos" / "tres-072026-082026.xlsx"
+        bloco_t2 = raiz / "blocos" / "tres-082026-092026.xlsx"
+        bloco_t3 = raiz / "blocos" / "tres-082026-102026-agosto-parcial.xlsx"
+        criar_bloco_sintetico(bloco_t1, ("2026/07", "2026/08"))
+        criar_bloco_sintetico(bloco_t2, ("2026/08", "2026/09"))
+        criar_bloco_sintetico(bloco_t3, ("2026/08", "2026/09", "2026/10"))
+        aparar(bloco_t3, {"2026/08": 30})
+        por_arquivo = donos_dos_blocos([bloco_t1, bloco_t2, bloco_t3], "2026/10")
+        exigir_teste(
+            por_arquivo[bloco_t1.name]["competencias_na_janela"] == ["2026/07"]
+            and por_arquivo[bloco_t2.name]["competencias_na_janela"] == ["2026/08"]
+            and por_arquivo[bloco_t3.name]["competencias_na_janela"]
+            == ["2026/09", "2026/10"]
+            and por_arquivo[bloco_t3.name]["competencias_cedidas"] == ["2026/08"]
+            and por_arquivo[bloco_t3.name]["cedidas_a"] == [bloco_t2.name],
+            "com dois blocos trazendo o mês cheio, ele não ficou com o mais "
+            "recente deles",
+        )
+        # O mês cheio conta linhas, não sessões: setembro com 24 linhas de dez
+        # sessões cada continua parcial e fica com quem o traz inteiro.
+        bloco_parcial_sessoes = (
+            raiz / "blocos" / "comeca-no-meio-092026-102026-24-linhas-de-10-sessoes.xlsx"
+        )
+        criar_bloco_sintetico(bloco_parcial_sessoes, ("2026/09", "2026/10"))
+        aparar(bloco_parcial_sessoes, {"2026/09": 24})
+        planilha_sessoes = abrir_para_editar(bloco_parcial_sessoes)
+        for linha in planilha_sessoes.active.iter_rows(min_row=2):
+            if linha[0].value == "2026/09":
+                linha[coluna_quantidade].value = linha[coluna_quantidade].value * 10
+        planilha_sessoes.save(bloco_parcial_sessoes)
+        por_arquivo = donos_dos_blocos([bloco_q3, bloco_parcial_sessoes], "2026/10")
+        exigir_teste(
+            por_arquivo[bloco_q3.name]["competencias_na_janela"]
+            == ["2026/07", "2026/08", "2026/09"]
+            and por_arquivo[bloco_parcial_sessoes.name]["competencias_cedidas"]
+            == ["2026/09"],
+            "o limiar do mês cheio usou sessões em vez de linhas",
+        )
+        # Bloco que perde um mês para um mais antigo (que o traz cheio) e o
+        # outro para um mais novo: a mensagem não chama os dois de mais
+        # recentes.
+        bloco_v1 = raiz / "blocos" / "vizinhos-082026-092026-agosto-parcial.xlsx"
+        bloco_v2 = raiz / "blocos" / "vizinhos-092026-102026.xlsx"
+        criar_bloco_sintetico(bloco_v1, ("2026/08", "2026/09"))
+        aparar(bloco_v1, {"2026/08": 30})
+        criar_bloco_sintetico(bloco_v2, ("2026/09", "2026/10"))
+        exigir_erro(
+            lambda: donos_dos_blocos([bloco_t1, bloco_v1, bloco_v2], "2026/10"),
+            "vizinhos-082026-092026-agosto-parcial.xlsx: todas as competências "
+            "do bloco vêm também de outros blocos, que ficam com elas — "
+            "tres-072026-082026.xlsx (2026/07 a 2026/08); "
+            "vizinhos-092026-102026.xlsx (2026/09 a 2026/10); confira se esses "
+            "são mesmo os arquivos a usar e retire este do comando",
+            "bloco que perdeu um mês para um mais antigo foi descrito como "
+            "substituído só por blocos mais recentes",
         )
         # Exatamente 5% (6 linhas em 120): conta.
         bloco_exato = raiz / "blocos" / "bloco-072026-102026-outubro-a-5-por-cento.xlsx"

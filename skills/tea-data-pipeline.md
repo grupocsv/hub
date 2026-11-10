@@ -103,10 +103,13 @@ O corte etário padrão é o último dia da última competência publicada.
   para o bloco que o traz dentro do intervalo firme e sai apontado no
   relatório e em `borda_fraca`.
 - Entre os blocos que trazem a competência dentro do intervalo firme, quem a
-  traz **cheia** tem precedência sobre quem a traz parcial — com menos de 25%
-  das linhas do mês mais cheio da própria planilha: o mês ainda aberto quando
-  ela foi extraída, ou começado no meio. A planilha seguinte, que repete esse
-  mês fechado, fica com ele, tenha o mês novo dela passado ou não dos 5%.
+  traz **cheia** tem precedência sobre quem a traz parcial. Parcial é só o
+  primeiro ou o último mês do intervalo firme, com menos de 25% das linhas do
+  mês mais cheio da própria planilha: o mês começado no meio, ou ainda aberto
+  quando ela foi extraída. A planilha seguinte, que repete esse mês fechado,
+  fica com ele, tenha o mês novo dela passado ou não dos 5%. Mês do meio com
+  pouco volume não é parcial: é dado da planilha (uma correção na origem, por
+  exemplo), e a mais recente fica com ele.
 - Registros de bloco além de `--ate` não são agregados nem servem de
   evidência de data de nascimento. Continuam lidos por inteiro: entram na
   varredura anti-vazamento, e uma linha inválida neles também para o build.
