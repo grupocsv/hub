@@ -1138,6 +1138,8 @@ html,body{max-width:100%;overflow-x:hidden}
   const HUB_TOKEN_KEY = 'hub_auth_unimed_token';
   const HUB_EMAIL_KEY = 'hub_auth_unimed_email';
   const HUB_EXPIRES_KEY = 'hub_auth_unimed_expires';
+  // O widget de sessão do Hub apaga o token enquanto valida a sessão (desiste em 10 s) e o regrava se ela vale.
+  const PRAZO_VALIDACAO_MS = 11000;
   let DATA = null;
   let PERIODOS = [];
   const CHARTS = {};
@@ -1611,6 +1613,8 @@ html,body{max-width:100%;overflow-x:hidden}
       throw new Error('Não foi possível alcançar o serviço de dados.');
     }
     if (response.status === 401 || response.status === 403) {
+      // Recarregar antes do fim da validação do widget devolveria o token à página seguinte, em laço.
+      if (!paginaAberta() && window.HUB_AUTH_READY) { try { await window.HUB_AUTH_READY; } catch (_e) {} }
       limparSessaoAtual();
       window.location.reload();
       throw new Error('A sessão expirou. Faça a autenticação novamente.');
@@ -3295,6 +3299,15 @@ html,body{max-width:100%;overflow-x:hidden}
     }
   });
   observadorLogout.observe(document.documentElement, { childList: true, subtree: true });
+  // Saída em outra aba ou em outra página do portal: o token some do armazenamento sem nenhuma mudança
+  // no DOM desta aba. A validação da sessão em outra aba também o apaga por instantes; por isso a
+  // conferência espera o prazo dela antes de contar a ausência como saída.
+  window.addEventListener('storage', ev => {
+    if (paginaAberta() || !DATA || (ev.key !== HUB_TOKEN_KEY && ev.key !== null) || tokenHub()) return;
+    window.setTimeout(() => {
+      if (DATA && !tokenHub()) { DATA = null; window.location.reload(); }
+    }, PRAZO_VALIDACAO_MS);
+  });
   document.addEventListener('DOMContentLoaded', () => {
     // A página interna carrega o widget de sessão do Hub no cabeçalho; a cópia compartilhável, não.
     document.documentElement.classList.toggle('sem-sessao', !document.querySelector('script[data-portal]'));
