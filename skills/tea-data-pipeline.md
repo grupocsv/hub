@@ -109,7 +109,10 @@ O corte etário padrão é o último dia da última competência publicada.
   quando ela foi extraída. A planilha seguinte, que repete esse mês fechado,
   fica com ele, tenha o mês novo dela passado ou não dos 5%. Mês do meio com
   pouco volume não é parcial: é dado da planilha (uma correção na origem, por
-  exemplo), e a mais recente fica com ele.
+  exemplo), e a mais recente fica com ele. Quando é a planilha mais recente
+  que cede o mês parcial a uma mais antiga, o manifesto registra
+  (`parciais_cedidas`) e o relatório avisa: se a planilha nova corrige o mês,
+  a correção não entrou.
 - Registros de bloco além de `--ate` não são agregados nem servem de
   evidência de data de nascimento. Continuam lidos por inteiro: entram na
   varredura anti-vazamento, e uma linha inválida neles também para o build.

@@ -1074,7 +1074,7 @@ def ler_blocos(caminhos):
             )
         dono_da_competencia[mes] = donos[0]
     lidos = []
-    for posicao, (real, registros, meses, _firme, _linhas) in enumerate(brutos):
+    for posicao, (real, registros, meses, _firme, linhas_do_bloco) in enumerate(brutos):
         proprias = [m for m in meses if dono_da_competencia[m] == posicao]
         cedidas = [m for m in meses if dono_da_competencia[m] != posicao]
         if not proprias:
@@ -1139,6 +1139,19 @@ def ler_blocos(caminhos):
                     # Meses de borda com volume ínfimo: lidos, mas fora do
                     # intervalo que decide qual planilha é a mais recente.
                     "borda_fraca": borda_fraca(posicao),
+                    # Mês parcial que este bloco, mais recente, cedeu a um
+                    # mais antigo que o traz cheio: se a planilha nova
+                    # corrige o mês, a correção não entra.
+                    "parciais_cedidas": [
+                        {
+                            "m": m,
+                            "registros": linhas_do_bloco[m],
+                            "a": brutos[dono_da_competencia[m]][0].name,
+                        }
+                        for m in cedidas
+                        if not mes_cheio(posicao, m)
+                        and mais_recente(posicao, dono_da_competencia[m])
+                    ],
                     # Totais como lidos da planilha, antes de qualquer
                     # exclusão: é o que se confere com o total da origem.
                     "totais_lidos": [
@@ -3620,6 +3633,16 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                 "ou faturamento mal começado); não conta para decidir a "
                 "planilha mais recente"
             )
+        for parcial in bloco["parciais_cedidas"]:
+            print(
+                "                         "
+                f"{parcial['m']}: mês parcial nesta planilha "
+                f"({formatar_inteiro(parcial['registros'])} "
+                f"{'registro' if parcial['registros'] == 1 else 'registros'}) — "
+                f"ficou com {parcial['a']}, mais antiga, que o traz cheio; se "
+                "esta planilha corrige o mês, a correção não entrou: confirme "
+                "com a origem"
+            )
         for total in bloco["totais_lidos"]:
             print(
                 f"  lido da planilha {total['m']}: "
@@ -5327,7 +5350,8 @@ def selftest():
                 == ["2026/07"]
                 and por_arquivo[bloco_inicio.name]["registros_cedidos"] == 2
                 and por_arquivo[bloco_inicio.name]["borda_fraca"]
-                == [{"m": "2026/07", "registros": 2}],
+                == [{"m": "2026/07", "registros": 2}]
+                and por_arquivo[bloco_inicio.name]["parciais_cedidas"] == [],
                 "linha avulsa no mês anterior ao começo tirou o mês de quem o "
                 "traz inteiro",
             )
@@ -5440,6 +5464,7 @@ def selftest():
                 and por_arquivo[bloco_e1.name]["competencias_cedidas"] == ["2026/08"]
                 and por_arquivo[bloco_e1.name]["cedidas_a"] == [bloco_e2.name]
                 and por_arquivo[bloco_e1.name]["borda_fraca"] == []
+                and por_arquivo[bloco_e1.name]["parciais_cedidas"] == []
                 and por_arquivo[bloco_e2.name]["competencias_na_janela"]
                 == ["2026/08"]
                 and por_arquivo[bloco_e2.name]["borda_fraca"]
@@ -5481,9 +5506,9 @@ def selftest():
         criar_bloco_sintetico(bloco_meio, ("2026/09", "2026/10"))
         aparar(bloco_meio, {"2026/09": 13})
         for ordem in ([bloco_q3, bloco_meio], [bloco_meio, bloco_q3]):
-            dados_meio = montar_release(
+            dados_meio, _am, _rm, _tm, extensao_meio = montar_release(
                 fontes, matriz, None, ordem, "2026/10", exigir_referencias=False
-            )[0]
+            )
             por_arquivo = {
                 b["arquivo"]: b for b in dados_meio["meta"]["blocos_fonte"]
             }
@@ -5497,6 +5522,24 @@ def selftest():
                 and por_arquivo[bloco_meio.name]["cedidas_a"] == [bloco_q3.name],
                 "mês começado no meio em uma planilha não ficou com a que o "
                 "traz inteiro",
+            )
+            # A planilha mais nova cedeu um mês a uma mais antiga: o manifesto
+            # e o relatório avisam, para a correção nunca se perder calada.
+            relatorio_meio = io.StringIO()
+            with contextlib.redirect_stdout(relatorio_meio):
+                imprimir_relatorio(
+                    dados_meio, _am, _rm, raiz / "nao-gravado.json", extensao_meio
+                )
+            exigir_teste(
+                por_arquivo[bloco_meio.name]["parciais_cedidas"]
+                == [{"m": "2026/09", "registros": 13, "a": bloco_q3.name}]
+                and por_arquivo[bloco_q3.name]["parciais_cedidas"] == []
+                and "2026/09: mês parcial nesta planilha (13 registros) — ficou "
+                f"com {bloco_q3.name}, mais antiga, que o traz cheio; se esta "
+                "planilha corrige o mês, a correção não entrou: confirme com a "
+                "origem" in relatorio_meio.getvalue(),
+                "mês parcial cedido por uma planilha mais nova a uma mais "
+                "antiga não foi avisado no manifesto e no relatório",
             )
         # Fronteira dos 25%: agosto com 30 linhas em 120 é mês cheio, e as
         # duas planilhas que terminam em agosto pedem decisão; com 29, é

@@ -145,6 +145,11 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
      primeiro ou o último mês de uma planilha pode ser parcial) —, com o
      nome e o intervalo do arquivo que ficou com eles. Confira se é mesmo
      esse o arquivo que deve ficar com cada mês.
+   - **Mês parcial nesta planilha … ficou com … mais antiga**: a planilha
+     mais nova cedeu um mês a uma mais antiga, que o traz cheio. É o normal
+     quando a nova começa no meio do mês. Se ela foi enviada para corrigir
+     esse mês, a correção não entrou: avise o usuário e peça à origem a
+     planilha com o mês inteiro antes de publicar.
    - **Mês de borda com volume ínfimo** (menos de 5% das linhas do mês mais
      cheio da planilha) e **Além da janela**: uma ou poucas linhas em um mês
      vizinho do começo ou do fim da planilha. No fim, pode ser só o mês novo,
