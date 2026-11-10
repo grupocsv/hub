@@ -9,6 +9,7 @@ anterior, envia o release imutável e prepara a troca do ponteiro.
 
   cofre-listar                             insumos brutos guardados
   cofre-enviar <arquivo> --papel base|bloco|matriz   guarda um insumo bruto
+  cofre-enviar-base <diretorio> --matriz <arquivo>   guarda a base inteira (19 fontes + Matriz)
   cofre-restaurar <diretorio>              base, Matriz e blocos vigentes, prontos para o build
   cofre-retirar <item> --motivo <texto>    tira do uso um item enviado por engano (nada é apagado)
   cofre-baixar <chave> <diretorio>         um objeto, ou um prefixo terminado em /
@@ -539,6 +540,15 @@ def comando_baixar(args):
         inicio, fim, corte = janela.get("inicio"), janela.get("fim"), meta.get("data_corte_idade")
     except (ValueError, AttributeError):
         inicio = fim = corte = None
+    blocos = [b for b in (meta.get("blocos_fonte") or []) if isinstance(b, dict)] if fim else []
+    if blocos:
+        print(
+            "blocos deste release: "
+            + "; ".join(
+                f"{b.get('arquivo')} (SHA-256 {str(b.get('sha256') or '')[:12]}…)"
+                for b in blocos
+            )
+        )
     if fim and corte:
         print(f"janela publicada: {inicio} a {fim} · corte etário {corte}")
         print(
@@ -638,6 +648,10 @@ def comando_cofre_enviar(args):
             guardado = r2.baixar(BUCKET_COFRE, chave)
             if guardado is None or hashlib.sha256(guardado).hexdigest() != sha:
                 r2.gravar(BUCKET_COFRE, chave, conteudo, TIPO_XLSX)
+            if not existente.get("vigente"):
+                for marca in ("retirado_em", "motivo_retirada", "substituido_em"):
+                    existente.pop(marca, None)
+                existente["reativado_em"] = hoje
             existente["vigente"] = True
             entrada = existente
             print(f"conteúdo já guardado; entrada reaproveitada: {chave}")
@@ -659,11 +673,43 @@ def comando_cofre_enviar(args):
             substituido["substituido_em"] = hoje
             print(f"deixou de ser vigente: {substituido['chave']}")
     else:
-        chave = PREFIXO_BASE + real.name
+        em_uso = manifesto["base"]["itens"]
+        homonimo = next(
+            (
+                i for i in em_uso
+                if real.name in (i.get("arquivo_original"), nome_seguro(i.get("chave") or "x"))
+                and sha_do_item(i) != sha
+            ),
+            None,
+        )
+        if homonimo is not None:
+            # A base auditada não é sobrescrita: quem reproduz os critérios de
+            # aceite é exatamente o conteúdo que já está guardado.
+            raise Erro(
+                f"{homonimo.get('chave')} já existe no cofre com outro "
+                "conteúdo; a base auditada não é sobrescrita"
+            )
+        mesmo = next(
+            (
+                i for i in em_uso
+                if i.get("arquivo_original") == real.name and sha_do_item(i) == sha
+            ),
+            None,
+        )
+        chave = mesmo["chave"] if mesmo else PREFIXO_BASE + real.name
+        guardado = r2.baixar(BUCKET_COFRE, chave)
+        if guardado is not None and hashlib.sha256(guardado).hexdigest() != sha:
+            # A chave está ocupada por um objeto retirado, ou que ficou sem
+            # entrada no manifesto. Nada é apagado: este arquivo fica ao
+            # lado, com o começo do hash na chave.
+            chave = f"{PREFIXO_BASE}{sha[:8]}_{real.name}"
+            guardado = r2.baixar(BUCKET_COFRE, chave)
+            if guardado is not None and hashlib.sha256(guardado).hexdigest() != sha:
+                raise Erro(f"{chave} já existe no cofre com outro conteúdo")
         # A base é exatamente 19 fontes e uma Matriz: o que passa disso é
         # recusado antes de qualquer gravação, para o cofre não ficar em um
         # estado que nenhum build aceita.
-        outros = [i for i in manifesto["base"]["itens"] if i.get("chave") != chave]
+        outros = [i for i in em_uso if i.get("chave") != chave]
         gemeo = next((i for i in outros if sha_do_item(i) == sha), None)
         if gemeo is not None:
             raise Erro(
@@ -680,14 +726,6 @@ def comando_cofre_enviar(args):
             )
         if args.papel == "matriz" and any(i.get("papel") == "matriz" for i in outros):
             raise Erro("a Matriz já está no cofre; nada foi gravado")
-        guardado = r2.baixar(BUCKET_COFRE, chave)
-        if guardado is not None and hashlib.sha256(guardado).hexdigest() != sha:
-            # A base auditada não é sobrescrita: quem reproduz os critérios de
-            # aceite é exatamente o conteúdo que já está guardado.
-            raise Erro(
-                f"{chave} já existe no cofre com outro conteúdo; a base "
-                "auditada não é sobrescrita"
-            )
         if guardado is None:
             r2.gravar(BUCKET_COFRE, chave, conteudo, TIPO_XLSX)
             print(f"guardado e conferido por releitura: {chave}")
@@ -709,6 +747,48 @@ def comando_cofre_enviar(args):
         print(descricao_da_base(itens))
     manifesto["atualizado_em"] = hoje
     r2.gravar_json(BUCKET_COFRE, MANIFESTO_COFRE, manifesto)
+
+
+def comando_cofre_enviar_base(args):
+    """Guarda a base inteira com os mesmos argumentos do build que a conferiu."""
+    pasta = fora_de_git(args.diretorio, "diretório da base")
+    matriz = fora_de_git(args.matriz, "Matriz")
+    if not pasta.is_dir():
+        raise Erro(f"diretório inexistente: {pasta}")
+    if not matriz.is_file():
+        raise Erro(f"Matriz não encontrada: {matriz.name}")
+    # Mesma regra do pipeline: todo xlsx da pasta é fonte, menos a Matriz.
+    fontes = sorted(
+        (
+            p for p in pasta.iterdir()
+            if p.is_file()
+            and p.suffix.lower() == ".xlsx"
+            and not p.name.startswith("~$")
+            and p.resolve() != matriz
+        ),
+        key=lambda p: p.name.casefold(),
+    )
+    if len(fontes) != FONTES_BASE:
+        raise Erro(
+            f"esperadas exatamente {FONTES_BASE} fontes xlsx em {pasta.name}/ "
+            f"(sem contar a Matriz); encontradas {len(fontes)}; nada foi enviado"
+        )
+    for fonte in fontes:
+        comando_cofre_enviar(
+            argparse.Namespace(
+                arquivo=str(fonte), papel="base", substitui=None,
+                token_file=args.token_file,
+            )
+        )
+    comando_cofre_enviar(
+        argparse.Namespace(
+            arquivo=str(matriz), papel="matriz", substitui=None,
+            token_file=args.token_file,
+        )
+    )
+    itens = ler_manifesto(R2(args.token_file))["base"]["itens"]
+    if estado_da_base(itens) != "completa":
+        raise Erro("a base não ficou completa: " + descricao_da_base(itens).split(": ", 1)[1])
 
 
 def comando_cofre_retirar(args):
@@ -1034,6 +1114,15 @@ def selftest():
             repetidas = [{"papel": "base", "sha256": "A" * 64}] * FONTES_BASE
             if estado_da_base(repetidas + [{"papel": "matriz", "sha256": "b" * 64}]) != "parcial":
                 raise Erro("autoteste: fontes repetidas contaram como base completa")
+            distintas = [
+                {"papel": "base", "sha256": f"{i:064x}"} for i in range(FONTES_BASE)
+            ]
+            duas = [{"papel": "matriz", "sha256": letra * 64} for letra in "cd"]
+            if (
+                estado_da_base(distintas + duas) != "parcial"
+                or estado_da_base(distintas + duas[:1]) != "completa"
+            ):
+                raise Erro("autoteste: a base exige exatamente uma Matriz")
             rodar("cofre-enviar", ultima, "--papel", "base", contem="base no cofre: completa")
             rodar("cofre-enviar", ultima, "--papel", "base", contem="já presente e íntegro")
             # a base é exatamente 19 fontes e uma Matriz: o excedente é recusado sem gravar
@@ -1087,7 +1176,16 @@ def selftest():
                 manifesto["base"].get("retirados", [])
             ) != 1:
                 raise Erro("autoteste: retirada não registrada no manifesto")
+            if objetos[(BUCKET_COFRE, manifesto["blocos"][1]["chave"])] != b"bloco-b":
+                raise Erro("autoteste: a retirada do bloco alterou o objeto guardado")
             rodar("cofre-enviar", bloco_b, "--papel", "bloco", contem="entrada reaproveitada")
+            reativado = json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["blocos"][1]
+            if (
+                "retirado_em" in reativado
+                or "motivo_retirada" in reativado
+                or not reativado.get("reativado_em")
+            ):
+                raise Erro("autoteste: bloco reenviado ficou com marca de retirada")
             # manifesto escrito fora da ferramenta, com SHA em maiúsculas, é aceito
             manifesto = json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])
             for item in manifesto["base"]["itens"] + manifesto["blocos"]:
@@ -1096,6 +1194,20 @@ def selftest():
             rodar("cofre-enviar", bloco_b, "--papel", "bloco", contem="entrada reaproveitada")
             if len(json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["blocos"]) != 2:
                 raise Erro("autoteste: bloco duplicado por diferença de caixa no SHA")
+            # mesmo nome na base e em um bloco: a retirada exige a chave
+            homonimo = raiz / "homonimo" / "Fonte 03 - çã.xlsx"
+            homonimo.parent.mkdir()
+            homonimo.write_bytes(b"bloco-homonimo")
+            rodar("cofre-enviar", homonimo, "--papel", "bloco", contem="guardado e conferido")
+            rodar("cofre-retirar", homonimo.name, "--motivo", "teste", codigo=1,
+                  contem="encontrados 2")
+            chave_homonimo = json.loads(
+                objetos[(BUCKET_COFRE, MANIFESTO_COFRE)]
+            )["blocos"][-1]["chave"]
+            rodar("cofre-retirar", chave_homonimo, "--motivo", "enviado por engano",
+                  contem="bloco deixou de ser vigente")
+            if objetos[(BUCKET_COFRE, chave_homonimo)] != b"bloco-homonimo":
+                raise Erro("autoteste: a retirada do bloco alterou o objeto guardado")
 
             # cofre: restauração com nomes originais e hash conferido
             texto = rodar("cofre-restaurar", destino, contem=("--matriz", "--ate AAAA/MM"))
@@ -1124,6 +1236,44 @@ def selftest():
             objetos[(BUCKET_COFRE, PREFIXO_COFRE + "x/b/igual.xlsx")] = b"2"
             rodar("cofre-baixar", PREFIXO_COFRE + "x/", avulso, codigo=1,
                   contem="objetos com o mesmo nome")
+
+            # cofre: a base inteira em um comando, com a Matriz na pasta das fontes
+            (origem / "Fonte 05 - çã.xlsx").write_bytes(b"fonte-5")
+            rodar("cofre-enviar-base", origem, "--matriz", matriz,
+                  contem="base no cofre: completa")
+            incompleta = raiz / "incompleta"
+            incompleta.mkdir()
+            for i in range(FONTES_BASE - 1):
+                (incompleta / f"Fonte {i:02d} - çã.xlsx").write_bytes(f"fonte-{i}".encode())
+            rodar("cofre-enviar-base", incompleta, "--matriz", matriz, codigo=1,
+                  contem="encontradas 18; nada foi enviado")
+
+            # cofre: arquivo errado com o nome do certo sai do uso e não trava o certo
+            rodar("cofre-retirar", matriz.name, "--motivo", "Matriz errada",
+                  contem="Matriz ausente")
+            certa = raiz / "certa" / matriz.name
+            certa.parent.mkdir()
+            certa.write_bytes(b"matriz-certa")
+            rodar("cofre-enviar", certa, "--papel", "matriz", contem="base no cofre: completa")
+            chave_certa = (
+                PREFIXO_BASE
+                + hashlib.sha256(b"matriz-certa").hexdigest()[:8]
+                + "_"
+                + matriz.name
+            )
+            if (
+                objetos[(BUCKET_COFRE, PREFIXO_BASE + matriz.name)] != b"matriz"
+                or objetos.get((BUCKET_COFRE, chave_certa)) != b"matriz-certa"
+            ):
+                raise Erro("autoteste: Matriz retirada sobrescrita ou a certa fora do cofre")
+            rodar("cofre-enviar", certa, "--papel", "matriz", contem="já presente e íntegro")
+            rodar("cofre-enviar", matriz, "--papel", "matriz", codigo=1,
+                  contem="não é sobrescrita")
+            terceiro = raiz / "restaurado-3"
+            terceiro.mkdir()
+            rodar("cofre-restaurar", terceiro, contem="19 fontes + Matriz")
+            if (terceiro / "base" / matriz.name).read_bytes() != b"matriz-certa":
+                raise Erro("autoteste: a restauração não trouxe a Matriz em uso")
 
             # releases: comparação
             privado = raiz / "privado"
@@ -1231,6 +1381,14 @@ def selftest():
             rodar("enviar", base_json, contem="enviado e conferido por releitura")
             rodar("baixar", sha_base, privado / "volta-base.json",
                   contem="sem --bloco, --corte 2026-06-30")
+            com_bloco = release_sintetico(["2026/05", "2026/06", "2026/07"], "2026-07-31")
+            com_bloco["meta"]["blocos_fonte"] = [
+                {"arquivo": "Bloco 072026.xlsx", "sha256": "ab" * 32}
+            ]
+            bloco_json, sha_bloco = gravar("com-bloco.json", com_bloco)
+            rodar("enviar", bloco_json, contem="enviado e conferido por releitura")
+            rodar("baixar", sha_bloco, privado / "volta-bloco.json",
+                  contem="blocos deste release: Bloco 072026.xlsx (SHA-256 abababababab…)")
 
             # guardas: arquivo dentro de Git e bucket inexistente
             falso_git = raiz / "repo"
@@ -1311,6 +1469,9 @@ def main():
         "--substitui",
         help="chave ou nome original do bloco vigente que este substitui",
     )
+    p = sub.add_parser("cofre-enviar-base")
+    p.add_argument("diretorio", help="pasta privada com as 19 planilhas da base")
+    p.add_argument("--matriz", required=True, help="Matriz Analítica 2025")
     p = sub.add_parser("cofre-restaurar")
     p.add_argument("diretorio", help="pasta privada; recebe base/ e blocos/")
     p = sub.add_parser("cofre-retirar")
@@ -1338,6 +1499,7 @@ def main():
                 "baixar": comando_baixar,
                 "cofre-listar": comando_cofre_listar,
                 "cofre-enviar": comando_cofre_enviar,
+                "cofre-enviar-base": comando_cofre_enviar_base,
                 "cofre-restaurar": comando_cofre_restaurar,
                 "cofre-retirar": comando_cofre_retirar,
                 "cofre-baixar": comando_cofre_baixar,

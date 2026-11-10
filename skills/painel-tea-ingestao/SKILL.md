@@ -216,7 +216,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `todas as competências do bloco vêm também de um bloco mais recente` | Um bloco foi inteiramente substituído por outro | Retirar o bloco antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
 | `não há como saber qual é a planilha mais recente` | Dois arquivos repetem um mês e o intervalo deles não diz qual veio depois: terminam no mesmo mês, ou um começa antes e termina depois do outro. Mês final fora do esperado na mensagem (por exemplo 2027/06) é linha com a competência digitada errada | Ficar com um deles e tirar o outro do comando e do cofre (`cofre-retirar`); linha com competência errada se corrige na origem; se os dois são necessários, pedir uma planilha única |
 | `menos de 25% do volume mensal recente da base` | A competência tem pouquíssimas sessões: faturamento ainda entrando ou competência digitada errada | Publicar até a competência anterior (`--ate`) ou conferir a planilha na origem |
-| `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem | Corrigir o `--ate` |
+| `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem, ou falta o bloco do começo da janela | Corrigir o `--ate`; se a competência que falta já está publicada, guardar no cofre a planilha que a publicou (o `baixar` lista os blocos do release no ar) |
+| `exige ao menos um --bloco` | `--ate` passa de 2026/06 e nenhum bloco foi informado | Informar os blocos que cobrem a janela; se não estão no cofre, guardar as planilhas que publicaram essas competências |
 | `nenhuma competência do bloco está na janela publicada` | Um bloco inteiro é posterior ao `--ate` | Retirar o bloco do comando ou avançar o `--ate` |
 | `registros sem data de nascimento … acima da tolerância` | Problema de cadastro em volume | Devolver à origem; não contornar |
 | `Data Nascimento inválida (formato …)` | Célula com data ilegível, mesmo em mês ainda não publicado | Correção na origem |
@@ -264,21 +265,29 @@ O build só passa com exatamente 19 fontes, os números de aceite e a Matriz
 reconciliada. A comparação toma o build da base como anterior e o release no
 ar como novo: todos os recortes até 2026/06 têm de sair idênticos; se o
 release no ar já tem competências posteriores, o período completo e o ano de
-2026 aparecem como ampliados. Então guarde:
+2026 aparecem como ampliados. Então guarde, com os mesmos argumentos do build:
 
 ```bash
-for f in ~/tea-privado/chegada/base/*.xlsx; do $TR cofre-enviar "$f" --papel base; done
-$TR cofre-enviar ~/tea-privado/chegada/<Matriz>.xlsx --papel matriz
+$TR cofre-enviar-base ~/tea-privado/chegada/base \
+    --matriz ~/tea-privado/chegada/<Matriz>.xlsx
 ```
+
+O comando envia as 19 planilhas e a Matriz e só termina bem com a base
+completa. Se a Matriz veio na mesma pasta das fontes, ele a separa.
+
+Se o release no ar vai além de 2026/06, o cofre precisa também das planilhas
+que o montaram: o `baixar` lista os arquivos e o começo do SHA-256 de cada
+uma ("blocos deste release"). Peça-as ao usuário e envie cada uma com
+`--papel bloco`; sem elas o próximo build não fecha a janela.
 
 ## Quando o cofre recusa
 
 | Mensagem | O que significa | O que fazer |
 |---|---|---|
-| `a base já tem as 19 fontes` | O arquivo não é da base | Planilha de competências novas entra com `--papel bloco` |
+| `a base já tem as 19 fontes` | O arquivo não é da base, ou outro arquivo ocupa uma vaga (a Matriz enviada como fonte, por exemplo) | `$TR cofre-listar`; o intruso sai com `cofre-retirar` e a fonte é reenviada. Planilha de competências novas entra com `--papel bloco` |
 | `o mesmo conteúdo já está na base` | Arquivo repetido com outro nome | Nada a fazer: já está guardado |
 | `a Matriz já está no cofre` | A base tem uma só Matriz e ela já foi guardada | Nada a fazer; se a guardada é a errada, retire-a com `cofre-retirar` e envie a certa |
-| `já existe no cofre com outro conteúdo` | Outra versão de um arquivo da base | A base auditada não se troca; confirme com o usuário qual é a versão que reproduz os números de aceite |
+| `já existe no cofre com outro conteúdo` | Outra versão de um arquivo em uso na base | A base auditada não se troca sozinha: confirme com o usuário qual versão reproduz os números de aceite. Se a guardada é a errada, `cofre-retirar` e envie a certa — ela fica guardada ao lado, nada é apagado |
 | `--substitui deve indicar exatamente um bloco vigente` | Nome ou chave não confere | `$TR cofre-listar` e use o nome original do bloco |
 
 Item enviado por engano — base ou bloco — sai do uso com

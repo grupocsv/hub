@@ -4554,6 +4554,16 @@ def selftest():
             and extensao_sobre["registros_fora_da_janela"] == 0,
             "competência repetida deve ficar com o bloco mais recente",
         )
+        relatorio_sobre = io.StringIO()
+        with contextlib.redirect_stdout(relatorio_sobre):
+            imprimir_relatorio(
+                dados_sobre, _as, _rs, raiz / "nao-gravado.json", extensao_sobre
+            )
+        exigir_teste(
+            f"registros de 2026/10 cedidos a {bloco_q4.name} "
+            "(2026/10 a 2026/12)" in relatorio_sobre.getvalue(),
+            "relatório não nomeou o bloco que ficou com a competência cedida",
+        )
         # Registros além da janela, inclusive uma data de nascimento que só
         # aparece em 2026/10, não alteram os meses publicados.
         dados_q3, _aq, _rq, _tq, _eq = montar_release(
@@ -4702,17 +4712,19 @@ def selftest():
         )
         bloco_copia = raiz / "blocos" / "bloco-sintetico-copia.xlsx"
         bloco_copia.write_bytes(bloco.read_bytes())
-        exigir_erro(
-            lambda: montar_release(
-                fontes, matriz, None, [bloco, bloco_copia], "2026/09",
-                exigir_referencias=False,
-            ),
-            "bloco-sintetico-072026-102026.xlsx (2026/07 a 2026/10) e "
-            "bloco-sintetico-copia.xlsx (2026/07 a 2026/10) trazem a "
-            "competência 2026/07 e não há como saber qual é a planilha mais "
-            "recente",
-            "blocos sem desempate para a competência repetida não foram apontados",
-        )
+        for ordem in ([bloco, bloco_copia], [bloco_copia, bloco]):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/09",
+                    exigir_referencias=False,
+                ),
+                "bloco-sintetico-072026-102026.xlsx (2026/07 a 2026/10) e "
+                "bloco-sintetico-copia.xlsx (2026/07 a 2026/10) trazem a "
+                "competência 2026/07 e não há como saber qual é a planilha "
+                "mais recente",
+                "blocos sem desempate não foram apontados, ou a mensagem "
+                "depende da ordem de comando",
+            )
         # Uma linha com a competência digitada errada estica o intervalo da
         # planilha antiga; ela não pode passar por mais recente que a nova.
         bloco_esticado = raiz / "blocos" / "bloco-q3-com-mes-futuro.xlsx"
@@ -4769,6 +4781,27 @@ def selftest():
         montar_release(
             fontes, matriz, None, [bloco_escasso], "2026/08",
             exigir_referencias=False,
+        )
+        # Registro sem data de nascimento em competência cedida não conta no
+        # bloco que a cedeu.
+        bloco_y = raiz / "blocos" / "bloco-y-072026-082026.xlsx"
+        bloco_z = raiz / "blocos" / "bloco-z-082026-092026.xlsx"
+        criar_bloco_sintetico(bloco_y, ("2026/07", "2026/08"))
+        criar_bloco_sintetico(bloco_z, ("2026/08", "2026/09"))
+        dados_yz, _ayz, _ryz, _tyz, _eyz = montar_release(
+            fontes, matriz, None, [bloco_y, bloco_z], "2026/09",
+            exigir_referencias=False,
+        )
+        cedente_yz, dono_yz = dados_yz["meta"]["blocos_fonte"]
+        exigir_teste(
+            cedente_yz["arquivo"] == bloco_y.name
+            and cedente_yz["competencias_cedidas"] == ["2026/08"]
+            and cedente_yz["sem_nascimento"]["registros"] == 1
+            and cedente_yz["sem_nascimento"]["fora_do_painel"] == 0
+            and dono_yz["sem_nascimento"]["registros"] == 2
+            and dono_yz["sem_nascimento"]["fora_do_painel"] == 1,
+            "registro cedido sem data de nascimento foi contado no bloco que "
+            "cedeu a competência",
         )
         for ordem in ([bloco_q3, bloco], [bloco, bloco_q3]):
             exigir_erro(
@@ -5327,6 +5360,18 @@ def selftest():
             and "CRIANCA" not in relatorio.getvalue(),
             "relatório do build estendido incompleto ou com nome de "
             "beneficiário",
+        )
+        pagamento_pecs = 6 * (120 + list(MAPA_CODIGOS).index("50005146"))
+        exigir_teste(
+            "6 registros pós-base fora do painel em 2026/07 "
+            f"(6 sessões, {formatar_brl(pagamento_pecs)})" in relatorio.getvalue(),
+            "relatório não declarou sessões e pagamento de PECS pós-base",
+        )
+        exigir_teste(
+            formatar_numero(Decimal("1234.5")) == "1.234,50"
+            and formatar_numero(Decimal("2")) == "2"
+            and formatar_numero(0.25) == "0,25",
+            "formatar_numero não preservou a fração de sessões",
         )
 
         # --- R23b: falha ao montar o relatório não deixa JSON gravado

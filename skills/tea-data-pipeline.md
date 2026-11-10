@@ -38,6 +38,7 @@ Os brutos ficam guardados no cofre privado (R2 `csv-dados-sensiveis`, prefixo
 
     python scripts/tea-release.py cofre-listar
     python scripts/tea-release.py cofre-enviar <planilha.xlsx> --papel bloco
+    python scripts/tea-release.py cofre-enviar-base <pasta-da-base> --matriz <matriz.xlsx>
     python scripts/tea-release.py cofre-restaurar <pasta-privada>
 
 `cofre-restaurar` traz as 19 fontes e a Matriz para `<pasta>/base`, os blocos
@@ -256,7 +257,8 @@ ambiente: `CLOUDFLARE_ACCOUNT_ID` e `CLOUDFLARE_API_TOKEN`, ou `--token-file`):
     python scripts/tea-release.py historico
 
 - `ponteiro` imprime o `SELECT` que mostra, no D1 `csv-hub`, o release no ar.
-- `baixar` grava o release e informa a janela e o corte etário dele. O build
+- `baixar` grava o release e informa os blocos que o montaram, a janela e o
+  corte etário dele. O build
   de conferência usa os insumos atuais nessa janela e nesse corte e tem de
   reproduzir o release no ar por inteiro: com janela e corte iguais, qualquer
   diferença é mês já publicado que chegou diferente.
