@@ -82,11 +82,12 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 
    Se ela **substitui** um bloco vigente — cobre as mesmas competências e
    mais, como `072026_102026` no lugar de `072026_092026` — acrescente
-   `--substitui <nome original do bloco antigo>`. Se cobre só competências
-   novas, é um bloco adicional. Uma competência só pode vir de um bloco:
-   planilha que repete parte de um bloco vigente sem substituí-lo por inteiro,
-   ou que traz meses até 2026/06, não tem encaixe — peça à origem a planilha
-   acumulada a partir de 2026/07.
+   `--substitui <nome original do bloco antigo>`. Se cobre competências
+   novas, é um bloco adicional, mesmo que repita o último mês do bloco
+   anterior: quando a mesma competência vem em dois blocos, vale a da
+   planilha que vai mais longe no tempo, e o relatório diz quais competências
+   foram cedidas. Planilha com meses até 2026/06 não tem encaixe: peça à
+   origem a planilha a partir de 2026/07.
 
 2. **Restaurar os insumos.**
 
@@ -96,8 +97,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 
    Traz as 19 fontes e a Matriz para `trabalho/base/`, os blocos vigentes para
    `trabalho/blocos/` (com os nomes originais, hashes conferidos) e imprime o
-   comando do build. Se disser que a base não está completa, veja "Primeira
-   vez" no fim.
+   comando do build. A ordem dos blocos no comando não muda o resultado.
+   Se disser que a base não está completa, veja "Primeira vez" no fim.
 
 3. **Decidir a última competência a publicar (`--ate`).** Publique só
    competência fechada. Queda forte de volume no último mês da planilha
@@ -120,18 +121,47 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
      das colunas feita por outro meio. Diferença aqui é planilha lida pela
      metade ou arquivo errado.
    - **Fechamento do bloco**: lidos = agregados + terapia descartada + sem
-     data de nascimento.
+     data de nascimento. O descarte e os registros sem data saem também em
+     sessões e em reais, para fechar a conta em qualquer unidade.
+   - **Competências cedidas**: meses que um bloco mais antigo deixou para o
+     mais recente. Confira se é o que se esperava.
    - **Crianças já vistas antes**, por competência nova: o normal é ficar
      acima de 85%. Valor baixo indica nome ou nascimento em outro formato.
    - **Sem lançamento**: terapias do painel sem registro no mês — aparecem
      com zero. Se o mês é o último, pode ser faturamento atrasado.
    - **Base conferida** e **recortes fechados idênticos**.
 
-5. **Comparar com o release no ar.**
+5. **Comparar com o release no ar.** Duas conferências, nesta ordem.
 
    ```bash
    $TR ponteiro          # imprime o SELECT; execute no D1 csv-hub e anote o sha256
-   $TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json
+   $TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json   # informa janela e corte
+   ```
+
+   **a) O que já está no ar se reproduz.** Gere um build de conferência com
+   os insumos de agora, na janela e no corte do release no ar. O `baixar`
+   imprime as opções: se o release vai só até 2026/06, sem `--bloco`; senão,
+   só com os blocos que têm competência até o fim dele.
+
+   ```bash
+   python3 -I scripts/build-tea-data.py ~/tea-privado/trabalho/base \
+     --matriz ~/tea-privado/trabalho/base/<Matriz>.xlsx \
+     --bloco ~/tea-privado/trabalho/blocos/<planilha>.xlsx --ate <fim no ar> \
+     --corte <corte no ar> --saida ~/tea-privado/trabalho/conferencia.json
+   $TR comparar ~/tea-privado/trabalho/no-ar.json \
+       ~/tea-privado/trabalho/conferencia.json --exigir-fechados-inalterados
+   ```
+
+   Todos os recortes têm de sair **idênticos**. Com janela e corte iguais não
+   existe diferença legítima: qualquer uma, inclusive de faixa etária, quer
+   dizer que um mês já publicado chegou diferente — planilha que substitui a
+   anterior, ou mês cedido a uma planilha mais recente, com outro valor ou
+   outra data de nascimento. Explique ao usuário o que mudou e só siga com o
+   aceite dele.
+
+   **b) O release novo só acrescenta.**
+
+   ```bash
    $TR comparar ~/tea-privado/trabalho/no-ar.json ~/tea-privado/trabalho/tea.json \
        --exigir-fechados-inalterados
    ```
@@ -140,10 +170,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
    (a faixa etária é recalculada na data de corte nova), o período completo,
    o ano e os períodos parciais em curso como ampliados, e os recortes novos.
    Se o comando falhar por **recorte fechado alterado**, ou um mês sair com a
-   marca `ALTERADA`, algo já apresentado mudou: a planilha trouxe valor
-   diferente para um mês publicado, ou um registro que estava sem data de
-   nascimento agora foi identificado (compare `sem_nascimento` dos dois
-   releases). Explique ao usuário o que mudou e só publique com o aceite dele.
+   marca `ALTERADA`, algo já apresentado mudou. Explique ao usuário o que
+   mudou e só publique com o aceite dele.
 
 6. **Publicar.**
 
@@ -182,7 +210,8 @@ TR="python3 scripts/tea-release.py --token-file $HOME/tea-privado/.cf-r2"
 | `código fora do catálogo` | Apareceu um procedimento novo | Ver o código na linha indicada (pasta privada); decisão de produto: avisar o usuário, não mapear por conta própria |
 | `Tipo Prestador desconhecido` | Canal novo na origem | Idem: o mapa de canais é auditável, muda por decisão |
 | `bloco complementar contém competência do período-base` | A planilha traz meses até 2026/06 | Pedir à origem a planilha a partir de 2026/07; a base não muda por bloco |
-| `competência … aparece em dois blocos` | Dois arquivos cobrem o mesmo mês | Guardar a planilha acumulada com `--substitui`; não há combinação parcial |
+| `todas as competências do bloco vêm também de um bloco mais recente` | Um bloco foi inteiramente substituído por outro | Retirar o bloco antigo do comando e do cofre (`cofre-retirar <nome> --motivo …`), para o próximo `cofre-restaurar` não trazê-lo |
+| `os blocos trazem a competência … e terminam no mesmo mês` | Dois arquivos repetem um mês e nenhum vai mais longe: não há como saber qual é o mais recente | Ficar com um deles e tirar o outro do comando e do cofre (`cofre-retirar`); se os dois são necessários, pedir à origem uma planilha única |
 | `sem registros em nenhum bloco` | `--ate` passa do que as planilhas trazem | Corrigir o `--ate` |
 | `nenhuma competência do bloco está na janela publicada` | Um bloco inteiro é posterior ao `--ate` | Retirar o bloco do comando ou avançar o `--ate` |
 | `registros sem data de nascimento … acima da tolerância` | Problema de cadastro em volume | Devolver à origem; não contornar |
@@ -212,20 +241,45 @@ $TR registrar ~/tea-privado/trabalho/anterior.json --anterior-sha <SHA-no-ar> --
 
 Se `cofre-restaurar` disser que a base não está completa, ela precisa entrar
 uma única vez. Peça ao usuário o zip da pasta `012025_062026` do Drive (as 19
-planilhas) e a `Matriz_Analítica_Terapias_Especiais_2025`, e guarde:
+planilhas) e a `Matriz_Analítica_Terapias_Especiais_2025`. **Confira antes de
+guardar**: o cofre só recebe a base que reproduz o que está no ar.
+
+```bash
+install -d -m 700 ~/tea-privado/chegada/base
+# as 19 planilhas em ~/tea-privado/chegada/base/ e a Matriz em ~/tea-privado/chegada/
+$TR ponteiro
+$TR baixar <SHA-no-ar> ~/tea-privado/trabalho/no-ar.json
+python3 -I scripts/build-tea-data.py ~/tea-privado/chegada/base \
+  --matriz ~/tea-privado/chegada/<Matriz>.xlsx --corte <corte no ar> \
+  --saida ~/tea-privado/trabalho/base.json
+$TR comparar ~/tea-privado/trabalho/base.json ~/tea-privado/trabalho/no-ar.json \
+    --exigir-fechados-inalterados
+```
+
+O build só passa com exatamente 19 fontes, os números de aceite e a Matriz
+reconciliada. A comparação toma o build da base como anterior e o release no
+ar como novo: todos os recortes até 2026/06 têm de sair idênticos; se o
+release no ar já tem competências posteriores, o período completo e o ano de
+2026 aparecem como ampliados. Então guarde:
 
 ```bash
 for f in ~/tea-privado/chegada/base/*.xlsx; do $TR cofre-enviar "$f" --papel base; done
 $TR cofre-enviar ~/tea-privado/chegada/<Matriz>.xlsx --papel matriz
 ```
 
-Conferência de origem, antes de qualquer publicação: um build **sem blocos**
-comparado com o release no ar (`comparar <no-ar.json> <base.json>
---exigir-fechados-inalterados`). Com o release só-base no ar, todos os
-recortes saem idênticos; com um release já estendido no ar, os fechados saem
-idênticos ou "exceto faixa etária". Os números de aceite já são exigidos pelo
-próprio build. A base guardada não é sobrescrita: reenviar um arquivo de
-mesmo nome com outro conteúdo é recusado.
+## Quando o cofre recusa
+
+| Mensagem | O que significa | O que fazer |
+|---|---|---|
+| `a base já tem as 19 fontes` | O arquivo não é da base | Planilha de competências novas entra com `--papel bloco` |
+| `o mesmo conteúdo já está na base` | Arquivo repetido com outro nome | Nada a fazer: já está guardado |
+| `a Matriz já está no cofre` | A base tem uma só Matriz e ela já foi guardada | Nada a fazer; se a guardada é a errada, retire-a com `cofre-retirar` e envie a certa |
+| `já existe no cofre com outro conteúdo` | Outra versão de um arquivo da base | A base auditada não se troca; confirme com o usuário qual é a versão que reproduz os números de aceite |
+| `--substitui deve indicar exatamente um bloco vigente` | Nome ou chave não confere | `$TR cofre-listar` e use o nome original do bloco |
+
+Item enviado por engano — base ou bloco — sai do uso com
+`$TR cofre-retirar <nome> --motivo "<por quê>"`. Nada é apagado: o objeto
+continua no cofre e a retirada fica registrada no manifesto.
 
 ## Antes de mexer no cliente
 

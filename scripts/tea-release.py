@@ -10,6 +10,7 @@ anterior, envia o release imutável e prepara a troca do ponteiro.
   cofre-listar                             insumos brutos guardados
   cofre-enviar <arquivo> --papel base|bloco|matriz   guarda um insumo bruto
   cofre-restaurar <diretorio>              base, Matriz e blocos vigentes, prontos para o build
+  cofre-retirar <item> --motivo <texto>    tira do uso um item enviado por engano (nada é apagado)
   cofre-baixar <chave> <diretorio>         um objeto, ou um prefixo terminado em /
   ponteiro                                 SELECT que mostra o release no ar
   baixar <SHA> <destino.json>              recupera um release (comparação, rollback)
@@ -57,6 +58,7 @@ SERVICO = "https://unimed-te-data.guilherme-thom.workers.dev"
 AGENTE = "tea-release/1.1"
 API = "https://api.cloudflare.com/client/v4"
 FONTES_BASE = 19
+FIM_BASE = "2026/06"
 TIPO_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 SELECT_PONTEIRO = (
     "SELECT panel_id, release_id, object_key, sha256, activated_at "
@@ -531,6 +533,22 @@ def comando_baixar(args):
         raise Erro("objeto do release ausente ou com hash divergente")
     destino.write_bytes(objeto)
     print(f"release gravado em {destino} ({len(objeto)} bytes)")
+    try:
+        meta = json.loads(objeto.decode("utf-8")).get("meta") or {}
+        janela = meta.get("periodo_canonico") or {}
+        inicio, fim, corte = janela.get("inicio"), janela.get("fim"), meta.get("data_corte_idade")
+    except (ValueError, AttributeError):
+        inicio = fim = corte = None
+    if fim and corte:
+        print(f"janela publicada: {inicio} a {fim} · corte etário {corte}")
+        print(
+            "build de conferência (os insumos atuais têm de reproduzir este release): "
+            + (
+                f"sem --bloco, --corte {corte}"
+                if fim == FIM_BASE
+                else f"só os blocos com competência até {fim}, --ate {fim} --corte {corte}"
+            )
+        )
 
 
 # ---------------- cofre de insumos brutos ----------------
@@ -544,16 +562,31 @@ def ler_manifesto(r2):
     base = manifesto.setdefault("base", {})
     if not isinstance(base, dict) or not isinstance(base.setdefault("itens", []), list):
         raise Erro(f"{MANIFESTO_COFRE}: seção base em formato inesperado")
+    if not isinstance(base.get("retirados", []), list):
+        raise Erro(f"{MANIFESTO_COFRE}: seção base em formato inesperado")
     if not isinstance(manifesto.setdefault("blocos", []), list):
         raise Erro(f"{MANIFESTO_COFRE}: seção blocos em formato inesperado")
     return manifesto
 
 
+def sha_do_item(item):
+    return str(item.get("sha256") or "").lower()
+
+
 def estado_da_base(itens):
-    fontes = {i.get("sha256") for i in itens if i.get("papel") == "base"}
-    matriz = any(i.get("papel") == "matriz" for i in itens)
-    return "completa" if len(fontes) == FONTES_BASE and matriz else (
+    fontes = {sha_do_item(i) for i in itens if i.get("papel") == "base"}
+    matrizes = sum(1 for i in itens if i.get("papel") == "matriz")
+    return "completa" if len(fontes) == FONTES_BASE and matrizes == 1 else (
         "parcial" if itens else "ausente"
+    )
+
+
+def descricao_da_base(itens):
+    return (
+        f"base no cofre: {estado_da_base(itens)} "
+        f"({sum(1 for i in itens if i.get('papel') == 'base')} de "
+        f"{FONTES_BASE} fontes, Matriz "
+        f"{'presente' if any(i.get('papel') == 'matriz' for i in itens) else 'ausente'})"
     )
 
 
@@ -598,7 +631,7 @@ def comando_cofre_enviar(args):
                     f"{len(candidatos)}"
                 )
             substituido = candidatos[0]
-        existente = next((b for b in blocos if b.get("sha256") == sha), None)
+        existente = next((b for b in blocos if sha_do_item(b) == sha), None)
         if existente is not None:
             # Mesmo conteúdo já guardado: reaproveita a entrada, sem duplicar.
             chave = existente["chave"]
@@ -627,6 +660,26 @@ def comando_cofre_enviar(args):
             print(f"deixou de ser vigente: {substituido['chave']}")
     else:
         chave = PREFIXO_BASE + real.name
+        # A base é exatamente 19 fontes e uma Matriz: o que passa disso é
+        # recusado antes de qualquer gravação, para o cofre não ficar em um
+        # estado que nenhum build aceita.
+        outros = [i for i in manifesto["base"]["itens"] if i.get("chave") != chave]
+        gemeo = next((i for i in outros if sha_do_item(i) == sha), None)
+        if gemeo is not None:
+            raise Erro(
+                "o mesmo conteúdo já está na base como "
+                f"{gemeo.get('arquivo_original') or gemeo.get('chave')}; "
+                "nada foi gravado"
+            )
+        if args.papel == "base" and (
+            sum(1 for i in outros if i.get("papel") == "base") >= FONTES_BASE
+        ):
+            raise Erro(
+                f"a base já tem as {FONTES_BASE} fontes; nada foi gravado "
+                "(planilha de competências novas entra com --papel bloco)"
+            )
+        if args.papel == "matriz" and any(i.get("papel") == "matriz" for i in outros):
+            raise Erro("a Matriz já está no cofre; nada foi gravado")
         guardado = r2.baixar(BUCKET_COFRE, chave)
         if guardado is not None and hashlib.sha256(guardado).hexdigest() != sha:
             # A base auditada não é sobrescrita: quem reproduz os critérios de
@@ -653,10 +706,50 @@ def comando_cofre_enviar(args):
         )
         manifesto["base"]["itens"] = itens
         manifesto["base"]["estado"] = estado_da_base(itens)
-        print(f"base no cofre: {manifesto['base']['estado']} "
-              f"({sum(1 for i in itens if i.get('papel') == 'base')} de "
-              f"{FONTES_BASE} fontes, Matriz "
-              f"{'presente' if any(i.get('papel') == 'matriz' for i in itens) else 'ausente'})")
+        print(descricao_da_base(itens))
+    manifesto["atualizado_em"] = hoje
+    r2.gravar_json(BUCKET_COFRE, MANIFESTO_COFRE, manifesto)
+
+
+def comando_cofre_retirar(args):
+    """Tira do uso um item enviado por engano. O objeto continua no cofre."""
+    motivo = " ".join(str(args.motivo or "").split())
+    if not motivo:
+        raise Erro("--motivo não pode ser vazio")
+    hoje = date.today().isoformat()
+    r2 = R2(args.token_file)
+    manifesto = ler_manifesto(r2)
+    itens = manifesto["base"]["itens"]
+    alvo = args.item
+    da_base = [
+        i for i in itens if alvo in (i.get("chave"), i.get("arquivo_original"))
+    ]
+    blocos = [
+        b for b in manifesto["blocos"]
+        if b.get("vigente") and alvo in (b.get("chave"), b.get("arquivo_original"))
+    ]
+    if len(da_base) + len(blocos) != 1:
+        raise Erro(
+            "indique exatamente um item em uso no cofre (pela chave ou pelo "
+            f"nome original); encontrados {len(da_base) + len(blocos)}"
+        )
+    if blocos:
+        item = blocos[0]
+        item["vigente"] = False
+        item["retirado_em"] = hoje
+        item["motivo_retirada"] = motivo
+        print(f"bloco deixou de ser vigente: {item['chave']}")
+    else:
+        item = da_base[0]
+        itens = [i for i in itens if i is not item]
+        manifesto["base"]["itens"] = itens
+        manifesto["base"].setdefault("retirados", []).append(
+            dict(item, retirado_em=hoje, motivo_retirada=motivo)
+        )
+        manifesto["base"]["estado"] = estado_da_base(itens)
+        print(f"item retirado da base: {item['chave']}")
+        print(descricao_da_base(itens))
+    print("o objeto continua guardado; só deixou de ser usado nos builds")
     manifesto["atualizado_em"] = hoje
     r2.gravar_json(BUCKET_COFRE, MANIFESTO_COFRE, manifesto)
 
@@ -665,7 +758,7 @@ def restaurar_item(r2, item, destino):
     conteudo = r2.baixar(BUCKET_COFRE, item["chave"])
     if conteudo is None:
         raise Erro(f"objeto ausente no cofre: {item['chave']}")
-    if item.get("sha256") and hashlib.sha256(conteudo).hexdigest() != item["sha256"]:
+    if item.get("sha256") and hashlib.sha256(conteudo).hexdigest() != sha_do_item(item):
         raise Erro(f"{item['chave']}: conteúdo diverge do SHA-256 do manifesto")
     nome = nome_seguro(item.get("arquivo_original") or item["chave"])
     alvo = destino / nome
@@ -684,11 +777,10 @@ def comando_cofre_restaurar(args):
     itens = manifesto["base"]["itens"]
     if estado_da_base(itens) != "completa":
         raise Erro(
-            "a base ainda não está completa no cofre "
-            f"({sum(1 for i in itens if i.get('papel') == 'base')} de "
-            f"{FONTES_BASE} fontes, Matriz "
-            f"{'presente' if any(i.get('papel') == 'matriz' for i in itens) else 'ausente'}); "
-            "envie as 19 planilhas com --papel base e a Matriz com --papel matriz"
+            "a base ainda não está completa no cofre: "
+            + descricao_da_base(itens).split(": ", 1)[1]
+            + "; envie as 19 planilhas com --papel base e a Matriz com "
+            "--papel matriz (item enviado por engano sai com cofre-retirar)"
         )
     pasta_base, pasta_blocos = raiz / "base", raiz / "blocos"
     for pasta in (pasta_base, pasta_blocos):
@@ -700,7 +792,12 @@ def comando_cofre_restaurar(args):
         nome = restaurar_item(r2, item, pasta_base)
         if item.get("papel") == "matriz":
             matriz = nome
-    vigentes = [b for b in manifesto["blocos"] if b.get("vigente")]
+    # Ordem de chegada, só para a leitura: no pipeline, a competência
+    # repetida fica com o bloco que vai mais longe no tempo, em qualquer ordem.
+    vigentes = sorted(
+        (b for b in manifesto["blocos"] if b.get("vigente")),
+        key=lambda b: (str(b.get("recebido_em") or ""), str(b.get("chave") or "")),
+    )
     nomes_blocos = [restaurar_item(r2, bloco, pasta_blocos) for bloco in vigentes]
     print(f"base restaurada em {pasta_base}: {FONTES_BASE} fontes + Matriz")
     print(f"blocos vigentes em {pasta_blocos}: {len(nomes_blocos)}")
@@ -929,8 +1026,37 @@ def selftest():
             destino.mkdir()
             rodar("cofre-restaurar", destino, codigo=1, contem="ainda não está completa")
             ultima = origem / f"Fonte {FONTES_BASE - 1:02d} - çã.xlsx"
+            # mesmo conteúdo com outro nome não conta como outra fonte
+            copia = raiz / "copia-da-fonte-03.xlsx"
+            copia.write_bytes(b"fonte-3")
+            rodar("cofre-enviar", copia, "--papel", "base", codigo=1,
+                  contem="o mesmo conteúdo já está na base como Fonte 03")
+            repetidas = [{"papel": "base", "sha256": "A" * 64}] * FONTES_BASE
+            if estado_da_base(repetidas + [{"papel": "matriz", "sha256": "b" * 64}]) != "parcial":
+                raise Erro("autoteste: fontes repetidas contaram como base completa")
             rodar("cofre-enviar", ultima, "--papel", "base", contem="base no cofre: completa")
             rodar("cofre-enviar", ultima, "--papel", "base", contem="já presente e íntegro")
+            # a base é exatamente 19 fontes e uma Matriz: o excedente é recusado sem gravar
+            intruso = raiz / "Bloco enviado como base.xlsx"
+            intruso.write_bytes(b"intruso")
+            rodar("cofre-enviar", intruso, "--papel", "base", codigo=1,
+                  contem="a base já tem as 19 fontes; nada foi gravado")
+            rodar("cofre-enviar", intruso, "--papel", "matriz", codigo=1,
+                  contem="a Matriz já está no cofre; nada foi gravado")
+            if (BUCKET_COFRE, PREFIXO_BASE + intruso.name) in objetos:
+                raise Erro("autoteste: item recusado foi gravado no cofre")
+            # item enviado por engano sai do uso sem ser apagado, e pode voltar
+            rodar("cofre-retirar", "inexistente.xlsx", "--motivo", "teste", codigo=1,
+                  contem="exatamente um item em uso")
+            rodar("cofre-retirar", ultima.name, "--motivo", "  ", codigo=1,
+                  contem="--motivo não pode ser vazio")
+            rodar("cofre-retirar", ultima.name, "--motivo", "enviado por engano",
+                  contem=("item retirado da base", "parcial (18 de 19 fontes"))
+            if (BUCKET_COFRE, PREFIXO_BASE + ultima.name) not in objetos:
+                raise Erro("autoteste: a retirada apagou o objeto do cofre")
+            rodar("cofre-restaurar", destino, codigo=1, contem="cofre-retirar")
+            rodar("cofre-enviar", ultima, "--papel", "base",
+                  contem=("já presente e íntegro", "base no cofre: completa"))
             (origem / "Fonte 05 - çã.xlsx").write_bytes(b"reexportada")
             rodar("cofre-enviar", origem / "Fonte 05 - çã.xlsx", "--papel", "base",
                   codigo=1, contem="não é sobrescrita")
@@ -953,6 +1079,23 @@ def selftest():
             manifesto = json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])
             if [b["vigente"] for b in manifesto["blocos"]] != [False, True]:
                 raise Erro("autoteste: vigência dos blocos incorreta no manifesto")
+            # bloco enviado por engano também sai do uso; reenviar o devolve
+            rodar("cofre-retirar", bloco_b.name, "--motivo", "arquivo errado",
+                  contem="bloco deixou de ser vigente")
+            manifesto = json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])
+            if any(b["vigente"] for b in manifesto["blocos"]) or len(
+                manifesto["base"].get("retirados", [])
+            ) != 1:
+                raise Erro("autoteste: retirada não registrada no manifesto")
+            rodar("cofre-enviar", bloco_b, "--papel", "bloco", contem="entrada reaproveitada")
+            # manifesto escrito fora da ferramenta, com SHA em maiúsculas, é aceito
+            manifesto = json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])
+            for item in manifesto["base"]["itens"] + manifesto["blocos"]:
+                item["sha256"] = item["sha256"].upper()
+            objetos[(BUCKET_COFRE, MANIFESTO_COFRE)] = json.dumps(manifesto).encode()
+            rodar("cofre-enviar", bloco_b, "--papel", "bloco", contem="entrada reaproveitada")
+            if len(json.loads(objetos[(BUCKET_COFRE, MANIFESTO_COFRE)])["blocos"]) != 2:
+                raise Erro("autoteste: bloco duplicado por diferença de caixa no SHA")
 
             # cofre: restauração com nomes originais e hash conferido
             texto = rodar("cofre-restaurar", destino, contem=("--matriz", "--ate AAAA/MM"))
@@ -1079,9 +1222,15 @@ def selftest():
             rodar("verificar", sha_novo, "--sessao-file", arquivo_sessao, codigo=1,
                   contem="não está entregando este release")
             volta = privado / "volta.json"
-            rodar("baixar", sha_novo, volta)
+            rodar("baixar", sha_novo, volta, contem=(
+                "janela publicada: 2026/05 a 2026/07 · corte etário 2026-07-31",
+                "só os blocos com competência até 2026/07, --ate 2026/07 --corte 2026-07-31",
+            ))
             if volta.read_bytes() != novo_json.read_bytes():
                 raise Erro("autoteste: release baixado diverge do enviado")
+            rodar("enviar", base_json, contem="enviado e conferido por releitura")
+            rodar("baixar", sha_base, privado / "volta-base.json",
+                  contem="sem --bloco, --corte 2026-06-30")
 
             # guardas: arquivo dentro de Git e bucket inexistente
             falso_git = raiz / "repo"
@@ -1164,6 +1313,9 @@ def main():
     )
     p = sub.add_parser("cofre-restaurar")
     p.add_argument("diretorio", help="pasta privada; recebe base/ e blocos/")
+    p = sub.add_parser("cofre-retirar")
+    p.add_argument("item", help="chave ou nome original de um item em uso")
+    p.add_argument("--motivo", required=True, help="por que o item sai do uso")
     p = sub.add_parser("cofre-baixar")
     p.add_argument("chave", help="chave de um objeto ou prefixo terminado em /")
     p.add_argument("diretorio")
@@ -1187,6 +1339,7 @@ def main():
                 "cofre-listar": comando_cofre_listar,
                 "cofre-enviar": comando_cofre_enviar,
                 "cofre-restaurar": comando_cofre_restaurar,
+                "cofre-retirar": comando_cofre_retirar,
                 "cofre-baixar": comando_cofre_baixar,
                 "selftest": lambda _args: selftest(),
             }[args.comando](args)

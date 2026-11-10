@@ -43,7 +43,10 @@ Os brutos ficam guardados no cofre privado (R2 `csv-dados-sensiveis`, prefixo
 `cofre-restaurar` traz as 19 fontes e a Matriz para `<pasta>/base`, os blocos
 vigentes para `<pasta>/blocos` com os nomes originais, confere o SHA-256 de
 cada arquivo contra o manifesto e imprime o comando do build. A base guardada
-não é sobrescrita por arquivo de mesmo nome e conteúdo diferente.
+não é sobrescrita por arquivo de mesmo nome e conteúdo diferente, e o cofre
+recusa a vigésima fonte, uma segunda Matriz e conteúdo repetido. Item enviado
+por engano sai do uso com `cofre-retirar <nome> --motivo <texto>`; o objeto
+continua guardado.
 
 Exemplo de organização:
 
@@ -72,21 +75,28 @@ O corte etário padrão é o último dia da última competência publicada.
   uma competência nova aparece com zero; Método PECS — Fonoaudiologia continua
   fora, e os registros posteriores dele são contados no descarte.
 - Fontes-base só contribuem com o período-base; blocos, só com competências
-  posteriores. Bloco com competência da base, competência repetida em dois
-  blocos, competência da janela sem registros, bloco inteiro além da janela
-  ou dois blocos com o mesmo nome abortam o build. Os caminhos dos blocos são
-  validados antes da leitura da base, e a ordem de leitura é a da primeira
-  competência de cada bloco: os mesmos insumos geram sempre o mesmo JSON.
-- Registros de bloco além de `--ate` não são agregados. Continuam lidos por
-  inteiro: valem para a varredura anti-vazamento e como fonte para recuperar
-  data de nascimento, e uma linha inválida neles também para o build.
+  posteriores. Bloco com competência da base, competência da janela sem
+  registros, bloco inteiro além da janela, bloco inteiramente substituído por
+  outro ou dois blocos com o mesmo nome abortam o build. Os caminhos dos
+  blocos são validados antes da leitura da base.
+- Competência presente em mais de um bloco fica com o bloco que vai mais
+  longe no tempo — a planilha extraída depois. Os registros dessa competência
+  nos demais blocos são cedidos (`registros_cedidos`, `competencias_cedidas`):
+  não são agregados nem servem de evidência. Dois blocos que repetem uma
+  competência e terminam no mesmo mês não têm desempate, e o build para. A
+  ordem dos blocos no comando não altera o JSON.
+- Registros de bloco além de `--ate` não são agregados nem influenciam os
+  meses publicados. Continuam lidos por inteiro: entram na varredura
+  anti-vazamento, e uma linha inválida neles também para o build.
 - Depois de estender a janela, todo recorte fechado da base precisa sair
   idêntico ao do build só-base feito com o mesmo corte etário
   (`exigir_base_inalterada`); mudam apenas o período completo e o ano em
   curso. A faixa etária acompanha o corte etário: de um release para o
   seguinte ela muda em todos os recortes, e só ela.
 - Registro de bloco sem data de nascimento: a data é recuperada quando a mesma
-  matrícula e o mesmo nome têm uma única data em outro registro; caso
+  matrícula e o mesmo nome têm uma única data em outro registro da base ou de
+  bloco em competência até a do próprio registro — nunca de competência
+  posterior, para que um mês não dependa dos seguintes; caso
   contrário o registro fica fora do painel, contado em
   `meta.blocos_fonte[].sem_nascimento` e declarado em Método e Fontes. Acima da
   tolerância (5 registros ou 0,2% dos registros do bloco na janela, o que for
@@ -96,7 +106,8 @@ O corte etário padrão é o último dia da última competência publicada.
   descartada + sem data de nascimento fora do painel
   (`registros_agregados`, `registros_terapia_descartada`). O relatório traz
   também os totais lidos da planilha por competência (`totais_lidos`), para
-  conferência com o total informado pela origem.
+  conferência com o total informado pela origem, e o descarte por terapia em
+  sessões e reais (`sessoes_pos_base`, `pagamento_pos_base`).
 - Continuidade: em cada competência nova, ao menos metade das crianças tem de
   já ter aparecido antes; abaixo disso o build para, porque nome ou
   nascimento vieram em outro formato e as mesmas crianças contariam como
@@ -228,6 +239,8 @@ ambiente: `CLOUDFLARE_ACCOUNT_ID` e `CLOUDFLARE_API_TOKEN`, ou `--token-file`):
 
     python scripts/tea-release.py ponteiro
     python scripts/tea-release.py baixar <SHA-no-ar> <privado>/no-ar.json
+    python scripts/build-tea-data.py <base> --matriz <matriz> [--bloco <xlsx> --ate <fim no ar>] --corte <corte no ar> --saida <privado>/conferencia.json
+    python scripts/tea-release.py comparar <privado>/no-ar.json <privado>/conferencia.json --exigir-fechados-inalterados
     python scripts/tea-release.py comparar <privado>/no-ar.json <privado>/tea.json --exigir-fechados-inalterados
     python scripts/tea-release.py enviar <privado>/tea.json
     python scripts/tea-release.py sql <privado>/tea.json --anterior-sha <SHA-no-ar>
@@ -236,6 +249,10 @@ ambiente: `CLOUDFLARE_ACCOUNT_ID` e `CLOUDFLARE_API_TOKEN`, ou `--token-file`):
     python scripts/tea-release.py historico
 
 - `ponteiro` imprime o `SELECT` que mostra, no D1 `csv-hub`, o release no ar.
+- `baixar` grava o release e informa a janela e o corte etário dele. O build
+  de conferência usa os insumos atuais nessa janela e nesse corte e tem de
+  reproduzir o release no ar por inteiro: com janela e corte iguais, qualquer
+  diferença é mês já publicado que chegou diferente.
 - `comparar` mostra recortes fechados idênticos, os que mudaram só na faixa
   etária (apenas quando o corte etário mudou), os ampliados, os novos e, se
   houver, os **alterados** — algo já apresentado mudou e precisa ser

@@ -870,14 +870,16 @@ def ler_blocos(caminhos):
     """Lê os blocos complementares: planilhas consolidadas pós-base.
 
     Cada bloco traz vários códigos no mesmo arquivo e só pode conter
-    competências posteriores ao período-base. Uma competência pertence a um
-    único bloco; registros além da janela publicada são lidos (entram na
-    varredura anti-vazamento), mas não são agregados. A ordem de leitura é a
-    da primeira competência de cada bloco, não a da linha de comando: os
-    mesmos insumos geram sempre o mesmo JSON.
+    competências posteriores ao período-base. Quando a mesma competência vem
+    em mais de um bloco, vale a do bloco que vai mais longe no tempo — a
+    planilha extraída depois. Os registros dessa competência nos demais
+    blocos são cedidos: não são agregados nem servem de evidência; continuam
+    apenas na varredura anti-vazamento. Dois blocos que repetem uma
+    competência e terminam no mesmo mês não têm desempate: o build para.
+    Registros além da janela publicada também não são agregados. A ordem dos
+    blocos na linha de comando não altera o resultado.
     """
-    lidos = []
-    dono_da_competencia = {}
+    brutos = []
     for real in conferir_caminhos_blocos(caminhos):
         registros = ler_registros_xlsx(real, "bloco")
         meses = sorted({r["anomes"] for r in registros})
@@ -887,15 +889,41 @@ def ler_blocos(caminhos):
                 f"período-base ou anterior ({meses[0]}); a base auditada só "
                 "muda com um novo conjunto completo de fontes"
             )
+        brutos.append((real, registros, meses))
+    brutos.sort(key=lambda item: (item[2][0], item[2][-1], item[0].name))
+    candidatos = defaultdict(list)
+    for posicao, (_real, _registros, meses) in enumerate(brutos):
         for mes in meses:
-            if mes in dono_da_competencia:
-                raise ErroPipeline(
-                    f"competência {mes} aparece em dois blocos "
-                    f"({dono_da_competencia[mes]} e {real.name}); informe "
-                    "apenas o bloco vigente de cada competência"
-                )
-            dono_da_competencia[mes] = real.name
-        na_janela = [r for r in registros if r["anomes"] in MESES_CANONICOS_SET]
+            candidatos[mes].append(posicao)
+    dono_da_competencia = {}
+    for mes in sorted(candidatos):
+        alcance = max(brutos[p][2][-1] for p in candidatos[mes])
+        mais_longe = [p for p in candidatos[mes] if brutos[p][2][-1] == alcance]
+        if len(mais_longe) > 1:
+            nomes = " e ".join(brutos[p][0].name for p in mais_longe[:2])
+            raise ErroPipeline(
+                f"{nomes}: os blocos trazem a competência {mes} e terminam no "
+                f"mesmo mês ({alcance}); sem saber qual é o mais recente, o "
+                "painel não escolhe — informe só um deles ou peça à origem "
+                "uma planilha única"
+            )
+        dono_da_competencia[mes] = mais_longe[0]
+    lidos = []
+    for posicao, (real, registros, meses) in enumerate(brutos):
+        proprias = [m for m in meses if dono_da_competencia[m] == posicao]
+        cedidas = [m for m in meses if dono_da_competencia[m] != posicao]
+        if not proprias:
+            raise ErroPipeline(
+                f"{real.name}: todas as competências do bloco vêm também de "
+                "um bloco mais recente; retire-o do comando"
+            )
+        for r in registros:
+            if dono_da_competencia[r["anomes"]] != posicao:
+                r["cedido"] = True
+        na_janela = [
+            r for r in registros
+            if not r.get("cedido") and r["anomes"] in MESES_CANONICOS_SET
+        ]
         if not na_janela:
             raise ErroPipeline(
                 f"{real.name}: nenhuma competência do bloco está na janela "
@@ -904,7 +932,7 @@ def ler_blocos(caminhos):
         por_mes = grupos(na_janela, lambda r: r["anomes"])
         lidos.append(
             (
-                meses[0],
+                proprias[0],
                 real.name,
                 registros,
                 {
@@ -913,8 +941,12 @@ def ler_blocos(caminhos):
                     "codigos": sorted({r["cod_proc"] for r in na_janela}),
                     "registros": len(registros),
                     "registros_na_janela": len(na_janela),
+                    "registros_cedidos": sum(
+                        1 for r in registros if r.get("cedido")
+                    ),
                     "competencias": meses,
                     "competencias_na_janela": sorted(por_mes),
+                    "competencias_cedidas": cedidas,
                     # Totais como lidos da planilha, antes de qualquer
                     # exclusão: é o que se confere com o total da origem.
                     "totais_lidos": [
@@ -952,15 +984,22 @@ def resolver_nascimentos(registros_base, registros_blocos, manifesto_blocos):
     """Trata os registros de bloco sem data de nascimento.
 
     Recupera a data quando a mesma matrícula e o mesmo nome têm uma única
-    data em outro registro (base ou blocos). O que não for recuperável sai da
-    agregação e é contado no manifesto do bloco; acima da tolerância, para.
+    data em outro registro da base ou de bloco em competência até a do
+    próprio registro. Evidência de competência posterior não vale: o
+    conteúdo de um mês não pode depender de meses seguintes, publicados ou
+    não. O que não for recuperável sai da agregação e é contado no manifesto
+    do bloco; acima da tolerância, para.
     """
-    conhecidos = defaultdict(set)
+    # (matrícula, nome) -> {data: primeira competência em que apareceu};
+    # a base vem antes de qualquer competência de bloco.
+    conhecidos = defaultdict(dict)
     for r in registros_base:
-        conhecidos[(r["matricula"], r["nome"])].add(r["nasc"])
+        conhecidos[(r["matricula"], r["nome"])][r["nasc"]] = ""
     for r in registros_blocos:
-        if r["nasc"]:
-            conhecidos[(r["matricula"], r["nome"])].add(r["nasc"])
+        if r["nasc"] and not r.get("cedido"):
+            datas = conhecidos[(r["matricula"], r["nome"])]
+            if r["anomes"] < datas.get(r["nasc"], "9999/99"):
+                datas[r["nasc"]] = r["anomes"]
     resumo = {
         bloco["arquivo"]: {
             "registros": 0,
@@ -973,12 +1012,18 @@ def resolver_nascimentos(registros_base, registros_blocos, manifesto_blocos):
         for bloco in manifesto_blocos
     }
     for r in registros_blocos:
-        if r["nasc"]:
+        if r["nasc"] or r.get("cedido"):
             continue
-        datas = conhecidos.get((r["matricula"], r["nome"]), set())
+        datas = [
+            data
+            for data, primeira in conhecidos.get(
+                (r["matricula"], r["nome"]), {}
+            ).items()
+            if primeira <= r["anomes"]
+        ]
         recuperavel = bool(r["matricula"]) and len(datas) == 1
         if recuperavel:
-            r["nasc"] = next(iter(datas))
+            r["nasc"] = datas[0]
             r["paciente"] = chave_paciente(r)
         else:
             r["sem_nascimento"] = True
@@ -1043,6 +1088,7 @@ def conferir_blocos(incluidos, registros_blocos, manifesto_blocos, descartadas, 
             for r in registros_blocos
             if r["arquivo"] == bloco["arquivo"]
             and r["anomes"] in MESES_CANONICOS_SET
+            and not r.get("cedido")
             and not r.get("sem_nascimento")
             and r["terapia_id"] in ids_descartadas
         )
@@ -1118,7 +1164,7 @@ def conferir_blocos(incluidos, registros_blocos, manifesto_blocos, descartadas, 
 
 def na_janela_publicada(registro):
     """Fontes-base cobrem só o período-base; blocos, só o que vem depois."""
-    if registro.get("sem_nascimento"):
+    if registro.get("sem_nascimento") or registro.get("cedido"):
         return False
     mes = registro["anomes"]
     if registro.get("origem") == "bloco":
@@ -1171,6 +1217,12 @@ def preparar_universo(registros):
                     )
                 )
                 item["registros_pos_base"] = len(posteriores)
+                item["sessoes_pos_base"] = numero(
+                    sum((r["qtd"] for r in posteriores), Decimal(0))
+                )
+                item["pagamento_pos_base"] = dinheiro(
+                    sum((r["valor"] for r in posteriores), Decimal(0))
+                )
                 item["competencias_pos_base"] = sorted(
                     {r["anomes"] for r in posteriores}
                 )
@@ -3119,7 +3171,7 @@ def montar_release(
             conferidos = exigir_base_inalterada(dados_base, dados)
             resumo_base = dados_base["recortes"]["tudo"]["resumo"]
             fora_da_janela = sum(
-                b["registros"] - b["registros_na_janela"]
+                b["registros"] - b["registros_na_janela"] - b["registros_cedidos"]
                 for b in manifesto_blocos
             )
             extensao = {
@@ -3287,6 +3339,14 @@ def formatar_inteiro(valor):
     return f"{int(valor):,}".replace(",", ".")
 
 
+def formatar_numero(valor):
+    """Quantidade que pode ser fracionada (sessões): inteiro quando inteiro."""
+    d = Decimal(str(valor))
+    if d == d.to_integral_value():
+        return formatar_inteiro(d)
+    return f"{d:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 def formatar_brl(valor):
     quantizado = Decimal(valor).quantize(CENTAVO, rounding=ROUND_HALF_UP)
     base = f"{quantizado:,.2f}"
@@ -3330,11 +3390,18 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
             f"{bloco['arquivo']} — {formatar_inteiro(bloco['registros_na_janela'])} "
             f"registros em {', '.join(bloco['competencias_na_janela'])}"
         )
+        if bloco["registros_cedidos"]:
+            print(
+                "                         "
+                f"{formatar_inteiro(bloco['registros_cedidos'])} registros de "
+                f"{', '.join(bloco['competencias_cedidas'])} cedidos a bloco "
+                "mais recente"
+            )
         for total in bloco["totais_lidos"]:
             print(
                 f"  lido da planilha {total['m']}: "
                 f"{formatar_inteiro(total['registros'])} registros, "
-                f"{formatar_inteiro(total['sessoes'])} sessões, "
+                f"{formatar_numero(total['sessoes'])} sessões, "
                 f"{formatar_brl(total['pagamento'])}"
             )
         print(
@@ -3354,7 +3421,7 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                 f"{formatar_inteiro(sem['recuperados'])} com data recuperada "
                 "do mesmo beneficiário, "
                 f"{formatar_inteiro(sem['fora_do_painel'])} fora do painel "
-                f"({formatar_inteiro(sem['sessoes_fora_do_painel'])} "
+                f"({formatar_numero(sem['sessoes_fora_do_painel'])} "
                 f"{'sessão' if sem['sessoes_fora_do_painel'] == 1 else 'sessões'}, "
                 f"{formatar_brl(sem['pagamento_fora_do_painel'])})"
             )
@@ -3369,14 +3436,16 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                 "                         "
                 f"{formatar_inteiro(descarte['registros_pos_base'])} registros "
                 "pós-base fora do painel em "
-                f"{', '.join(descarte['competencias_pos_base'])}"
+                f"{', '.join(descarte['competencias_pos_base'])} "
+                f"({formatar_numero(descarte['sessoes_pos_base'])} sessões, "
+                f"{formatar_brl(descarte['pagamento_pos_base'])})"
             )
     if extensao:
         b = extensao["base"]
         print(
             "Base conferida         : "
             f"{formatar_inteiro(b['pacientes'])} crianças, "
-            f"{formatar_inteiro(b['sessoes'])} sessões, "
+            f"{formatar_numero(b['sessoes'])} sessões, "
             f"{formatar_brl(b['pagamento'])} — critérios de aceite e Matriz 2025"
         )
         print(
@@ -3403,7 +3472,7 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
                     f"                         {ponto['m']} | "
                     f"{formatar_inteiro(ponto['pacientes'])} "
                     f"({formatar_pct(pct(item['ja_vistas'], item['criancas']))}) | "
-                    f"{formatar_inteiro(ponto['sessoes'])} | "
+                    f"{formatar_numero(ponto['sessoes'])} | "
                     f"{formatar_brl(ponto['pagamento'])}"
                 )
         for item in meta["competencias_novas"]:
@@ -3444,7 +3513,7 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
         print(
             "Casa Unimed            : "
             f"{formatar_brl(casa['pagamento'])} / "
-            f"{formatar_inteiro(casa['sessoes'])} sessões na entidade"
+            f"{formatar_numero(casa['sessoes'])} sessões na entidade"
         )
     print("Disciplina x canal     : ok (cross-foot canais/disciplinas)")
     kits = recorte_tudo["kits"]
@@ -3459,9 +3528,9 @@ def imprimir_relatorio(dados, auditoria, reconciliacao, saida, extensao=None):
         )
         + f" | suprimidos por k<{K_MINIMO_KIT}: {len(KITS) - len(kits)}"
     )
-    print(f"Sessões                : {formatar_inteiro(m['sessoes'])}")
+    print(f"Sessões                : {formatar_numero(m['sessoes'])}")
     print(f"Pagamento              : {formatar_brl(m['pagamento'])}")
-    print(f"Sessões no denominador : {formatar_inteiro(m['sessoes_pagas'])}")
+    print(f"Sessões no denominador : {formatar_numero(m['sessoes_pagas'])}")
     print(
         "Linhas clínicas (17)   : "
         f"{formatar_distribuicao(l['distribuicao_clinica'])} "
@@ -3632,6 +3701,19 @@ def criar_bloco_sintetico(caminho, meses, sem_nascimento=1, renomear=None):
             f"CRIANCA SEM NASCIMENTO {indice + 1}",
             f"GUIA-SEM-NASCIMENTO-{indice + 1}",
             77,
+        )
+    if "2026/10" in meses:
+        # A data da primeira criança sem nascimento só aparece em 2026/10:
+        # não pode alterar o que foi lançado antes.
+        ws.append(
+            [
+                "2026/10", "MAT-SEM-NASCIMENTO-1", "CRIANCA SEM NASCIMENTO 1",
+                date(2016, 5, 5), "FEMININO", "GUIA-COM-NASCIMENTO-1",
+                date(2026, 10, 20), "SOL-2", "SOLICITANTE COMUM",
+                "Psicologo clinico", "SPSADT", 50005103,
+                "PROCEDIMENTO 50005103", "SESSAO", "PREST-50005103-2",
+                "CRIAR E CRESCER TEEN LTDA", "CLINICA ESPECIALIZADA", 1, 88,
+            ]
         )
     wb.save(caminho)
 
@@ -4197,6 +4279,9 @@ def selftest():
             and descarte_ext[0]["competencias_encontradas"] == 13
             and descarte_ext[0]["competencias_esperadas"] == 18
             and descarte_ext[0]["registros_pos_base"] == 6
+            and descarte_ext[0]["sessoes_pos_base"] == 6
+            and descarte_ext[0]["pagamento_pos_base"]
+            == 6.0 * (120 + list(MAPA_CODIGOS).index("50005146"))
             and descarte_ext[0]["competencias_pos_base"] == ["2026/07"]
             and "período-base" in descarte_ext[0]["motivo"],
             "conjunto de terapias deve permanecer o da base, com PECS fora",
@@ -4384,6 +4469,55 @@ def selftest():
             "nenhuma competência do bloco está na janela publicada",
             "bloco inteiro além da janela não foi bloqueado",
         )
+        # Competência repetida: vale a do bloco que vai mais longe no tempo.
+        # O bloco 07–10 foi publicado até 2026/09; a planilha seguinte começa
+        # em 2026/10 e fica com esse mês, em qualquer ordem de comando.
+        dados_sobre, _as, _rs, texto_sobre, extensao_sobre = montar_release(
+            fontes, matriz, None, [bloco, bloco_q4], "2026/12",
+            exigir_referencias=False,
+        )
+        _di, _ai, _ri, texto_inverso, _ei = montar_release(
+            fontes, matriz, None, [bloco_q4, bloco], "2026/12",
+            exigir_referencias=False,
+        )
+        exigir_teste(
+            texto_sobre == texto_inverso,
+            "a ordem dos blocos na linha de comando alterou o release",
+        )
+        cedente = dados_sobre["meta"]["blocos_fonte"][0]
+        exigir_teste(
+            dados_sobre["recortes"] == dados_ano["recortes"]
+            and cedente["arquivo"] == bloco.name
+            and cedente["competencias_cedidas"] == ["2026/10"]
+            and cedente["competencias_na_janela"]
+            == ["2026/07", "2026/08", "2026/09"]
+            and cedente["registros_cedidos"]
+            == cedente["registros"] - cedente["registros_na_janela"]
+            and dados_sobre["meta"]["blocos_fonte"][1]["registros_cedidos"] == 0
+            and extensao_sobre["registros_fora_da_janela"] == 0,
+            "competência repetida deve ficar com o bloco que vai mais longe",
+        )
+        # Registros além da janela, inclusive uma data de nascimento que só
+        # aparece em 2026/10, não alteram os meses publicados.
+        dados_q3, _aq, _rq, _tq, _eq = montar_release(
+            fontes, matriz, None, [bloco_q3], "2026/09",
+            exigir_referencias=False,
+        )
+        exigir_teste(
+            dados_q3["recortes"] == dados_ext["recortes"]
+            and dados_q3["meta"]["blocos_fonte"][0]["sem_nascimento"]
+            == bloco_meta[0]["sem_nascimento"],
+            "registro além da janela alterou competência publicada",
+        )
+        exigir_teste(
+            dados_ano["meta"]["blocos_fonte"][1]["sem_nascimento"]["recuperados"]
+            == 2
+            and dados_ano["meta"]["blocos_fonte"][0]["sem_nascimento"][
+                "fora_do_painel"
+            ] == 1,
+            "data de nascimento deve valer da competência em que aparece em "
+            "diante, nunca para trás",
+        )
         exigir_erro(
             lambda: montar_release(
                 fontes, matriz, None, [raiz / "blocos" / "nao-existe.xlsx"],
@@ -4516,9 +4650,21 @@ def selftest():
                 fontes, matriz, None, [bloco, bloco_copia], "2026/09",
                 exigir_referencias=False,
             ),
-            "aparece em dois blocos",
-            "competência repetida em dois blocos não foi bloqueada",
+            "bloco-sintetico-072026-102026.xlsx e bloco-sintetico-copia.xlsx: "
+            "os blocos trazem a competência 2026/07 e terminam no mesmo mês "
+            "(2026/10)",
+            "blocos sem desempate para a competência repetida não foram apontados",
         )
+        for ordem in ([bloco_q3, bloco], [bloco, bloco_q3]):
+            exigir_erro(
+                lambda ordem=ordem: montar_release(
+                    fontes, matriz, None, ordem, "2026/09",
+                    exigir_referencias=False,
+                ),
+                "bloco-q3.xlsx: todas as competências do bloco vêm também de "
+                "um bloco mais recente",
+                "bloco inteiramente substituído por outro não foi apontado",
+            )
         exigir_erro(
             lambda: montar_release(
                 fontes, matriz, None, [bloco], "2026/11",
@@ -4806,6 +4952,35 @@ def selftest():
             and caso["paciente"] == ("CRIANCA NOVA DO BLOCO", "2018-03-01")
             and manifesto_unitario[0]["sem_nascimento"]["recuperados"] == 1,
             "data não recuperada de outro registro do mesmo bloco",
+        )
+
+        # --- R10b: evidência de competência posterior não vale para trás
+        depois = sem_data("MAT-T", "CRIANCA DO TEMPO")
+        depois["anomes"], depois["nasc"] = "2026/08", "2019-01-01"
+        antes = sem_data("MAT-T", "CRIANCA DO TEMPO")
+        mesmo_mes = sem_data("MAT-T", "CRIANCA DO TEMPO")
+        mesmo_mes["anomes"] = "2026/08"
+        cedido = sem_data("MAT-U", "CRIANCA CEDIDA")
+        cedido["nasc"], cedido["cedido"] = "2019-02-02", True
+        orfao = sem_data("MAT-U", "CRIANCA CEDIDA")
+        manifesto_unitario = [
+            {"arquivo": "bloco-unitario.xlsx", "registros_na_janela": 5}
+        ]
+        definir_janela("2026/08")
+        try:
+            resolver_nascimentos(
+                [], [depois, antes, mesmo_mes, cedido, orfao], manifesto_unitario
+            )
+        finally:
+            definir_janela(FIM_BASE)
+        exigir_teste(
+            antes["nasc"] == "" and antes.get("sem_nascimento") is True
+            and mesmo_mes["nasc"] == "2019-01-01"
+            and orfao["nasc"] == "" and orfao.get("sem_nascimento") is True
+            and manifesto_unitario[0]["sem_nascimento"]["recuperados"] == 1
+            and manifesto_unitario[0]["sem_nascimento"]["fora_do_painel"] == 2,
+            "data de competência posterior ou de registro cedido foi usada "
+            "como evidência",
         )
 
         # --- R11: tolerância proporcional (0,2% do bloco, o que for maior)

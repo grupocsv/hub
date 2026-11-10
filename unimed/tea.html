@@ -779,11 +779,44 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (max-width:1180px){
   .topbar{flex-wrap:wrap}
   .period-control{order:3;width:100%;padding-top:2px}
-  .period-control select{flex:1;max-width:none}
+  .period-control select{flex:1;max-width:none;min-width:0}
+}
+/* O cabeçalho leva título, escopo, data de corte, volta ao Hub e, na página interna, o
+   widget de sessão do Hub. O período aparece uma vez só — no seletor, com as datas e o
+   marcador de período parcial ao lado. O seletor ocupa a segunda linha enquanto a largura
+   não comporta tudo em uma: até 1919px na página interna; até 1499px sem o widget de
+   sessão (cópia compartilhável). A largura decide — o período escolhido nunca muda o
+   seletor de lugar. Os limites têm folga para a fonte de reserva, mais larga que a
+   Source Sans. */
+.period-control select{text-overflow:ellipsis}
+@media (min-width:1181px) and (max-width:1919px){
+  .topbar{flex-wrap:wrap;row-gap:6px}
+  .period-control{order:3;width:100%;padding-top:2px}
+  .period-control select{max-width:340px}
+}
+@media (min-width:1500px) and (max-width:1919px){
+  .sem-sessao .topbar{flex-wrap:nowrap}
+  .sem-sessao .period-control{order:0;width:auto;padding-top:0}
+  /* Em uma linha o seletor mostra o rótulo inteiro quando há espaço e é o primeiro a
+     encolher, com reticências, antes de o título ceder. */
+  .sem-sessao .tb-titles{flex:1 .25 215px}
+  .sem-sessao #period_type{flex:0 0 auto}
+  .sem-sessao #period_value{flex:0 1 auto;min-width:96px;max-width:340px}
+}
+@media (min-width:1920px){
+  .tb-titles{flex:1 .25 215px}
+  #period_type{flex:0 0 auto}
+  #period_value{flex:0 1 auto;min-width:96px;max-width:340px}
+}
+@media (min-width:769px) and (max-width:1279px){
+  /* Nessa faixa o e-mail da sessão cede espaço ao título; o botão Sair permanece. */
+  #hub-auth-slot .ha-user-badge span{display:none}
+}
+@media (min-width:1024px) and (max-width:1099px){
+  #tb_atualizado{display:none}
 }
 @media (max-width:1023px){
   :root{--tabbar-h:78px}
-  .topbar{align-items:flex-start}
   .period-control{display:grid;grid-template-columns:auto 1fr 1fr;align-items:center}
   .period-control select{width:100%;min-width:0}
   .tabbar{overflow:hidden;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
@@ -820,6 +853,27 @@ html,body{max-width:100%;overflow-x:hidden}
   .chart-box.tall{height:420px}
   .chart-box.short{height:240px}
   .modal-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:1023px){
+  /* Celular e tablet: marca, título e acesso ao método na primeira linha; escopo, volta ao
+     Hub e sessão na segunda; período abaixo. O título fica com o espaço que sobra da marca. */
+  .topbar{align-items:center;row-gap:8px}
+  .tb-chips{display:contents}
+  .tb-brand-m{order:1}
+  .tb-titles{order:2}
+  .tb-info-btn{order:3}
+  .topbar::before{content:"";order:4;flex:0 0 100%;height:0;margin-top:-8px}
+  .tb-chips .chip.escopo{order:5;margin-right:auto}
+  .tb-voltar{order:6}
+  #hub-auth-slot{order:7}
+  .period-control{order:8}
+  .pc-datas{grid-column:1/-1;justify-self:start}
+}
+@media (max-width:640px){
+  .tb-voltar-nome{display:none}
+}
+@media (max-width:380px){
+  .tb-brand-m img{height:21px}
 }
 @media (pointer:coarse){
   button,.nav-item,.tab-item,.period-control select,.filter-field select,.filter-field input,.provider-picker select,.pager button{min-height:44px;min-width:44px}
@@ -898,9 +952,8 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
     <div class="tb-chips">
       <button class="chip escopo" id="tb_escopo" type="button" aria-label="Escopo assistencial ativo; toque para alterar no Início">–</button>
-      <span class="chip" id="tb_periodo">–</span>
       <span class="chip soft hide-m" id="tb_atualizado">–</span>
-      <a class="tb-voltar voltar-hub hide-m" href="index.html">← Hub Unimed</a>
+      <a class="tb-voltar voltar-hub hide-m" href="index.html" aria-label="Voltar ao Hub Unimed">← Hub<span class="tb-voltar-nome"> Unimed</span></a>
     </div>
     <span id="hub-auth-slot"></span>
     <button class="tb-info-btn" id="tb_info" aria-label="Método e fontes">
@@ -1273,12 +1326,12 @@ html,body{max-width:100%;overflow-x:hidden}
     const disc = disciplinaAtiva();
     return !!disc && !!r && isObject(r.resumo_disciplina) && !isObject(r.resumo_disciplina[disc]);
   }
+  // null só quando o recorte não traz o corte prestador × disciplina (contrato antigo); lista vazia
+  // quando traz o corte e a disciplina não tem lançamentos.
   function fatiasDisciplina(r) {
     const disc = disciplinaAtiva();
-    if (!disc) return null;
-    const fatias = asArray(r && r.prestador_disciplina).filter(f => f.disciplina === disc);
-    if (fatias.length) return fatias;
-    return disciplinaSemRegistros(r) ? [] : null;
+    if (!disc || !r || !Array.isArray(r.prestador_disciplina)) return null;
+    return r.prestador_disciplina.filter(f => f.disciplina === disc);
   }
   function referenciaDisciplina(r) {
     const disc = disciplinaAtiva();
@@ -1392,15 +1445,27 @@ html,body{max-width:100%;overflow-x:hidden}
     const agg = fatia => ({
       pagamento: fatia.reduce((a, x) => a + (n(pick(x, 'pagamento')) || 0), 0),
       sessoes: fatia.reduce((a, x) => a + (n(pick(x, 'sessoes')) || 0), 0),
+      sessoes_pagas: fatia.reduce((a, x) => { const pagas = n(pick(x, 'sessoes_pagas')); return a + (pagas !== null ? pagas : (n(pick(x, 'sessoes')) || 0)); }, 0),
       pacientes: (() => { const v = fatia.map(x => n(pick(x, 'pacientes'))).filter(x => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; })()
     });
     return { cur: agg(rec), prev: agg(antz), rotulo: 'últimos ' + metade + (metade === 1 ? ' mês' : ' meses') + ' vs ' + metade + ' anteriores' };
   }
   function comparacaoResumo(r) {
     const ant = recorteAnterior(state.periodId);
-    if (ant) return { cur: resumoDe(r), prev: resumoDe(ant.recorte), rotulo: 'vs ' + ant.periodo.rotulo, interna: false };
+    if (ant) return { cur: resumoDe(r), prev: resumoDe(ant.recorte), rotulo: 'vs ' + ant.periodo.rotulo, interna: false, recorteAnterior: ant.recorte };
     const met = metadesDoRecorte(r);
     return met ? { cur: met.cur, prev: met.prev, rotulo: met.rotulo, interna: true } : null;
+  }
+  // Variação de indicador derivado: o período de comparação é calculado com a mesma fórmula do valor exibido.
+  function deltaCustoCriancaMes(r, cmp) {
+    if (!cmp) return null;
+    if (!cmp.interna) return deltaPct(custoCriancaMes(r), custoCriancaMes(cmp.recorteAnterior));
+    return n(cmp.cur.pagamento) !== null && cmp.cur.pacientes && cmp.prev.pacientes ? deltaPct(cmp.cur.pagamento / cmp.cur.pacientes, cmp.prev.pagamento / cmp.prev.pacientes) : null;
+  }
+  function deltaPrecoSessaoPaga(cmp) {
+    if (!cmp) return null;
+    if (!cmp.interna) return deltaPct(custoSessao(cmp.cur), custoSessao(cmp.prev));
+    return cmp.cur.sessoes_pagas && cmp.prev.sessoes_pagas ? deltaPct(cmp.cur.pagamento / cmp.cur.sessoes_pagas, cmp.prev.pagamento / cmp.prev.sessoes_pagas) : null;
   }
   function filaAcao(r) {
     const pronta = asArray(r && r.fila_acao);
@@ -1647,8 +1712,14 @@ html,body{max-width:100%;overflow-x:hidden}
     const cv = $(id);
     if (!cv) return null;
     if (typeof Chart === 'undefined') {
+      // Sem a biblioteca de gráficos o canvas fica oculto, não removido: os próximos
+      // renders precisam dele para continuar atualizando títulos, notas e números.
       const box = cv.closest('.chart-box,.modal-chart');
-      if (box) box.replaceChildren(el('div', 'fallback-box', fallback || cv.getAttribute('aria-label') || 'Gráfico indisponível.'));
+      if (box) {
+        box.querySelectorAll('.fallback-box').forEach(x => x.remove());
+        cv.hidden = true;
+        box.append(el('div', 'fallback-box', fallback || cv.getAttribute('aria-label') || 'Gráfico indisponível.'));
+      }
       return null;
     }
     if (CHARTS[id]) CHARTS[id].destroy();
@@ -1821,9 +1892,11 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   function atualizarCabecalho() {
     const p = PERIODOS.find(x => x.id === state.periodId), meta = DATA && DATA.meta ? DATA.meta : {};
-    const label = rotuloPeriodo(p);
-    $('tb_periodo').textContent = label;
-    if ($('tb_datas')) $('tb_datas').textContent = datasPeriodo(p) || '–';
+    const parcial = periodoParcial(p);
+    if ($('tb_datas')) {
+      $('tb_datas').replaceChildren(document.createTextNode(datasPeriodo(p) || '–'));
+      if (parcial) $('tb_datas').append(el('span', 'pc-parcial', ' · ' + mesesDe(p) + ' de ' + MESES_NOMINAIS[p.tipo] + (MESES_NOMINAIS[p.tipo] === 1 ? ' mês' : ' meses')));
+    }
     if ($('tb_escopo')) $('tb_escopo').textContent = rotuloEscopo();
     const corteBruto = pick(meta, 'data_corte_idade', 'data_corte');
     const corte = corteBruto ? String(corteBruto).split('-').reverse().join('/') : null;
@@ -1962,7 +2035,7 @@ html,body{max-width:100%;overflow-x:hidden}
     if (!cv) return false;
     const box = cv.closest('.chart-box,.modal-chart');
     if (!box) return temDados;
-    box.querySelectorAll('.chart-empty').forEach(x => x.remove());
+    box.querySelectorAll('.chart-empty,.fallback-box').forEach(x => x.remove());
     cv.hidden = !temDados;
     if (!temDados) {
       const empty = el('div', 'empty-state chart-empty', mensagem || 'Sem dados suficientes neste recorte para este gráfico.');
@@ -2085,8 +2158,9 @@ html,body{max-width:100%;overflow-x:hidden}
     const prev = new Map();
     if (ant) {
       const disc = disciplinaAtiva();
-      const fatiasAnt = disc ? asArray(ant.recorte.prestador_disciplina).filter(f => f.disciplina === disc) : null;
-      if (fatiasAnt && fatiasAnt.length) fatiasAnt.forEach(f => prev.set(f.nome, f));
+      // Disciplina sem lançamento no período anterior: não há base de comparação — nunca o total do prestador.
+      const fatiasAnt = disc && Array.isArray(ant.recorte.prestador_disciplina) ? ant.recorte.prestador_disciplina.filter(f => f.disciplina === disc) : null;
+      if (fatiasAnt) fatiasAnt.forEach(f => prev.set(f.nome, f));
       else prestadoresDe(ant.recorte).forEach(row => prev.set(row.nome, row));
     }
     const comparavel = escopoComparavel();
@@ -2187,7 +2261,7 @@ html,body{max-width:100%;overflow-x:hidden}
       chip.hidden = !filtros.length;
       chip.textContent = filtros.length ? 'Filtro ativo em tabela e gráficos — ' + filtros.join(' · ') : '';
     }
-    if ($('pr_pareto_sub')) $('pr_pareto_sub').textContent = ctx.pareto80 ? 'Os ' + fmtN(ctx.pareto80) + ' primeiros prestadores concentram 80% do pagamento do recorte. Clique na linha para abrir a ficha.' : 'Clique na linha para abrir a ficha do prestador.';
+    if ($('pr_pareto_sub')) $('pr_pareto_sub').textContent = ctx.pareto80 ? (ctx.pareto80 === 1 ? 'O maior prestador concentra 80% do pagamento do recorte.' : 'Os ' + fmtN(ctx.pareto80) + ' primeiros prestadores concentram 80% do pagamento do recorte.') + ' Clique na linha para abrir a ficha.' : 'Clique na linha para abrir a ficha do prestador.';
     const exportBox = $('pr_export');
     if (exportBox && !exportBox.childElementCount) exportBox.append(botaoExport('Exportar CSV', () => {
       const todos = ordenarPrestadores(providersFiltered(recorteAtual()).map(x => enriquecerLinha(x, contextoPrestadores(recorteAtual()))));
@@ -2374,19 +2448,25 @@ html,body{max-width:100%;overflow-x:hidden}
       .sort((a, b) => Math.abs(b._desvio) - Math.abs(a._desvio));
   }
 
+  // A tabela "Ver todos os desvios", quando aberta, é refeita a cada novo recorte ou escopo.
+  function redesenharDesvios() {
+    const wrap = $('pr_disp_all');
+    if (wrap && !wrap.hidden) renderDispTable(1);
+  }
   function renderProviderDispersion(r) {
     if (!escopoComparavel()) {
       prepararCanvas('c_pr_disp', false, MSG_ESCOPO);
       if ($('pr_disp_title')) $('pr_disp_title').textContent = 'Desvio de Preço por Disciplina';
       $('pr_disp_sub').textContent = 'Faixas de referência são calculadas por disciplina';
       $('pr_disp_note').textContent = '';
+      redesenharDesvios();
       return;
     }
     const rows = desviosOrdenados(r), top = rows.slice(0, 12);
     const acima = rows.filter(x => x._desvio > 10).length;
     if ($('pr_disp_title')) $('pr_disp_title').textContent = acima ? fmtN(acima) + ' prestador' + (acima === 1 ? ' está' : 'es estão') + ' mais de 10% acima da faixa do canal' : 'Os preços da rede estão dentro da faixa dos canais';
-    $('pr_disp_sub').textContent = 'Maiores desvios absolutos entre ' + fmtN(rows.length) + ' prestadores com ' + fmtN(MIN_SESSOES_FAIXA) + '+ sessões; faixa de ±10% sombreada';
-    if (!prepararCanvas('c_pr_disp', top.length > 0, 'Não há prestadores elegíveis para o cálculo de desvio neste recorte.')) { $('pr_disp_note').textContent = ''; return; }
+    $('pr_disp_sub').textContent = 'Maiores desvios absolutos entre ' + fmtN(rows.length) + (rows.length === 1 ? ' prestador com ' : ' prestadores com ') + fmtN(MIN_SESSOES_FAIXA) + '+ sessões; faixa de ±10% sombreada';
+    if (!prepararCanvas('c_pr_disp', top.length > 0, 'Não há prestadores elegíveis para o cálculo de desvio neste recorte.')) { $('pr_disp_note').textContent = ''; redesenharDesvios(); return; }
     novoChart('c_pr_disp', {
       type: 'bar',
       data: { labels: top.map(x => x._nome), datasets: [{ label: 'Desvio vs mediana do canal', data: top.map(x => x._desvio), backgroundColor: top.map(x => x._desvio > 10 ? AMBER : (x._desvio < -10 ? '#9db4b1' : ASH)), borderRadius: 5, borderSkipped: false, maxBarThickness: 18 }] },
@@ -2413,6 +2493,7 @@ html,body{max-width:100%;overflow-x:hidden}
           desviosOrdenados(recorteAtual()).map(x => [x._nome, nomeCanal(x), custoSessao(x), (contextoPrestadores(recorteAtual()).faixas[nomeCanal(x)] || {}).mediana, x._desvio, sessoes(x)]));
       }));
     }
+    redesenharDesvios();
   }
   let dispPage = 1;
   function renderDispTable(page) {
@@ -2591,6 +2672,7 @@ html,body{max-width:100%;overflow-x:hidden}
   function waterfallChart(id, decomp, tituloId, notaId, contexto, rotulos) {
     if (!decomp) {
       prepararCanvas(id, false, 'A série deste recorte é curta demais para decompor a variação.');
+      if (tituloId && $(tituloId)) $(tituloId).textContent = 'Decomposição da Variação do Pagamento';
       if (notaId && $(notaId)) $(notaId).textContent = '';
       return;
     }
@@ -2758,7 +2840,7 @@ html,body{max-width:100%;overflow-x:hidden}
         lineChart('c_vg_cost', serieDisc, 'pagamento', 'Pagamento da disciplina', brlK, GREEN, { mediaMovel: true });
         if ($('vg_trend_title')) {
           const vals = serieDisc.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
-          if (vals.length >= 6) { const u3 = vals.slice(-3).reduce((a2, b2) => a2 + b2, 0), a3v = vals.slice(-6, -3).reduce((a2, b2) => a2 + b2, 0); const dd = deltaPct(u3, a3v); if (dd !== null) $('vg_trend_title').textContent = 'O custo de ' + disc + ' ' + (dd >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(dd)) + '% no trimestre contra o anterior'; }
+          if (vals.length >= 6) { const u3 = vals.slice(-3).reduce((a2, b2) => a2 + b2, 0), a3v = vals.slice(-6, -3).reduce((a2, b2) => a2 + b2, 0); const dd = deltaPct(u3, a3v); if (dd !== null) $('vg_trend_title').textContent = 'O custo de ' + disc + ' ' + (dd >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(dd)) + '% nos últimos 3 meses contra os 3 anteriores'; else $('vg_trend_title').textContent = 'Tendência do Pagamento de ' + disc + ' por Competência'; }
           else $('vg_trend_title').textContent = 'Tendência do Pagamento de ' + disc + ' por Competência';
         }
       } else {
@@ -2770,7 +2852,7 @@ html,body{max-width:100%;overflow-x:hidden}
     }
     const cmp = comparacaoResumo(r);
     const ccm = custoCriancaMes(r);
-    const ccmDelta = cmp && n(cmp.cur.pagamento) !== null && cmp.cur.pacientes && cmp.prev.pacientes ? deltaPct(cmp.cur.pagamento / cmp.cur.pacientes, cmp.prev.pagamento / cmp.prev.pacientes) : null;
+    const ccmDelta = deltaCustoCriancaMes(r, cmp);
     const all = providerRows(r), totalPag = pagamento(resumo) || 0;
     const top10 = all.slice().sort((a, b) => (pagamento(b) || 0) - (pagamento(a) || 0)).slice(0, 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
     const foraFaixa = all.filter(x => desvioFaixa(x, ctx.faixas) !== null && desvioFaixa(x, ctx.faixas) > 10).reduce((a, x) => a + (pagamento(x) || 0), 0);
@@ -2779,7 +2861,7 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Pagamento do período', valor: brlK(pagamento(resumo)), delta: cmp ? deltaPct(cmp.cur.pagamento, cmp.prev.pagamento) : null, deltaLabel: rot, subir_e_ruim: true },
       { label: 'Custo por criança-mês', valor: brl(ccm), delta: ccmDelta, deltaLabel: rot, subir_e_ruim: true, sub: 'pagamento ÷ criança×mês ativo' },
       { label: 'Crianças ativas', valor: kOr(pacientes(resumo)), delta: cmp ? deltaPct(n(cmp.cur.pacientes), n(cmp.prev.pacientes)) : null, deltaLabel: rot, subir_e_ruim: false },
-      { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)), delta: cmp && cmp.cur.sessoes && cmp.prev.sessoes ? deltaPct(cmp.cur.pagamento / cmp.cur.sessoes, cmp.prev.pagamento / cmp.prev.sessoes) : null, deltaLabel: rot, subir_e_ruim: true },
+      { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)), delta: deltaPrecoSessaoPaga(cmp), deltaLabel: rot, subir_e_ruim: true },
       { label: 'Concentração top-10', valor: totalPag ? pct(top10 / totalPag * 100) : '—', sub: 'parcela do pagamento nos 10 maiores prestadores' },
       escopoComparavel()
         ? { label: 'Fora de faixa de preço', valor: totalPag ? pct(foraFaixa / totalPag * 100) : '—', sub: 'pagamento em prestadores 10%+ acima da faixa do canal no escopo' }
@@ -2793,10 +2875,11 @@ html,body{max-width:100%;overflow-x:hidden}
     const serie = serieDe(r);
     lineChart('c_vg_cost', serie, 'pagamento', 'Pagamento', brlK, GREEN, { mediaMovel: true });
     const vals = serie.map(x => n(pick(x, 'pagamento'))).filter(v => v !== null);
+    if ($('vg_trend_title')) $('vg_trend_title').textContent = 'Tendência do Pagamento por Competência';
     if ($('vg_trend_title') && vals.length >= 6) {
       const ult3 = vals.slice(-3).reduce((a, b) => a + b, 0), ant3 = vals.slice(-6, -3).reduce((a, b) => a + b, 0);
       const d = deltaPct(ult3, ant3);
-      if (d !== null) $('vg_trend_title').textContent = 'O custo ' + (d >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(d)) + '% no trimestre contra o anterior';
+      if (d !== null) $('vg_trend_title').textContent = 'O custo ' + (d >= 0 ? 'cresce ' : 'recua ') + fmt1(Math.abs(d)) + '% nos últimos 3 meses contra os 3 anteriores';
     }
     renderSinais(r);
   }
@@ -2889,7 +2972,7 @@ html,body{max-width:100%;overflow-x:hidden}
       { label: 'Pagamento', valor: brlK(pagamento(resumo)), delta: cmp ? deltaPct(cmp.cur.pagamento, cmp.prev.pagamento) : null, deltaLabel: rot, subir_e_ruim: true },
       { label: 'Sessões', valor: fmtN(sessoes(resumo)), delta: cmp ? deltaPct(n(cmp.cur.sessoes), n(cmp.prev.sessoes)) : null, deltaLabel: rot, subir_e_ruim: true },
       { label: 'Crianças únicas', valor: kOr(pacientes(resumo)), delta: cmp ? deltaPct(n(cmp.cur.pacientes), n(cmp.prev.pacientes)) : null, deltaLabel: rot, subir_e_ruim: false },
-      { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)), delta: cmp && cmp.cur.sessoes && cmp.prev.sessoes ? deltaPct(cmp.cur.pagamento / cmp.cur.sessoes, cmp.prev.pagamento / cmp.prev.sessoes) : null, deltaLabel: rot, subir_e_ruim: true }
+      { label: 'R$/sessão paga', valor: brl(custoSessao(resumo)), delta: deltaPrecoSessaoPaga(cmp), deltaLabel: rot, subir_e_ruim: true }
     ]);
     const rotulosWf = cmp && cmp.interna ? { base: trunc(rot.split(' vs ')[1] || 'Metade anterior', 18), fim: trunc(rot.split(' vs ')[0] || 'Metade recente', 18) } : undefined;
     waterfallChart('c_ev_waterfall', cmp ? decomposicaoPagamento(cmp.cur, cmp.prev) : null, 'ev_wf_title', 'ev_wf_note', cmp ? 'Comparação: ' + rot + '. ' : '', rotulosWf);
@@ -2952,7 +3035,8 @@ html,body{max-width:100%;overflow-x:hidden}
       const prev = combosMap.get(key) || 0, value = n(pacientes(row)); if (value !== null) combosMap.set(key, prev + value);
     });
     const combos = [...combosMap].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
-    const comboBox = $('c_es_combos').closest('.chart-box'); comboBox.style.height = Math.min(820, Math.max(360, combos.length * 28 + 60)) + 'px';
+    const comboCanvas = $('c_es_combos'), comboBox = comboCanvas && comboCanvas.closest('.chart-box');
+    if (comboBox) comboBox.style.height = Math.min(820, Math.max(360, combos.length * 28 + 60)) + 'px';
     barChart('c_es_combos', combos.map(x => x.label), combos.map(x => x.value), 'Crianças', fmtN, { colors: combos.map(() => ORANGE), empty: 'Nenhuma combinação foi registrada neste recorte.' });
     $('es_care_note').textContent = 'A distribuição clínica registra ' + fmtN(linhas.exposicoes) + ' exposições. ' + pct(linhas.dois_ou_mais_pct) + ' das crianças utilizam duas ou mais terapias.';
   }
@@ -3167,9 +3251,9 @@ html,body{max-width:100%;overflow-x:hidden}
     sourceRow(dl, 'Origem assistencial', 'Origem oficial da operadora — guias SPSADT, por competência de faturamento.');
     sourceRow(dl, 'Planilhas-fonte', fmtN(sources.length) + ' arquivos processados fora do repositório; cada entrada possui SHA-256 e competências observadas.');
     sources.forEach((row, i) => sourceRow(dl, 'Fonte ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · código ' + (row.codigo || '—') + ' · ' + fmtN(asArray(row.competencias).length) + ' competências · SHA-256 ' + (row.sha256 || 'não informado')));
-    asArray(meta.blocos_fonte).forEach((row, i) => {
+    asArray(meta.blocos_fonte).filter(isObject).forEach((row, i) => {
       const mesesBloco = asArray(row.competencias_na_janela);
-      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + ' registros em ' + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + (n(pick(row, 'registros_agregados')) === null ? '' : ', dos quais ' + fmtN(row.registros_agregados) + ' integram o painel') + ' · ' + fmtN(asArray(row.codigos).length) + ' códigos · SHA-256 ' + (row.sha256 || 'não informado'));
+      sourceRow(dl, 'Bloco complementar ' + String(i + 1).padStart(2, '0'), (row.arquivo || 'arquivo') + ' · ' + fmtN(pick(row, 'registros_na_janela')) + (n(pick(row, 'registros_na_janela')) === 1 ? ' registro em ' : ' registros em ') + fmtN(mesesBloco.length) + (mesesBloco.length === 1 ? ' competência' : ' competências') + (mesesBloco.length ? ' (' + mesesBloco.join(', ') + ')' : '') + (n(pick(row, 'registros_agregados')) === null ? '' : ', dos quais ' + fmtN(row.registros_agregados) + ' integram o painel') + (n(pick(row, 'registros_cedidos')) > 0 ? ' · ' + asArray(row.competencias_cedidas).join(', ') + ' vem de bloco mais recente' : '') + ' · ' + fmtN(asArray(row.codigos).length) + (asArray(row.codigos).length === 1 ? ' código' : ' códigos') + ' · SHA-256 ' + (row.sha256 || 'não informado'));
       const sem = isObject(row.sem_nascimento) ? row.sem_nascimento : null;
       if (sem && n(sem.registros) > 0) sourceRow(dl, 'Registros sem data de nascimento', fmtN(sem.registros) + (n(sem.registros) === 1 ? ' registro do bloco chegou' : ' registros do bloco chegaram') + ' sem data de nascimento' + (asArray(sem.competencias).length ? ' (' + sem.competencias.join(', ') + ')' : '') + ': ' + fmtN(sem.recuperados) + ' com a data recuperada de outro registro do mesmo beneficiário e ' + fmtN(sem.fora_do_painel) + ' fora do painel' + (n(sem.fora_do_painel) > 0 ? ' (' + fmtN(sem.sessoes_fora_do_painel) + (n(sem.sessoes_fora_do_painel) === 1 ? ' sessão, ' : ' sessões, ') + brl(sem.pagamento_fora_do_painel) + ')' : '') + '. O paciente é identificado por nome e data de nascimento; sem a data, o registro não é atribuído a nenhuma criança.');
     });
@@ -3190,7 +3274,11 @@ html,body{max-width:100%;overflow-x:hidden}
     }
   });
   observadorLogout.observe(document.documentElement, { childList: true, subtree: true });
-  document.addEventListener('DOMContentLoaded', () => { void boot(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    // A página interna carrega o widget de sessão do Hub no cabeçalho; a cópia compartilhável, não.
+    document.documentElement.classList.toggle('sem-sessao', !document.querySelector('script[data-portal]'));
+    void boot();
+  });
 })();
 </script>
 
