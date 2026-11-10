@@ -1617,7 +1617,8 @@ html,body{max-width:100%;overflow-x:hidden}
     if (response.status === 401 || response.status === 403) {
       // Recarregar antes do fim da validação do widget devolveria o token à página seguinte, em laço.
       if (!paginaAberta() && window.HUB_AUTH_READY) { try { await window.HUB_AUTH_READY; } catch (_e) {} }
-      limparSessaoAtual();
+      // Só a sessão recusada é apagada: durante a espera, outra aba pode ter entrado de novo.
+      if (tokenAtual() === token) limparSessaoAtual();
       window.location.reload();
       throw new Error('A sessão expirou. Faça a autenticação novamente.');
     }
