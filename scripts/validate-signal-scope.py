@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SIGNAL_ROOT = ROOT / "signal" / "edicoes"
 
 FORBIDDEN_INTERNAL_TOPICS = {
+    "Serpa Braz": r"\bSerpa\s+Braz\b",
     "CMS-CSV": r"\bCMS[-–— ]?CSV\b",
     "Compass": r"\bCompass(?:™)?\b",
     "OpenClaw": r"\bOpenClaw\b",
@@ -26,7 +27,7 @@ FORBIDDEN_INTERNAL_TOPICS = {
 INSTITUTIONAL_ANCHORS = re.compile(
     r"Unimed|Unihealth|Escritório de Valor|\bEVS\b|operadora|beneficiário|paciente|"
     r"médic[oa]s?|assistencial|cuidado|Ymunity|\bDRG\b|\bRMBV\b|PPE-15|\bTEA\b|"
-    r"Assessment 2iM|Hi! Healthcare|\bVPD\b",
+    r"Assessment 2iM|Hi! Healthcare|\bVPD\b|\bAtenção Primária à Saúde\b",
     re.IGNORECASE,
 )
 
