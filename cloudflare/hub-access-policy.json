@@ -1,0 +1,21 @@
+{
+  "_comment": "O que a trava do Access aceita antes de publicar o Hub (scripts/cloudflare/check-access-gate.py). Regra de pessoas: so e-mails nominais, os dominios desta lista e tokens de servico nominais. Passagem livre (bypass) so nos caminhos publicos desta lista.",
+  "allowed_email_domains": ["grupocsv.com"],
+  "public_paths": [
+    "/compass",
+    "/signal",
+    "/compliance",
+    "/_public",
+    "/assets",
+    "/favicons",
+    "/favicon.ico",
+    "/og",
+    "/p",
+    "/visual-identity",
+    "/vp-icons.css",
+    "/robots.txt",
+    "/site.webmanifest",
+    "/unimed/tea",
+    "/unimed/tea.html"
+  ]
+}
