@@ -23,14 +23,13 @@ import shutil
 import sys
 from pathlib import Path
 
-SCOPE_OWNED = {"infra": ["_infra"], "founder": ["founder"], "public": ["compass", "signal"]}
-SCOPE_ASSETS = {
-    "main": "assets",
-    "infra": "_infra/_static",
-    "founder": "founder/_static",
-    "public": "_public/_static",
-}
-SCOPES = ["main", "infra", "founder", "public"]
+SCOPES_FILE = Path(__file__).resolve().parents[2] / "docs/.vitepress/scopes.json"
+_SCOPES = json.loads(SCOPES_FILE.read_text(encoding="utf-8"))
+SCOPE_OWNED: dict = _SCOPES["owned"]
+SCOPE_ASSETS: dict = _SCOPES["assets"]
+SCOPES: list = _SCOPES["order"]
+# Pasta dos chunks do build padrao (GitHub Pages).
+DEFAULT_ASSETS: str = _SCOPES["default_assets"]
 # Pastas de JavaScript e CSS geradas pelo VitePress em cada escopo.
 VP_CODE = re.compile(r'(?:src|href)="(/[^"]*?/(?:chunks|app\.[^"/]+\.js|style\.[^"/]+\.css)[^"]*)"')
 
@@ -48,8 +47,9 @@ def owner_of(rel: str) -> str:
     for scope, dirs in SCOPE_OWNED.items():
         if first in dirs:
             return scope
-    if first == "_public":
-        return "public"
+    for scope, assets in SCOPE_ASSETS.items():
+        if first == assets.split("/")[0] and assets.startswith("_"):
+            return scope
     return "main"
 
 
@@ -114,9 +114,9 @@ def assemble(pages: Path, manifest: dict, scope_dirs: dict, out: Path) -> dict:
         report["from_scope"][scope] = count
 
     # Paginas e arquivos do VitePress padrao sem substituto. Os chunks do
-    # build padrao em /assets/ tem nomes com hash e sao trocados pelos do
-    # main, por isso nao contam.
-    vp_assets = SCOPE_ASSETS["main"] + "/"
+    # build padrao em /assets/ tem nomes com hash e sao trocados pelos dos
+    # escopos, por isso nao contam.
+    vp_assets = DEFAULT_ASSETS + "/"
     missing = sorted(
         r for r in dropped if r not in placed and not r.startswith(vp_assets)
     )

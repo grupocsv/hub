@@ -1,4 +1,5 @@
 declare const __HUB_SCOPE__: string | undefined
+declare const __HUB_SCOPE_OWNERS__: Record<string, string>
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import './custom.css'
@@ -13,9 +14,7 @@ export default {
     // Builds por escopo (plano de seguranca do Hub): uma pagina de outro
     // escopo nao existe neste app, entao a navegacao vira carregamento normal.
     if (typeof window !== 'undefined' && typeof __HUB_SCOPE__ !== 'undefined') {
-      const owners: Record<string, string> = {
-        _infra: 'infra', founder: 'founder', compass: 'public', signal: 'public',
-      }
+      const owners = __HUB_SCOPE_OWNERS__
       router.onBeforeRouteChange = (to: string) => {
         const url = new URL(to, window.location.href)
         const owner = owners[url.pathname.replace(/^\/+/, '').split('/')[0]] ?? 'main'

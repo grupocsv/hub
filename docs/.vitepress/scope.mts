@@ -3,36 +3,29 @@
 // Sem HUB_BUILD_SCOPE o build e exatamente o de hoje (GitHub Pages).
 // Com HUB_BUILD_SCOPE, cada escopo gera so as suas paginas, com pasta de
 // arquivos e indice de busca proprios, para que quem tem acesso a um escopo
-// nao receba o texto de outro:
-//   main    portais e demais paginas      arquivos em /assets/
-//   infra   /_infra/                       arquivos em /_infra/_static/
-//   founder /founder/                      arquivos em /founder/_static/
-//   public  /compass/ e /signal/           arquivos em /_public/_static/
+// nao receba o texto de outro. A lista de escopos fica em scopes.json, lida
+// tambem pelo tema e pelos scripts de scripts/cloudflare.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const SCOPE_OWNED: Record<string, string[]> = {
-  infra: ['_infra'],
-  founder: ['founder'],
-  public: ['compass', 'signal'],
-}
+const here = path.dirname(fileURLToPath(import.meta.url))
+const scopes = JSON.parse(fs.readFileSync(path.join(here, 'scopes.json'), 'utf8'))
 
-export const SCOPE_ASSETS: Record<string, string> = {
-  main: 'assets',
-  infra: '_infra/_static',
-  founder: 'founder/_static',
-  public: '_public/_static',
-}
+export const SCOPE_OWNED: Record<string, string[]> = scopes.owned
+export const SCOPE_ASSETS: Record<string, string> = scopes.assets
 
-const docsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+// Pasta de primeiro nivel -> escopo, usado pelo tema para decidir quando a
+// navegacao precisa recarregar a pagina.
+export const SCOPE_OWNERS: Record<string, string> = Object.fromEntries(
+  Object.entries(SCOPE_OWNED).flatMap(([scope, dirs]) => dirs.map((d) => [d, scope])),
+)
+
+const docsDir = path.resolve(here, '..')
 
 export function ownerOf(pathname: string): string {
   const first = pathname.replace(/^\/+/, '').split('/')[0]
-  for (const [scope, dirs] of Object.entries(SCOPE_OWNED)) {
-    if (dirs.includes(first)) return scope
-  }
-  return 'main'
+  return SCOPE_OWNERS[first] ?? 'main'
 }
 
 export function currentScope(): string | undefined {
@@ -72,7 +65,12 @@ export function scopeOverrides(): Record<string, unknown> {
     ignoreDeadLinks: [
       (url: string) => ownerOf(url.startsWith('/') ? url : `/${url}`) !== scope,
     ],
-    vite: { define: { __HUB_SCOPE__: JSON.stringify(scope) } },
+    vite: {
+      define: {
+        __HUB_SCOPE__: JSON.stringify(scope),
+        __HUB_SCOPE_OWNERS__: JSON.stringify(SCOPE_OWNERS),
+      },
+    },
   }
 }
 
