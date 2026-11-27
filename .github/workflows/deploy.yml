@@ -400,6 +400,24 @@ jobs:
       - name: Validate published Terapias Especiais artifact
         run: python3 scripts/check-tea-artifacts.py --root docs/.vitepress/dist
 
+      # Fase 1 do plano de seguranca do Hub: validacao sem efeito para a
+      # hospedagem na Cloudflare. Nao bloqueia o build nem o deploy do Pages.
+      - name: Preparar artefato para a Cloudflare (sem publicar)
+        continue-on-error: true
+        run: |
+          python3 -m unittest discover -s tests/cloudflare -p 'test_*.py'
+          python3 scripts/cloudflare/prepare-assets.py --src docs/.vitepress/dist --out dist-cloudflare --report cloudflare-assets-report.json
+          {
+            echo "### Artefato para a Cloudflare"
+            echo '```json'
+            cat cloudflare-assets-report.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validar configuracao do Worker de teste (dry-run)
+        continue-on-error: true
+        run: npx --yes wrangler@4 deploy --config cloudflare/hub-staging.wrangler.jsonc --dry-run
+
       - name: Upload artifact
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-pages-artifact@v3
@@ -422,3 +440,48 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Fase 1 do plano de seguranca do Hub: publica so o Hub de teste
+  # (hub-staging.grupocsv.com). Roda apenas na main, apenas se o segredo
+  # CLOUDFLARE_HUB_STAGING_TOKEN existir, e nunca afeta o deploy do Pages.
+  cloudflare-staging:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificar segredo do Hub de teste
+        id: gate
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Hub de teste desligado: segredo CLOUDFLARE_HUB_STAGING_TOKEN ausente." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Baixar artefato do build
+        if: ${{ steps.gate.outputs.enabled == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: pages-artifact
+
+      - name: Publicar Hub de teste
+        if: ${{ steps.gate.outputs.enabled == 'true' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          mkdir -p site
+          tar -xf pages-artifact/artifact.tar -C site
+          python3 scripts/cloudflare/prepare-assets.py --src site --out dist-cloudflare --report cloudflare-assets-report.json
+          npx --yes wrangler@4 deploy --config cloudflare/hub-staging.wrangler.jsonc

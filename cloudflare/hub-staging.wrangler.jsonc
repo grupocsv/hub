@@ -1,0 +1,19 @@
+// Hub de teste servido pelos arquivos estaticos da Cloudflare (Workers).
+// Fase 1 do plano de seguranca do Hub (27/11/2026). Nao toca hub.grupocsv.com.
+// Sem workers.dev e sem URLs de previa: o unico caminho e hub-staging.grupocsv.com,
+// que fica atras do Cloudflare Access.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "hub-staging",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "../dist-cloudflare",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "hub-staging.grupocsv.com", "custom_domain": true }
+  ]
+}
