@@ -416,7 +416,7 @@ jobs:
 
       - name: Validar configuracao do Worker de teste (dry-run)
         continue-on-error: true
-        run: npx --yes wrangler@4 deploy --config cloudflare/hub-staging.wrangler.jsonc --dry-run
+        run: npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc --dry-run
 
       - name: Upload artifact
         if: ${{ github.event_name != 'pull_request' }}
@@ -479,9 +479,8 @@ jobs:
         if: ${{ steps.gate.outputs.enabled == 'true' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           mkdir -p site
           tar -xf pages-artifact/artifact.tar -C site
           python3 scripts/cloudflare/prepare-assets.py --src site --out dist-cloudflare --report cloudflare-assets-report.json
-          npx --yes wrangler@4 deploy --config cloudflare/hub-staging.wrangler.jsonc
+          npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc

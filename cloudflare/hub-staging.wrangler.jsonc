@@ -5,6 +5,7 @@
 {
   "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "hub-staging",
+  "account_id": "da0c29123f448f3c3892f784cd9f7cac",
   "compatibility_date": "2026-11-01",
   "workers_dev": false,
   "preview_urls": false,
