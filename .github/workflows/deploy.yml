@@ -437,7 +437,7 @@ jobs:
             --scopes docs/.vitepress \
             --out "$RUNNER_TEMP/hub-scoped" \
             --report cloudflare-overlay-report.json
-          python3 scripts/cloudflare/prepare-assets.py --src "$RUNNER_TEMP/hub-scoped" --out dist-cloudflare --report cloudflare-assets-report.json
+          python3 scripts/cloudflare/prepare-assets.py --src "$RUNNER_TEMP/hub-scoped" --out dist-cloudflare --report cloudflare-assets-report.json --extra-redirects cloudflare/hub-redirects
           {
             echo "### Artefato para a Cloudflare"
             echo '```json'

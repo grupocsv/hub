@@ -1,0 +1,164 @@
+name: Publicar Painel TEA e Data Set TEA nas Open Pages
+
+# Sobe open-pages/painel-tea e open-pages/tea-dataset, byte a byte, da revisão
+# atual da main para open.grupocsv.com/painel-tea/ e /tea-dataset/ via
+# POST /api/upload (rota autenticada do Worker csv-open-pages, que preserva
+# og_image e auth_gate do KV). Só roda a partir da main, por guicthome, com o
+# SHA completo da revisão atual de origin/main.
+#
+# Quando rodar: depois de cada merge que mude open-pages/ (a CI do deploy.yml
+# já exige que open-pages/ esteja em dia com p/painel-tea e p/tea-dataset).
+#
+# O painel tem login próprio (unimed-te-data + csv-open-auth). Por isso este
+# workflow desliga o auth_gate do Worker em painel-tea, para não empilhar dois
+# portões na mesma página (mesmo caso do painel-cirurgico).
+#
+# Reversão: reverter o commit na main por PR e rodar este workflow de novo com
+# o novo SHA.
+#
+# Secret: OPEN_PAGES_ADMIN_TOKEN no environment open-pages (mesmo valor usado
+# no repositório csv-open-pages). Sem ele o workflow para antes de enviar.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: SHA completo da main a publicar (precisa ser o atual de origin/main)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-open-pages-tea
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.actor == 'guicthome' &&
+      github.triggering_actor == 'guicthome'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: open-pages
+    env:
+      SOURCE_REVISION: ${{ inputs.source_revision }}
+    steps:
+      - name: Obter branch principal
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fixar revisão integrada e conferir as cópias
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$SOURCE_REVISION" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::source_revision precisa ser um SHA de 40 caracteres"; exit 1; }
+          [[ "$(git rev-parse origin/main)" == "$SOURCE_REVISION" ]] || { echo "::error::source_revision difere da revisão atual de origin/main"; exit 1; }
+          git checkout --detach "$SOURCE_REVISION"
+          python3 scripts/build-open-pages.py --check
+          for slug in painel-tea tea-dataset; do
+            echo "== $slug"
+            (cd "open-pages/$slug" && sha256sum * )
+          done
+
+      - name: Enviar as duas páginas via /api/upload
+        shell: bash
+        env:
+          ADMIN_TOKEN: ${{ secrets.OPEN_PAGES_ADMIN_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+          [ -n "$ADMIN_TOKEN" ] || { echo "::error::secret OPEN_PAGES_ADMIN_TOKEN ausente"; exit 1; }
+          for slug in painel-tea tea-dataset; do
+            dir="open-pages/$slug"
+            python3 - "$dir/index.html" <<'PY'
+          import html, re, sys
+          s = open(sys.argv[1], encoding="utf-8").read()
+          t = re.search(r"<title>([^<]+)</title>", s)
+          d = re.search(r'<meta name="description" content="([^"]+)"', s)
+          if not t or not d:
+              sys.exit("title ou meta description ausente")
+          open("title.txt", "w", encoding="utf-8").write(" ".join(html.unescape(t.group(1)).split()))
+          open("desc.txt", "w", encoding="utf-8").write(" ".join(html.unescape(d.group(1)).split()))
+          PY
+            title=$(cat title.txt); desc=$(cat desc.txt); rm -f title.txt desc.txt
+            echo "$slug: $title"
+            args=()
+            for f in "$dir"/*; do
+              args+=(-F "files=@$f;filename=$(basename "$f")")
+            done
+            code=$(curl -sS --max-time 120 -o resp.json -w "%{http_code}" \
+              -X POST https://open.grupocsv.com/api/upload \
+              -H "Authorization: Bearer $ADMIN_TOKEN" \
+              --form-string "slug=$slug" \
+              --form-string "title=$title" \
+              --form-string "description=$desc" \
+              "${args[@]}")
+            echo "$slug: HTTP $code"
+            python3 - "$code" "$slug" "$(ls "$dir" | wc -l)" <<'PY'
+          import json, sys
+          code, slug, n = sys.argv[1], sys.argv[2], int(sys.argv[3])
+          try:
+              d = json.load(open("resp.json", encoding="utf-8"))
+          except Exception:
+              print("::error::resposta não é JSON"); sys.exit(1)
+          campos = {k: d.get(k) for k in ("success", "error", "slug", "status", "public_url", "updated_at", "file_count") if k in d}
+          print(json.dumps(campos, ensure_ascii=False))
+          erros = []
+          if code != "200": erros.append("HTTP " + code)
+          if d.get("success") is not True: erros.append("success != true")
+          if d.get("slug") != slug: erros.append("slug inesperado")
+          if d.get("status") != "active": erros.append("status != active")
+          if d.get("file_count") != n: erros.append(f"file_count {d.get('file_count')} != {n}")
+          if erros:
+              print("::error::" + "; ".join(erros)); sys.exit(1)
+          PY
+            rm -f resp.json
+          done
+
+      - name: Desligar o portão do Worker no painel (o painel tem login próprio)
+        shell: bash
+        env:
+          ADMIN_TOKEN: ${{ secrets.OPEN_PAGES_ADMIN_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+          code=$(curl -sS --max-time 60 -o resp.json -w "%{http_code}" \
+            -X POST https://open.grupocsv.com/api/set-auth-gate \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"slug":"painel-tea","auth_gate":false}')
+          echo "HTTP $code"
+          python3 -c 'import json; d=json.load(open("resp.json")); print(d); assert d.get("success") is True and d.get("auth_gate") is False' \
+            || { echo "::error::auth_gate do painel-tea não ficou desligado"; exit 1; }
+          rm -f resp.json
+
+      - name: Conferir no ar
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          falhas=0
+          for slug in painel-tea tea-dataset; do
+            for f in open-pages/$slug/*; do
+              name=$(basename "$f")
+              url="https://open.grupocsv.com/$slug/$name"
+              [ "$name" = index.html ] && url="https://open.grupocsv.com/$slug/"
+              ok=0
+              for i in 1 2 3 4 5 6; do
+                code=$(curl -sS --max-time 60 -H "Cache-Control: no-cache" -o got.bin -w "%{http_code}" "$url?v=$SOURCE_REVISION" || true)
+                if [ "$code" = 200 ]; then
+                  if [ "$name" = index.html ]; then
+                    # o Worker injeta as tags de prévia; o resto precisa estar lá
+                    if ! grep -q 'hub.grupocsv.com' got.bin && ! grep -q 'csv-auth-gate-overlay' got.bin; then ok=1; break; fi
+                  elif cmp -s got.bin "$f"; then ok=1; break; fi
+                fi
+                sleep 20
+              done
+              if [ "$ok" = 1 ]; then echo "ok   $url"; else echo "::error::$url não confere (HTTP $code)"; falhas=$((falhas+1)); fi
+            done
+          done
+          rm -f got.bin
+          [ "$falhas" = 0 ]

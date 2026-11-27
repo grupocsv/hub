@@ -12,6 +12,7 @@ Uso:
   python3 scripts/build-open-pages.py --check   # falha se open-pages/ estiver desatualizado
 """
 import argparse
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -22,10 +23,25 @@ HUB = "https://hub.grupocsv.com"
 OPEN = "https://open.grupocsv.com"
 
 
+PAINEL_ABERTA = "const paginaAberta = () => window.location.pathname.includes('/p/painel-tea/');"
+PAINEL_ABERTA_OPEN = (
+    "const paginaAberta = () => window.location.pathname.includes('/p/painel-tea/')\n"
+    "    || (window.location.hostname === 'open.grupocsv.com'"
+    " && window.location.pathname.startsWith('/painel-tea'));"
+)
+
+
 def painel_tea(html: str) -> str:
+    # O painel so mostra o login proprio (csv-open-auth) na copia aberta.
+    # A fonte unimed/tea.html fica intocada (baseline do catalogo do portal);
+    # a deteccao do endereco da Open Page entra so nesta copia.
+    if html.count(PAINEL_ABERTA) != 1:
+        raise SystemExit("painel-tea: deteccao da copia aberta nao encontrada em p/painel-tea/index.html")
+    html = html.replace(PAINEL_ABERTA, PAINEL_ABERTA_OPEN)
     html = html.replace(f'content="{HUB}/p/painel-tea/"', f'content="{OPEN}/painel-tea/"')
-    # Icones ficam no Hub, em caminho publico.
-    html = html.replace('href="/favicons/', f'href="{HUB}/favicons/')
+    # Icones e imagem de previa vao junto da pagina: nada depende do Hub.
+    html = html.replace('href="/favicons/', 'href="/painel-tea/')
+    html = html.replace(f'content="{HUB}/og/og_unimed.png"', f'content="{OPEN}/painel-tea/og.png"')
     return html
 
 
@@ -33,8 +49,43 @@ def tea_dataset(html: str) -> str:
     html = html.replace(f"{HUB}/p/tea-dataset/", f"{OPEN}/tea-dataset/")
     html = html.replace("'/p/tea-dataset/", "'/tea-dataset/")
     html = html.replace('href="/p/tea-dataset/"', 'href="/tea-dataset/"')
-    html = html.replace('href="/assets/favicons/', f'href="{HUB}/assets/favicons/')
+    html = html.replace('href="/assets/favicons/', 'href="/tea-dataset/')
+    # Logos com endereco do Hub passam a arquivos ao lado da pagina.
+    for src_path, name in DATASET_LOGOS.items():
+        html = html.replace(f'"/{src_path}"', f'"/tea-dataset/{name}"')
+    # og_icds.png nunca existiu no Hub (previa quebrada hoje). Sem imagem
+    # propria, as Open Pages usam o card generico do Grupo CSV.
+    for tag in (
+        f'  <meta property="og:image" content="{HUB}/og/og_icds.png">\n',
+        f'  <meta name="twitter:image" content="{HUB}/og/og_icds.png">\n',
+    ):
+        if html.count(tag) != 1:
+            raise SystemExit(f"tea-dataset: marcacao esperada nao encontrada: {tag.strip()}")
+        html = html.replace(tag, "")
+    # O navegador ignora este cabecalho; fica a origem certa para quem le o codigo.
+    html = html.replace(f"'Origin': '{HUB}'", f"'Origin': '{OPEN}'")
     return html
+
+
+FAVICONS = ["favicon.ico", "favicon-16x16.png", "favicon-32x32.png", "apple-touch-icon.png"]
+DATASET_LOGOS = {
+    "visual-identity/icds/logo/png/icds_horizontal_sem_fundo_negativo.png": "icds_horizontal_sem_fundo_negativo.png",
+    "visual-identity/grupo-csv/logo/png/grupo-csv_logo_horizontal_full-color_negative_transparent.png": "grupo-csv_logo_horizontal_full-color_negative_transparent.png",
+    "visual-identity/axiacare/logo/svg/axiacare_logo_horizontal_monochrome_negative.svg": "axiacare_logo_horizontal_monochrome_negative.svg",
+    "visual-identity/axiacare/logo/png/axiacare_logo_horizontal_full-color_positive.png": "axiacare_logo_horizontal_full-color_positive.png",
+}
+PUBLIC = ROOT / "docs/public"
+# Arquivos copiados do Hub para junto de cada pagina (nome final -> origem).
+EXTRA_FILES = {
+    "painel-tea": {
+        **{n: PUBLIC / "favicons" / n for n in FAVICONS},
+        "og.png": PUBLIC / "og/og_unimed.png",
+    },
+    "tea-dataset": {
+        **{n: ROOT / "assets/favicons" / n for n in FAVICONS},
+        **{name: PUBLIC / src for src, name in DATASET_LOGOS.items()},
+    },
+}
 
 
 PAGES = {
@@ -43,7 +94,7 @@ PAGES = {
 }
 
 # Restos que nao podem sobrar na copia: apontariam para o Hub fechado.
-FORBIDDEN = [f"{HUB}/p/", "hub-auth.js", "'/p/tea-dataset", '"/p/tea-dataset']
+FORBIDDEN = [HUB, "hub-auth.js", "'/p/tea-dataset", '"/p/tea-dataset', '"/visual-identity/', '"/favicons/', '"/assets/']
 
 
 def build() -> dict[str, dict[str, bytes]]:
@@ -58,6 +109,14 @@ def build() -> dict[str, dict[str, bytes]]:
         for extra in sorted(src.iterdir()):
             if extra.name != "index.html" and extra.is_file():
                 files[extra.name] = extra.read_bytes()
+        for name, origin in EXTRA_FILES[slug].items():
+            if name in files:
+                raise SystemExit(f"{slug}: nome repetido {name}")
+            files[name] = origin.read_bytes()
+        # Todo arquivo citado pela pagina com /{slug}/nome precisa existir aqui.
+        for ref in set(re.findall(rf'["\']/{slug}/([A-Za-z0-9._-]+\.(?:png|svg|ico|jpg|webp))', html)):
+            if ref not in files:
+                raise SystemExit(f"{slug}: a pagina cita /{slug}/{ref}, que nao foi copiado")
         out[slug] = files
     return out
 

@@ -168,7 +168,7 @@ export default {
         }
 
         // C7: Notificação interna
-        const viewUrl = `https://hub.grupocsv.com/p/tea-dataset/?view=${hash}`;
+        const viewUrl = `https://open.grupocsv.com/tea-dataset/?view=${hash}`;
         const notifHtml = `
           <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;max-width:600px;margin:0 auto;padding:20px">
             <h2 style="color:#1B3A5C;margin-bottom:16px">Data Set TEA — Novo Envio</h2>

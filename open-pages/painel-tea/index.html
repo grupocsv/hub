@@ -9,10 +9,10 @@
 <meta name="hub-category" content="dashboard">
 <meta name="hub-entity" content="Unimed GV">
 
-<link rel="icon" type="image/x-icon" href="https://hub.grupocsv.com/favicons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="https://hub.grupocsv.com/favicons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="https://hub.grupocsv.com/favicons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://hub.grupocsv.com/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" href="/painel-tea/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/painel-tea/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/painel-tea/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/painel-tea/apple-touch-icon.png">
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
@@ -20,14 +20,14 @@
 <meta property="og:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais, por competência oficial de faturamento.">
 <meta property="og:url" content="https://open.grupocsv.com/painel-tea/">
 <meta property="og:site_name" content="Unimed GV | Hub Grupo CSV">
-<meta property="og:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+<meta property="og:image" content="https://open.grupocsv.com/painel-tea/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:type" content="image/png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Painel Terapias Especiais | Unimed GV">
 <meta name="twitter:description" content="Visão multidisciplinar da população, da rede prestadora e das terapias especiais, por competência oficial de faturamento.">
-<meta name="twitter:image" content="https://hub.grupocsv.com/og/og_unimed.png">
+<meta name="twitter:image" content="https://open.grupocsv.com/painel-tea/og.png">
 <meta name="theme-color" content="#004e4c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1562,7 +1562,6 @@ html,body{max-width:100%;overflow-x:hidden}
   };
 
   const pausa = ms => new Promise(resolve => window.setTimeout(resolve, ms));
-  // Cópia aberta: /p/painel-tea/ no Hub ou a Open Page em open.grupocsv.com/painel-tea/.
   const paginaAberta = () => window.location.pathname.includes('/p/painel-tea/')
     || (window.location.hostname === 'open.grupocsv.com' && window.location.pathname.startsWith('/painel-tea'));
   const lerStorage = (storage, key) => {

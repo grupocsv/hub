@@ -1,0 +1,14 @@
+# Redirecionamentos do Hub na Cloudflare, lidos por scripts/cloudflare/prepare-assets.py
+# (--extra-redirects) e postos no inicio do _redirects do artefato.
+# Linhas com # sao ignoradas. Formato: origem destino codigo.
+#
+# Painel TEA e Data Set TEA sairam do Hub para as Open Pages (paginas de cliente).
+# O Access do Hub precisa de passagem livre para estes caminhos, porque ele vem
+# antes do Worker. 302 durante a transicao (facil de desfazer); 301 depois que
+# estiver estavel.
+/p/painel-tea https://open.grupocsv.com/painel-tea/ 302
+/p/painel-tea/* https://open.grupocsv.com/painel-tea/:splat 302
+/p/tea-dataset https://open.grupocsv.com/tea-dataset/ 302
+/p/tea-dataset/* https://open.grupocsv.com/tea-dataset/:splat 302
+/unimed/tea.html https://open.grupocsv.com/painel-tea/ 302
+/unimed/tea https://open.grupocsv.com/painel-tea/ 302
