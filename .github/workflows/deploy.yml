@@ -411,6 +411,8 @@ jobs:
       - name: Preparar artefato para a Cloudflare (sem publicar)
         id: cloudflare_prepare
         continue-on-error: true
+        # Um build travado aqui nao pode segurar a publicacao do Pages.
+        timeout-minutes: 20
         run: |
           set -euo pipefail
           python3 -m unittest discover -s tests/cloudflare -p 'test_*.py'
