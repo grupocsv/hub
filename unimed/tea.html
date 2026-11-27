@@ -1564,7 +1564,9 @@ html,body{max-width:100%;overflow-x:hidden}
   };
 
   const pausa = ms => new Promise(resolve => window.setTimeout(resolve, ms));
-  const paginaAberta = () => window.location.pathname.includes('/p/painel-tea/');
+  // Cópia aberta: /p/painel-tea/ no Hub ou a Open Page em open.grupocsv.com/painel-tea/.
+  const paginaAberta = () => window.location.pathname.includes('/p/painel-tea/')
+    || (window.location.hostname === 'open.grupocsv.com' && window.location.pathname.startsWith('/painel-tea'));
   const lerStorage = (storage, key) => {
     try { return storage.getItem(key); } catch (_e) { return null; }
   };

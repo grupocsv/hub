@@ -45,6 +45,9 @@ jobs:
           python3 scripts/build-tea-data.py --emit-p
           git diff --exit-code -- p/painel-tea/index.html
 
+      - name: Check Open Pages copies of the TEA panel and Data Set
+        run: python3 scripts/build-open-pages.py --check
+
       - name: Validate Terapias Especiais artifacts
         run: python3 scripts/check-tea-artifacts.py
 
