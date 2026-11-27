@@ -1,0 +1,22 @@
+{
+  "_comment": "Escopos do build da Cloudflare (plano de seguranca do Hub). Fonte unica para scope.mts, tema e scripts/cloudflare. Sem HUB_BUILD_SCOPE nada disto vale (build do GitHub Pages).",
+  "order": ["main", "infra", "founder", "public", "unimed", "unihealth", "icds"],
+  "owned": {
+    "infra": ["_infra"],
+    "founder": ["founder"],
+    "public": ["compass", "signal", "compliance"],
+    "unimed": ["unimed"],
+    "unihealth": ["unihealth"],
+    "icds": ["icds"]
+  },
+  "assets": {
+    "main": "_main/_static",
+    "infra": "_infra/_static",
+    "founder": "founder/_static",
+    "public": "_public/_static",
+    "unimed": "unimed/_static",
+    "unihealth": "unihealth/_static",
+    "icds": "icds/_static"
+  },
+  "default_assets": "assets"
+}

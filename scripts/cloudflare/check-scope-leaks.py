@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """Confere que nenhum build por escopo leva paginas, busca ou codigo de
-outro escopo. Roda sobre a pasta com dist-main, dist-infra, dist-founder e
-dist-public. Sai com erro ao primeiro vazamento encontrado em cada escopo.
+outro escopo. Roda sobre a pasta com os dist-<escopo> listados em
+docs/.vitepress/scopes.json. Sai com erro ao primeiro vazamento encontrado em cada escopo.
 """
 import json
 import re
 import sys
 from pathlib import Path
 
-SCOPES = ["main", "infra", "founder", "public"]
-SCOPE_ASSETS = {
-    "main": "assets",
-    "infra": "_infra/_static",
-    "founder": "founder/_static",
-    "public": "_public/_static",
-}
-KEY_PREFIX = {"infra": ["infra_"], "founder": ["founder_"], "public": ["compass_", "signal_"]}
-PATH_OWNER = {"_infra": "infra", "founder": "founder", "compass": "public", "signal": "public"}
+SCOPES_FILE = Path(__file__).resolve().parents[2] / "docs/.vitepress/scopes.json"
+_SCOPES = json.loads(SCOPES_FILE.read_text(encoding="utf-8"))
+SCOPES: list = _SCOPES["order"]
+SCOPE_ASSETS: dict = _SCOPES["assets"]
+# Pasta de primeiro nivel -> escopo; a chave do hashmap do VitePress e o
+# caminho com "/" trocado por "_" e sem o "_" inicial (_infra/x.md -> infra_x.md).
+PATH_OWNER = {d: s for s, dirs in _SCOPES["owned"].items() for d in dirs}
+KEY_PREFIX: dict = {}
+for _dir, _scope in PATH_OWNER.items():
+    KEY_PREFIX.setdefault(_scope, []).append(_dir.lstrip("_") + "_")
 
 
 def key_owner(key: str) -> str:
@@ -51,8 +52,9 @@ def check(root: Path) -> list[str]:
         if wrong:
             errors.append(f"{scope}: paginas de outro escopo no build: {wrong[:5]}")
         ids = search_ids(assets)
-        # A unica pagina do fundador usa layout proprio e fica fora da busca.
-        if not ids and scope != "founder":
+        # Escopos de uma pagina so com layout proprio (fundador, portais)
+        # ficam fora da busca; os de documentacao precisam de indice.
+        if not ids and scope in {"main", "infra", "public"}:
             errors.append(f"{scope}: indice de busca vazio ou ausente")
         foreign_ids = sorted({i.split("#")[0] for i in ids if path_owner(i) != scope})
         if foreign_ids:

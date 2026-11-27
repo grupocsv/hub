@@ -35,6 +35,7 @@ class OverlayScopesTest(unittest.TestCase):
         write(vp, "_infra/index.html", page("assets"))
         write(vp, "founder/index.html", page("assets"))
         write(vp, "compass/index.html", page("assets"))
+        write(vp, "unimed/index.html", page("assets"))
         write(vp, "assets/app.OLD.js", "tudo junto: _infra founder compass")
         write(vp, "robots.txt", "User-agent: *")
         manifest = vpman.build_manifest(vp)
@@ -49,9 +50,9 @@ class OverlayScopesTest(unittest.TestCase):
         write(pages, "founder/carta.html", "estatico do fundador")
 
         scopes = tmp / "scopes"
-        write(scopes, "dist-main/index.html", page("assets"))
+        write(scopes, "dist-main/index.html", page("_main/_static"))
         write(scopes, "dist-main/_infra/index.html", "nao deveria entrar")
-        write(scopes, "dist-main/assets/app.M.js", "main")
+        write(scopes, "dist-main/_main/_static/app.M.js", "main")
         write(scopes, "dist-main/robots.txt", "User-agent: *")
         write(scopes, "dist-infra/_infra/index.html", page(infra_assets))
         write(scopes, "dist-infra/_infra/_static/app.I.js", "infra")
@@ -60,6 +61,12 @@ class OverlayScopesTest(unittest.TestCase):
         write(scopes, "dist-founder/founder/_static/app.F.js", "founder")
         write(scopes, "dist-public/compass/index.html", page("_public/_static"))
         write(scopes, "dist-public/_public/_static/app.P.js", "public")
+        write(pages, "unimed/index.html", page("assets"))
+        write(pages, "unimed/drg.html", "estatico do portal")
+        write(scopes, "dist-unimed/unimed/index.html", page("unimed/_static"))
+        write(scopes, "dist-unimed/unimed/_static/app.U.js", "unimed")
+        for portal in ("unihealth", "icds"):
+            (scopes / f"dist-{portal}").mkdir(parents=True)
         dirs = {s: scopes / f"dist-{s}" for s in overlay.SCOPES}
         return pages, manifest, dirs
 
@@ -79,6 +86,9 @@ class OverlayScopesTest(unittest.TestCase):
             self.assertIn("/_public/_static/", (out / "compass/index.html").read_text())
             self.assertTrue((out / "_public/_static/app.P.js").exists())
             self.assertEqual((out / "robots.txt").read_text(), "User-agent: *")
+            self.assertIn("/unimed/_static/", (out / "unimed/index.html").read_text())
+            self.assertEqual((out / "unimed/drg.html").read_text(), "estatico do portal")
+            self.assertTrue((out / "_main/_static/app.M.js").exists())
 
     def test_fails_when_page_loads_code_of_another_scope(self):
         with tempfile.TemporaryDirectory() as t:

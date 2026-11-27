@@ -419,7 +419,7 @@ jobs:
           # O artefato do Pages tem que sair daqui identico.
           (cd docs/.vitepress/dist && find . -type f -print0 | sort -z | xargs -0 sha256sum) > "$RUNNER_TEMP/pages-before.sha"
           # Um build por escopo, cada um com seus arquivos e sua busca.
-          for scope in main infra founder public; do
+          for scope in $(python3 -c "import json;print(' '.join(json.load(open('docs/.vitepress/scopes.json'))['order']))"); do
             HUB_BUILD_SCOPE="$scope" npx vitepress build docs
           done
           python3 scripts/cloudflare/check-scope-leaks.py docs/.vitepress
@@ -487,6 +487,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     continue-on-error: true
+    # O segredo fica no environment hub-staging, liberado so para a main.
+    environment:
+      name: hub-staging
     permissions:
       contents: read
       actions: read
@@ -513,8 +516,40 @@ jobs:
           name: hub-cloudflare
           path: dist-cloudflare
 
+      - name: Conferir a porta do Access antes de publicar
+        if: ${{ steps.gate.outputs.enabled == 'true' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
+        run: python3 scripts/cloudflare/check-access-gate.py da0c29123f448f3c3892f784cd9f7cac hub-staging.grupocsv.com
+
       - name: Publicar Hub de teste
         if: ${{ steps.gate.outputs.enabled == 'true' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
-        run: npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc
+        run: |
+          # O Hub de teste nunca entra em buscadores.
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' >> dist-cloudflare/_headers
+          npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc
+
+      - name: Conferir que o Hub de teste pede login
+        if: ${{ steps.gate.outputs.enabled == 'true' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
+        run: |
+          set -u
+          fail=0
+          for path in / /_infra/ /founder/ /_main/_static/ /unimed/; do
+            code="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "https://hub-staging.grupocsv.com${path}")"
+            case "$code" in
+              302\ https://*.cloudflareaccess.com/*) echo "ok  ${path} -> login do Access" ;;
+              *) echo "::error::${path} respondeu sem pedir login: ${code}"; fail=1 ;;
+            esac
+          done
+          if [ "$fail" -ne 0 ]; then
+            # Fecha o Hub de teste em vez de deixa-lo aberto.
+            mkdir -p hub-fechado
+            printf '<!doctype html><meta name="robots" content="noindex"><title>Hub de teste</title><p>Fechado.</p>\n' > hub-fechado/index.html
+            printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > hub-fechado/_headers
+            npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc --assets hub-fechado
+            exit 1
+          fi
