@@ -17,3 +17,5 @@ unimed/data/raw/
 **/dados-brutos*/
 dist-cloudflare/
 cloudflare-assets-report.json
+docs/.vitepress/dist-*/
+cloudflare-overlay-report.json

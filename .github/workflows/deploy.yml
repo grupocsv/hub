@@ -128,6 +128,12 @@ jobs:
       - name: Build with VitePress
         run: npm run docs:build
 
+      # Plano de seguranca do Hub: lista do que o VitePress gerou, usada so
+      # para montar o artefato da Cloudflare. Nao altera o build do Pages.
+      - name: Registrar arquivos do VitePress (Cloudflare)
+        continue-on-error: true
+        run: python3 scripts/cloudflare/vp-manifest.py docs/.vitepress/dist "$RUNNER_TEMP/vp-manifest.json"
+
       - name: Reject Compass generated artifact drift
         run: |
           git diff --exit-code -- docs/compass
@@ -403,13 +409,34 @@ jobs:
       # Fase 1 do plano de seguranca do Hub: validacao sem efeito para a
       # hospedagem na Cloudflare. Nao bloqueia o build nem o deploy do Pages.
       - name: Preparar artefato para a Cloudflare (sem publicar)
+        id: cloudflare_prepare
         continue-on-error: true
         run: |
+          set -euo pipefail
           python3 -m unittest discover -s tests/cloudflare -p 'test_*.py'
-          python3 scripts/cloudflare/prepare-assets.py --src docs/.vitepress/dist --out dist-cloudflare --report cloudflare-assets-report.json
+          # O artefato do Pages tem que sair daqui identico.
+          (cd docs/.vitepress/dist && find . -type f -print0 | sort -z | xargs -0 sha256sum) > "$RUNNER_TEMP/pages-before.sha"
+          # Um build por escopo, cada um com seus arquivos e sua busca.
+          for scope in main infra founder public; do
+            HUB_BUILD_SCOPE="$scope" npx vitepress build docs
+          done
+          python3 scripts/cloudflare/check-scope-leaks.py docs/.vitepress
+          (cd docs/.vitepress/dist && find . -type f -print0 | sort -z | xargs -0 sha256sum) > "$RUNNER_TEMP/pages-after.sha"
+          if ! cmp -s "$RUNNER_TEMP/pages-before.sha" "$RUNNER_TEMP/pages-after.sha"; then
+            echo "::error::os builds por escopo alteraram o artefato do Pages"
+            exit 1
+          fi
+          python3 scripts/cloudflare/overlay-scopes.py \
+            --pages docs/.vitepress/dist \
+            --manifest "$RUNNER_TEMP/vp-manifest.json" \
+            --scopes docs/.vitepress \
+            --out "$RUNNER_TEMP/hub-scoped" \
+            --report cloudflare-overlay-report.json
+          python3 scripts/cloudflare/prepare-assets.py --src "$RUNNER_TEMP/hub-scoped" --out dist-cloudflare --report cloudflare-assets-report.json
           {
             echo "### Artefato para a Cloudflare"
             echo '```json'
+            cat cloudflare-overlay-report.json
             cat cloudflare-assets-report.json
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -417,6 +444,15 @@ jobs:
       - name: Validar configuracao do Worker de teste (dry-run)
         continue-on-error: true
         run: npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc --dry-run
+
+      - name: Guardar artefato da Cloudflare
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.cloudflare_prepare.outcome == 'success' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: hub-cloudflare
+          path: dist-cloudflare
+          retention-days: 3
 
       - name: Upload artifact
         if: ${{ github.event_name != 'pull_request' }}
@@ -468,19 +504,15 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Baixar artefato do build
+      - name: Baixar artefato da Cloudflare
         if: ${{ steps.gate.outputs.enabled == 'true' }}
         uses: actions/download-artifact@v4
         with:
-          name: github-pages
-          path: pages-artifact
+          name: hub-cloudflare
+          path: dist-cloudflare
 
       - name: Publicar Hub de teste
         if: ${{ steps.gate.outputs.enabled == 'true' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_HUB_STAGING_TOKEN }}
-        run: |
-          mkdir -p site
-          tar -xf pages-artifact/artifact.tar -C site
-          python3 scripts/cloudflare/prepare-assets.py --src site --out dist-cloudflare --report cloudflare-assets-report.json
-          npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc
+        run: npx --yes wrangler@4.168.0 deploy --config cloudflare/hub-staging.wrangler.jsonc
