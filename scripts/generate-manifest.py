@@ -45,6 +45,7 @@ PRIORITY_RULES = [
 # Arquivos e diretórios a ignorar
 IGNORE_PATTERNS = [
     "node_modules",
+    "_arquivo/",
     ".git",
     ".vitepress",
     "scripts/",
@@ -174,7 +175,7 @@ def get_html_title(filepath):
 
 
 # Diretórios que não contêm páginas de produto (não escanear por meta tags)
-HTML_SCAN_EXCLUDE_DIRS = {"node_modules", "docs", "scripts"}
+HTML_SCAN_EXCLUDE_DIRS = {"node_modules", "docs", "scripts", "_arquivo"}
 
 
 def discover_product_pages(repo_root):
