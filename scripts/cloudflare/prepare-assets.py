@@ -19,7 +19,23 @@ MAX_FILES_FREE = 20_000
 SKIP_NAMES = {"CNAME", ".nojekyll"}
 
 
-def prepare(src: Path, out: Path, redirect_base: str) -> dict:
+def read_extra_redirects(path: Path | None) -> list[str]:
+    """Regras fixas do Hub (cloudflare/hub-redirects), sem comentarios nem linhas vazias."""
+    if path is None:
+        return []
+    rules = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) != 3 or not parts[0].startswith("/") or parts[2] not in {"301", "302", "307", "308"}:
+            raise SystemExit(f"regra de redirecionamento invalida: {raw!r}")
+        rules.append(" ".join(parts))
+    return rules
+
+
+def prepare(src: Path, out: Path, redirect_base: str, extra_redirects: list[str] | None = None) -> dict:
     if not src.is_dir():
         raise SystemExit(f"diretorio de origem inexistente: {src}")
     if out.exists():
@@ -43,7 +59,8 @@ def prepare(src: Path, out: Path, redirect_base: str) -> dict:
         total += size
     redirects = out / "_redirects"
     existed = redirects.exists()
-    lines = redirects.read_text(encoding="utf-8").splitlines() if existed else []
+    lines = list(extra_redirects or [])
+    lines += redirects.read_text(encoding="utf-8").splitlines() if existed else []
     for item in oversized:
         lines.append(f"{item['path']} {redirect_base.rstrip('/')}{item['path']} 302")
     if lines:
@@ -58,6 +75,7 @@ def prepare(src: Path, out: Path, redirect_base: str) -> dict:
         "within_file_limit": copied <= MAX_FILES_FREE,
         "oversized_redirected": oversized,
         "redirect_base": redirect_base,
+        "extra_redirects": len(extra_redirects or []),
     }
 
 
@@ -67,8 +85,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default="dist-cloudflare")
     parser.add_argument("--redirect-base", default="https://assets.grupocsv.com/hub")
     parser.add_argument("--report", default="cloudflare-assets-report.json")
+    parser.add_argument("--extra-redirects", default=None, help="arquivo de regras fixas, postas antes das demais")
     args = parser.parse_args(argv)
-    report = prepare(Path(args.src), Path(args.out), args.redirect_base)
+    extra = read_extra_redirects(Path(args.extra_redirects) if args.extra_redirects else None)
+    report = prepare(Path(args.src), Path(args.out), args.redirect_base, extra)
     Path(args.report).write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["within_file_limit"] else 1

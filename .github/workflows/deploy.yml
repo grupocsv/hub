@@ -45,6 +45,9 @@ jobs:
           python3 scripts/build-tea-data.py --emit-p
           git diff --exit-code -- p/painel-tea/index.html
 
+      - name: Check Open Pages copies of the TEA panel and Data Set
+        run: python3 scripts/build-open-pages.py --check
+
       - name: Validate Terapias Especiais artifacts
         run: python3 scripts/check-tea-artifacts.py
 
@@ -434,7 +437,7 @@ jobs:
             --scopes docs/.vitepress \
             --out "$RUNNER_TEMP/hub-scoped" \
             --report cloudflare-overlay-report.json
-          python3 scripts/cloudflare/prepare-assets.py --src "$RUNNER_TEMP/hub-scoped" --out dist-cloudflare --report cloudflare-assets-report.json
+          python3 scripts/cloudflare/prepare-assets.py --src "$RUNNER_TEMP/hub-scoped" --out dist-cloudflare --report cloudflare-assets-report.json --extra-redirects cloudflare/hub-redirects
           {
             echo "### Artefato para a Cloudflare"
             echo '```json'
