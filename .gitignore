@@ -15,3 +15,7 @@ unimed/data/raw/
 **/*beneficiario*
 **/insumo-te/
 **/dados-brutos*/
+dist-cloudflare/
+cloudflare-assets-report.json
+docs/.vitepress/dist-*/
+cloudflare-overlay-report.json

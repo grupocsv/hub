@@ -1,3 +1,4 @@
+declare const __HUB_SCOPE__: string | undefined
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import './custom.css'
@@ -6,8 +7,24 @@ import CompassEdition from './components/CompassEdition.vue'
 
 export default {
   extends: DefaultTheme,
-  enhanceApp({ app }) {
+  enhanceApp({ app, router }) {
     app.component('CompassEdition', CompassEdition)
+
+    // Builds por escopo (plano de seguranca do Hub): uma pagina de outro
+    // escopo nao existe neste app, entao a navegacao vira carregamento normal.
+    if (typeof window !== 'undefined' && typeof __HUB_SCOPE__ !== 'undefined') {
+      const owners: Record<string, string> = {
+        _infra: 'infra', founder: 'founder', compass: 'public', signal: 'public',
+      }
+      router.onBeforeRouteChange = (to: string) => {
+        const url = new URL(to, window.location.href)
+        const owner = owners[url.pathname.replace(/^\/+/, '').split('/')[0]] ?? 'main'
+        if (owner !== __HUB_SCOPE__) {
+          window.location.href = url.href
+          return false
+        }
+      }
+    }
 
     // Mitigação de chunk obsoleto pós-deploy (mitigação oficial do Vite:
     // https://vite.dev/guide/troubleshooting — "Failed to fetch dynamically

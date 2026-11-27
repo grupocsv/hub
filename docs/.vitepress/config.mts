@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import compassCatalog from '../compass/catalog.json'
 import partnerPortals from './data/partner-portals.json'
+import { scopeOverrides, scopeSidebar } from './scope.mts'
 
 function compassSidebarLabel(edition: { slug: string; title: string }) {
   const title = edition.title.replace(/\s+/g, ' ').trim()
@@ -19,7 +20,10 @@ const activePartnerNavItems = partnerPortals.partners
     link: partner.link,
   }))
 
+const scoped = scopeOverrides()
+
 export default defineConfig({
+  ...scoped,
   title: "Hub Grupo CSV",
   description: "Portal central do ecossistema Grupo CSV - AxiaCare®, MedValor®, Thera®",
   lang: 'pt-BR',
@@ -89,7 +93,7 @@ export default defineConfig({
       },
     ],
 
-    sidebar: {
+    sidebar: scopeSidebar({
       '/compass/': [
         {
           text: 'Compass\u2122',
@@ -240,7 +244,7 @@ export default defineConfig({
           ]
         },
       ]
-    },
+    }),
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/grupocsv/hub' },
