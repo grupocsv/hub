@@ -43,6 +43,15 @@ class SignalScopeTests(unittest.TestCase):
         result, output = self.validate(markdown)
         self.assertEqual(result, 0, output)
 
+    def test_texto_aprovado_s48_com_pbv_e_aceito(self):
+        approved = json.loads((ROOT / 'tools/signal-pdf/s48-conteudo-aprovado.json').read_text(encoding='utf-8'))
+        markdown = '## Fatos Estratégicos\n\n' + '\n\n'.join(
+            f'{i}. **[{fact["tag"]}] {fact["titulo"]}** {fact["resumo"]}'
+            for i, fact in enumerate(approved['facts'], 1)
+        ) + '\n\n## PDF\n'
+        result, output = self.validate(markdown)
+        self.assertEqual(result, 0, output)
+
     def test_serpa_braz_permanece_proibido(self):
         result, output = self.validate(self.synthetic_markdown('Serpa Braz'))
         self.assertEqual(result, 1, output)
