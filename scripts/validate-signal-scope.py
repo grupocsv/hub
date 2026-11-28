@@ -27,7 +27,8 @@ FORBIDDEN_INTERNAL_TOPICS = {
 INSTITUTIONAL_ANCHORS = re.compile(
     r"Unimed|Unihealth|Escritório de Valor|\bEVS\b|operadora|beneficiário|paciente|"
     r"médic[oa]s?|assistencial|cuidado|Ymunity|\bDRG\b|\bRMBV\b|PPE-15|\bTEA\b|"
-    r"Assessment 2iM|Hi! Healthcare|\bVPD\b|\bAtenção Primária à Saúde\b",
+    r"Assessment 2iM|Hi! Healthcare|\bVPD\b|\bAtenção Primária à Saúde\b|"
+    r"\bcooperad[oa]s?\b|Pagamento Baseado em Valor",
     re.IGNORECASE,
 )
 
